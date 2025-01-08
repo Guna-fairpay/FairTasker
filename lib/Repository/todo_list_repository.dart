@@ -1,0 +1,2897 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+import 'package:fairpytasker/Response/chat_message_response.dart';
+import 'package:fairpytasker/Response/create_expense_field_data.dart';
+import 'package:fairpytasker/Response/create_todo_params.dart';
+import 'package:fairpytasker/Response/create_todo_status_response.dart';
+import 'package:fairpytasker/Response/cumulative_cost_response.dart';
+import 'package:fairpytasker/Response/expense_summary_details_response.dart';
+import 'package:fairpytasker/Response/expense_summary_response.dart';
+import 'package:fairpytasker/Response/location_response.dart';
+import 'package:fairpytasker/Response/maintenance_check_list_response.dart';
+import 'package:fairpytasker/Response/parts_response.dart';
+import 'package:fairpytasker/Response/supplies_response.dart';
+import 'package:fairpytasker/Response/task_detail_response.dart';
+import 'package:fairpytasker/Response/task_expense_response.dart';
+import 'package:fairpytasker/Response/task_history_response.dart';
+import 'package:fairpytasker/Response/task_history_configuration_response.dart';
+import 'package:fairpytasker/Response/user_group_response.dart';
+import 'package:fairpytasker/Response/vehicle_status_config_response.dart';
+import 'package:fairpytasker/Response/vendor_response.dart';
+import 'package:fairpytasker/Response/voice_response.dart';
+import 'package:fairpytasker/Response/working_history_count_response.dart';
+import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/Response/categories_response.dart';
+import 'package:fairpytasker/Response/subcategories_response.dart';
+import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
+import 'package:fairpytasker/data/api_client.dart';
+import 'package:fairpytasker/main.dart';
+import 'package:fairpytasker/Response/assigned_to_response.dart';
+import 'package:fairpytasker/Response/general_response.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+
+import '../Response/GetActiveHoursResponse.dart';
+import '../Response/GetWorkingHoursData.dart';
+import '../Response/branch_response.dart';
+import '../Response/checklist_response.dart';
+import '../Response/cohorts_response.dart';
+import '../Response/expense_other_categories.dart';
+import '../Response/expense_other_response.dart';
+import '../Response/expense_person_response.dart';
+import '../Response/expense_response.dart';
+import '../Response/finance_statement_response.dart';
+import '../Response/payment_response.dart';
+import '../Response/todo_list_response.dart';
+import '../Response/vehicle_list_response.dart';
+import '../Response/vehicle_miscellaneous_response.dart';
+import '../Response/vehicle_status_checklist_response.dart';
+import '../Response/vehicle_status_response.dart';
+import '../Response/vehicle_status_response_list.dart';
+import '../Response/working_history_response.dart';
+import '../Response/working_hours_get_response.dart';
+import 'cohorts_repository.dart';
+
+class TodoListRepo {
+  ApiClient apiClient = ApiClient();
+  String? selectedHours;
+  String? chosenDateTimeString;
+  DateTime? chosenDateTime;
+  String? startTimeTFString;
+  // DateTime? chosenStartingDateTime;
+  String? endTimeString;
+  String? endTimeTFString;
+  bool isVehicleEdit = false;
+  List<Map<String, dynamic>> vehicleHistoryTempSearchList = [];
+  int? branch;
+
+  Future<bool?> updatePartsForItem(int todoId, String name) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
+
+      String body = jsonEncode({"parts": name, "type": "inline"});
+      debugPrint("updatePartsForItem apiUrl: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // debugPrint('updatePartsForItem api.response.body: ${response.body}');
+          // debugPrint('updatePartsForItem api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updatePartsForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> updateSupplyForItem(
+      int todoId, List<Map<String, dynamic>> partList) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
+      // PartsData().toJsonList(partList);
+      String body = jsonEncode({"supplies": partList, "type": "inline"});
+      debugPrint("updateSupplyForItem apiUrl: $apiUrl");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // debugPrint('updateSupplyForItem api.response.body: ${response.body}');
+          // debugPrint('updateSupplyForItem api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updateSupplyForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> updateVehicleGroupForItem(
+      int vehicleGroupId, List<String> vinList, String name) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}group-Vehicle/$vehicleGroupId';
+      // PartsData().toJsonList(partList);
+      String body = jsonEncode({"name": name, "vin": vinList});
+      // debugPrint("updateSupplyForItem apiUrl: $apiUrl");
+      // debugPrint("updateSupplyForItem body: $body");
+
+      final http.Response? response =
+      await apiClient.callPutMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // debugPrint('updateSupplyForItem api.response.body: ${response.body}');
+          // debugPrint('updateSupplyForItem api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updateSupplyForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deletePartsOrSupplyForItem(
+      int partsOrSupplyId, String type) async {
+    try {
+      String apiUrl;
+      if (type == 'part') {
+        apiUrl = '${Str.BASE_URL}delete-Vehicle-parts/$partsOrSupplyId';
+      } else {
+        apiUrl = '${Str.BASE_URL}delete-supplies/$partsOrSupplyId';
+      }
+      // debugPrint("deletePartsOrSupplyForItem apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // debugPrint('deletePartsOrSupplyForItem api.response.body: ${response.body}');
+          // debugPrint('deletePartsOrSupplyForItem api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('deletePartsOrSupplyForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CreateExpenseFieldData?> fetchDropdownValues() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}getCohortsData';
+      debugPrint("fetchDropdownValues apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          // debugPrint('fetchDropdownValues api.response.body: ${response.body}');
+          // debugPrint('fetchDropdownValues api.statusCode: ${response.statusCode}');
+
+          CreateExpenseFieldData cohortsResponse =
+          CreateExpenseFieldData.fromJson(json.decode(response.body));
+
+          return cohortsResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('getProfileAPI.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VehicleGroupingResponse?> fetchVehicleGroupingList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}group-Vehicle';
+      debugPrint("fetchVehicleGroupingList apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        // debugPrint('fetchVehicleGroupingList api.statusCode: ${response.statusCode}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // debugPrint('fetchVehicleGroupingList api.response.body: ${response.body}');
+
+          VehicleGroupingResponse vehicleGroupingResponse =
+          VehicleGroupingResponse.fromJson(json.decode(response.body));
+
+          return vehicleGroupingResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      // debugPrint('fetchVehicleGroupingList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VehicleStatusResponse?> fetchVehicleStatusCategoryList() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}vehicle_status/categories';
+      // debugPrint("fetchVehicleStatusCategoryList apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        // debugPrint('fetchVehicleStatusCategoryList api.statusCode: ${response.statusCode}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // debugPrint('fetchVehicleStatusCategoryList api.response.body: ${response.body}');
+
+          VehicleStatusResponse vehicleStatusResponse =
+          VehicleStatusResponse.fromJson(json.decode(response.body));
+
+          return vehicleStatusResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint(
+          'fetchVehicleStatusCategoryList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<UserGroupResponse?> fetchUserGroupingList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}group-person';
+      debugPrint("fetchUserGroupingList apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          UserGroupResponse userGroupResponse =
+          UserGroupResponse.fromJson(json.decode(response.body));
+          return userGroupResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('fetchUserGroupingList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VehicleListResponse?> fetchVehicleList() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}active_vehicles';
+      debugPrint("fetchVehicleList apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          VehicleListResponse vehicleListResponse =
+          VehicleListResponse.fromJson(json.decode(response.body));
+
+          return vehicleListResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('fetchVehicleList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TodoListResponse?> callTodoListAPI(
+      String? selectedDate, String? status, String? resourceId) async {
+    try {
+      String apiUrl;
+      Utils.getIntPreference(Str.branchIdPrefText).then((branchId) {
+        branch = branchId;
+      });
+
+      if (resourceId != null && resourceId != '') {
+        resourceId.replaceAll('-1,', '');
+
+        apiUrl =
+        "${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
+
+        ///
+        // apiUrl = "${Str.BASE_URL}todo-data?date=${selectedDate ?? DateTime.now()}&status=$status";
+        // apiUrl = "${Str.BASE_URL}todo-data?resource=&date=2024-02-18&status=In+Progress";
+      } else {
+        apiUrl =
+        "${Str.BASE_URL}todo-data?date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
+
+        ///+Progress&branch_id=$branch
+      }
+      debugPrint("callTodoListAPI apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        if (response.statusCode == 200) {
+          TodoListResponse todoListResponse =
+          TodoListResponse.fromJson(json.decode(response.body));
+          if (todoListResponse.status != 200 &&
+              todoListResponse.status != 201) {
+            Utils.showNoResultFound();
+            return null;
+          } else {
+            debugPrint('---------------> ${todoListResponse.status!}');
+            return todoListResponse;
+          }
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callLoginAPI.exception1 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskHistoryResponse?> getWorkingTaskHistory(
+      String start, String end, String userId) async {
+    try {
+      String apiUrl =
+          "${Str.BASE_URL}employeeTaskHistory?user_id=$userId&from=$start&to=$end";
+      debugPrint("getWorkingTaskHistory apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+
+        TaskHistoryResponse taskHistoryResponse =
+        TaskHistoryResponse.fromJson(jsonDecode(response.body));
+        // if (employeeTaskHistoryResponse) {
+        return taskHistoryResponse;
+        /*}else {
+            Utils.showNoResultFound();
+            debugPrint('---------------> ${employeeTaskHistoryResponse.status!}');
+            return null;
+          }*/
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingTaskHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<WorkingHistoryResponse?> getWorkingHistory(
+      String start, String end) async {
+    try {
+      String apiUrl =
+          "${Str.GOPORTAL_BASE_URL}employeeWorkHours?startDate=$start&endDate=$end";
+      debugPrint("getWorkingHistory apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+
+        WorkingHistoryResponse assignedToResponse =
+        WorkingHistoryResponse.fromJson(json.decode(response.body));
+        if ((assignedToResponse.status ?? false)) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint('---------------> ${assignedToResponse.status!}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskHistoryConfigurationResponse?>
+  getTaskHistoryConfiguration() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getConfiguration";
+      debugPrint("getTaskHistoryConfiguration apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+
+        TaskHistoryConfigurationResponse configurationResponse =
+        TaskHistoryConfigurationResponse.fromJson(
+            json.decode(response.body));
+        // if (configurationResponse != null) {
+        return configurationResponse;
+        /*}else {
+            Utils.showNoResultFound();
+            debugPrint('---------------> ${assignedToResponse.status!}');
+            return null;
+          }*/
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskHistoryConfiguration.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
+
+  Future<VehicleStatusResponseList?> getVehicleStatus() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicleStatusApi";
+      debugPrint("getVehicleStatus apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        VehicleStatusResponseList assignedToResponse =
+        VehicleStatusResponseList.fromJson(json.decode(response.body));
+
+        return assignedToResponse;
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVehicleStatus.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VehicleStatusChecklistResponse?> getVehicleStatusCheckList(
+      String? vinNumber) async {
+    try {
+      String apiUrl =
+          "${Str.LIST_BASE_URL}vehicle_status_checklist_api/$vinNumber";
+      debugPrint("getVehicleStatusCheckList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+
+        VehicleStatusChecklistResponse vehicleStatusChecklistResponse =
+        VehicleStatusChecklistResponse.fromJson(json.decode(response.body));
+        if ((vehicleStatusChecklistResponse.data != null)) {
+          return vehicleStatusChecklistResponse;
+        } else {
+          Utils.showNoResultFound();
+          // debugPrint('getVehicleStatus ${assignedToResponse.status!}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVehicleStatusCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> getVehicleActiveStatus(
+      String? vinNumber, int? vehicleStatus) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicleActiveStatus";
+      String body =
+      jsonEncode({"vin": vinNumber, "vehicle_status": vehicleStatus});
+      debugPrint("getVehicleActiveStatus apiUrl: $apiUrl");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // VehicleStatusChecklistResponse vehicleStatusChecklistResponse =
+          // VehicleStatusChecklistResponse.fromJson(json.decode(response.body));
+          // if ((vehicleStatusChecklistResponse.data != null)) {
+          //   return vehicleStatusChecklistResponse.data;
+          // }else {
+          //   Utils.showNoResultFound();
+          // debugPrint('getVehicleStatus ${assignedToResponse.status!}');
+          // return null;
+          // }
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVehicleStatusCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+//--
+  Future<bool?> deleteTaskConfiguration(int? id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}delete-configuration/$id";
+
+      debugPrint("deleteTaskConfiguration apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // VehicleStatusChecklistResponse vehicleStatusChecklistResponse =
+          // VehicleStatusChecklistResponse.fromJson(json.decode(response.body));
+          // if ((vehicleStatusChecklistResponse.data != null)) {
+          //   return vehicleStatusChecklistResponse.data;
+          // }else {
+          //   Utils.showNoResultFound();
+          // debugPrint('getVehicleStatus ${assignedToResponse.status!}');
+          // return null;
+          // }
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('deleteTaskConfiguration.exception : ${error.toString()}');
+      return null;
+    }
+  }
+  //---
+
+  Future<CreateTodoStatusResponse?> getVehicleCreateStatusTodo(
+      int? categoryId,
+      int? cohortId,
+      String? cohortName,
+      int? userId,
+      String? vehImage,
+      String? vehName,
+      String? vinNumber,
+      bool? isCreate,
+      {String? categoryName,
+        int? soldId}) async {
+    try {
+      String apiUrl = '';
+      if (isCreate!) {
+        apiUrl = "${Str.BASE_URL}create-status-todo";
+      } else {
+        apiUrl = "${Str.BASE_URL}update-status-todo";
+      }
+      String body = jsonEncode({
+        "vin": vinNumber,
+        "category_id": categoryId,
+        "cohort_id": cohortId,
+        "cohort_name": cohortName,
+        "user_id": userId == 1 ? 2 : userId,
+        "vehicle_image": vehImage,
+        "vehicle_name": vehName
+      });
+      debugPrint("getVehicleCreateStatusTodo apiUrl: $apiUrl");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      // debugPrint('getVehicleCreateStatusTodo api.statusCode: ${response!.statusCode}');
+      // debugPrint('getVehicleCreateStatusTodo api.response.body1: ${response!.body}');
+      if (response != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        if (categoryName == 'PreSale') {
+          CreateTodoParams createTodoParams =
+          CreateTodoParams(vin: vinNumber, vehicleStatusCategory: soldId);
+          bool? result = await vehicleStatusUpdate(createTodoParams);
+          return result == true ? CreateTodoStatusResponse() : null;
+          // return await vehicleStatusUpdate(createTodoParams) ? CreateTodoStatusResponse() : null;
+        } else {
+          debugPrint(
+              'getVehicleCreateStatusTodo api.response.body1: ${response.body}');
+          CreateTodoStatusResponse createTodoStatusResponse =
+          CreateTodoStatusResponse.fromJson(json.decode(response.body));
+          return createTodoStatusResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVehicleCreateStatusTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskDetailResponse?> getTaskDetailData(int? id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}edit-todo/$id";
+
+      debugPrint("getVehicleCreateStatusTodo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        TaskDetailResponse taskDetailResponse =
+        TaskDetailResponse.fromJson(json.decode(response.body));
+        return taskDetailResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVehicleCreateStatusTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> addVehicleCreateTodo(
+      int? checklistId,
+      int? categoryId,
+      int? cohortId,
+      String? status,
+      int? userId,
+      String? title,
+      String? vehName,
+      String? vinNumber,
+      String? todoTime,
+      String? startAt,
+      int? statusId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+
+      String body = jsonEncode({
+        "vehicle_status_checklist": checklistId,
+        "vehicle_status_category": categoryId,
+        "status": status,
+        "vehicle_status_id": statusId,
+        "vin": vinNumber,
+        "title": title,
+        "user_id": int.parse(userIdGlobal) == 1 ? 2 : 1,
+        "cohort_id": cohortId,
+        "start_at": startAt,
+        "todo_time": todoTime,
+        "vehicle_name": vehName
+      });
+      // debugPrint("addVehicleCreateTodo apiUrl: $apiUrl");
+      // debugPrint("addVehicleCreateTodo apiUrl: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      debugPrint(
+          'addVehicleCreateTodo api.statusCode: ${response!.statusCode}');
+      //debugPrint('addVehicleCreateTodo api.response.body1: ${response.body}');
+      print("Create Todo:${response.body}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('addVehicleCreateTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> selectedVehicleCategories(String? vinNumber, int? categoryId,
+      int? checkboxValue, List<int>? categoryIds, int? isApi) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle_config/select_categories";
+      String body = jsonEncode({
+        "vin": vinNumber,
+        "category_id": categoryId,
+        "checkbox_value": checkboxValue,
+        "isApi": isApi,
+        "categoryIds": categoryIds
+      });
+
+      // debugPrint("selectedVehicleCategories apiUrl: $apiUrl");
+      // debugPrint("selectedVehicleCategories body: $body");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null && response.statusCode == 200) {
+        // if (response.statusCode == 200) {
+        //  debugPrint('selectedVehicleCategories api.response.body1: ${response.body}');
+        // debugPrint('selectedVehicleCategories api.statusCode: ${response.statusCode}');
+
+        return true;
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('selectedVehicleCategories.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VehicleStatusConfigResponse?> getVehicleStatusConfigList(
+      String? vinNumber) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle_config/categories";
+      String body = jsonEncode({"vin": vinNumber});
+
+      debugPrint("getVehicleStatusConfigList apiUrl: $apiUrl");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        //  debugPrint('getVehicleStatusConfigList api.response.body1: ${response.body}');
+        // debugPrint('getVehicleStatusConfigList api.statusCode: ${response.statusCode}');
+
+        VehicleStatusConfigResponse vehicleStatusChecklistResponse =
+        VehicleStatusConfigResponse.fromJson(json.decode(response.body));
+
+        return vehicleStatusChecklistResponse;
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVehicleStatusConfigList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> reorderVehicleStatusCheckList(
+      String? vinNumber, int? categoryId, List<dynamic>? orderList) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle_config/checklist_reorder";
+      String body = jsonEncode({
+        "vin": vinNumber,
+        "categoryId": categoryId,
+        "orderChecklist": orderList
+      });
+
+      // debugPrint("reorderVehicleStatusCheckList apiUrl: $apiUrl");
+      // debugPrint("reorderVehicleStatusCheckList body: $body");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          //  debugPrint('reorderVehicleStatusCheckList api.response.body1: ${response.body}');
+          // debugPrint('reorderVehicleStatusCheckList api.statusCode: ${response.statusCode}');
+
+/*
+          VehicleStatusConfigResponse vehicleStatusChecklistResponse =
+          VehicleStatusConfigResponse.fromJson(json.decode(response.body));
+*/
+
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('reorderVehicleStatusCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> vehicleStatusCheckListCheck(
+      String? vinNumber,
+      int? categoryId,
+      bool? checked,
+      int? checkItemId,
+      String? type,
+      List<String>? categoryIds) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle_config/checklist";
+      String body = jsonEncode({
+        "vin": vinNumber,
+        "categoryIds": categoryIds,
+        "category_id": categoryId,
+        "checkbox_value": (checked! ? 1 : 0),
+        if (type != null) "type": type,
+        if (type == null) "checklist_id": checkItemId,
+        "isApi": 1
+      });
+
+      debugPrint("vehicleStatusCheckListCheck apiUrl: $apiUrl");
+      debugPrint("vehicleStatusCheckListCheck body: $body");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        debugPrint(
+            'vehicleStatusCheckListCheck api.statusCode: ${response.statusCode}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint(
+              'vehicleStatusCheckListCheck api.response.body1: ${response.body}');
+
+/*
+          VehicleStatusConfigResponse vehicleStatusChecklistResponse =
+          VehicleStatusConfigResponse.fromJson(json.decode(response.body));
+*/
+
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('vehicleStatusCheckListCheck.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VehicleMiscellaneousResponse?> getMiscellaneousVehiclesList() async {
+    try {
+      String apiUrl =
+          "${Str.LIST_BASE_URL}vehicle_config/miscellaneous_vehicles";
+      debugPrint("getMiscellaneousVehiclesList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        debugPrint(
+            'getMiscellaneousVehiclesList api.response.body1: ${response.body}');
+        debugPrint(
+            'getMiscellaneousVehiclesList api.statusCode: ${response.statusCode}');
+
+        VehicleMiscellaneousResponse vehicleMiscellaneousResponse =
+        VehicleMiscellaneousResponse.fromJson(json.decode(response.body));
+        // if ((vehicleMiscellaneousResponse.data != null)) {
+        return vehicleMiscellaneousResponse;
+        // }else {
+        //   Utils.showNoResultFound();
+        // debugPrint('getVehicleStatus ${assignedToResponse.status!}');
+        // return null;
+        // }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getMiscellaneousVehiclesList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<AssignedToResponse?> getAssignedTo() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getresources";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        AssignedToResponse assignedToResponse =
+        AssignedToResponse.fromJson(json.decode(response.body));
+        if (assignedToResponse.status == 200 ||
+            assignedToResponse.status == 201) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          //debugPrint('---------------> ${assignedToResponse.status!}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAssignedTo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<PartsResponse?> getParts() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle-parts-list";
+      debugPrint("getParts apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        PartsResponse partsResponse =
+        PartsResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return partsResponse;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint('getParts response.statusCode: ${response.statusCode}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getParts.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CategoriesResponse?> getCategories() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses_category";
+      debugPrint("getCategories apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        CategoriesResponse categoriesResponse =
+        CategoriesResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return categoriesResponse;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint(
+              'getCategories response.statusCode: ${response.statusCode}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCategories.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<SubCategoriesResponse?> getSubCategories() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses_category";
+      debugPrint("getCategories apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        debugPrint('getCategories api.statusCode: ${response.statusCode}');
+
+        SubCategoriesResponse categoriesResponse =
+        SubCategoriesResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return categoriesResponse;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint(
+              'getCategories response.statusCode: ${response.statusCode}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCategories.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<SuppliesResponse?> getSupplies() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle-supplies";
+      debugPrint("getSupplies apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        SuppliesResponse suppliesResponse =
+        SuppliesResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return suppliesResponse;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint('getSupplies response.statusCode: ${response.statusCode}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getSupplies.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskExpenseResponse?> getTaskExpense() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data";
+      debugPrint("getTaskExpense apiUrl:2 $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        TaskExpenseResponse assignedToResponse =
+        TaskExpenseResponse.fromJson(json.decode(response.body));
+        if (assignedToResponse.data != null) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskExpense.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseSummaryResponse?> getExpenseSummary(String? vinNumber) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}getVehicleExpenses/$vinNumber";
+      debugPrint("getExpenseSummary apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        log('getExpenseSummary api.response.body: ${response.body}');
+        debugPrint('getExpenseSummary api.statusCode: ${response.statusCode}');
+
+        ExpenseSummaryResponse expenseSummaryResponse =
+        ExpenseSummaryResponse.fromJson(json.decode(response.body));
+        // if (expenseSummaryResponse != null) {
+        return expenseSummaryResponse;
+        // }else {
+        //   Utils.showNoResultFound();
+        //   return null;
+        // }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getExpenseSummary.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VendorResponse?> getVendor() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vendors";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        //   debugPrint('getAssignedTo api.response.body3: ${response.body}');
+        //   debugPrint('getAssignedTo api.statusCode: ${response.statusCode}');
+
+        VendorResponse assignedToResponse =
+        VendorResponse.fromJson(json.decode(response.body));
+        if (assignedToResponse.data != null) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAssignedTo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<LocationResponse?> getLocation() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}locations";
+      debugPrint("getLocation apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        LocationResponse assignedToResponse =
+        LocationResponse.fromJson(json.decode(response.body));
+        if (assignedToResponse.data != null) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getLocation.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createATodo(CreateTodoParams createTodoParams) async {
+    try {
+      String apiUrl = '';
+      if (createTodoParams.userId != null &&
+          createTodoParams.userId!.isNotEmpty) {
+        apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.userId}";
+      } else {
+        apiUrl = "${Str.BASE_URL}add-todo";
+      }
+      String body = jsonEncode({
+        "title": createTodoParams.todoTitle,
+        if (createTodoParams.userId != null &&
+            createTodoParams.userId!.isNotEmpty)
+          "todo_date": createTodoParams.todoDate
+        else
+          "start_at": createTodoParams.todoDate,
+        if (createTodoParams.userId != null &&
+            createTodoParams.userId!.isNotEmpty)
+          "type": "Inline",
+        // if(createTodoParams.existingUserGroupId != null)
+        //   "user_group_id": createTodoParams.existingUserGroupId!.toString(),
+        "todo_time": createTodoParams.todoTime,
+        "priority": createTodoParams.priority,
+        "assigned_to": createTodoParams.assignedTo,
+        "cohort_id": createTodoParams.cohortId,
+        "cohort_name": createTodoParams.cohortName,
+        "vin": createTodoParams.vin,
+        "vehicle_name": createTodoParams.vehicleName,
+        "vehicle_image": createTodoParams.vehicleImage,
+        "repeatPeriod":
+        (createTodoParams.repeatPeriod ?? '').toString().toLowerCase(),
+        "repeatDay":
+        (createTodoParams.repeatDay ?? '').toString().toLowerCase(),
+        "repeatWeek":
+        (createTodoParams.repeatWeek ?? '').toString().toLowerCase(),
+        "weekDay": createTodoParams.weekDay,
+        "recur_monthly_type":
+        (createTodoParams.recurMonthlyType ?? '').toString().toLowerCase(),
+        "repeatDateMonth":
+        (createTodoParams.repeatDateMonth ?? '').toString().toLowerCase(),
+        "repeatMonth":
+        (createTodoParams.repeatMonth ?? '').toString().toLowerCase(),
+        "repeatDayMonth":
+        (createTodoParams.repeatDayMonth ?? '').toString().toLowerCase(),
+        "repeatDateYear":
+        (createTodoParams.repeatDateYear ?? '').toString().toLowerCase(),
+        "repeatMonthYear":
+        (createTodoParams.repeatMonthYear ?? '').toString().toLowerCase(),
+        "end_type": (createTodoParams.endType ?? '').toString().toLowerCase(),
+        "end_at": (createTodoParams.endAt ?? '').toString().toLowerCase(),
+        "end_after": (createTodoParams.endAfter ?? '').toString().toLowerCase(),
+        "reminder":
+        (createTodoParams.todoReminder ?? '').toString().toLowerCase(),
+        "person": createTodoParams.person,
+        "person_id": createTodoParams.personId,
+        "time_sensitive": createTodoParams.timeSensitive,
+        "vendor_id": createTodoParams.vendorId,
+        "vendor_name": createTodoParams.vendorName,
+        "location": createTodoParams.location,
+        "location_id": createTodoParams.locationId,
+        if (createTodoParams.multipleAddressList != null)
+          "address": createTodoParams.multipleAddressList,
+        "parts": createTodoParams.partList,
+        "supplies": createTodoParams.supplyList,
+        "notes": createTodoParams.notes.toString(),
+        "vehicle_group_id": createTodoParams.vehicleGroupId.toString(),
+        if (createTodoParams.userId != null &&
+            createTodoParams.userId!.isNotEmpty)
+          "user_group_data": createTodoParams.selectedUserGroupId == null
+              ? ''
+              : (createTodoParams.selectedUserGroupId ?? []).toString(),
+        "user_id": createTodoParams.selectedUserId == null
+            ? ''
+            : (createTodoParams.selectedUserId!).toString(),
+      });
+      debugPrint("createATodo apiUrl: $apiUrl");
+      debugPrint("createATodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint('createATodo api.response.body: ${response.body}');
+        debugPrint('createATodo api.statusCode: ${response.statusCode}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callLoginAPI.exception2 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseSummaryResponse?> getAExpenseTodo(String? expenseId) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses/$expenseId/edit";
+
+      debugPrint("getAExpenseTodo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getAExpenseTodo api.response.body: ${response.body}');
+        debugPrint('getAExpenseTodo api.statusCode: ${response.statusCode}');
+
+        ExpenseSummaryResponse expenseSummaryResponse =
+        ExpenseSummaryResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Utils.showMobileToast(generalResponse.message!);
+          return expenseSummaryResponse;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAExpenseTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseSummaryDetailResponse?> getAExpenseDetailTodo(
+      String? expenseId) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses/$expenseId/edit";
+
+      debugPrint("getAExpenseDetailTodo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getAExpenseDetailTodo api.response.body: ${response.body}');
+        debugPrint(
+            'getAExpenseDetailTodo api.statusCode: ${response.statusCode}');
+
+        ExpenseSummaryDetailResponse vehiclesData =
+        ExpenseSummaryDetailResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Utils.showMobileToast(generalResponse.message!);
+          return vehiclesData;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAExpenseDetailTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CumulativeCostResponse?> getCumulativeCostList(String? vin) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}cumulative_cost/$vin";
+
+      debugPrint("getCumulativeCostList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getCumulativeCostList api.response.body: ${response.body}');
+        debugPrint(
+            'getCumulativeCostList api.statusCode: ${response.statusCode}');
+
+        CumulativeCostResponse cumulativeCostResponse =
+        CumulativeCostResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Utils.showMobileToast(generalResponse.message!);
+          return cumulativeCostResponse;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCumulativeCostList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<WorkingHoursGetResponse?> getWorkingHourByUser(int? id) async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}getWorkingHourByUser/$id";
+
+      debugPrint("getWorkingHourByUser apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getWorkingHourByUser api.response.body: ${response.body}');
+        debugPrint(
+            'getWorkingHourByUser api.statusCode: ${response.statusCode}');
+
+        WorkingHoursGetResponse workingHoursGetResponse =
+        WorkingHoursGetResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Utils.showMobileToast(generalResponse.message!);
+          return workingHoursGetResponse;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHourByUser.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  // date: 2023-10-05
+  // time: 14:30:00
+  Future<bool?> editATodoDate(
+      String todoId,
+      String? todoDate,
+      bool? isDate,
+      String? todoTime,
+      List<String?>? resourceIdList,
+      int? resourceId,
+      String? notes,
+      String? expenseId,
+      List<int>? addresses) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      if (isDate != null) {
+        if (isDate) {
+          body = jsonEncode(
+              {"type": "Inline", "todo_date": todoDate, "todo_time": todoTime});
+        } else {
+          body = jsonEncode({"type": "Inline", "todo_time": todoTime});
+        }
+      } else if (resourceIdList != null && resourceIdList.isNotEmpty) {
+        // String jsonResourceStringList = jsonEncode(resourceIdList);
+        // debugPrint("editATodoDate jsonResourceStringList: $jsonResourceStringList");
+        // debugPrint("editATodoDate jsonResourceStringList1: ${jsonResourceStringList.toString()}");
+        body = jsonEncode(
+            {"type": "Inline", "user_group_data": resourceIdList.toString()});
+      } else if (resourceId != null) {
+        body = jsonEncode({"type": "Inline", 'user_id': resourceId.toString()});
+      } else if (expenseId != null) {
+        body = jsonEncode({"type": "Inline", 'expense_id': expenseId});
+      } else if (addresses != null) {
+        body = jsonEncode({"type": "Inline", 'address': addresses});
+      } else {
+        body = jsonEncode({"type": "Inline", 'notes': notes});
+      }
+      debugPrint("editATodoDate apiUrl: $apiUrl");
+      debugPrint("editATodoDate body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint('editATodoDate api.response.body: ${response.body}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('editATodoDate.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> editAVehiclePerson(
+      int? todoId,
+      int? todoUserId,
+      String? todoVehicleName,
+      int? cohortId,
+      String? personName,
+      String? cohortName,
+      String? vin,
+      String? vehicleImage,
+      int? vehicleGroupId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      body = jsonEncode({
+        "type": "Inline",
+        "vehicle_name": todoVehicleName ?? '',
+        "cohort_id": '${cohortId ?? 0}',
+        "person_id": '${todoUserId ?? 0}',
+        "person": personName ?? '',
+        "cohort_name": cohortName ?? '',
+        "vin": vin ?? '',
+        "vehicle_image": vehicleImage ?? '',
+        "vehicle_group_id": vehicleGroupId ?? ''
+      });
+
+      debugPrint("editAVehiclePerson apiUrl: $apiUrl");
+      debugPrint("editAVehiclePerson body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint('editAVehiclePerson api.response.body: ${response.body}');
+        debugPrint('editAVehiclePerson api.statusCode: ${response.statusCode}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('editAVehiclePerson.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> editAExpenseTodo(
+      int? todoId,
+      int? categoryId,
+      int? subCategoryId,
+      int? expenseTo,
+      String? expenseAmount,
+      String? expenseDescription,
+      String? categoryName,
+      String? subCategoryName) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      body = jsonEncode({
+        "type": "Inline",
+        "category_id": categoryId,
+        "category_name": categoryName,
+        "subcategory_id": subCategoryId,
+        "subcategory_name": subCategoryName,
+        "expense_to": expenseTo,
+        "expense_amount": expenseAmount,
+        "expense_description": expenseDescription
+      });
+
+      debugPrint("editAExpenseTodo apiUrl: $apiUrl");
+      debugPrint("editAExpenseTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint('editAExpenseTodo api.response.body: ${response.body}');
+        debugPrint('editAExpenseTodo api.statusCode: ${response.statusCode}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('editAExpenseTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> editAVendorLocation(int todoId, String? vendorName,
+      String? locationName, int? vendorId, int? locationId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      // if(vendorName == null) {
+      body = jsonEncode({
+        "type": "Inline",
+        "location": locationName ?? '',
+        "location_id": locationId ?? 0,
+        "vendor_id": vendorId ?? 0,
+        "vendor_name": vendorName ?? ''
+      });
+/*      }else{
+        body = jsonEncode({"type": "Inline", "VendorName": vendorName});
+      }*/
+      debugPrint("editAVendorLocation apiUrl: $apiUrl");
+      debugPrint("editAVendorLocation body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint('editAVendorLocation api.response.body: ${response.body}');
+        debugPrint(
+            'editAVendorLocation api.statusCode: ${response.statusCode}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('editAVendorLocation.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> swapTodo(String fromId, String toId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}swap-todo";
+
+      String body = jsonEncode({"from": fromId, "to": toId});
+
+      debugPrint("swapTodo apiUrl: $apiUrl");
+      debugPrint("swapTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint('swapTodo api.response.body: ${response.body}');
+        debugPrint('swapTodo api.statusCode: ${response.statusCode}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('swapTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createVehicleStatusTodo(
+      CreateTodoParams createTodoParams) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+      String body = jsonEncode({
+        "title": createTodoParams.todoTitle,
+        "start_at": createTodoParams.todoDate,
+        "todo_time": createTodoParams.todoTime,
+        "user_id": createTodoParams.userId,
+        "cohort_id": createTodoParams.cohortId,
+        "vin": createTodoParams.vin,
+        "vehicle_name": createTodoParams.vehicleName,
+        "notes": createTodoParams.notes,
+        "vehicle_status_id": createTodoParams.vehicleStatusId,
+        "vehicle_status_checklist": createTodoParams.vehicleStatusChecklist,
+        "vehicle_status_category": createTodoParams.vehicleStatusCategory,
+        "custom_task": createTodoParams.customTask
+      });
+      debugPrint("createVehicleStatusTodo apiUrl: $apiUrl");
+      debugPrint("createVehicleStatusTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        debugPrint(
+            'createVehicleStatusTodo api.statusCode: ${response.statusCode}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint(
+              'createVehicleStatusTodo api.response.body: ${response.body}');
+          // GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
+          //   Utils.showMobileToast(generalResponse.message!);
+          return await vehicleStatusUpdate(createTodoParams);
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('createVehicleStatusTodo.exception3 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> vehicleStatusUpdate(CreateTodoParams createTodoParams) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicleStatusUpdate";
+      String body = jsonEncode({
+        "vin": createTodoParams.vin,
+        "vehicle_status": createTodoParams.vehicleStatusCategory
+      });
+      debugPrint("vehicleStatusUpdate apiUrl: $apiUrl");
+      debugPrint("vehicleStatusUpdate body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        debugPrint(
+            'vehicleStatusUpdate api.statusCode: ${response.statusCode}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint('vehicleStatusUpdate api.response.body: ${response.body}');
+          // GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
+          //   Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('vehicleStatusUpdate.exception3 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> saveWorkingHour(int? isBreak, String? startDate,
+      String? startTime, String? title, int? userId) async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}saveWorkingHour";
+      /*{
+    "start_date": "2024-05-18",
+    "start_time": "14:05:07",
+    "start_time_device_type": "Mobile",
+    "title": "Todo",
+    "user_id": 21,
+    "is_break": 0
+}*/
+      String body = jsonEncode({
+        "start_date": startDate,
+        "start_time": startTime,
+        "start_time_device_type": "Mobile",
+        "title": title,
+        "user_id": userId,
+        "is_break": isBreak
+      });
+      debugPrint("createVehicleStatusTodo apiUrl: $apiUrl");
+      debugPrint("createVehicleStatusTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        debugPrint(
+            'createVehicleStatusTodo api.response.body: ${response.body}');
+        debugPrint(
+            'createVehicleStatusTodo api.statusCode: ${response.statusCode}');
+
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('createVehicleStatusTodo.exception3 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createCheckListTodo(CreateTodoParams createTodoParams) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}create-checklist-todo";
+
+      String body = jsonEncode({
+        "checklist_id": createTodoParams.checklistId,
+        "category_id": createTodoParams.categoryId,
+        "checkbox_value": createTodoParams.checkboxValue,
+        "config_id": createTodoParams.configId,
+        "vin": createTodoParams.vin,
+        "task_name": createTodoParams.taskName,
+        "user_id": createTodoParams.userId,
+        "cohort_id": createTodoParams.cohortId,
+        "cohort_name": createTodoParams.cohortName,
+        "vehicle_name": createTodoParams.vehicleName,
+        "vehicle_image": createTodoParams.vehicleImage
+      });
+      debugPrint("createCheckListTodo apiUrl: $apiUrl");
+      debugPrint("createCheckListTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        debugPrint('createCheckListTodo api.response.body: ${response.body}');
+        debugPrint(
+            'createCheckListTodo api.statusCode: ${response.statusCode}');
+
+        // GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Utils.showMobileToast(generalResponse.message!);
+          return await createVehicleStatusCheckListTodo(createTodoParams);
+          // return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('createCheckListTodo.exception3 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createVehicleStatusCheckListTodo(
+      CreateTodoParams createTodoParams) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vehicle_status/checklist";
+
+      String body = jsonEncode({
+        "checklist_id": createTodoParams.checklistId,
+        "category_id": createTodoParams.categoryId,
+        "checkbox_value": createTodoParams.checkboxValue,
+        "config_id": createTodoParams.configId,
+        "vin": createTodoParams.vin
+      });
+      debugPrint("createVehicleStatusCheckListTodo apiUrl: $apiUrl");
+      debugPrint("createVehicleStatusCheckListTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        debugPrint(
+            'createVehicleStatusCheckListTodo api.response.body: ${response.body}');
+        debugPrint(
+            'createVehicleStatusCheckListTodo api.statusCode: ${response.statusCode}');
+
+        // GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('createVehicleStatusCheckListTodo.exception3 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deleteATodo(String todoId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}delete-todo/$todoId";
+      debugPrint("deleteATodo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          debugPrint('deleteATodo api.response.body: ${response.body}');
+          debugPrint('deleteATodo api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+          if (generalResponse.status == 200 || generalResponse.status == 201) {
+            // Utils.showNoResultFound();
+            return true;
+          } else {
+            // debugPrint('---------------> ${TodoListResponse.status!}');
+            return false;
+          }
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callLoginAPI.exception4 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> completeATodo(String? todoId, String? status) async {
+    try {
+      bool statusBool = status == "Completed" ? true : false;
+      String apiUrl = "${Str.BASE_URL}complete-todo/$todoId";
+      debugPrint("completeATodo apiUrl: $apiUrl");
+      String body = jsonEncode({"status": statusBool});
+      debugPrint("completeATodo body: $body");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint('completeATodo api.response.body: ${response.body}');
+          debugPrint('completeATodo api.statusCode: ${response.statusCode}');
+
+          // GeneralResponse generalResponse =
+          // GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
+          // Utils.showNoResultFound();
+          // return true;
+          // }else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          // return false;
+          // }
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('completeATodo.exception : ${error.toString()}');
+      return null;
+    }
+    return null;
+  }
+
+/*
+  Future<bool?> createExpense(List<File>? files, int? categoryId, int? subCategoryId, int? expenseTo,
+      String? expenseAmount, String? expenseDescription, String? cohortId , String? vin) async{
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses";
+      debugPrint("createExpenseData apiUrl: $apiUrl");
+      var body = jsonEncode({
+        "category_id": categoryId.toString(),
+        "subcategory_id": subCategoryId.toString(),
+        "expense_to": expenseTo.toString(),
+        "expense_amount": expenseAmount??'',
+        "expense_description": expenseDescription??'',
+        "expense_date": Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
+        "cohort_id": cohortId??'',
+        "vin": vin??'',
+        "platform ": 'TaskerApp'
+      });
+      Map<String, String> reqMap = {};
+      reqMap["category_id"] = "$categoryId";
+      reqMap["subcategory_id"] = "$subCategoryId";
+      reqMap["expense_to"] = "$expenseTo";
+      reqMap["expense_amount"] = "$expenseAmount";
+      reqMap["expense_description"] = "$expenseDescription";
+      reqMap["expense_date"] = Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now());
+      reqMap["cohort_id"] = cohortId??'';
+      reqMap["vin"] = vin??'';
+      reqMap["platform"] = "TaskerApp";
+
+      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
+      request.headers.addAll(Utils.getHeaders());
+      int i=0;
+        for (var element in (files??[])) {
+          i++;
+          request.files.add(await http.MultipartFile.fromPath('files$i', element.path));
+        }
+      request.fields.addAll(reqMap);
+      var response = await request.send();
+      // return GeneralResponse.fromJson(json.decode(responseString));
+      debugPrint('createExpense.statusCode: ${response.statusCode}');
+
+      if (response != null) {
+        if (response.statusCode == 200) {
+          var responseData = await response.stream.toBytes();
+          var responseString = String.fromCharCodes(responseData);
+          // debugPrint('createExpenseData api.response.body: ${response.body}');
+          // debugPrint('createExpenseData api.statusCode: ${response.statusCode}');
+
+          */
+/*CommonResponse commonResponse =
+          CommonResponse.fromJson(json.decode(responseString));*/ /*
+
+          // Utils.showMobileToast(commonResponse.message!);
+          debugPrint('returning true');
+          return true;
+        } else {
+          debugPrint('returning false');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+      } else {
+        debugPrint('returning null1');
+        return null;
+      }
+    } catch (error) {
+      debugPrint('returning null');
+      debugPrint('createExpenseData.exception : ${error.toString()}');
+      return null;
+    }
+  }
+*/
+
+  Future<ExpenseSummaryResponse?> createExpense(
+      String? expenseId,
+      List<File>? files,
+      int? categoryId,
+      int? subCategoryId,
+      int? expenseTo,
+      String? expenseAmount,
+      String? expenseDescription,
+      String? cohortId,
+      String? vin,
+      int? todoId,
+      String? expenseDate,
+      String? odometer) async {
+    try {
+      String apiUrl = '';
+      if (expenseId != null && expenseId.isNotEmpty) {
+        apiUrl = "${Str.LIST_BASE_URL}expenses_update/$expenseId";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}expenses";
+      }
+      debugPrint('createExpense.apiUrl: $apiUrl');
+
+      Map<String, String> reqMap = {
+        "category_id": "$categoryId",
+        "subcategory_id": "$subCategoryId",
+        "expense_to": "$expenseTo",
+        if (expenseAmount!.isNotEmpty) "expense_amount": expenseAmount,
+        "expense_description": "$expenseDescription",
+        "expense_date": expenseId != null && expenseId.isNotEmpty
+            ? "$expenseDate"
+            : Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
+        "cohort_id": cohortId ?? '',
+        "vin": vin ?? '',
+        "odometer": odometer ?? '',
+        "type": "inline",
+        "platform": "TaskerApp"
+      };
+
+      debugPrint('createExpense.reqMap: $reqMap');
+
+      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
+      request.headers.addAll(Utils.getHeaders());
+
+      // Add fields to the request
+      request.fields.addAll(reqMap);
+
+      // Add files to the request
+      for (int i = 0; i < (files?.length ?? 0); i++) {
+        var file = files![i];
+
+        var multipartFile = http.MultipartFile.fromBytes(
+          'files[$i]',
+          (await file.readAsBytes()).toList(),
+          filename: file.path.split('/').last,
+        );
+        request.files.add(multipartFile);
+      }
+
+      http.StreamedResponse streamedResponse = await request.send();
+      debugPrint('createExpense.statusCode: ${streamedResponse.statusCode}');
+
+      if (streamedResponse.statusCode == 200) {
+        // Successful response handling
+        final http.Response response =
+        await http.Response.fromStream(streamedResponse);
+        ExpenseSummaryResponse expenseSummaryResponse =
+        ExpenseSummaryResponse.fromJson(json.decode(response.body));
+
+        /*'expense_attachment': jsonEncode({
+            for(int i=0; i<(expenseSummaryResponse.data?[0].attachments??[]).length; i++)
+            '${expenseSummaryResponse.data?[0].attachments?[i].id}': expenseSummaryResponse.data?[0].attachments?[i].path,
+          }),*/
+        // Prepare the payload
+        // return editATodoDate(todoId.toString(), null, null, null, null, null, null, expenseSummaryResponse.data?[0].id.toString());
+
+        return expenseSummaryResponse;
+      } else {
+        // Handle error response
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    } catch (error) {
+      debugPrint('createExpenseData.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  /*
+  Future<bool?> createExpense(List<File>? files, int? categoryId, int? subCategoryId, int? expenseTo,
+      String? expenseAmount, String? expenseDescription, String? cohortId , String? vin) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse("${Str.LIST_BASE_URL}expenses"),
+    );
+
+    // Add files to the request
+    for (int i = 0; i < (files??[]).length; i++) {
+      */
+/*var file = files![i];
+      var stream = http.ByteStream.fromBytes(await file.readAsBytes());
+      var length = await file.length();
+      var multipartFile = http.MultipartFile('files', stream, length,
+          filename: 'file$i.jpg'); // You can change the filename as needed
+      request.files.add(multipartFile);*/ /*
+
+      request.files.add(await http.MultipartFile.fromPath('file$i', files![i].path));
+    }
+
+    // Add body parameters to the request
+    Map<String, String> bodyParams =
+    {"category_id": categoryId.toString(),
+      "subcategory_id": subCategoryId.toString(),
+      "expense_to": expenseTo.toString(),
+      "expense_amount": expenseAmount??'',
+      "expense_description": expenseDescription??'',
+      "expense_date": Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
+      "cohort_id": cohortId??'',
+      "vin": vin??'',
+      "platform ": 'TaskerApp'
+    };
+
+    Map<String, String> headers = {
+      'accept': 'application/json',
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $accessTokenGlobal'};
+
+    request.headers.addAll(headers);
+    request.fields.addAll(bodyParams);
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        debugPrint('Upload success');
+        return true;
+      } else {
+        debugPrint('Upload failed with status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error during upload: $e');
+      return false;
+    }
+  }
+*/
+
+  Future<ChatMessageResponse?> getChatsList(int sender, int receiver) async {
+    try {
+      String apiUrl =
+          "${Str.BASE_URL}get-message?sender=$sender&receiver=$receiver";
+      /*String body = jsonEncode({
+        "title":createTodoParams.todoTitle,
+        "todo_date":createTodoParams.todoDate
+      });*/
+      debugPrint("getChatsList apiUrl: $apiUrl");
+      // debugPrint("createATodo body: $body");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getChatsList api.response.body: ${response.body}');
+        debugPrint('getChatsList api.statusCode: ${response.statusCode}');
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          ChatMessageResponse chatMessageResponse =
+          ChatMessageResponse.fromJson(json.decode(response.body));
+          return chatMessageResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getChatsList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> sendChatMessages(
+      int sender, int receiver, String createdAt, String message) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}send-message";
+      String body = jsonEncode({
+        "createdAt": createdAt,
+        "message": message,
+        "receiver": receiver,
+        "sender": sender
+      });
+      debugPrint("sendChatMessages apiUrl: $apiUrl");
+      // debugPrint("createATodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        debugPrint('sendChatMessages api.response.body: ${response.body}');
+        debugPrint('sendChatMessages api.statusCode: ${response.statusCode}');
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // ChatMessageResponse chatMessageResponse = ChatMessageResponse.fromJson(json.decode(response.body));
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('sendChatMessages.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ChecklistResponse?> getCheckList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getCheckList";
+      debugPrint("getCheckList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        ChecklistResponse checklistResponse =
+        ChecklistResponse.fromJson(jsonDecode(response.body));
+        return checklistResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<MaintenanceCheckListResponse?> getMaintenanceCheckList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getMaintanceCheckList";
+      debugPrint("getMaintenanceCheckList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        MaintenanceCheckListResponse maintenanceCheckListResponse =
+        MaintenanceCheckListResponse.fromJson(json.decode(response.body));
+        return maintenanceCheckListResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getMaintenanceCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<BranchResponse?> getBranchList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getBranch";
+      debugPrint("getBranch apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        BranchResponse branchResponse =
+        BranchResponse.fromJson(jsonDecode(response.body));
+        return branchResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getBranch.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseResponse?> getExpense(String? minDate, String? maxDate) async {
+    try {
+      String apiUrl =
+          "${Str.LIST_BASE_URL}expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=TaskerApp";
+      debugPrint("getExpenses apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          ExpenseResponse expenseResponse =
+          ExpenseResponse.fromJson(json.decode(response.body));
+
+          return expenseResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getExpense.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseResponse?> createExpenseData(
+      int? id,
+      String? vehicleId,
+      String? expenseAmount,
+      String? paymentMethodId,
+      String? expenseDescription,
+      String? categoryId,
+      String? subcategoryId,
+      String? expenseTo,
+      String? expenseDate,
+      String? odometer,
+      ) async {
+    try {
+      String body = jsonEncode({
+        "vehicle_id": vehicleId,
+        "expense_amount": expenseAmount,
+        "payment_method_id": paymentMethodId,
+        "expense_description": expenseDescription,
+        "category_id": categoryId,
+        "subcategory_id": subcategoryId,
+        "expense_to": expenseAmount,
+        "expense_date": expenseAmount,
+        "odometer": odometer,
+        "platform": "TaskerApp",
+        "status": "1"
+      });
+
+      String apiUrl = '';
+      http.Response? response;
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}expenses_update/$id";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}expenses";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+      if (response != null) {
+        ExpenseResponse expenseResponse =
+        ExpenseResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200) {
+          return expenseResponse;
+        } else {
+          return expenseResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('department.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseResponse?> deleteExpense(String? id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses/$id";
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+
+      if (response != null) {
+        ExpenseResponse expenseResponse =
+        ExpenseResponse.fromJson(json.decode(response.body));
+
+        if (response.statusCode == 200) {
+          return expenseResponse;
+        } else {
+          return expenseResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('expense.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  //----------------------------------------------------------
+
+  Future<ExpensePersonResponse?> getExpensePersonData(
+      String minDate, String maxDate) async {
+    const String apiUrl = '${Str.LIST_BASE_URL}ajaxPersonExpense';
+    final Map<String, String> payload = {
+      'minDate': minDate,
+      'maxDate': maxDate,
+      'platformCustom': 'tasker-web',
+    };
+
+    try {
+      final http.Response? response = await apiClient.callPostMethod(
+        apiUrl,
+        body: jsonEncode(payload),
+      );
+
+      if (response != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return ExpensePersonResponse.fromJson(json.decode(response.body));
+      } else {
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    } catch (e) {
+      log('Error in getExpensePersonData: $e');
+      return null;
+    }
+  }
+
+  Future<ExpenseOtherResponse?> getExpenseOtherData(
+      String minDate, String maxDate) async {
+    const String apiUrl = '${Str.LIST_BASE_URL}ajaxOtherExpense';
+    final Map<String, String> payload = {
+      'minDate': minDate,
+      'maxDate': maxDate,
+    };
+
+    try {
+      final http.Response? response = await apiClient.callPostMethod(
+        apiUrl,
+        body: jsonEncode(payload),
+      );
+
+      if (response != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return ExpenseOtherResponse.fromJson(json.decode(response.body));
+      } else {
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    } catch (e) {
+      log('Error in getExpensePersonData: $e');
+      return null;
+    }
+  }
+
+  Future<PaymentResponse?> getExpensePayments() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}payment-methods";
+      debugPrint("getCategories apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        PaymentResponse expensePayments =
+        PaymentResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return expensePayments;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint(
+              'getCategories response.statusCode: ${response.statusCode}');
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCategories.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<ExpenseCategories?> getExpenseCategories() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}expenses_category";
+      debugPrint("getCategories apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        ExpenseCategories expenseCategories =
+        ExpenseCategories.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return expenseCategories;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint(
+              'getCategories response.statusCode: ${response.statusCode}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCategories.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
+  Future<ExpenseOtherResponse?> createOtherData(
+      int? id,
+      int? approved,
+      String? expenseDate,
+      double? expenseAmount,
+      String? categoryId,
+      String? subcategoryId,
+      String? expenseDescription,
+      int? expenseTo, int? paymentId) async {
+    try {
+
+      String body = jsonEncode({
+        "approved": approved,
+        "expense_amount": expenseAmount,
+        "expense_description": expenseDescription,
+        "category_id": categoryId,
+        "subcategory_id": subcategoryId,
+        "expense_date": expenseDate,
+        "expense_to":expenseTo,
+        "payment_method_id":paymentId,
+      });
+
+      String apiUrl='';
+      http.Response? response;
+      if(id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}updateOtherExpense/$id";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else{
+        apiUrl = "${Str.LIST_BASE_URL}storeOtherExpense";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+      if (response != null) {
+        debugPrint("Response: ${response.body}");
+        if (response.statusCode == 200) {
+          return ExpenseOtherResponse.fromJson(jsonDecode(response.body));
+        } else {
+          debugPrint("Error: ${response.body}");
+          return null;
+        }
+      }
+    } catch (error, stacktrace) {
+      log("Exception: ${error.toString()}", stackTrace: stacktrace);
+    }
+    return null;
+  }
+
+  Future<ExpenseOtherResponse?> deleteOtherData(int? id) async {
+    try {
+      //print("Repository side delete $id");
+      String apiUrl = "${Str.LIST_BASE_URL}personExpenses/${id.toString()}";
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+
+      if (response != null) {
+        ExpenseOtherResponse expenseOtherResponse =
+        ExpenseOtherResponse.fromJson(jsonDecode(response.body));
+
+        if (response.statusCode == 200) {
+          return expenseOtherResponse;
+        } else {
+          return expenseOtherResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('expenseOtherData.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CohortsResponse?> getCohorts() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}getCohortsData';
+      debugPrint("fetchDropdownValues apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          CohortsResponse createExpenseFieldData =
+          CohortsResponse.fromJson(json.decode(response.body));
+
+          return createExpenseFieldData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('getProfileAPI.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<PaymentResponse?> getPayment() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}payment-methods";
+      debugPrint("getPayment apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          PaymentResponse paymentResponse =
+          PaymentResponse.fromJson(json.decode(response.body));
+
+          return paymentResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getPayment.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deleteVehicle(int? id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}delete-vehicles/$id";
+
+      debugPrint("delete-vehicles apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('delete-vehicles.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<VoiceResponse?> getVoiceTextList(String? from, String? to) async {
+    try {
+      String apiUrl =
+          "${Str.BASE_URL}getVoiceTextList?from=$from&to=$to";
+      debugPrint("getVoiceTextList apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        print("=================================================${response.body}");
+
+        if (response.statusCode == 200||response.statusCode ==202) {
+          print("=================================================${response.body}");
+
+          VoiceResponse voiceResponse =
+          VoiceResponse.fromJson(json.decode(response.body));
+          return voiceResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getVoiceTextList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<GetActiveHoursResponse?> getActiveHoursResponse(
+      String start, String end) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}employeeActiveHours?from=$start&to=$end";
+      debugPrint("getWorkingHistory apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        GetActiveHoursResponse getActiveHours =
+        GetActiveHoursResponse.fromJson(json.decode(response.body));
+        if(getActiveHours.status == 200){
+          return getActiveHours;
+        }
+        return getActiveHours;
+      } else {
+        Utils.showNoResultFound();
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<GetWorkingHoursDataResponse?> getWorkingHoursData(
+      String start, String end) async {
+    try {
+      String apiUrl =
+          "${Str.GOPORTAL_BASE_URL}employeeWorkHours?startDate=$start&endDate=$end";
+      debugPrint("getWorkingHistory apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl,);
+      if (response != null) {
+        GetWorkingHoursDataResponse getWorkingHoursDataResponse =
+        GetWorkingHoursDataResponse.fromJson(json.decode(response.body));
+
+        if ((getWorkingHoursDataResponse.status ?? false)) {
+
+          return getWorkingHoursDataResponse;
+        } else {
+          Utils.showNoResultFound();
+          debugPrint('---------------> ${getWorkingHoursDataResponse.status!}');
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> addTaskConfiguration(
+      int? id,
+      int? userId,
+      String? name,
+      String? amount,
+      String? task) async {
+    try {
+      String body = jsonEncode({"amount": amount, "task_name": name, "type":task, "id":id,"user_id": userId});
+      print("repository side $body");
+      String apiUrl = '';
+      http.Response? response;
+      if (id == null) {
+        apiUrl = "${Str.BASE_URL}add-configuration";
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else if(id == null && userId!=null)
+      {
+        apiUrl = "${Str.BASE_URL}add-configuration";
+      }
+      else {
+        apiUrl = "${Str.BASE_URL}update-configuration/$id";
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+      debugPrint("addTaskConfiguration apiUrl: $apiUrl");
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('addTaskConfiguration.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<WorkingHistoryCountResponse?> getWorkingHistoryCount(
+      String start, String end) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}employeeHistoryCount?from=$start&to=$end";
+      debugPrint("getWorkingHistory apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        WorkingHistoryCountResponse workingHistoryCountResponse =
+        WorkingHistoryCountResponse.fromJson(json.decode(response.body));
+        if(workingHistoryCountResponse.status == 200){
+          return workingHistoryCountResponse;
+        }
+        return workingHistoryCountResponse;
+      } else {
+        Utils.showNoResultFound();
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<FinanceStatementResponse?> getFinanceStatement() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}statement?startDate=2024-01-01&endDate=2024-12-31&cohortIds[]=1";
+      debugPrint("getEmployeeName apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      //print("employee value ${response?.body}");
+      if (response != null) {
+        if (response.statusCode == 200) {
+          FinanceStatementResponse financeStatementResponse =
+          FinanceStatementResponse.fromJson(json.decode(response.body));
+
+          return financeStatementResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getFinanceStatement.exception : ${error.toString()}');
+      return null;
+    }
+  }
+}
+
+
+
+
+
