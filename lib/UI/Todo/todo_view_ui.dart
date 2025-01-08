@@ -146,6 +146,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     try {
       // Split the input string into start and end times
       List<String> times = shiftTimings.split('-');
+
       if (times.length != 2) return "Invalid format";
 
       // Parse the start and end times
