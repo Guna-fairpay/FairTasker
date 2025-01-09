@@ -912,4 +912,86 @@ class GetEmployeeStatementData extends TodoViewEvent {
   @override
   List<Object> get props => [];
 }
+
+class GetCategoryConfigData extends TodoViewEvent {
+  const GetCategoryConfigData();
+  @override
+  List<Object> get props => [];
+}
+
+class AddCategoryConfigData extends TodoViewEvent {
+
+  final String name;
+  final String userType;
+  final String parentId;
+  final int? id;
+
+  const AddCategoryConfigData({
+    required this.name,required this.userType,required this.parentId, required this.id,
+  });
+  @override
+  List<Object?> get props => [name,userType,parentId,id];
+}
+
+class DeleteCategoryConfig extends TodoViewEvent {
+  final String id;
+
+  const DeleteCategoryConfig({
+    required this.id,
+  });
+
+  @override
+  List<Object> get props => [id];
+}
+
+class GetTaskData extends TodoViewEvent {
+  const GetTaskData();
+  @override
+  List<Object> get props => [];
+}
+
+class GetTaskExpense extends TodoViewEvent {
+  const GetTaskExpense();
+  @override
+  List<Object> get props => [];
+}
+
+class AddTaskData extends TodoViewEvent {
+
+  final String? name;
+  final String? subCategory;
+  final String? category;
+  final String? timeTaken;
+  final String? userType;
+  final int? id;
+
+  const AddTaskData({
+    required this.name,
+    required this.subCategory,
+    required this.category,
+    required this.timeTaken,
+    required this.userType,
+    required this.id,
+  });
+  @override
+  List<Object?> get props => [name, category, subCategory,timeTaken,userType, id];
+}
+
+class DeleteTaskData extends TodoViewEvent {
+  final String id;
+
+  const DeleteTaskData({
+    required this.id,
+  });
+
+  @override
+  List<Object> get props => [id];
+}
+
+class GetTaskCategoryGroup extends TodoViewEvent {
+  const GetTaskCategoryGroup();
+  @override
+  List<Object> get props => [];
+}
+
 //---

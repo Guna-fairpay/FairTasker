@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -12,8 +13,8 @@ import 'package:fairpytasker/Response/location_response.dart';
 import 'package:fairpytasker/Response/maintenance_check_list_response.dart';
 import 'package:fairpytasker/Response/parts_response.dart';
 import 'package:fairpytasker/Response/supplies_response.dart';
+import 'package:fairpytasker/Response/task_category_group_response.dart';
 import 'package:fairpytasker/Response/task_detail_response.dart';
-import 'package:fairpytasker/Response/task_expense_response.dart';
 import 'package:fairpytasker/Response/task_history_response.dart';
 import 'package:fairpytasker/Response/task_history_configuration_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
@@ -36,6 +37,7 @@ import 'package:http/http.dart' as http;
 import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/branch_response.dart';
+import '../Response/category_config_response.dart';
 import '../Response/checklist_response.dart';
 import '../Response/cohorts_response.dart';
 import '../Response/expense_other_categories.dart';
@@ -44,6 +46,7 @@ import '../Response/expense_person_response.dart';
 import '../Response/expense_response.dart';
 import '../Response/finance_statement_response.dart';
 import '../Response/payment_response.dart';
+import '../Response/task_response.dart';
 import '../Response/todo_list_response.dart';
 import '../Response/vehicle_list_response.dart';
 import '../Response/vehicle_miscellaneous_response.dart';
@@ -52,7 +55,7 @@ import '../Response/vehicle_status_response.dart';
 import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
-import 'cohorts_repository.dart';
+
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -2889,6 +2892,219 @@ class TodoListRepo {
       return null;
     }
   }
+
+  Future<CategoryConfigResponse?> getCategoryConfig() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}taskCategory";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+
+        if (response.statusCode == 200) {
+
+          CategoryConfigResponse categoryConfigResponse =
+          CategoryConfigResponse.fromJson(json.decode(response.body));
+          return categoryConfigResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCategoryConfig.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CategoryConfigResponse?> createCategoryConfig(int? id,String? name,String? parentId,String? userType) async {
+    try {
+      String body = jsonEncode({
+        "name": name,
+        "parent_id":parentId,
+        "todo_user_type":userType,
+        "platform": "TaskerApp",
+        "status": "1"
+      });
+
+      String apiUrl = '';
+      http.Response? response;
+      if(id != null) {
+        apiUrl = "${Str.BASE_URL}updateTaskCategory/$id";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else{
+        apiUrl = "${Str.BASE_URL}addTaskCategory";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+      if (response != null) {
+
+        CategoryConfigResponse categoryConfigResponse =
+        CategoryConfigResponse.fromJson(json.decode(response.body));
+
+        if (response.statusCode == 200) {
+
+          return categoryConfigResponse;
+        } else {
+
+          return categoryConfigResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('categoryConfig.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CategoryConfigResponse?> deleteCategoryConfig(String? id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}deleteTaskCategory/$id";
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+
+      if (response != null) {
+        CategoryConfigResponse categoryConfigResponse =
+        CategoryConfigResponse.fromJson(json.decode(response.body));
+
+        if (response.statusCode == 200) {
+          return categoryConfigResponse;
+        } else {
+          return categoryConfigResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('categoryConfig.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskListResponse?> getTask() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          TaskListResponse taskListResponse =
+          TaskListResponse.fromJson(json.decode(response.body));
+
+          return taskListResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAssignedTo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskResponse?> createTask(int? id, String? task, String? category, String? subCategory,String? timeTaken,String? userType) async {
+    try {
+      String body = jsonEncode({
+        "category_id": category,
+        "subcategory_id": subCategory,
+        "time_taken":timeTaken,
+        "user_type":userType,
+        "task": task,
+        "platform": "TaskerApp",
+        "status": "1"
+      });
+
+      String apiUrl = '';
+      http.Response? response;
+      if(id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else{
+        apiUrl = "${Str.LIST_BASE_URL}task-expenses-data";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+      if (response != null) {
+        TaskResponse taskResponse =
+        TaskResponse.fromJson(json.decode(response.body));
+
+        if (response.statusCode == 200) {
+          return taskResponse;
+        } else {
+          return taskResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('task.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskResponse?> deleteTask(String? id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}deleteDepartment/$id";
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+
+      if (response != null) {
+        TaskResponse taskResponse =
+        TaskResponse.fromJson(json.decode(response.body));
+
+        if (response.statusCode == 200) {
+          return taskResponse;
+        } else {
+          return taskResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('task.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskCategoryGroupResponse?> getTaskCategoryGroup() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}taskCategoryGroup";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+
+        if (response.statusCode == 200) {
+
+          TaskCategoryGroupResponse taskCategoryGroupResponse =
+          TaskCategoryGroupResponse.fromJson(json.decode(response.body));
+          return taskCategoryGroupResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskCategoryGroup.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
+
+  ///---------
+
 }
 
 

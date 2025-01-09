@@ -1,10 +1,10 @@
+
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:flutter/material.dart';
-import '../../../../Bloc/category_config_bloc.dart';
+import '../../../../Bloc/todo_view_bloc.dart';
 import '../../../../Component/drawer_ui.dart';
 import '../../../../Component/header.dart';
-import '../../../../Event/category_config_event.dart';
-import '../../../../State/category_config_state.dart';
+import '../../../../Event/todo_view_event.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/num.dart';
 import '../../../../Utilities/utils.dart';
@@ -18,7 +18,7 @@ class CategoryConfigAddUI extends StatefulWidget {
 }
 
 class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
-  late CategoryConfigBloc categoryConfigBloc;
+  late TodoViewBloc todoViewBloc;
   TextEditingController nameController = TextEditingController();
   List<Map<String, dynamic>> category = [];
   String? selectedCategory;
@@ -31,7 +31,7 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
   @override
   void initState() {
     super.initState();
-    categoryConfigBloc = CategoryConfigBloc();
+    todoViewBloc = TodoViewBloc();
   }
 
   void _save() {
@@ -59,8 +59,8 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
       ),
       body: BlocProvider(
         create: (context) =>
-            categoryConfigBloc..add(const GetCategoryConfigData()),
-        child: BlocConsumer<CategoryConfigBloc, CategoryConfigState>(
+            todoViewBloc..add(const GetCategoryConfigData()),
+        child: BlocConsumer<TodoViewBloc, TodoViewState>(
             listener: (context, state) {
           if (state is TodoListLoading) {
             loading = true;

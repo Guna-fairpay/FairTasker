@@ -860,6 +860,119 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
         emit(GetWorkingHistoryLoaded(history: value!.history ?? []));
       });
     });
+
+    on<GetCategoryConfigData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getCategoryConfig()
+          .then((value) {
+        if (value != null) {
+          emit(CategoryConfigListLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<AddCategoryConfigData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.createCategoryConfig(event.id,event.name,event.userType,event.parentId)
+          .then((value) {
+        if (value != null) {
+          emit(CategoryConfigLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+      });
+    });
+
+    on<DeleteCategoryConfig>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.deleteCategoryConfig(event.id)
+          .then((value) {
+        if (value != null) {
+          emit(CategoryConfigLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+      });
+    });
+
+    on<GetTaskData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getTask()
+          .then((value) {
+        if (value != null) {
+          emit(TaskListLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<GetTaskExpense>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getTaskExpense()
+          .then((value) {
+        if (value != null) {
+          emit(TaskExpenseLoaded(
+            resource: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<AddTaskData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.createTask(
+        event.id,
+        event.name,
+        event.category,
+        event.subCategory,
+        event.timeTaken,
+        event.userType,
+      )
+          .then((value) {
+        if (value != null) {
+          emit(TaskLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+      });
+    });
+
+    on<DeleteTaskData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.deleteTask(event.id)
+          .then((value) {
+        if (value != null) {
+          emit(TaskLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+      });
+    });
+
+    on<GetTaskCategoryGroup>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getTaskCategoryGroup()
+          .then((value) {
+        if (value != null) {
+          emit(TaskCategoryGroupLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+
     //---
   }
 }

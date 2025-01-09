@@ -125,7 +125,6 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                     tasks.clear();
                     tasks.addAll(state.data);
                     filteredTasks = List.from(state.data);
-                    print('TaskList: $filteredTasks');
                   } else {
                     loading = false; // Set loading to false for other states
                   }

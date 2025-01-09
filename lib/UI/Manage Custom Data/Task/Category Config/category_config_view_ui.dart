@@ -1,11 +1,11 @@
 
-import 'package:fairpytasker/Bloc/category_config_bloc.dart';
-import 'package:fairpytasker/Event/category_config_event.dart';
-import 'package:fairpytasker/State/category_config_state.dart';
+import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/category_config_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/category_config_edit_ui.dart';
 import 'package:flutter/material.dart';
 import '../../../../Component/drawer_ui.dart';
+import '../../../../Event/todo_view_event.dart';
+import '../../../../State/todo_view_state.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/utils.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -20,7 +20,7 @@ class CategoryConfigViewUI extends StatefulWidget {
 
 class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
 
-  late CategoryConfigBloc categoryConfigBloc;
+  late TodoViewBloc todoViewBloc;
   TextEditingController searchController=TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   List<Map<String,dynamic>> categoryConfig = [];
@@ -32,10 +32,10 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
   @override
   void initState() {
     super.initState();
-    categoryConfigBloc=CategoryConfigBloc();
+    todoViewBloc=TodoViewBloc();
   }
 
-  void _filteredconfig(String query) {
+  void _filteredConfig(String query) {
     setState(() {
       filteredConfig = categoryConfig.where((config) {
         final name = config['name']?.toLowerCase() ?? '';
@@ -52,12 +52,12 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
     );
 
     if (newConfig != null) {
-      categoryConfigBloc.add(AddCategoryConfigData(
+      todoViewBloc.add(AddCategoryConfigData(
           name: newConfig['name'],
           userType: newConfig['todo_user_type'].toString(),
           parentId: newConfig['parent_id'],
           id: newConfig['id']));
-      categoryConfigBloc.add(const GetCategoryConfigData());
+      todoViewBloc.add(const GetCategoryConfigData());
       Utils.showMobileToast('CategoryConfig Added Successfully');
     }
   }
@@ -73,12 +73,12 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
     );
 
     if (updateConfig != null) {
-      categoryConfigBloc.add(AddCategoryConfigData(
+      todoViewBloc.add(AddCategoryConfigData(
           name: updateConfig['name'],
           userType: updateConfig['todo_user_type'].toString(),
           parentId: updateConfig['parent_id'],
           id: updateConfig['id']));
-      categoryConfigBloc.add(const GetCategoryConfigData());
+      todoViewBloc.add(const GetCategoryConfigData());
       Utils.showMobileToast('CategoryConfig updated successfully');
 
     }
@@ -89,9 +89,9 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
     final confirmed = await _confirmDelete(context);
     if (confirmed == true) {
      final delete=filteredConfig[index];
-     categoryConfigBloc.add(DeleteCategoryConfig(id: delete['id'].toString())
+     todoViewBloc.add(DeleteCategoryConfig(id: delete['id'].toString())
      );
-     categoryConfigBloc.add(const GetCategoryConfigData());
+     todoViewBloc.add(const GetCategoryConfigData());
       Utils.showMobileToast('Deleted!');
     }
   }
@@ -128,10 +128,10 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
     return Scaffold(
       backgroundColor: AppC.white,
       body: BlocProvider(
-        create: (context)=>categoryConfigBloc..add(const GetCategoryConfigData()),
-        child: BlocConsumer<CategoryConfigBloc,CategoryConfigState>(
+        create: (context)=>todoViewBloc..add(const GetCategoryConfigData()),
+        child: BlocConsumer<TodoViewBloc,TodoViewState>(
             listener: (context, state) {
-              if(state is CategoryConfigLoading){
+              if(state is TodoListLoading){
                 loading=true;
               }
               else if (state is CategoryConfigListLoaded) {
@@ -145,10 +145,10 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
               else if (state is CategoryConfigLoaded){
                 loading = false;
                 categoryConfig.clear();
-                categoryConfigBloc.add(const GetCategoryConfigData());
+                todoViewBloc.add(const GetCategoryConfigData());
               }
               else {
-                categoryConfigBloc.add(const GetCategoryConfigData());
+                todoViewBloc.add(const GetCategoryConfigData());
                 loading = true;
               }
             },
@@ -167,7 +167,7 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                                 // onTap action for search bar if needed
                               },
                                   (value) {
-                                    _filteredconfig(value);
+                                    _filteredConfig(value);
                               },
                               searchController,searchFocusNode,
                             ),
@@ -189,7 +189,7 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                           final config = filteredConfig[index];
                           final parentCategory = categoryConfig.firstWhere(
                                 (cat) => cat['id'] == config['parent_id'],
-                            orElse: () => {}, // Default if no parent found
+                            orElse: () => {},
                           );
                           return Slidable(
                             key: ValueKey(filteredConfig[index]),

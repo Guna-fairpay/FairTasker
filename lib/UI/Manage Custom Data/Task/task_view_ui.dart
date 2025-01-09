@@ -1,9 +1,10 @@
-import 'package:fairpytasker/Event/task_event.dart';
+
+import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:flutter/material.dart';
-import '../../../Bloc/task_bloc.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
-import '../../../State/task_state.dart';
+import '../../../Event/todo_view_event.dart';
+import '../../../State/todo_view_state.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,7 @@ class TaskViewUI extends StatefulWidget {
 }
 
 class _TaskViewUIState extends State<TaskViewUI> {
-  late TaskBloc taskBloc;
+  late TodoViewBloc todoViewBloc;
   TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   List<Map<String, dynamic>> task = [];
@@ -31,7 +32,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
   @override
   void initState() {
     super.initState();
-    taskBloc = TaskBloc();
+    todoViewBloc = TodoViewBloc();
   }
 
   void _filterTasks(String query) {
@@ -54,7 +55,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
       MaterialPageRoute(builder: (context) => const TaskAddUI()),
     );
     if (newTask != null) {
-      taskBloc.add(AddTaskData(
+      todoViewBloc.add(AddTaskData(
         id: newTask['id'],
         name: newTask['task'],
         userType: newTask['userType'].toString(),
@@ -62,7 +63,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
         category: newTask['categoryId'],
         subCategory: newTask['subcategoryId'],
       ));
-      taskBloc.add(const GetTaskData());
+      todoViewBloc.add(const GetTaskData());
       Utils.showMobileToast('Task added successfully');
     }
   }
@@ -75,7 +76,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
       ),
     );
     if (updatedTask != null) {
-      taskBloc.add(AddTaskData(
+      todoViewBloc.add(AddTaskData(
         id: updatedTask['id'],
         name: updatedTask['task'],
         userType: updatedTask['userType'].toString(),
@@ -84,7 +85,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
         subCategory: updatedTask['subcategoryId'],
       ));
 
-      taskBloc.add(const GetTaskData());
+      todoViewBloc.add(const GetTaskData());
       Utils.showMobileToast('Task updated successfully');
     }
   }
@@ -93,8 +94,8 @@ class _TaskViewUIState extends State<TaskViewUI> {
     final confirmed = await _confirmDelete(context);
     if (confirmed == true) {
       final delete = filteredTask[index];
-      taskBloc.add(DeleteTaskData(id: delete['id'].toString()));
-      taskBloc.add(const GetTaskData());
+      todoViewBloc.add(DeleteTaskData(id: delete['id'].toString()));
+      todoViewBloc.add(const GetTaskData());
       Utils.showMobileToast('Deleted!');
     }
   }
@@ -174,9 +175,9 @@ class _TaskViewUIState extends State<TaskViewUI> {
           ),
         ),
         body: BlocProvider(
-          create: (context) => taskBloc..add(const GetTaskData()),
-          child: BlocConsumer<TaskBloc, TaskState>(listener: (context, state) {
-            if (state is TaskLoading) {
+          create: (context) => todoViewBloc..add(const GetTaskData()),
+          child: BlocConsumer<TodoViewBloc, TodoViewState>(listener: (context, state) {
+            if (state is TodoListLoading) {
               loading = true;
             } else if (state is TaskListLoaded) {
               loading = false;
@@ -187,9 +188,9 @@ class _TaskViewUIState extends State<TaskViewUI> {
             } else if (State is TaskLoaded) {
               loading = false;
               task.clear();
-              taskBloc.add(const GetTaskData());
+              todoViewBloc.add(const GetTaskData());
             } else {
-              taskBloc.add(const GetTaskData());
+              todoViewBloc.add(const GetTaskData());
               loading = true;
             }
           }, builder: (context, state) {

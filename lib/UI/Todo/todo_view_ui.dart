@@ -41,22 +41,33 @@ class TodoViewUI extends StatefulWidget {
 }
 
 class _TodoViewUIState extends State<TodoViewUI> {
-  Set<int> selectedIndices = {};
-  int? selectedIndex;
+
+  late TodoListRepo todoListRepo;
   TodoViewBloc? todoBloc;
   LocationDataBloc? locationDataBloc;
-  List<Map<String, dynamic>> todoList = [];
-  List<Map<String, dynamic>> todoListTemp = [];
-  bool statusFilter = false;
-  ScrollController singleChildScrollController = ScrollController();
+  final GlobalKey _key = GlobalKey();
+  TimeOfDay _selectedTime = TimeOfDay.now();
   Duration duration = const Duration();
   Timer? timer;
-  int? branchNO;
+  ScrollController singleChildScrollController = ScrollController();
+  TextEditingController notesController = TextEditingController();
+  TextEditingController editPartsController = TextEditingController();
+  TextEditingController editMultipleVehicleController = TextEditingController();
+  TextEditingController editSuppliesController = TextEditingController();
+  TextEditingController editMultipleAddressController = TextEditingController();
+  TextEditingController editVehicleGroupController = TextEditingController();
+  TextEditingController searchController = TextEditingController();
+  TextEditingController vehicleSearchController = TextEditingController();
+  TextEditingController reasonController = TextEditingController();
+  TextEditingController taskTimeController = TextEditingController();
+  TextEditingController dropdownController = TextEditingController();
+  TextEditingController vehiclePersonController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  final FocusNode vehicleSearchFocusNode = FocusNode();
   List<Map<String, dynamic>> resourceList = [];
   List<Map<String, dynamic>> resourceListForCombination = [];
   List<Map<String, dynamic>> resourceListForPersonField = [];
   List<Map<String, dynamic>> todoListResourceFilter = [];
-  late TodoListRepo todoListRepo;
   List<Map<String, dynamic>> vehicleStatus = [];
   List<Map<String, dynamic>> vendorList = [];
   List<Map<String, dynamic>> taskExpenseList = [];
@@ -66,14 +77,27 @@ class _TodoViewUIState extends State<TodoViewUI> {
   List<Map<String, dynamic>> vehicleGroupList = [];
   List<Map<String, dynamic>> userGroupList = [];
   List<Map<String, dynamic>> categoriesListData = [];
-  // OverlayEntry? overlay;
-  final FocusNode searchFocusNode = FocusNode();
-  final FocusNode vehicleSearchFocusNode = FocusNode();
-  TextEditingController searchController = TextEditingController();
-  TextEditingController vehicleSearchController = TextEditingController();
-  bool isFilterCheck = false;
-  int selectedUserCount = 0;
+  List<Map<String, dynamic>> todoList = [];
+  List<Map<String, dynamic>> todoListTemp = [];
   List<Map<String, dynamic>> filteredVendorsType = [];
+  List<Map<String, dynamic>>? selectedUserGroupOrUser;
+  List<Map<String, dynamic>>? addresses;
+  List<Map<String, dynamic>> taskCategoryGroupData = [];
+  List<Map<String, dynamic>> titleList=[];
+  int? selectedIndex;
+  int? branchNO;
+  int? deleteId;
+  int selectedUserCount = 0;
+  Set<int> selectedIndices = {};
+  String? value;
+  String? userShortName;
+  String? vehicleGroupName;
+  String? userGroupConcatenationName;
+  String searchQuery = '';
+  dynamic vendor;
+  dynamic vehicleName;
+  dynamic selectedVehicle;
+  dynamic selectedTime;
   bool isVehicleEdit = false;
   bool isPartsEdit = false;
   bool isSupplyEdit = false;
@@ -82,50 +106,57 @@ class _TodoViewUIState extends State<TodoViewUI> {
   bool isVendorEdit = false;
   bool isVehicleGroupEdit = false;
   bool isNotesEdit = false;
-  TextEditingController notesController = TextEditingController();
-  TextEditingController editPartsController = TextEditingController();
-  TextEditingController editMultipleVehicleController = TextEditingController();
-  TextEditingController editSuppliesController = TextEditingController();
-  TextEditingController editMultipleAddressController = TextEditingController();
-  TextEditingController editVehicleGroupController = TextEditingController();
-  String? userShortName;
-  String? vehicleGroupName;
-  List<Map<String, dynamic>>? selectedUserGroupOrUser;
-  List<Map<String, dynamic>>? addresses;
-  String? userGroupConcatenationName;
-  int? deleteId;
+  bool statusFilter = false;
   bool? isSelected = false;
-  Map<String, bool> selectedStates = {};
   bool? isVehicleSelected = false;
-  dynamic vendor;
+  bool isFilterCheck = false;
   bool isVehiclePresented = false;
-  List<dynamic> taskVehicleVins = [];
-  List<dynamic> filteredVehicle = [];
+  bool lastSelectedIsPerson = false;
+  Map<String, bool> selectedStates = {};
   Map<String, dynamic> listToFilterVehicle = {};
   Map<String, dynamic> searchedVehicle = {};
-  String searchQuery = '';
+  Map<String,dynamic>? nameList;
+  Set<String> selectedResourceIds = {};
   Set<String> selectedYears = {};
   Set<String> selectedMakes = {};
   Set<String> selectedModels = {};
-  dynamic vehicleName;
-  dynamic selectedVehicle;
-  TextEditingController dropdownController = TextEditingController();
-  Map<String,dynamic>? nameList;
-  TextEditingController reasonController = TextEditingController();
-  TextEditingController taskTimeController = TextEditingController();
-  dynamic selectedTime;
-  String? value;
   List<dynamic> todoImages = [];
+  List<dynamic> taskVehicleVins = [];
+  List<dynamic> filteredVehicle = [];
 
-  final GlobalKey _key = GlobalKey();
-  TextEditingController vehiclePersonController = TextEditingController();
-  Set<String> selectedResourceIds = {};
+
+  @override
+  void initState() {
+    todoListRepo = TodoListRepo();
+    todoBloc = TodoViewBloc();
+    locationDataBloc = LocationDataBloc();
+    todoBloc!.add(const GetVehicleListData());
+    todoBloc!.add(const GetTaskExpenseData());
+    todoBloc!.add(const GetVendorData());
+    todoBloc!.add(const GetLocationData());
+    todoBloc!.add(const GetDropdownData());
+    todoBloc!.add(const GetAssignedToList());
+    todoBloc!.add(const GetPartsList());
+    todoBloc!.add(const GetSuppliesList());
+    todoBloc!.add(const GetVehicleGroupingList());
+    todoBloc!.add(const GetUserGroupingList());
+    todoBloc!.add(const GetVehicleStatusList());
+    todoBloc!.add(const GetTaskCategoryGroup());
+    taskTimeController.addListener(() {setState(() {});});
+    reasonController.addListener(() {setState(() {});});
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    singleChildScrollController.dispose();
+    super.dispose();
+  }
 
   String stripHtmlTags(String htmlString) {
     return htmlString.replaceAll(RegExp(r'<[^>]*>'), '');
   }
 
-  bool lastSelectedIsPerson = false;
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
     for (Map<String, dynamic> res in resourceList) {
       if ('${res['first_name']}${res['last_name']}' ==
@@ -144,20 +175,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
 
   String formatShiftTimings(String shiftTimings) {
     try {
-      // Split the input string into start and end times
       List<String> times = shiftTimings.split('-');
-
       if (times.length != 2) return "Invalid format";
-
-      // Parse the start and end times
       DateTime startTime = DateFormat("ha").parse(times[0].trim());
       DateTime endTime = DateFormat("ha").parse(times[1].trim());
-
-      // Format the times into "hh:mm a"
       String formattedStartTime = DateFormat("hh:mm a").format(startTime);
       String formattedEndTime = DateFormat("hh:mm a").format(endTime);
-
-      // Combine the formatted times
       return "$formattedStartTime - $formattedEndTime";
     } catch (e) {
       return "Error formatting shift timings: $e";
@@ -168,18 +191,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
     if (value == null || value.isEmpty) {
       return 'Please enter the time taken.';
     }
-
-    // Regular expression to match HH:mm format
     final timeRegex = RegExp(r'^(?:[01]\d|2[0-3]):[0-5]\d$');
     if (!timeRegex.hasMatch(value)) {
       return 'Please enter time in the format HH:mm (e.g., 05:00).';
     }
-
-    return null; // Validation passed
+    return null;
   }
-
-
-
 
   void _filterTodo(String query) {
     setState(() {
@@ -194,7 +211,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
         final firstName = (todo['users']?['first_name'] ?? '').toString().toLowerCase();
         final lastName = (todo['users']?['last_name'] ?? '').toString().toLowerCase();
         final notes = (todo['notes'] ?? '').toString().toLowerCase();
-
         return name.contains(searchQuery) ||
             vehicle.contains(searchQuery) ||
             vehicles.contains(searchQuery) ||
@@ -209,7 +225,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
   void applyFilters() {
     setState(() {
       todoList = todoListTemp.where((vehicle) {
-
         if(vehicle['vehicle_name']!=null){
          vehicleName = vehicle['vehicle_name']?.toString().toLowerCase() ?? '';}
         else{
@@ -217,17 +232,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
             ? (vehicle['vehicles'][0]['vehicle_name'] ?? '').toString().toLowerCase()
             : '';
         }
-
         final yearMatch = selectedYears.isEmpty ||
             selectedYears.any((year) => vehicleName.contains(year.toLowerCase()));
-
         final makeMatch = selectedMakes.isEmpty ||
             selectedMakes.any((make) => vehicleName.contains(make.toLowerCase()));
-
         final modelMatch = selectedModels.isEmpty ||
             selectedModels.any((model) => vehicleName.contains(model.toLowerCase()));
-
-        // Return true only if all selected filters match the vehicle_name
         return yearMatch && makeMatch && modelMatch;
       }).toList();
     });
@@ -236,7 +246,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
   void show(BuildContext context, String message, String status, String id,
       String oldDate) {
     OverlayEntry? overlay;
-
     overlay = OverlayEntry(
       builder: (context) => Positioned(
         bottom: 20,
@@ -250,18 +259,14 @@ class _TodoViewUIState extends State<TodoViewUI> {
             todoBloc!.add(EditTodoDate(
                 null, true, id.toString(), addedDate, null, null, null, null, null));
           }
-          // Check if overlay is still mounted before removing
           if (overlay != null && overlay!.mounted) {
             overlay?.remove();
-            overlay = null; // Prevent further references
+            overlay = null;
           }
         }),
       ),
     );
-
     Overlay.of(context).insert(overlay!);
-
-    // Automatically remove the overlay after 3 seconds
     Timer(const Duration(seconds: 3), () {
       if (overlay != null && overlay!.mounted) {
         overlay?.remove();
@@ -269,9 +274,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
       }
     });
   }
-
-
-  TimeOfDay _selectedTime = TimeOfDay.now();
 
   Future<void> _selectTime(BuildContext context, id) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -312,12 +314,10 @@ class _TodoViewUIState extends State<TodoViewUI> {
         );
       },
     );
-
     if (picked != null && picked != _selectedTime) {
       setState(() {
         _selectedTime = picked;
       });
-
       final formattedTime = formatTimeOfDay(_selectedTime);
 
       todoBloc!.add(EditTodoDate(formattedTime, false, id.toString(), null,
@@ -331,10 +331,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
               ?.firstWhere(
                 (vehicle) => vehicle.vin.toUpperCase() == taskVin.toUpperCase(),
                 orElse: () => null,
-              )
-              ?.distance
-              .toString() ??
-          '';
+              )?.distance.toString() ?? '';
     } else if (taskVehicles != null && taskVehicles.length == 1) {
       return reservationVehicles
               ?.firstWhere(
@@ -342,53 +339,24 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     vehicle.vin.toUpperCase() ==
                     taskVehicles[0].vin.toUpperCase(),
                 orElse: () => null,
-              )
-              ?.distance
-              .toString() ?? '';
+              )?.distance.toString() ?? '';
     } else {
       return '';
     }
   }
 
-  @override
-  void dispose() {
-    singleChildScrollController.dispose();
-    super.dispose();
+  String formatTimeOfDay(TimeOfDay tod) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
+    final format = DateFormat("HH:mm:ss");
+    return format.format(dt);
   }
 
-  @override
-  void initState() {
-    todoListRepo = TodoListRepo();
-    todoBloc = TodoViewBloc();
-    locationDataBloc = LocationDataBloc();
-    todoBloc!.add(const GetVehicleListData());
-    // formattedDate = DateFormat('yyyy-MMM-dd').format(selectedDate);
-    // filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-    todoBloc!.add(const GetTaskExpenseData());
-    todoBloc!.add(const GetVendorData());
-    todoBloc!.add(const GetLocationData());
-    todoBloc!.add(const GetDropdownData());
-    todoBloc!.add(const GetAssignedToList());
-    todoBloc!.add(const GetPartsList());
-    todoBloc!.add(const GetSuppliesList());
-    todoBloc!.add(const GetVehicleGroupingList());
-    todoBloc!.add(const GetUserGroupingList());
-    todoBloc!.add(const GetVehicleStatusList());
-
-    // locationDataBloc!.add(const GetAddedLocationListData());
-    // reseteer();
-    // startTimer();
-    // singleChildScrollController.addListener(_onScroll);
-    taskTimeController.addListener(() {
-      setState(() {}); // Rebuild widget whenever text changes
-    });
-    reasonController.addListener(() {
-      setState(() {}); // Rebuild widget whenever text changes
-    });
-
-
-
-    super.initState();
+  String format24TimeOfDay(TimeOfDay tod) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
+    final format = DateFormat("HH:mm:ss");
+    return format.format(dt);
   }
 
   void _showImageDialog(List<dynamic> imageUrls, int index) {
@@ -396,12 +364,10 @@ class _TodoViewUIState extends State<TodoViewUI> {
     for (var n in todoList) {
       img.addAll(n);
     }
-
     PageController pageController = PageController(initialPage: index);
     ValueNotifier<double> rotationAngle = ValueNotifier<double>(0.0); // Track rotation angle
     TransformationController transformationController = TransformationController(); // Controls zoom
     double currentScale = 1.0; // Initial zoom level
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -463,7 +429,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                   currentScale = 1.0; // Reset to original scale
                                 }
                                 transformationController.value = Matrix4.identity()..scale(currentScale);
-
                               },
                                 child: CachedNetworkImage(
                                   imageUrl: img['todoimages'] != null
@@ -502,42 +467,45 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     },
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      Assets.whatsAppIcon,
-                      height: 24,
-                      width: 24,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        rotationAngle.value += 3.14 / 2; // Rotate by 90 degrees (π/2 radians)
-                      },
-                      child: const Icon(Icons.rotate_right_rounded),
-                    ),
-                    Image.asset(
-                      Assets.mail,
-                      height: 24,
-                      width: 24,
-                    ),
-                  ],
-                ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 80.0),
-                  child: SmoothPageIndicator(
-                    controller: pageController,
-                    count: imageUrls.length,
-                    effect: const JumpingDotEffect(
-                      spacing: 8.0,
-                      radius: 8.0,
-                      dotWidth: 10.0,
-                      dotHeight: 10.0,
-                      paintStyle: PaintingStyle.fill,
-                      strokeWidth: 1.5,
-                      dotColor: Colors.grey,
-                      activeDotColor: Colors.indigo,
-                    ),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        Assets.whatsAppIcon,
+                        height: 24,
+                        width: 24,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: GestureDetector(
+                          onTap: () {
+                            rotationAngle.value += 3.14 / 2; // Rotate by 90 degrees (π/2 radians)
+                          },
+                          child: const Icon(Icons.rotate_right_rounded),
+                        ),
+                      ),
+                      Image.asset(
+                        Assets.mail,
+                        height: 24,
+                        width: 24,
+                      ),
+                    ],
+                  ),
+                ),
+                SmoothPageIndicator(
+                  controller: pageController,
+                  count: imageUrls.length,
+                  effect: const JumpingDotEffect(
+                    spacing: 8.0,
+                    radius: 8.0,
+                    dotWidth: 10.0,
+                    dotHeight: 10.0,
+                    paintStyle: PaintingStyle.fill,
+                    strokeWidth: 1.5,
+                    dotColor: Colors.grey,
+                    activeDotColor: Colors.indigo,
                   ),
                 ),
               ],
@@ -548,81 +516,264 @@ class _TodoViewUIState extends State<TodoViewUI> {
     );
   }
 
-
-
-
-  String formatTimeOfDay(TimeOfDay tod) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
-    final format = DateFormat("HH:mm:ss");
-    return format.format(dt);
-  }
-
-  String format24TimeOfDay(TimeOfDay tod) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
-    final format = DateFormat("HH:mm:ss");
-    return format.format(dt);
-  }
-
   void showObjectPopupMainMenuWithCheckBox(
+      BuildContext context,
       List<Map<String, dynamic>> todoListMenu,
       TapDownDetails details,
       Function(List<Map<String, dynamic>>?) onSelect,
-      )
+      List<Map<String, dynamic>> taskCategoryGroupData,
+      List<Map<String, dynamic>> titleList,
+      ) async {
+    // State management for checkboxes
+    Map<String, bool> checkboxStates = {};
+
+    // Lists to store processed data
+    List<Map<String, dynamic>> taskList = [];
+    List<Map<String, dynamic>> headList = [];
+    List<Map<String, dynamic>> headListName = [];
+
+    // Populate `taskList` based on `todoListMenu` and `taskCategoryGroupData`
+    for (var list in taskCategoryGroupData) {
+      var subCategory = list['subcategories'] ?? [];
+
+      for (var data in todoListMenu) {
+        var matchedSubcategory = subCategory.firstWhere(
+              (item) =>
+          item['name'].toString().toLowerCase() ==
+              data['title'].toString().toLowerCase(),
+          orElse: () => {},
+        );
+        if (matchedSubcategory.isNotEmpty && !taskList.contains(matchedSubcategory)) {
+          taskList.add(matchedSubcategory);
+          checkboxStates[matchedSubcategory['id'].toString()] = false; // Initialize checkbox state
+        }
+      }
+
+    }
+
+    // Populate `headList` from `taskList`
+    for (var sub in taskList) {
+      var matchedGroup = taskCategoryGroupData.firstWhere(
+            (item) => item['id'] == sub['parent_id'],
+        orElse: () => {},
+      );
+      if (matchedGroup.isNotEmpty && !headList.contains(matchedGroup)) {
+        headList.add(matchedGroup);
+      }
+    }
+
+    // Populate `headListName` from `headList`
+    for (var head in headList) {
+      var matchedTitle = titleList.firstWhere(
+            (item) => item['id'] == head['id'],
+        orElse: () => {},
+      );
+      if (matchedTitle.isNotEmpty && !headListName.contains(matchedTitle)) {
+        headListName.add(matchedTitle);
+      }
+    }
+
+    // Display the popup menu
+    showMenu<List<Map<String, dynamic>>>(
+      context: context,
+      color: AppC.white,
+      constraints: const BoxConstraints.tightFor(width: 500),
+      position: RelativeRect.fromLTRB(
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+      ),
+      items: <PopupMenuEntry<List<Map<String, dynamic>>>>[
+        PopupMenuItem<List<Map<String, dynamic>>>(
+          height: 22,
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.close, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Utils.getText('Close',weight: FontWeight.w900,),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<List<Map<String, dynamic>>>(
+          height: 20,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                     Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: Utils.getText(
+                        'All Todo',
+                        size: 12,
+                        weight: FontWeight.w900,
+                      ),
+                    ),
+                    Transform.scale(
+                      scale: 0.7,
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Checkbox(
+                          value: checkboxStates['all'] ?? false,
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              checkboxStates['all'] = newValue ?? false;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        PopupMenuItem<List<Map<String, dynamic>>>(
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return PopupMenuTheme(
+                data: const PopupMenuThemeData(color: Colors.white),
+                child: Wrap(
+                  children: headListName.map((name) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Utils.getText(
+                                  name['name'] ?? '',
+                                  weight: FontWeight.w900,
+                                ),
+                                Transform.scale(
+                                  scale: 0.7,
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 20,
+                                    child: Checkbox(
+                                      value: checkboxStates[name['id'].toString()] ?? false,
+                                      onChanged: (bool? newValue) {
+                                        setState(() {
+                                          checkboxStates[name['id'].toString()] = newValue ?? false;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ...taskList
+                                .where((task) => task['parent_id'] == name['id'])
+                                .map((task) {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Transform.scale(
+                                    scale: 0.7,
+                                    child: SizedBox(
+                                      width: 30,
+                                      height: 20,
+                                      child: Checkbox(
+                                        value: checkboxStates[task['id'].toString()] ?? false,
+                                        onChanged: (bool? newValue) {
+                                          setState(() {
+                                            checkboxStates[task['id'].toString()] = newValue ?? false;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Utils.getText(task['name'] ?? ''),
+                                ],
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+
+/*  void showObjectPopupMainMenuWithCheckBox(
+      List<Map<String, dynamic>> todoListMenu,
+      TapDownDetails details,
+      Function(List<Map<String, dynamic>>?) onSelect,)
   async {
     bool value = false;
-    Map<String, dynamic> groupedTodos = {};
-    for (var todo in todoListMenu) {
-      if (!groupedTodos.containsKey(todo['title'])) {
-        groupedTodos[todo['title']!] = [];
-      }
-      groupedTodos[todo['title']!]!.add(todo);
-    }
+    Map<String, dynamic> taskTitle = {};
+    List<dynamic> subCategory = [];
+    List<Map<String, dynamic>> taskList = [];
+    List<Map<String, dynamic>> headList = [];
+    List<Map<String, dynamic>> headListName = [];
+    Map<String, dynamic>?subList;
+    for (var list in taskCategoryGroupData) {
+      taskTitle.addAll(list);
+      subCategory = list['subcategories'];
 
-    Map<String, dynamic> groupTitle = {
-      'Rental': [],
-      'Non-Rental': [],
-      'Offshore': [],
-    };
-
-    RegExp rentalMatch =
-    RegExp(r'^(CheckIn Car|CheckOut Car|Clean|Clean Car|Pickup|Drop off)$');
-
-    Set<String> excludedTitles = {'Check In', 'Check Out'};
-
-    for (var key in groupedTodos.keys) {
-      for (var todo in groupedTodos[key]!) {
-        if (excludedTitles.contains(todo['title'])) {
-          // Skip the excluded titles
-          continue;
+      for (var data in todoListMenu) {
+        var matchedSubcategory = subCategory.firstWhere(
+              (item) => item['name'].toString().toLowerCase() == data['title'].toString().toLowerCase(),
+          orElse: () => {},
+        );
+        if (matchedSubcategory.isNotEmpty && !taskList.contains(matchedSubcategory)) {
+          taskList.add(matchedSubcategory);
         }
-
-        if (rentalMatch.hasMatch(todo['title']!)) {
-          if (!groupTitle['Rental']!.any((t) => t['title'] == todo['title'])) {
-            groupTitle['Rental']!.add(todo);
-          }
-        } else if (todo['title'] == 'Support Review' ||
-            todo['title'] == 'Inventory') {
-          if (!groupTitle['Offshore']!
-              .any((t) => t['title'] == todo['title'])) {
-            groupTitle['Offshore']!.add(todo);
-          }
-        } else {
-          if (!groupTitle['Non-Rental']!
-              .any((t) => t['title'] == todo['title'])) {
-            groupTitle['Non-Rental']!.add(todo);
-          }
+      }
+      for (var sub in taskList) {
+        var matchedGroup = taskCategoryGroupData.firstWhere(
+              (item) => item['id'] == sub['parent_id'],
+          orElse: () => {},
+        );
+        if (matchedGroup.isNotEmpty && !headList.contains(matchedGroup)) {
+          headList.add(matchedGroup);
+        }
+      }
+      for (var sub in headList) {
+        var matchedTitle = titleList.firstWhere(
+              (item) => item['id'] == sub['id'],
+          orElse: () => {},
+        );
+        if (matchedTitle.isNotEmpty && !headListName.contains(matchedTitle)) {
+          headListName.add(matchedTitle);
         }
       }
     }
-
-    onSelect([
-      ...groupTitle['Rental']!,
-      ...groupTitle['Non-Rental']!,
-      ...groupTitle['Offshore']!,
-    ]);
-
     showMenu<List<Map<String, dynamic>>>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -651,14 +802,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
                   bottom: BorderSide(
                       color: Colors.grey.withOpacity(0.4), width: 1.2),
                 ),
-               /* boxShadow: [
-                  BoxShadow(
-                    color: AppC.black.withOpacity(0.25), // Shadow color with transparency
-                    spreadRadius: 0, // Keep the shadow confined
-                    blurRadius: 10, // Softens the shadow edges
-                    offset: const Offset(0, 4), // Moves the shadow downward
-                  ),
-                ],*/
               ),
               child: Row(
                 children: [
@@ -666,493 +809,139 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     Icons.close,
                     color: Colors.red,
                   ),
-                  Utils.getText('close', weight: FontWeight.bold, size: 16),
+                  Utils.getText('Close', weight: FontWeight.w900, size: 12),
                 ],
               ),
             ),
-
           ),
         ),
         PopupMenuItem<List<Map<String, dynamic>>>(
           onTap: () {
-           /* for (var element in todoListMenu) {
-              isFilterCheck = false;
-            }
-            if (todoListMenu.where((todos) => isFilterCheck == true).toList().isEmpty) {
-              todoList = todoListMenu
-                  .where((todos) => isFilterCheck == false)
-                  .toList();
-            } else {
-              todoList =
-                  todoListMenu.where((todos) => isFilterCheck == true).toList();
-            }
-            onSelect(todoList);*/
+
           },
-          height: 24,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppC.white,
-              border: Border(
-                top: const BorderSide(color: AppC.white, width: 1),
-                left: const BorderSide(color: AppC.white, width: 1),
-                right: const BorderSide(color: AppC.white, width: 1),
-                bottom: BorderSide(
-                    color: Colors.grey.withOpacity(0.4), width: 1.2),
-              ),
-              /*boxShadow: [
-                BoxShadow(
-                  color: AppC.black.withOpacity(0.25), // Shadow color with transparency
-                  spreadRadius: 0, // Keep the shadow confined
-                  blurRadius: 10, // Softens the shadow edges
-                  offset: const Offset(0, 4), // Moves the shadow downward
-                ),
-              ],*/
-            ),
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10,),
-                  child: Text(
-                    'All Todo',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Transform.scale(scale: 0.8,
-                  child: SizedBox(width: 20,
-                    child: Checkbox(
-                      value: value,
-                      onChanged: (bool? newValue) {
-                        setState(() {
-                          value = newValue ?? false;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        PopupMenuItem<List<Map<String, dynamic>>>(
+          height: 20,
           child: StatefulBuilder(
-            builder: (context, setState) {
-              return PopupMenuTheme(
-                data: const PopupMenuThemeData(
-                  color: Colors.white,
-                ),
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    children: groupTitle.entries.expand((entry) {
-                      return [
-                        Container(
-                            decoration: BoxDecoration(
-                            color: AppC.white,
-                              border: Border(
-                                top: const BorderSide(color: AppC.white, width: 1),
-                                left: const BorderSide(color: AppC.white, width: 1),
-                                right: const BorderSide(color: AppC.white, width: 1),
-                                bottom: BorderSide(
-                                    color: Colors.grey.withOpacity(0.4), width: 1.2),
-                              ),
-                            // boxShadow: [
-                            //   BoxShadow(
-                            //     color: AppC.black.withOpacity(0.25), // Shadow color with transparency
-                            //     spreadRadius: 0, // Keep the shadow confined
-                            //     blurRadius: 10, // Softens the shadow edges
-                            //     offset: const Offset(0, 4), // Moves the shadow downward
-                            //   ),
-                            // ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 4),
-                            child:
-                            Text(
-                              entry.key,
-                              style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppC.black),
-                            ),
-                          ),
-                        ),
-                        ...entry.value.map((todo) => GestureDetector(
-                          onTap: () {
-                            bool newValue = !(isFilterCheck);
-
-                            for (var element in todoListMenu) {
-                              if (element['title'] == todo['title']) {
-                                isFilterCheck = newValue;
-                              }
-                            }
-
-                            isFilterCheck = newValue;
-                            setState(() {});
-
-                            if (todoListMenu
-                                .where((todos) => isFilterCheck == true)
-                                .toList()
-                                .isEmpty) {
-                              todoList = todoListMenu
-                                  .where(
-                                      (todos) => isFilterCheck == false)
-                                  .toList();
-                            } else {
-                              todoList = todoListMenu
-                                  .where(
-                                      (todos) => isFilterCheck == true)
-                                  .toList();
-                            }
-
-                            onSelect(todoList);
-                          },
-                          child: Container(
-                            height: 30.0,
-                            decoration: const BoxDecoration(
-                              color: AppC.white,
-                              // border: Border(
-                              //   top: const BorderSide(color: AppC.white, width: 1),
-                              //   left: const BorderSide(color: AppC.white, width: 1),
-                              //   right: const BorderSide(color: AppC.white, width: 1),
-                              //   bottom: BorderSide(
-                              //       color: Colors.grey.withOpacity(0.4), width: 1.2),
-                              // ),
-                             /* boxShadow: [
-                                BoxShadow(
-                                  color: AppC.black.withOpacity(0.25), // Shadow color with transparency
-                                  spreadRadius: 0, // Keep the shadow confined
-                                  blurRadius: 10, // Softens the shadow edges
-                                  offset: const Offset(0, 4), // Moves the shadow downward
-                                ),
-                              ],*/
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0.0),
-                            child: Row(
-                              children: [
-                                Transform.scale(
-                                  scale: 0.8,
-                                  child: Checkbox(
-                                    activeColor: AppC()
-                                        .base, // Replace with your color
-                                    value: isFilterCheck,
-                                    onChanged: (bool? value) {
-                                      for (var element
-                                      in todoListMenu) {
-                                        if (element['title'] ==
-                                            todo['title']) {
-                                          isFilterCheck =
-                                          (value ?? false);
-                                        }
-                                      }
-                                      setState(() {
-                                        isFilterCheck = value ?? false;
-                                      });
-
-                                      if (todoListMenu.where((todos) => isFilterCheck == true).toList().isEmpty) {
-                                        todoList = todoListMenu.where((todos) =>
-                                        isFilterCheck == false)
-                                            .toList();
-                                      } else {
-                                        todoList = todoListMenu
-                                            .where((todos) =>
-                                        isFilterCheck == true)
-                                            .toList();
-                                      }
-                                      onSelect(todoList);
-                                    },
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Utils.getText(
-                                    todo['title'] ?? '',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )),
-                      ];
-                    }).toList().cast<Widget>(),
+              builder: (context, setState) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: AppC.white,
+                  border: Border(
+                    top: const BorderSide(color: AppC.white, width: 1),
+                    left: const BorderSide(color: AppC.white, width: 1),
+                    right: const BorderSide(color: AppC.white, width: 1),
+                    bottom: BorderSide(
+                        color: Colors.grey.withOpacity(0.4), width: 1.2),
                   ),
+                ),
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5,),
+                      child: Text(
+                        'All Todo',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                      ),
+                    ),
+                    Transform.scale(scale: 0.7,
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Checkbox(
+                          value: value,
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              value = newValue ?? false;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-
-/*
-  void showObjectPopupMainMenuWithCheckBox(
-      List<Map<String, dynamic>> todoListMenu,
-      TapDownDetails details,
-      Function(List<Map<String, dynamic>>?) onSelect,
-      )
-  async {
-    bool value = false;
-    Map<String, dynamic> groupedTodos = {};
-    for (var todo in todoListMenu) {
-      if (!groupedTodos.containsKey(todo['title'])) {
-        groupedTodos[todo['title']!] = [];
-      }
-      groupedTodos[todo['title']!]!.add(todo);
-    }
-
-    Map<String, dynamic> groupTitle = {
-      'Rental': [],
-      'Non-Rental': [],
-      'Offshore': [],
-    };
-
-    RegExp rentalMatch =
-        RegExp(r'^(CheckIn Car|CheckOut Car|Clean|Clean Car|Pickup|Drop off)$');
-
-    Set<String> excludedTitles = {'Check In', 'Check Out'};
-
-    for (var key in groupedTodos.keys) {
-      for (var todo in groupedTodos[key]!) {
-        if (excludedTitles.contains(todo['title'])) {
-          // Skip the excluded titles
-          continue;
-        }
-
-        if (rentalMatch.hasMatch(todo['title']!)) {
-          if (!groupTitle['Rental']!.any((t) => t['title'] == todo['title'])) {
-            groupTitle['Rental']!.add(todo);
-          }
-        } else if (todo['title'] == 'Support Review' ||
-            todo['title'] == 'Inventory') {
-          if (!groupTitle['Offshore']!
-              .any((t) => t['title'] == todo['title'])) {
-            groupTitle['Offshore']!.add(todo);
-          }
-        } else {
-          if (!groupTitle['Non-Rental']!
-              .any((t) => t['title'] == todo['title'])) {
-            groupTitle['Non-Rental']!.add(todo);
-          }
-        }
-      }
-    }
-
-    onSelect([
-      ...groupTitle['Rental']!,
-      ...groupTitle['Non-Rental']!,
-      ...groupTitle['Offshore']!,
-    ]);
-
-    showMenu<List<Map<String, dynamic>>>(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-      ),
-      surfaceTintColor: AppC.white,
-      constraints: const BoxConstraints.tightFor(width: 500),
-      color: AppC.white,
-      items: <PopupMenuEntry<List<Map<String, dynamic>>>>[
-        PopupMenuItem<List<Map<String, dynamic>>>(
-          height: 22,
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppC.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppC.black
-                        .withOpacity(0.25), // Shadow color with transparency
-                    spreadRadius: 2, // Expands the shadow outward
-                    blurRadius: 10, // Softens the shadow edges
-                    offset: const Offset(
-                        0, 4), // Moves the shadow slightly downward
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.close,
-                    color: Colors.red,
-                  ),
-                  Utils.getText('close', weight: FontWeight.bold, size: 16),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem<List<Map<String, dynamic>>>(
-          onTap: () {
-            for (var element in todoListMenu) {
-              isFilterCheck = false;
             }
-            if (todoListMenu.where((todos) => isFilterCheck == true).toList().isEmpty) {
-              todoList = todoListMenu
-                  .where((todos) => isFilterCheck == false)
-                  .toList();
-            } else {
-              todoList =
-                  todoListMenu.where((todos) => isFilterCheck == true).toList();
-            }
-            onSelect(todoList);
-          },
-          height: 24,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppC.white,
-              boxShadow: [
-                BoxShadow(
-                  color: AppC.black.withOpacity(0.25),
-                  spreadRadius: 2,
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
-                  child: Text(
-                    'All Todo',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Checkbox(
-                  value: value,
-                  onChanged: (bool? newValue) {
-                    setState(() {
-                      value = newValue ?? false;
-                    });
-                  },
-                ),
-              ],
-            ),
           ),
         ),
-        const PopupMenuDivider(),
         PopupMenuItem<List<Map<String, dynamic>>>(
+
           child: StatefulBuilder(
             builder: (context, setState) {
               return PopupMenuTheme(
                 data: const PopupMenuThemeData(
                   color: Colors.white,
                 ),
-                child: SingleChildScrollView(
-                  child: Wrap(
-                        children: groupTitle.entries.expand((entry) {
-                              return [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 4),
-                                  child:
-                                  Text(
-                                    entry.key,
-                                    style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppC.black),
+                child: Wrap(
+                  children: headListName.map((name){
+                      dynamic list;
+                    for (var task in taskList){
+                      if(task['parent_id']==name['id']){
+                        list=task;
+                      }
+                    }
+                    return Container(
+                          decoration: BoxDecoration(
+                          color: AppC.white,
+                            border: Border(
+                              top: const BorderSide(color: AppC.white, width: 1),
+                              left: const BorderSide(color: AppC.white, width: 1),
+                              right: const BorderSide(color: AppC.white, width: 1),
+                              bottom: BorderSide(
+                                  color: Colors.grey.withOpacity(0.4), width: 1.2),
+                            ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 4),
+                          child:
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Utils.getText(name['name']??'',weight: FontWeight.bold),
+                                  Transform.scale(scale: 0.7,
+                                    child: SizedBox(
+                                      width: 30,
+                                      height: 20,
+                                      child: Checkbox(
+                                        value: value,
+                                        onChanged: (bool? newValue) {
+                                          setState(() {
+                                            value = newValue ?? false;
+                                          });
+                                        },
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                ...entry.value.map((todo) => GestureDetector(
-                                      onTap: () {
-                                        bool newValue = !(isFilterCheck);
+                                  Utils.getText(list['parent_id']==name['id']?(taskList.length).toString():'',weight: FontWeight.bold),
+                                ],
+                              ),
 
-                                        for (var element in todoListMenu) {
-                                          if (element['title'] == todo['title']) {
-                                            isFilterCheck = newValue;
-                                          }
-                                        }
-
-                                        isFilterCheck = newValue;
-                                        setState(() {});
-
-                                        if (todoListMenu
-                                            .where((todos) => isFilterCheck == true)
-                                            .toList()
-                                            .isEmpty) {
-                                          todoList = todoListMenu
-                                              .where(
-                                                  (todos) => isFilterCheck == false)
-                                              .toList();
-                                        } else {
-                                          todoList = todoListMenu
-                                              .where(
-                                                  (todos) => isFilterCheck == true)
-                                              .toList();
-                                        }
-
-                                        onSelect(todoList);
-                                      },
-                                      child: Container(
-                                        height: 30.0,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0.0),
-                                        child: Row(
-                                          children: [
-                                            Transform.scale(
-                                              scale: 0.8,
-                                              child: Checkbox(
-                                                activeColor: AppC()
-                                                    .base, // Replace with your color
-                                                value: isFilterCheck,
-                                                onChanged: (bool? value) {
-                                                  for (var element
-                                                      in todoListMenu) {
-                                                    if (element['title'] ==
-                                                        todo['title']) {
-                                                      isFilterCheck =
-                                                          (value ?? false);
-                                                    }
-                                                  }
-
-                                                  setState(() {
-                                                    isFilterCheck = value ?? false;
-                                                  });
-
-                                                  if (todoListMenu
-                                                      .where((todos) =>
-                                                          isFilterCheck == true)
-                                                      .toList()
-                                                      .isEmpty) {
-                                                    todoList = todoListMenu
-                                                        .where((todos) =>
-                                                            isFilterCheck == false)
-                                                        .toList();
-                                                  } else {
-                                                    todoList = todoListMenu
-                                                        .where((todos) =>
-                                                            isFilterCheck == true)
-                                                        .toList();
-                                                  }
-
-                                                  onSelect(todoList);
-                                                },
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Utils.getText(
-                                                todo['title'] ?? '',
-                                              ),
-                                            ),
-                                          ],
+                                Row(
+                                  children: [
+                                    Transform.scale(scale: 0.7,
+                                      child: SizedBox(
+                                        width: 30,
+                                        height: 20,
+                                        child: Checkbox(
+                                          value: value,
+                                          onChanged: (bool? newValue) {
+                                            setState(() {
+                                              value = newValue ?? false;
+                                            });
+                                          },
                                         ),
                                       ),
-                                    )),
-                              ];
-                            })
-                            .toList()
-                            .cast<Widget>(),
-                      ),
-
+                                    ),
+                                     Utils.getText(list['parent_id']==name['id']?
+                                        list['name'] ?? '':''),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                  }).toList(),
                 ),
               );
             },
@@ -1160,8 +949,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
         ),
       ],
     );
-  }
-*/
+  }*/
 
   void showPopupWithCheckBoxDepartmentWise(
     List<Map<String, dynamic>> resourceList,
@@ -1184,10 +972,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
       groupedResources[departmentName]!.add(resource);
       selectedStates.putIfAbsent(resource['id'].toString(), () => false);
     }
-
-    // Maintain the `isExpanded` state globally within this context
     bool isExpanded = false;
-
     showMenu<List<Map<String, dynamic>?>>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -1296,25 +1081,17 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       ? "Completed"
                                       : "In Progress",
                                   resourceId: Utils.getStringFromObjectList(
-                                    resourceList
-                                        .where(
-                                          (res) =>
-                                              selectedStates[
-                                                  res['id'].toString()] ==
-                                              true,
-                                        )
-                                        .toList(),
+                                    resourceList.where(
+                                          (res) => selectedStates[res['id'].toString()] == true,
+                                    ).toList(),
                                   ),
                                   branchId: branchNO.toString(),
                                 ));
                               },
                               child: Container(
                                 height: 30.0,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 0.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                padding:const EdgeInsets.symmetric(horizontal: 0.0),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
@@ -1326,30 +1103,21 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                             onChanged: (bool? value) {
                                               if (value != null) {
                                                 setState(() {
-                                                  selectedStates[resourceId] =
-                                                      value;
+                                                  selectedStates[resourceId] = value;
                                                 });
                                                 selectedUserCount =
                                                     selectedStates.values
-                                                        .where((isSelected) =>
-                                                            isSelected)
+                                                        .where((isSelected) => isSelected)
                                                         .length;
                                                 todoBloc!.add(GetTodoList(
                                                   selectedDate: filterDate,
                                                   status: statusFilter
                                                       ? "Completed"
                                                       : "In Progress",
-                                                  resourceId: Utils
-                                                      .getStringFromObjectList(
-                                                    resourceList
-                                                        .where(
-                                                          (res) =>
-                                                              selectedStates[res[
-                                                                      'id']
-                                                                  .toString()] ==
-                                                              true,
-                                                        )
-                                                        .toList(),
+                                                  resourceId: Utils.getStringFromObjectList(
+                                                    resourceList.where(
+                                                          (res) => selectedStates[res['id'].toString()] == true,
+                                                        ).toList(),
                                                   ),
                                                   branchId: branchNO.toString(),
                                                 ));
@@ -1365,21 +1133,13 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                     Row(
                                       children: [
                                         Utils.getText(
-                                          resource['unavailable_days'] !=
-                                                      null &&
-                                                  resource[
-                                                          'unavailable_days'] ==
-                                                      DateFormat('EEEE').format(
-                                                          DateTime.now())
-                                              ? 'Unavailable'
-                                              : (resource['from_time'] !=
-                                                          null &&
-                                                      resource['from_time']
-                                                          .isNotEmpty &&
-                                                      resource['to_time'] !=
-                                                          null &&
-                                                      resource['to_time']
-                                                          .isNotEmpty)
+                                          resource['unavailable_days'] != null &&
+                                              resource['unavailable_days'] ==
+                                                  DateFormat('EEEE').format(DateTime.now())
+                                              ? 'Unavailable' : (resource['from_time'] != null &&
+                                              resource['from_time'].isNotEmpty &&
+                                              resource['to_time'] != null &&
+                                              resource['to_time'].isNotEmpty)
                                                   ? "${Utils.convertString24HTo12H(resource['from_time'] ?? '')} - ${Utils.convertString24HTo12H(resource['to_time'] ?? '')}"
                                                   : '',
                                           weight: FontWeight.bold,
@@ -1437,10 +1197,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      // appBar: PreferredSize(
-      //   preferredSize: Size.fromHeight(35.0), // Change the height here
-      //   child: HeaderView(),
-      // ),
       body: MultiBlocProvider(
           providers: [
             BlocProvider(
@@ -1468,19 +1224,36 @@ class _TodoViewUIState extends State<TodoViewUI> {
                   listener: (context, state) async {
                     if (state is TaskExpenseLoaded) {
                       taskExpenseList = state.resource ?? [];
-                    } else if (state is VendorLoaded) {
+                    }
+                    else if (state is VendorLoaded) {
                       vendorList = state.resource ?? [];
-                    } else if (state is PartsLoaded) {
+                    }
+                    else if (state is PartsLoaded) {
                       if (state.partsList != null) {
                         editPartsList.addAll(state.partsList!);
                       }
-                    } else if (state is SuppliesLoaded) {
+                    }
+                    else if(state is TaskCategoryGroupLoaded){
+                      taskCategoryGroupData.clear();
+                      taskCategoryGroupData.addAll(state.data??[]);
+
+                      for (Map<String, dynamic> res in taskCategoryGroupData) {
+                        Map<String, dynamic> vehiclesData = {
+                          'id': res['id'],
+                          'name': res['name'],
+                        };
+                        titleList.add(vehiclesData);
+                      }
+                    }
+                    else if (state is SuppliesLoaded) {
                       if (state.suppliesList != null) {
                         editSuppliesList.addAll(state.suppliesList!);
                       }
-                    } else if (state is LocationLoaded) {
+                    }
+                    else if (state is LocationLoaded) {
                       locationList = state.resource ?? [];
-                    } else if (branchNO != branchNO) {
+                    }
+                    else if (branchNO != branchNO) {
                       todoBloc!.add(GetTodoList(
                         selectedDate: filterDate,
                         status: statusFilter ? "Completed" : "In Progress",
@@ -1488,7 +1261,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             selectedResourceMain ?? []),
                         branchId: branchNO.toString(),
                       ));
-                    } else if (state is VehicleDataLoaded) {
+                    }
+                    else if (state is VehicleDataLoaded) {
                       todoBloc!.add(GetTodoList(
                         selectedDate: filterDate,
                         status: statusFilter ? "Completed" : "In Progress",
@@ -1501,12 +1275,10 @@ class _TodoViewUIState extends State<TodoViewUI> {
                         vehicleList.addAll(state.vehicleData ?? []);
                         editMultipleVehicleList.addAll(state.vehicleData ?? []);
                       }
-                    } else if (state is TodoListLoaded) {
+                    }
+                    else if (state is TodoListLoaded) {
                       todoList = [];
                       todoListTemp = [];
-                      // userIdGlobal
-      // todoListTemp!.addAll(state.todoList?.where((todo) => todo.userId == "2") ?? []);
-      // todoList!.addAll(state.todoList?.where((todo) => todo.userId == "2") ?? []);
                       var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
                       var list1 = state.todoList
                               ?.where((todo) =>
@@ -1540,10 +1312,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       resourceListForPersonField.clear();
                       resourceList.addAll(state.resource ?? []);
                       resourceListForPersonField.addAll(state.resource ?? []);
-                      // List<Map<String, dynamic>> localList = [];
-                      // localList.addAll(state.resource ?? []);
-                      resourceList
-                          .removeWhere((resource) => resource['id'] == 2);
+                      resourceList.removeWhere((resource) => resource['id'] == 2);
                       resourceListForCombination.addAll(resourceList);
                       selectedResourceMain = [];
                       selectedResourceMain!.addAll(resourceList);
@@ -1551,12 +1320,11 @@ class _TodoViewUIState extends State<TodoViewUI> {
                           in resourceListForCombination) {
                         Map<String, dynamic> vehiclesData = {
                           'id': res['id'],
-                          'vehicle_name':
-                              '${res['first_name']}${res['last_name']}',
-                          //'isSelected': false
+                          'vehicle_name': '${res['first_name']}${res['last_name']}',
                         };
                         editMultipleVehicleList.add(vehiclesData);
                       }
+                      print(editMultipleVehicleList);
                     }
                     else if (state is DeleteTodoLoaded) {
                       todoBloc!.add(GetTodoList(
@@ -1566,7 +1334,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             selectedResourceMain ?? []),
                         branchId: branchNO.toString(),
                       ));
-                    } else if (state is TodoItemCompletedV) {
+                    }
+                    else if (state is TodoItemCompletedV) {
                       todoBloc!.add(GetTodoList(
                         selectedDate: filterDate,
                         status: statusFilter ? "Completed" : "In Progress",
@@ -1574,7 +1343,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             selectedResourceMain ?? []),
                         branchId: branchNO.toString(),
                       ));
-
                       if (state.taskName?.toLowerCase() == 'check in') {
                         // getWorkingHourByUser
                         Utils.getIntPreference(Str.hrmIdPrefText).then((value) {
@@ -1590,7 +1358,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                               ? 'Completed'
                               : 'In Progress',
                           (state.todoId ?? ''), '');
-                    } else if (state is EditTodoLoaded) {
+                    }
+                    else if (state is EditTodoLoaded) {
                       todoBloc!.add(const GetUserGroupingList());
                       todoBloc!.add(GetTodoList(
                         selectedDate: filterDate,
@@ -1607,13 +1376,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             (state.todoId ?? ''), (state.date ?? ''));
                       }
                     }
-                    else if (state is DeletePartsOrSupplyLoaded) {
-
-                    } else if (state is VehicleGroupListLoaded) {
+                    else if (state is VehicleGroupListLoaded) {
                       vehicleGroupList.clear();
                       vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
 
-                    } else if (state is VehicleGroupLoaded) {
+                    }
+                    else if (state is VehicleGroupLoaded) {
                       todoBloc!.add(const GetVehicleGroupingList());
                       todoBloc!.add(GetTodoList(
                         selectedDate: filterDate,
@@ -1622,19 +1390,22 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             selectedResourceMain ?? []),
                         branchId: branchNO.toString(),
                       ));
-                    } else if (state is UserGroupListLoaded) {
+                    }
+                    else if (state is UserGroupListLoaded) {
                       userGroupList.clear();
                       userGroupList.addAll(state.userGroupDataList ?? []);
-                    } else if (state is DropdownDataLoaded) {
+                    }
+                    else if (state is DropdownDataLoaded) {
                       categoriesListData.clear();
                       categoriesListData.addAll(
                           state.createExpenseFieldData?.expenseCategories ??
                               []);
-                    } else if (state is GetWorkingHourByUserLoaded) {
-                    } else if (state is VehicleStatusListLoaded) {
+                    }
+                    else if (state is VehicleStatusListLoaded) {
                       vehicleStatus.clear();
                       vehicleStatus.addAll(state.vehiclesCount ?? []);
                     }
+
                   },
                 ),
                 BlocListener<LocationDataBloc, LocationDataState>(
@@ -1729,7 +1500,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                     todoListResourceFilter
                                                         .clear();
                                                     todoListResourceFilter
-                                                        .addAll(todoList ?? []);
+                                                        .addAll(todoList);
                                                     // filterResource(null, fromOnchange: false);
                                                     statusFilter = value;
                                                     setState(() {});
@@ -2103,6 +1874,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                           InkWell(
                                               onTapDown: (details) {
                                                 showObjectPopupMainMenuWithCheckBox(
+                                                  context,
                                                   todoListTemp,
                                                   details,
                                                   (resource) {
@@ -2110,6 +1882,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                     todoList.addAll(resource as Iterable<Map<String,dynamic>>);
                                                     setState(() {});
                                                   },
+                                                    taskCategoryGroupData,
+                                                    titleList,
                                                 );
                                               },
                                               child: const Icon(
@@ -3541,65 +3315,72 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   ),
                                                 ],
                                               ),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () async {
-                                                      String imageUrl = todos['vehicle_image'] != null
-                                                          ? Str.STORAGE_BASE_URL + todos['vehicle_image']
-                                                          : (image?['images'] != null && image?['images']?.isNotEmpty
-                                                          ? Str.STORAGE_BASE_URL + image!['images'][0]['path']
-                                                          : Str.errorImage);
-                                                      if (imageUrl.isNotEmpty) {
-                                                        String whatsappUrl =
-                                                            "https://wa.me/?text=Check out this image: $imageUrl";
-                                                        if (await canLaunch(whatsappUrl)) {
-                                                          await launch(whatsappUrl);
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        String imageUrl = todos['vehicle_image'] != null
+                                                            ? Str.STORAGE_BASE_URL + todos['vehicle_image']
+                                                            : (image?['images'] != null && image?['images']?.isNotEmpty
+                                                            ? Str.STORAGE_BASE_URL + image!['images'][0]['path']
+                                                            : Str.errorImage);
+                                                        if (imageUrl.isNotEmpty) {
+                                                          String whatsappUrl =
+                                                              "https://wa.me/?text=Check out this image: $imageUrl";
+                                                          if (await canLaunch(whatsappUrl)) {
+                                                            await launch(whatsappUrl);
+                                                          } else {
+                                                            print("Could not launch WhatsApp");
+                                                          }
                                                         } else {
-                                                          print("Could not launch WhatsApp");
+                                                          print("No image URL to share");
                                                         }
-                                                      } else {
-                                                        print("No image URL to share");
-                                                      }
-                                                    },
-                                                    child: Image.asset(
-                                                      Assets.whatsAppIcon,
-                                                      height: 24,
-                                                      width: 24,
+                                                      },
+                                                      child: Image.asset(
+                                                        Assets.whatsAppIcon,
+                                                        height: 24,
+                                                        width: 24,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  const Icon(Icons.rotate_right_outlined),
-                                                  GestureDetector(
-                                                    onTap: () async {
-                                                      String imageUrl = todos['vehicle_image'] != null
-                                                          ? Str.STORAGE_BASE_URL + todos['vehicle_image']
-                                                          : (image?['images'] != null && image?['images']?.isNotEmpty
-                                                          ? Str.STORAGE_BASE_URL + image!['images'][0]['path']
-                                                          : '');
-                                                      if (imageUrl.isNotEmpty) {
-                                                        String subject = Uri.encodeComponent('Check out this image');
-                                                        String body = Uri.encodeComponent('Here is an image: $imageUrl');
-                                                        final Uri emailUri = Uri(
-                                                          scheme: 'mailto',
-                                                          queryParameters: {
-                                                            'subject': subject,
-                                                            'body': body,
-                                                          },
-                                                        );
-                                                        if (await canLaunchUrl(emailUri)) {
-                                                          await launchUrl(emailUri,
-                                                              mode: LaunchMode.externalApplication);
+                                                    const Icon(Icons.rotate_right_outlined),
+                                                    GestureDetector(
+                                                      onTap: () async {
+                                                        String imageUrl = todos['vehicle_image'] != null
+                                                            ? Str.STORAGE_BASE_URL + todos['vehicle_image']
+                                                            : (image?['images'] != null && image?['images']?.isNotEmpty
+                                                            ? Str.STORAGE_BASE_URL + image!['images'][0]['path']
+                                                            : '');
+                                                        if (imageUrl.isNotEmpty) {
+                                                          String subject = Uri.encodeComponent('Check out this image');
+                                                          String body = Uri.encodeComponent('Here is an image: $imageUrl');
+                                                          final Uri emailUri = Uri(
+                                                            scheme: 'mailto',
+                                                            queryParameters: {
+                                                              'subject': subject,
+                                                              'body': body,
+                                                            },
+                                                          );
+                                                          if (await canLaunchUrl(emailUri)) {
+                                                            await launchUrl(emailUri,
+                                                                mode: LaunchMode.externalApplication);
+                                                          } else {
+                                                            print("Could not launch email");
+                                                          }
                                                         } else {
-                                                          print("Could not launch email");
+                                                          print("No image URL to share");
                                                         }
-                                                      } else {
-                                                        print("No image URL to share");
-                                                      }
-                                                    },
-                                                    child: const Icon(Icons.email_outlined),
-                                                  ),
-                                                ],
+                                                      },
+                                                      child: Image.asset(
+                                                        Assets.mail,
+                                                        height: 24,
+                                                        width: 24,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                               SizedBox(
                                                 height: MediaQuery.of(context).size.height * 0.5,
@@ -5830,50 +5611,17 @@ class _TodoViewUIState extends State<TodoViewUI> {
     });
   }
 
-/*
-  List<Addresses>? getAddressFromLocations(Todos todos){
-    for(int i=0; i<multipleLocationAddressList.length; i++) {
-      if (todos.locationId != null && multipleLocationAddressList[i].id == int.parse(todos.locationId!)) {
-        (todos.addresses??[]).addAll(multipleLocationAddressList[i].addresses??[]);
-        if(todos.addressesIdList != null) {
-          List<dynamic> jsonList = json.decode(todos.addressesIdList ?? '');
-          List<dynamic> resultList = jsonList.cast<dynamic>();
-          // todos.selectedUserGroupOrUser = [];
-          for (Addresses res in (todos.addresses ?? [])) {
-            for (dynamic userId in resultList) {
-              if (userId.toString() == res.id.toString()) {
-                res.isSelected = true;
-              }
-            }
-            editMultipleAddressList.add(res);
-          }
-        }else{
-
-        }
-      }
-        return todos.addresses;
-    }
-    return null;
-  }
-*/
-
   List<Map<String, dynamic>>? getAddressFromLocations(
       Map<String, dynamic> todos) {
     for (int i = 0; i < multipleLocationAddressList.length; i++) {
       if (todos['location_id'] != null &&
           multipleLocationAddressList[i]['id'] ==
               int.parse(todos['location_id']!)) {
-        // Initialize addresses as an empty list if it is null
         addresses = [];
-
-        // Cast `addresses` in `multipleLocationAddressList` to ensure the correct type
         List<Map<String, dynamic>> parsedAddresses =
             (multipleLocationAddressList[i]['addresses'] as List<dynamic>)
                 .cast<Map<String, dynamic>>();
-
-        // Add parsed addresses to `addresses`
         addresses!.addAll(parsedAddresses);
-
         return addresses;
       }
     }

@@ -592,3 +592,58 @@ class EmployeeNameLoaded extends TodoViewState {
   @override
   List<Object?> get props => [EmployeeData];
 }
+
+class CategoryConfigListLoaded extends TodoViewState {
+  final List<Map<String, dynamic>>? data;
+  const CategoryConfigListLoaded(
+      {required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class CategoryConfigLoaded extends TodoViewState {
+  final String? message;
+  const CategoryConfigLoaded({required this.message,});
+  @override
+  List<Object?> get props => [message];
+}
+
+
+class CategoryConfigError extends TodoViewState {
+  final String message;
+
+  const CategoryConfigError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class TaskListLoaded extends TodoViewState {
+  final List<Map<String, dynamic>>? data;
+  const TaskListLoaded(
+      {required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class TaskLoaded extends TodoViewState {
+  final String message;
+  const TaskLoaded(
+      {required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class TaskError extends TodoViewState {
+  final String message;
+  const TaskError(this.message);
+  @override
+  List<Object> get props => [message];
+}
+
+class TaskCategoryGroupLoaded extends TodoViewState{
+  final List<Map<String, dynamic>>? data;
+  const TaskCategoryGroupLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
