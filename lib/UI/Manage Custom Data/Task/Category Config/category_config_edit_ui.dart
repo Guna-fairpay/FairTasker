@@ -45,7 +45,6 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
     selectedUserType = (widget.config['todo_user_type'] ?? userType[1]) == 1
         ? userType[1]
         : userType[0];
-    print(selectedCategory);
   }
 
   void _save() {
