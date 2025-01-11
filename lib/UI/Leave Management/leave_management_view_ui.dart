@@ -74,7 +74,6 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
                 .contains(query.toLowerCase()) ||
             (leave['reason']?.toLowerCase() ?? '')
                 .contains(query.toLowerCase());
-
         return matchesFilter && matchesQuery;
       }).toList();
     });
