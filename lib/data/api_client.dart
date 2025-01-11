@@ -4,8 +4,16 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:pretty_http_logger/pretty_http_logger.dart';
 
 class ApiClient {
+
+  HttpWithMiddleware get client {
+    HttpWithMiddleware http = HttpWithMiddleware.build(middlewares: [
+      HttpLogger(logLevel: LogLevel.BODY),
+    ]);
+    return http;
+  }
 
   Future<HttpClientResponse?>  callHttpClientGetMethod(String url) async{
     if(await Utils.connection()) {
@@ -20,7 +28,7 @@ class ApiClient {
 
   Future<http.Response?>  callGetMethod(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await http.get(Utils.getUri(url),
+      http.Response response = await client.get(Utils.getUri(url),
           headers: Utils.getHeadersWithToken());
 
 
@@ -34,7 +42,7 @@ class ApiClient {
 
   Future<http.Response?>  callPostMethodWithoutBodyHeader(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await http.post(Utils.getUri(url));
+      http.Response response = await client.post(Utils.getUri(url));
       return response;
     }else{
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -45,7 +53,7 @@ class ApiClient {
 
   Future<http.Response?>  callDelete(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await http.delete(Utils.getUri(url),
+      http.Response response = await client.delete(Utils.getUri(url),
           headers: Utils.getHeadersWithToken(),
     );
       return response;
@@ -63,7 +71,7 @@ class ApiClient {
       }else{
       //  debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken()}');
       }
-      http.Response response = await http.put(Utils.getUri(url),
+      http.Response response = await client.put(Utils.getUri(url),
           headers: tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),
           body: body);
       return response;
@@ -82,7 +90,7 @@ class ApiClient {
       }else{
         debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken()}');
       }
-      http.Response response = await http.post(Utils.getUri(url),
+      http.Response response = await client.post(Utils.getUri(url),
           headers: tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),
           body: body);
       return response;

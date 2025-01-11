@@ -1,3 +1,5 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_view.dart';
 import 'package:flutter/material.dart';
 import '../../Component/drawer_ui.dart';
 import '../../Component/header.dart';
@@ -58,6 +60,18 @@ class _ManageCustomdataMenuUIState extends State<ManageCustomdataMenuUI> {
             ),
             const SizedBox(
               height: 10,
+            ),
+            _buildCard(
+              icon: Icons.file_copy_rounded,
+              title: 'Reports',
+              onTap: () async => await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const ReportsView())),
+            ),
+            _buildCard(
+              icon: Icons.calendar_month_rounded,
+              title: 'Attendance',
+              onTap: () async => await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const AttendanceView())),
             ),
             _buildCard(
               icon: Icons.assignment,
