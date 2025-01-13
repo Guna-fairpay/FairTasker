@@ -8,12 +8,14 @@ import 'package:pretty_http_logger/pretty_http_logger.dart';
 
 class ApiClient {
 
-  HttpWithMiddleware get client {
-    HttpWithMiddleware http = HttpWithMiddleware.build(middlewares: [
-      HttpLogger(logLevel: LogLevel.BODY),
-    ]);
-    return http;
-  }
+  get client => http.Client();
+
+  // HttpWithMiddleware get client {
+  //   HttpWithMiddleware http = HttpWithMiddleware.build(middlewares: [
+  //     HttpLogger(logLevel: LogLevel.BODY),
+  //   ]);
+  //   return http;
+  // }
 
   Future<HttpClientResponse?>  callHttpClientGetMethod(String url) async{
     if(await Utils.connection()) {
