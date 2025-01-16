@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 class Downloader {
 
@@ -33,7 +34,17 @@ class Downloader {
       }
 
       // Create Dio instance
-      Dio dio = Dio();
+      final dio = Dio();
+      dio.interceptors.add(
+        TalkerDioLogger(
+          settings: const TalkerDioLoggerSettings(
+            printRequestHeaders: true,
+            printResponseHeaders: true,
+            printResponseMessage: true,
+          ),
+        ),
+      );
+
 
       // Make a HEAD request to fetch the headers (optional for getting filename)
       Response headResponse = await dio.head(path);
@@ -69,7 +80,7 @@ class Downloader {
       print('File downloaded to: $filePath');
       return filePath;
     } catch (e) {
-      if ((e is DioError) && (e.type == DioErrorType.response)) {
+      if ((e is DioException) && (e.type == DioExceptionType.badResponse)) {
         var response = e.response?.data;
         if (response is Map<String, dynamic>) print("Error: ${response.values.last}");
         if (response is Map<String, dynamic>) onError?.call(response.values.last);

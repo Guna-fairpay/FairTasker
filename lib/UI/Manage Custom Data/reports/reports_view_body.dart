@@ -13,7 +13,7 @@ class ReportsViewBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ReportsBloc, ReportsState>(
       builder: (context, state) {
-        return (state.isLoading) ? Center(child: Utils.getProgressIndicator(context)) : Padding(
+        return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
@@ -38,7 +38,7 @@ class ReportsViewBody extends StatelessWidget {
                       children: [
                         ListTile(
                           title: const Text("Maintenance Check List"),
-                          trailing: GestureDetector(
+                          trailing: (state.isMaintenanceLoading) ? const CircularProgressIndicator() : GestureDetector(
                             onTap: () => context.read<ReportsBloc>().add(ReportMaintenanceEvent()),
                             child: Icon((state.maintenanceFile != null) ? Icons.file_open : Icons.download_rounded),
                           ),
@@ -49,7 +49,7 @@ class ReportsViewBody extends StatelessWidget {
                         ),
                         ListTile(
                           title: const Text("Vehicle Odometer Summary"),
-                          trailing: GestureDetector(
+                          trailing: (state.isVehicleLoading) ? const CircularProgressIndicator() :  GestureDetector(
                             onTap: () => context.read<ReportsBloc>().add(ReportVehicleEvent()),
                             child: Icon((state.vehicleFile != null) ? Icons.file_open : Icons.download_rounded),
                           ),
@@ -60,7 +60,7 @@ class ReportsViewBody extends StatelessWidget {
                         ),
                         ListTile(
                           title: const Text("Earnings Summary"),
-                          trailing: GestureDetector(
+                          trailing: (state.isEarningLoading) ? const CircularProgressIndicator() :  GestureDetector(
                             onTap: () => context.read<ReportsBloc>().add(ReportEarningEvent()),
                             child: Icon((state.earningFile != null) ? Icons.file_open : Icons.download_rounded),
                           ),

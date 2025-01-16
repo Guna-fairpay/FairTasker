@@ -71,9 +71,10 @@ dependencies:
   keyboard_avoider: ^0.2.0
   date_time: 0.11.0
   collection: ^1.17.1
-  pretty_http_logger: ^1.0.4
-  talker_rhttp_logger: ^0.0.7
-  dio: ^4.0.1
+  dio: ^5.7.0
+  talker_dio_logger: ^4.6.4
+  talker_http_logger: ^0.1.0-dev.30
+  http_interceptor: ^2.0.0
   path_provider: ^2.1.5
   permission_handler: ^11.3.1
 

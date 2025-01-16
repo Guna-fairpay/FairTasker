@@ -4,18 +4,22 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:pretty_http_logger/pretty_http_logger.dart';
+
+import 'package:talker/talker.dart' show Talker;
+import 'package:http_interceptor/http_interceptor.dart';
+import 'package:talker_http_logger/talker_http_logger.dart';
 
 class ApiClient {
 
-  get client => http.Client();
+  // get client => http.Client();
 
-  // HttpWithMiddleware get client {
-  //   HttpWithMiddleware http = HttpWithMiddleware.build(middlewares: [
-  //     HttpLogger(logLevel: LogLevel.BODY),
-  //   ]);
-  //   return http;
-  // }
+  InterceptedClient get client {
+    final talker = Talker();
+    final client = InterceptedClient.build(interceptors: [
+      TalkerHttpLogger(talker: talker),
+    ]);
+    return client;
+  }
 
   Future<HttpClientResponse?>  callHttpClientGetMethod(String url) async{
     if(await Utils.connection()) {
