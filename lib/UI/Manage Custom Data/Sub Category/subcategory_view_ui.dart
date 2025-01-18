@@ -203,7 +203,7 @@ class _SubcategoryViewuiState extends State<SubcategoryViewui> {
                             height: 40,
                             child: Utils.getSearchBarUI(() {}, (value) {
                               _filterSubcategory(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),

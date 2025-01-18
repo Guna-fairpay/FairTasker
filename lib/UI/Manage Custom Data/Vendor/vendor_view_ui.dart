@@ -294,7 +294,7 @@ class _VendorViewUIState extends State<VendorViewUI> {
                               height: 40,
                               child: Utils.getSearchBarUI(() {}, (value) {
                                 _filterVendors(value);
-                              }, searchController, searchFocusNode),
+                              }, searchController,),
                             ),
                           ),
                           const SizedBox(width: 8),

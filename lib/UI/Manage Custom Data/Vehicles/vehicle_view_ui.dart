@@ -15,19 +15,19 @@ import 'vehicle_add_ui.dart';
 import 'vehicle_edit_ui.dart';
 import 'Private Rental/private_rental_view_ui.dart';
 
-class VehicleUIs extends StatefulWidget {
-  const VehicleUIs({super.key});
+class VehicleViewUI extends StatefulWidget {
+  const VehicleViewUI({super.key});
 
   @override
-  State<VehicleUIs> createState() => _VehicleUIState();
+  State<VehicleViewUI> createState() => _VehicleUIState();
 }
 
-class _VehicleUIState extends State<VehicleUIs> {
+class _VehicleUIState extends State<VehicleViewUI> {
   final FocusNode searchFocusNode = FocusNode();
   late VehicleDataBloc vehicleDataBloc;
   late tvb.TodoViewBloc todoViewBloc;
   TextEditingController searchController = TextEditingController();
-  List<Map<String, dynamic>> vehiclename = [];
+  List<Map<String, dynamic>> vehicleName = [];
   List<Map<String, dynamic>> filteredVehicle = [];
   CreateVehicleData createVehicleData = CreateVehicleData();
   List<Map<String, dynamic>>? vehicleData;
@@ -58,7 +58,7 @@ class _VehicleUIState extends State<VehicleUIs> {
 
   void _filteredVehicle(String query) {
     setState(() {
-      filteredVehicle = vehiclename.where((vehicle) {
+      filteredVehicle = vehicleName.where((vehicle) {
         final name = vehicle['vehicle_name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
         return name.contains(searchQuery);
@@ -238,8 +238,8 @@ class _VehicleUIState extends State<VehicleUIs> {
                     list.addAll(state.vehicleDataList ?? []);
                     list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                         .compareTo(DateTime.parse(a['created_at'] ?? '')));
-                    vehiclename = list;
-                    filteredVehicle = List.from(vehiclename);
+                    vehicleName = list;
+                    filteredVehicle = List.from(vehicleName);
                   } else if (state is VehicleDataLoadedV) {
                     if (state.result != null) {
                       vehicleData = state.result;
@@ -282,7 +282,6 @@ class _VehicleUIState extends State<VehicleUIs> {
                                         _filteredVehicle(value);
                                       },
                                       searchController,
-                                      searchFocusNode,
                                     ),
                                   ),
                                 ),

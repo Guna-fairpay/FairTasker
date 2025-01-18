@@ -312,7 +312,7 @@ bool isSelected=false;
                     }
                     setState(() {});
                   },
-                  searchController,searchFocusNode),
+                  searchController),
             ),
             ListView.builder(
                 padding: EdgeInsets.zero,

@@ -195,7 +195,7 @@ class _VehicleHistoryModuleUIState extends State<VehicleHistoryModuleUI>
                               }
                             }
                             setState(() {});
-                          }, searchController, searchFocusNode),
+                          }, searchController,),
                         ),
                         const SizedBox(
                           height: 8,

@@ -111,176 +111,55 @@ class _TaskEditUIState extends State<TaskEditUI> {
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Icon(Icons.arrow_back)),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Utils.getText('Edit Task',
-                              size: 20, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Row(
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              taskController,
-                              label: Utils.getText('Task', color: AppC.grey),
-                              borderColor: isTaskFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
+                            GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Icon(Icons.arrow_back)),
+                            const SizedBox(
+                              width: 10,
                             ),
-                            if (isTaskFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
+                            Utils.getText('Edit Task',
+                                size: 20, weight: FontWeight.bold),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
+                        const SizedBox(
+                          height: 10,
                         ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select Category',
-                                color: AppC.grey),
-                          ),
-                          value: selectedCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCategory = value;
-                              selectedSubCategory = null;
-                              subCategoryDropdownList.clear();
-
-                              if (value != null) {
-                                subCategoryDropdownList = (state
-                                        as CohortsListLoaded)
-                                    .expenseData!
-                                    .where((category) =>
-                                        category['id'].toString() ==
-                                        value.toString())
-                                    .map((category) =>
-                                        category['sub_categories'] ?? [])
-                                    .expand(
-                                        (subcategoryList) => subcategoryList)
-                                    .toList();
-                              }
-                            });
-                          },
-                          items: categoryDropdownList
-                              .map<DropdownMenuItem<String>>(
-                            (value) {
-                              return DropdownMenuItem<String>(
-                                value: value['id'].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText('${value['name']}'),
+                        SizedBox(
+                          height: 40,
+                          child: Stack(
+                            alignment: Alignment.centerRight,
+                            children: [
+                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                '',
+                                taskController,
+                                label: Utils.getText('Task', color: AppC.grey),
+                                borderColor: isTaskFieldEmpty
+                                    ? Colors.red
+                                    : AppC.fieldBase,
+                              ),
+                              if (isTaskFieldEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: Icon(Icons.error_outline,
+                                      color: Colors.red),
                                 ),
-                              );
-                            },
-                          ).toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
-                        ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select SubCategory',
-                                color: AppC.grey),
+                            ],
                           ),
-                          value: selectedSubCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedSubCategory = value;
-                            });
-                          },
-                          items: subCategoryDropdownList
-                              .map<DropdownMenuItem<String>>(
-                            (value) {
-                              return DropdownMenuItem<String>(
-                                value: value['id'].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText('${value['name']}'),
-                                ),
-                              );
-                            },
-                          ).toList(),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                          '',
-                          timeTakenController,
-                          label: Utils.getText('Time Taken', color: AppC.grey),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Container(
+                        const SizedBox(height: 20),
+                        Container(
+                          height: 40,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
+                                color: AppC.fieldBase,
+                                width: Num.borderWidthField),
                             borderRadius: const BorderRadius.all(
                                 Radius.circular(Num.subradiusButton)),
                           ),
@@ -288,9 +167,10 @@ class _TaskEditUIState extends State<TaskEditUI> {
                             hint: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Utils.getText('select', color: AppC.grey),
+                              child: Utils.getText('Select Category',
+                                  color: AppC.grey),
                             ),
-                            value: selectedUserType,
+                            value: selectedCategory,
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down),
                             elevation: 3,
@@ -299,39 +179,161 @@ class _TaskEditUIState extends State<TaskEditUI> {
                               height: 0,
                               color: Colors.transparent,
                             ),
-                            onChanged: (String? value) {
-                              // This is called when the user selects an item.
+                            onChanged: (value) {
                               setState(() {
-                                selectedUserType = value;
+                                selectedCategory = value;
+                                selectedSubCategory = null;
+                                subCategoryDropdownList.clear();
+                    
+                                if (value != null) {
+                                  subCategoryDropdownList = (state
+                                          as CohortsListLoaded)
+                                      .expenseData!
+                                      .where((category) =>
+                                          category['id'].toString() ==
+                                          value.toString())
+                                      .map((category) =>
+                                          category['sub_categories'] ?? [])
+                                      .expand(
+                                          (subcategoryList) => subcategoryList)
+                                      .toList();
+                                }
                               });
                             },
-                            items: userType
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText(value),
-                                ),
-                              );
-                            }).toList(),
+                            items: categoryDropdownList
+                                .map<DropdownMenuItem<String>>(
+                              (value) {
+                                return DropdownMenuItem<String>(
+                                  value: value['id'].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0),
+                                    child: Utils.getText('${value['name']}'),
+                                  ),
+                                );
+                              },
+                            ).toList(),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Save', () {
-                              _save();
-                            }),
+                        const SizedBox(height: 20),
+                        Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: AppC.fieldBase,
+                                width: Num.borderWidthField),
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(Num.subradiusButton)),
                           ),
-                        ],
-                      ),
-                    ],
+                          child: DropdownButton<String>(
+                            hint: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Utils.getText('Select SubCategory',
+                                  color: AppC.grey),
+                            ),
+                            value: selectedSubCategory,
+                            isExpanded: true,
+                            icon: const Icon(Icons.arrow_drop_down),
+                            elevation: 3,
+                            dropdownColor: AppC.white,
+                            underline: Container(
+                              height: 0,
+                              color: Colors.transparent,
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedSubCategory = value;
+                              });
+                            },
+                            items: subCategoryDropdownList
+                                .map<DropdownMenuItem<String>>(
+                              (value) {
+                                return DropdownMenuItem<String>(
+                                  value: value['id'].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0),
+                                    child: Utils.getText('${value['name']}'),
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child:
+                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            '',
+                            timeTakenController,
+                            label: Utils.getText('Time Taken', color: AppC.grey),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          height: 40,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppC.fieldBase,
+                                width: Num.borderWidthField,
+                              ),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(Num.subradiusButton)),
+                            ),
+                            child: DropdownButton<String>(
+                              hint: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10.0),
+                                child: Utils.getText('select', color: AppC.grey),
+                              ),
+                              value: selectedUserType,
+                              isExpanded: true,
+                              icon: const Icon(Icons.arrow_drop_down),
+                              elevation: 3,
+                              dropdownColor: AppC.white,
+                              underline: Container(
+                                height: 0,
+                                color: Colors.transparent,
+                              ),
+                              onChanged: (String? value) {
+                                // This is called when the user selects an item.
+                                setState(() {
+                                  selectedUserType = value;
+                                });
+                              },
+                              items: userType
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0),
+                                    child: Utils.getText(value),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              height: 40,
+                              child: Utils.getAddFilledButton('Save', () {
+                                _save();
+                              }),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Visibility(

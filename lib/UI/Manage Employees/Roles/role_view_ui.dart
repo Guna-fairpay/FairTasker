@@ -37,7 +37,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
   void _filterRoles(String query) {
     setState(() {
       filterRoles = roles.where((role) {
-        final roleName = role['role']?.toLowerCase() ?? '';
+        final roleName = role['name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
         return roleName.contains(searchQuery);
       }).toList();
@@ -54,7 +54,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
       setState(() {
         //roles.add(newRole);
         roles.insert(0, newRole);
-        _filterRoles(searchController.text); // Update filtered list
+       // _filterRoles(searchController.text); // Update filtered list
       });
     }
   }
@@ -64,7 +64,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
       context,
       MaterialPageRoute(
         builder: (context) => RoleEditUI(
-          roles: roles[index],
+          roles: filterRoles[index],
         ),
       ),
     );
@@ -72,7 +72,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
     if (updatedRole != null) {
       setState(() {
         roles[index] = updatedRole;
-        _filterRoles(searchController.text);
+        //_filterRoles(searchController.text);
       });
     }
   }
@@ -82,7 +82,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
     if (confirmed == true) {
       setState(() {
         roles.removeAt(index);
-        _filterRoles(searchController.text);
+       // _filterRoles(searchController.text);
       });
     }
   }
@@ -178,7 +178,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
                 roles.clear();
                 filterRoles.addAll(state.data ?? []);
                 roles.addAll(state.data ?? []);
-                filterRoles = List.from(roles);
+
               });
             } else if (state is RolesLoaded) {
               setState(() {
@@ -206,7 +206,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
                                   height: 40,
                                   child: Utils.getSearchBarUI(() {}, (value) {
                                     _filterRoles(value);
-                                  }, searchController, searchFocusNode),
+                                  }, searchController,),
                                 ),
                               ),
                               const SizedBox(width: 8),

@@ -183,7 +183,6 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
                                   _filtercategory(value);
                                 },
                                 searchController,
-                                searchFocusNode,
                               ),
                             ),
                           ),

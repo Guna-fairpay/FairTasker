@@ -133,7 +133,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                                 () {},
                                 (value) => _filterVehicleDataList(value),
                                 searchController,
-                                searchFocusNode,
+
                               ),
                             ),
                           ),

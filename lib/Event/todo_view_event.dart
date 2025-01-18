@@ -405,7 +405,26 @@ class EditTodoDate extends TodoViewEvent {
 /*/task-expenses-data - task name
 /vendors and /locations - vendor/location
 /getresources and /getCohortsData - Vehicle/person*/
+
 class EditTodoVehiclePerson extends TodoViewEvent {
+  final int? todoId;
+  final List<dynamic> vehiclePersonData;
+  final String? person;
+  final String? personId;
+  final String? vehicleGroupId;
+
+  const EditTodoVehiclePerson({
+    required this.todoId,
+    required this.vehiclePersonData,
+    required this.person,
+    required this.personId,
+    required this.vehicleGroupId,
+  });
+  @override
+  List<Object?> get props => [todoId,vehiclePersonData,person,personId,vehicleGroupId];
+}
+
+/*class EditTodoVehiclePerson extends TodoViewEvent {
   final int? todoId;
   final int? todoUserId;
   final String? todoVehicleName;
@@ -414,18 +433,18 @@ class EditTodoVehiclePerson extends TodoViewEvent {
   final String? vehicleImage;
   final String? cohortName;
   final String? vin;
-  final int? vehicleGroupId;
+  final int? vehicleNumber;
 
-  const EditTodoVehiclePerson(
-      this.todoId,
-      this.todoUserId,
-      this.todoVehicleName,
-      this.selectedCohortId,
-      this.vehicleImage,
-      this.cohortName,
-      this.personName,
-      this.vin,
-      this.vehicleGroupId);
+  const EditTodoVehiclePerson({
+      required this.todoId,
+      required this.todoUserId,
+      required this.todoVehicleName,
+      required this.selectedCohortId,
+      required this.vehicleImage,
+      required this.cohortName,
+      required this.personName,
+      required this.vin,
+      required this.vehicleNumber});
   @override
   List<Object?> get props => [
     todoId,
@@ -436,9 +455,9 @@ class EditTodoVehiclePerson extends TodoViewEvent {
     cohortName,
     personName,
     vin,
-    vehicleGroupId
+    vehicleNumber
   ];
-}
+}*/
 
 class DeleteVehicle extends TodoViewEvent {
   final int? id;
@@ -553,14 +572,6 @@ class DeleteExpenseImage extends TodoViewEvent {
   List<Object?> get props => [id];
 }
 
-class DeletePartsOrSupplyEvent extends TodoViewEvent {
-  final int? id;
-  final String? type;
-  const DeletePartsOrSupplyEvent(this.id, this.type);
-  @override
-  List<Object?> get props => [id, type];
-}
-
 class GetPartsData extends TodoViewEvent {
   const GetPartsData();
   @override
@@ -569,7 +580,7 @@ class GetPartsData extends TodoViewEvent {
 
 class UpdatePartsForItemEvent extends TodoViewEvent {
   final int? todoId;
-  final List<Map<String, dynamic>>? selectedPartsList;
+  final List<dynamic> selectedPartsList;
   const UpdatePartsForItemEvent(
       {required this.todoId, required this.selectedPartsList});
   @override
@@ -577,8 +588,8 @@ class UpdatePartsForItemEvent extends TodoViewEvent {
 }
 
 class UpdateSuppliesForItemEvent extends TodoViewEvent {
-  final int? todoId;
-  final List<Map<String, dynamic>>? selectedSupplyList;
+  final int todoId;
+  final List<dynamic> selectedSupplyList;
   const UpdateSuppliesForItemEvent(
       {required this.todoId, required this.selectedSupplyList});
   @override
@@ -837,13 +848,26 @@ class GetPaymentData extends TodoViewEvent {
 
 class DeleteVehicles extends TodoViewEvent {
   final int id;
-
-  const DeleteVehicles({
-    required this.id,
-  });
-
+  const DeleteVehicles({required this.id,});
   @override
   List<Object> get props => [id];
+}
+
+
+class DeletePartsEvent extends TodoViewEvent {
+  final int partsId;
+
+  const DeletePartsEvent({required this.partsId,});
+  @override
+  List<Object> get props => [partsId];
+}
+
+class DeleteSupplyEvent extends TodoViewEvent {
+  final int? suppliesId;
+
+  const DeleteSupplyEvent({required this.suppliesId});
+  @override
+  List<Object?> get props => [suppliesId];
 }
 
 
@@ -862,9 +886,7 @@ class GetVoiceData extends TodoViewEvent {
 class DeleteOtherData extends TodoViewEvent {
   final int id;
 
-  const DeleteOtherData({
-    required this.id,
-  });
+  const DeleteOtherData({required this.id,});
 
   @override
   List<Object> get props => [id];

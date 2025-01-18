@@ -291,7 +291,6 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
                               _filterEmployees(value);
                             },
                             searchController,
-                            searchFocusNode,
                           ),
                         ),
                         const SizedBox(width: 8),

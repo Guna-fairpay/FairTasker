@@ -19,7 +19,6 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart' as vdb;
@@ -61,7 +60,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Set<int> selectedIndices = {};
 
   TodoViewBloc? todoBloc;
-  // LocationDataBloc? locationDataBloc;
   vdb.VehicleDataBloc? vehicleDataBloc;
   late Map<String, dynamic> todoItem;
   bool showMore = false;
@@ -126,7 +124,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   bool editShowMultipleAddressList = false;
   // bool isShowMultipleAddressField = false;
   String? selectedMultipleAddressId;
-  int? partId;
+  late int partId;
   int? suppliesId;
   CreateExpenseFieldData? createExpenseFieldData;
   dynamic selectedCohort;
@@ -253,7 +251,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   TextEditingController renewalDateController = TextEditingController();
   List<dynamic> imageFile = [];
   List<dynamic> tireImageFile = [];
-  bool bouncie = false;
+  bool Bouncie = false;
   bool airTag = false;
   bool permanentPlate = false;
   bool spareTire = false;
@@ -299,7 +297,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
 
 
-  int checkCleanCarAvailEdit() {
+  /*int checkCleanCarAvailEdit() {
     debugPrint(
         'editSelectedDate.isAfter: ${editSelectedDate!.isAfter(DateTime.now())}');
     debugPrint(
@@ -312,7 +310,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (editTodoNameController.text.toLowerCase().contains('drop car') ||
           editTodoNameController.text.toLowerCase().contains('drop car')) {
         if (todoListRepo.vehicleHistoryTempSearchList
-            .isNotEmpty /* && todoListRepo.vehicleHistoryTempSearchList.length>1*/) {
+            .isNotEmpty *//* && todoListRepo.vehicleHistoryTempSearchList.length>1*//*) {
           Map<String, dynamic> lastItem =
               todoListRepo.vehicleHistoryTempSearchList.lastWhere(
                   (item) => Utils.convertStringToDateTime(item['todo_date'])
@@ -321,8 +319,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
           //Todos(id: -1));
           if (lastItem['id'] != -1 &&
                   lastItem['title']?.toLowerCase() ==
-                      'clean car' /* &&
-            todoListRepo!.vehicleHistoryTempSearchList[0].status == 'Completed'*/
+                      'clean car' *//* &&
+            todoListRepo!.vehicleHistoryTempSearchList[0].status == 'Completed'*//*
               ) {
             debugPrint(
                 'todoListRepo!.chosenDateTime: ${todoListRepo.chosenDateTime}');
@@ -344,7 +342,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
       }
     }
     return 0;
-  }
+  }*/
 
   bool lastSelectedIsPerson = false;
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
@@ -464,7 +462,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   @override
   void initState() {
     todoBloc = TodoViewBloc();
-    // locationDataBloc = LocationDataBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
     todoBloc!.add(const GetDropdownData());
     todoBloc!.add(const GetVehicleListData());
@@ -480,12 +477,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     todoBloc!.add(const GetUserGroupingList());
     selectedRepeat = repeatList[0];
     selectedPriority = priorityList[1];
-    // todoListRepo.chosenDateTime = DateTime.now();
-    // todoListRepo.chosenDateTimeString =
-    //     DateFormat("hh:mm a").format(todoListRepo.chosenDateTime!);
-    // todoListRepo.startTimeTFString =
-    //     DateFormat("HH:mm:ss").format(todoListRepo.chosenDateTime!);
-
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 60));
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 45));
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 30));
@@ -501,8 +492,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         widget.todoItem['title'] == 'Check Out') {
       showExpenseTab = 1;
     }
-
-    print("show expense tab = $showExpenseTab");
 
     for (String s in monthsList) {
       MonthsPojo monthsPojo = MonthsPojo(monthName: s, selected: false);
@@ -695,124 +684,133 @@ class _EditTodoUIState extends State<EditTodoUI> {
   }
 
   void _showImageDialog(List<String> imageUrls, int index) {
-    if (imageUrls.isEmpty) {
-      print('No images to show');
-      return;
-    }
-    PageController pageController = PageController();
-    print('Showing images dialog with ${imageUrls.length} images');
+
+    ValueNotifier<int> currentIndex = ValueNotifier<int>(index);
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-         // padding: const EdgeInsets.all(10),
-          // constraints: const BoxConstraints(),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: AppC.white,
-          ),
-          child: Column(
-           mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Icon(Icons.close),
-                  ),
-                ],
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: AppC.white,
               ),
-              Expanded(
-                child: PageView.builder(
-                  itemCount: imageUrls.length,
-                  controller: pageController,
-                  itemBuilder: (context, index) {
-                    final imagePath = imageUrls[index];
-                    print('Displaying image: $imagePath');
-
-                    return Container(
-                      child: File(imagePath).existsSync()
-                          ? Image.file(
-                        File(imagePath),
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          print('Error loading file image: $error');
-                          return const Center(
-                            child: Icon(Icons.error, color: Colors.red),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: currentIndex,
+                        builder: (context, currentIndexValue, _) {
+                          final imagePath = imageUrls[currentIndexValue];
+                          return InteractiveViewer(
+                            maxScale: 8.0,
+                            minScale: 0.01,
+                            child: File(imagePath).existsSync()
+                                ? Image.file(
+                              File(imagePath),
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                print('Error loading file image: $error');
+                                return const Center(
+                                  child: Icon(Icons.error, color: Colors.red),
+                                );
+                              },
+                            )
+                                : CachedNetworkImage(
+                              imageUrl: todoItem['todoimages'] != null
+                                  ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
+                                  : Str.errorImage,
+                              imageBuilder: (context, imageProvider) {
+                                return Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorWidget: (context, url, error) {
+                                return Container(
+                                  alignment: Alignment.center,
+                                  child: Utils.getText(
+                                    "CT",
+                                    size: 22,
+                                    color: AppC.red,
+                                    weight: FontWeight.bold,
+                                  ),
+                                );
+                              },
+                            ),
                           );
                         },
-                      )
-                          : InteractiveViewer(
-                        maxScale: 8.0,
-                        minScale: 0.01,
-                        child: CachedNetworkImage(
-                          imageUrl: todoItem['todoimages'] != null
-                              ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
-                              : Str.errorImage,
-                          imageBuilder: (context, imageProvider) {
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(20,20,20,0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: imageProvider,
-                                    fit:BoxFit.contain,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          errorWidget: (context, url, error) {
-                            return Container(
-                              alignment: Alignment.center,
-                              child: Utils.getText(
-                                "CT",
-                                size: 22,
-                                color: AppC.red,
-                                weight: FontWeight.bold,
-                              ),
-                            );
-                          },
-                        ),
                       ),
-                    );
-                  },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            if (currentIndex.value > 0) {
+                              currentIndex.value -= 1;
+                            }
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                        ),
+                        SmoothPageIndicator(
+                          controller: PageController(initialPage:index),
+                          count: imageUrls.length,
+                          effect: const JumpingDotEffect(
+                            spacing: 8.0,
+                            radius: 8.0,
+                            dotWidth: 10.0,
+                            dotHeight: 10.0,
+                            paintStyle: PaintingStyle.fill,
+                            strokeWidth: 1.5,
+                            dotColor: Colors.grey,
+                            activeDotColor: Colors.indigo,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            if (currentIndex.value < imageUrls.length - 1) {
+                              currentIndex.value += 1;
+                            }
+                          },
+                          icon: const Icon(Icons.arrow_forward),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
-              SmoothPageIndicator(
-                controller: pageController,
-                count: imageUrls.length,
-                effect: const JumpingDotEffect(
-                  spacing: 8.0,
-                  radius: 8.0,
-                  dotWidth: 10.0,
-                  dotHeight: 10.0,
-                  paintStyle: PaintingStyle.fill,
-                  strokeWidth: 1.5,
-                  dotColor: Colors.grey,
-                  activeDotColor: Colors.indigo,
-                ),
-              ),
-              Row(
-                children: [
-                  Icon(Icons.add),
-                  Icon(Icons.add),
-                  Icon(Icons.add),
-                  Icon(Icons.add),
-
-
-                ],
-              )
-            ],
+            ),
           ),
         );
       },
     );
   }
+
 
 
   @override
@@ -2201,9 +2199,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                           if (partId != null &&
                                                               partId != 0) {
                                                             todoBloc!.add(
-                                                                DeletePartsOrSupplyEvent(
-                                                                    partId,
-                                                                    'part'));
+                                                                DeletePartsEvent(partsId: partId));
                                                           }
                                                           selectedPartsList
                                                               .removeAt(idx);
@@ -2243,11 +2239,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                     readOnly: false,
                                                     onChangeCallback: (value) {
                                               editPartsSuggestionList.clear();
-                                              List<dynamic> partsList =
-                                                  editPartsList /*.map((e) =>'${e.name}').toList()*/;
+                                              List<dynamic> partsList = editPartsList /*.map((e) =>'${e.name}').toList()*/;
                                               editPartsSuggestionList.addAll(
-                                                  Utils.searchObjectList(
-                                                      partsList, value));
+                                                  Utils.searchObjectList(partsList, value));
                                               editShowPartsList =
                                                   editPartsSuggestionList
                                                       .isNotEmpty;
@@ -2328,8 +2322,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                                   }
                                                                   if (suppliesId != null &&
                                                                       suppliesId != 0) {
-                                                                    todoBloc!.add(DeletePartsOrSupplyEvent(
-                                                                        suppliesId, 'supply')
+                                                                    todoBloc!.add(DeleteSupplyEvent(
+                                                                      suppliesId:suppliesId,)
                                                                     );
                                                                   }
                                                                   selectedSuppliesList.removeAt(idx);
@@ -3822,7 +3816,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     frontTireController.text = vehicle?['front_tire'] ?? '';
     rearTireController.text = vehicle?['rear_tire'] ?? '';
     renewalDateController.text = vehicle?['registration_renewal_date'] ?? '';
-    bouncie = vehicle?['bouncie'] == 1;
+    Bouncie = vehicle?['bouncie'] == 1;
     airTag = vehicle?['air_tag'] == 1;
     permanentPlate = vehicle?['permanent_plate'] == 1;
     spareTire = vehicle?['spare_tire'] == 1;
@@ -3866,11 +3860,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   checkBoxWithSingleText(
-                    value: bouncie,
+                    value: Bouncie,
                     onChanged: (bool? value) {
                       setState(() {
-                        bouncie = value ?? false;
-                        vehicle?['bouncie'] = bouncie ? 1 : 0;
+                        Bouncie = value ?? false;
+                        vehicle?['bouncie'] = Bouncie ? 1 : 0;
                       });
                     },
                     label: 'Bouncie',

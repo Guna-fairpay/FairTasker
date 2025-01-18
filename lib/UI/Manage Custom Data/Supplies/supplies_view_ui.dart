@@ -187,7 +187,7 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
                               // onTap action for search bar if needed
                             }, (value) {
                               _filterSupplies(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),

@@ -375,6 +375,20 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
     on<EditTodoVehiclePerson>((event, emit) async {
       emit(TodoListLoading());
+      await todoListRepo.editAVehiclePerson(
+        event.todoId,
+        event.vehiclePersonData,
+        event.person,
+        event.personId,
+        event.vehicleGroupId,
+      )
+          .then((value) {
+        emit(EditTodoLoaded(result: value));
+      });
+    });
+
+/*    on<EditTodoVehiclePerson>((event, emit) async {
+      emit(TodoListLoading());
       await todoListRepo
           .editAVehiclePerson(
           event.todoId!,
@@ -385,11 +399,11 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           event.cohortName,
           event.vin,
           event.vehicleImage,
-          event.vehicleGroupId)
+          event.vehicleNumber)
           .then((value) {
         emit(EditTodoLoaded(result: value));
       });
-    });
+    });*/
 
     on<DeleteVehicles>((event, emit) async {
       emit(TodoListLoading());
@@ -487,10 +501,19 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       });
     });
 
-    on<DeletePartsOrSupplyEvent>((event, emit) async {
+    on<DeletePartsEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
-          .deletePartsOrSupplyForItem(event.id!, event.type!)
+          .deletePartsForItem(event.partsId)
+          .then((value) {
+        emit(DeletePartsOrSupplyLoaded(result: value));
+      });
+    });
+
+    on<DeleteSupplyEvent>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo
+          .deleteSuppliesForItem(event.suppliesId!)
           .then((value) {
         emit(DeletePartsOrSupplyLoaded(result: value));
       });
@@ -499,7 +522,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
     on<UpdatePartsForItemEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
-          .updatePartsForItem(event.todoId!, event.selectedPartsList as String)
+          .updatePartsForItem(event.todoId!, event.selectedPartsList)
           .then((value) {
         emit(EditTodoLoaded(result: value));
       });
@@ -508,7 +531,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
     on<UpdateSuppliesForItemEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
-          .updateSupplyForItem(event.todoId!, event.selectedSupplyList!)
+          .updateSupplyForItem(event.todoId, event.selectedSupplyList)
           .then((value) {
         emit(EditTodoLoaded(result: value));
       });

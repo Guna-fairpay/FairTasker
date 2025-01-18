@@ -621,11 +621,11 @@ class Utils {
       currentDate = convertStringToDateTime(existingDate);
     }
     var lastDate = last ??
-        DateTime(currentDate.year + 1, currentDate.month, currentDate.day);
+        DateTime(currentDate.year + 10, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: currentDate,
-      firstDate: initialDate,
+      firstDate:DateTime(1900, 1, 1),
       lastDate: lastDate,
       currentDate: currentDate,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
@@ -2317,13 +2317,16 @@ class Utils {
     );
   }
 
-  static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
-      TextEditingController searchController, FocusNode searchFocusNode) {
+  static Widget getSearchBarUI(
+      VoidCallback? onTap, Function(String) onChange,
+      TextEditingController searchController,
+      {FocusNode? searchFocusNode,} )
+  {
     return SizedBox(
       height: 30,
       child: TextField(
         controller: searchController,
-        focusNode: searchFocusNode,
+        focusNode: FocusNode(),
         onChanged: onChange,
         cursorColor: AppC.black, // Set the cursor color
         style: const TextStyle(

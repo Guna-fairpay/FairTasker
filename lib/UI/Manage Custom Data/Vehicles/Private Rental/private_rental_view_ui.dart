@@ -175,8 +175,7 @@ class _RentalViewUIState extends State<RentalViewUI> {
                                   _filterRentals(
                                       value); // Filter rentals based on search query
                                 },
-                                searchController, searchFocusNode
-                            ),
+                                searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),

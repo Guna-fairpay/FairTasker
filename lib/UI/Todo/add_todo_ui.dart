@@ -2924,7 +2924,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         }
                       }
                       setState(() {});
-                    }, searchController, searchFocusNode),
+                    }, searchController),
                   ),
                   const SizedBox(
                     height: 8,
@@ -2954,7 +2954,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                   vehicleDataBloc!.add(GetVehicleHistoryEvent(
                                       vin: outerTodos!.vin,
                                       vehicleGroupId:
-                                          outerTodos!.vehicleGroupId));
+                                          outerTodos!.vehicleNumber));
                                 }
                               },
                               child: listItem(todoList[index], index));

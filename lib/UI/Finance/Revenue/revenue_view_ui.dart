@@ -136,7 +136,6 @@ class _RevenueViewUIState extends State<RevenueViewUI> {
                       //  _filtercategory(value);
                     },
                     searchController,
-                    searchFocusNode,
                   ),
                 ),
               ],

@@ -159,7 +159,7 @@ class _PartViewUIState extends State<PartViewUI> {
                             height: 40,
                             child: Utils.getSearchBarUI(() {}, (value) {
                               _filterParts(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController),
                           ),
                         ),
                         const SizedBox(width: 8),
