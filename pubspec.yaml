@@ -71,6 +71,7 @@ dependencies:
   keyboard_avoider: ^0.2.0
   date_time: 0.11.0
   collection: ^1.17.1
+  data_table_2: ^2.0.0
 
 dev_dependencies:
   flutter_test:

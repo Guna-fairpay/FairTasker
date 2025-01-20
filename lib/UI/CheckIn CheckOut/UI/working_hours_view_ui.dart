@@ -1,17 +1,21 @@
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show Time;
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
+import 'package:fairpytasker/Event/task_event.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/reason_top_notification_popup.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import '../../Component/drawer_ui.dart';
-import '../../Utilities/appC.dart';
-import '../../Utilities/num.dart';
-import '../../Utilities/utils.dart';
+import '../../../Bloc/task_bloc.dart';
+import '../../../Component/drawer_ui.dart';
+import '../../../Utilities/appC.dart';
+import '../../../Utilities/num.dart';
+import '../../../Utilities/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import '../CheckIn CheckOut/task_components-setting_ui.dart';
+import 'task_components-setting_ui.dart';
 import 'hours_top_notification_popup.dart';
 
 
@@ -26,6 +30,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
   late TodoViewBloc workingHistoryBloc;
   late TodoViewBloc workingHoursBloc;
   late TodoViewBloc workingActiveBloc;
+  late TaskBloc getTaskCountBloc;
   DateTime? selectedDate;
   DateRange? selectedDateRange;
   TextEditingController dateController = TextEditingController();
@@ -44,9 +49,13 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
   List<Map<String, dynamic>> combinedData=[];
   List<Map<String, dynamic>> formattedResources=[];
   List<Map<String, dynamic>> dropDownResource=[];
+  List<Map<String, dynamic>> filteredData=[];
+  dynamic selectedName;
   dynamic selectedPerson;
   dynamic selectedUserId;
   dynamic selectedBase1;
+  String startDate='';
+  String endDate='';
 
 
   @override
@@ -58,118 +67,10 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
     );
     super.initState();
     workingHoursBloc=TodoViewBloc();
+    getTaskCountBloc=TaskBloc();
     workingHoursBloc.add(const GetWorkingHistoryCount());
     workingHoursBloc.add(const GetAssignedToList());
-
   }
-  void _showTopNotification(BuildContext context, List<dynamic> dataList, String userName) {
-    final overlay = Overlay.of(context);
-    late OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 50,
-        left: 20,
-        right: 20,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header with title and close button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Utils.getText(userName,weight: FontWeight.bold, size: 18),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Colors.black),
-                      onPressed: () {
-                        overlayEntry.remove(); // Remove overlay on close
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Utils.getText(selectedDateRange.toString(),size: 14),
-                const SizedBox(height: 10),
-                // Table Header
-                Container(
-                  color: Colors.grey.shade200,
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: Text("Date", textAlign: TextAlign.center)),
-                      Expanded(child: Text("In", textAlign: TextAlign.center)),
-                      Expanded(child: Text("Out", textAlign: TextAlign.center)),
-                      Expanded(child: Text("Total", textAlign: TextAlign.center)),
-                    ],
-                  ),
-                ),
-                // Dynamic Table Rows
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: dataList.length,
-                  itemBuilder: (context, index) {
-                    final data = dataList[index];
-                    return _buildTableRow(
-                      data['date'] ?? '',
-                      data['start_time'] ?? '',
-                      data['end_time'] ?? '',
-                      data['total_hours'] ?? '',
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-
-    // Automatically remove notification after 10 minutes
-    Future.delayed(const Duration(minutes: 10), () {
-      if (overlayEntry.mounted) {
-        overlayEntry.remove();
-      }
-    });
-  }
-
-  Widget _buildTableRow(String date, String inTime, String outTime, String total) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: Text(date, textAlign: TextAlign.center)),
-          Expanded(child: Text(inTime, textAlign: TextAlign.center)),
-          Expanded(child: Text(outTime, textAlign: TextAlign.center)),
-          Expanded(child: Text(total, textAlign: TextAlign.center)),
-        ],
-      ),
-    );
-  }
-
-
-
-
-
   int timeStringToMinutes(String time) {
     final minutes = Time.fromStr(time)?.inMins;
     return minutes!;
@@ -185,7 +86,6 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
     final relevantHours = employeeActiveTotalHours.where(
           (activeHour) => activeHour['hrm_id']?.toString() == item['id']?.toString(),
     );
-    //print("relevantHours $relevantHours");
     final int totalMinutes = relevantHours.fold(
       0, (total, current) => total + timeStringToMinutes(current['active_hours']),
     );
@@ -193,84 +93,88 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
   }
 
   String getFirstWord(String fullName) {
-    //Time.fromStr("07:15")?.inMins;
     return fullName.split(' ').first;
   }
+  String removeSeconds(String totalHours) {
+    List<String> parts = totalHours.split(':');
 
+    if (parts.length >= 2) {
+      return '${parts[0]}:${parts[1]}';
+    } else {
+      throw FormatException("Invalid time format: $totalHours");
+    }
+  }
 
 
   List<Map<String, dynamic>> combineData(
       List<Map<String, dynamic>> workhours,
       List<Map<String, dynamic>> workhistory,
       List<Map<String, dynamic>> workActivehours,
+      List<Map<String, dynamic>> formattedResource,
       )
   {
     List<Map<String, dynamic>> combinedList = [];
     Map<String, dynamic> combinedItem={};
     combinedList.clear();
-    for (var workhour in workhours) {
+    for (var workhour in workhours)
+    {
       final userId = workhour['user']['id'];
+      final userName = workhour['user']['name'];
       if(userId==null)
       {
         continue;
       }
-      // Find matching history item
       Map<String, dynamic>? historyItem; // Initialize to null
       for (var item in workhistory) {
         if (item['users'] != null && item['users']['hrm_id'] == userId) {
           historyItem = item; // Assign the matching item
-          break; // Exit the loop once a match is found
+          break;
         }
       }
       Map<String, dynamic>? activeHoursItem;
       for (var item in workActivehours) {
         if (item['active_hours'] != "00:00" && item['hrm_id'] == userId) {
           activeHoursItem = item; // Assign the matching item
-          break; // Exit the loop once a match is found
+          break;
+        }
+      }
+      Map<String, dynamic>? empID;
+      for (var item in formattedResource) {
+        if (getFirstWord(item['full_name']) == getFirstWord(userName)) {
+          empID = item;
+          break;
         }
       }
       final taskCount = historyItem?['task_count'] ?? 0;
       final activeHours = activeHoursItem?['active_hours'] ?? "00:00";
       if (taskCount == 0 && activeHours == "00:00") {
-        continue; // Skip this iteration (don't add to combinedList)
+        continue;
       }
       combinedItem = {
         'id': userId,
+        'empID':historyItem?['users']['id'],
+        'hrmID': historyItem?['users']['hrm_id'] ?? 0,
         'total_working_hours': workhour['user']['total_working_hours'],
         'list': workhour['user']['list'],
         'task_count': historyItem?['task_count'] ?? 0, // Default to 0 if not found
         'first_name': workhour['user']['name'] ?? '', // Default to empty string
-        //'active_hours': activeHoursItem?['active_hours'] ?? '', // Default to empty string
       };
       combinedList.add(combinedItem);
     }
     return combinedList;
   }
 
-  List<String> dropdownOptions  = [];
-  List<Map<String, dynamic>> filteredData=[];
-  String selectedOption = 'All';
-  dynamic selectedName;
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(90),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(90),
         child: Padding(
-          padding: const EdgeInsets.only(left: 20, top: 10, right: 20, bottom: 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Utils.getText('Check In/Out', weight: FontWeight.bold, size: 20, color: AppC.black),
-              GestureDetector(
-                  onTap: () {
-                  },
-                  child: const Icon(Icons.close,color: AppC.white,)),
-            ],
-          ),
+          padding: EdgeInsets.all(0),
+
         ),
       ),
       body:BlocProvider(
@@ -291,24 +195,20 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
           }
           else if(state is GetWorkingHistoryLoaded)
           {
-            // print("work history ${state.history}");
             loading = false;
             setState(() {
               workingHistory.clear();
               workingHistory = state.history;
             });
-            //print("work history $workingHistory");
           }
           else if(state is GetActiveHoursLoaded)
           {
-            //--print("work active hours ${state.data}");
             loading = false;
             // workActiveHours.addAll(state.data); // COMMENTED DUE TO ACTIVE HOURS INCREASED [D.B]
               workActiveHours.clear();
               workActiveHours = state.data;
-            //print("work active hours $workActiveHours");
-            print("selected date range---> $selectedDateRange");
-          }else if(state is AssignedToLoaded)
+          }
+          else if(state is AssignedToLoaded)
           {
               loading = false;
               resources.clear();
@@ -319,7 +219,6 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                   'full_name': "${resource['first_name']} ${resource['last_name']}",
                 };
               }).toList();
-
           }
           else {
             setState(() {
@@ -327,11 +226,9 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
             });
           }
           combinedData.clear();
-          combinedData = combineData(workHours, workingHistory, workActiveHours);
+          combinedData = combineData(workHours, workingHistory, workActiveHours, formattedResources);
           filteredData = combinedData;
-          print("combined data $combinedData");
           dropDownResource = [{'id':'','full_name':'All'}, ...formattedResources];
-          // print("formatted resources $formattedResources");
         },
             builder: (context, state)
             {
@@ -436,7 +333,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10,),
+                        const SizedBox(height: 10,),
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(2),
@@ -485,8 +382,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             Expanded(
                               child: SizedBox(
                                 height: 35,
-                                width: MediaQuery.of(context).size.width *
-                                    0.470, // Responsive width
+                                width: MediaQuery.of(context).size.width * 0.470, // Responsive width
                                 child: DateRangeField(
                                   decoration: InputDecoration(
                                     contentPadding:
@@ -503,9 +399,8 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                   onDateRangeSelected: (DateRange? value) {
                                     setState(() {
                                       selectedDateRange = value;
-                                      String startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
-                                      String endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
-                                      print("dates----> $startDate  $endDate");
+                                      startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
+                                      endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
                                       workingHoursBloc.add(GetWorkingHistoryCount(startDate: startDate,endDate: endDate));
                                       workingHoursBloc.add(GetWorkingHoursData(minDate: startDate, maxDate: endDate));
                                       workingHoursBloc.add(GetActiveHoursData(minDate: startDate, maxDate: endDate));
@@ -520,14 +415,14 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             Expanded(
                               child:
                               Utils.dropdownBox('All'
-                                  , dropDownResource,
+                                  ,dropDownResource,
                                       (value) {
                                     setState(() {
                                       selectedName = value!;
                                               filteredData = selectedName['full_name'] == 'All'
                                                   ? combinedData
                                                   : combinedData.where((item) {
-                                                return item['first_name'] == selectedName['full_name'];
+                                                return getFirstWord(item['first_name']) == getFirstWord(selectedName['full_name']);
                                               }).toList();
                                     });
                                   } ,
@@ -553,6 +448,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             padding: const EdgeInsets.all(5.0),
                             child: Row(
                               children: [
+
                                 Expanded(
                                     flex: 5,
                                     child:
@@ -583,9 +479,6 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             itemCount: filteredData.length,
                             itemBuilder: (context, index) {
                               final employee = filteredData[index];
-                              //print("Updated data in ListviewBuilder $employee");
-
-                              String totalWorkingHours = employee['total_working_hours']!;
                               int lessCount = 0;
                               int greaterCount = 0;
                               if (employee['list'] != null)
@@ -605,8 +498,8 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                               }
                               int totalHoursValue = lessCount + greaterCount;
                               final String activeHours = calculateActiveHours(workActiveHours, employee);
-                              //print("active hours $activeHours");
-                              if(activeHours!=null) {
+                              if(activeHours.toString() !='00:00' && employee['task_count'].toString() != '0')
+                              {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 2),
                                   child:
@@ -614,13 +507,12 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                     key: ValueKey(employee['id']),
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      boxShadow: const [
+                                    decoration: const BoxDecoration(
+                                      boxShadow: [
                                         BoxShadow(
                                           color: Colors.grey,
-                                          spreadRadius: 0.2,
-                                          blurRadius: 0.5,
+                                          spreadRadius: 0.1,
+                                          blurRadius: 0.1,
                                           offset: Offset(0, 1),
                                         ),
                                       ],
@@ -641,9 +533,11 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                         flex: 3,
                                         child: GestureDetector(
                                           onTap: () {
-                                            TopNotificationPopup.show(context, dataList: employee['list'], userName: employee['first_name'], selectedDateRange: selectedDateRange.toString());
+                                            TopNotificationPopup.show(context, dataList: employee['list'],
+                                                userName: employee['first_name'], selectedDateRange: selectedDateRange.toString(),
+                                                empID: employee['empID'], hrmID: employee['hrmID']);
                                           },
-                                          child: Utils.getText(employee['total_working_hours']?.substring(0, 5) ?? ''),
+                                          child: Utils.getText(removeSeconds(employee['total_working_hours'])),
                                         ),
                                       ),
                                         Expanded(
@@ -660,7 +554,16 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                             flex: 2,
                                             child: Align(
                                                 alignment: Alignment.center,
-                                                child: Utils.getText("$totalHoursValue" ?? '')
+
+                                                child: GestureDetector(
+                                                    onTap: () {
+                                                      ReasonTopNotificationPopup.show(context, dataList: employee['list'],
+                                                          userName: employee['first_name'],
+                                                          selectedDateRange: selectedDateRange.toString(), hrmID: employee['hrmID']);
+                                                    },
+                                                    child:
+                                                    Utils.getText("$totalHoursValue" ?? '',)
+                                                ),
                                             )
                                         ),
                                       ],

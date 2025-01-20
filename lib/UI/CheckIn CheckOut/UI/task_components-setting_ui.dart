@@ -5,8 +5,8 @@ import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../Utilities/appC.dart';
-import '../../Utilities/utils.dart';
+import '../../../Utilities/appC.dart';
+import '../../../Utilities/utils.dart';
 
 class TaskComponentsSettingUI extends StatefulWidget {
   const TaskComponentsSettingUI({super.key});
@@ -74,16 +74,10 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
 
 //Task
   void startEditingHourly(int? id,int? userid,String? amount, String? type) {
-    print("Id $id");
-    print("Name $userid");
-    print("Amount $amount");
-    print("type $type");
-    print("formattedresource $formattedResources");
     var editResource = formattedResources.firstWhere(
           (element) => element['id'] == id,
       orElse: () => {},
     );
-    print("edit resource ${editResource}");
     setState(() {
       editingIndex = id;
       _amountController.text = amount!;
@@ -91,10 +85,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
     });
   }
   void startEditingTask(int? id,String? amount, String? taskName, String? type) {
-    print("Id $id");
-    print("Name $taskName");
-    print("Amount $amount");
-    print("type $type");
     if(type=='task')
     {
       var editData = taskDatas.firstWhere(
@@ -120,12 +110,11 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
     });
   }
   void _addTask() {
-    print("outer _taskNameController: ${_taskNameController.text} _amountController: ${_amountController.text} selectedBases ${selectedBases['base']} ");
     if(_amountController.text.isNotEmpty && selectedBases!=null)
     {
       if(selectedBases['base']=='Task based' && _taskNameController.text.isNotEmpty)
       {
-        print("Inner _taskNameController: ${_taskNameController.text} _amountController: ${_amountController.text} selectedBases ${selectedBases['base']} ");
+
         setState(() {
           taskBloc.add(AddConfigurationEvent(
             id: null,
@@ -142,7 +131,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
       else
       {
         if (_amountController.text.isNotEmpty && selectedBases['base'] != null && selectedUserId != null) {
-          print("Inner _amountController: ${_amountController.text} selectedBases ${selectedBases['base']} selectedUserId ${selectedUserId} ");
           setState(() {
             taskBloc.add(AddConfigurationEvent(
               id: null,
@@ -239,7 +227,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
           create: (context) => taskBloc..add(const GetTaskHistoryConfiguration()),
           child: BlocConsumer<TodoViewBloc,TodoViewState>(listener: (context, state)
           {
-            //print("full data $state");
             if (state is TodoListLoading)
             {
               setState(() {
@@ -255,7 +242,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
                     .where((task) => task['type'] == 'task')
                     .toList();
                 hourlybased=taskDatas.where((task)=> task['type']=='hourly').toList();
-                //print("taskbased data $taskbased");
               });
             }
             else if(state is AssignedToLoaded)
@@ -295,7 +281,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
                               setState(() {
                                 selectedBase1=value;
                                 selectedBases=value;
-                                print("selected base $selectedBase1");
                                 _tabController.animateTo(tabMapping[selectedBase1['base']]!);
                               });
                             },
@@ -344,7 +329,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
                                         _amountController.clear();
                                       }
                                       else{
-                                        print("select user id ${selectedPerson}");
                                         setState(() {
                                           isEditing = false;
                                           taskBloc.add(AddConfigurationEvent(
@@ -574,7 +558,6 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
                                                                       selectedPerson=formattedResources.firstWhere((user) => user['id'] == task['user_id']);
                                                                       isEditing = true;
                                                                       selectedBase1={"base": "Hourly based"};
-                                                                      print("selectedPerson ${selectedPerson}");
                                                                       startEditingHourly(task['id'],task['user_id'],task['amount'],task['type']);
                                                                     })
                                                                   },
