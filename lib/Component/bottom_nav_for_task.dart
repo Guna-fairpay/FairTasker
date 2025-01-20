@@ -12,7 +12,7 @@ import 'package:fairpytasker/Component/header.dart';
 import '../UI/Finance/Expense/Vehicle/vehicle_expense_view_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
-import '../UI/WorkingHours/working_hours_view_ui.dart';
+import '../UI/CheckIn CheckOut/UI/working_hours_view_ui.dart';
 import '../Utilities/str.dart';
 
 class BottomNavigationForTaskView extends StatefulWidget {
