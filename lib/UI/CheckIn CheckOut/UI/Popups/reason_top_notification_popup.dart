@@ -2,12 +2,12 @@
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/State/workingHoursState.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Bloc/workHoursBloc.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/text_popup.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/text_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../../Utilities/Utils.dart';
-import '../../../Utilities/appC.dart';
+import '../../../../Utilities/Utils.dart';
+import '../../../../Utilities/appC.dart';
 
 
 late TaskBloc getTaskCountBloc;

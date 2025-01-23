@@ -46,3 +46,21 @@ class CheckInoutReasonLoadedState extends TaskState
   @override
   List<Object?> get props => [data];
 }
+
+class TaskHistoryLoadedState extends TaskState {
+  final dynamic taskHistory;
+
+  TaskHistoryLoadedState({required this.taskHistory, required List<int> combinedList});
+
+  @override
+  List<Object?> get props => [taskHistory];
+}
+
+class GetConfigurationLoadedState extends TaskState {
+  final dynamic data;
+
+  GetConfigurationLoadedState({required this.data});
+
+  @override
+  List<Object?> get props => [data];
+}

@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show Time;
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
-import 'package:fairpytasker/Event/task_event.dart';
+
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/reason_top_notification_popup.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/reason_top_notification_popup.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import '../../../Bloc/task_bloc.dart';
@@ -16,7 +16,7 @@ import '../../../Utilities/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'task_components-setting_ui.dart';
-import 'hours_top_notification_popup.dart';
+import 'Popups/hours_top_notification_popup.dart';
 
 
 class WorkingHoursViewUI extends StatefulWidget {
@@ -307,7 +307,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                           Padding(
                             padding: const EdgeInsets.all(5.0),
                             child:
-                            Row(
+                            Row(   //Static values
                               children: [
                                 Expanded(
                                     flex: 5,
@@ -544,7 +544,10 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                             flex: 2,
                                             child: GestureDetector(
                                                 onTap: () {
-
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) => WorkingHoursTaskUI(workingHoursData: filteredData[index], dateRange: selectedDateRange.toString(),)));
                                                 },
                                                 child:
                                                 Utils.getText(employee['task_count'].toString() ?? '',)
@@ -554,7 +557,6 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                             flex: 2,
                                             child: Align(
                                                 alignment: Alignment.center,
-
                                                 child: GestureDetector(
                                                     onTap: () {
                                                       ReasonTopNotificationPopup.show(context, dataList: employee['list'],

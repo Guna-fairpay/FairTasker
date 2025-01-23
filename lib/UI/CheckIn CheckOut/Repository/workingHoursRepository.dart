@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import '../../../Utilities/Str.dart';
 import '../../../data/api_client.dart';
 import '../Response/checkInOutResponse.dart';
+import '../Response/workingGetConfiguration.dart';
+import '../Response/workingTaskResponse.dart';
 
 class TaskRepository {
   final ApiClient apiClient = ApiClient();
@@ -18,7 +20,8 @@ class TaskRepository {
   }) async {
     try {
       final String apiUrl =
-          '${Str.BASE_URL}checkinout-reason?hrm_id=$hrmId&from=$fromDate&to=$toDate';
+          '${Str
+          .BASE_URL}checkinout-reason?hrm_id=$hrmId&from=$fromDate&to=$toDate';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         //print("Api response ${response.body}");
@@ -34,8 +37,7 @@ class TaskRepository {
         log('API Response is null');
         return null;
       }
-    } catch (e)
-    {
+    } catch (e) {
       log('Exception in fetchCheckInoutReason: $e');
       return null;
     }
@@ -48,7 +50,8 @@ class TaskRepository {
   }) async {
     try {
       print("-------->hrmId $hrmId fromDate $fromDate toDate $toDate");
-      final String apiUrl = '${Str.BASE_URL}edit-comments?hrm_id=$hrmId&from=$fromDate&to=$toDate';
+      final String apiUrl = '${Str
+          .BASE_URL}edit-comments?hrm_id=$hrmId&from=$fromDate&to=$toDate';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         print("Api response ${response.body}");
@@ -64,8 +67,7 @@ class TaskRepository {
         log('API Response is null');
         return null;
       }
-    } catch (e)
-    {
+    } catch (e) {
       log('Exception in fetchEmployeeComments: $e');
       return null;
     }
@@ -79,7 +81,8 @@ class TaskRepository {
   {
     try {
       final String apiUrl =
-          '${Str.BASE_URL}employeeTaskCount?user_id=$userId&from=$fromDate&to=$toDate';
+          '${Str
+          .BASE_URL}employeeTaskCount?user_id=$userId&from=$fromDate&to=$toDate';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         if (response.statusCode == 200) {
@@ -97,6 +100,54 @@ class TaskRepository {
     } catch (e) {
       log('Exception in fetchEmployeeTaskCount: $e');
       return null;
+    }
+  }
+
+  Future<WorkingTaskResponse?> fetchEmployeeTaskHistory({
+    required String to,
+    required String from,
+    required int? userId,
+  }) async {
+
+    try {
+      final String apiUrl = '${Str.BASE_URL}employeeTaskHistory?to=${to}&user_id=${userId}&from=${from}';
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      print("API URL $apiUrl");
+      if(response!=null){
+        if (response.statusCode == 200) {
+          WorkingTaskResponse workingTaskResponse = WorkingTaskResponse.fromJson(jsonDecode(response.body));
+          return workingTaskResponse;
+        } else {
+          throw Exception(
+              'Failed to load task history. Status code: ${response.statusCode}');
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      throw Exception('Error fetching task history: $e');
+    }
+  }
+
+  Future<WorkingGetConfigurationResponse?> fetchGetConfiguration() async {
+    try{
+      final String apiUrl = '${Str.BASE_URL}getConfiguration';
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if(response != null){
+        print("Response body ${response.body}");
+        if (response.statusCode == 200) {
+          WorkingGetConfigurationResponse workingGetConfigurationResponse = WorkingGetConfigurationResponse.fromJson(jsonDecode(response.body));
+          return workingGetConfigurationResponse;
+        } else {
+          throw Exception(
+              'Failed to load task history. Status code: ${response.statusCode}');
+        }
+      }else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching task history: $e');
     }
   }
 }

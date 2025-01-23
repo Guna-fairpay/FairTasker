@@ -49,3 +49,24 @@ class fetchEmployeeComment extends TaskCountEvent {
   @override
   List<Object?> get props => [hrmId, fromDate, toDate];
 }
+
+class fetchEmployeeTaskHistoryEvent extends TaskCountEvent{
+  final String to;
+  final String from;
+  final int? userId;
+
+  fetchEmployeeTaskHistoryEvent({
+    required this.to,
+    required this.from,
+    required this.userId,
+});
+
+  @override
+  List<Object?> get props => [to, from, userId,];
+}
+
+class fetchWorkingGetConfigurationEvent extends TaskCountEvent {
+  const fetchWorkingGetConfigurationEvent();
+  @override
+  List<Object> get props => [];
+}
