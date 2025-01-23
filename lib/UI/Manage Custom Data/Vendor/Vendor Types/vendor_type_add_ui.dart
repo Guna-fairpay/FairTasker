@@ -66,7 +66,7 @@ class _VendorTypeAddUIState extends State<VendorTypeAddUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     nameController,
                     label: Utils.getText('Vendor Name', color: AppC.grey),

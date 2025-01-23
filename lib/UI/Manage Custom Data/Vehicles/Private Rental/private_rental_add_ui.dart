@@ -162,7 +162,7 @@ class _RentalAddUI extends State<RentalAddUI> {
                             Container(
                               key: vehicleFieldKey, // Assign key here
                               child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
+                                  .getTextFormField(
                                       'Vehicle', vehicleController,
                                       borderColor: isVehicleFieldEmpty
                                           ? Colors.red
@@ -199,7 +199,7 @@ class _RentalAddUI extends State<RentalAddUI> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Customer', customerController,
                                 borderColor: isCustomerFieldEmpty
                                     ? Colors.red
@@ -266,7 +266,7 @@ class _RentalAddUI extends State<RentalAddUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                           '',
                           checkInDateController,
                           suffixIcon: const Icon(
@@ -293,7 +293,7 @@ class _RentalAddUI extends State<RentalAddUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                           '',
                           checkOutDateController,
                           suffixIcon: const Icon(
@@ -320,7 +320,7 @@ class _RentalAddUI extends State<RentalAddUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                           'CheckIn Mileage',
                           checkInMileageController,
                         ),
@@ -329,7 +329,7 @@ class _RentalAddUI extends State<RentalAddUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                           'Checkout mileage',
                           checkOutMileageController,
                         ),

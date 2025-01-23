@@ -15,19 +15,19 @@ import 'vehicle_add_ui.dart';
 import 'vehicle_edit_ui.dart';
 import 'Private Rental/private_rental_view_ui.dart';
 
-class VehicleUIs extends StatefulWidget {
-  const VehicleUIs({super.key});
+class VehicleViewUI extends StatefulWidget {
+  const VehicleViewUI({super.key});
 
   @override
-  State<VehicleUIs> createState() => _VehicleUIState();
+  State<VehicleViewUI> createState() => _VehicleUIState();
 }
 
-class _VehicleUIState extends State<VehicleUIs> {
+class _VehicleUIState extends State<VehicleViewUI> {
   final FocusNode searchFocusNode = FocusNode();
   late VehicleDataBloc vehicleDataBloc;
   late tvb.TodoViewBloc todoViewBloc;
   TextEditingController searchController = TextEditingController();
-  List<Map<String, dynamic>> vehiclename = [];
+  List<Map<String, dynamic>> vehicleName = [];
   List<Map<String, dynamic>> filteredVehicle = [];
   CreateVehicleData createVehicleData = CreateVehicleData();
   List<Map<String, dynamic>>? vehicleData;
@@ -58,7 +58,7 @@ class _VehicleUIState extends State<VehicleUIs> {
 
   void _filteredVehicle(String query) {
     setState(() {
-      filteredVehicle = vehiclename.where((vehicle) {
+      filteredVehicle = vehicleName.where((vehicle) {
         final name = vehicle['vehicle_name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
         return name.contains(searchQuery);
@@ -238,8 +238,8 @@ class _VehicleUIState extends State<VehicleUIs> {
                     list.addAll(state.vehicleDataList ?? []);
                     list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                         .compareTo(DateTime.parse(a['created_at'] ?? '')));
-                    vehiclename = list;
-                    filteredVehicle = List.from(vehiclename);
+                    vehicleName = list;
+                    filteredVehicle = List.from(vehicleName);
                   } else if (state is VehicleDataLoadedV) {
                     if (state.result != null) {
                       vehicleData = state.result;
@@ -282,17 +282,13 @@ class _VehicleUIState extends State<VehicleUIs> {
                                         _filteredVehicle(value);
                                       },
                                       searchController,
-                                      searchFocusNode,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                SizedBox(
-                                  height: 40,
-                                  child: Utils.getAddFilledButton('Add', () {
-                                    _navigateToVehicleAddUI();
-                                  }),
-                                ),
+                                Utils.getAddFilledButton('Add', () {
+                                  _navigateToVehicleAddUI();
+                                }),
                               ],
                             ),
                             const SizedBox(height: 10),
@@ -302,49 +298,53 @@ class _VehicleUIState extends State<VehicleUIs> {
                                 itemBuilder: (context, index) {
                                   final vehicle = filteredVehicle[index];
                                   return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 2.0),
-                                    child: Slidable(
-                                      endActionPane: ActionPane(
-                                        motion: const ScrollMotion(),
-                                        children: [
-                                          SlidableAction(
-                                            onPressed: (context) =>
-                                                _deleteVehicle(index),
-                                            backgroundColor: AppC.white,
-                                            foregroundColor: AppC.red,
-                                            icon: Icons.delete_outline,
-                                            label: 'Delete',
-                                          ),
-                                        ],
+                                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                    child: Dismissible(
+                                      key: Key(vehicle['id'].toString()), // Ensure unique Key for each item
+                                      direction: DismissDirection.endToStart,
+                                      onDismissed: (direction) {
+                                        setState(() {
+                                          filteredVehicle.removeAt(index);
+                                        });
+                                        _deleteVehicle(index);
+                                      },
+                                      background: Container(
+                                        color: AppC.white,
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.only(right: 20.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Utils.getText("Delete",size: 14,color: AppC.redAccent),
+                                            const SizedBox(width: 10,),
+                                            const Icon(
+                                              Icons.delete_outline,
+                                              color: AppC.redAccent,
+                                              size: 16,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                       child: GestureDetector(
                                         onTap: () {
                                           _navigateToVehicleEditUI(index);
                                         },
                                         child: Card(
-                                          margin: const EdgeInsets.symmetric(
-                                              vertical: 4),
+                                          margin: const EdgeInsets.symmetric(vertical: 4),
                                           color: AppC.white,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
+                                            borderRadius: BorderRadius.circular(8.0),
                                           ),
                                           child: Container(
-                                            padding: const EdgeInsets.all(10),
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 Expanded(
                                                   child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
+                                                    padding: const EdgeInsets.all(5.0),
                                                     child: Utils.getText(
-                                                      vehicle['vehicle_name'] ??
-                                                          '',
+                                                      vehicle['vehicle_name'] ?? '',
                                                       weight: FontWeight.bold,
                                                     ),
                                                   ),
@@ -359,6 +359,7 @@ class _VehicleUIState extends State<VehicleUIs> {
                                 },
                               ),
                             ),
+
                           ],
                         ),
                       ),

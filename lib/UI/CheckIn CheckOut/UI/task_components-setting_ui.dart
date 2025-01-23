@@ -286,7 +286,7 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
                             labelKey: 'base',initialSelection: selectedBase1,
                           ),
                           const SizedBox(height: 16),
-                          selectedBase1['base']=='Task based'?Utils.getBackgroundFilledTextFieldFirstLetterCaps('Task Name',_taskNameController):
+                          selectedBase1['base']=='Task based'?Utils.getTextFormField('Task Name',_taskNameController):
                           Utils.dropdownBox(
                             selectedPerson == null ? 'Select person' : selectedPerson['full_name'],
                             formattedResources ,(value) {
@@ -301,7 +301,7 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
                             initialSelection: selectedPerson,
                           ),
                           const SizedBox(height: 16),
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps('Amount (\$)',_amountController),
+                          Utils.getTextFormField('Amount (\$)',_amountController),
                           const SizedBox(height: 16),
                           Row(
                             children: [

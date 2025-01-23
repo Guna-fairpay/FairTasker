@@ -138,25 +138,25 @@ class _EmployeesAddUIState extends State<EmployeesAddUI> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      Utils.getTextFormField(
                           '', firstnameController,
                           label: Utils.getText('First Name', color: AppC.grey)),
                       const SizedBox(height: 10),
-                      Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      Utils.getTextFormField(
                           '', lastnameController,
                           label: Utils.getText('Last Name', color: AppC.grey)),
                       const SizedBox(height: 10),
-                      Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      Utils.getTextFormField(
                           '', mobileController,
                           label: Utils.getText('Mobile No', color: AppC.grey),
                           textType: TextInputType.phone),
                       const SizedBox(height: 10),
-                      Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      Utils.getTextFormField(
                           '', emailController,
                           label: Utils.getText('Email', color: AppC.grey),
                           textType: TextInputType.emailAddress),
                       const SizedBox(height: 10),
-                      Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      Utils.getTextFormField(
                         '',
                         passwordController,
                         hintText: 'Enter Password',

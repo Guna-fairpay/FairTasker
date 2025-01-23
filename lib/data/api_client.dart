@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:fairpytasker/Utilities/str.dart';
@@ -36,9 +37,6 @@ class ApiClient {
     if(await Utils.connection()) {
       http.Response response = await client.get(Utils.getUri(url),
           headers: Utils.getHeadersWithToken());
-
-
-          
       return response;
     }else{
       Utils.showMobileToast(Str.checkInternetConnectionAlert);

@@ -33,9 +33,11 @@ class _UserViewUIState extends State<UserViewUI> {
   void _filterUsers(String query) {
     setState(() {
       filterUsers = users.where((user) {
-        final userName = user['users']?.toLowerCase() ?? '';
+        final userFirstName = user['first_name']?.toLowerCase() ?? '';
+        final userLastName = user['last_name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
-        return userName.contains(searchQuery);
+        return userFirstName.contains(searchQuery)
+        ||userLastName.contains(searchQuery);
       }).toList();
     });
   }
@@ -59,7 +61,7 @@ class _UserViewUIState extends State<UserViewUI> {
       context,
       MaterialPageRoute(
         builder: (context) => UserEditUI(
-          users: users[index],
+          users: filterUsers[index],
         ),
       ),
     );
@@ -199,7 +201,7 @@ class _UserViewUIState extends State<UserViewUI> {
                             height: 40,
                             child: Utils.getSearchBarUI(() {}, (value) {
                               _filterUsers(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -234,7 +236,7 @@ class _UserViewUIState extends State<UserViewUI> {
                               ),
                               child: GestureDetector(
                                 onTap: () {
-                                  print('++++++++++++++++++++++$users');
+
                                   _navigateToEditUserUI(index);
                                 },
                                 child: Card(

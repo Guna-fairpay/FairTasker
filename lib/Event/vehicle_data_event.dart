@@ -16,9 +16,9 @@ class GetDropdownVehicleData extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
-class GetExpenseToData extends VehicleDataEvent {
+class GetExpenseToDatas extends VehicleDataEvent {
   final String? expenseId;
-  const GetExpenseToData({required this.expenseId});
+  const GetExpenseToDatas({required this.expenseId});
   @override
   List<Object?> get props => [expenseId];
 }
@@ -142,9 +142,9 @@ class GetPartsListV extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
-class DeletePartsEvent extends VehicleDataEvent {
+class DeletePartEvent extends VehicleDataEvent {
   final int? id;
-  const DeletePartsEvent({required this.id});
+  const DeletePartEvent({required this.id});
   @override
   List<Object?> get props => [id];
 }

@@ -94,7 +94,7 @@ class _PartViewUIState extends State<PartViewUI> {
     'Do you want to delete this Vehicle Part?',);
     if (confirmed == true) {
       final parts = filteredParts[index];
-      partDataBloc.add(DeletePartsEvent(id: parts['id']));
+      partDataBloc.add(DeletePartEvent(id: parts['id']));
       partDataBloc.add(const GetPartsListV());
     }
   }
@@ -159,7 +159,7 @@ class _PartViewUIState extends State<PartViewUI> {
                             height: 40,
                             child: Utils.getSearchBarUI(() {}, (value) {
                               _filterParts(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController),
                           ),
                         ),
                         const SizedBox(width: 8),

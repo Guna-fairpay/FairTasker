@@ -115,7 +115,7 @@ class _LocationEditUIState extends State<LocationEditUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     locationController,
                     label: Utils.getText('Location Name', color: AppC.grey),
@@ -132,7 +132,7 @@ class _LocationEditUIState extends State<LocationEditUI> {
             const SizedBox(height: 20),
             SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                 '',
                 addressController,
                 label: Utils.getText('Address', color: AppC.grey),

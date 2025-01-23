@@ -115,7 +115,7 @@ class _TaskAddUIState extends State<TaskAddUI> {
                           child: Stack(
                             alignment: Alignment.centerRight,
                             children: [
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              Utils.getTextFormField(
                                 '',
                                 taskController,
                                 label: Utils.getText('Task', color: AppC.grey),
@@ -246,7 +246,7 @@ class _TaskAddUIState extends State<TaskAddUI> {
                         SizedBox(
                           height: 40,
                           child:
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              Utils.getTextFormField(
                             '',
                             timeTakenController,
                             label:

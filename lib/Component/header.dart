@@ -105,7 +105,6 @@ class _HeaderViewState extends State<HeaderView> {
                   (item) => item['id'] == branchNO,
                   orElse: () => branch[0],
                 );
-                print("SELECT $selectedValue");
               }
             }
 
@@ -199,16 +198,6 @@ class _HeaderViewState extends State<HeaderView> {
                     ),
                   ),
                   const SizedBox(width: 12),
-            Row(
-              children: [
-                Image.asset(
-                Assets.checkInIcon,
-                color: AppC.appColor,
-                  height: 20,
-                ),
-              ],
-            ),
-                  const SizedBox(width: 12),
                   InkWell(
                     onTap: () {
                       showMenu<Map<String, dynamic>>(
@@ -257,7 +246,6 @@ class _HeaderViewState extends State<HeaderView> {
                         if (value != null) {
                           setState(() {
                             selectedValue = value;
-                            print('SELECTED VALUE+==+${selectedValue?['id']}');
                             Utils.setIntPreference(
                                 Str.branchIdPrefText, selectedValue?['id']!);
                             Navigator.push(

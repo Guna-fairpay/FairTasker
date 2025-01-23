@@ -219,7 +219,7 @@ class _OtherEditUiState extends State<OtherEditUi> {
                                 Expanded(
                                   child: SizedBox(
                                     height: 35,
-                                    child: Utils.getBackgroundFilledTextFieldFirstLetterCaps('',
+                                    child: Utils.getTextFormField('',
                                       dateController,
                                       suffixIcon: Padding(
                                         padding: isDateFieldEmpty
@@ -253,7 +253,7 @@ class _OtherEditUiState extends State<OtherEditUi> {
                                   child: SizedBox(
                                       height: 35,
                                       child:
-                                      Utils.getBackgroundFilledTextFieldFirstLetterCaps("Enter Amount", amountController)
+                                      Utils.getTextFormField("Enter Amount", amountController)
                                   ),
                                 ),
                               ],
@@ -347,7 +347,7 @@ class _OtherEditUiState extends State<OtherEditUi> {
                             ),
                             const SizedBox(height: 16),
                             // Expense Description
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Enter Description',descriptionController
                             ),
                             const SizedBox(height: 16),

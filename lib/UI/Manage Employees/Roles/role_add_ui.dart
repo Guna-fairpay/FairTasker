@@ -87,7 +87,7 @@ class _RoleAddUIState extends State<RoleAddUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     roleController,
                     label: Utils.getText('Role', color: AppC.grey),

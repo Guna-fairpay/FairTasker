@@ -108,7 +108,7 @@ class _DepartmentEditUIState extends State<DepartmentEditUI> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               departmentNameController,
                               label: Utils.getText('name', color: AppC.grey),

@@ -33,7 +33,6 @@ import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-
 import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/branch_response.dart';
@@ -56,7 +55,6 @@ import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
 
-
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
   String? selectedHours;
@@ -70,84 +68,19 @@ class TodoListRepo {
   List<Map<String, dynamic>> vehicleHistoryTempSearchList = [];
   int? branch;
 
-  Future<bool?> updatePartsForItem(int todoId, String name) async {
-    try {
-      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
 
-      String body = jsonEncode({"parts": name, "type": "inline"});
-      debugPrint("updatePartsForItem apiUrl: $body");
-      final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('updatePartsForItem api.response.body: ${response.body}');
-          // debugPrint('updatePartsForItem api.statusCode: ${response.statusCode}');
-
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      debugPrint('updatePartsForItem.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<bool?> updateSupplyForItem(
-      int todoId, List<Map<String, dynamic>> partList) async {
-    try {
-      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
-      // PartsData().toJsonList(partList);
-      String body = jsonEncode({"supplies": partList, "type": "inline"});
-      debugPrint("updateSupplyForItem apiUrl: $apiUrl");
-
-      final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('updateSupplyForItem api.response.body: ${response.body}');
-          // debugPrint('updateSupplyForItem api.statusCode: ${response.statusCode}');
-
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      debugPrint('updateSupplyForItem.exception : ${error.toString()}');
-      return null;
-    }
-  }
 
   Future<bool?> updateVehicleGroupForItem(
       int vehicleGroupId, List<String> vinList, String name) async {
     try {
-      String apiUrl = '${Str.BASE_URL}group-Vehicle/$vehicleGroupId';
+      String apiUrl = '${Str.BASE_URL}group-vehicle/$vehicleGroupId';
       // PartsData().toJsonList(partList);
       String body = jsonEncode({"name": name, "vin": vinList});
-      // debugPrint("updateSupplyForItem apiUrl: $apiUrl");
-      // debugPrint("updateSupplyForItem body: $body");
 
       final http.Response? response =
       await apiClient.callPutMethod(apiUrl, body: body);
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('updateSupplyForItem api.response.body: ${response.body}');
-          // debugPrint('updateSupplyForItem api.statusCode: ${response.statusCode}');
-
           GeneralResponse generalResponse =
           GeneralResponse.fromJson(json.decode(response.body));
 
@@ -161,40 +94,6 @@ class TodoListRepo {
       }
     } catch (error) {
       debugPrint('updateSupplyForItem.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<bool?> deletePartsOrSupplyForItem(
-      int partsOrSupplyId, String type) async {
-    try {
-      String apiUrl;
-      if (type == 'part') {
-        apiUrl = '${Str.BASE_URL}delete-Vehicle-parts/$partsOrSupplyId';
-      } else {
-        apiUrl = '${Str.BASE_URL}delete-supplies/$partsOrSupplyId';
-      }
-      // debugPrint("deletePartsOrSupplyForItem apiUrl: $apiUrl");
-
-      final http.Response? response = await apiClient.callDelete(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('deletePartsOrSupplyForItem api.response.body: ${response.body}');
-          // debugPrint('deletePartsOrSupplyForItem api.statusCode: ${response.statusCode}');
-
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      debugPrint('deletePartsOrSupplyForItem.exception : ${error.toString()}');
       return null;
     }
   }
@@ -229,12 +128,12 @@ class TodoListRepo {
 
   Future<VehicleGroupingResponse?> fetchVehicleGroupingList() async {
     try {
-      String apiUrl = '${Str.BASE_URL}group-Vehicle';
+      String apiUrl = '${Str.BASE_URL}group-vehicle';
       debugPrint("fetchVehicleGroupingList apiUrl: $apiUrl");
 
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
-        // debugPrint('fetchVehicleGroupingList api.statusCode: ${response.statusCode}');
+         debugPrint('fetchVehicleGroupingList api.statusCode: ${response.statusCode}');
         if (response.statusCode == 200 || response.statusCode == 201) {
           // debugPrint('fetchVehicleGroupingList api.response.body: ${response.body}');
 
@@ -1496,7 +1395,7 @@ class TodoListRepo {
           return true;
         } else {
           // debugPrint('---------------> ${TodoListResponse.status!}');
-          Utils.showSomethingWentWrong();
+         Utils.showSomethingWentWrong();
           return false;
         }
         /*  } else {
@@ -1512,7 +1411,7 @@ class TodoListRepo {
     }
   }
 
-  Future<bool?> editAVehiclePerson(
+ /* Future<bool?> editAVehiclePerson(
       int? todoId,
       int? todoUserId,
       String? todoVehicleName,
@@ -1521,7 +1420,7 @@ class TodoListRepo {
       String? cohortName,
       String? vin,
       String? vehicleImage,
-      int? vehicleGroupId) async {
+      int? vehicleNumber) async {
     try {
       String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
       String body;
@@ -1534,7 +1433,7 @@ class TodoListRepo {
         "cohort_name": cohortName ?? '',
         "vin": vin ?? '',
         "vehicle_image": vehicleImage ?? '',
-        "vehicle_group_id": vehicleGroupId ?? ''
+        "vehicle_number": vehicleNumber ?? ''
       });
 
       debugPrint("editAVehiclePerson apiUrl: $apiUrl");
@@ -1542,7 +1441,7 @@ class TodoListRepo {
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
       if (response != null) {
-        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+        *//*if (response.statusCode == 200 || response.statusCode == 201) {*//*
 
         debugPrint('editAVehiclePerson api.response.body: ${response.body}');
         debugPrint('editAVehiclePerson api.statusCode: ${response.statusCode}');
@@ -1557,11 +1456,50 @@ class TodoListRepo {
           Utils.showSomethingWentWrong();
           return false;
         }
-        /*  } else {
+          } else {
           Utils.showSomethingWentWrong();
           return null;
-        }*/
+        }
+    } catch (error) {
+      log('editAVehiclePerson.exception : ${error.toString()}');
+      return null;
+    }
+  }*/
+
+  Future<bool?> editAVehiclePerson(
+  int? todoId, List<dynamic> vehiclePersonData,String? person,String? personId,String? vehicleGroupId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      body = jsonEncode({
+        "type": "Inline",
+        "vehicles":vehiclePersonData,
+        "person":person,
+        "person_id":personId,
+        "vehicle_group_id":vehicleGroupId
+      });
+      debugPrint("editAVehiclePerson apiUrl: $apiUrl");
+      debugPrint("editAVehiclePerson body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        /*debugPrint('editAVehiclePerson api.response.body: ${response.body}');
+        debugPrint('editAVehiclePerson api.statusCode: ${response.statusCode}');
+*/
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
       } else {
+        Utils.showSomethingWentWrong();
         return null;
       }
     } catch (error) {
@@ -2727,10 +2665,10 @@ class TodoListRepo {
 
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
-        print("=================================================${response.body}");
+
 
         if (response.statusCode == 200||response.statusCode ==202) {
-          print("=================================================${response.body}");
+
 
           VoiceResponse voiceResponse =
           VoiceResponse.fromJson(json.decode(response.body));
@@ -3101,7 +3039,100 @@ class TodoListRepo {
     }
   }
 
+  Future<bool?> updatePartsForItem(int todoId, List<dynamic> partsList) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
+      String body = jsonEncode({"parts": partsList, "type": "inline"});
+      debugPrint("updatePartsForItem apiUrl: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updatePartsForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
 
+  Future<bool?> updateSupplyForItem(
+      int todoId, List<dynamic> suppliesList) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
+
+      String body = jsonEncode({"supplies": suppliesList, "type": "inline"});
+      debugPrint("updateSupplyForItem apiUrl: $apiUrl");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updateSupplyForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deletePartsForItem(int partsId) async {
+    try {
+      String apiUrl;
+      apiUrl = '${Str.BASE_URL}delete-vehicle-parts/$partsId';
+      debugPrint("delete-Part apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('delete Parts For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deleteSuppliesForItem(int suppliesId) async {
+    try {
+      String apiUrl;
+      apiUrl = '${Str.BASE_URL}delete-supplies/$suppliesId';
+      debugPrint("delete-Supplies apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('delete Supply For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
 
   ///---------
 

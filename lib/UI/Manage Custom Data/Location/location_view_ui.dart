@@ -87,13 +87,14 @@ class _LocationViewUIState extends State<LocationViewUI> {
 
     if (updatedLocation != null) {
       locationDataBloc.add(AddLocationData(
-          name: updatedLocation['name'],
-          address: updatedLocation['addresses']
-              ?.where((e) => e['id'] == null)
-              .map((e) => e['address']!)
-              .toList(),
-          id: updatedLocation['id']));
-      locationDataBloc.add(const GetAddedLocationListData());
+        name: updatedLocation['name'],
+        address: (updatedLocation['addresses'] as List?)
+            ?.where((e) => e['id'] == null)
+            .map((e) => e['address'] as String)
+            .toList(),
+        id: updatedLocation['id'],
+      ));
+
       Utils.showMobileToast('Updated successfully');
     }
   }
@@ -204,7 +205,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
                                 _filterLocation(value);
                               },
                               searchController,
-                              searchFocusNode,
                             ),
                           ),
                         ),

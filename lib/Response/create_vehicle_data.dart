@@ -25,12 +25,26 @@ class CreateVehicleData{
   String address='';
   int bouncie=0;
   int airTag=0;
-  int permanentPlate=0;
+  int tollTag=0;
   int spareTire=0;
+  String tollTagsId='';
+  String tireSize='';
+  List<File> tollImage = [];
+  int spareKey=0;
+  int permanentPlate=0;
+  int frontLicensePlate=0;
+  List<File> tireImage = [];
+  String numberPlate='';
   String carNumber='';
   String oilGrade='';
   String frontTire='';
   String rearTire='';
-  String renewalDate='0';
-
+  String regStickerDate='0';
+  List<File> uploadRegSticker = [];
+  String insuranceAgent='';
+  String insuranceCost='';
+  String currentOdometer='';
+  String oilChangeOdometer='';
+  String maintenanceCheck='';
+  List<File> insuranceImage = [];
 }

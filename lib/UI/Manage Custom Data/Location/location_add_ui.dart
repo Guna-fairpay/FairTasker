@@ -81,7 +81,7 @@ class _LocationAddUIState extends State<LocationAddUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     locationController,
                     label: Utils.getText('Location Name', color: AppC.grey),
@@ -98,7 +98,7 @@ class _LocationAddUIState extends State<LocationAddUI> {
             const SizedBox(height: 20),
             SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                 '',
                 addressController,
                 label: Utils.getText('Address', color: AppC.grey),

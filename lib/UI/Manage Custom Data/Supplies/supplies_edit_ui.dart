@@ -86,7 +86,7 @@ class _SuppliesEditUIState extends State<SuppliesEditUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     suppliesController,
                     label: Utils.getText('Supplies Name', color: AppC.grey),
@@ -107,7 +107,7 @@ class _SuppliesEditUIState extends State<SuppliesEditUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     descriptionController,
                     label: Utils.getText('Description', color: AppC.grey),

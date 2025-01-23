@@ -18,11 +18,11 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       // TODO: implement event handler
     });
 
-    on<GetExpenseToData>((event, emit) async {
+    on<GetExpenseToDatas>((event, emit) async {
       if(event.expenseId != null) {
         emit(const VehicleDataLoading());
         await todoListRepo.getAExpenseDetailTodo(event.expenseId!).then((value) {
-          emit(ExpenseTodoLoaded(expensesData: value?.expenses??[]));
+          emit(ExpenseTodoDataLoaded(expensesData: value?.expenses??[]));
         });
       }
     });
@@ -161,7 +161,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
-    on<DeletePartsEvent>((event, emit) async {
+    on<DeletePartEvent>((event, emit) async {
       emit(const VehicleDataLoading());
       await vehicleDataRepo.deleteParts(event.id).then((value) {
         emit(PartsDataLoaded(result: value));

@@ -17,9 +17,7 @@ class UsersRepository {
       debugPrint("getAssignedTo apiUrl: $apiUrl");
 
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
-      print(response);
       if (response != null) {
-        print(response.body);
         if (response.statusCode == 200) {
           UsersListResponse usersListResponse =
           UsersListResponse.fromJson(json.decode(response.body));

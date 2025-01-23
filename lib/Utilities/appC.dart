@@ -7,7 +7,7 @@ class AppC{
 
   static const appColor = Color(0xFF374E8C); 
    static const appbgColor = Color(0xFFBDC9E8);
-static const redAccent = Colors.red;
+static const redAccent = Color(0xffd01601);
 
     Color base = const Color(0xFF374E8C);
   static const text = Color(0xff373737);
@@ -26,8 +26,9 @@ static const redAccent = Colors.red;
   static Color lightGrey = Colors.grey.shade200;
   static const trans = Colors.transparent;
   static const blueGrey = Colors.blueGrey;
-  static const green =  Color(0xff1fa064); //Colors.green;
+  static const green =  Color(0xff40bb82); //Colors.green;
   static const fieldBase = Color(0x6F9E9E9E);
+  static const lowGreen = Color(0xffb5d2bb);
   static const Color opacityWhiteColor = Color(0x80FFFFFF);
   static const Color containerTextB = Color(0x76669833);
   Color containerIconB = const Color(0xFF374E8C).withOpacity(0.5);

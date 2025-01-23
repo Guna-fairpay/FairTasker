@@ -152,13 +152,13 @@ class _CreateJobUIState extends State<CreateJobUI> {
                           const SizedBox(
                             height: 15,
                           ),
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                               'Task Name', taskNameController,
                               label: Utils.getText('Task Name')),
                           const SizedBox(
                             height: 15,
                           ),
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                               'Task Date', taskDateController, readOnly: true,
                               onTapCallback: () {
                             Utils.datePicker(context, '').then((value) {

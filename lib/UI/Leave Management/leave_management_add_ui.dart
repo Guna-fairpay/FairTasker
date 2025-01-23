@@ -87,7 +87,7 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
         const SizedBox(height: 5),
         SizedBox(
           height: 40,
-          child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+          child: Utils.getTextFormField(
             '',
             controller,
             suffixIcon: const Icon(
@@ -114,7 +114,7 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
         const SizedBox(height: 5),
         SizedBox(
           height: 40,
-          child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+          child: Utils.getTextFormField(
             '',
             controller,
             suffixIcon: const Icon(

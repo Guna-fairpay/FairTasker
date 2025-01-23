@@ -67,7 +67,7 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
       context,
       MaterialPageRoute(
         builder: (context) => CategoryConfigEditUI(
-          config: categoryConfig[index],
+          config: filteredConfig[index],
         ),
       ),
     );
@@ -169,7 +169,7 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                                   (value) {
                                     _filteredConfig(value);
                               },
-                              searchController,searchFocusNode,
+                              searchController,
                             ),
                           ),
                         ),

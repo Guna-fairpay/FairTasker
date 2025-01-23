@@ -13,9 +13,10 @@ import '../../../../Utilities/num.dart';
 import '../../../../Utilities/utils.dart';
 
 class ExpenseEditUI extends StatefulWidget {
+  final bool showHeader;
   final Map<String, dynamic> expense;
 
-  const ExpenseEditUI({super.key, required this.expense});
+  const ExpenseEditUI({super.key, required this.expense,this.showHeader = true});
 
   @override
   State<ExpenseEditUI> createState() => _ExpenseEditUIState();
@@ -121,10 +122,11 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
+      appBar: widget.showHeader
+          ? const PreferredSize(
         preferredSize: Size.fromHeight(35.0),
         child: HeaderView(),
-      ),
+      ): null,
       body: MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -184,6 +186,7 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
+                        if (widget.showHeader)
                         Row(
                           children: [
                             GestureDetector(
@@ -199,13 +202,14 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        if (widget.showHeader)
+                          const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: SizedBox(
-                                height: 40,
+                                height: 35,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -236,7 +240,7 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             const SizedBox(width: 20),
                             Expanded(
                               child: SizedBox(
-                                height: 40,
+                                height: 35,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -311,52 +315,47 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                               }).toList(),
                             ),
                           ),
+                        if (widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
-                        SizedBox(
-                          height: 40,
-                          child:
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                                  '', vehicleController,
-                                  label: Utils.getText('Vehicle',
-                                      color: AppC.grey),
-                                  onChangeCallback: (value) async {
-                            setState(() {
-                              vehicleSuggestionList.clear();
-                              if (value.isNotEmpty) {
-                                List taskList = vehicleNameList
-                                    .map((e) => e['vehicle_name'] ?? '')
-                                    .toList();
-                                vehicleSuggestionList
-                                    .addAll(Utils.searchList(taskList, value));
-                                showVehicleList =
-                                    vehicleSuggestionList.isNotEmpty;
-                              } else {
-                                showVehicleList = false;
-                              }
-                            });
-                          }),
-                        ),
+                        if (widget.showHeader)
+                        Utils.getTextFormField(
+                            '', vehicleController,
+                            label: Utils.getText('Vehicle',
+                                color: AppC.grey),
+                            onChangeCallback: (value) async {
+                                                    setState(() {
+                        vehicleSuggestionList.clear();
+                        if (value.isNotEmpty) {
+                          List taskList = vehicleNameList
+                              .map((e) => e['vehicle_name'] ?? '')
+                              .toList();
+                          vehicleSuggestionList
+                              .addAll(Utils.searchList(taskList, value));
+                          showVehicleList =
+                              vehicleSuggestionList.isNotEmpty;
+                        } else {
+                          showVehicleList = false;
+                        }
+                                                    });
+                                                  }),
                         const SizedBox(height: 10),
                         Row(
                           children: [
                             Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: Utils
-                                    .getBackgroundFilledTextFieldFirstLetterCaps(
-                                  '',
-                                  amountController,
-                                  label: Utils.getText('Amount in dollars',
-                                      color: AppC.grey),
-                                ),
+                              child: Utils
+                                  .getTextFormField(
+                                '',
+                                amountController,
+                                label: Utils.getText('Amount in dollars',
+                                    color: AppC.grey),
                               ),
                             ),
                             const SizedBox(width: 20),
                             Expanded(
                               child: Container(
-                                height: 40,
+                                height: 35,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                       color: AppC.fieldBase,
@@ -403,17 +402,13 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        SizedBox(
-                          height: 40,
-                          child:
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                                  '', vehicleController,
-                                  label: Utils.getText('Enter Description',
-                                      color: AppC.grey)),
-                        ),
+                        Utils.getTextFormField(
+                            '', vehicleController,
+                            label: Utils.getText('Enter Description',
+                                color: AppC.grey)),
                         const SizedBox(height: 10),
                         Container(
-                          height: 40,
+                          height: 35,
                           decoration: BoxDecoration(
                             border: Border.all(
                                 color: AppC.fieldBase,
@@ -475,7 +470,7 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                         ),
                         const SizedBox(height: 10),
                         Container(
-                          height: 40,
+                          height: 35,
                           decoration: BoxDecoration(
                             border: Border.all(
                                 color: AppC.fieldBase,
@@ -519,11 +514,13 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             ).toList(),
                           ),
                         ),
+                        if (widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
+                        if (widget.showHeader)
                         Container(
-                          height: 40,
+                          height: 35,
                           decoration: BoxDecoration(
                             border: Border.all(
                                 color: AppC.fieldBase,
@@ -567,71 +564,115 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             ).toList(),
                           ),
                         ),
+                        if (widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
-                        SizedBox(
-                          height: 40,
-                          child: Stack(
-                            alignment: Alignment.centerRight,
+                        if (widget.showHeader)
+                        Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            Utils.getTextFormField(
+                              '',
+                              dateController,
+                              suffixIcon: Padding(
+                                padding: isDateFieldEmpty
+                                    ? const EdgeInsets.only(right: 35.0)
+                                    : EdgeInsets.zero,
+                                child: const Icon(
+                                  Icons.date_range,
+                                  color: AppC.appColor,
+                                ),
+                              ),
+                              readOnly: true,
+                              onTapCallback: () {
+                                Utils.datePicker(
+                                  context,
+                                  '',
+                                  initial: DateTime
+                                      .now(), // Set initial date to the current date
+                                ).then((value) {
+                                  if (value != null) {
+                                    dateController.text =
+                                        Utils.convertDateTimeToTheFormat(
+                                      value.toString(),
+                                    );
+                                  }
+                                });
+                              },
+                              label: Utils.getText('Date', color: AppC.grey),
+                              borderColor: isDateFieldEmpty
+                                  ? Colors.red
+                                  : AppC.fieldBase,
+                            ),
+                            if (isDateFieldEmpty)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(Icons.error_outline,
+                                    color: Colors.red),
+                              ),
+                          ],
+                        ),
+                        if (!widget.showHeader)
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        if (!widget.showHeader)
+                        Stack(alignment: Alignment.centerRight, children: [
+                          Utils.getTextFormField(
+                            '',
+                            odometerController,
+                            contentPadding:
+                            const EdgeInsets.only(left: 10, right: 40),
+                            label: Utils.getText('Odometer', color: AppC.grey),
+                          ),
+                          Column(
                             children: [
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                                '',
-                                dateController,
-                                suffixIcon: Padding(
-                                  padding: isDateFieldEmpty
-                                      ? const EdgeInsets.only(right: 35.0)
-                                      : EdgeInsets.zero,
+                              GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                  height: 32,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                      color: AppC.grey.shade300,
+                                      borderRadius:
+                                      const BorderRadiusDirectional.only(
+                                        topEnd: Radius.circular(4),
+                                        bottomEnd: Radius.circular(4),
+                                      )),
                                   child: const Icon(
-                                    Icons.date_range,
-                                    color: AppC.appColor,
+                                    Icons.speed,
+                                    size: 16,
+                                    color: Colors.red,
                                   ),
                                 ),
-                                readOnly: true,
-                                onTapCallback: () {
-                                  Utils.datePicker(
-                                    context,
-                                    '',
-                                    initial: DateTime
-                                        .now(), // Set initial date to the current date
-                                  ).then((value) {
-                                    if (value != null) {
-                                      dateController.text =
-                                          Utils.convertDateTimeToTheFormat(
-                                        value.toString(),
-                                      );
-                                    }
-                                  });
-                                },
-                                label: Utils.getText('Date', color: AppC.grey),
-                                borderColor: isDateFieldEmpty
-                                    ? Colors.red
-                                    : AppC.fieldBase,
                               ),
-                              if (isDateFieldEmpty)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Icon(Icons.error_outline,
-                                      color: Colors.red),
-                                ),
                             ],
                           ),
-                        ),
+                        ]),
                         const SizedBox(
                           height: 15,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              height: 40,
-                              child: Utils.getAddFilledButton(
-                                'Save',
-                                () {
+                            Utils.getAddFilledButton(
+                              'Save',
+                              () {
+                                // _save();
+                              },
+                              bgColor: AppC.green
+                            ),
+                            if (!widget.showHeader)
+                            const SizedBox(width: 10,),
+                            if (!widget.showHeader)
+                              Utils.getAddFilledButton(
+                                'Save Category',
+                                    () {
                                   // _save();
                                 },
+                                bgColor: AppC.appColor,
                               ),
-                            ),
                           ],
                         ),
                       ],

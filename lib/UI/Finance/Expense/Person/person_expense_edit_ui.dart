@@ -185,7 +185,7 @@ class _ExpensePersonEditUiState extends State<ExpensePersonEditUi> {
                   Expanded(
                     child: SizedBox(
                       height: 35,
-                      child: Utils.getBackgroundFilledTextFieldFirstLetterCaps('',
+                      child: Utils.getTextFormField('',
                         dateController,
                         suffixIcon: Padding(
                           padding: isDateFieldEmpty
@@ -278,7 +278,7 @@ class _ExpensePersonEditUiState extends State<ExpensePersonEditUi> {
                   Expanded(
                     child: SizedBox(
                         height: 35,
-                        child: Utils.getBackgroundFilledTextFieldFirstLetterCaps("Enter Amount", amountController)
+                        child: Utils.getTextFormField("Enter Amount", amountController)
                     ),
                   ),
                 ],
@@ -320,7 +320,7 @@ class _ExpensePersonEditUiState extends State<ExpensePersonEditUi> {
               ),
               const SizedBox(height: 16),
               // Expense Description
-              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              Utils.getTextFormField(
                   'Enter Description',descriptionController
               ),
               const SizedBox(height: 16),

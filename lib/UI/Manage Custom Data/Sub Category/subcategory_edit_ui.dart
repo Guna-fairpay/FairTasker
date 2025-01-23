@@ -120,7 +120,7 @@ class _SubcategoryEdituiState extends State<SubcategoryEditui> {
                           child: Stack(
                             alignment: Alignment.centerRight,
                             children: [
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              Utils.getTextFormField(
                                 '',
                                 subcategoryController,
                                 label: Utils.getText('Subcategory',

@@ -74,7 +74,7 @@ class _DepartmentViewUIState extends State<DepartmentViewUI> {
       context,
       MaterialPageRoute(
         builder: (context) => DepartmentEditUI(
-          heads: departmentList[index], // Update filtered list
+          heads: filterDepartmentList[index], // Update filtered list
         ),
       ),
     );
@@ -199,7 +199,7 @@ class _DepartmentViewUIState extends State<DepartmentViewUI> {
                               // onTap action for search bar if needed
                             }, (value) {
                               _filterhead(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),

@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:developer';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
@@ -45,24 +46,32 @@ class VehicleDataRepo {
         "address": createVehicleData.address,
         "bouncie": createVehicleData.bouncie.toString(),
         "air_tag": createVehicleData.airTag.toString(),
-        "permanent_plate": createVehicleData.permanentPlate.toString(),
+        "toll_tags": createVehicleData.tollTag.toString(),
         "spare_tire": createVehicleData.spareTire.toString(),
+        "toll_tags_id": createVehicleData.tollTagsId.toString(),
+        "tire_size": createVehicleData.tireSize.toString(),
+        "spare_key": createVehicleData.spareKey.toString(),
+        "permanent_plate": createVehicleData.permanentPlate.toString(),
+        "front_license_plate": createVehicleData.frontLicensePlate.toString(),
         "car_number": createVehicleData.carNumber,
         "oil_grade": createVehicleData.oilGrade,
         "front_tire": createVehicleData.frontTire,
         "rear_tire": createVehicleData.rearTire,
-        "registration_renewal_date": createVehicleData.renewalDate.toString(),
+        "current_odometer": createVehicleData.currentOdometer,
+        "oil_change_odometer": createVehicleData.oilChangeOdometer,
+        "maintenance_check": createVehicleData.maintenanceCheck,
+        "registration_renewal_date": createVehicleData.regStickerDate.toString(),
+        "insurance_agent":createVehicleData.insuranceAgent.toString(),
+        "insurance_cost":createVehicleData.insuranceCost.toString(),
         "platform_from": 'TaskerApp'
       };
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
 
-      // Add fields to the request
       request.fields.addAll(reqMap);
 
-      // Add files to the request
       for (int i = 0;
-          i < (createVehicleData.chosenPurchaseReceipts.length ?? 0);
+          i < (createVehicleData.chosenPurchaseReceipts.length);
           i++) {
         var file = createVehicleData.chosenPurchaseReceipts[i];
 
@@ -75,7 +84,7 @@ class VehicleDataRepo {
       }
 
       // Add files to the request
-      for (int i = 0; i < (createVehicleData.chosenFiles.length ?? 0); i++) {
+      for (int i = 0; i < (createVehicleData.chosenFiles.length); i++) {
         var file = createVehicleData.chosenFiles[i];
 
         var multipartFile = http.MultipartFile.fromBytes(

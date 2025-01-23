@@ -88,7 +88,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
       context,
       MaterialPageRoute(
         builder: (context) => EmployeesEditUI(
-          employees: employees[index],
+          employees: filteredEmployees[index],
         ),
       ),
     );
@@ -204,7 +204,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                           Expanded(
                             child: Utils.getSearchBarUI(() {}, (value) {
                               _filterEmployees(value);
-                            }, searchController, searchFocusNode),
+                            }, searchController,),
                           ),
                           const SizedBox(width: 8),
                           if (userRole == 'Admin')

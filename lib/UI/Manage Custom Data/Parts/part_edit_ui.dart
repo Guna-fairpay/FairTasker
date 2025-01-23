@@ -81,7 +81,7 @@ class _PartEditUIState extends State<PartEditUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     'Parts Name',
                     partsController,
                     label: Utils.getText('Parts Name', color: AppC.grey),
@@ -102,7 +102,7 @@ class _PartEditUIState extends State<PartEditUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     descriptionController,
                     label: Utils.getText('Description', color: AppC.grey),

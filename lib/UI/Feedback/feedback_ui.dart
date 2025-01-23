@@ -607,7 +607,6 @@ class _FeedBackUIState extends State<FeedBackUI> {
                         _filterfeedbacks(value);
                       },
                       searchController,
-                      searchFocusNode,
                     ),
                   ),
                 ),

@@ -62,7 +62,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                       '', categoryController,
                     label: Utils.getText('Category',color: AppC.grey),
                     borderColor: isTaskFieldEmpty ? Colors.red : AppC.fieldBase,

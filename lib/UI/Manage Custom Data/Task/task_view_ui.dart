@@ -72,7 +72,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
     final updatedTask = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-        builder: (context) => TaskEditUI(task: task[index]),
+        builder: (context) => TaskEditUI(task: filteredTask[index]),
       ),
     );
     if (updatedTask != null) {
@@ -183,8 +183,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
               loading = false;
               task.clear();
               task.addAll(state.data ?? []);
-              filteredTask.addAll(state.data ?? []);
-              filteredTask = List.from(state.data ?? []);
+              filteredTask = List.from(task);
             } else if (State is TaskLoaded) {
               loading = false;
               task.clear();
@@ -198,6 +197,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
               children: [
                 TabBarView(
                   children: [
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
@@ -213,7 +213,6 @@ class _TaskViewUIState extends State<TaskViewUI> {
                                       _filterTasks(value);
                                     },
                                     searchController,
-                                    searchFocusNode,
                                   ),
                                 ),
                               ),
@@ -232,7 +231,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
                               itemBuilder: (context, index) {
                                 final task = filteredTask[index];
                                 return Slidable(
-                                  key: ValueKey(filteredTask[index]),
+                                  //key: ValueKey(filteredTask[index]),
                                   endActionPane: ActionPane(
                                     motion: const DrawerMotion(),
                                     children: [

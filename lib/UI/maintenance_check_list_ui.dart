@@ -33,10 +33,7 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
     for (var map in maintenance) {
       children.addAll(map);
     }
-    print("@@@@@@@@@@@$children");
-    print("@@@@@@@@@@@${children['children']??''}");
-    for (var i = 0; i <= children['children'][i]['children'].length; i++){
-    print("@@@@@@@@@@@${children['children'][i]['children']??''}");}
+
     super.initState();
   }
 

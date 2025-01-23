@@ -96,7 +96,7 @@ class _SubcategoryAddUIState extends State<SubcategoryAddUI> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               subcategoryController,
                               label: Utils.getText('Subcategory',

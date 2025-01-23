@@ -88,7 +88,7 @@ class _ManageCustomdataMenuUIState extends State<ManageCustomdataMenuUI> {
               title: 'Vehicle',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const VehicleUIs()));
+                    builder: (context) => const VehicleViewUI()));
 
                 ///VehicleUI///VehicleUIs
               },

@@ -118,11 +118,12 @@ class _AuthenticationUIState extends State<AuthenticationUI> {
 
                                     Utils.getText('Sign in to Continue',color:Colors.indigo.shade300),
                                     const SizedBox(height: 30,),
-                                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                    Utils.getTextFormField(
                                             'Email', emailController,
                                             readOnly: false,
                                             hintText: 'Enter Email ID',
                                             hintTextColor: AppC.fieldBase,
+                                            inputAction: TextInputAction.next,
                                             textType:
                                                 TextInputType.emailAddress,
                                             onTapCallback: () {},
@@ -131,11 +132,12 @@ class _AuthenticationUIState extends State<AuthenticationUI> {
                                       height: 20,
                                     ),
                                     Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
+                                        .getTextFormField(
                                       'Password',
                                       passwordController,
                                       hintText: 'Enter Password',
                                       hintTextColor: AppC.fieldBase,
+                                      inputAction: TextInputAction.done,
                                       obscure: showPassword,
                                       label: Utils.getText('Password'),
                                       suffixIcon: InkWell(
