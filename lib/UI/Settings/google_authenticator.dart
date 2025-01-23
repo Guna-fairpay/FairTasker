@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../Component/header.dart';
-import '../../Utilities/Utils.dart';
+import '../../Utilities/utils.dart';
 import '../../Utilities/appC.dart';
 
 class GoogleAuthenticatorUI extends StatefulWidget {

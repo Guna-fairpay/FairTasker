@@ -1,4 +1,4 @@
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';

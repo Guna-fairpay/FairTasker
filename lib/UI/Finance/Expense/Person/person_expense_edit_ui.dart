@@ -1,6 +1,6 @@
 
 import 'dart:io';
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
