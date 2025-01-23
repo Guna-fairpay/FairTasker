@@ -1,7 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -19,10 +19,10 @@ import 'package:fairpytasker/main.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../Component/bottom_nav_for_task.dart';
 import '../../Response/todo_list_response.dart';
 import '../../widget/time_picker_only.dart';
-import '../Manage Custom Data/Location/location_view_ui.dart';
+import '../Manage Custom Data/Supplies/supplies_view_ui.dart';
+import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_detail_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 
@@ -51,8 +51,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   final FocusNode searchFocusNode = FocusNode();
   List<Map<String, dynamic>> vehicleHistoryData = [];
   TextEditingController vehicleSearchController = TextEditingController();
-  // TodoListRepo? todoListRepo;
-  // late VehicleHistoryModuleUI vehicleHistoryModuleUI;
   TextEditingController todoDateController = TextEditingController();
   TextEditingController todoNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -61,13 +59,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   String? selectedPriority;
   List<String> priorityList = ['High - On Time', 'Medium', 'Low', 'Feature'];
   String? selectedRepeat = "Doesn't repeat";
-  List<String> repeatList = [
-    "Doesn't repeat",
-    'Daily',
-    'Weekly',
-    'Monthly',
-    'Yearly'
-  ];
+  List<String> repeatList = ["Doesn't repeat", 'Daily', 'Weekly', 'Monthly', 'Yearly'];
   bool allDay = false;
   bool reminder = false;
   List<Map<String, dynamic>?>? selectedAssignedTo = [];
@@ -135,30 +127,9 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   DateTime? endSelectedDate = DateTime.now();
   TextEditingController occurEveryDayController = TextEditingController();
   TextEditingController occurEveryWeekController = TextEditingController();
-  List<String> daysList = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday'
-  ];
+  List<String> daysList = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   List<DaysPojo> daysPojoList = [];
-  List<String> monthsList = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
+  List<String> monthsList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   List<MonthsPojo> monthsPojoList = [];
   String? selectedMonth;
   bool occurrenceDate = true;
@@ -181,15 +152,12 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   String? userGroupConcatenationName;
   bool? isSelected = false;
   bool? isVehicleSelected = false;
-  bool nameIsSelected = false;
-  Set<int> selectedIndices = {};
   final GlobalKey _key = GlobalKey();
   List<Map<String, dynamic>> todoImages = [];
-
+  List<String> selectedIds = [];
 
   @override
   void initState() {
-    // todoListRepo = TodoListRepo();
     todoListRepo = TodoListRepo();
     todoBloc = TodoViewBloc();
     vehicleDataBloc = VehicleDataBloc();
@@ -230,7 +198,9 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     selectedCleanCarTime = cleanCarTimeValuesList[0];
     vehicleDataBloc = VehicleDataBloc();
     locationDataBloc = LocationDataBloc();
-
+    Utils.getStringPreference(Str.userIdPrefText).then((id) {
+      selectedIds = id.split(',');
+    });
     super.initState();
   }
 
@@ -335,7 +305,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     selectedVehicleName.addAll(state.vehicleData ?? []);
                   }
                 } else if (state is AssignedToLoaded) {
-                  resourceList = state.resource ?? [];
+                 /* resourceList = state.resource ?? [];
                   if (widget.selectedAssignedTo != null &&
                       widget.selectedAssignedTo!.isNotEmpty) {
                     // selectedAssignedTo = (widget.selectedAssignedTo!??[])!;
@@ -357,12 +327,12 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                           nameIsSelected = false;
                         }
                       }
-                      /*for (var element in resourceList) {
+                      *//*for (var element in resourceList) {
                         if (element.id == widget.selectedAssignedTo!.id) {
                           element.isSelected = true;
                           selectedAssignedTo.add(element);
                         }
-                      }*/
+                      }*//*
                     }
                   } else {
                     nameIsSelected = true;
@@ -382,6 +352,27 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     for (Map<String, dynamic> resource in resourceList) {
                       debugPrint('todoItem!.resource.id: ${resource['id']}');
                     }
+                  }*/
+                  resourceList = [];
+                  resourceList = state.resource ?? [];
+                  resourceList.removeWhere((resource) => resource['id'] == 2);
+                  isSelected = true;
+                  selectedAssignedTo?.add(resourceList[0]);
+                  resourceListForCombination = state.resource ?? [];
+                  // for (Map<String, dynamic> resource in resourceList) {
+                  //   if (resource['id'].toString().trim() ==
+                  //       (todoItem['users']?['id'] ?? 0).toString()) {
+                  //     selectedResource = resource;
+                  //   }
+                  // }
+                  for (Map<String, dynamic> res in resourceListForCombination) {
+                    Map<String, dynamic> vehiclesData = {
+                      'id': res['id'],
+                      'vehicle_name':
+                      '${res['first_name']}${res['last_name']}',
+                      //'isSelected': false
+                    };
+                    editMultipleVehicleList.add(vehiclesData);
                   }
                 } else if (state is TaskExpenseLoaded) {
                   taskExpenseList = (state.resource ?? []);
@@ -522,7 +513,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                             SizedBox(
                               height: 40,
                               child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
+                                  .getTextFormField(
                                 'Task Identifier', taskIdentifierController,
                                 label: Utils.getText('Task Identifier'),
                                 readOnly: false,
@@ -959,7 +950,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
           flex: 8,
           child: SizedBox(
             height: 40,
-            child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            child: Utils.getTextFormField(
                 'Occur Every', occurEveryDayController,
                 // textType: TextInputType.number,
                 label: Utils.getText('Occur Every')),
@@ -980,7 +971,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               flex: 8,
               child: SizedBox(
                 height: 40,
-                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                child: Utils.getTextFormField(
                     'Occur Every', occurEveryWeekController,
                     // textType: TextInputType.number,
                     // maxLength: 3,
@@ -1063,7 +1054,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: SizedBox(
                     height: 40,
-                    child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    child: Utils.getTextFormField(
                         'Day', dayMonthlyController,
                         textType: TextInputType.number,
                         // maxLength: 2,
@@ -1093,7 +1084,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       child: SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Month', monthController,
                                 // textType: TextInputType.number,
                                 // maxLength: 3,
@@ -1107,7 +1098,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       child: SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Day', dayController,
                                 // textType: TextInputType.number,
                                 // maxLength: 3,
@@ -1255,7 +1246,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             visible: endDateSwitch,
             replacement: SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                   'No. of occurrences', noOfOccurrencesController,
                   // textType: TextInputType.number,
                   // maxLength: 3,
@@ -1263,7 +1254,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             ),
             child: SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                   'Select Date', endDateController, readOnly: true,
                   onTapCallback: () {
                 Utils.todoDatePickerDialog(context, '').then((value) {
@@ -1300,7 +1291,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             const SizedBox(
               height: 15,
             ),
-            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            Utils.getTextFormField(
                 'Task Name', todoNameController,
                 label: Utils.getText('Task Name')),
             // const SizedBox(
@@ -1314,8 +1305,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     height: 15,
                   ),
                   Container(
-                    padding: const EdgeInsets.only(
-                        top: 10, left: 3, right: 3, bottom: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
                     decoration: BoxDecoration(
                         border: Border.all(
                           color: AppC.fieldBase,
@@ -1356,7 +1346,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       color: AppC.red,
                                       size: 18,
                                     ),
-                                    backgroundColor: Colors.green[200],
+                                    backgroundColor: const Color(0xffb5d2bb),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
                                     // side: BorderSide(),
@@ -1375,7 +1365,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                           ).toList(),
                         ),
                         const SizedBox(height: 5),
-                        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                        Utils.getTextFormField(
                           'Vehicle/Person', vehiclePersonController,
                           label: Utils.getText('Vehicle/Person'),
                           readOnly: false,
@@ -1396,32 +1386,29 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                             }
                             setState(() {});
                           },
-                          // suffixIcon: Visibility(
-                          //   visible: !editShowMultipleVehicleList,
-                          //   child: InkWell(
-                          //       onTapDown: (details) {
-                          //         Utils.showStringPopupMenu(
-                          //             context, ['Add Vehicle', 'Add Person'], details,
-                          //                 (value) async {
-                          //               if (value == 'Add Vehicle') {
-                          //                 await Navigator.of(context).push(MaterialPageRoute(
-                          //                   builder: (context) => const VehicleUIs(),
-                          //                 ));
-                          //               } else {
-                          //                 await Navigator.of(context).push(MaterialPageRoute(
-                          //                   builder: (context) => const EmployeesViewUI(),
-                          //                 ));
-                          //               }
-                          //             });
-                          //       },
-                          //       child: Icon(Icons.add, color: AppC().base, size: 20)),
-                          // )
+                          suffixIcon: Visibility(
+                            visible: !editShowMultipleVehicleList && vehiclePersonController.text.isNotEmpty,
+                            child: InkWell(
+                                onTapDown: (details) {
+                                  Utils.showStringPopupMenu(
+                                      context, ['Add Vehicle', 'Add Person'], details,
+                                          (value) async {
+                                        if (value == 'Add Vehicle') {
+                                          await Navigator.of(context).push(MaterialPageRoute(
+                                            builder: (context) => const VehicleViewUI(),
+                                          ));
+                                        } else {
+                                          await Navigator.of(context).push(MaterialPageRoute(
+                                            builder: (context) => const EmployeesViewUI(),
+                                          ));
+                                        }
+                                      });
+                                },
+                                child: Icon(Icons.add, color: AppC().base, size: 20)),
+                          )
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(
-                    height: 15,
                   ),
                 ],
               ),
@@ -1656,10 +1643,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // const SizedBox(
-            //   height: 15,
-            // ),
-            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            const SizedBox(
+              height: 15,
+            ),
+            Utils.getTextFormField(
               'Vendor / Location', vendorLocationController,
               label: Utils.getText('Vendor / Location'),
               readOnly: false,
@@ -1811,7 +1798,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             const SizedBox(
               height: 15,
             ),
-            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            Utils.getTextFormField(
                 'Notes', notesController,
                 label: Utils.getText('Notes'),
                 readOnly: false,
@@ -1858,7 +1845,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                   children: [
                                     Expanded(
                                       child: Utils
-                                          .getBackgroundFilledTextFieldFirstLetterCaps(
+                                          .getTextFormField(
                                         'Reservation',
                                         reservationController,
                                       ),
@@ -1941,7 +1928,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       color: AppC.red,
                                       size: 18,
                                     ),
-                                    backgroundColor: Colors.green[100],
+                                    backgroundColor: const Color(0xffb5d2bb),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
                                     // side: BorderSide(),
@@ -1959,7 +1946,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                           ).toList(),
                         ),
                         //const SizedBox(height: 15),
-                        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                        Utils.getTextFormField(
                           'Parts',
                           editPartsController,
                           label: Utils.getText('Parts'),
@@ -2102,7 +2089,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       color: AppC.red,
                                       size: 18,
                                     ),
-                                    backgroundColor: Colors.green[100],
+                                    backgroundColor: const Color(0xffb5d2bb),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
                                     // side: BorderSide(),
@@ -2120,7 +2107,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                           ).toList(),
                         ),
                         //const SizedBox(height: 15),
-                        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                        Utils.getTextFormField(
                           'Supplies', editSuppliesController,
                           label: Utils.getText('Supplies'),
                           readOnly: false,
@@ -2135,18 +2122,18 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                 editSuppliesSuggestionList.isNotEmpty;
                             setState(() {});
                           },
-                          // suffixIcon: Visibility(
-                          //   visible: !editShowSuppliesList,
-                          //   child: InkWell(
-                          //       onTap: () async {
-                          //         await Navigator.of(context)
-                          //             .push(MaterialPageRoute(
-                          //           builder: (context) => const SuppliesViewUI(),
-                          //         ));
-                          //       },
-                          //       child: Icon(Icons.add,
-                          //           color: AppC().base, size: 20)),
-                          // ),
+                          suffixIcon: Visibility(
+                            visible: !editShowSuppliesList && editSuppliesController.text.isNotEmpty,
+                            child: InkWell(
+                                onTap: () async {
+                                  await Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                    builder: (context) => const SuppliesViewUI(),
+                                  ));
+                                },
+                                child: Icon(Icons.add,
+                                    color: AppC().base, size: 20)),
+                          ),
                         ),
                       ],
                     ),
@@ -2189,7 +2176,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       child: SizedBox(
                                         height: 40,
                                         child: Utils
-                                            .getBackgroundFilledTextFieldFirstLetterCaps(
+                                            .getTextFormField(
                                           'Reservation',
                                           reservationController,
                                         ),
@@ -2236,114 +2223,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                 ),
               ),
             ),
-            Visibility(
-              visible: isShowMultipleAddressField,
-              child: BlocBuilder<LocationDataBloc, LocationDataState>(
-                builder: (context, state) {
-                  return Column(
-                    children: [
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(
-                            top: 5, left: 8, right: 8, bottom: 5),
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.radiusButton))),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Wrap(
-                              children: List<Widget>.generate(
-                                selectedMultipleAddressList.length,
-                                (int idx) {
-                                  return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5.0),
-                                      child: Chip(
-                                        // deleteIconColor: AppC.red,
-                                        onDeleted: () {
-                                          for (var element
-                                              in editMultipleAddressList) {
-                                            if (element['id'] ==
-                                                selectedMultipleAddressList[idx]
-                                                    ['id']) {
-                                              isSelected = false;
-                                            }
-                                          }
-                                          selectedMultipleAddressList
-                                              .removeAt(idx);
-                                          setState(() {});
-                                        },
-                                        deleteIcon: const Icon(
-                                          Icons.close,
-                                          color: AppC.red,
-                                          size: 18,
-                                        ),
-                                        backgroundColor: AppC()
-                                            .bottomIconColor
-                                            .withOpacity(0.1),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        // side: BorderSide(),
-                                        label: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Utils.getText(
-                                                selectedMultipleAddressList[idx]
-                                                        ['address'] ??
-                                                    '',
-                                                color: AppC.text),
-                                          ],
-                                        ),
-                                      ));
-                                },
-                              ).toList(),
-                            ),
-                           /* const SizedBox(height: 15),
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                                'Address', editMultipleAddressController,
-                                label: Utils.getText('Address'),
-                                readOnly: false, onChangeCallback: (value) {
-                              editMultipleAddressSuggestionList.clear();
-                              List<dynamic> multipleAddressList =
-                                  editMultipleAddressList *//*.map((e) =>'${e.name}').toList()*//*;
-                              editMultipleAddressSuggestionList.addAll(
-                                  Utils.searchObjectList(
-                                      multipleAddressList, value,
-                                      isAddress: true));
-                              editShowAddressList =
-                                  editMultipleAddressSuggestionList.isNotEmpty;
-                              setState(() {});
-                            },
-                                suffixIcon: Visibility(
-                                  visible: !editShowAddressList,
-                                  child: InkWell(
-                                      onTap: () async {
-                                        await Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              const LocationViewUI(),
-                                        ));
-                                      },
-                                      child: Icon(Icons.add,
-                                          color: AppC().base, size: 20)),
-                                )),*/
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
             Stack(
               children: [
                 Stack(
@@ -2351,108 +2230,46 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Utils.getText('Task Manager', weight: FontWeight.w500),
+                        Utils.getText('Task Manager', weight: FontWeight.bold),
                         const SizedBox(
                           height: 8,
                         ),
-                        // Wrap(
-                        //   children: List<Widget>.generate(
-                        //     resourceList.length,
-                        //         (int idx) {
-                        //       return Padding(
-                        //         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
-                        //         child: ChoiceChip(
-                        //           showCheckmark: false,
-                        //           padding: EdgeInsets.zero,
-                        //           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        //           labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                        //           selectedColor: AppC().bottomIconColor.withOpacity(0.9),
-                        //           backgroundColor: Colors.white,
-                        //           shape: RoundedRectangleBorder(
-                        //             borderRadius: BorderRadius.circular(5),
-                        //           ),
-                        //           side: const BorderSide(color: AppC.appColor),
-                        //           label: Utils.getText(
-                        //             '${resourceList[idx]['first_name']} ${resourceList[idx]['last_name']}',
-                        //             color: nameIsSelected?? false
-                        //                 ? AppC.white
-                        //                 : AppC.text,
-                        //             size: 13,
-                        //           ),
-                        //           checkmarkColor: AppC.white,
-                        //           selected: nameIsSelected ?? false,
-                        //           onSelected: (bool selected) {
-                        //             setState(() {
-                        //               nameIsSelected = selected;
-                        //               if (selected) {
-                        //                 selectedAssignedTo?.add(resourceList[idx]);
-                        //               } else {
-                        //                 selectedAssignedTo?.removeWhere(
-                        //                       (item) => item?['id'] == resourceList[idx]['id'],
-                        //                 );
-                        //               }
-                        //             });
-                        //           },
-                        //         ),
-                        //       );
-                        //     },
-                        //   ).toList(),
-                        // ),
                         Wrap(
                           children: List<Widget>.generate(
                             resourceList.length,
-                            (int idx) {
-                              print('nameIsSelected = $nameIsSelected');
-
-                              //  if (resourceList[idx]['branch_id'] != 1) return const SizedBox.shrink();
-                              nameIsSelected = selectedIndices.contains(idx);
+                                (int idx) {
+                              final resourceId = resourceList[idx]['id'].toString();
                               return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2.0, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2),
                                 child: ChoiceChip(
                                   showCheckmark: false,
                                   padding: EdgeInsets.zero,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  labelPadding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  selectedColor:
-                                      AppC().bottomIconColor.withOpacity(0.9),
-                                  backgroundColor: Colors.white,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                                  selectedColor: AppC.appColor,
+                                  backgroundColor: const Color(0xfff3f6f9),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5)),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
                                   side: const BorderSide(color: AppC.appColor),
                                   label: Utils.getText(
                                     '${resourceList[idx]['first_name']} ${resourceList[idx]['last_name']}',
-                                    color:
-                                        nameIsSelected ? AppC.white : AppC.text,
+                                    color: selectedIds.contains(resourceId) ? AppC.white : AppC.text,
                                     size: 12,
                                   ),
-                                  selected: nameIsSelected,
+                                  selected: selectedIds.contains(resourceId),
                                   onSelected: (bool selected) {
                                     setState(() {
                                       if (selected) {
-                                        print(
-                                            'nameIsSelected = $nameIsSelected');
-
-                                        if (!selectedIndices.contains(idx)) {
-                                          selectedIndices.add(idx);
-                                          selectedAssignedTo
-                                              ?.add(resourceList[idx]);
-                                          print(
-                                              'selectedAssignedToADD$selectedAssignedTo');
-                                          print(
-                                              'selectedIndices ID = $nameIsSelected');
+                                        if (!selectedIds.contains(resourceId)) {
+                                          selectedIds.add(resourceId);
+                                          selectedAssignedTo?.add(resourceList[idx]);
                                         }
                                       } else {
-                                        selectedIndices.remove(idx);
+                                        selectedIds.remove(resourceId);
                                         selectedAssignedTo?.removeWhere(
-                                          (item) =>
-                                              item?['id'] ==
-                                              resourceList[idx]['id'],
+                                              (item) => item?['id'] == resourceList[idx]['id'],
                                         );
-                                        print(
-                                            'selectedAssignedTo$selectedIndices');
                                       }
                                     });
                                   },
@@ -2461,6 +2278,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                             },
                           ).toList(),
                         ),
+
                         const SizedBox(
                           height: 15,
                         ),
@@ -2476,7 +2294,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                               child: SizedBox(
                                 height: 40,
                                 child: Utils
-                                    .getBackgroundFilledTextFieldFirstLetterCaps(
+                                    .getTextFormField(
                                         'Todo Date', todoDateController,
                                         readOnly: true, onTapCallback: () {
                                   Utils.todoDatePickerDialog(context, '')
@@ -2559,51 +2377,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         })),
                   ],
                 ),
-                Visibility(
-                    visible: editShowAddressList,
-                    child: Utils.customAutoCompleteWithUnSelectedOption(
-                        editMultipleAddressSuggestionList, (index) {
-                      editShowAddressList = false;
-                      countHyphens('');
-                      selectedMultipleAddressList
-                          .add(editMultipleAddressSuggestionList[index]);
-                      editMultipleAddressSuggestionList[index].isSelected =
-                          true;
-                      editMultipleAddressController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(
-                            offset:
-                                (editMultipleAddressController.text.length)),
-                      );
-                      setState(() {});
-                      editMultipleAddressController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(
-                            offset:
-                                (editMultipleAddressController.text.length)),
-                      );
-                    }, isAddress: true, isVehicleData: false)),
               ],
             ),
           ],
         ),
-        // Visibility(
-        //     visible: editShowPartsList,
-        //     child: Utils.customAutoCompleteWithUnSelectedOption(
-        //         editPartsSuggestionList, (index) {
-        //       editShowPartsList = false;
-        //       countHyphens('');
-        //       // editPartsController.text = editPartsSuggestionList[index] ?? '';
-        //       selectedPartsList.add(editPartsSuggestionList[index]);
-        //       editPartsSuggestionList[index].isSelected = true;
-        //       editPartsController.selection = TextSelection.fromPosition(
-        //         TextPosition(offset: (editPartsController.text.length)),
-        //       );
-        //       setState(() {});
-        //       editPartsController.selection = TextSelection.fromPosition(
-        //         TextPosition(offset: (editPartsController.text.length)),
-        //       );
-        //     })),
         Visibility(
           visible: editShowPartsList,
           child: Utils.customAutoCompleteListParts(
@@ -2636,7 +2413,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         Expanded(
           child: SizedBox(
             height: 40,
-            child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            child: Utils.getTextFormField(
                 'Date', dayYearlyController,
                 textType: TextInputType.number,
                 // maxLength: 2,
@@ -2788,7 +2565,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
           vehicleTodoParam.cohortName = '';
           vehicleTodoParam.vin = selectedMultipleVehicleList[i]['vin'];
           vehicleTodoParam.vehicleName = selectedMultipleVehicleList[i]['vehicle_name'];
-          vehicleTodoParam.vehicleImage = '';
           vehicleTodoParam.vehicleNumber = '';
           vehicleTodoParamList.add(vehicleTodoParam);
         }

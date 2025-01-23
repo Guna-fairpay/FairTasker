@@ -141,7 +141,7 @@ class _TaskComponentsEditUIState extends State<TaskComponentsEditUI> {
             SizedBox(
               height: 40,
               child: selectBase == 'Task based'
-                  ? Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  ? Utils.getTextFormField(
                       '',
                       taskNameController,
                       label: Utils.getText('Task Name', color: AppC.grey),
@@ -153,7 +153,7 @@ class _TaskComponentsEditUIState extends State<TaskComponentsEditUI> {
             // Input field for amount
             SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                 '',
                 textType: TextInputType.number,
                 amountController,

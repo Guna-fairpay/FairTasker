@@ -138,7 +138,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                 alignment: Alignment.centerRight,
                                 children: [
                                   Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                     '',
                                     nameController,
                                     label: Utils.getText('Vendor Name',
@@ -167,7 +167,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                         child: Stack(
                                           children: [
                                             Utils
-                                                .getBackgroundFilledTextFieldFirstLetterCaps(
+                                                .getTextFormField(
                                               '',
                                               vendorTypeController,
                                               label: Utils.getText(
@@ -229,7 +229,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                 alignment: Alignment.centerRight,
                                 children: [
                                   Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                     '',
                                     addressController,
                                     label: Utils.getText('Address',
@@ -245,7 +245,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                 alignment: Alignment.centerRight,
                                 children: [
                                   Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                     '',
                                     phoneController,
                                     label: Utils.getText('Phone',
@@ -261,7 +261,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                 alignment: Alignment.centerRight,
                                 children: [
                                   Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                     '',
                                     expertiseController,
                                     label: Utils.getText('Expertise',
@@ -277,7 +277,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                 alignment: Alignment.centerRight,
                                 children: [
                                   Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                     '',
                                     descriptionController,
                                     label: Utils.getText('Description',

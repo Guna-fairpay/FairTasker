@@ -145,7 +145,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                 child: Stack(
                   alignment: Alignment.centerRight,
                   children: [
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    Utils.getTextFormField(
                       '',
                       firstnameController,
                       label: Utils.getText('First Name', color: AppC.grey),
@@ -166,7 +166,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                 child: Stack(
                   alignment: Alignment.centerRight,
                   children: [
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    Utils.getTextFormField(
                       '',
                       lastnameController,
                       label: Utils.getText('Last Name', color: AppC.grey),
@@ -187,7 +187,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                 child: Stack(
                   alignment: Alignment.centerRight,
                   children: [
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    Utils.getTextFormField(
                         '', phoneController,
                         label: Utils.getText('Phone', color: AppC.grey),
                         borderColor:
@@ -204,7 +204,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
               const SizedBox(height: 20),
               SizedBox(
                 height: 40,
-                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                child: Utils.getTextFormField(
                   '',
                   addressController,
                   label: Utils.getText('Address', color: AppC.grey),
@@ -216,7 +216,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                 child: Stack(
                   alignment: Alignment.centerRight,
                   children: [
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    Utils.getTextFormField(
                       '',
                       monthlyRentalController,
                       label: Utils.getText('Monthly Rental', color: AppC.grey),
@@ -238,7 +238,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                 child: Stack(
                   alignment: Alignment.centerRight,
                   children: [
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    Utils.getTextFormField(
                       '',
                       selectDateController,
                       suffixIcon: Padding(
@@ -278,7 +278,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                 child: Stack(
                   alignment: Alignment.centerRight,
                   children: [
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    Utils.getTextFormField(
                       '',
                       securityDepositController,
                       label:
@@ -297,7 +297,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
               const SizedBox(height: 20),
               SizedBox(
                 height: 40,
-                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                child: Utils.getTextFormField(
                   '',
                   notesController,
                   label: Utils.getText('Notes', color: AppC.grey),

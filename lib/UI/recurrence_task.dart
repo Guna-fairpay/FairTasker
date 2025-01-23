@@ -285,7 +285,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 40,
-                  child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  child: Utils.getTextFormField(
                     '',
                     taskNameController,
                     label: Utils.getText('Task Name', color: AppC.grey),
@@ -307,7 +307,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               startTimeController,
                               suffixIcon: const Icon(
@@ -345,7 +345,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               endTimeController,
                               suffixIcon: const Icon(
@@ -410,7 +410,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                                 child: SizedBox(
                                   height: 40,
                                   child: Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                     'eg:1,2,3',
                                     dayController,
                                     hintTextColor: AppC.grey,
@@ -458,7 +458,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                             child: SizedBox(
                               height: 40,
                               child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
+                                  .getTextFormField(
                                 'eg:1,2,3',
                                 weekController,
                                 hintTextColor: AppC.grey,
@@ -548,7 +548,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                                       children: [
                                         Expanded(
                                           child: Utils
-                                              .getBackgroundFilledTextFieldFirstLetterCaps(
+                                              .getTextFormField(
                                             'eg:first,last',
                                             firstLastController,
                                             hintTextColor: AppC.grey,
@@ -559,7 +559,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                                                 10), // Add some spacing between the fields
                                         Expanded(
                                           child: Utils
-                                              .getBackgroundFilledTextFieldFirstLetterCaps(
+                                              .getTextFormField(
                                             'eg:monday,...',
                                             monthDayController,
                                             hintTextColor: AppC.grey,
@@ -568,7 +568,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                                       ],
                                     )
                                   : Utils
-                                      .getBackgroundFilledTextFieldFirstLetterCaps(
+                                      .getTextFormField(
                                       'eg:1,2,3',
                                       monthController,
                                       hintTextColor: AppC.grey,
@@ -610,7 +610,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                               child: SizedBox(
                                 height: 40,
                                 child: Utils
-                                    .getBackgroundFilledTextFieldFirstLetterCaps(
+                                    .getTextFormField(
                                   'date',
                                   yearDateController,
                                   hintTextColor: AppC.grey,
@@ -684,7 +684,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                               SizedBox(
                                 height: 40,
                                 child: Utils
-                                    .getBackgroundFilledTextFieldFirstLetterCaps(
+                                    .getTextFormField(
                                   'mm-dd-yyyy',
                                   startDateController,
                                   suffixIcon: const Icon(
@@ -749,12 +749,12 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                                   height: 40,
                                   child: _isEndAfter
                                       ? Utils
-                                          .getBackgroundFilledTextFieldFirstLetterCaps(
+                                          .getTextFormField(
                                           'No.of occurrences',
                                           noOccurrencesController,
                                         )
                                       : Utils
-                                          .getBackgroundFilledTextFieldFirstLetterCaps(
+                                          .getTextFormField(
                                           'mm-dd-yyyy',
                                           endDateController,
                                           suffixIcon: const Icon(

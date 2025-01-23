@@ -187,7 +187,7 @@ class _FeedbackAddUIState extends State<FeedbackAddUI> {
               const SizedBox(height: 10),
               SizedBox(
                 height: 40,
-                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                child: Utils.getTextFormField(
                   '',
                   titleController,
                   label: Utils.getText('Title', color: AppC.grey),

@@ -216,7 +216,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   }
   Widget _buildTimeField(
       String label, TextEditingController controller, Function onTapCallback) {
-    return Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+    return Utils.getTextFormField(
       '',
       controller,
       suffixIcon: const Icon(
@@ -654,8 +654,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
 
     showMenu<List<Map<String, dynamic>>>(
       context: context,
-      color: Colors.white,
-      constraints: const BoxConstraints.tightFor(width: 500),
+      color: const Color(0xffffffff).withOpacity(0.75),
+      constraints: BoxConstraints.tightFor(width: MediaQuery.sizeOf(context).width),
       position: RelativeRect.fromLTRB(
         details.globalPosition.dx,
         details.globalPosition.dy,
@@ -690,7 +690,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
           child: StatefulBuilder(
             builder: (context, setState) {
               return PopupMenuTheme(
-                data: const PopupMenuThemeData(color: Colors.white),
+                data: const PopupMenuThemeData(color: Color(0xfff8f8ff),),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -817,7 +817,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                               setState(() {
                                                 checkboxStates[taskName.toString()] = newValue ?? false;
                                                 if (newValue == true) {
-
                                                   if (!selectedFilters.contains(taskName)) {
                                                     selectedFilters.add(taskName);
                                                   }
@@ -886,7 +885,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
       elevation: 16,
       constraints: const BoxConstraints.tightFor(width: 500),
       surfaceTintColor: AppC.white,
-      color: AppC.white,
+      color: const Color(0xffffffff).withOpacity(0.75),
       items: <PopupMenuEntry<List<Map<String, dynamic>?>>>[
         PopupMenuItem<List<Map<String, dynamic>?>>(
           height: 22,
@@ -1081,6 +1080,177 @@ class _TodoViewUIState extends State<TodoViewUI> {
     onSelect(resourceList
         .where((res) => selectedStates[res['id'].toString()] == true)
         .toList());
+  }
+
+  void showTaskCompletionDialog(BuildContext context,String? selectedTime) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6.0,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Utils.getText(
+                              'Task Completed - Time',
+                              size: 16,
+                              weight: FontWeight.w700,
+                              color: AppC.appColor,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Icon(Icons.close_sharp),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Utils.getText(
+                          'How long this task taken to complete?',
+                          weight: FontWeight.bold,
+                        ),
+                        Wrap(
+                          spacing: 1.5,
+                          runSpacing: 1,
+                          children: [
+                            for (String time in [
+                              '00:15', '00:30', '00:45', '01:00', '01:15',
+                              '01:30', '01:45', '02:00', '02:15', '02:30',
+                              '02:45', '03:00', '03:15', '03:30', '03:45',
+                              '04:00',
+                            ])
+                              ChoiceChip(
+                                label: Utils.getText(
+                                  time,
+                                  color: selectedTime == time ? Colors.white : AppC.appColor,
+                                  weight: FontWeight.bold,
+                                ),
+                                selected: selectedTime == time,
+                                labelPadding: EdgeInsets.zero,
+                                selectedColor: AppC.appColor,
+                                disabledColor: Colors.blue[50],
+                                showCheckmark: false,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  side: const BorderSide(
+                                    color: AppC.appColor,
+                                    width: 0.5,
+                                  ),
+                                ),
+                                backgroundColor: Colors.blue[50],
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    selectedTime = selected ? time : null;
+                                  });
+                                },
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 7.5),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedTime = null;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(7.5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    border: Border.all(
+                                      width: 0.5,
+                                      color: AppC.appColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Utils.getText('> 4 hours', color: AppC.red),
+                                ),
+                              ),
+                            ),
+                            if (selectedTime == null)
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Utils.getText(
+                                      'Enter the time taken:',
+                                      weight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Utils.getTextFormField(
+                                      'eg: 05:00',
+                                      taskTimeController,
+                                      validator: (value) => timeValidator(value),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            Visibility(
+                              visible: taskTimeController.text.isEmpty && selectedTime == null,
+                              child: Utils.getText(
+                                'Please select time taken',
+                                color: AppC.red,
+                              ),
+                            ),
+                            Visibility(
+                              visible: taskTimeController.text.isNotEmpty && selectedTime == null,
+                              child: Utils.getText(
+                                'Please enter time in the format of 01:00',
+                                color: AppC.red,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Utils.getBorderedMultilineTextField('Reason', reasonController, minLines: 2),
+                            Visibility(
+                              visible: reasonController.text.isEmpty,
+                              child: Utils.getText(
+                                'Please enter reason for extra time',
+                                color: AppC.red,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
 
@@ -2271,7 +2441,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                           Row(
                                             children: [
                                               Expanded(
-                                                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                                child: Utils.getTextFormField(
                                                   contentPadding: const EdgeInsets.only(right: 21, left: 10),
                                                   '',
                                                   editTodoDateController,
@@ -2566,158 +2736,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: GestureDetector(
                               onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return  StatefulBuilder(
-                                    builder: (BuildContext context, StateSetter setState) {
-                                        return Align(
-                                          alignment: Alignment.topCenter, // Align the dialog to the top
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                width: MediaQuery.of(context).size.width,
-                                                padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 10),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(4),
-                                                  boxShadow: const [
-                                                    BoxShadow(
-                                                      color: Colors.black26,
-                                                      blurRadius: 6.0,
-                                                      offset: Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                     children: [
-                                                       Utils.getText(
-                                                           'Task Completed - Time',
-                                                           size: 16,
-                                                         weight: FontWeight.w700,
-                                                         color: AppC.appColor
-                                                       ),
-                                                       GestureDetector(
-                                                         onTap: (){ Navigator.of(context).pop();},
-                                                         child: const Icon(Icons.close_sharp),
-                                                       ),
-                                                     ],
-                                                   ),
-                                                    const SizedBox(height: 20),
-                                                    Utils.getText('How long this task taken to complete?',weight: FontWeight.bold),
-                                                    Wrap(
-                                                      spacing: 1.5,
-                                                      runSpacing: 1,
-                                                      children: [
-                                                        // Loop for the ChoiceChip options
-                                                        for (String time in [
-                                                          '00:15', '00:30', '00:45', '01:00', '01:15',
-                                                          '01:30', '01:45', '02:00', '02:15', '02:30',
-                                                          '02:45', '03:00', '03:15', '03:30', '03:45',
-                                                          '04:00',
-                                                        ])
-                                                          ChoiceChip(
-                                                            label: Utils.getText(
-                                                              time,
-                                                              color: selectedTime == time ? Colors.white : AppC.appColor,
-                                                              weight: FontWeight.bold
-                                                            ),
-                                                            selected: selectedTime == time,
-                                                            labelPadding: EdgeInsets.zero,
-                                                            selectedColor: AppC.appColor,
-                                                            disabledColor: Colors.blue[50],
-                                                            showCheckmark: false,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.circular(4.0),
-                                                              side: const BorderSide(
-                                                                color: AppC.appColor,
-                                                                width: 0.5,
-                                                              ),
-                                                            ),
-                                                            backgroundColor: Colors.blue[50],
-                                                            onSelected: (bool selected) {
-                                                              setState(() {
-                                                                selectedTime = selected ? time : null; // Set the selected time or clear
-                                                              });
-                                                            },
-                                                          ),
-                                                        Padding(
-                                                          padding: const EdgeInsets.only(top: 7.5),
-                                                          child: GestureDetector(
-                                                            onTap: () {
-                                                              setState(() {
-                                                                selectedTime = null; // Clear the selected chip
-                                                              });
-                                                            },
-                                                            child: Container(
-                                                              padding: const EdgeInsets.all(7.5),
-                                                              decoration: BoxDecoration(
-                                                                color: Colors.blue[50],
-                                                                border: Border.all(
-                                                                  width: 0.5,
-                                                                  color: AppC.appColor,
-                                                                ),
-                                                                borderRadius: BorderRadius.circular(4),
-                                                              ),
-                                                              child: Utils.getText('> 4 hours', color: AppC.red),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        if(selectedTime==null)
-                                                          Row(
-                                                            children: [
-                                                              Expanded(child: Utils.getText('Enter the time taken:',weight: FontWeight.bold)),
-                                                              Expanded(child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                                                                  'eg: 05:00',
-                                                                  taskTimeController,
-                                                                  validator:(value) => timeValidator(value),
-                                                              ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          Visibility(
-                                                            visible:taskTimeController.text.isEmpty&&selectedTime==null,
-                                                              child: Utils.getText(
-                                                                  'Please select time taken',
-                                                                  color: AppC.red)
-                                                          ),
-                                                          Visibility(
-                                                              visible:taskTimeController.text.isNotEmpty&&selectedTime==null,
-                                                            child: Utils.getText('Please enter time in the format of 01:00',
-                                                                color: AppC.red)
-                                                          ),
-                                                        const SizedBox(height: 10,),
-                                                        Utils.getBorderedMultilineTextField('Reason', reasonController, minLines: 2),
-                                                          Visibility(
-                                                            visible:reasonController.text.isEmpty,
-                                                              child: Utils.getText(
-                                                                  'Please enter reason for extra time',
-                                                                  color: AppC.red)
-                                                          ),
-                                                        Row(mainAxisAlignment: MainAxisAlignment.start,
-                                                          children: [
-                                                            Utils.getAddFilledButton('Submit', (){
-                                                            },bgColor: AppC.green),
-                                                          ],
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    );
-                                  },
-                                );
+                                showTaskCompletionDialog(context,selectedTime);
                               },
                               child: Utils.getText(
                                 todos['complete_time_taken'] != null
@@ -2775,19 +2794,16 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                   child: InkWell(
                                     onTapDown: (TapDownDetails? details) async {
                                       if (details != null) {
-
                                         if (todos['vehicle_name'] != null) {
                                           vehiclePersonController.text = todos['vehicle_name'] ?? '';
                                         } else {
                                           vehiclePersonController.text = todos['person'] ?? '';
                                         }
-
                                         if (selectedMultipleVehicleList.isEmpty && todos['vehicles'] != null) {
                                              selectedMultipleVehicleList.addAll(todos['vehicles'] ?? '');
                                         }
                                         int? selectedResourceId;
                                         String? personName;
-
                                         await showMenu(
                                           elevation: 5,
                                           color: AppC.white,
@@ -2909,7 +2925,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                           },
                                                         ).toList(),
                                                       ),
-                                                      Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                                      Utils.getTextFormField(
                                                         'Vehicle / Person',
                                                         vehiclePersonController,
                                                         readOnly: false,
@@ -3376,7 +3392,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                             },
                                                           ).toList(),
                                                         ),
-                                                        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                                        Utils.getTextFormField(
                                                             'Parts',
                                                             editPartsController,
                                                             readOnly: false,
@@ -3535,7 +3551,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                                   child: Chip(
                                                                     onDeleted: () {
                                                                       final suppliesId = selectedSuppliesList[idx]['id'];
-                                                                      todoBloc?.add(DeleteSupplyEvent(suppliesId: suppliesId));
+                                                                      todoBloc?.add(DeleteSupplysEvent(suppliesId: suppliesId));
                                                                       selectedSuppliesList.removeAt(idx);
                                                                       todos['supplies'] = List.from(selectedSuppliesList);
                                                                       setState(() {});
@@ -3562,7 +3578,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                               },
                                                             ).toList(),
                                                           ),
-                                                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                                          Utils.getTextFormField(
                                                               'Supplies',
                                                               editSuppliesController,
                                                               readOnly: false,
@@ -4107,11 +4123,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                 selectedIndices.addAll(resourceList
                                     .asMap()
                                     .entries
-                                    .where(
-                                        (entry) => entry.value['id'] == userId)
+                                    .where((entry) => entry.value['id'] == userId)
                                     .map((entry) => entry.key));
-                                print(
-                                    'Selected Indices from ResourceList: $selectedIndices');
                               }
                               if (userGroupId != null) {
                                 selectedIndices.addAll(userGroupList
@@ -4167,15 +4180,11 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                     onTap: () {
                                                       List<String?>?
                                                           selectedResourceIdList =
-                                                          selectedIndices
-                                                              .map((index) =>
-                                                                  resourceList[
-                                                                          index]
-                                                                      ['id'])
-                                                              .where((id) =>
-                                                                  id != null &&
-                                                                  id != -1 &&
-                                                                  id != 0)
+                                                          selectedIndices.map(
+                                                                  (index) => resourceList[index]['id']).where(
+                                                                  (id) => id != null
+                                                                      && id != -1
+                                                                      && id != 0)
                                                               .map((id) => id.toString())
                                                               .toList();
                                                       int? selectedResourceId;
@@ -4547,7 +4556,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                 ).toList(),
               ),
               const SizedBox(height: 5),
-              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              Utils.getTextFormField(
                   'Address', editMultipleAddressController,
                   label: Utils.getText('Address'),
                   readOnly: false, onChangeCallback: (value) {

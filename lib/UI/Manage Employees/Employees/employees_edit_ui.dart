@@ -166,7 +166,7 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
                       Stack(
                         alignment: Alignment.centerRight,
                         children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                             'First Name',
                             firstnameController,
                             borderColor: isFirstNameFieldEmpty
@@ -185,7 +185,7 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
                       Stack(
                         alignment: Alignment.centerRight,
                         children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                             'Last Name',
                             lastnameController,
                             borderColor: isLastNameFieldEmpty
@@ -204,7 +204,7 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
                       Stack(
                         alignment: Alignment.centerRight,
                         children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                             'Mobile',
                             mobileController,
                             borderColor: isMobileFieldEmpty
@@ -223,7 +223,7 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
                       Stack(
                         alignment: Alignment.centerRight,
                         children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                             'Email',
                             emailController,
                             borderColor:

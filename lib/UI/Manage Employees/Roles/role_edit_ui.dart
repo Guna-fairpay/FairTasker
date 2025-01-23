@@ -114,7 +114,7 @@ class _RoleEditUIState extends State<RoleEditUI> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               roleController,
                               label: Utils.getText('Role', color: AppC.grey),

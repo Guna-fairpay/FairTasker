@@ -294,12 +294,12 @@ class _EditExpenseUIState extends State<EditExpenseUI>
           ),
         ),
         const SizedBox(height: 0),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Enter Amount', amountController,
             label: Utils.getText('Enter Amount'),
             textType: TextInputType.number),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
           'Enter Description',
           expenseDescriptionController,
           label: Utils.getText('Enter Description'),
@@ -387,7 +387,7 @@ class _EditExpenseUIState extends State<EditExpenseUI>
           ),
         ),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Expense Date', todoDateController, readOnly: true,
             onTapCallback: () {
           Utils.datePicker(context, '', initial: DateTime.parse("2023-01-01"))

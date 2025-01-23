@@ -112,7 +112,7 @@ class _UserEditUIState extends State<UserEditUI> {
                       child: Stack(
                         alignment: Alignment.centerRight,
                         children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                             '',
                             userController,
                             label: Utils.getText(

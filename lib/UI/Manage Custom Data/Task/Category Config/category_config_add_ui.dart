@@ -99,7 +99,7 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               nameController,
                               label: Utils.getText('Name', color: AppC.grey),

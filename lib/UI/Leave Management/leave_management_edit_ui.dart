@@ -111,7 +111,7 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
         const SizedBox(height: 5),
         SizedBox(
           height: 40,
-          child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+          child: Utils.getTextFormField(
             '',
             controller,
             suffixIcon: const Icon(
@@ -138,7 +138,7 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
         const SizedBox(height: 5),
         SizedBox(
           height: 40,
-          child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+          child: Utils.getTextFormField(
             '',
             controller,
             suffixIcon: const Icon(

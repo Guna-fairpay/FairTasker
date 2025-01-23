@@ -94,7 +94,7 @@ class _PartViewUIState extends State<PartViewUI> {
     'Do you want to delete this Vehicle Part?',);
     if (confirmed == true) {
       final parts = filteredParts[index];
-      partDataBloc.add(DeletePartsEvent(id: parts['id']));
+      partDataBloc.add(DeletePartEvent(id: parts['id']));
       partDataBloc.add(const GetPartsListV());
     }
   }

@@ -117,7 +117,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', postalCodeController,
                                 label: Utils.getText('Enter Postal Code',
                                     color: AppC.grey)),
@@ -128,7 +128,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', legalRegController,
                                 label: Utils.getText('Legal Registration No',
                                     color: AppC.grey)),
@@ -139,7 +139,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', emailController,
                                 textType: TextInputType.emailAddress,
                                 label:
@@ -151,7 +151,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', websiteController,
                                 label:
                                     Utils.getText('Website', color: AppC.grey)),
@@ -162,7 +162,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', contactController,
                                 label: Utils.getText('Contact No',
                                     color: AppC.grey)),
@@ -182,7 +182,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', invoiceController,
                                 label: Utils.getText('Invoice No',
                                     color: AppC.grey)),
@@ -195,7 +195,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                               '',
                               dateController,
                               suffixIcon: Padding(
@@ -291,7 +291,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', amountController,
                                 textType: TextInputType.number,
                                 label: Utils.getText('Total Amount',
@@ -312,7 +312,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', fullNameController,
                                 textType: TextInputType.number,
                                 label: Utils.getText('Full Name',
@@ -332,7 +332,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', mobileNumberController,
                                 label: Utils.getText(
                                   'Mobile Number',
@@ -345,7 +345,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', taxNumberController,
                                 label: Utils.getText(
                                   'Tax Number',
@@ -386,7 +386,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', shippingFullNameController,
                                 textType: TextInputType.text,
                                 label: Utils.getText('Full Name',
@@ -407,7 +407,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', shippingMobileNumberController,
                                 label: Utils.getText(
                                   'Mobile Number',
@@ -425,7 +425,7 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 '', shippingTaxNumberController,
                                 label: Utils.getText(
                                   'Tax Number',
@@ -438,14 +438,14 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Card Holder Name', cardHolderNameController),
                       ),
                       const SizedBox(height: 20),
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                           'Card Number',
                           cardNumberController,
                           textType: TextInputType.number,

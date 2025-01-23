@@ -107,11 +107,11 @@ class _VehicleUIState extends State<VehicleHistoryDetailUI>
           body: BlocProvider(
               create: (context) => vehicleDataBloc!
                 ..add(expenseId != null
-                    ? GetExpenseToData(expenseId: expenseId)
+                    ? GetExpenseToDatas(expenseId: expenseId)
                     : const VehicleInitial()),
               child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
                   listener: (context, state) async {
-                if (state is ExpenseTodoLoaded) {
+                if (state is ExpenseTodoDataLoaded) {
                   if (state.expensesData != null) {
                     // expensesData = (state.expensesData??[]);
                     path = expensesData?['attachments'] ?? [];

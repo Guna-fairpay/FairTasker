@@ -452,7 +452,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                       child: SizedBox(
                                     height: 30,
                                     child: Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
+                                        .getTextFormField(
                                       'Search',
                                       // suffixIcon: Icon(Icons.search, color: AppC.grey),
                                       searchController,
@@ -1487,7 +1487,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                           Visibility(
                               visible: selectedPresale == 1,
                               child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
+                                  .getTextFormField(
                                       'Presale', presaleController)),
                           Visibility(
                             visible: selectedPresale == 2,
@@ -1804,7 +1804,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                       Visibility(
                         visible: selectedPresale == 1,
                         replacement:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Presale', presaleController),
                         child: SingleChildScrollView(
                             child:
@@ -1912,7 +1912,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
         const SizedBox(
           height: 15,
         ),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Custom Task', customTaskController),
         const SizedBox(
           height: 15,
@@ -1920,7 +1920,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
         Row(
           children: [
             Expanded(
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                   'Todo Date', todoDateController, readOnly: true,
                   onTapCallback: () {
                 Utils.datePicker(context, '').then((value) {
@@ -1989,7 +1989,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
         const SizedBox(
           height: 15,
         ),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
           'Vendor / Location',
           vendorLocationController,
           label: Utils.getText('Vendor / Location'),
@@ -2038,7 +2038,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
             const SizedBox(
               height: 15,
             ),
-            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            Utils.getTextFormField(
                 'Notes', notesController),
             Visibility(
               visible: showVendorLocationList,

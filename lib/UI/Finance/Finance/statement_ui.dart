@@ -243,15 +243,15 @@ class _StatementUIState extends State<StatementUI> {
                                             Utils.getText("${Statement_UI[index]['item_value']}",weight: FontWeight.bold),
                                           ],
                                         ),
-                                        SizedBox(height: 8), // Optional spacing between rows
-                                        Row(
+                                        const SizedBox(height: 8), // Optional spacing between rows
+                                        const Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text('Label 2'),
                                             Text("\$Value 2"),
                                           ],
                                         ),
-                                        Row(
+                                        const Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text('Label 2'),
@@ -262,11 +262,11 @@ class _StatementUIState extends State<StatementUI> {
                                           visible: showInputFields,
                                           child: Column(
                                             children: [
-                                              Utils.getBackgroundFilledTextFieldFirstLetterCaps('Enter Name', nameController),
-                                              SizedBox(height: 4,),
-                                              Utils.getBackgroundFilledTextFieldFirstLetterCaps('Enter Cohort', valueController),
-                                              SizedBox(height: 4,),
-                                              Utils.getBackgroundFilledTextFieldFirstLetterCaps('Cohort Dropdown', CohortController),
+                                              Utils.getTextFormField('Enter Name', nameController),
+                                              const SizedBox(height: 4,),
+                                              Utils.getTextFormField('Enter Cohort', valueController),
+                                              const SizedBox(height: 4,),
+                                              Utils.getTextFormField('Cohort Dropdown', CohortController),
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.end,
                                                 children: [

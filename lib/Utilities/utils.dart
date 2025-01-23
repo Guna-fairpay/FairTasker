@@ -1,5 +1,6 @@
 
 
+import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -203,21 +204,27 @@ class Utils {
     Color textColor = AppC.white,
     double borderRadius = Num.subradiusButton,
   }) {
-    return MaterialButton(
+    return TaskerButton(
       onPressed: onPressedCallback,
       color: bgColor ?? AppC.appColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-      ),
-      child: Center(
-        child: Text(
-          textLabel,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      // border: Border.all(
+      //   color: AppC.orange,
+      //   width: 2
+      // ),
+      // minWidth: 20,
+      // height: 20,
+      // clipBehavior: Clip.antiAliasWithSaveLayer,
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+      // ),
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: Text(
+        textLabel,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -243,6 +250,26 @@ class Utils {
         ));
   }
 
+  static Text getListText(List<String> text,
+      {double size = 12,
+        TextAlign? align,
+        Color color = AppC.text,
+        FontWeight weight = FontWeight.normal,
+        TextDecoration? decoration,
+        Color? colorDecoration,
+        TextOverflow? overFlow}) {
+    return Text(text.join(',\n'),
+        textAlign: align,
+        style: TextStyle(
+          color: color,
+          fontSize: size,
+          fontWeight: weight,
+          decorationColor:colorDecoration,
+          overflow: overFlow,
+          decoration: decoration,
+        ));
+  }
+
   static TextStyle getTextStyle(
       {double size = 14,
       TextAlign? align,
@@ -257,7 +284,7 @@ class Utils {
         textAlign: align, style: TextStyle(color: color, fontSize: size));
   }
 
-  static Widget getBackgroundFilledTextFieldFirstLetterCaps(
+  static Widget getTextFormField(
       String labelText, TextEditingController controller,
       {Key? key,
       FocusNode? focusNode,
@@ -269,6 +296,7 @@ class Utils {
       bool autoFocus = false,
       ValueChanged? onChangeCallback,
       TextInputType textType = TextInputType.text,
+      TextInputAction? inputAction,
       int? maxLength,
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.text,
@@ -292,6 +320,7 @@ class Utils {
         key: key,
         validator: validator,
         autovalidateMode: autoValidate,
+        textInputAction: inputAction,
         onTap: onTapCallback,
         focusNode: focusNode,
         autofocus: autoFocus,
@@ -432,25 +461,24 @@ class Utils {
       Color textColor = AppC.white,
       double borderRadius = Num.radiusButton,
       Alignment textAlign = Alignment.center}) {
-    return SizedBox(height: 35,
+    return SizedBox(
       child: TextButton(
           onPressed: onPressedCallback,
           style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
             backgroundColor: bgColor ?? AppC().base,
             shape: const RoundedRectangleBorder(
               borderRadius:
                   BorderRadius.all(Radius.circular(Num.subradiusButton)),
             ),
           ),
+
           child: Align(
             alignment: textAlign,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: verticalPadding),
-              child: Text(
-                textLabel,
-                style: TextStyle(
-                    color: textColor, fontWeight: FontWeight.w800, fontSize: 12),
-              ),
+            child: Text(
+              textLabel,
+              style: TextStyle(
+                  color: textColor, fontWeight: FontWeight.w800, fontSize: 12),
             ),
           )),
     );
@@ -613,9 +641,45 @@ class Utils {
     }
   }
 
-  static Future<DateTime?> datePicker(BuildContext context, String existingDate,
+/*  static Future<DateTime?> datePickerDialog(
+      BuildContext context, String existingDate,
       {DateTime? initial, DateTime? last}) {
     var initialDate = initial ?? DateTime.now();
+    var currentDate = DateTime.now();
+    if (existingDate.isNotEmpty) {
+      currentDate = convertStringToDateTime(existingDate);
+    }
+    var lastDate = last ??
+        DateTime(currentDate.year + 1, currentDate.month, currentDate.day);
+
+    Widget dialog = DatePickerDialog(
+      initialDate: currentDate,
+      firstDate: initialDate,
+      lastDate: lastDate,
+      currentDate: currentDate,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      confirmText: 'Ok',
+      cancelText: 'Cancel',
+    );
+
+    return showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: AppC().base,
+            colorScheme: ColorScheme.light(primary: AppC().base),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: dialog,
+        );
+      },
+    );
+  }*/
+
+  static Future<DateTime?> datePicker(BuildContext context, String existingDate,
+      {DateTime? initial, DateTime? last}) {
+    var initialDate = initial;
     var currentDate = DateTime.now();
     if (existingDate.isNotEmpty) {
       currentDate = convertStringToDateTime(existingDate);
@@ -624,7 +688,7 @@ class Utils {
         DateTime(currentDate.year + 10, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
-      initialDate: currentDate,
+      initialDate: initialDate,
       firstDate:DateTime(1900, 1, 1),
       lastDate: lastDate,
       currentDate: currentDate,
@@ -1216,8 +1280,8 @@ class Utils {
   static Widget getOvalCachedImageNetworkDisplay(
       BuildContext context, String imageUrl) {
     return SizedBox(
-      width: 60.0, // Set the width as needed
-      height: 60.0, // Set the width as needed
+      width: 60.0,
+      height: 60.0,
       child: ClipRRect(
         child: CachedNetworkImage(
           imageBuilder: (context, imageProvider) {

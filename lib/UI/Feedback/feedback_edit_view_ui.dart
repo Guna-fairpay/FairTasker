@@ -256,7 +256,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                     const SizedBox(height: 10),
                     SizedBox(
                       height: 40,
-                      child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      child: Utils.getTextFormField(
                         '',
                         titleController,
                         label: Utils.getText('Title'),

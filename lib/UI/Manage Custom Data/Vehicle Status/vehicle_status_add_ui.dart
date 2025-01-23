@@ -104,14 +104,14 @@ class _VehicleStatusAddUIState extends State<VehicleStatusAddUI> {
             const SizedBox(height: 20),
             SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                   '', checklistController,
                   label: Utils.getText('Checklist Name', color: AppC.grey)),
             ),
             const SizedBox(height: 20),
             SizedBox(
               height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                   '', taskNameController,
                   label: Utils.getText('Task Name', color: AppC.grey)),
             ),

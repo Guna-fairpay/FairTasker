@@ -510,7 +510,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       });
     });
 
-    on<DeleteSupplyEvent>((event, emit) async {
+    on<DeleteSupplysEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
           .deleteSuppliesForItem(event.suppliesId!)

@@ -79,7 +79,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                     '',
                     categoryController,
                     label: Utils.getText('Category', color: AppC.grey),

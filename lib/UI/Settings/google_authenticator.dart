@@ -114,7 +114,7 @@ class _GoogleAuthenticatorUIState extends State<GoogleAuthenticatorUI> {
                         child: SizedBox(
                           height: 40,
                           child:
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              Utils.getTextFormField(
                             'One time password',
                             otpController,
                             textType: TextInputType.number,

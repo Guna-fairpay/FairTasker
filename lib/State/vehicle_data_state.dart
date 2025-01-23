@@ -11,9 +11,9 @@ class VehicleDataInitial extends VehicleDataState {
   List<Object> get props => [];
 }
 
-class ExpenseTodoLoaded extends VehicleDataState {
+class ExpenseTodoDataLoaded extends VehicleDataState {
   final List<Map<String,dynamic>>? expensesData;
-  const ExpenseTodoLoaded({required this.expensesData});
+  const ExpenseTodoDataLoaded({required this.expensesData});
   @override
   List<Object?> get props => [expensesData];
 }

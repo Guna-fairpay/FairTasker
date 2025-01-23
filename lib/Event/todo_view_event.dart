@@ -862,10 +862,10 @@ class DeletePartsEvent extends TodoViewEvent {
   List<Object> get props => [partsId];
 }
 
-class DeleteSupplyEvent extends TodoViewEvent {
+class DeleteSupplysEvent extends TodoViewEvent {
   final int? suppliesId;
 
-  const DeleteSupplyEvent({required this.suppliesId});
+  const DeleteSupplysEvent({required this.suppliesId});
   @override
   List<Object?> get props => [suppliesId];
 }

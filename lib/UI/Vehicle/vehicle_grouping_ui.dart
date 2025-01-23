@@ -140,7 +140,7 @@ bool isSelected=false;
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 15,),
-                                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                    Utils.getTextFormField(
                                         'Group Name', vehicleNameController,
                                         label: Utils.getText('Group Name')),
                                     const SizedBox(height: 15,),
@@ -193,7 +193,7 @@ bool isSelected=false;
                                             ).toList(),
                                           ),
                                           const SizedBox(height: 15),
-                                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                                          Utils.getTextFormField(
                                               'Vehicle', editVehicleController,
                                               label: Utils.getText('Vehicle'),
                                               readOnly: false,

@@ -63,7 +63,7 @@ class _PermissionsAddUIState extends State<PermissionsAddUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  Utils.getTextFormField(
                       '', nameController,
                       label:
                           Utils.getText('Permission Name', color: AppC.grey)),

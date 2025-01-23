@@ -180,7 +180,7 @@ class _AddExpenseUIState extends State<AddExpenseUI>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Expense Date', todoDateController, readOnly: true,
             onTapCallback: () {
           Utils.datePicker(context, '', initial: DateTime.parse("2023-01-01"))
@@ -349,12 +349,12 @@ class _AddExpenseUIState extends State<AddExpenseUI>
           ),
         ),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Amount in dollars', amountController,
             label: Utils.getText('Enter Amount'),
             textType: TextInputType.number),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
           'Enter Description',
           expenseDescriptionController,
           label: Utils.getText('Enter Description'),

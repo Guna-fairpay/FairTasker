@@ -13,8 +13,8 @@ import '../../../../Utilities/num.dart';
 import '../../../../Utilities/utils.dart';
 
 class ExpenseAddUI extends StatefulWidget {
-  final bool showHeader;
-  const ExpenseAddUI({super.key, this.showHeader = true});
+
+  const ExpenseAddUI({super.key});
 
   @override
   State<ExpenseAddUI> createState() => _ExpenseAddUIState();
@@ -98,12 +98,10 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: widget.showHeader
-          ? const PreferredSize(
+      appBar:  const PreferredSize(
               preferredSize: Size.fromHeight(35.0),
               child: HeaderView(),
-            )
-          : null,
+            ),
       body: MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -165,7 +163,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                       children: [
                         Row(
                           children: [
-                            if (widget.showHeader)
                               GestureDetector(
                                   onTap: () {
                                     Navigator.pop(context);
@@ -175,7 +172,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                                     size: 16,
                                   )),
                             const SizedBox(width: 5),
-                            if (widget.showHeader)
                               Utils.getText(
                                 'Add Expense',
                                 size: 16,
@@ -183,7 +179,7 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                               ),
                           ],
                         ),
-                        if (widget.showHeader) const SizedBox(height: 10),
+                          const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -298,12 +294,12 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                               }).toList(),
                             ),
                           ),
-                        if (widget.showHeader)
+
                           const SizedBox(
                             height: 10,
                           ),
-                        if (widget.showHeader)
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+
+                          Utils.getTextFormField(
                               'Vehicle', vehicleController,
                               onChangeCallback: (value) async {
                             setState(() {
@@ -326,7 +322,7 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                           children: [
                             Expanded(
                               child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
+                                  .getTextFormField(
                                 'Amount in dollars',
                                 amountController,
                               ),
@@ -344,7 +340,7 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                        Utils.getTextFormField(
                           'Enter Description',
                           vehicleController,
                         ),
@@ -456,11 +452,11 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                             ).toList(),
                           ),
                         ),
-                        if (widget.showHeader)
+
                           const SizedBox(
                             height: 10,
                           ),
-                        if (widget.showHeader)
+
                           Container(
                             height: 30,
                             decoration: BoxDecoration(
@@ -507,15 +503,13 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                               ).toList(),
                             ),
                           ),
-                        if (widget.showHeader)
                           const SizedBox(
                             height: 10,
                           ),
-                        if (widget.showHeader)
                           Stack(
                             alignment: Alignment.centerRight,
                             children: [
-                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              Utils.getTextFormField(
                                 '',
                                 dateController,
                                 suffixIcon: Padding(
@@ -561,7 +555,7 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                           height: 10,
                         ),
                         Stack(alignment: Alignment.centerRight, children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          Utils.getTextFormField(
                             '',
                             odometerController,
                             contentPadding:
@@ -572,23 +566,20 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                             children: [
                               GestureDetector(
                                 onTap: () {},
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 1.0),
-                                  child: Container(
-                                    height: 28,
-                                    width: 30,
-                                    decoration: BoxDecoration(
-                                        color: AppC.grey.shade300,
-                                        borderRadius:
-                                            const BorderRadiusDirectional.only(
-                                          topEnd: Radius.circular(4),
-                                          bottomEnd: Radius.circular(4),
-                                        )),
-                                    child: const Icon(
-                                      Icons.speed,
-                                      size: 16,
-                                      color: Colors.red,
-                                    ),
+                                child: Container(
+                                  height: 32,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                      color: AppC.grey.shade300,
+                                      borderRadius:
+                                          const BorderRadiusDirectional.only(
+                                        topEnd: Radius.circular(4),
+                                        bottomEnd: Radius.circular(4),
+                                      )),
+                                  child: const Icon(
+                                    Icons.speed,
+                                    size: 16,
+                                    color: Colors.red,
                                   ),
                                 ),
                               ),
@@ -599,17 +590,16 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                           height: 15,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              height: 40,
-                              child: Utils.getAddFilledButton(
-                                'Save',
-                                () {
-                                  // _save();
-                                },
-                              ),
+                            Utils.getAddFilledButton(
+                              'Save',
+                              () {
+                                // _save();
+                              },
+                              bgColor: AppC.green,
                             ),
+
                           ],
                         ),
                       ],

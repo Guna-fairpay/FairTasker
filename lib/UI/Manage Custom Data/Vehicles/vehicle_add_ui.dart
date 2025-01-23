@@ -64,14 +64,28 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
   TextEditingController frontTireController = TextEditingController();
   TextEditingController rearTireController = TextEditingController();
   TextEditingController renewalDateController = TextEditingController();
+  TextEditingController plateNumberController =TextEditingController();
 
   bool bouncie = false;
+  bool tollTags = false;
   bool airTag = false;
   bool permanentPlate = false;
   bool spareTire = false;
-  List<dynamic> imageFile = [];
+  bool spareKey = false;
+  bool frontLicensePlate = false;
   List<dynamic> tireImageFile = [];
   Map<String, dynamic> cohortInitialSelection = {};
+  List<dynamic> tollImage = [];
+  List<dynamic> uploadRegSticker = [];
+  List<dynamic> insuranceImage = [];
+  TextEditingController tollTagsController=TextEditingController();
+  TextEditingController spareTireController=TextEditingController();
+  TextEditingController insuranceCostController=TextEditingController();
+  TextEditingController insuranceAgentController=TextEditingController();
+  TextEditingController currentOdometerController=TextEditingController();
+  TextEditingController oilChangeOdometerController=TextEditingController();
+  TextEditingController maintenanceCheckController=TextEditingController();
+
 
   @override
   void initState() {
@@ -126,18 +140,18 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
     createVehicleData.oilGrade = oilGradeController.text;
     createVehicleData.frontTire = frontTireController.text;
     createVehicleData.rearTire = rearTireController.text;
-    createVehicleData.renewalDate = renewalDateController.text;
+    createVehicleData.regStickerDate = renewalDateController.text;
     // Handle image files
     createVehicleData.chosenFiles = vehicleImageFile
         .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
         .where((element) => element != null)
         .cast<File>()
         .toList();
-    createVehicleData.chosenFiles = imageFile
+    /*createVehicleData.chosenFiles = imageFile
         .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
         .where((element) => element != null)
         .cast<File>()
-        .toList();
+        .toList();*/
     createVehicleData.chosenFiles = tireImageFile
         .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
         .where((element) => element != null)
@@ -238,86 +252,73 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                       const SizedBox(
                         height: 10,
                       ),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              yearController,
-                              label: Utils.getText('Year', color: AppC.grey),
-                              borderColor: isYearFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Utils.getTextFormField(
+                            '',
+                            yearController,
+                            label: Utils.getText('Year', color: AppC.grey),
+                            borderColor: isYearFieldEmpty
+                                ? Colors.red
+                                : AppC.fieldBase,
+                          ),
+                          if (isYearFieldEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.red),
                             ),
-                            if (isYearFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              makeController,
-                              label: Utils.getText('Make', color: AppC.grey),
-                              borderColor: isMakeFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
+                      const SizedBox(height: 10),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Utils.getTextFormField(
+                            '',
+                            makeController,
+                            label: Utils.getText('Make', color: AppC.grey),
+                            borderColor: isMakeFieldEmpty
+                                ? Colors.red
+                                : AppC.fieldBase,
+                          ),
+                          if (isMakeFieldEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.red),
                             ),
-                            if (isMakeFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              modelController,
-                              label: Utils.getText('Model', color: AppC.grey),
-                              borderColor: isModelFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
+                      const SizedBox(height: 10),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Utils.getTextFormField(
+                            '',
+                            modelController,
+                            label: Utils.getText('Model', color: AppC.grey),
+                            borderColor: isModelFieldEmpty
+                                ? Colors.red
+                                : AppC.fieldBase,
+                          ),
+                          if (isModelFieldEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.red),
                             ),
-                            if (isModelFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                          '',
-                          vehicleNoController,
-                          label:
-                              Utils.getText('Vehicle Number', color: AppC.grey),
-                        ),
+                      const SizedBox(height: 10),
+                      Utils.getTextFormField(
+                        '',
+                        vehicleNoController,
+                        label:
+                        Utils.getText('Vehicle Number', color: AppC.grey),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       Utils.dropdownBox(
                         'Select Cohort',
                         cohortsData,
@@ -330,166 +331,83 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                         labelKey: 'cohort',
                         initialSelection: selectedCohortsData,
                       ),
-                      // DropdownMenu<Map<String, dynamic>>(
-                      //   menuStyle: MenuStyle(
-                      //     backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                      //     shadowColor: WidgetStateProperty.all<Color>(Colors.blue),
-                      //     surfaceTintColor: WidgetStateProperty.all<Color>(Colors.blue),
-                      //   ),
-                      //   menuHeight: 250,
-                      //   hintText: 'Select Cohort',
-                      //   initialSelection: selectedCohortsData,
-                      //   expandedInsets: EdgeInsets.symmetric(horizontal: 0.0,),
-                      //   dropdownMenuEntries: cohortsData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-                      //         (Map<String, dynamic> value) {
-                      //       return DropdownMenuEntry<Map<String, dynamic>>(
-                      //         value: value,
-                      //         label: '${value['cohort']}', // Replace with your widget
-                      //       );
-                      //     },
-                      //   ).toList(),
-                      //   onSelected: (selectedValue) {
-                      //     setState(() {
-                      //       selectedCohortsData = selectedValue;  // Store the selected value
-                      //     });
-                      //   },
-                      // ),
-                      // SizedBox(height: 40,
-                      //   child: Container(
-                      //     decoration: BoxDecoration(
-                      //         border: Border.all(
-                      //           color: AppC.fieldBase,
-                      //           width: Num.borderWidthField,
-                      //         ),
-                      //         borderRadius:
-                      //         const BorderRadius.all(
-                      //             Radius.circular(Num.subradiusButton))),
-                      //     child: DropdownButton<Map<String,dynamic>>(
-                      //       hint: Padding(
-                      //         padding:
-                      //         const EdgeInsets.symmetric(horizontal: 10.0),
-                      //         child: Utils.getText('Project Name', color: AppC.grey),),
-                      //       value: selectedCohortsData,
-                      //       isExpanded: true,
-                      //       icon: const Icon(
-                      //         Icons.arrow_drop_down, color: AppC.appColor,),
-                      //       elevation:3,
-                      //       dropdownColor: AppC.white,
-                      //       underline: Container(
-                      //         height: 0,
-                      //         color: Colors.transparent,
-                      //       ),
-                      //       onChanged: (Map<String,dynamic>? value) {
-                      //         setState(() {
-                      //           selectedCohortsData = value;
-                      //         });
-                      //         },
-                      //       items: cohortsData.map<DropdownMenuItem<Map<String,dynamic>>>
-                      //         ((Map<String,dynamic> value) {
-                      //           return DropdownMenuItem<Map<String,dynamic>>(
-                      //             value: value,
-                      //             child: Padding(
-                      //               padding: const EdgeInsets.symmetric(
-                      //               horizontal: 10.0),
-                      //               child: Utils.getText(value['cohort'] ?? ''),
-                      //             ),
-                      //           );
-                      //         }).toList(),
-                      //     ),
-                      //   ),
-                      // ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                          '',
-                          vinController,
-                          label: Utils.getText('Vin', color: AppC.grey),
-                        ),
+                      const SizedBox(height: 10),
+                      Utils.getTextFormField(
+                        '',
+                        vinController,
+                        label: Utils.getText('Vin', color: AppC.grey),
                       ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                          '',
-                          vehicleIdController,
-                          label: Utils.getText('Vehicle Id', color: AppC.grey),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              purchaseDateController,
-                              suffixIcon: Padding(
-                                padding: isPurchaseDateFieldEmpty
-                                    ? const EdgeInsets.only(right: 35.0)
-                                    : const EdgeInsets.only(),
-                                child: const Icon(
-                                  Icons.date_range,
-                                  color: AppC.appColor,
-                                ),
+                      const SizedBox(height: 10),
+                      Utils.getTextFormField(
+                        '',
+                        vehicleIdController,
+                        label: Utils.getText('Vehicle Id', color: AppC.grey),),
+                      const SizedBox(height: 10),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Utils.getTextFormField(
+                            '',
+                            purchaseDateController,
+                            suffixIcon: Padding(
+                              padding: isPurchaseDateFieldEmpty
+                                  ? const EdgeInsets.only(right: 35.0)
+                                  : const EdgeInsets.only(),
+                              child: const Icon(
+                                Icons.date_range,
+                                color: AppC.appColor,
                               ),
-                              readOnly: true,
-                              onTapCallback: () {
-                                Utils.datePicker(context, '',
-                                        initial: DateTime.parse("1970-01-01"))
-                                    .then((value) {
-                                  if (value != null) {
-                                    purchaseDateController.text =
-                                        Utils.convertDateTimeToTheFormats(
-                                            value.toString());
-                                  }
-                                });
-                              },
-                              label: Utils.getText('Purchase Date',
-                                  color: AppC.grey),
-                              borderColor: isPurchaseDateFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
                             ),
-                            if (isPurchaseDateFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              purchasePriceController,
-                              label: Utils.getText('Purchase Price',
-                                  color: AppC.grey),
-                              borderColor: isPurchaseFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
+                            readOnly: true,
+                            onTapCallback: () {
+                              Utils.datePicker(context, '',
+                                      initial: DateTime.parse("1970-01-01"))
+                                  .then((value) {
+                                if (value != null) {
+                                  purchaseDateController.text =
+                                      Utils.convertDateTimeToTheFormats(
+                                          value.toString());
+                                }
+                              });
+                            },
+                            label: Utils.getText('Purchase Date',
+                                color: AppC.grey),
+                            borderColor: isPurchaseDateFieldEmpty
+                                ? Colors.red
+                                : AppC.fieldBase,
+                          ),
+                          if (isPurchaseDateFieldEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.red),
                             ),
-                            if (isPurchaseFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Utils.getTextFormField(
+                            '',
+                            purchasePriceController,
+                            label: Utils.getText('Purchase Price',
+                                color: AppC.grey),
+                            borderColor: isPurchaseFieldEmpty
+                                ? Colors.red
+                                : AppC.fieldBase,
+                          ),
+                          if (isPurchaseFieldEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.red),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       SizedBox(
-                        height: 40,
+                        height: 35,
                         child: Container(
                           decoration: BoxDecoration(
                               border: Border.all(
@@ -525,81 +443,73 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Visibility(
                         visible: receiptImageFile.isNotEmpty,
-                        child: SizedBox(
-                          height: 80, // Set a height for the ListView
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: receiptImageFile.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 5),
-                                child: Stack(
-                                  alignment: Alignment.topRight,
-                                  children: [
-                                    (receiptImageFile[index]['path'] ?? '')
-                                            .isNotEmpty
-                                        ? Utils
-                                            .getOvalCachedImageNetworkDisplay(
-                                                context,
-                                                receiptImageFile[index]
-                                                        ['path'] ??
-                                                    '')
-                                        : ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                            child: Image.file(
-                                              File(receiptImageFile[index]
-                                                          ['file']
-                                                      ?.path ??
-                                                  ''),
-                                              width: 60.0,
-                                              height: 60.0,
-                                              fit: BoxFit.fill,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          child: SizedBox(
+                            height: 100, // Set a height for the ListView
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: receiptImageFile.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      (receiptImageFile[index]['path'] ?? '')
+                                          .isNotEmpty
+                                          ? Utils.getOvalCachedImageNetworkDisplay(
+                                          context,
+                                          receiptImageFile[index]['path'] ?? '')
+                                          : ClipRRect(
+                                        borderRadius: BorderRadius.circular(6),
+                                        child: Image.file(
+                                          File(receiptImageFile[index]['file']?.path ?? ''),
+                                          width: 100.0,
+                                          height: 100.0,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: InkWell(
+                                          onTap: () {
+                                            if ((receiptImageFile[index]['path'] ?? '').isEmpty) {
+                                              receiptImageFile.removeAt(index);
+                                            } else {
+                                              vehicleDataBloc.add(
+                                                DeleteExpenseImage(
+                                                    id: receiptImageFile[index]['id']),
+                                              );
+                                              receiptImageFile.removeAt(index);
+                                            }
+                                            setState(() {});
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: AppC.red.shade400,
                                             ),
-                                          ),
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: InkWell(
-                                        onTap: () {
-                                          if ((receiptImageFile[index]
-                                                      ['path'] ??
-                                                  '')
-                                              .isEmpty) {
-                                            receiptImageFile.removeAt(index);
-                                          } else {
-                                            vehicleDataBloc.add(
-                                              DeleteExpenseImage(
-                                                  id: receiptImageFile[index]
-                                                      ['id']),
-                                            );
-                                            receiptImageFile.removeAt(index);
-                                          }
-                                          setState(() {});
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AppC.red.shade400,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: const Icon(
-                                            Icons.delete_outline_outlined,
-                                            color: AppC.white,
-                                            size: 16,
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.delete_outline_outlined,
+                                              color: AppC.white,
+                                              size: 16,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -615,8 +525,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Utils.getText(' More ...',
-                                    size: 16,
-                                    color: AppC.appColor,
+                                    size: 12,
+                                    color: const Color(0xff0580b5),
                                     weight: FontWeight.w500),
                               ],
                             )),
@@ -624,10 +534,10 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                       Visibility(
                         visible: showMore,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
-                              height: 40,
+                              height: 35,
                               child: Container(
                                 decoration: BoxDecoration(
                                     border: Border.all(
@@ -662,151 +572,111 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               ),
                             ),
                             const SizedBox(
-                              height: 15,
+                              height: 10,
                             ),
                             Visibility(
                               visible: vehicleImageFile.isNotEmpty,
-                              child: SizedBox(
-                                height: 80,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: vehicleImageFile.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5.0),
-                                      child: Stack(
-                                        alignment: Alignment.topRight,
-                                        children: [
-                                          (vehicleImageFile[index]['path'] ??
-                                                      '')
-                                                  .isNotEmpty
-                                              ? Utils
-                                                  .getOvalCachedImageNetworkDisplay(
-                                                      context,
-                                                      vehicleImageFile[index]
-                                                              ['path'] ??
-                                                          '')
-                                              : ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                  child: Image.file(
-                                                    File(vehicleImageFile[index]
-                                                                ['file']
-                                                            ?.path ??
-                                                        ''),
-                                                    width: 60.0,
-                                                    height: 60.0,
-                                                    fit: BoxFit.fill,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 5.0),
+                                child: SizedBox(
+                                  height: 100,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: vehicleImageFile.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        child: Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            (vehicleImageFile[index]['path'] ?? '').isNotEmpty
+                                                ? Utils.getOvalCachedImageNetworkDisplay(context,
+                                                vehicleImageFile[index]['path'] ?? '')
+                                                : ClipRRect(
+                                                    borderRadius: BorderRadius.circular(6),
+                                                    child: Image.file(
+                                                      File(vehicleImageFile[index]['file']?.path ?? ''),
+                                                      width: 100.0,
+                                                      height: 100.0,
+                                                      fit: BoxFit.fill,
+                                                    ),
                                                   ),
+                                            SizedBox(
+                                              width: 18,
+                                              height: 18,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  if ((vehicleImageFile[index]['path'] ?? '').isEmpty) {
+                                                    vehicleImageFile.removeAt(index);
+                                                  } else {
+                                                    vehicleDataBloc.add(
+                                                        DeleteVehicleImage(
+                                                            id: vehicleImageFile[index]['id']));
+                                                    vehicleImageFile.removeAt(index);
+                                                  }
+                                                  setState(() {});
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: AppC.red.shade400,
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: const Icon(
+                                                      Icons
+                                                          .delete_outline_outlined,
+                                                      color: AppC.white,
+                                                      size: 16),
                                                 ),
-                                          SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: InkWell(
-                                              onTap: () {
-                                                if ((vehicleImageFile[index]
-                                                            ['path'] ??
-                                                        '')
-                                                    .isEmpty) {
-                                                  vehicleImageFile
-                                                      .removeAt(index);
-                                                } else {
-                                                  vehicleDataBloc.add(
-                                                      DeleteVehicleImage(
-                                                          id: vehicleImageFile[
-                                                              index]['id']));
-                                                  vehicleImageFile
-                                                      .removeAt(index);
-                                                }
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: AppC.red.shade400,
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: const Icon(
-                                                    Icons
-                                                        .delete_outline_outlined,
-                                                    color: AppC.white,
-                                                    size: 16),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
-
-                            SizedBox(
-                              height: 40,
-                              child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
-                                '',
-                                earningsController,
-                                label:
-                                    Utils.getText('Earnings', color: AppC.grey),
-                              ),
+                            Utils.getTextFormField(
+                              '',
+                              earningsController,
+                              label: Utils.getText('Earnings', color: AppC.grey),
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
-                            SizedBox(
-                              height: 40,
-                              child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
-                                '',
-                                utilizationRateController,
-                                label: Utils.getText('Utilization Rate',
-                                    color: AppC.grey),
-                              ),
+                            Utils.getTextFormField(
+                              '',
+                              utilizationRateController,
+                              label: Utils.getText('Utilization Rate', color: AppC.grey),
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
-                            SizedBox(
-                              height: 40,
-                              child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
-                                '',
-                                platformController,
-                                label:
-                                    Utils.getText('Platform', color: AppC.grey),
-                              ),
+                            Utils.getTextFormField(
+                              '',
+                              platformController,
+                              label: Utils.getText('Platform', color: AppC.grey),
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
-                            SizedBox(
-                              height: 40,
-                              child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
-                                '',
-                                mileageController,
-                                label:
-                                    Utils.getText('Mileage', color: AppC.grey),
-                              ),
+                            Utils.getTextFormField(
+                              '',
+                              mileageController,
+                              label: Utils.getText('Mileage', color: AppC.grey),
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
-                            SizedBox(
-                              height: 40,
-                              child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
-                                '',
-                                wholeSaleAmountController,
-                                label: Utils.getText('Wholesale Amount',
-                                    color: AppC.grey),
-                              ),
+                            Utils.getTextFormField(
+                              '',
+                              wholeSaleAmountController,
+                              label: Utils.getText('Wholesale Amount', color: AppC.grey),
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
                             Utils.dropdownBox(
                               'Select Category',
@@ -820,88 +690,11 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               labelKey: 'category_name',
                               initialSelection: selectedCategoriesData,
                             ),
-                            // DropdownMenu<Map<String, dynamic>>(
-                            //   hintText: 'Select Category',
-                            //   initialSelection: selectedCategoriesData,
-                            //   menuStyle: MenuStyle(
-                            //     backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                            //     shadowColor: WidgetStateProperty.all<Color>(Colors.blue),
-                            //     surfaceTintColor: WidgetStateProperty.all<Color>(Colors.blue),
-                            //   ),
-                            //   menuHeight: 250,
-                            //   expandedInsets: EdgeInsets.symmetric(horizontal: 0.0,),
-                            //   dropdownMenuEntries: categoriesData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-                            //         (Map<String, dynamic> value) {
-                            //       return DropdownMenuEntry<Map<String, dynamic>>(
-                            //         value: value,
-                            //         label: '${value['category_name']}', // Replace with your widget
-                            //       );
-                            //     },
-                            //   ).toList(),
-                            //   onSelected: (selectedValue) {
-                            //     setState(() {
-                            //       selectedCategoriesData = selectedValue;  // Store the selected value
-                            //     });
-                            //   },
-                            // ),
-                            // SizedBox(height: 40,
-                            //   child: Container(
-                            //     decoration: BoxDecoration(
-                            //         border: Border.all(
-                            //           color: AppC.fieldBase,
-                            //           width: Num.borderWidthField,
-                            //         ),
-                            //         borderRadius:
-                            //         const BorderRadius.all(
-                            //             Radius.circular(
-                            //                 Num.subradiusButton))),
-                            //     child: DropdownButton<Map<String,dynamic>>(
-                            //       hint: Padding(
-                            //         padding:
-                            //         const EdgeInsets.symmetric(
-                            //             horizontal: 10.0),
-                            //         child: Utils.getText('Vehicle Status',
-                            //             color: AppC.grey),
-                            //       ),
-                            //       value: selectedCategoriesData,
-                            //       isExpanded: true,
-                            //       icon: const Icon(
-                            //           Icons.arrow_drop_down),
-                            //       elevation: 3,
-                            //       dropdownColor: AppC.white,
-                            //       underline: Container(
-                            //         height: 0,
-                            //         color: Colors.transparent,
-                            //       ),
-                            //       onChanged: (Map<String,dynamic>? value) {
-                            //         // This is called when the user selects an item.
-                            //         selectedCategoriesData = value;
-                            //         setState(() {});
-                            //       },
-                            //       items: categoriesData.map<
-                            //           DropdownMenuItem<Map<String,dynamic>>>(
-                            //               (Map<String,dynamic> value) {
-                            //             return DropdownMenuItem<
-                            //                 Map<String,dynamic>>(
-                            //               value: value,
-                            //               child: Padding(
-                            //                 padding: const EdgeInsets
-                            //                     .symmetric(
-                            //                     horizontal: 10.0),
-                            //                 child: Utils.getText(
-                            //                     value['category_name'] ?? ''),
-                            //               ),
-                            //             );
-                            //           }).toList(),
-                            //     ),
-                            //   ),
-                            //
-                            // ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
                             SizedBox(
-                              height: 40,
+                              height: 35,
                               child: Container(
                                 decoration: BoxDecoration(
                                     border: Border.all(
@@ -947,7 +740,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               ),
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
                             Utils.getBorderedMultilineTextField(
                               'Address',
@@ -955,397 +748,336 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               minLines: 3,
                               fillColor: AppC.white,
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
+                            const SizedBox(height: 10,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    checkBoxWithSingleText(
-                                      value: bouncie,
-                                      scale: 1,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          bouncie = value ?? false;
-                                        });
-                                      },
-                                      label: 'Bouncie',
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    checkBoxWithSingleText(
-                                      value: permanentPlate,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          permanentPlate = value ?? false;
-                                        });
-                                      },
-                                      label: 'Permanent Plate',
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    checkBoxWithSingleText(
-                                      value: airTag,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          airTag = value ?? false;
-                                        });
-                                      },
-                                      label: 'AirTag',
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    checkBoxWithSingleText(
-                                      value: spareTire,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          spareTire = value ?? false;
-                                        });
-                                      },
-                                      label: 'Spare Tire',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              children: [
                                 Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
-                                            'Car Number', carNumberController,
-                                            hintTextColor: AppC.grey),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      checkBoxWithSingleText(
+                                        value: bouncie,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            bouncie = value ?? false;
+                                          });
+                                        },
+                                        label: 'Bouncie',
+                                      ),
+                                      const SizedBox(height: 10,),
+                                      checkBoxWithSingleText(
+                                        value: tollTags,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            tollTags = value ?? false;
+
+                                          });
+                                        },
+                                        label: 'Toll tags',
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
+
                                 Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
-                                            'Oil grade', oilGradeController,
-                                            hintTextColor: AppC.grey),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      checkBoxWithSingleText(
+                                        value: airTag,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            airTag = value ?? false;
+                                          });
+                                        },
+                                        label: 'AirTag',
+                                      ),
+                                      const SizedBox(height: 10,),
+                                      checkBoxWithSingleText(
+                                        value: spareTire,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            spareTire = value ?? false;
+                                          });
+                                        },
+                                        label: 'Spare Tire',
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
+                            Row(crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
-                                            'Front tire', frontTireController,
-                                            hintTextColor: AppC.grey),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
-                                            'Rear tire', rearTireController,
-                                            hintTextColor: AppC.grey),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Stack(
-                                      alignment: Alignment.centerRight,
-                                      children: [
-                                        Utils
-                                            .getBackgroundFilledTextFieldFirstLetterCaps(
-                                          'Date',
-                                          renewalDateController,
-                                          hintTextColor: AppC.grey,
-                                          suffixIcon: const Icon(
-                                            Icons.date_range,
-                                            color: AppC.appColor,
-                                          ),
-                                          readOnly: true,
-                                          onTapCallback: () {
-                                            Utils.datePicker(context, '',
-                                                    initial: DateTime.parse(
-                                                        "1970-01-01"))
+                                  child: Column(
+                                    children: [
+                                      Visibility(
+                                          visible: tollTags,
+                                          child:Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 5),
+                                            child: Utils.getTextFormField('Enter the toll tag id', tollTagsController),
+                                          ) ),
+                                      Visibility(
+                                        visible: tollTags,
+                                        child: Container(height: 35,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: AppC.fieldBase,
+                                                width: Num.borderWidthField,
+                                              ),
+                                              borderRadius: const BorderRadius.all(
+                                                  Radius.circular(Num.subradiusButton))),
+                                          child: Utils.getOutlinedButton('Toll Image', () async {
+                                            await imagePickHelper
+                                                .getSingleImage(ImageSource.gallery)
                                                 .then((value) {
                                               if (value != null) {
-                                                renewalDateController.text = Utils
-                                                    .convertDateTimeToTheFormats(
-                                                        value.toString());
+                                                debugPrint('value.path: ${value.path}');
+                                                // Attachments ve = Attachments(
+                                                //     file: value, path: '');
+                                                tollImage.add({'file': value, 'path': ''});
+                                                setState(() {});
+                                              } else {
+                                                return;
                                               }
                                             });
                                           },
+                                              iconData: const Icon(Icons.cloud_upload,
+                                                  color: AppC.blue, size: 12),
+                                              verticalPadding: 0,
+                                              radius: BorderRadius.zero,
+                                              bgColor: AppC.trans,
+                                              borderColor: AppC.trans,
+                                              textColor: AppC.grey),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      const SizedBox(height: 10,),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
+                                const SizedBox(width: 10,),
                                 Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: AppC.fieldBase,
-                                            width: Num.borderWidthField,
-                                          ),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(
-                                                  Num.subradiusButton))),
-                                      child: Utils.getOutlinedButton(
-                                          'Image Upload', () async {
-                                        await imagePickHelper
-                                            .getSingleImage(ImageSource.gallery)
-                                            .then((value) {
-                                          if (value != null) {
-                                            debugPrint(
-                                                'value.path: ${value.path}');
-                                            // VehiclesImages ve = VehiclesImages(
-                                            //     file: value, path: '');
-                                            imageFile.add({
-                                              'file': value,
-                                              'path': '',
-                                            });
-                                            setState(() {});
-                                          } else {
-                                            return;
-                                          }
-                                        });
-                                      },
-                                          iconData: const Icon(
-                                              Icons.cloud_upload,
-                                              color: AppC.appColor,
-                                              size: 15),
-                                          verticalPadding: 0,
-                                          radius: BorderRadius.zero,
-                                          bgColor: AppC.trans,
-                                          borderColor: AppC.trans,
-                                          textColor: AppC.grey),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 15,
+                                  child: Visibility(visible: spareTire,
+                                      child:Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 5),
+                                        child: Utils.getTextFormField('e.g.,T165/70D18', spareTireController),
+                                      ) ),
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Visibility(
-                                  visible: imageFile.isNotEmpty,
-                                  child: SizedBox(
-                                    height: 80,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: imageFile.length,
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: Column(
+                                children: [
+                                  Visibility(
+                                    visible: tollImage.isNotEmpty && tollTags,
+                                    child: GridView.builder(
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4,
+                                        crossAxisSpacing: 10.0,
+                                        mainAxisSpacing: 10.0,
+                                        childAspectRatio: 1.0,
+                                      ),
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: tollImage.length,
                                       itemBuilder: (context, index) {
-                                        return Padding(
-                                          key: ValueKey(imageFile[index]['id']),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 10),
-                                          child: Stack(
-                                            alignment: Alignment.topRight,
-                                            children: [
-                                              (imageFile[index]['path'] ?? '')
-                                                      .isNotEmpty
-                                                  ? Utils
-                                                      .getOvalCachedImageNetworkDisplay(
-                                                          context,
-                                                          imageFile[index]
-                                                                  ['path'] ??
-                                                              '')
-                                                  : ClipRRect(
-                                                      child: Image.file(
-                                                        File(imageFile[index]
-                                                                    ['file']
-                                                                ?.path ??
-                                                            ''),
-                                                        width: 60.0,
-                                                        height: 60.0,
-                                                        fit: BoxFit.fill,
-                                                      ),
-                                                    ),
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    if ((imageFile[index]
-                                                                ['path'] ??
-                                                            '')
-                                                        .isEmpty) {
-                                                      imageFile.removeAt(index);
-                                                    } else {
-                                                      vehicleDataBloc.add(
-                                                          DeleteVehicleImage(
-                                                              id: imageFile[
-                                                                      index]
-                                                                  ['id']));
-                                                      imageFile.removeAt(index);
-                                                    }
-                                                    setState(() {});
-                                                  },
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          const BorderRadius
-                                                              .all(
-                                                              Radius.circular(
-                                                                  12)),
-                                                      color: AppC.red.shade400,
-                                                    ),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 0,
-                                                        vertical: 0),
-                                                    alignment: Alignment.center,
-                                                    child: const Icon(
-                                                        Icons
-                                                            .delete_outline_sharp,
-                                                        color: AppC.white,
-                                                        size: 15),
+                                        return Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            (tollImage[index]['path'] ?? '').isNotEmpty
+                                                ? Utils.getOvalCachedImageNetworkDisplay(
+                                                context, tollImage[index]['path'] ?? '')
+                                                : ClipRRect(
+                                              borderRadius: BorderRadius.circular(6),
+                                              child: Image.file(
+                                                File(tollImage[index]['file']?.path ?? ''),
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  if ((tollImage[index]['path'] ?? '').isEmpty) {
+                                                    tollImage.removeAt(index);
+                                                  } else {
+                                                    // vehicleDataBloc.add(
+                                                    //   DeleteExpenseImage(id: images[index]['id']),
+                                                    //);
+                                                    tollImage.removeAt(index);
+                                                  }
+                                                  setState(() {});
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: AppC.red.shade400,
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: const Icon(
+                                                    Icons.delete_outline_outlined,
+                                                    color: AppC.white,
+                                                    size: 16,
                                                   ),
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         );
                                       },
                                     ),
                                   ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                checkBoxWithSingleText(
+                                  value: spareKey,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      spareKey = value ?? false;
+                                    });
+                                  },
+                                  label: 'Spare Key',
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            SizedBox(
-                              height: 40,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppC.fieldBase,
-                                      width: Num.borderWidthField,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(Num.subradiusButton))),
-                                child: Utils.getOutlinedButton(
-                                    'Upload Tire Image', () async {
-                                  await imagePickHelper
-                                      .getSingleImage(ImageSource.gallery)
-                                      .then((value) {
-                                    if (value != null) {
-                                      debugPrint('value.path: ${value.path}');
-                                      // VehiclesImages ve = VehiclesImages(
-                                      //     file: value, path: '');
-                                      tireImageFile.add({
-                                        'file': value,
-                                        'path': '',
+                            const SizedBox(height: 10,),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: checkBoxWithSingleText(
+                                    value: permanentPlate,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        permanentPlate = value ?? false;
                                       });
-                                      setState(() {});
-                                    } else {
-                                      return;
-                                    }
-                                  });
-                                },
-                                    iconData: const Icon(Icons.cloud_upload,
-                                        color: AppC.appColor, size: 15),
-                                    verticalPadding: 0,
-                                    radius: BorderRadius.zero,
-                                    bgColor: AppC.trans,
-                                    borderColor: AppC.trans,
-                                    textColor: AppC.grey),
-                              ),
+                                    },
+                                    label: 'Permanent Plate',
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Visibility(visible: permanentPlate,
+                                    child:checkBoxWithSingleText(
+                                      value: frontLicensePlate,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          frontLicensePlate = value ?? false;
+                                        });
+                                      },
+                                      label: 'Front license plate',
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Visibility(
-                              visible: tireImageFile.isNotEmpty,
-                              child: SizedBox(
-                                height: 80,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: tireImageFile.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      key: ValueKey(tireImageFile[index]['id']),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5, vertical: 10),
-                                      child: Stack(
+                            const SizedBox(height: 10,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child:
+                                  Container(height: 35,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppC.fieldBase,
+                                          width: Num.borderWidthField,
+                                        ),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(Num.subradiusButton)
+                                        )
+                                    ),
+                                    child: Utils.getOutlinedButton('Tire Image Upload', () async {
+                                      await imagePickHelper
+                                          .getSingleImage(ImageSource.gallery)
+                                          .then((value) {
+                                        if (value != null) {
+                                          debugPrint('value.path: ${value.path}');
+                                          // Attachments ve = Attachments(
+                                          //     file: value, path: '');
+                                          tireImageFile.add({'file': value, 'path': ''});
+                                          setState(() {});
+                                        } else {
+                                          return;
+                                        }
+                                      });
+                                    },
+                                        iconData: const Icon(Icons.cloud_upload,
+                                            color: AppC.blue, size: 12),
+                                        verticalPadding: 0,
+                                        radius: BorderRadius.zero,
+                                        bgColor: AppC.trans,
+                                        borderColor: AppC.trans,
+                                        textColor: AppC.grey),
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Number Plate', plateNumberController,
+                                      hintTextColor: AppC.grey),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                Visibility(
+                                  visible: tireImageFile.isNotEmpty,
+                                  child: GridView.builder(
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      crossAxisSpacing: 10.0,
+                                      mainAxisSpacing: 10.0,
+                                      childAspectRatio: 1.0,
+                                    ),
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: tireImageFile.length,
+                                    itemBuilder: (context, index) {
+                                      return Stack(
                                         alignment: Alignment.topRight,
                                         children: [
                                           (tireImageFile[index]['path'] ?? '')
-                                                  .isNotEmpty
+                                              .isNotEmpty
                                               ? Utils
-                                                  .getOvalCachedImageNetworkDisplay(
-                                                      context,
-                                                      tireImageFile[index]
-                                                              ['path'] ??
-                                                          '')
+                                              .getOvalCachedImageNetworkDisplay(
+                                              context,
+                                              tireImageFile[index]
+                                              ['path'] ?? '')
                                               : ClipRRect(
-                                                  child: Image.file(
-                                                    File(tireImageFile[index]
-                                                                ['file']
-                                                            ?.path ??
-                                                        ''),
-                                                    width: 60.0,
-                                                    height: 60.0,
-                                                    fit: BoxFit.fill,
-                                                  ),
-                                                ),
+                                            borderRadius: BorderRadius.circular(6),
+                                            child: Image.file(
+                                              File(tireImageFile[index]
+                                              ['file']?.path ?? ''),
+                                              width: 100.0,
+                                              height: 100.0,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
                                           SizedBox(
                                             width: 20,
                                             height: 20,
                                             child: InkWell(
                                               onTap: () {
                                                 if ((tireImageFile[index]
-                                                            ['path'] ??
-                                                        '')
-                                                    .isEmpty) {
+                                                ['path'] ?? '').isEmpty) {
                                                   tireImageFile.removeAt(index);
                                                 } else {
                                                   vehicleDataBloc.add(
                                                       DeleteVehicleImage(
                                                           id: tireImageFile[
-                                                              index]['id']));
+                                                          index]['id']));
                                                   tireImageFile.removeAt(index);
                                                 }
                                                 setState(() {});
@@ -1353,14 +1085,14 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(12)),
+                                                  const BorderRadius.all(
+                                                      Radius.circular(12)),
                                                   color: AppC.red.shade400,
                                                 ),
                                                 padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 0,
-                                                        vertical: 0),
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 0,
+                                                    vertical: 0),
                                                 alignment: Alignment.center,
                                                 child: const Icon(
                                                     Icons.delete_outline_sharp,
@@ -1370,14 +1102,336 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                             ),
                                           ),
                                         ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Car Number', carNumberController,
+                                      hintTextColor: AppC.grey),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Oil grade', oilGradeController,
+                                      hintTextColor: AppC.grey),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Front tire e.g., 215/55R17', frontTireController,
+                                      hintTextColor: AppC.grey),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Rear tire e.g., 215/55R17', rearTireController,
+                                      hintTextColor: AppC.grey),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Utils.getText('Reg Stick date',weight: FontWeight.bold),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.centerRight,
+                                        children: [
+                                          Utils.getTextFormField(
+                                            'dd-mm-yyyy',
+                                            renewalDateController,
+                                            hintTextColor: AppC.grey,
+                                            suffixIcon: const Icon(
+                                              Icons.date_range,
+                                              color: AppC.appColor,
+                                              size: 15,
+                                            ),
+                                            readOnly: true,
+                                            onTapCallback: () {
+                                              Utils.datePicker(context, '',
+                                                  initial: DateTime.tryParse(renewalDateController.text))
+                                                  .then((value) {
+                                                if (value != null) {
+                                                  renewalDateController.text =
+                                                      Utils.convertDateTimeToTheFormat(value.toString());
+                                                }
+                                              });
+                                            },
+
+                                          ),
+                                        ],
                                       ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Container(height: 35,
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: AppC.fieldBase,
+                                              width: Num.borderWidthField,
+                                            ),
+                                            borderRadius: const BorderRadius.all(
+                                                Radius.circular(Num.subradiusButton))),
+                                        child: Utils.getOutlinedButton('Upload Reg Sticker', () async {
+                                          await imagePickHelper
+                                              .getSingleImage(ImageSource.gallery)
+                                              .then((value) {
+                                            if (value != null) {
+                                              debugPrint('value.path: ${value.path}');
+                                              // Attachments ve = Attachments(
+                                              //     file: value, path: '');
+                                              uploadRegSticker.add({ 'file': value,
+                                                'path': '',});
+                                              debugPrint('uploadRegSticker: ${uploadRegSticker}');
+                                              setState(() {});
+                                            } else {
+                                              return;
+                                            }
+                                          });
+                                        },
+                                            iconData: const Icon(Icons.cloud_upload,
+                                                color: AppC.blue, size: 12),
+                                            verticalPadding: 0,
+                                            radius: BorderRadius.zero,
+                                            bgColor: AppC.trans,
+                                            borderColor: AppC.trans,
+                                            textColor: AppC.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Visibility(
+                                    visible: uploadRegSticker.isNotEmpty,
+                                    child: GridView.builder(
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4,
+                                        crossAxisSpacing: 10.0,
+                                        mainAxisSpacing: 10.0,
+                                        childAspectRatio: 1.0,
+                                      ),
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: uploadRegSticker.length,
+                                      itemBuilder: (context, index) {
+                                        return Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            (uploadRegSticker[index]['path'] ?? '').isNotEmpty
+                                                ? Utils.getOvalCachedImageNetworkDisplay(
+                                                context, uploadRegSticker[index]['path'] ?? '')
+                                                : ClipRRect(
+                                              borderRadius: BorderRadius.circular(6),
+                                              child: Image.file(
+                                                File(uploadRegSticker[index]['file']
+                                                    ?.path ?? ''),
+                                                width: 100.0,
+                                                height: 100.0,
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 18,
+                                              height: 18,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  if ((uploadRegSticker[index]['path'] ?? '').isEmpty) {
+                                                    uploadRegSticker.removeAt(index);
+                                                  } else {
+                                                    // vehicleDataBloc.add(
+                                                    //   DeleteExpenseImage(id: images[index]['id']),
+                                                    //);
+                                                    uploadRegSticker.removeAt(index);
+                                                  }
+                                                  setState(() {});
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: AppC.red.shade400,
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: const Icon(
+                                                    Icons.delete_outline_outlined,
+                                                    color: AppC.white,
+                                                    size: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Current Odometer',
+                                      insuranceAgentController
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                Expanded(child: Utils.getTextFormField(
+                                    'Oil Change Odometer',
+                                    insuranceCostController
+                                ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10,),
+                            Utils.getTextFormField('Maintenance Check(day from today)', maintenanceCheckController),
+                            const SizedBox(height: 10,),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Insurance Agent',
+                                      insuranceAgentController
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                Expanded(child: Utils.getTextFormField(
+                                    'Insurance Cost',
+                                    insuranceCostController
+                                ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10,),
+                            Container(height: 35,
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppC.fieldBase,
+                                    width: Num.borderWidthField,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(Num.subradiusButton))),
+                              child: Utils.getOutlinedButton('Insurance Image', () async {
+                                await imagePickHelper
+                                    .getSingleImage(ImageSource.gallery)
+                                    .then((value) {
+                                  if (value != null) {
+                                    debugPrint('value.path: ${value.path}');
+                                    // Attachments ve = Attachments(
+                                    //     file: value, path: '');
+                                    insuranceImage.add({'file': value, 'path': ''});
+                                    setState(() {});
+                                  } else {
+                                    return;
+                                  }
+                                });
+                              },
+                                  iconData: const Icon(Icons.cloud_upload,
+                                      color: AppC.blue, size: 12),
+                                  verticalPadding: 0,
+                                  radius: BorderRadius.zero,
+                                  bgColor: AppC.trans,
+                                  borderColor: AppC.trans,
+                                  textColor: AppC.grey),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Visibility(
+                                visible: insuranceImage.isNotEmpty,
+                                child: GridView.builder(
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    crossAxisSpacing: 10.0,
+                                    mainAxisSpacing: 10.0,
+                                    childAspectRatio: 1.0,
+                                  ),
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: insuranceImage.length,
+                                  itemBuilder: (context, index) {
+                                    return Stack(
+                                      alignment: Alignment.topRight,
+                                      children: [
+                                        (insuranceImage[index]['path'] ?? '').isNotEmpty
+                                            ? Utils.getOvalCachedImageNetworkDisplay(
+                                            context, insuranceImage[index]['path'] ?? '')
+                                            : ClipRRect(
+                                          borderRadius: BorderRadius.circular(6),
+                                          child: Image.file(
+                                            File(insuranceImage[index]['file']?.path ?? ''),
+                                            width: 100.0,
+                                            height: 100.0,
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: InkWell(
+                                            onTap: () {
+                                              if ((insuranceImage[index]['path'] ?? '').isEmpty) {
+                                                insuranceImage.removeAt(index);
+                                              } else {
+                                                // vehicleDataBloc.add(
+                                                //   DeleteExpenseImage(id: images[index]['id']),
+                                                //);
+                                                insuranceImage.removeAt(index);
+                                              }
+                                              setState(() {});
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: AppC.red.shade400,
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                Icons.delete_outline_outlined,
+                                                color: AppC.white,
+                                                size: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     );
                                   },
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 15,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -1388,8 +1442,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                       setState(() {});
                                     },
                                     child: Utils.getText(' Less ...',
-                                        size: 16,
-                                        color: AppC.appColor,
+                                        size: 12,
+                                        color: AppC.blue,
                                         weight: FontWeight.w500)),
                               ],
                             ),
@@ -1398,14 +1452,9 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                       ),
                       const SizedBox(height: 10),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Save', () {
-                              _save();
-                            }),
-                          ),
+                          Utils.getAddFilledButton('Save', () {_save();},bgColor: AppC.green),
                         ],
                       ),
                     ],

@@ -123,9 +123,8 @@ class VehicleTodoParam{
   String? cohortName = "";
   String? vin = "";
   String? vehicleName = "";
-  String? vehicleImage = "";
   String? vehicleNumber = "";
-  VehicleTodoParam({this.cohortId, this.cohortName, this.vin, this.vehicleName, this.vehicleImage, this.vehicleNumber});
+  VehicleTodoParam({this.cohortId, this.cohortName, this.vin, this.vehicleName, this.vehicleNumber});
 
   Map<String, dynamic> toJson() {
     return {
@@ -133,7 +132,6 @@ class VehicleTodoParam{
       'cohort_name': cohortName,
       'vin': vin,
       'vehicle_name': vehicleName,
-      'vehicle_image': vehicleImage,
       'vehicle_number': vehicleNumber,
     };
   }
