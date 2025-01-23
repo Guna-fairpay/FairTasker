@@ -47,7 +47,6 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
     if (dates.length != 2) {
       throw FormatException('Invalid date range format: $dateRange');
     }
-
     return {
       'fromDate': formatDate(dates[0]),
       'toDate': formatDate(dates[1]),
