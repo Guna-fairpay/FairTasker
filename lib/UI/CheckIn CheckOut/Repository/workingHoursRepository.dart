@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingHoursResponse.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingReasonResponse.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../Utilities/Str.dart';
 import '../../../data/api_client.dart';
 import '../Response/checkInOutResponse.dart';
+import '../Response/taskCategoryGroupResponse.dart';
 import '../Response/workingGetConfiguration.dart';
 import '../Response/workingTaskResponse.dart';
 
@@ -134,8 +136,8 @@ class TaskRepository {
     try{
       final String apiUrl = '${Str.BASE_URL}getConfiguration';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      debugPrint("Api URL $apiUrl");
       if(response != null){
-        print("Response body ${response.body}");
         if (response.statusCode == 200) {
           WorkingGetConfigurationResponse workingGetConfigurationResponse = WorkingGetConfigurationResponse.fromJson(jsonDecode(response.body));
           return workingGetConfigurationResponse;
@@ -149,6 +151,54 @@ class TaskRepository {
     } catch (e) {
       throw Exception('Error fetching task history: $e');
     }
+    return null;
+  }
+
+  Future<TaskCategoryGroupResponse?> fetchCategoryGroup() async {
+    try{
+      final String apiUrl = '${Str.BASE_URL}taskCategoryGroup';
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      print("Api URL $apiUrl");
+      if(response != null){
+        //debugPrint("Response body ${response.body}");
+        if (response.statusCode == 200) {
+          TaskCategoryGroupResponse taskCategoryGroupResponse = TaskCategoryGroupResponse.fromJson(jsonDecode(response.body));
+          return taskCategoryGroupResponse;
+        } else {
+          throw Exception(
+              'Failed to load task history. Status code: ${response.statusCode}');
+        }
+      }else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching task history: $e');
+    }
+    return null;
+  }
+
+  Future<CohortsDataResponse?> fetchCohortData() async
+  {
+    try{
+      final String apiUrl = '${Str.LIST_BASE_URL}getCohortsData';
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      print("Api URL $apiUrl");
+      if(response != null){
+        //debugPrint("Response body ${response.body}");
+        if (response.statusCode == 200) {
+          CohortsDataResponse cohortsDataResponse = CohortsDataResponse.fromJson(jsonDecode(response.body));
+          return cohortsDataResponse;
+        } else {
+          throw Exception(
+              'Failed to load . Status code: ${response.statusCode}');
+        }
+      }else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching : $e');
+    }
+    return null;
   }
 }
 

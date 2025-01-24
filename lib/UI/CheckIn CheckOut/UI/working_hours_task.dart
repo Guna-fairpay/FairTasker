@@ -10,10 +10,11 @@ import '../../../Component/task_expansion.dart';
 import '../../../Component/task_expansion_list_tile.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
+import 'Popups/task_filter.dart';
 
 class WorkingHoursTaskUI extends StatefulWidget {
   final Map<String, dynamic> workingHoursData;
-  final String dateRange;
+  final Map<String, String> dateRange;
   const WorkingHoursTaskUI({super.key, required this.workingHoursData, required this.dateRange});
 
   @override
@@ -26,7 +27,7 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
   late TaskBloc taskBloc;
   late TaskBloc getConfig;
   late Map<String, dynamic> workingHoursData;
-  late String dateRange;
+  late Map<String, String> dateRange;
   List<dynamic> combinedList=[];
 
   Map<String, String> parseDateRange(String dateRange) {
@@ -53,12 +54,13 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
     };
   }
 
-
   @override
   void initState() {
     super.initState();
     taskBloc=TaskBloc();
     taskBloc.add(const fetchWorkingGetConfigurationEvent());
+    taskBloc.add(const fetchTaskCategoryGroupEvent());
+    taskBloc.add(fetchCohortsDataEvent());
     workingHoursData = widget.workingHoursData;
     dateRange = widget.dateRange;
   }
@@ -113,7 +115,7 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
         ),
       ),
       body: BlocProvider(
-        create: (context) => taskBloc..add(fetchEmployeeTaskHistoryEvent(to: '', from: '2024-12-01', userId: workingHoursData['empID'])),
+        create: (context) => taskBloc..add(fetchEmployeeTaskHistoryEvent(to: dateRange['from'].toString(), from: dateRange['to'].toString(), userId: workingHoursData['empID'])),
       child: BlocConsumer<TaskBloc, TaskState>(listener: (context, state){
         if(state is TaskLoadingState)
           {
@@ -123,13 +125,19 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
         {
           loading = false;
           print("working hours data ${workingHoursData['empID']}  date range${dateRange}");
-
-          print("Taskhistory ${state.taskHistory}");
         }
         else if(state is GetConfigurationLoadedState)
           {
-            print("get config--> ${state.data}");
+            print("get configs--> ${state.data}");
           }
+        else if(state is CategoryGroupLoadedState)
+        {
+          print("get configs--> ${state.data}");
+        }
+        else if(state is CohortDataLoadedState)
+        {
+          print("get configs--> ${state.data}");
+        }
       },builder: (context, state)
       {
         return SingleChildScrollView(
@@ -144,11 +152,16 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Utils.getText(
-                          "01 Sep 2024 - 31 Dec 2024 ${combinedList.length}",
+                          "${dateRange["from"]} - ${dateRange["to"]}",
                           size: 14,
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const CheckboxPopup(),
+                            );
+                          },
                           child: Icon(Icons.filter_alt_sharp),
                         )
                       ],

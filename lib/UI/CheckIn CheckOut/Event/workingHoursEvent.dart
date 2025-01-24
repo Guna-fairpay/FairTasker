@@ -70,3 +70,15 @@ class fetchWorkingGetConfigurationEvent extends TaskCountEvent {
   @override
   List<Object> get props => [];
 }
+
+class fetchTaskCategoryGroupEvent extends TaskCountEvent {
+  const fetchTaskCategoryGroupEvent();
+  @override
+  List<Object> get props => [];
+}
+
+class fetchCohortsDataEvent extends TaskCountEvent {
+  const fetchCohortsDataEvent();
+  @override
+  List<Object> get props => [];
+}

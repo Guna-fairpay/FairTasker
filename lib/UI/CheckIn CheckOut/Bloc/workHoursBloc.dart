@@ -12,6 +12,8 @@ class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
     on<FetchCheckInoutReasonEvent>(_onFetchCheckInoutReason);
     on<fetchEmployeeTaskHistoryEvent>(_onFetchTaskHistory);
     on<fetchWorkingGetConfigurationEvent>(_onFetchGetConfiguration);
+    on<fetchTaskCategoryGroupEvent>(_onFetchCategoryGroup);
+    on<fetchCohortsDataEvent>(_onFetchCohortsData);
   }
 
   Future<void> _onFetchTaskCount(
@@ -76,19 +78,20 @@ class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
         from: event.from,
         userId: event.userId,
       );
-
-      // Extract and combine relevant data from taskHistory (assuming it's a list of maps)
       List<int> combinedList = [];
-      if (taskHistory?.history?.isNotEmpty ?? false) {
-        for (var item in taskHistory?.history ?? []) {
+      if (taskHistory?.history?.isNotEmpty ?? false)
+      {
+        for (var item in taskHistory?.history ?? [])
+        {
           combinedList.addAll(item["2"] ?? []);
           combinedList.addAll(item["3"] ?? []);
         }
       }
-      print("taskHistory $taskHistory combinedList $combinedList");
+      print("taskHistory ${taskHistory?.history} combinedList $combinedList");
 
       emit(TaskHistoryLoadedState(taskHistory: taskHistory, combinedList: combinedList));
     } catch (e) {
+      print("taskHistoryexcep $e");
       emit(TaskErrorState(e.toString()));
     }
   }
@@ -97,6 +100,44 @@ class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
       fetchWorkingGetConfigurationEvent event,
       Emitter<TaskState> emit,
       ) async {
-    // Handle fetching configuration data (implementation omitted for brevity)
+    emit(TaskLoadingState());
+    try {
+      final data = await taskRepo.fetchGetConfiguration();
+      emit(GetConfigurationLoadedState(data: data));
+    } catch (e) {
+      print("FetchConfigExcep $e");
+      emit(TaskErrorState(e.toString()));
+    }
   }
+
+  Future<void> _onFetchCategoryGroup(
+      fetchTaskCategoryGroupEvent event,
+      Emitter<TaskState> emit,
+      ) async {
+    emit(TaskLoadingState());
+    try {
+      final data = await taskRepo.fetchCategoryGroup();
+      print("getconfig $data");
+      emit(CategoryGroupLoadedState(data: data));
+    } catch (e) {
+      print("CategoryGroupExcep $e");
+      emit(TaskErrorState(e.toString()));
+    }
+  }
+
+  Future<void> _onFetchCohortsData(
+      fetchCohortsDataEvent event,
+      Emitter<TaskState> emit,
+      ) async {
+    emit(TaskLoadingState());
+    try {
+      final data = await taskRepo.fetchCohortData();
+      print("getconfig $data");
+      emit(CohortDataLoadedState(data: data));
+    } catch (e) {
+      print("CohortExcep $e");
+      emit(TaskErrorState(e.toString()));
+    }
+  }
+
 }
