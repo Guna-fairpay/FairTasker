@@ -343,8 +343,7 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                       const SizedBox(width: 5),
                                       Utils.getText(
                                           formatTimeToAmPm(
-                                                  taskList['todo_time']) ??
-                                              '',
+                                                  taskList['todo_time']),
                                           color: AppC.appColor),
                                     ],
                                   ),

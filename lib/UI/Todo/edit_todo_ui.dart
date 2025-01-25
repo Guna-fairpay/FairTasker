@@ -747,21 +747,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   Future<void> openLink(String url) async {
     final Uri uri = Uri.parse(url);
-    print('Parsed URI: $uri');
     try {
       if (await canLaunchUrl(uri)) {
-        print('Launching URL: $uri');
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
-        print('URL launched successfully');
       } else {
-        print('Cannot launch URL: $uri');
         throw 'Could not launch $url';
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      log('Error launching URL: $e');
     }
   }
 
@@ -970,7 +966,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         .toList();
                     const int initialIndex = 0; // Or any index from your list
                     _showImageDialog(imagePath, initialIndex);
-                    print("--------------------------$imagePath");
                   },
                   child: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -1489,7 +1484,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
             ],
             child: BlocBuilder<TodoViewBloc, TodoViewState>(
                 builder: (context, state) {
-                  print(setVehicleList);
+
               return SafeArea(
                 child: Stack(
                   children: [

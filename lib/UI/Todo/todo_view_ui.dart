@@ -2837,7 +2837,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                                 }
                                                               }
                                                               for (var sub in selectedMultipleVehicleList) {
-                                                                var matchedGroup = vehicleList.where((item) => item['vehicle_id'] == sub['vehicle_id']).toList();
+                                                                var matchedGroup = vehicleList.where(
+                                                                        (item) => item['vehicle_id'] == sub['vehicle_id']).toList();
                                                                 if (matchedGroup.isNotEmpty) {
                                                                   for (var res in matchedGroup) {
                                                                     Map<String, dynamic> vehiclesData = {

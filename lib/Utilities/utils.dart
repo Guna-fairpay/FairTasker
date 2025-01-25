@@ -87,7 +87,7 @@ class Utils {
 
   static Widget dropdownBox(
       String hintText,
-      List<Map<String, dynamic>> listData,
+      List<dynamic> listData,
       Function(dynamic selectedValue) onSelected,
       {required String labelKey,
       dynamic initialSelection,
@@ -161,15 +161,14 @@ class Utils {
             },
             menuStyle: MenuStyle(
               backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              shadowColor: WidgetStateProperty.all<Color>(Colors.blue),
-              surfaceTintColor: WidgetStateProperty.all<Color>(Colors.blue),
-              visualDensity:
-                  const VisualDensity(vertical: VisualDensity.minimumDensity),
+              shadowColor: WidgetStateProperty.all<Color>(Colors.grey),
+              //surfaceTintColor: WidgetStateProperty.all<Color>(Colors.white),
+              visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
             ),
             expandedInsets: const EdgeInsets.only(top: 50),
             dropdownMenuEntries:
                 listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-              (Map<String, dynamic> value){
+              (dynamic value){
                 return DropdownMenuEntry<Map<String, dynamic>>(
                   value: value,
                   label: '${value[labelKey]??''}',
@@ -724,7 +723,7 @@ class Utils {
         DateTime(currentDate.year + 1, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
-      initialDate: initialDate,
+      initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime(1999, 9, 7, 17, 30),
       lastDate: lastDate,
       currentDate: currentDate,
@@ -899,7 +898,7 @@ class Utils {
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 4,
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.green,
       textColor: Colors.white,
       fontSize: 15.0,
       webShowClose: true,
@@ -2353,29 +2352,30 @@ class Utils {
       child: Row(
         children: [
           Container(
+            height: 18,
+            width: 18,
             margin: const EdgeInsets.only(right: 5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppC().base, // Border color when unchecked
+                color: isChecked ? AppC.blue : AppC.grey,
                 width: 1.0,
               ),
-              color: isChecked ? AppC().base : AppC.trans,
+              color: isChecked ? AppC.blue : AppC.trans,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: isChecked
-                  ? const Icon(
+            child: isChecked
+                ? const Center(
+                  child: Icon(
                       Icons.check,
                       size: 15.0,
                       color: AppC.white, // Check icon color when checked
-                    )
-                  : Container(
-                      padding: const EdgeInsets.all(8.0),
                     ),
-            ),
+                )
+                : Container(
+                    padding: const EdgeInsets.all(8.0),
+                  ),
           ),
-          getText(label)
+          getText(label,weight: FontWeight.bold)
         ],
       ),
     );

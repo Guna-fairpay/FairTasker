@@ -1,5 +1,7 @@
 
-class CreateTodoParams{
+import 'dart:io';
+
+class  CreateTodoParams{
 String? todoTitle = '';
 String? todoDate = '';
 String? todoTime = '';
@@ -10,6 +12,9 @@ int? checklistId;
 int? categoryId;
 int? checkboxValue;
 int? configId;
+int? customLinkId;
+String? customLink = '';
+String? referenceId = '';
 String? taskName = '';
 List<int?>? selectedUserGroupId = [];
 String? cohortId = '';
@@ -21,8 +26,8 @@ String? vehicleImage = '';
 int? vehicleStatusChecklist;
 int? vehicleStatusCategory;
 String? customTask = '';
-List<Map<String, dynamic>> partList = [];
-List<Map<String, dynamic>> supplyList = [];
+List<dynamic> partList = [];
+List<dynamic> supplyList = [];
 String? vin = '';
 // 'repeatPeriod', eg : daily,weekly,monthly,yearly
 String? repeatPeriod = "Doesn't repeat";
@@ -65,7 +70,10 @@ String? notes = '';
 String? vehicleGroupId = '';
 String? vehicleGroupVinNumbers = '';
 String? vehicleGroupName = '';
+List<dynamic>? vehicleList = [];
 List<VehicleTodoParam>? vehicleTodoParamList = [];
+List<File> todoImage = [];
+
 
 CreateTodoParams({
   this.userId,
@@ -123,16 +131,17 @@ class VehicleTodoParam{
   String? cohortName = "";
   String? vin = "";
   String? vehicleName = "";
-  String? vehicleNumber = "";
-  VehicleTodoParam({this.cohortId, this.cohortName, this.vin, this.vehicleName, this.vehicleNumber});
+  String? vehicleImage = "";
+  VehicleTodoParam({this.cohortId, this.cohortName, this.vin, this.vehicleName,this.vehicleImage});
 
   Map<String, dynamic> toJson() {
     return {
       'cohort_id': cohortId,
       'cohort_name': cohortName,
       'vin': vin,
+      "vehicle_image":vehicleImage,
       'vehicle_name': vehicleName,
-      'vehicle_number': vehicleNumber,
+
     };
   }
 

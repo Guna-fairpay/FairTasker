@@ -16,7 +16,7 @@ class VendorDataRepo {
   Future<bool?> createVendor(
     int? id,
     String name,
-    String vendorTypeid,
+    String vendorTypeId,
     String address,
     String phone,
     String expertise,
@@ -36,7 +36,7 @@ class VendorDataRepo {
 
       // Add form fields
       request.fields['name'] = name;
-      request.fields['type_id'] = vendorTypeid;
+      request.fields['type_id'] = vendorTypeId;
       request.fields['address'] = address;
       request.fields['phone'] = phone;
       request.fields['expertise'] = expertise;
