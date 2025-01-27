@@ -99,7 +99,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 _buildListTile(
                   icon: Icons.build,
                   title: "Manage Custom Data's",
-                  onTap: () => navigateToPage(const ManageCustomdataMenuUI()),
+                  onTap: () => navigateToPage(const ManageCustomDataMenuUI()),
                 ),
                 _buildDivider(),
                 _buildListTile(

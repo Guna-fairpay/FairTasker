@@ -43,5 +43,6 @@ class Assets{
   static const String checkInIcon = 'assets/images/checkinIcon.png';
   static const String favicon = 'assets/images/favicon.ico';
   static const String mail='assets/images/mail_icon.png';
+  static const String rentalCar = 'assets/vectors/rentalCar.svg';
 
 }

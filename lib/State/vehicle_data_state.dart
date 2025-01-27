@@ -40,6 +40,13 @@ class VehicleGroupListLoadedV extends VehicleDataState {
   List<Object?> get props => [vehicleGroupDataList];
 }
 
+class VehicleGroupDataLoaded extends VehicleDataState {
+  final List<Map<String,dynamic>>? vehicleGroupDataList;
+  const VehicleGroupDataLoaded({required this.vehicleGroupDataList});
+  @override
+  List<Object?> get props => [vehicleGroupDataList];
+}
+
 class VehicleDataLoadedV extends VehicleDataState {
   final List<Map<String,dynamic>>? result;
   final int? categoryId;

@@ -1069,8 +1069,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     return false;
   }
 
-  Future<CreateTodoParams> getSelectedVendorLocation(
-      CreateTodoParams createTodoParams) {
+  Future<CreateTodoParams> getSelectedVendorLocation(CreateTodoParams createTodoParams) {
     for (Map<String, dynamic> res in vendorList) {
       if ('${res['name']}' == vendorLocationController.text.trim()) {
         createTodoParams.vendorName = res['name'];
@@ -1551,49 +1550,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               children: [
                 Column(
                   children: [
-/*
-                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                        'Vehicle / Person', vehiclePersonController,
-                        label: Utils.getText('Vehicle / Person'),
-                        readOnly: false, onChangeCallback: (value) {
-                      vehiclePersonSuggestionList.clear();
-                      List<String> vehiclePersonList = vehicleList
-                              .map((e) => '${e.vehicleName}')
-                              .toList() +
-                          vehicleGroupList.map((e) => '${e.name}').toList() +
-                          resourceListForCombination
-                              .map((e) => '${e.firstName ?? ''} ${e.lastName ?? ''}')
-                              .toList();
-                      vehiclePersonSuggestionList
-                          .addAll(Utils.searchList(vehiclePersonList, value));
-                      showVehiclePersonList = vehiclePersonSuggestionList.isNotEmpty;
-                      setState(() {});
-                    },
-                        suffixIcon: Visibility(
-                          // visible: !editShowVehiclePersonList,
-                          child: InkWell(
-                              onTapDown: (details) {
-                                Utils.showStringPopupMenu(
-                                    context, ['Add Vehicle', 'Add Person'], details,
-                                    (value) async {
-                                  if (value == 'Add Vehicle') {
-                                    await Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => const VehicleUI(),
-                                    ));
-                                  } else {
-                                    await Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => const PersonUI(),
-                                    ));
-                                  }
-                                });
-                              },
-                              child: Icon(
-                                Icons.add,
-                                color: AppC().base,
-                                size: 20,
-                              )),
-                        )),
-*/
                     vendorLocationStack()
                   ],
                 ),
@@ -1641,7 +1597,9 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                               offset: (vehiclePersonController.text.length)),
                         );
                       }
-                    }, isVehicleData: true)),
+                    }, isVehicleData: true
+                    ),
+                ),
               ],
             ),
           ],
@@ -2854,10 +2812,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     }
   }
 
-  Future<CreateTodoParams> getSelectedVehiclePerson(
-      CreateTodoParams createTodoParams) {
+  Future<CreateTodoParams> getSelectedVehiclePerson(CreateTodoParams createTodoParams) {
     List<dynamic> vehiclesNameData=[];
-
     for (Map<String, dynamic> res in resourceList) {
       if (selectedMultipleVehicleList.isNotEmpty
           &&'${res['first_name']}${res['last_name']}'

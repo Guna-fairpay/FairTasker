@@ -67,6 +67,85 @@ class EditTodoUI extends StatefulWidget {
 
 class _EditTodoUIState extends State<EditTodoUI> {
 
+  TodoViewBloc? todoBloc;
+  vdb.VehicleDataBloc? vehicleDataBloc;
+  CreateExpenseFieldData? createExpenseFieldData;
+
+  CreateTodoParams createTodoParamForVHistory = CreateTodoParams();
+  TodoListRepo todoListRepo = TodoListRepo();
+  TodoListRepo editTodoListRepo = TodoListRepo();
+
+  MonthsPojo? selectedMonth = MonthsPojo();
+  final ValueNotifier<bool> onNotifyUser = ValueNotifier(false);
+  ImagePickHelper imagePickHelper = ImagePickHelper();
+  Color appBarColor = AppC.lowP;
+  Color? textColors;
+  OverlayEntry? overlay;
+
+  List<DaysPojo> daysPojoList = [];
+  List<MonthsPojo> monthsPojoList = [];
+
+  DateTime? selectedDate = DateTime.now();
+  DateTime? editSelectedDate = DateTime.now();
+  DateTime? endSelectedDate = DateTime.now();
+  DateTime? modifiedDateTime;
+
+  final GlobalKey _key = GlobalKey();
+  final GlobalKey key = GlobalKey();
+
+  List<dynamic> todoSelectedItem = [];
+  List<dynamic> imagePath = [];
+  List<dynamic> editSuppliesSuggestionList = [];
+  List<dynamic> editMultipleAddressSuggestionList = [];
+  List<dynamic> editPartsSuggestionList = [];
+  List<dynamic> tireImageFile = [];
+  List<dynamic> tollImage = [];
+  List<dynamic> uploadRegSticker = [];
+  List<dynamic> insuranceImage = [];
+  List<dynamic> selectedMultipleVehicleList = [];
+  List<dynamic> editMultipleVehicleSuggestionList = [];
+
+  List<Map<String, dynamic>> vehicleGroupList = [];
+  List<Map<String, dynamic>> vehicleList = [];
+  List<Map<String, dynamic>> editPartsList = [];
+  List<Map<String, dynamic>> selectedAssignedTo = [];
+  List<Map<String, dynamic>> selectedPartsList = [];
+  List<Map<String, dynamic>> resourceList = [];
+  List<Map<String, dynamic>> resourceListForCombination = [];
+  List<Map<String, dynamic>> selectedSuppliesList = [];
+  List<Map<String, dynamic>> editMultipleAddressList = [];
+  List<Map<String, dynamic>> selectedMultipleAddressList = [];
+  List<Map<String, dynamic>> todoImages = [];
+  List<Map<String, dynamic>> editSuppliesList = [];
+  List<Map<String, dynamic>> attachmentImage = [];
+  List<Map<String, dynamic>> vendorList = [];
+  List<Map<String, dynamic>> taskExpenseList = [];
+  List<Map<String, dynamic>> locationList = [];
+  List<Map<String, dynamic>> todoList = [];
+  List<Map<String, dynamic>> cohortsData = [];
+  List<Map<String, dynamic>> categoriesData = [];
+  List<Map<String, dynamic>> subCategoriesData = [];
+  List<Map<String, dynamic>>? addresses;
+  List<Map<String, dynamic>>? vehicleLists;
+  List<Map<String, dynamic>>? selectedUserGroupOrUser;
+  List<Map<String, dynamic>>? vehicleGroupLists;
+  List<Map<String, dynamic>> vehicleName=[];
+  List<Map<String, dynamic>> editMultipleVehicleList = [];
+  List<Map<String, dynamic>> checkListData = [];
+  List<Map<String, dynamic>> userGroupList = [];
+  List<Map<String, dynamic>> maintenanceCheckListData = [];
+  List<Map<String, dynamic>> childrenData = [];
+
+  List<int?>? selectedResourceIdList;
+
+  List<String> vinList=[];
+  List<String?>?selectedResourceList;
+  List<String> vendorLocationSuggestionList = [];
+  List<String> taskIdentifierSuggestionList = [];
+  List<String> vehiclePersonSuggestionList = [];
+  List<String>? vehicleGroupVinNumbersList;
+  static List<String> stringArr = [];
+
   List<String> priorityList = ['High - On Time', 'Medium', 'Low', 'Feature'];
   List<String> repeatList = ["Doesn't repeat", 'Daily', 'Weekly', 'Monthly', 'Yearly'];
   List<String> daysList = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -81,16 +160,106 @@ class _EditTodoUIState extends State<EditTodoUI> {
     {'name':'Neutral'},
     {'name':'Negative'}
   ];
-  TodoViewBloc? todoBloc;
-  vdb.VehicleDataBloc? vehicleDataBloc;
-  Set<int> selectedResources = {};
-  late Map<String, dynamic> todoItem;
-  final List<dynamic> todoSelectedItem = [];
+
   bool showMore = false;
-  ImagePickHelper imagePickHelper = ImagePickHelper();
-  List<Map<String, dynamic>> attachmentImage = [];
-  List<dynamic> imagePath = [];
+  bool completeAllDay = false;
+  bool allDay = false;
+  bool editAllDay = false;
+  bool reminder = false;
+  bool editReminder = false;
+  bool showDaily = false;
+  bool showMonthly = false;
+  bool showWeekly = false;
+  bool showYearly = false;
+  bool showList = false;
+  bool showVehiclePersonList = false;
+  bool showVendorLocationList = false;
+  bool editShowList = false;
+  bool editShowVehiclePersonList = false;
+  bool editShowVendorLocationList = false;
+  bool editShowPartsList = false;
+  bool isVehiclePresented = false;
+  bool editShowSuppliesList = false;
+  bool? isVehicleEdit;
+  bool? isPartsEdit;
+  bool? isSupplyEdit;
+  bool? isMultipleVehicleEdit;
+  bool? isMultipleAddressEdit;
+  bool? isVendorEdit;
+  bool? isVehicleGroupEdit;
+  bool? isNotesEdit;
+  bool? isSelected = false;
+  bool? partIsSelected = false;
+  bool? suppliesIsSelected = false;
+  bool showContainer = false;
+  bool tollTags = false;
+  bool spareKey = false;
+  bool frontLicensePlate = false;
+  bool lastSelectedIsPerson = false;
+  bool bouncie = false;
+  bool airTag = false;
+  bool permanentPlate = false;
+  bool spareTire = false;
+  bool editShowMultipleVehicleList = false;
+  bool? isVehicleSelected = false;
+  bool editShowMultipleAddressList = false;
+  bool showAutoComplete = false;
+  bool endDateSwitch = true;
+  bool occurrenceDate = true;
+  bool isShowVehicleHistoryList = false;
+  bool timeSensitive = false;
+
+  Set<int> selectedResources = {};
+
+  Map<String, dynamic> vehicle={};
+  Map<String, dynamic> setVehicleList={};
+  Map<String, String> taskNameList = {};
+  Map<String,dynamic>? carName;
+  Map<String, dynamic>? selectedResource;
+  late Map<String, dynamic> todoItem;
+
+  dynamic existingExpenseDate;
+  dynamic selectedCohort;
+  dynamic selectedVehicle;
+  dynamic selectedExpenseCategories;
+  dynamic selectedExpenseSubCategories;
+  dynamic selectedLink;
+  dynamic selectedVin;
+  dynamic selectedSentiments;
+
+  String? selectedPriority;
+  String? editSelectedPriority;
+  String? selectedRepeat;
+  String appBarTitle = 'Edit Todo';
+  String? selectedMultipleAddressId;
+  String endDateModuleString = "End Date";
+  String expenseIds = '';
+  String editedExpenseId = '';
+  String? userGroupConcatenationName;
+  String? userShortName;
+  String? vehicleGroupName;
+  String? vinToFind;
+  String? vin;
+  String? vehicleGroupVinNumbers;
+  String lastEditedId = '';
+
+  late int partId;
+  int? suppliesId;
+  int position = 0;
+  int count = 0;
+  int cursorPosition = 0;
+  int? showExpenseTab;
+  int? selectedResourceId;
+  int expenseIdsCount = 0;
+  int? editedExpenseIdsLength;
+  int? vehicleGroupId;
+  int? deleteId;
+
   final FocusNode searchFocusNode = FocusNode();
+
+  PageController pageController=PageController();
+
+  TextEditingController searchController = TextEditingController();
   TextEditingController editTodoDateController = TextEditingController();
   TextEditingController editTodoNameController = TextEditingController();
   TextEditingController editVehiclePersonController = TextEditingController();
@@ -104,137 +273,15 @@ class _EditTodoUIState extends State<EditTodoUI> {
   TextEditingController expenseDescriptionController = TextEditingController();
   TextEditingController odometerController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  dynamic existingExpenseDate;
   TextEditingController durationController = TextEditingController();
-  DateTime? selectedDate = DateTime.now();
-  DateTime? editSelectedDate = DateTime.now();
-  String? selectedPriority;
-  String? editSelectedPriority;
-  String? selectedRepeat;
-  Color appBarColor = AppC.lowP;
-  String appBarTitle = 'Edit Todo';
-
-  final ValueNotifier<bool> onNotifyUser = ValueNotifier(false);
-
-
-  bool completeAllDay = false;
-  bool allDay = false;
-  bool editAllDay = false;
-  bool reminder = false;
-  bool editReminder = false;
-  List<Map<String, dynamic>> selectedAssignedTo = [];
-  TodoListRepo todoListRepo = TodoListRepo();
-  TodoListRepo editTodoListRepo = TodoListRepo();
-  List<Map<String, dynamic>> resourceList = [];
-  Map<String, dynamic>? selectedResource;
-  List<Map<String, dynamic>> resourceListForCombination = [];
-  List<Map<String, dynamic>> selectedPartsList = [];
-  TextEditingController editSuppliesController = TextEditingController();
-  List<Map<String, dynamic>> selectedSuppliesList = [];
-  List<dynamic> editSuppliesSuggestionList = [];
-  List<Map<String, dynamic>> editSuppliesList = [];
-  bool editShowSuppliesList = false;
-  TextEditingController editMultipleAddressController = TextEditingController();
-  List<Map<String, dynamic>> selectedMultipleAddressList = [];
-  List<dynamic> editMultipleAddressSuggestionList = [];
-  List<Map<String, dynamic>> editMultipleAddressList = [];
-  bool editShowMultipleAddressList = false;
-  String? selectedMultipleAddressId;
-  late int partId;
-  int? suppliesId;
-  CreateExpenseFieldData? createExpenseFieldData;
-  dynamic selectedCohort;
-  dynamic selectedVehicle;
-  bool showDaily = false;
-  bool showMonthly = false;
-  bool showWeekly = false;
-  bool showYearly = false;
-  bool showList = false;
-  bool showVehiclePersonList = false;
-  bool showVendorLocationList = false;
-  bool editShowList = false;
-  bool editShowVehiclePersonList = false;
-  bool editShowVendorLocationList = false;
-  bool editShowPartsList = false;
-  bool isVehiclePresented = false;
-  List<Map<String, dynamic>> vendorList = [];
-  List<Map<String, dynamic>> taskExpenseList = [];
-  List<Map<String, dynamic>> locationList = [];
-  List<String> taskIdentifierSuggestionList = [];
-  List<String> vehiclePersonSuggestionList = [];
-  List<Map<String, dynamic>> vehicleGroupList = [];
-  List<String> vendorLocationSuggestionList = [];
-  List<dynamic> editPartsSuggestionList = [];
-  List<Map<String, dynamic>> vehicleList = [];
-  List<Map<String, dynamic>> editPartsList = [];
+  TextEditingController linkController = TextEditingController();
+  TextEditingController spareTireController = TextEditingController();
+  TextEditingController tollTagsController = TextEditingController();
+  TextEditingController insuranceAgentController = TextEditingController();
+  TextEditingController insuranceCostController = TextEditingController();
   TextEditingController taskIdentifierController = TextEditingController();
   TextEditingController vehiclePersonController = TextEditingController();
   TextEditingController vendorLocationController = TextEditingController();
-  Map<String, String> taskNameList = {};
-  bool showAutoComplete = false;
-  List<Map<String, dynamic>> cohortsData = [];
-  List<Map<String, dynamic>> categoriesData = [];
-  List<Map<String, dynamic>> subCategoriesData = [];
-  dynamic selectedExpenseCategories;
-  dynamic selectedExpenseSubCategories;
-  int position = 0;
-  int count = 0;
-  int cursorPosition = 0;
-  int? showExpenseTab;
-  String endDateModuleString = "End Date";
-  bool endDateSwitch = true;
-  TextEditingController endDateController = TextEditingController();
-  TextEditingController noOfOccurrencesController = TextEditingController();
-  DateTime? endSelectedDate = DateTime.now();
-  TextEditingController occurEveryDayController = TextEditingController();
-  TextEditingController occurEveryWeekController = TextEditingController();
-  List<DaysPojo> daysPojoList = [];
-  List<MonthsPojo> monthsPojoList = [];
-  MonthsPojo? selectedMonth = MonthsPojo();
-  bool occurrenceDate = true;
-  TextEditingController monthController = TextEditingController();
-  TextEditingController dayController = TextEditingController();
-  TextEditingController dayMonthlyController = TextEditingController();
-  TextEditingController dayYearlyController = TextEditingController();
-  static List<String> stringArr = [];
-  int? selectedResourceId;
-  List<int?>? selectedResourceIdList;
-  bool isShowVehicleHistoryList = false;
-  CreateTodoParams createTodoParamForVHistory = CreateTodoParams();
-  List<Map<String, dynamic>> todoList = [];
-  String expenseIds = '';
-  String editedExpenseId = '';
-  int expenseIdsCount = 0;
-  int? editedExpenseIdsLength;
-  bool timeSensitive = false;
-  DateTime? modifiedDateTime;
-  TextEditingController reservationController = TextEditingController();
-  List<Map<String, dynamic>>? addresses;
-  List<Map<String, dynamic>>? vehicleLists;
-  String? userGroupConcatenationName;
-  String? userShortName;
-  List<String>? vehicleGroupVinNumbersList;
-  String? vehicleGroupName;
-  Color? textColors;
-  List<Map<String, dynamic>>? selectedUserGroupOrUser;
-  String? vehicleGroupVinNumbers;
-  bool? isVehicleEdit;
-  bool? isPartsEdit;
-  bool? isSupplyEdit;
-  bool? isMultipleVehicleEdit;
-  bool? isMultipleAddressEdit;
-  bool? isVendorEdit;
-  bool? isVehicleGroupEdit;
-  bool? isNotesEdit;
-  int? vehicleGroupId;
-  List<Map<String, dynamic>>? vehicleGroupLists;
-  bool? isSelected = false;
-  bool? partIsSelected = false;
-  bool? suppliesIsSelected = false;
-  int? deleteId;
-  List<Map<String, dynamic>> checkListData = [];
-  bool showContainer = false;
-  List<Map<String, dynamic>> userGroupList = [];
   TextEditingController addressController = TextEditingController();
   TextEditingController plateNumberController = TextEditingController();
   TextEditingController carNumberController = TextEditingController();
@@ -242,50 +289,21 @@ class _EditTodoUIState extends State<EditTodoUI> {
   TextEditingController frontTireController = TextEditingController();
   TextEditingController rearTireController = TextEditingController();
   TextEditingController renewalDateController = TextEditingController();
-  List<dynamic> tireImageFile = [];
-  List<dynamic> tollImage = [];
-  List<dynamic> uploadRegSticker = [];
-  List<dynamic> insuranceImage = [];
-
-  bool bouncie = false;
-  bool airTag = false;
-  bool permanentPlate = false;
-  bool spareTire = false;
-  List<Map<String, dynamic>> maintenanceCheckListData = [];
-  List<Map<String, dynamic>> childrenData = [];
-  final GlobalKey _key = GlobalKey();
-  final GlobalKey key = GlobalKey();
-  List<dynamic> selectedMultipleVehicleList = [];
-  List<Map<String, dynamic>> editMultipleVehicleList = [];
-  List<dynamic> editMultipleVehicleSuggestionList = [];
-  bool editShowMultipleVehicleList = false;
-  bool? isVehicleSelected = false;
-  String? vinToFind;
-  String? vin;
-  List<String> vinList=[];
-  Map<String, dynamic> vehicle={};
-  Map<String, dynamic> setVehicleList={};
-
-  dynamic selectedLink;
-  dynamic selectedVin;
-  TextEditingController linkController = TextEditingController();
-  TextEditingController spareTireController = TextEditingController();
-  TextEditingController tollTagsController = TextEditingController();
-  TextEditingController insuranceAgentController = TextEditingController();
-  TextEditingController insuranceCostController = TextEditingController();
-  bool tollTags = false;
-  bool spareKey = false;
-  bool frontLicensePlate = false;
+  TextEditingController editSuppliesController = TextEditingController();
+  TextEditingController editMultipleAddressController = TextEditingController();
+  TextEditingController endDateController = TextEditingController();
+  TextEditingController noOfOccurrencesController = TextEditingController();
+  TextEditingController occurEveryDayController = TextEditingController();
+  TextEditingController occurEveryWeekController = TextEditingController();
+  TextEditingController monthController = TextEditingController();
+  TextEditingController dayController = TextEditingController();
+  TextEditingController dayMonthlyController = TextEditingController();
+  TextEditingController dayYearlyController = TextEditingController();
+  TextEditingController reservationController = TextEditingController();
   TextEditingController reasonController = TextEditingController();
-  List<Map<String, dynamic>> vehicleName=[];
 
-  dynamic selectedSentiments;
-  Map<String,dynamic>? carName;
-  List<Map<String, dynamic>> todoImages = [];
-  PageController pageController=PageController();
-  List<String?>?selectedResourceList;
 
-  bool lastSelectedIsPerson = false;
+
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
     for (Map<String, dynamic> res in resourceList) {
       if ('${res['first_name']}${res['last_name']}' ==
@@ -325,6 +343,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
           selectedUserGroupOrUser!.add(res);
         }
       }
+
+
     } else {
       for (Map<String, dynamic> u in userGroupList) {
         if (u['id'] == todos['user_group_id']) {
@@ -340,6 +360,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
               }
             }
             selectedUserGroupOrUser!.add(res);
+            print(selectedUserGroupOrUser);
           }
         }
       }
@@ -503,8 +524,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               final isSelected = selectedResources.contains(index);
                               selectedResourceIdList = selectedResources
                                   .map((index) => resourceList[index]['id'])
-                                  .where((id) =>
-                              id != null && id != -1 && id != 0)
+                                  .where((id) => id != null && id != -1 && id != 0)
                                   .map((id) => int.tryParse(id.toString()))
                                   .toList();
                               return GestureDetector(
@@ -583,6 +603,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 30));
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 15));
     selectedCleanCarTime = cleanCarTimeValuesList[0];
+    todoItem = widget.todoItem;
 
     if (widget.todoItem['title'] != 'Check In' &&
         widget.todoItem['title'] != 'Check Out') {
@@ -605,7 +626,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     }
 
     selectedMonth = MonthsPojo(monthName: "Select Month", selected: false);
-    todoItem = widget.todoItem;
 
     editMultipleAddressList = widget.addressesList ?? [];
 
@@ -652,9 +672,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     editTodoNameController.text = todoItem['title']!;
     notesController.text = todoItem['notes'] ?? '';
 
-    debugPrint('todoItem!.vendorName: ${todoItem['vendor_name'] ?? ''}');
-    debugPrint('todoItem!.location: ${todoItem['location'] ?? ''}');
-
     if (todoItem['vendor_name'] != null &&
         todoItem['vendor_name']!.isNotEmpty) {
       editVendorLocationController.text = todoItem['vendor_name'] ?? '';
@@ -662,11 +679,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
       editVendorLocationController.text = todoItem['location'] ?? '';
     }
 
-    debugPrint('todoItem!.notes: ${todoItem['notes'] ?? ''}');
-    debugPrint('todoItem!.parts.length: ${todoItem['parts']?.length ?? 0}');
-    debugPrint('todoItem!.priority: ${todoItem['priority'] ?? ''}');
-
-    debugPrint('todoItem!.todoDate: ${todoItem['todo_date'] ?? ''}');
     editSelectedDate =
         Utils.convertStringToDateTime(todoItem['todo_date'] ?? '');
     editTodoDateController.text = todoItem['todo_date'] ?? '';
@@ -718,11 +730,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
         todoItem['vehicles'] ?? editVehiclePersonController.text;
 
     selectedLink = customTaskOptions.firstWhere(
-          (item) => item['id'] == '2',
+          (item) => item['id'] == (todoItem['custom_link_id']?.toString() ?? '1'),
       orElse: () => {},
     );
+    reservationController.text=todoItem['reference_id'];
     reasonController.addListener(() {
-      setState(() {}); // Trigger a rebuild to update the button color
+
+      setState(() {});
     });
     if (todoItem['vehicles'] is List) {
       vehicleName.addAll(List<Map<String, dynamic>>.from(todoItem['vehicles']));
@@ -730,10 +744,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
     if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
       todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
-    } else {
-      print('Invalid data: ${todoItem['todoimages']}');
     }
-
     super.initState();
   }
 
@@ -2293,9 +2304,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                             Wrap(
                                               children: List<Widget>.generate(
                                                 selectedPartsList.length,
-                                                (int idx) {
+                                                    (int idx) {
                                                   return Padding(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                                      padding: const EdgeInsets.symmetric(
+                                                          horizontal: 5.0),
                                                       child: Chip(
                                                         // deleteIconColor: AppC.red,
                                                         onDeleted: () {
@@ -2312,27 +2324,22 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                               .removeAt(idx);
                                                           setState(() {});
                                                         },
+                                                        side: const BorderSide(color: AppC.trans),
                                                         deleteIcon: const Icon(
                                                           Icons.close,
                                                           color: AppC.red,
                                                           size: 18,
                                                         ),
-                                                        backgroundColor: AppC()
-                                                            .bottomIconColor
-                                                            .withOpacity(0.1),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5)),
+                                                        backgroundColor: const Color(0xffb5d2bb),
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(5)),
                                                         // side: BorderSide(),
                                                         label: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
+                                                          mainAxisSize: MainAxisSize.min,
                                                           children: [
                                                             Utils.getText(
-                                                                selectedPartsList[idx]['name'] ?? '',
+                                                                selectedPartsList[idx]['name'] ??
+                                                                    '',
                                                                 color: AppC.text),
                                                           ],
                                                         ),
@@ -2414,14 +2421,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                     Wrap(
                                                       children: List<Widget>.generate(
                                                         selectedSuppliesList.length,
-                                                        (int idx) {
+                                                            (int idx) {
                                                           return Padding(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                      horizontal: 5.0),
+                                                              padding: const EdgeInsets.symmetric(
+                                                                  horizontal: 5.0),
                                                               child: Chip(
                                                                 // deleteIconColor: AppC.red,
-                                                                onDeleted: () {
+                                                                onDeleted: ()  {
                                                                   for (var element in editSuppliesList) {
                                                                     if (element['id'] == selectedSuppliesList[idx]['id']) {
                                                                       suppliesIsSelected = false;
@@ -2436,25 +2442,23 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                                   selectedSuppliesList.removeAt(idx);
                                                                   setState(() {});
                                                                 },
+                                                                side: const BorderSide(color: AppC.trans),
                                                                 deleteIcon: const Icon(
                                                                   Icons.close,
                                                                   color: AppC.red,
                                                                   size: 18,
                                                                 ),
-                                                                backgroundColor: AppC()
-                                                                    .bottomIconColor
-                                                                    .withOpacity(0.1),
+                                                                backgroundColor: const Color(0xffb5d2bb),
                                                                 shape: RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(5)
-                                                                ),
+                                                                    borderRadius: BorderRadius.circular(5)),
                                                                 // side: BorderSide(),
                                                                 label: Row(
                                                                   mainAxisSize: MainAxisSize.min,
                                                                   children: [
                                                                     Utils.getText(
-                                                                        selectedSuppliesList[idx]['name'] ?? '',
-                                                                        color: AppC.text
-                                                                    ),
+                                                                        selectedSuppliesList[idx]['name'] ??
+                                                                            '',
+                                                                        color: AppC.text),
                                                                   ],
                                                                 ),
                                                               ));
@@ -3013,14 +3017,44 @@ class _EditTodoUIState extends State<EditTodoUI> {
       }
 
       if (isPartChecked) {
-        editCreateTodoParams.partList = (selectedPartsList
-            .where((element) => (element['id'] == null || element['id'] == 0))
-            .toList());
+        for (var parts in selectedPartsList) {
+          var matchedPart = editPartsList.where((item) => item['id'] == parts['id']).toList();
+          if (matchedPart.isNotEmpty) {
+            for (var res in matchedPart) {
+              Map<String, dynamic> partsData = {
+                'parts_id': res['id'] ?? '',
+                'parts_name': res['name'] ?? '',
+              };
+              if (partsData.isNotEmpty) {
+                editCreateTodoParams.partList.add(partsData);
+              }
+            }
+          }
+        }
       }
       if (isSupplyChecked) {
-        editCreateTodoParams.supplyList = (selectedSuppliesList
-            .where((element) => (element['id'] == null || element['id'] == 0))
-            .toList());
+        for (var parts in selectedSuppliesList) {
+          var matchedSupplies = editSuppliesList.where((item) => item['id'] == parts['id']).toList();
+          if (matchedSupplies.isNotEmpty) {
+            for (var res in matchedSupplies) {
+              Map<String, dynamic> suppliesData = {
+                'supplies_id': res['id'] ?? '',
+                'supplies_name': res['name'] ?? '',
+              };
+              if (suppliesData.isNotEmpty) {
+                editCreateTodoParams.supplyList.add(suppliesData);
+              }
+            }
+          }
+        }
+      }
+      if(reservationController.text.isNotEmpty || linkController.text.isNotEmpty){
+        editCreateTodoParams.customLinkId=int.parse(selectedLink['id']);
+      }
+      if(selectedLink['id']==1){
+        editCreateTodoParams.customLink=linkController.text;
+      }else if(selectedLink['id']=='2' || selectedLink['id']=='3'){
+        editCreateTodoParams.referenceId=reservationController.text;
       }
       for (Map<String, dynamic> res in vendorList) {
         if ('${res['name']}' == editVendorLocationController.text.trim()) {
@@ -4405,8 +4439,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   }
 
-
-
 // Widget maintenance(Map<String, dynamic> maintenanceCheckListData) {
 //   bool check = false;
 // TextEditingController notesController=TextEditingController();
@@ -4488,10 +4520,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
       ],
     );
   }
-
-  String lastEditedId = '';
-  OverlayEntry? overlay;
-  TextEditingController searchController = TextEditingController();
 
   Widget getDetailsInWraps(List<String> list, String title) {
     return Container(

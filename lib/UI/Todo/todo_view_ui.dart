@@ -857,7 +857,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
     details,
     Function(List<Map<String, dynamic>?>) onSelect,
     Map<String, bool> selectedStates,
-  ) async {
+  )
+  async {
     Map<String, List<Map<String, dynamic>>> groupedResources = {};
     for (var resource in resourceList) {
       String departmentName =
@@ -2770,7 +2771,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                           _selectTime(context, todos['id']);
                         },
                         child: Utils.getText(Utils.convertString24HTo12H(
-                            todos['todo_time'] ?? '05:30')),
+                            todos['todo_time'] ?? '05:30:00')),
                       ),
                     ],
                   ),

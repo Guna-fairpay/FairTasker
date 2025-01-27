@@ -110,7 +110,7 @@ class _PartViewUIState extends State<PartViewUI> {
       body: BlocProvider(
         create: (context) => partDataBloc..add(const GetPartsListV()),
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
-            listener: (context, state) async {
+              listener: (context, state) async {
           if (state is VehicleDataLoading) {
             loading = true;
           } else if (state is PartsListLoaded) {
@@ -127,7 +127,8 @@ class _PartViewUIState extends State<PartViewUI> {
             partDataBloc.add(const GetPartsListV());
             loading = true;
           }
-        }, builder: (context, state) {
+        },
+            builder: (context, state) {
           return Stack(
             children: [
               Padding(

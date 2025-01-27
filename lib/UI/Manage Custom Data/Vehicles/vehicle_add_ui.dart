@@ -205,9 +205,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(title: Utils.getText('Add Vehicles'),
       ),
       body: BlocProvider(
         create: (context) => vehicleDataBloc,
@@ -237,21 +235,6 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back),
-                          ),
-                          Utils.getText('Add Vehicle',
-                              size: 20, weight: FontWeight.bold)
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
                       Stack(
                         alignment: Alignment.centerRight,
                         children: [
@@ -1465,7 +1448,6 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

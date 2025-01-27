@@ -57,6 +57,13 @@ class GetVehicleGroupingListV extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
+class GetVehicleGroupData extends VehicleDataEvent {
+  const GetVehicleGroupData();
+  @override
+  List<Object?> get props => [];
+}
+
+
 class AddVehicleDataEvent extends VehicleDataEvent {
   final CreateVehicleData? createVehicleData;
   const AddVehicleDataEvent({this.createVehicleData});

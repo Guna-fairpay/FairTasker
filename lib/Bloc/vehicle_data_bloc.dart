@@ -124,6 +124,13 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
+    on<GetVehicleGroupData>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo.getVehicleGroupData().then((value) {
+        emit(VehicleGroupDataLoaded(vehicleGroupDataList: value?.vehicleGroupData??[]));
+      });
+    });
+
     // on<DeleteVehicleGroupEvent>((event, emit) async {
     //   emit(const VehicleDataLoading());
     //   await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {

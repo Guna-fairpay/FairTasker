@@ -13,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 import '../Response/todo_list_response.dart';
+import '../Response/vehicle_grouping_response.dart';
 
 class VehicleDataRepo {
   ApiClient apiClient = ApiClient();
@@ -902,4 +903,30 @@ class VehicleDataRepo {
       return null;
     }
   }
+
+  Future<VehicleGroupingResponse?> getVehicleGroupData() async {
+    try {
+      String apiUrl = '';
+      apiUrl = "${Str.BASE_URL}group-vehicle";
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint('VehicleGroupData api.response.body: ${response.body}');
+          debugPrint('VehicleGroupData api.statusCode: ${response.statusCode}');
+          VehicleGroupingResponse vehicleGroupingResponse =
+          VehicleGroupingResponse.fromJson(json.decode(response.body));
+          return vehicleGroupingResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('VehicleGroupData.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
 }
