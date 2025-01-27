@@ -104,9 +104,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/
-    - assets/images/
-    - assets/vectors/
+    - asset/
+    - asset/images/
+    - asset/vectors/
   fonts:
     - family: Lato
       fonts:
