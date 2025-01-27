@@ -19,6 +19,8 @@ import 'task_components-setting_ui.dart';
 import 'Popups/hours_top_notification_popup.dart';
 
 
+
+
 class WorkingHoursViewUI extends StatefulWidget {
   const WorkingHoursViewUI({super.key});
 
@@ -31,6 +33,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
   late TodoViewBloc workingHoursBloc;
   late TodoViewBloc workingActiveBloc;
   late TaskBloc getTaskCountBloc;
+  late Map<String, String> result={};
   DateTime? selectedDate;
   DateRange? selectedDateRange;
   TextEditingController dateController = TextEditingController();
@@ -50,6 +53,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
   List<Map<String, dynamic>> formattedResources=[];
   List<Map<String, dynamic>> dropDownResource=[];
   List<Map<String, dynamic>> filteredData=[];
+  Map<String, String> dates={};
   dynamic selectedName;
   dynamic selectedPerson;
   dynamic selectedUserId;
@@ -71,6 +75,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
     workingHoursBloc.add(const GetWorkingHistoryCount());
     workingHoursBloc.add(const GetAssignedToList());
   }
+
   int timeStringToMinutes(String time) {
     final minutes = Time.fromStr(time)?.inMins;
     return minutes!;
@@ -164,6 +169,23 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
     return combinedList;
   }
 
+  Map<String, String> generateDateList(String startDate, String endDate) {
+    try {
+      DateFormat format = DateFormat("yyyy-MM-dd");
+      DateTime start = format.parse(startDate);
+      DateTime end = format.parse(endDate);
+      DateFormat outputFormat = DateFormat("yyyy-MM-dd"); // Output format (same as input in this case)
+      String formattedStart = outputFormat.format(start);
+      String formattedEnd = outputFormat.format(end);
+      return {
+        'from': formattedStart,
+        'to':formattedEnd
+      };
+    } catch (e) {
+      print("Error generating date list: $e");
+      return {}; // Or throw an exception if you prefer
+    }
+  }
 
 
   @override
@@ -382,32 +404,38 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             Expanded(
                               child: SizedBox(
                                 height: 35,
-                                width: MediaQuery.of(context).size.width * 0.470, // Responsive width
-                                child: DateRangeField(
-                                  decoration: InputDecoration(
-                                    contentPadding:
-                                    const EdgeInsets.only(left: 0,top: 0,right: 0,bottom: 0),
-                                    border: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          color: AppC.fieldBase, width: Num.borderWidthField),
-                                      borderRadius:
-                                      BorderRadius.circular(Num.subradiusButton),
+                                width: MediaQuery.of(context).size.width * 1, // Responsive width
+                                child:
+                                DefaultTextStyle(
+                                  style: TextStyle(color: AppC.black, fontSize: 12),
+                                  textAlign: TextAlign.center,
+                                  child: DateRangeField(
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                      const EdgeInsets.only(left: 0,top: 0,right: 0,bottom: 0),
+                                      border: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            color: AppC.fieldBase, width: Num.borderWidthField),
+                                        borderRadius:
+                                        BorderRadius.circular(Num.subradiusButton),
+                                      ),
+                                      hintStyle: Utils.getTextStyle(color: AppC.grey),
+                                      hintText: 'Please select a date range',
                                     ),
-                                    hintStyle: Utils.getTextStyle(color: AppC.grey),
-                                    hintText: 'Please select a date range',
+                                    onDateRangeSelected: (DateRange? value) {
+                                      setState(() {
+                                        selectedDateRange = value;
+                                        startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
+                                        endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
+                                        workingHoursBloc.add(GetWorkingHistoryCount(startDate: startDate,endDate: endDate));
+                                        workingHoursBloc.add(GetWorkingHoursData(minDate: startDate, maxDate: endDate));
+                                        workingHoursBloc.add(GetActiveHoursData(minDate: startDate, maxDate: endDate));
+                                        dates = generateDateList(startDate, endDate);
+                                      });
+                                    },
+                                    selectedDateRange: selectedDateRange,
+                                    pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
                                   ),
-                                  onDateRangeSelected: (DateRange? value) {
-                                    setState(() {
-                                      selectedDateRange = value;
-                                      startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
-                                      endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
-                                      workingHoursBloc.add(GetWorkingHistoryCount(startDate: startDate,endDate: endDate));
-                                      workingHoursBloc.add(GetWorkingHoursData(minDate: startDate, maxDate: endDate));
-                                      workingHoursBloc.add(GetActiveHoursData(minDate: startDate, maxDate: endDate));
-                                    });
-                                  },
-                                  selectedDateRange: selectedDateRange,
-                                  pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
                                 ),
                               ),
                             ),
@@ -448,7 +476,6 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                             padding: const EdgeInsets.all(5.0),
                             child: Row(
                               children: [
-
                                 Expanded(
                                     flex: 5,
                                     child:
@@ -547,7 +574,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
-                                                          builder: (context) => WorkingHoursTaskUI(workingHoursData: filteredData[index], dateRange: selectedDateRange.toString(),)));
+                                                          builder: (context) => WorkingHoursTaskUI(workingHoursData: filteredData[index], dateRange: dates,)));
                                                 },
                                                 child:
                                                 Utils.getText(employee['task_count'].toString() ?? '',)

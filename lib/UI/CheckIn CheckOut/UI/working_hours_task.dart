@@ -1,19 +1,19 @@
-import 'package:date_time/date_time.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/reason_employee_task_history.dart';
-import 'package:fairpytasker/main.dart';
+
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/State/workingHoursState.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Bloc/workHoursBloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../../Component/task_expansion.dart';
 import '../../../Component/task_expansion_list_tile.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
+import 'Popups/task_filter.dart';
 
 class WorkingHoursTaskUI extends StatefulWidget {
   final Map<String, dynamic> workingHoursData;
-  final String dateRange;
+  final Map<String, String> dateRange;
   const WorkingHoursTaskUI({super.key, required this.workingHoursData, required this.dateRange});
 
   @override
@@ -25,33 +25,11 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
   bool loading=false;
   late TaskBloc taskBloc;
   late TaskBloc getConfig;
+  List<Map<String, dynamic>> categoryGroupData=[];
+  List<Map<String, dynamic>> cohortsData=[];
   late Map<String, dynamic> workingHoursData;
-  late String dateRange;
+  late Map<String, String> dateRange;
   List<dynamic> combinedList=[];
-
-  Map<String, String> parseDateRange(String dateRange) {
-    // Split the input by ' - ' to get the start and end dates
-    final dates = dateRange.split(' - ');
-
-    // Helper function to convert "DD/MM/YYYY" to "YYYY-MM-DD"
-    String formatDate(String date) {
-      final parts = date.split('/');
-      if (parts.length == 3) {
-        return '${parts[2]}-${parts[1]}-${parts[0]}'; // Rearrange parts to YYYY-MM-DD
-      } else {
-        throw FormatException('Invalid date format: $date');
-      }
-    }
-
-    // Ensure there are exactly two dates
-    if (dates.length != 2) {
-      throw FormatException('Invalid date range format: $dateRange');
-    }
-    return {
-      'fromDate': formatDate(dates[0]),
-      'toDate': formatDate(dates[1]),
-    };
-  }
 
 
   @override
@@ -59,22 +37,43 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
     super.initState();
     taskBloc=TaskBloc();
     taskBloc.add(const fetchWorkingGetConfigurationEvent());
+    taskBloc.add(const fetchTaskCategoryGroupEvent());
+    taskBloc.add(const fetchCohortsDataEvent());
     workingHoursData = widget.workingHoursData;
     dateRange = widget.dateRange;
+  }
+
+  String convertDateToCustomFormat(Map<String, String> inputDate)
+  {
+    try {
+      //print("inputDate ${inputDate['from']} ${inputDate['to']}");
+      String startDate = inputDate['from'].toString();
+      String endDate = inputDate['to'].toString();
+      String formattedStartDate = DateFormat("dd MMM yyyy").format(
+        DateFormat("yyyy-MM-dd").parse(startDate),
+      ).toUpperCase();
+      String formattedEndDate = DateFormat("dd MMM yyyy").format(
+        DateFormat("yyyy-MM-dd").parse(endDate),
+      ).toUpperCase();
+      return "$formattedStartDate - $formattedEndDate";
+    } catch (e) {
+      return "Invalid date format";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
+      appBar:
+      AppBar(
         backgroundColor: AppC.appColor,
         automaticallyImplyLeading: false,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Utils.getText("${widget.workingHoursData['first_name']}",
-                color: Colors.white, size: 14, weight: FontWeight.bold),
+                color: Colors.white, size: 18, weight: FontWeight.bold),
             Row(
               children: [
                 Container(
@@ -111,9 +110,9 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
             ),
           ],
         ),
-      ),
+      ) ,
       body: BlocProvider(
-        create: (context) => taskBloc..add(fetchEmployeeTaskHistoryEvent(to: '', from: '2024-12-01', userId: workingHoursData['empID'])),
+        create: (context) => taskBloc..add(fetchEmployeeTaskHistoryEvent(to: dateRange['to'].toString(), from: dateRange['from'].toString(), userId: workingHoursData['empID'])),
       child: BlocConsumer<TaskBloc, TaskState>(listener: (context, state){
         if(state is TaskLoadingState)
           {
@@ -122,134 +121,93 @@ class _WorkingHoursTaskUIState extends State<WorkingHoursTaskUI> {
         else if (state is TaskHistoryLoadedState)
         {
           loading = false;
-          print("working hours data ${workingHoursData['empID']}  date range${dateRange}");
-
-          print("Taskhistory ${state.taskHistory}");
+          //print("working hours data ${workingHoursData['empID']}  date range${dateRange}");
         }
         else if(state is GetConfigurationLoadedState)
           {
-            print("get config--> ${state.data}");
+            //print("get configs--> ${state.data}");
           }
+        else if(state is CategoryGroupLoadedState)
+        {
+          categoryGroupData.clear();
+          categoryGroupData.addAll(state.data);
+          //print("get configs--> ${categoryGroupData}");
+        }
+        else if(state is CohortDataLoadedState)
+        {
+          loading = false;
+          cohortsData.clear();
+          cohortsData.addAll(state.data);
+          //print("get configs--> ${cohortsData}");
+        }
+        else{
+          loading = true;
+        }
       },builder: (context, state)
       {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            child: Column(
-              children: [
-                Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Utils.getText(
-                          "01 Sep 2024 - 31 Dec 2024 ${combinedList.length}",
-                          size: 14,
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Icon(Icons.filter_alt_sharp),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                ListView.separated(shrinkWrap: true,itemCount: combinedList.length,itemBuilder: (context, index)
-                {
-                  final item = combinedList[index];
-                  //int count = combinedList[index]['title'];
-                  //print("Count $count");
-                  return TaskExpansion(
-                    leadingText: "Rental",
-                    titleText: "4",
-                    isInitialExpand: (index % 2 == 0),
-                    children: [
-                      TaskExpansion(leadingText: "${item['title']}",
-                          titleText: "3",
-                          children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                              leading: Utils.getText("2018 FORD"),trailing: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Utils.getText("10-17-24 ",),
-                                Utils.getText("00:30",color: AppC.red)
-                                ],
-                              ),
-                            )
-                          ]
-                      ),
-                    ],
-                  );
-                }, separatorBuilder: (context, index) => SizedBox(height: 10,),
-                ),
-                TaskExpansion(
-                  leadingText: "Rental",
-                  titleText: "4",
+        return
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Column(
                   children: [
-                    TaskExpansion(leadingText: "Drop Car Rental",
-                        titleText: "3",
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                            leading: Utils.getText("2018 FORD"),trailing: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Utils.getText("10-17-24 ",),
-                              Utils.getText("00:30",color: AppC.red)
-                            ],
+                          Utils.getText(
+                            convertDateToCustomFormat(dateRange),
+                            size: 14,
                           ),
-                          )
-                        ]
-                    ),
-                    const SizedBox(height: 8,),
-                    TaskExpansion(leadingText: "Pickup Car Rental",
-                        titleText: "1",
-                        children: [
                           GestureDetector(
-                            onTap: (){
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const ReasonEmployeeTaskHistory())
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => CheckboxPopup(cohortsData),
                               );
                             },
-                            child:
-                            TaskExpansionListTile(leadingText: '2019 CHEVROLET SPARK LS',
-                              dateText: '10-17-24',
-                              timeText: '00:30',
-                              timeTextColor: AppC.red,),
+                            child: Icon(Icons.filter_alt_sharp),
                           )
-                        ]
+                        ],
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      child: SizedBox(
+                        height: 600,
+                        child: ListView.separated(shrinkWrap: true,itemCount: categoryGroupData.length,itemBuilder: (context, index)
+                        {
+                          final item = categoryGroupData[index];
+                          return TaskExpansion(
+                            leadingText: "${item['name']}",
+                            titleText: "4",
+                            isInitialExpand: (index % 2 == 0),
+                            children: const [
+                              TaskExpansion(leadingText: "",
+                                  titleText: "",
+                                  children: [
+                                    TaskExpansionListTile(leadingText: '2018 FORD', dateText: '10-17-24', timeText: '00:30',),
+                                    TaskExpansionListTile(leadingText: '2018 FORD', dateText: '10-17-24', timeText: '00:30',)
+                                  ]
+                              ),
+                            ],
+                          );
+                        }, separatorBuilder: (context, index) => SizedBox(height: 10,),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8,),
-                TaskExpansion(leadingText: "Repair", titleText: "6", children: []),
-                const SizedBox(height: 8,),
-                TaskExpansion(leadingText: "Parts", titleText: "0", children: []),
-                const SizedBox(height: 8,),
-                TaskExpansion(leadingText: "Rental Ready", titleText: "0", children: []),
-                const SizedBox(height: 8,),
-                TaskExpansion(leadingText: "Maintenance", titleText: "0", children: []),
-                const SizedBox(height: 8,),
-                TaskExpansion(leadingText: "Operations", titleText: "1", children: []),
-                const SizedBox(height: 8,),
-                TaskExpansion(leadingText: "Other", titleText: "0", children: []),
-              ],
-            ),
-          ),
-        );
-      }),
+              ),
+              Visibility(
+                  visible: loading,
+                  child: Center(child: Utils.getProgressIndicator(context))),
+            ],
+          );
+      }
+      ),
       )
-
-
-
     );
   }
 }

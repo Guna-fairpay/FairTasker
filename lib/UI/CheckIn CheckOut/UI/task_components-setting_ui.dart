@@ -162,7 +162,8 @@ class _TaskComponentsSettingUIState extends State<TaskComponentsSettingUI>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          child: Column(
+          child:
+          Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Icon
