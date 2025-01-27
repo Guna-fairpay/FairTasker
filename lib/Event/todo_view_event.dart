@@ -859,15 +859,23 @@ class GetVoiceData extends TodoViewEvent {
   List<Object?> get props => [from,to];
 }
 
-class DeleteOtherData extends TodoViewEvent {
-  final int id;
+// class DeleteOtherData extends TodoViewEvent {
+//   final int id;
+//
+//   const DeleteOtherData({
+//     required this.id,
+//   });
+//
+//   @override
+//   List<Object> get props => [id];
+// }
 
-  const DeleteOtherData({
-    required this.id,
-  });
+class DeleteExpenseOtherEvent extends TodoViewEvent {
+  final int? id;
+  const DeleteExpenseOtherEvent({required this.id});
 
   @override
-  List<Object> get props => [id];
+  List<Object?> get props => [id];
 }
 
 
@@ -912,4 +920,6 @@ class GetEmployeeStatementData extends TodoViewEvent {
   @override
   List<Object> get props => [];
 }
+
+
 //---

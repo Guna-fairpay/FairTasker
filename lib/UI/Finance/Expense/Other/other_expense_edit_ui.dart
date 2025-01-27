@@ -140,8 +140,6 @@ class _OtherEditUiState extends State<OtherEditUi> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

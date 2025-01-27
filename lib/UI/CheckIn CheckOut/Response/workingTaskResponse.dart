@@ -1,28 +1,23 @@
-import 'dart:developer';
 
 class WorkingTaskResponse {
-  List<Map<String, dynamic>>? history;
-  List<Map<String, dynamic>>? taskCount;
+  List<Map<String, dynamic>>? history2;
+  List<Map<String, dynamic>>? history3;
 
-  WorkingTaskResponse({this.history});
+  WorkingTaskResponse({this.history2, this.history3});
 
   WorkingTaskResponse.fromJson(dynamic json) {
-    //log("$json");
     if (json['history'] != null) {
-      // Ensure history is parsed as a list of maps
-      history = List<Map<String, dynamic>>.from(json['history'] ?? []);
+      history2 = json['history']['2'] != null
+          ? List<Map<String, dynamic>>.from(json['history']['2'])
+          : [];
+      history3 = json['history']['3'] != null
+          ? List<Map<String, dynamic>>.from(json['history']['3'])
+          : [];
     } else {
-      history = [];
+      history2 = [];
+      history3 = [];
     }
-    if (json['taskCount'] != null) {
-      // Ensure history is parsed as a list of maps
-      taskCount = (json['taskCount'] as Map<String, dynamic>)
-          .entries
-          .map((e) => {e.key: e.value})
-          .toList();
-    } else {
-      history = [];
-    }
-    print("task count ${taskCount?[0]}");
+
+    print("Parsed history: ${history2?.length}");
   }
 }

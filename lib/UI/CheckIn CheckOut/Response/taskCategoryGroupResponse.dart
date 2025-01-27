@@ -20,8 +20,9 @@ class CohortsDataResponse{
 
   CohortsDataResponse.fromJson(dynamic json)
   {
-    data = json['cohortsData']is Map<String, dynamic>? [Map<String, dynamic>.from(json['cohortsData'] ?? {})]
-        : List<Map<String, dynamic>>.from(json['cohortsData'] ?? []);
+    data = json['cohortsData'] != null
+        ? List<Map<String, dynamic>>.from(json['cohortsData'].map((item) => Map<String, dynamic>.from(item)))
+        : [];
   }
   List<Map<String, dynamic>>? data;
 

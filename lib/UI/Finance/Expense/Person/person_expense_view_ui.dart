@@ -56,12 +56,6 @@ class _PersonExpenseViewUIState extends State<PersonExpenseViewUI> {
     }
   }
 
-  void _rotateImage() {
-    setState(() {
-      _rotationAngle += 90; // Adjust the rotation angle as needed
-    });
-  }
-
 
   void _showImageDialog(BuildContext context, List<String> imagePaths, List<String> imageNames) {
     ValueNotifier<int> currentIndex = ValueNotifier<int>(0); // Tracks the current index
@@ -416,31 +410,30 @@ class _PersonExpenseViewUIState extends State<PersonExpenseViewUI> {
                                               ),
                                               const SizedBox(width: 10),
                                               if (item['attachments'] != null && item['attachments'].isNotEmpty)
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.visibility,
-                                                    color: item['approved'] == 0 ? AppC.redAccent : AppC.appColor,
-                                                    size: 20,
-                                                  ),
-                                                  onPressed: () {
-                                                    final List<dynamic> attachments = item['attachments']; // Extract attachments
+                                              GestureDetector(
+                                                onTap: (){
+                                                  final List<dynamic> attachments = item['attachments'];
+                                                  if (attachments.isNotEmpty) {
+                                                    // Extract all paths into a list
+                                                    final List<String> paths = attachments
+                                                        .map((attachment) => attachment['path'] as String)
+                                                        .toList();
+                                                    final List<String> imageNames = attachments
+                                                        .map((attachment) => attachment['name'] as String)
+                                                        .toList();
 
-                                                    if (attachments.isNotEmpty) {
-                                                      // Extract all paths into a list
-                                                      final List<String> paths = attachments
-                                                          .map((attachment) => attachment['path'] as String)
-                                                          .toList();
-                                                      final List<String> imageNames = attachments
-                                                          .map((attachment) => attachment['name'] as String)
-                                                          .toList();
-
-                                                      // Call the dialog function with the list of paths and names
-                                                      _showImageDialog(context, paths, imageNames);
-                                                    } else {
-                                                      print("No attachments found.");
-                                                    }
-                                                  },
+                                                    // Call the dialog function with the list of paths and names
+                                                    _showImageDialog(context, paths, imageNames);
+                                                  } else {
+                                                    print("No attachments found.");
+                                                  }
+                                                },
+                                                child: Icon(
+                                                  Icons.visibility,
+                                                  color: item['approved'] == 0 ? AppC.redAccent : AppC.appColor,
+                                                  size: 17,
                                                 ),
+                                              ),
                                               const SizedBox(width: 10),
                                               // Initials
                                               Row(

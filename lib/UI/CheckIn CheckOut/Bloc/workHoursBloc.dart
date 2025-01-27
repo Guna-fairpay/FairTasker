@@ -3,6 +3,8 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/State/workingHoursState.dart'
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Repository/workingHoursRepository.dart';
 
+import '../Response/taskCategoryGroupResponse.dart';
+
 class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
   TaskRepository taskRepo = TaskRepository();
 
@@ -78,23 +80,48 @@ class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
         from: event.from,
         userId: event.userId,
       );
-      List<int> combinedList = [];
-      if (taskHistory?.history?.isNotEmpty ?? false)
-      {
-        for (var item in taskHistory?.history ?? [])
-        {
-          combinedList.addAll(item["2"] ?? []);
-          combinedList.addAll(item["3"] ?? []);
-        }
+
+      if (taskHistory?.history2 == null || taskHistory!.history2!.isEmpty) {
+        emit(TaskErrorState("No task history found"));
+        return;
       }
-      print("taskHistory ${taskHistory?.history} combinedList $combinedList");
+
+      List<Map<String, dynamic>> combinedList = [];
+
+      void extractData(Map<String, dynamic> item)
+      {
+        combinedList.add({
+          "vehicle_name": item["vehicles"]?.isNotEmpty ?? false
+              ? item["vehicles"][0]["vehicle_name"]
+              : null,
+          "todo_date": item["todo_date"],
+          "complete_time_taken": item["complete_time_taken"],
+          "fname": item["users"]?["first_name"],
+          "lname": item["users"]?["last_name"],
+          "location": item["location"],
+          "notes": item["notes"],
+          "reference_id": item["reference_id"],
+          "mileage": item["mileage"],
+          "expense_amount": item["expense_amount"],
+          "expense_description": item["expense_description"],
+          "category_name": item["category_name"],
+          "subcategory_name": item["subcategory_name"],
+          "expense_attachment": item["expense_attachment"],
+        });
+      }
+
+      taskHistory.history2!.forEach(extractData);
+
+      print("combinedList $combinedList");
 
       emit(TaskHistoryLoadedState(taskHistory: taskHistory, combinedList: combinedList));
     } catch (e) {
-      print("taskHistoryexcep $e");
+      print("taskHistory exception $e");
       emit(TaskErrorState(e.toString()));
     }
   }
+
+
 
   Future<void> _onFetchGetConfiguration(
       fetchWorkingGetConfigurationEvent event,
@@ -116,8 +143,14 @@ class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
       ) async {
     emit(TaskLoadingState());
     try {
-      final data = await taskRepo.fetchCategoryGroup();
-      print("getconfig $data");
+      final response = await taskRepo.fetchCategoryGroup();
+      final data = response?.data?.map((data) {
+        return {
+          'id': data['id'],
+          'name': data['name'],
+        };
+      }).toList();
+
       emit(CategoryGroupLoadedState(data: data));
     } catch (e) {
       print("CategoryGroupExcep $e");
@@ -131,13 +164,23 @@ class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
       ) async {
     emit(TaskLoadingState());
     try {
-      final data = await taskRepo.fetchCohortData();
-      print("getconfig $data");
-      emit(CohortDataLoadedState(data: data));
+      // Fetch the already-parsed CohortsDataResponse object
+      final response = await taskRepo.fetchCohortData();
+
+      // Use the `data` property directly
+      final cohortList = response?.data?.map((cohort) {
+        return {
+          'id': cohort['id'],
+          'cohort': cohort['cohort'],
+        };
+      }).toList();
+
+      emit(CohortDataLoadedState(data: cohortList));
     } catch (e) {
-      print("CohortExcep $e");
+      print("CohortException $e");
       emit(TaskErrorState(e.toString()));
     }
   }
+
 
 }

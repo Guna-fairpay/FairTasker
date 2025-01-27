@@ -72,6 +72,7 @@ dependencies:
   date_time: 0.11.0
   collection: ^1.17.1
   data_table_2: ^2.0.0
+  fbroadcast: ^2.0.0
 
 dev_dependencies:
   flutter_test:

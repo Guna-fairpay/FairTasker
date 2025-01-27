@@ -110,27 +110,31 @@ class TaskRepository {
     required String from,
     required int? userId,
   }) async {
-
     try {
-      final String apiUrl = '${Str.BASE_URL}employeeTaskHistory?to=${to}&user_id=${userId}&from=${from}';
+      print("Request parameters - from: $from, to: $to, userId: $userId");
+      final String apiUrl = '${Str.BASE_URL}employeeTaskHistory?to=$to&user_id=$userId&from=$from';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
-      print("API URL $apiUrl");
-      if(response!=null){
+
+      print("API URL: $apiUrl");
+      if (response != null) {
+        print("Response body: ${response.body}");
         if (response.statusCode == 200) {
           WorkingTaskResponse workingTaskResponse = WorkingTaskResponse.fromJson(jsonDecode(response.body));
           return workingTaskResponse;
         } else {
-          throw Exception(
-              'Failed to load task history. Status code: ${response.statusCode}');
+          print('Failed to load task history. Status code: ${response.statusCode}');
+          throw Exception('Failed to load task history. Status code: ${response.statusCode}');
         }
       } else {
         log('API Response is null');
         return null;
       }
     } catch (e) {
+      print('Exception: Error fetching task history: $e');
       throw Exception('Error fetching task history: $e');
     }
   }
+
 
   Future<WorkingGetConfigurationResponse?> fetchGetConfiguration() async {
     try{

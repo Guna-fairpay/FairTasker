@@ -4,6 +4,7 @@ import 'package:fairpytasker/Response/expense_other_response.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Person/person_expense_edit_ui.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -19,6 +20,7 @@ import '../../../../Repository/expense_repository.dart';
 import '../../../../Utilities/Str.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/num.dart';
+import 'Dialog/other_expense_delete_dialog.dart';
 import 'other_expense_add_ui.dart';
 import 'other_expense_edit_ui.dart';
 
@@ -32,60 +34,59 @@ class OtherExpenseViewUI extends StatefulWidget {
 }
 
 class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
-  @override
-  //double _rotationAngle = 0.0;
-  final TextEditingController _dateRangeController = TextEditingController();
   late TodoViewBloc expenseBloc;
   DateRange? selectedDateRange;
+  DateRange? startDate;
+  DateRange? endDate;
   List<Map<String, dynamic>> personList = [];
   dynamic totalExpenseAmount;
   bool loading = false;
 
 
   @override
-  void initState() {
+  void initState()
+  {
     expenseBloc=TodoViewBloc();
     DateTime now = DateTime.now();
     selectedDateRange = DateRange(
       now.subtract(const Duration(days: 7)),
       now,
     );
+    FBroadcast.instance().register("saved", (value, callback) => print("TRIGGERED"));
     super.initState();
   }
 
   @override
-  void dispose() {
+  void dispose()
+  {
     expenseBloc.close();
     super.dispose();
   }
 
 //Add Otherui
   void _navigateToTaskAddUI() async {
-    setState(() {
-      loading = true;
-    });
     final newPersonList = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(builder: (context) =>  OtherAddUi()),
     );
-    if (newPersonList != null) {
-      setState(() {
-        expenseBloc.add(AddOtherData(
-            expenseDate: newPersonList['expense_date']
-                .toString()
-                .split('-')
-                .reversed
-                .join('-'),
-            expenseAmount: newPersonList['expense_amount'],
-            categoryId: (newPersonList['category_id']).toString(),
-            subcategoryId: (newPersonList['subcategory_id']).toString(),
-            approved: newPersonList['approved'],
-            expenseDescription: newPersonList['expense_description'].toString(),
-            expenseTo: newPersonList['expense_to'],
-            paymentId: newPersonList['payment_method_id'],
-            id: newPersonList['id']));
-        Utils.showMobileToast('Other Expense added successfully');
-      });
+    if (newPersonList != null)
+    {
+      expenseBloc.add(AddOtherData(
+          expenseDate: newPersonList['expense_date']
+              .toString()
+              .split('-')
+              .reversed
+              .join('-'),
+          expenseAmount: newPersonList['expense_amount'],
+          categoryId: (newPersonList['category_id']).toString(),
+          subcategoryId: (newPersonList['subcategory_id']).toString(),
+          approved: newPersonList['approved'],
+          expenseDescription: newPersonList['expense_description'].toString(),
+          expenseTo: newPersonList['expense_to'],
+          paymentId: newPersonList['payment_method_id'],
+          id: newPersonList['id']));
+      Utils.showMobileToast('Other Expense added successfully');
+      expenseBloc.add(GetExpenseOtherData(minDate: selectedDateRange!.start.toString(),maxDate:  selectedDateRange!.end.toString(),));
     }
   }
   //Edit Otherui
@@ -110,9 +111,9 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
           paymentId: updatedPerson['payment_method_id'],
           id: updatedPerson['id']));
       Utils.showMobileToast('Other Expense updated successfully');
+      expenseBloc.add(GetExpenseOtherData(minDate: selectedDateRange!.start.toString(),maxDate:  selectedDateRange!.end.toString(),));
     }
   }
-
 
 
   void _showImageDialog(BuildContext context, List<String> imagePaths, List<String> imageNames) {
@@ -289,31 +290,8 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
     );
   }
 
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogcontext) {
-        return AlertDialog(
-          title: const Text('Confirm Delete'),
-          content: const Text('Are you sure you want to delete this item?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(dialogcontext, false), // No
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogcontext, true); // Yes
-              },
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget datePickerBuilder(BuildContext context, dynamic Function(DateRange?) onDateRangeChanged, [bool doubleMonth = false]) {
+  Widget datePickerBuilder(BuildContext context, dynamic Function(DateRange?) onDateRangeChanged, [bool doubleMonth = false])
+  {
     return DateRangePickerWidget(
       doubleMonth: doubleMonth,
       initialDateRange: selectedDateRange,
@@ -323,11 +301,9 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
       displayMonthsSeparator: true,
     );
   }
-
-
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+  {
     // Initialize the ExpensePersonBloc inside BlocProvider
     return Scaffold(
       backgroundColor: AppC.white,
@@ -336,11 +312,9 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
         child:  BlocConsumer<TodoViewBloc, TodoViewState>(
           listener: (context, state) {
             if (state is TodoListLoading) {
-              setState(() {
                 loading = true;
-              });
             } else if (state is ExpenseOtherLoaded) {
-              setState(() {
+
                 loading = false;
                 personList = state.data;
                 if (state.totalExpensesAmount is double) {
@@ -350,11 +324,8 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                 } else {
                   print('Invalid type for totalExpensesAmount');
                 }
-              });
             } else {
-              setState(() {
                 loading = false;
-              });
             }
           },
           builder: (context, state) {
@@ -422,7 +393,6 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                           itemCount: personList.length,
                           itemBuilder: (context, index) {
                             final item = personList[index];
-                            print("item list ${item['id']}");
                             bool isChecked = (item['approved'] == 1);
                             return Slidable(
                               key: Key(item['id'].toString()),
@@ -435,7 +405,8 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                                     final confirmDelete = await showDialog<bool>(
                                       context: context,
                                       builder: (BuildContext context) {
-                                        return AlertDialog(
+                                        return
+                                          AlertDialog(
                                           title: const Text('Confirm Delete'),
                                           content: const Text('Are you sure you want to delete this item?'),
                                           actions: [
@@ -451,20 +422,7 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                                         );
                                       },
                                     );
-                                    if (confirmDelete == true) {
-                                      setState(() {
 
-                                        context.read<TodoViewBloc>().add(DeleteOtherData(id: item['id']));
-                                      });
-
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Item deleted successfully!')),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Delete action cancelled.')),
-                                      );
-                                    }
                                   },
                                 ),
                                 children: [
@@ -494,67 +452,74 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             // Date
-                                            Utils.getText(
-                                              item['expense_date']?.substring(5) ?? '',
-                                              color: item['approved'] == 0
-                                                  ? AppC.redAccent
-                                                  : AppC.appColor,
-                                            ),
-                                            const SizedBox(width: 10),
-                                            // Full Name
-                                            Expanded(
-                                              child: Utils.getText(
-                                                item['subcategory']['name'].toString(),
-                                                weight: FontWeight.bold,
-                                                color: item['approved'] == 0
-                                                    ? AppC.redAccent
-                                                    : AppC.appColor,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            if (item['attachments'] != null && item['attachments'].isNotEmpty)
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.visibility,
-                                                  color: item['approved'] == 0 ? AppC.redAccent : AppC.appColor,
-                                                  size: 20,
+                                            Row(
+                                              children: [
+                                                Utils.getText(
+                                                  item['expense_date']?.substring(5) ?? '',
+                                                  color: item['approved'] == 0
+                                                      ? AppC.redAccent
+                                                      : AppC.appColor,
                                                 ),
-                                                onPressed: () {
-                                                  final List<dynamic> attachments = item['attachments']; // Extract attachments
-
-                                                  if (attachments.isNotEmpty) {
-                                                    // Extract all paths into a list
-                                                    final List<String> paths = attachments
-                                                        .map((attachment) => attachment['path'] as String)
-                                                        .toList();
-                                                    final List<String> imageNames = attachments
-                                                        .map((attachment) => attachment['name'] as String)
-                                                        .toList();
-
-                                                    // Call the dialog function with the list of paths and names
-                                                    _showImageDialog(context, paths, imageNames);
-                                                  } else {
-                                                    print("No attachments found.");
-                                                  }
-                                                },
-                                                padding: EdgeInsets.zero,
-                                                constraints: const BoxConstraints(
-                                                  minWidth: 24, // Minimum width
-                                                  minHeight: 24, // Minimum height
+                                                const SizedBox(width: 10),
+                                                Utils.getText(
+                                                  item['subcategory']['name'].toString(),
+                                                  weight: FontWeight.bold,
+                                                  color: item['approved'] == 0
+                                                      ? AppC.redAccent
+                                                      : AppC.appColor,
                                                 ),
-                                                splashRadius: 15,
-                                              ),
-
-                                            const SizedBox(width: 10),
+                                                const SizedBox(width: 5),
+                                                // Full Name
+                                                SizedBox(
+                                                  width: 50,
+                                                  child: Utils.getText(
+                                                      "( ${item['expense_description'].toString()} )",
+                                                      weight: FontWeight.bold,
+                                                      color: item['approved'] == 0
+                                                          ? AppC.redAccent
+                                                          : AppC.appColor,
+                                                      overFlow: TextOverflow.ellipsis
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                             // Initials
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 // Initials from the name
+                                                const SizedBox(width: 10),
+                                                if (item['attachments'] != null && item['attachments'].isNotEmpty)
+                                                  GestureDetector(
+                                                    onTap: (){
+                                                      final List<dynamic> attachments = item['attachments'];
+                                                      if (attachments.isNotEmpty) {
+                                                        // Extract all paths into a list
+                                                        final List<String> paths = attachments
+                                                            .map((attachment) => attachment['path'] as String)
+                                                            .toList();
+                                                        final List<String> imageNames = attachments
+                                                            .map((attachment) => attachment['name'] as String)
+                                                            .toList();
+
+                                                        // Call the dialog function with the list of paths and names
+                                                        _showImageDialog(context, paths, imageNames);
+                                                      } else {
+                                                        print("No attachments found.");
+                                                      }
+                                                    },
+                                                    child: Icon(
+                                                      Icons.visibility,
+                                                      color: item['approved'] == 0 ? AppC.redAccent : AppC.appColor,
+                                                      size: 18,
+                                                    ),
+                                                  ),
                                                 Utils.getText(
                                                   '',
                                                   weight: FontWeight.bold,

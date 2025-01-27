@@ -1349,7 +1349,7 @@ class Utils {
 /*---------------------------------------------------------------------------------------*/
 
   static void dismissKeyboard(BuildContext context) {
-    FocusScope.of(context).requestFocus(FocusNode());
+    FocusScope.of(context).unfocus();
   }
 
   static Widget customAutoCompleteList(

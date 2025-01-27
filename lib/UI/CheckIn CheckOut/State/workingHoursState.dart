@@ -49,7 +49,7 @@ class CheckInoutReasonLoadedState extends TaskState
 
 class TaskHistoryLoadedState extends TaskState {
   final dynamic taskHistory;
-  final List<int> combinedList;
+  final List<Map<String, dynamic>> combinedList;
   TaskHistoryLoadedState({required this.taskHistory, required this.combinedList});
 
   @override
