@@ -145,7 +145,6 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
               itemCount: widget.groupVehicleList.length,
               itemBuilder: (context, index){
                 final group=widget.groupVehicleList[index];
-                return CheckboxListTile(value: value, onChanged: onChanged)
                 return Dismissible(
                   key: UniqueKey(),
                   child: ListTile(
