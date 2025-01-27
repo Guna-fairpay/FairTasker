@@ -172,18 +172,18 @@ class _TodoViewUIState extends State<TodoViewUI> {
     todoListRepo = TodoListRepo();
     todoBloc = TodoViewBloc();
     locationDataBloc = LocationDataBloc();
-    todoBloc!.add(const GetVehicleListData());
-    todoBloc!.add(const GetTaskExpenseData());
-    todoBloc!.add(const GetVendorData());
-    todoBloc!.add(const GetLocationData());
-    todoBloc!.add(const GetDropdownData());
-    todoBloc!.add(const GetAssignedToList());
-    todoBloc!.add(const GetPartsList());
-    todoBloc!.add(const GetSuppliesList());
-    todoBloc!.add(const GetVehicleGroupingList());
-    todoBloc!.add(const GetUserGroupingList());
-    todoBloc!.add(const GetVehicleStatusList());
-    todoBloc!.add(const GetTaskCategoryGroup());
+    todoBloc?.add(const GetVehicleListData());
+    todoBloc?.add(const GetTaskExpenseData());
+    todoBloc?.add(const GetVendorData());
+    todoBloc?.add(const GetLocationData());
+    todoBloc?.add(const GetDropdownData());
+    todoBloc?.add(const GetAssignedToList());
+    todoBloc?.add(const GetPartsList());
+    todoBloc?.add(const GetSuppliesList());
+    todoBloc?.add(const GetVehicleGroupingList());
+    todoBloc?.add(const GetUserGroupingList());
+    todoBloc?.add(const GetVehicleStatusList());
+    todoBloc?.add(const GetTaskCategoryGroup());
     taskTimeController.addListener(() {setState(() {});});
     reasonController.addListener(() {setState(() {});});
     super.initState();
@@ -603,8 +603,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
       Function(List<Map<String, dynamic>>?) onSelect,
       List<Map<String, dynamic>> taskCategoryGroupData,
       List<Map<String, dynamic>> titleList,
-      )
-  async {
+      ) async {
     List<Map<String, dynamic>> taskList = [];
     List<Map<String, dynamic>> headList = [];
     List<Map<String, dynamic>> headListName = [];
@@ -1532,7 +1531,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       top: 0, bottom: 0, left: 8),
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(children: [
                                         SizedBox(
@@ -1542,9 +1541,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                               scale: .6,
                                               child: Switch(
                                                   trackOutlineColor:
-                                                      WidgetStateColor
-                                                          .resolveWith(
-                                                    (states) {
+                                                  WidgetStateColor
+                                                      .resolveWith(
+                                                        (states) {
                                                       if (states.contains(
                                                           WidgetState
                                                               .selected)) {
@@ -1557,28 +1556,28 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   activeTrackColor: AppC.green,
                                                   activeColor: AppC.white,
                                                   inactiveThumbColor:
-                                                      AppC.white,
+                                                  AppC.white,
                                                   inactiveTrackColor: AppC.grey,
                                                   value: statusFilter,
                                                   onChanged: (value) {
                                                     if (value) {
                                                       todoBloc!.add(GetTodoList(
                                                         selectedDate:
-                                                            filterDate,
+                                                        filterDate,
                                                         status: "Completed",
                                                         resourceId: Utils
                                                             .getStringFromObjectList(
-                                                                selectedResourceMain ??
-                                                                    []),
+                                                            selectedResourceMain ??
+                                                                []),
                                                         branchId:
-                                                            branchNO.toString(),
+                                                        branchNO.toString(),
                                                       ));
                                                     } else {
                                                       todoBloc!.add(GetTodoList(
                                                         selectedDate: filterDate,
                                                         status: "In Progress",
                                                         resourceId: Utils.getStringFromObjectList(
-                                                                selectedResourceMain ?? []),
+                                                            selectedResourceMain ?? []),
                                                         branchId: branchNO.toString(),
                                                       ));
                                                     }
@@ -1592,214 +1591,214 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   })),
                                         ),
                                         const SizedBox(width: 15),
-                                    InkWell(
-                                      key: _key,
-                                      onTap: () async {
-                                        filteredVehicle.clear();
-                                        for (var item in todoList) {
-                                          listToFilterVehicle.addAll(item);
-                                          List vehicles = listToFilterVehicle['vehicles'];
+                                        InkWell(
+                                          key: _key,
+                                          onTap: () async {
+                                            filteredVehicle.clear();
+                                            for (var item in todoList) {
+                                              listToFilterVehicle.addAll(item);
+                                              List vehicles = listToFilterVehicle['vehicles'];
 
-                                          if (listToFilterVehicle['vin'] != null) {
-                                            var list = vehicleList.firstWhere(
-                                                  (item) => item['vin'] == listToFilterVehicle['vin'],
-                                              orElse: () => {},
-                                            );
-                                            filteredVehicle.add(list);
-                                          } else {
-                                            for (var vehicle in vehicles) {
-                                              var list = vehicleList.firstWhere(
-                                                    (item) => item['vin'] == vehicle['vin'],
-                                                orElse: () => {},
-                                              );
-                                              filteredVehicle.add(list);
-                                            }
-                                          }
-                                        }
-
-                                        final RenderBox renderBox =
-                                        _key.currentContext!.findRenderObject() as RenderBox;
-                                        final Offset offset = renderBox.localToGlobal(Offset.zero);
-                                        final Size size = renderBox.size;
-
-                                        await showMenu(
-                                          elevation: 5,
-                                          color: AppC.white,
-                                          context: context,
-                                          position: RelativeRect.fromLTRB(
-                                            offset.dx,
-                                            offset.dy + size.height,
-                                            offset.dx + size.width,
-                                            offset.dy,
-                                          ),
-                                          items: [
-                                            PopupMenuItem(
-                                              child: StatefulBuilder(
-                                                builder: (context, setState) {
-                                                  return Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.close,
-                                                        color: AppC.red,
-                                                      ),
-                                                      const SizedBox(height: 3),
-                                                      SizedBox(
-                                                        height: 40,
-                                                        child: Utils.getSearchBarUI(
-                                                              () {},
-                                                              (value) {
-                                                            setState(() {
-                                                              searchQuery = value.toLowerCase();
-                                                            });
-                                                          },
-                                                          vehicleSearchController,
-                                                        ),
-                                                      ),
-                                                      if (filteredVehicle.isNotEmpty)
-                                                        ...[
-                                                          // Year Filter
-                                                          if (filteredVehicle
-                                                              .map((e) => e['year'])
-                                                              .where((year) => year != null && year != '')
-                                                              .isNotEmpty)
-                                                            Utils.getText('Year', weight: FontWeight.w700),
-                                                          ...filteredVehicle
-                                                              .map((e) => e['year'] ?? '')
-                                                              .toSet()
-                                                              .where((year) => year != '') // Filter out empty or null values
-                                                              .map((year) => Row(
-                                                            children: [
-                                                              Transform.scale(
-                                                                scale: 0.8,
-                                                                child: SizedBox(
-                                                                  height: 30,
-                                                                  width: 30,
-                                                                  child: Checkbox(
-                                                                    activeColor:AppC.blue,
-                                                                    value: selectedYears.contains(year),
-                                                                    onChanged: (value) {
-                                                                      setState(() {
-                                                                        if (value == true) {
-                                                                          selectedYears.add(year);
-
-                                                                        } else {
-                                                                          selectedYears.remove(year);
-                                                                        }
-                                                                        applyFilters();
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Utils.getText('$year'),
-                                                            ],
-                                                          )),
-
-                                                          // Make Filter
-                                                          if (filteredVehicle
-                                                              .map((e) => e['make'])
-                                                              .where((make) => make != null && make != '')
-                                                              .isNotEmpty)
-                                                            Utils.getText('Make', weight: FontWeight.w700),
-                                                          ...filteredVehicle
-                                                              .map((e) => e['make'] ?? '')
-                                                              .toSet()
-                                                              .map((make) => Row(
-                                                            children: [
-                                                              Transform.scale(
-                                                                scale: 0.8,
-                                                                child: SizedBox(
-                                                                  height: 30,
-                                                                  width: 30,
-                                                                  child: Checkbox(
-                                                                    activeColor:AppC.blue,
-                                                                    value: selectedMakes.contains(make),
-                                                                    onChanged: (value) {
-                                                                      setState(() {
-                                                                        if (value == true) {
-                                                                          selectedMakes.add(make);
-                                                                        } else {
-                                                                          selectedMakes.remove(make);
-                                                                        }
-                                                                        applyFilters();
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Utils.getText('$make'),
-                                                            ],
-                                                          )),
-                                                          // Model Filter
-                                                          if (filteredVehicle
-                                                              .map((e) => e['model'])
-                                                              .where((model) => model != null && model != '')
-                                                              .isNotEmpty)
-                                                            Utils.getText('Model', weight: FontWeight.w700),
-                                                          ...filteredVehicle
-                                                              .map((e) => e['model'] ?? '')
-                                                              .toSet()
-                                                              .map((model) => Row(
-                                                            children: [
-                                                              Transform.scale(
-                                                                scale: 0.8,
-                                                                child: SizedBox(
-                                                                  height: 30,
-                                                                  width: 30,
-                                                                  child: Checkbox(
-                                                                    activeColor:AppC.blue,
-                                                                    value: selectedModels.contains(model),
-                                                                    onChanged: (value) {
-                                                                      setState(() {
-                                                                        if (value == true) {
-                                                                          selectedModels.add(model);
-                                                                        } else {
-                                                                          selectedModels.remove(model);
-                                                                        }
-                                                                        applyFilters();
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Utils.getText('$model'),
-                                                            ],
-                                                          )),
-                                                        ],
-                                                    ],
+                                              if (listToFilterVehicle['vin'] != null) {
+                                                var list = vehicleList.firstWhere(
+                                                      (item) => item['vin'] == listToFilterVehicle['vin'],
+                                                  orElse: () => {},
+                                                );
+                                                filteredVehicle.add(list);
+                                              } else {
+                                                for (var vehicle in vehicles) {
+                                                  var list = vehicleList.firstWhere(
+                                                        (item) => item['vin'] == vehicle['vin'],
+                                                    orElse: () => {},
                                                   );
-                                                },
+                                                  filteredVehicle.add(list);
+                                                }
+                                              }
+                                            }
+
+                                            final RenderBox renderBox =
+                                            _key.currentContext!.findRenderObject() as RenderBox;
+                                            final Offset offset = renderBox.localToGlobal(Offset.zero);
+                                            final Size size = renderBox.size;
+
+                                            await showMenu(
+                                              elevation: 5,
+                                              color: AppC.white,
+                                              context: context,
+                                              position: RelativeRect.fromLTRB(
+                                                offset.dx,
+                                                offset.dy + size.height,
+                                                offset.dx + size.width,
+                                                offset.dy,
                                               ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                      child: Image.asset(
-                                        Assets.vehicleSearchIcon,
-                                        height: 24,
-                                        width: 24,
-                                        color: selectedYears.isNotEmpty
-                                            ? AppC.red
-                                            : selectedMakes.isNotEmpty
-                                            ? AppC.red
-                                            : selectedModels.isNotEmpty
-                                            ? AppC.red
-                                            : AppC.appColor,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
+                                              items: [
+                                                PopupMenuItem(
+                                                  child: StatefulBuilder(
+                                                    builder: (context, setState) {
+                                                      return Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.close,
+                                                            color: AppC.red,
+                                                          ),
+                                                          const SizedBox(height: 3),
+                                                          SizedBox(
+                                                            height: 40,
+                                                            child: Utils.getSearchBarUI(
+                                                                  () {},
+                                                                  (value) {
+                                                                setState(() {
+                                                                  searchQuery = value.toLowerCase();
+                                                                });
+                                                              },
+                                                              vehicleSearchController,
+                                                            ),
+                                                          ),
+                                                          if (filteredVehicle.isNotEmpty)
+                                                            ...[
+                                                              // Year Filter
+                                                              if (filteredVehicle
+                                                                  .map((e) => e['year'])
+                                                                  .where((year) => year != null && year != '')
+                                                                  .isNotEmpty)
+                                                                Utils.getText('Year', weight: FontWeight.w700),
+                                                              ...filteredVehicle
+                                                                  .map((e) => e['year'] ?? '')
+                                                                  .toSet()
+                                                                  .where((year) => year != '') // Filter out empty or null values
+                                                                  .map((year) => Row(
+                                                                children: [
+                                                                  Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: SizedBox(
+                                                                      height: 30,
+                                                                      width: 30,
+                                                                      child: Checkbox(
+                                                                        activeColor:AppC.blue,
+                                                                        value: selectedYears.contains(year),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            if (value == true) {
+                                                                              selectedYears.add(year);
+
+                                                                            } else {
+                                                                              selectedYears.remove(year);
+                                                                            }
+                                                                            applyFilters();
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Utils.getText('$year'),
+                                                                ],
+                                                              )),
+
+                                                              // Make Filter
+                                                              if (filteredVehicle
+                                                                  .map((e) => e['make'])
+                                                                  .where((make) => make != null && make != '')
+                                                                  .isNotEmpty)
+                                                                Utils.getText('Make', weight: FontWeight.w700),
+                                                              ...filteredVehicle
+                                                                  .map((e) => e['make'] ?? '')
+                                                                  .toSet()
+                                                                  .map((make) => Row(
+                                                                children: [
+                                                                  Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: SizedBox(
+                                                                      height: 30,
+                                                                      width: 30,
+                                                                      child: Checkbox(
+                                                                        activeColor:AppC.blue,
+                                                                        value: selectedMakes.contains(make),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            if (value == true) {
+                                                                              selectedMakes.add(make);
+                                                                            } else {
+                                                                              selectedMakes.remove(make);
+                                                                            }
+                                                                            applyFilters();
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Utils.getText('$make'),
+                                                                ],
+                                                              )),
+                                                              // Model Filter
+                                                              if (filteredVehicle
+                                                                  .map((e) => e['model'])
+                                                                  .where((model) => model != null && model != '')
+                                                                  .isNotEmpty)
+                                                                Utils.getText('Model', weight: FontWeight.w700),
+                                                              ...filteredVehicle
+                                                                  .map((e) => e['model'] ?? '')
+                                                                  .toSet()
+                                                                  .map((model) => Row(
+                                                                children: [
+                                                                  Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: SizedBox(
+                                                                      height: 30,
+                                                                      width: 30,
+                                                                      child: Checkbox(
+                                                                        activeColor:AppC.blue,
+                                                                        value: selectedModels.contains(model),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            if (value == true) {
+                                                                              selectedModels.add(model);
+                                                                            } else {
+                                                                              selectedModels.remove(model);
+                                                                            }
+                                                                            applyFilters();
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Utils.getText('$model'),
+                                                                ],
+                                                              )),
+                                                            ],
+                                                        ],
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                          child: Image.asset(
+                                            Assets.vehicleSearchIcon,
+                                            height: 24,
+                                            width: 24,
+                                            color: selectedYears.isNotEmpty
+                                                ? AppC.red
+                                                : selectedMakes.isNotEmpty
+                                                ? AppC.red
+                                                : selectedModels.isNotEmpty
+                                                ? AppC.red
+                                                : AppC.appColor,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
                                         InkWell(
                                             onTap: () async {
                                               selectedDate =
                                                   selectedDate.subtract(
                                                       const Duration(days: 1));
                                               formattedDate =
-                                                  (DateFormat("MMM dd")
-                                                      .format(selectedDate));
+                                              (DateFormat("MMM dd")
+                                                  .format(selectedDate));
                                               filterDate =
-                                                  (DateFormat("yyyy-MM-dd")
-                                                      .format(selectedDate));
+                                              (DateFormat("yyyy-MM-dd")
+                                                  .format(selectedDate));
                                               todoBloc!.add(GetTodoList(
                                                 selectedDate: filterDate,
                                                 status: statusFilter
@@ -1807,8 +1806,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                     : "In Progress",
                                                 resourceId: Utils
                                                     .getStringFromObjectList(
-                                                        selectedResourceMain ??
-                                                            []),
+                                                    selectedResourceMain ??
+                                                        []),
                                                 branchId: branchNO.toString(),
                                               ));
                                               setState(() {});
@@ -1840,7 +1839,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                             ? "Completed"
                                                             : "In Progress",
                                                         resourceId: Utils.getStringFromObjectList(
-                                                                selectedResourceMain ?? []),
+                                                            selectedResourceMain ?? []),
                                                         branchId:branchNO.toString(),
                                                       ));
                                                     }
@@ -1886,7 +1885,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                               showPopupWithCheckBoxDepartmentWise(
                                                 resourceListForCombination,
                                                 details, // tap details
-                                                (selectedResources) {
+                                                    (selectedResources) {
                                                   // onSelect callback
                                                   selectedResourceMain = [];
                                                   selectedResourceMain!.addAll(
@@ -1902,7 +1901,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                           [],
                                                     ),
                                                     branchId:
-                                                        branchNO.toString(),
+                                                    branchNO.toString(),
                                                   ));
                                                 },
                                                 selectedStates, // resource list
@@ -1911,11 +1910,11 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                             },
                                             child: Row(
                                               children: [
-                                                  Icon(selectedUserCount >= 1?
-                                                    Icons.supervisor_account:Icons.person_outline,
-                                                    color: AppC().base,
-                                                    size: 24,
-                                                  ),
+                                                Icon(selectedUserCount >= 1?
+                                                Icons.supervisor_account:Icons.person_outline,
+                                                  color: AppC().base,
+                                                  size: 24,
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -1928,20 +1927,20 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   context,
                                                   todoListTemp,
                                                   details,
-                                                  (resource) {
+                                                      (resource) {
                                                     todoList = [];
                                                     todoList.addAll(resource as Iterable<Map<String,dynamic>>);
                                                     setState(() {});
                                                   },
-                                                    taskCategoryGroupData,
-                                                    titleList,
+                                                  taskCategoryGroupData,
+                                                  titleList,
                                                 );
                                               },
                                               child:
-                                               Row(
+                                              Row(
                                                 children: [
                                                   Icon(selectedTaskCount < 1?
-                                                    Icons.filter_alt_outlined:Icons.filter_alt_sharp,
+                                                  Icons.filter_alt_outlined:Icons.filter_alt_sharp,
                                                     color: AppC.black,
                                                     size: 22,
                                                   ),
@@ -1953,12 +1952,11 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                   ),
                                 ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Utils.getText('00:00 ',
+                                        Utils.getText('00:00',
                                             weight: FontWeight.bold, size: 13),
                                         const SizedBox(width: 3),
                                         Utils.getText(
@@ -2041,9 +2039,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                           child: SizedBox(
                                             height: 35,
                                             child: Utils.getSearchBarUI(() {},
-                                                (value) {
-                                              _filterTodo(value);
-                                            }, searchController,),
+                                                  (value) {
+                                                _filterTodo(value);
+                                              }, searchController,),
                                           ),
                                         ),
                                         const SizedBox(

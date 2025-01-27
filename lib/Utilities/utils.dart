@@ -4,6 +4,7 @@ import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -402,6 +403,8 @@ class Utils {
       String? hintText,
       Widget? suffixIcon,
       bool obscure = false,
+      double? height,
+      TextStyle? hintTextStyle,
       Color fillColor = AppC.trans,
       EdgeInsets contentPadding =
           const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -414,7 +417,7 @@ class Utils {
       double borderWidth = Num.borderWidthField}) {
     hintText = hintText ?? labelText;
     return SizedBox(
-      height: 35,
+      // height: height ?? 35,
       child: TextFormField(
         key: key,
         validator: validator,
@@ -435,7 +438,8 @@ class Utils {
             label: label,
             hintText: hintText,
             counterText: '',
-            hintStyle: const TextStyle(color: AppC.grey),
+            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+            labelStyle: const TextStyle(color: AppC.grey),
             filled: true,
             fillColor: fillColor,
             focusedBorder: OutlineInputBorder(
@@ -449,7 +453,7 @@ class Utils {
                 borderRadius: BorderRadius.circular(borderRadius)),
             suffixIcon: suffixIcon),
         style: TextStyle(
-          fontSize: textSize,
+          // fontSize: textSize,
           color: textColor,
           fontWeight: fontWeight,
         ),
@@ -1437,6 +1441,18 @@ class Utils {
     // userRole!.addAll(roleList);
     accessTokenGlobal = token;
     userIdGlobal = userId.toString();
+    Session.of
+    ..set(Str.loginPrefText, token.isNotEmpty)
+    ..set("name", name)
+    ..set(Str.rolePrefText, role ?? [])
+    ..set(Str.userPermissionPrefText, (userPermissionsGlobal ?? []))
+    ..set(Str.passwordPrefText, password.toString())
+    ..set(Str.userIdPrefText, userId.toString())
+    ..set(Str.branchIdPrefText, branchId)
+    ..set(Str.hrmIdPrefText, hrmId)
+    ..set(Str.accessTokenPrefText, token)
+    ..set(Str.emailPrefText, email);
+
     Utils.setStringPreference("name", name.toString());
     Utils.setStringListPreference(Str.rolePrefText, role ?? []);
     Utils.setStringListPreference(

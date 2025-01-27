@@ -96,7 +96,7 @@ class _CommentsUIState extends State<CommentsUI> {
   void _addNewComment() async {
     final newComment = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CommentsAddUI()),
+      MaterialPageRoute(builder: (context) => const CommentsAddUI(), fullscreenDialog: true),
     );
 
     if (newComment != null) {

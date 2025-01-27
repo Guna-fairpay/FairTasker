@@ -44,5 +44,9 @@ class Assets{
   static const String favicon = 'assets/images/favicon.ico';
   static const String mail='assets/images/mail_icon.png';
   static const String rentalCar = 'assets/vectors/rentalCar.svg';
+  static const String taskManagerLogo='assets/images/fair_task_manager_logo.png';
+
+
+  static const String assetVectors = "assets/vectors/reshot-icon.svg";
 
 }

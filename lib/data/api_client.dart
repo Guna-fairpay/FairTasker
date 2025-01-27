@@ -6,7 +6,21 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:talker/talker.dart' show Talker;
+import 'package:http_interceptor/http_interceptor.dart';
+import 'package:talker_http_logger/talker_http_logger.dart';
+
 class ApiClient {
+
+  // get client => http.Client();
+
+  InterceptedClient get client {
+    final talker = Talker();
+    final client = InterceptedClient.build(interceptors: [
+      TalkerHttpLogger(talker: talker),
+    ]);
+    return client;
+  }
 
   Future<HttpClientResponse?>  callHttpClientGetMethod(String url) async{
     if(await Utils.connection()) {
@@ -21,8 +35,12 @@ class ApiClient {
 
   Future<http.Response?>  callGetMethod(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await http.get(Utils.getUri(url),
-          headers: Utils.getHeadersWithToken());
+      http.Response response = await compute(_getCompute, {
+        "url" : url,
+        "token" : Utils.getHeadersWithToken(),
+      });
+      // http.Response response = await client.get(Utils.getUri(url),
+      //     headers: Utils.getHeadersWithToken());
       return response;
     }else{
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -32,7 +50,7 @@ class ApiClient {
 
   Future<http.Response?>  callPostMethodWithoutBodyHeader(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await http.post(Utils.getUri(url));
+      http.Response response = await client.post(Utils.getUri(url));
       return response;
     }else{
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -43,7 +61,7 @@ class ApiClient {
 
   Future<http.Response?>  callDelete(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await http.delete(Utils.getUri(url),
+      http.Response response = await client.delete(Utils.getUri(url),
           headers: Utils.getHeadersWithToken(),
     );
       return response;
@@ -61,7 +79,7 @@ class ApiClient {
       }else{
       //  debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken()}');
       }
-      http.Response response = await http.put(Utils.getUri(url),
+      http.Response response = await client.put(Utils.getUri(url),
           headers: tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),
           body: body);
       return response;
@@ -80,7 +98,7 @@ class ApiClient {
       }else{
         debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken()}');
       }
-      http.Response response = await http.post(Utils.getUri(url),
+      http.Response response = await client.post(Utils.getUri(url),
           headers: tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),
           body: body);
       return response;
@@ -90,5 +108,12 @@ class ApiClient {
       }
       return null;
     }
+  }
+
+  Future<http.Response> _getCompute(dynamic message) async {
+    return await client.get(Utils.getUri(message['url']),
+        headers: message['token'],
+      params: message['params']
+    );
   }
 }
