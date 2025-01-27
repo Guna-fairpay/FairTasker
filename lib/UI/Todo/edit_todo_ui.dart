@@ -733,7 +733,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           (item) => item['id'] == (todoItem['custom_link_id']?.toString() ?? '1'),
       orElse: () => {},
     );
-    reservationController.text=todoItem['reference_id'];
+    reservationController.text=todoItem['reference_id'] ?? "";
     reasonController.addListener(() {
 
       setState(() {});
