@@ -35,8 +35,12 @@ class ApiClient {
 
   Future<http.Response?>  callGetMethod(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await client.get(Utils.getUri(url),
-          headers: Utils.getHeadersWithToken());
+      http.Response response = await compute(_getCompute, {
+        "url" : url,
+        "token" : Utils.getHeadersWithToken(),
+      });
+      // http.Response response = await client.get(Utils.getUri(url),
+      //     headers: Utils.getHeadersWithToken());
       return response;
     }else{
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -104,5 +108,12 @@ class ApiClient {
       }
       return null;
     }
+  }
+
+  Future<http.Response> _getCompute(dynamic message) async {
+    return await client.get(Utils.getUri(message['url']),
+        headers: message['token'],
+      params: message['params']
+    );
   }
 }

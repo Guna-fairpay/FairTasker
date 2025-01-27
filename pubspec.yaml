@@ -78,6 +78,8 @@ dependencies:
   path_provider: ^2.1.5
   permission_handler: ^11.3.1
   data_table_2: ^2.0.0
+  fbroadcast: ^2.0.0
+  flutter_easyloading: ^3.0.5
 
 dev_dependencies:
   flutter_test:
@@ -104,6 +106,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/vectors/
   fonts:
     - family: Lato
       fonts:

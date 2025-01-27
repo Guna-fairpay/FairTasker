@@ -191,117 +191,111 @@ class _BottomNavigationForTaskViewState
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          drawer: const DrawerView(),
-          appBar: const PreferredSize(
-            preferredSize: Size.fromHeight(30.0),
-            child: HeaderView( ),
+    return Scaffold(
+      drawer: const DrawerView(),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(30.0),
+        child: HeaderView( ),
+      ),
+      backgroundColor: AppC.white,
+      bottomNavigationBar: BottomNavigationBar(
+        elevation: 0,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: AppC.white,
+        currentIndex: index < 4 ? index : 0, // Show main tabs as active if index < 4
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        selectedItemColor: AppC().base,
+        unselectedItemColor: AppC.grey,
+        onTap: (value) {
+          if (value == 4) {
+            showCustomMenu(context); // Show custom menu for Finance tab
+          } else {
+            setState(() {
+              index = value;
+            });
+          }
+        },
+        items: [
+          buildBottomNavItem(
+            activeIcon: const Icon(
+              Icons.calendar_month_rounded,
+              color: AppC.appColor,
+              // size: 28,
+            ),
+            inactiveIcon: const Icon(
+              Icons.calendar_month_outlined,
+              color: AppC.grey,
+              // size: 28,
+            ),
+            label: 'Tasker',
+            itemIndex: 0,
           ),
-          backgroundColor: AppC.white,
-          body: callPage(index), // Dynamically calls the page based on selected index
-          bottomNavigationBar: BottomNavigationBar(
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: AppC.white,
-            currentIndex: index < 4 ? index : 0, // Show main tabs as active if index < 4
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            selectedItemColor: AppC().base,
-            unselectedItemColor: AppC.grey,
-            onTap: (value) {
-              if (value == 4) {
-                showCustomMenu(context); // Show custom menu for Finance tab
-              } else {
-                setState(() {
-                  index = value;
-                });
-              }
-            },
-            items: [
-              buildBottomNavItem(
-                activeIcon: const Icon(
-                  Icons.calendar_month_rounded,
-                  color: AppC.appColor,
-                  size: 28,
-                ),
-                inactiveIcon: const Icon(
-                    Icons.calendar_month_outlined,
-                  color: AppC.grey,
-                  size: 28,
-                ),
-                label: 'Tasker',
-                itemIndex: 0,
-              ),
-              buildBottomNavItem(
-                activeIcon: Image.asset(
-                  Assets.vehicleStatusIcon,
-                  height: 28,
-                  width: 28,
-                  color: AppC.appColor,
-                ),
-                inactiveIcon:Image.asset(
-                  Assets.vehicleStatusIcon,
-                  height: 28,
-                  width: 28,
-                  color: AppC.grey,
-                ),
-                label: 'Asset',
-                itemIndex: 1,
-              ),
-              buildBottomNavItem(
-                activeIcon: const Icon(
-                  Icons.supervisor_account_rounded,
-                  size: 28,),
-                inactiveIcon: const Icon(
-                    Icons.supervisor_account_outlined,
-                  size: 28,
-                ),
-                label: 'Resource',
-                itemIndex: 2,
-              ),
-              buildBottomNavItem(
-                activeIcon: const Icon(
-                  Icons.sms_failed,
-                  size: 28,
-                ),
-                inactiveIcon: const Icon(
-                    Icons.sms_failed,
-                  size: 28,
-                ),
-                label: 'Feedback',
-                itemIndex: 3,
-              ),
-              if (!isRoleLoading && userRole == 'Admin') // Show only after role is loaded
-                BottomNavigationBarItem(
-                  icon: InkWell(
-                    key: _financeIconKey,
-                    onTap: () => showCustomMenu(context),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          Icons.monetization_on_rounded,
-                          size: 28,
-                          color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
-                        ),
-                        Utils.getText(
-                          'Finance',
-                          color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
-                          weight: FontWeight.bold,
-                          size: 14,
-                        ),
-                      ],
+          buildBottomNavItem(
+            activeIcon: const Icon(
+              Icons.verified_rounded,
+              color: AppC.appColor,
+              // size: 28,
+            ),
+            inactiveIcon: const Icon(
+              Icons.verified_outlined,
+              color: AppC.grey,
+              // size: 28,
+            ),
+            label: 'Asset',
+            itemIndex: 1,
+          ),
+          buildBottomNavItem(
+            activeIcon: const Icon(
+              Icons.supervisor_account_rounded,
+              // size: 28,
+            ),
+            inactiveIcon: const Icon(
+              Icons.supervisor_account_outlined,
+              // size: 28,
+            ),
+            label: 'Resource',
+            itemIndex: 2,
+          ),
+          buildBottomNavItem(
+            activeIcon: const Icon(
+              Icons.sms_failed,
+              // size: 28,
+            ),
+            inactiveIcon: const Icon(
+              Icons.sms_failed,
+              // size: 28,
+            ),
+            label: 'Feedback',
+            itemIndex: 3,
+          ),
+          if (!isRoleLoading && userRole == 'Admin') // Show only after role is loaded
+            BottomNavigationBarItem(
+              icon: InkWell(
+                key: _financeIconKey,
+                onTap: () => showCustomMenu(context),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.monetization_on_rounded,
+                      // size: 28,
+                      color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
                     ),
-                  ),
-                  label: 'Finance',
+                    Utils.getText(
+                      'Finance',
+                      color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
+                      weight: FontWeight.bold,
+                      size: 14,
+                    ),
+                  ],
                 ),
-            ],
-          ),
-
-        ),
-      ],
+              ),
+              label: 'Finance',
+            ),
+        ],
+      ),
+      body: callPage(index),
     );
   }
 }

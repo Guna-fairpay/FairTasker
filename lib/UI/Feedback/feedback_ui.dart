@@ -81,18 +81,18 @@ class _FeedBackUIState extends State<FeedBackUI> {
   @override
   void initState() {
     super.initState();
-    vendorDataBloc = TodoViewBloc();
+    // vendorDataBloc = TodoViewBloc();
     DateTime now = DateTime.now();
     DateTime startOfWeek = now.subtract(const Duration(days: 7));
     selectedDateRange = DateRange(startOfWeek, now);
-    vendorDataBloc.add(GetWorkingHistoryList(
-      startDate: Utils.getStartOfMonth(val: startOfWeek),
-      endDate: Utils.getStartOfMonth(val: now),
-    ));
-    vendorDataBloc.add(GetWorkingHistoryCount(
-      startDate: Utils.getStartOfMonth(val: startOfWeek),
-      endDate: Utils.getStartOfMonth(val: now),
-    ));
+    // vendorDataBloc.add(GetWorkingHistoryList(
+    //   startDate: Utils.getStartOfMonth(val: startOfWeek),
+    //   endDate: Utils.getStartOfMonth(val: now),
+    // ));
+    // vendorDataBloc.add(GetWorkingHistoryCount(
+    //   startDate: Utils.getStartOfMonth(val: startOfWeek),
+    //   endDate: Utils.getStartOfMonth(val: now),
+    // ));
 
     pending = [
       {
@@ -289,7 +289,7 @@ class _FeedBackUIState extends State<FeedBackUI> {
   void _navigateToFeedbackAddUI() async {
     final newFeedback = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) => const FeedbackAddUI()),
+      MaterialPageRoute(builder: (context) => const FeedbackAddUI(), fullscreenDialog: true),
     );
 
     if (newFeedback != null) {
@@ -330,6 +330,7 @@ class _FeedBackUIState extends State<FeedBackUI> {
     final updatedFeedback = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
+        fullscreenDialog: true,
         builder: (context) => FeedbackListViewUI(
           feedbacks: feedbacks[index],
           status: selectedStatus,

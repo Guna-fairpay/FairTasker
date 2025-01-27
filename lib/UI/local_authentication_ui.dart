@@ -1,8 +1,15 @@
 import 'dart:io';
 import 'package:fairpytasker/Bloc/local_authentication_bloc.dart';
+import 'package:fairpytasker/UI/Splash/splash_ui.dart';
+import 'package:fairpytasker/UI/authentication_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -27,40 +34,118 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: AppC().base,
-          title: Utils.getAppBarText('Authenticate Yourself',
-              color: AppC.white, size: 18),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50.0),
-            child: SizedBox(
-              height: 50,
-              // width: 80,
-              child: Utils.getFilledButton('Authenticate Yourself', () {
-                checkBiometric();
-              }),
+        body: SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                repeat: ImageRepeat.repeat,
+                opacity: 0.35,
+                image: AssetImage(Assets.splashBg),
+                fit: BoxFit.contain)),
+        child: Column(
+          // alignment: Alignment.topCenter,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(20),
+              child: Image.asset(
+                Assets.taskManagerLogo,
+                fit: BoxFit.contain,
+                width: context.width * 0.5,
+              ),
             ),
-          ),
-        )
-        /*BlocProvider(
-          create: (context) => authenticationBloc!..add(AuthenticationInitialEvent()),
-          child: BlocConsumer<WriteTagOperationBloc, WriteTagOperationState>(
-            listener: (context, state) {
-            },
-            builder: (context, state) {
-              return Container();
-            },
-          ),
-        )*/
-        );
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(50),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 10,
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: AppC.appColor.withValues(alpha: 0.5),
+                        child: Padding(padding: const EdgeInsets.all(1),
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: AppC.lightGrey,
+                          child: Utils.getText(
+                              (Session.of.getString("name") ?? "")[0],
+                              color: AppC.appColor,
+                              size: 28,
+                              weight: FontWeight.w600),
+                        ),),
+                      ),
+                      Utils.getText((Session.of.getString("name") ?? ""),
+                          align: TextAlign.center,
+                          weight: FontWeight.normal,
+                          size: 16),
+                      ElevatedButton.icon(
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(AppC().base),
+                          iconColor: const WidgetStatePropertyAll(Colors.white),
+                          textStyle: const WidgetStatePropertyAll(TextStyle(
+                              fontFamily: "Lato", color: Colors.white)),
+                          shape: WidgetStatePropertyAll(
+                              ContinuousRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        ),
+                        onPressed: checkBiometric,
+                        label: Utils.getText("Login with biometric",
+                            color: Colors.white,
+                            size: 14,
+                            weight: FontWeight.w500),
+                        icon: const Icon(
+                          Icons.fingerprint_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (kDebugMode)
+              Container(
+                margin: const EdgeInsets.all(10),
+                child: ElevatedButton.icon(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(AppC.blue50),
+                    iconColor: const WidgetStatePropertyAll(Colors.white),
+                    textStyle: const WidgetStatePropertyAll(TextStyle(
+                        fontFamily: "Lato", color: Colors.white)),
+                  ),
+                  onPressed: logout,
+                  label: Utils.getText("Logout",
+                      color: AppC.appColor,
+                      size: 14,
+                      weight: FontWeight.w500),
+                  icon: const Icon(
+                    Icons.logout_rounded,
+                    color: AppC.appColor,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ));
   }
 
   final LocalAuthentication auth = LocalAuthentication();
   String msg = "You are not authorized.";
+
+  void logout() {
+    Session.of.clear();
+    Utils.deletePreferences(key: Str.loginPrefText);
+    Utils.deletePreferences(
+        key: Str.accessTokenPrefText);
+    Utils.deletePreferences(
+        key: Str.userIdPrefText);
+    context.pushAndRemoveUntil(const AuthenticationUI());
+  }
+
   Future<void> checkBiometric() async {
     try {
       debugPrint('msg11 $msg');
@@ -115,9 +200,10 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
         checkOtherPasswords();
       }
       // debugPrint('msg3 $msg');
-    } on PlatformException {
+    } on PlatformException catch (e)  {
       msg = "Error while opening fingerprint/face scanner";
       debugPrint('msg4 $msg');
+      if (e.code == "auth_in_progress") return;
       checkOtherPasswords();
     }
   }
@@ -125,14 +211,6 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
   Future<void> checkOtherPasswords() async {
     try {
       bool isAuthorized = false;
-      // if (Platform.isIOS) {
-      //   isAuthorized = await auth.authenticate(
-      //       localizedReason: 'Authenticate with pattern/pin/passcode',
-      //       options: const AuthenticationOptions(
-      //         stickyAuth: true,
-      //         biometricOnly: false,
-      //       ));
-      // }
       if (Platform.isAndroid) {
         isAuthorized = await auth.authenticate(
             localizedReason: 'Authenticate with pattern/pin/passcode');
@@ -142,7 +220,6 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
         debugPrint('pass: $isAuthorized');
         msg = "You are Authenticated.";
         navigateToNextScreen();
-        // setState(() {});
       } else {
         debugPrint('pass: $isAuthorized');
       }
@@ -157,12 +234,9 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
   }
 
   Future<void> navigateToNextScreen() async {
-    // Utils.showMobileToast('message');
-    await Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => const BottomNavigationForTaskView(
-        selectedIndex: 0,
-        message: '',
-      ),
+    await context.pushReplacement(const BottomNavigationForTaskView(
+      selectedIndex: 0,
+      message: '',
     ));
   }
 }
