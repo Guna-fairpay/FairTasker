@@ -40,7 +40,7 @@ import '../Manage Custom Data/Task/task_view_ui.dart';
 import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
-import '../Vehicle/vehicle_history_view_ui.dart';
+import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import '../maintenance_check_list_ui.dart';
 
 class EditTodoUI extends StatefulWidget {
@@ -772,8 +772,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     }
   }
 
-  Widget _buildTimeField(
-      String label, TextEditingController controller, Function onTapCallback) {
+  Widget _buildTimeField(String label, TextEditingController controller, Function onTapCallback) {
     return Utils.getTextFormField(
       '',
       controller,
@@ -2891,7 +2890,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         builder: (context) => VehicleHistoryViewUI(
                           vehicleName: todoItem['vehicle_name'] ??
                               vehicle['vehicle_name']??selectedVin['vehicle_name'],
-                          vin: vinToFind??selectedVin['vin'],
+                          vin: vinToFind??selectedVin['vin'], resourceList: resourceList, userGroupList: userGroupList,
                         ),
                       ));
                     },
@@ -3079,26 +3078,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
           editCreateTodoParams.personId = res['id']!.toString();
         }
       }
-      if (editCreateTodoParams.personId == '') {
-        for (Map<String, dynamic> veh in vehicleGroupList) {
-          if (veh['name'] == editVehiclePersonController.text.trim()) {
-            editCreateTodoParams.vehicleGroupId = veh['id'].toString();
-          }
-        }
-      }
-      if (editCreateTodoParams.vehicleGroupId == '') {
-        for (Map<String, dynamic> veh in vehicleList) {
-          if (veh['vehicle_name'] == editVehiclePersonController.text.trim()) {
-            editCreateTodoParams.vehicleName = veh['vehicle_name']!;
-            editCreateTodoParams.cohortId = veh['cohort_id'].toString();
-            editCreateTodoParams.vin = veh['vin'];
-            editCreateTodoParams.vehicleImage =
-                veh['images'] != null && veh['images']!.isNotEmpty
-                    ? (veh['images']?[0]['path'] ?? '')
-                    : '';
-            editCreateTodoParams.cohortName = veh['cohort']?['cohort'] ?? '';
-          }
-        }
+      if (selectedMultipleVehicleList.isNotEmpty || vehiclePersonController.text.isNotEmpty) {
+        await getSelectedVehiclePerson(editCreateTodoParams);
       }
 
       log('editCreateTodoParams.parameters: '
@@ -3206,35 +3187,40 @@ class _EditTodoUIState extends State<EditTodoUI> {
     return createTodoParams;
   }
 
-  Future<CreateTodoParams> getSelectedVehiclePerson(
-      CreateTodoParams createTodoParams) {
+  Future<CreateTodoParams> getSelectedVehiclePerson(CreateTodoParams editCreateTodoParams) {
+    List<dynamic> vehiclesNameData=[];
     for (Map<String, dynamic> res in resourceList) {
-      if ('${res['first_name']} ${res['last_name']}' ==
-          vehiclePersonController.text.trim()) {
-        createTodoParams.person = '${res['first_name']} ${res['last_name']}';
-        createTodoParams.personId = res['id']!.toString();
+      if (selectedMultipleVehicleList.isNotEmpty
+          &&'${res['first_name']}${res['last_name']}'
+              == selectedMultipleVehicleList[0]['vehicle_name']) {
+        editCreateTodoParams.person = '${res['first_name']} ${res['last_name']}';
+        editCreateTodoParams.personId = res['id']!.toString();
+      }
+      else if('${res['first_name']} ${res['last_name']}' ==
+          vehiclePersonController.text.trim()){
+        editCreateTodoParams.person = '${res['first_name']} ${res['last_name']}';
+        editCreateTodoParams.personId = res['id']!.toString();
       }
     }
-    if (createTodoParams.personId == '') {
-      for (Map<String, dynamic> veh in vehicleGroupList) {
-        if (veh['name'] == vehiclePersonController.text.trim()) {
-          createTodoParams.vehicleGroupId = veh['id'].toString();
-          createTodoParams.vehicleGroupName = veh['name'].toString();
+    for (Map<String, dynamic> veh in selectedMultipleVehicleList) {
+      var matchedGroup = vehicleList.where((item) =>
+      item['vehicle_id'] == veh['vehicle_id']).toList();
+      if (matchedGroup.isNotEmpty) {
+        for (var res in matchedGroup) {
+          Map<String, dynamic> vehiclesData = {
+            'vin': res['vin'] ?? '',
+            'vehicle_name': res['vehicle_name'] ?? '',
+            'cohort_id': res['cohort_id'] ?? '',
+            'cohort_name': res['cohort']['cohort'] ?? '',
+            'vehicle_image': res['images']?.isNotEmpty == true ? res['images'][0]['path'] ?? '' : '',
+          };
+          if (vehiclesData.isNotEmpty && !vehiclesNameData.contains(vehiclesData)) {
+            editCreateTodoParams.vehicleList?.add(vehiclesData);
+          }
         }
       }
     }
-    if (createTodoParams.vehicleGroupId == '') {
-      for (Map<String, dynamic> veh in vehicleList) {
-        if (veh['vehicle_name'] == vehiclePersonController.text.trim()) {
-          createTodoParams.vehicleName = veh['vehicle_name']!;
-          createTodoParams.cohortId = veh['cohort_id'].toString();
-          createTodoParams.vin = veh['vin'];
-          createTodoParams.vehicleImage = veh['images']?[0]['path'] ?? '';
-          createTodoParams.cohortName = veh['cohort']?['cohort'] ?? '';
-        }
-      }
-    }
-    return Future.value(createTodoParams);
+    return Future.value(editCreateTodoParams);
   }
 
   Future<CreateTodoParams> getSelectedVendorLocation(

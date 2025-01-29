@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
@@ -11,7 +12,7 @@ import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_view_ui.dart';
-import 'package:fairpytasker/UI/Vehicle/vehicle_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/auto_complete_widget.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -1647,6 +1648,10 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                             height: 40,
                                                             child: Utils.getSearchBarUI(
                                                                   () {},
+                                                              // onSubmitted: () {
+                                                              //       log("DISMISS");
+                                                              //   Utils.dismissKeyboard(context);
+                                                              // },
                                                                   (value) {
                                                                 setState(() {
                                                                   searchQuery = value.toLowerCase();
@@ -2039,6 +2044,10 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                           child: SizedBox(
                                             height: 35,
                                             child: Utils.getSearchBarUI(() {},
+                                              // onSubmitted: () {
+                                              //   log("DISMISSa");
+                                              //   Utils.dismissKeyboard(context);
+                                              // },
                                                   (value) {
                                                 _filterTodo(value);
                                               }, searchController,),
@@ -3243,7 +3252,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                 child: VehicleHistoryViewUI(
                                                   vin: vinToFind,
                                                   vehicleName: vehicle?['vehicle_name'] ?? '',
+                                                  title: todos['title'],
                                                   showHeader: false,
+                                                  showSameTask: true, resourceList: resourceList, userGroupList: userGroupList,
                                                 ),
                                               ),
                                             ],
@@ -4402,7 +4413,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
           }
         }
       }
-
       return Utils.getText((userGroupConcatenationName ?? ''),
           color: AppC().base, weight: FontWeight.bold);
     }

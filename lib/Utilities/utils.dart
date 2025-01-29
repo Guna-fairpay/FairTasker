@@ -1,5 +1,6 @@
 
 
+
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -937,6 +938,16 @@ class Utils {
 
   static String convertDateTimeToTheFormats(String? value,
       {String formatToConvert = 'yyyy-MM-dd'}) {
+    if (value != null && value.isNotEmpty) {
+      DateTime dateValue = DateTime.parse(value);
+      return DateFormat(formatToConvert).format(dateValue);
+    } else {
+      return DateFormat(formatToConvert).format(DateTime.now());
+    }
+  }
+
+  static String convertDateFormats(String? value,
+      {String formatToConvert = 'MM-dd-yy'}) {
     if (value != null && value.isNotEmpty) {
       DateTime dateValue = DateTime.parse(value);
       return DateFormat(formatToConvert).format(dateValue);
@@ -2497,22 +2508,53 @@ class Utils {
     );
   }
 
-  static Widget getSearchBarUI(
+  static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
+      TextEditingController searchController) {
+    return SearchBar(
+        shadowColor: WidgetStateProperty.all(Colors.white),
+        backgroundColor: WidgetStateProperty.all(Colors.white),
+        controller: searchController,
+        onTap: onTap,
+        onChanged: onChange,
+        leading: const Icon(Icons.search,color: AppC.text,),
+        textStyle: WidgetStateProperty.all(Utils.getTextStyle()),
+        elevation: WidgetStateProperty.all(0),
+        hintText: 'Search',
+        hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
+              (Set<WidgetState> states) {
+            // Define different styles for different states
+            if (states.contains(WidgetState.focused)) {
+              return Utils.getTextStyle();
+            } else {
+              return Utils.getTextStyle();
+            }
+          },
+        ),
+        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: AppC.fieldBase),
+        )));
+  }
+
+/*  static Widget getSearchBarUI(
       VoidCallback? onTap, Function(String) onChange,
       TextEditingController searchController,
-      {FocusNode? searchFocusNode,} )
+      {FocusNode? searchFocusNode, VoidCallback? onSubmitted, TextInputAction? inputAction} )
   {
     return SizedBox(
       height: 30,
       child: TextField(
         controller: searchController,
-        focusNode: FocusNode(),
+        // focusNode: FocusNode(),
         onChanged: onChange,
         cursorColor: AppC.black, // Set the cursor color
         style: const TextStyle(
           fontSize: 16, // Text size for entered text
           color: Colors.black, // Text color for entered text
         ),
+        onEditingComplete: onSubmitted,
+        textInputAction: inputAction,
+        onSubmitted: (val) => onSubmitted?.call(),
         decoration: InputDecoration(
           prefixIcon: const Icon(
             Icons.search_sharp,
@@ -2545,7 +2587,7 @@ class Utils {
         ),
       ),
     );
-  }
+  }*/
 
 
   static Widget getBorderedIcon(IconData? icon,

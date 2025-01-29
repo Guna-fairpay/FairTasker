@@ -252,10 +252,7 @@ class _VehicleNotesHistoryViewUiState extends State<VehicleNotesHistoryViewUi> {
                   ),
                 ),
               ),
-              if (loading)
-                Center(
-                  child: Utils.getProgressIndicator(context),
-                ),
+              if (loading) Center(child: Utils.getProgressIndicator(context),),
             ],
           ),
         ),

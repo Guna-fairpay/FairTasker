@@ -1,8 +1,10 @@
 class VehicleHistoryResponse {
   VehicleHistoryResponse({
     this.todo,
-    this.status,
     this.data,
+    this.lastPage,
+    this.total,
+    this.status,
     this.message,
   });
 
@@ -21,12 +23,16 @@ class VehicleHistoryResponse {
     } else {
       data = [];
     }
+    lastPage = json['todo']['last_page'];
+    total = json['todo']['total'];
     message = json['message'] ?? "";
     status = json['status'];
   }
 
   List<Map<String, dynamic>>? todo;
   List<Map<String, dynamic>>? data;
+  int? lastPage;
+  int? total;
   int? status;
   String? message;
 }

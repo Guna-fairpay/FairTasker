@@ -2842,13 +2842,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
           if (vehiclesData.isNotEmpty && !vehiclesNameData.contains(vehiclesData)) {
             createTodoParams.vehicleList?.add(vehiclesData);
           }
-          /*createTodoParams.vehicleName = res['vehicle_name']!;
-          createTodoParams.cohortId = res['cohort_id'].toString();
-          createTodoParams.vin = res['vin'];
-          if (res['images'] != null && res['images']!.isNotEmpty) {
-            createTodoParams.vehicleImage = res['images']![0]['path'] ?? '';
-          }
-          createTodoParams.cohortName = res['cohort']?['cohort'] ?? '';*/
         }
       }
     }

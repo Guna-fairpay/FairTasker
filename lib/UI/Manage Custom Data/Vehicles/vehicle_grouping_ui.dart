@@ -1,6 +1,5 @@
 
-import 'dart:developer';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
@@ -9,8 +8,9 @@ import '../../../Utilities/num.dart';
 class VehicleGroupingUI extends StatefulWidget {
   final List<Map<String, dynamic>> vehicleList;
   final List<Map<String, dynamic>> groupVehicleList;
+  final List<int> selectedVehicleIds;
 
-  const VehicleGroupingUI({super.key, required this.vehicleList, required this.groupVehicleList});
+  const VehicleGroupingUI({super.key, required this.vehicleList, required this.groupVehicleList, required this.selectedVehicleIds});
 
   @override
   State<VehicleGroupingUI> createState() => _VehicleGroupingUIState();
@@ -24,16 +24,26 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
 
   TextEditingController vehicleController = TextEditingController();
   TextEditingController groupNameController = TextEditingController();
+  TextEditingController dropdownController = TextEditingController();
   bool? isVehicleSelected = false;
   bool? isSelected = false;
   bool editShowMultipleVehicleList = false;
   dynamic selectedVehicle;
-  TextEditingController dropdownController = TextEditingController();
+  List<dynamic>?vinList=[];
+
 
   @override
   void initState() {
     super.initState();
+    selectedMultipleVehicleList.clear();
     editMultipleVehicleList.addAll(widget.vehicleList);
+    for (var vehicleId in widget.selectedVehicleIds) {
+      final match = widget.vehicleList.firstWhere(
+            (vehicle) => vehicle['id'] == vehicleId,
+        orElse: () => {}, // Return null if no match is found
+      );
+      selectedMultipleVehicleList.add(match);
+        }
   }
 
   @override
@@ -138,8 +148,10 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
             ),
           ),
           Utils.getAddFilledButton('Save', (){},bgColor: AppC.green),
-          Expanded(
+          Flexible(
               child: ListView.separated(
+                padding: const EdgeInsets.only(
+                  bottom:60),
                 separatorBuilder: (context, index) => const Divider(),
                 shrinkWrap: true,
               itemCount: widget.groupVehicleList.length,
@@ -158,8 +170,35 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
                       mainAxisSize: MainAxisSize.min,
                       spacing: 10,
                       children: [
-                        Icon(Icons.edit),
-                        Icon(Icons.delete),
+                        GestureDetector(
+                          onTap: (){
+                            selectedMultipleVehicleList.clear();
+                            setState(() {
+                              groupNameController.text=group['name'];
+
+                              if (group['vin'] is String) {
+                                try {
+                                  vinList = List<String>.from(jsonDecode(group['vin']));
+                                } catch (e) {
+                                  vinList = [];
+                                }
+                              } else if (group['vin'] is List) {
+                                vinList = group['vin'];
+                              } else {
+                                vinList = [];
+                              }
+                              for (var vin in vinList!) {
+                                final match = widget.vehicleList.firstWhere(
+                                    (vehicle) => vehicle['vin'] == vin,
+                                orElse: () => {},
+                                );
+                                selectedMultipleVehicleList.add(match);
+                              }
+                            });},
+                            child: const Icon(Icons.mode_edit_outline_outlined,color: AppC.appColor,)),
+                        GestureDetector(
+                            onTap: (){},
+                            child: const Icon(Icons.delete_outline,color: AppC.redAccent,)),
                       ],
                     ),
                   ),

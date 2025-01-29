@@ -389,7 +389,7 @@ class VehicleDataRepo {
     try {
       String apiUrl = '';
       apiUrl =
-          "${Str.BASE_URL}get-vehicle-history?page=$pageNo&vin=$vin&itemPerPage=5";
+          "${Str.BASE_URL}get-vehicle-history?page=$pageNo&vin=$vin&itemPerPage=10";
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {

@@ -9,6 +9,7 @@ import 'Categorys/category_view_ui.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/location_view_ui.dart';
 import 'Parts/part_view_ui.dart';
+import 'Parts/ui/parts_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
 import 'Task/task_view_ui.dart';
@@ -152,6 +153,15 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const CustomerViewUi(),
+                ));
+              },
+            ),
+            _buildCard(
+              icon: Icons.telegram,
+              title: 'Customers',
+              onTap: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const PartView(),
                 ));
               },
             ),
