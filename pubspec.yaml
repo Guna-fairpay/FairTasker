@@ -80,6 +80,9 @@ dependencies:
   data_table_2: ^2.0.0
   fbroadcast: ^2.0.0
   flutter_easyloading: ^3.0.5
+  timeagoago: ^0.0.4
+  timezone: ^0.10.0
+  video_player: ^2.9.2
 
 dev_dependencies:
   flutter_test:

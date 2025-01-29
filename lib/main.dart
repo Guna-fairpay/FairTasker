@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'UI/Splash/splash_ui.dart';
 import 'package:intl/intl.dart';
@@ -51,6 +52,19 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fair Returns',
       theme: ThemeData(
+        dialogBackgroundColor: Colors.white,
+        cardColor: Colors.white,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
+        dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
+        searchBarTheme: SearchBarThemeData(
+          backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+          textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+          padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16))),
+          elevation: const WidgetStatePropertyAll(0),
+          side: const WidgetStatePropertyAll(BorderSide.none),
+        ),
         primarySwatch: Colors.blue,
         fontFamily: 'Lato',
       ),

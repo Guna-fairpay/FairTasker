@@ -61,9 +61,13 @@ class ApiClient {
 
   Future<http.Response?>  callDelete(String url) async{
     if(await Utils.connection()) {
-      http.Response response = await client.delete(Utils.getUri(url),
-          headers: Utils.getHeadersWithToken(),
-    );
+    //   http.Response response = await client.delete(Utils.getUri(url),
+    //       headers: Utils.getHeadersWithToken(),
+    // );
+      http.Response response = await compute(_deleteCompute, {
+        "url" : url,
+        "token" : Utils.getHeadersWithToken(),
+      });
       return response;
     }else{
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -114,6 +118,13 @@ class ApiClient {
     return await client.get(Utils.getUri(message['url']),
         headers: message['token'],
       params: message['params']
+    );
+  }
+
+  Future<http.Response> _deleteCompute(dynamic message) async {
+    return await client.delete(Utils.getUri(message['url']),
+        headers: message['token'],
+        params: message['params']
     );
   }
 }

@@ -45,10 +45,10 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
 
     titleController = TextEditingController(text: widget.feedbacks['title']);
     descriptionController = quill.QuillController(
-      document: quill.Document.fromJson(widget.feedbacks['des']),
+      document: quill.Document.fromHtml("${widget.feedbacks['description']}"),
       selection: const TextSelection.collapsed(offset: 0),
     );
-    imagePaths = widget.feedbacks['imgurls'] as List<dynamic>;
+    imagePaths = widget.feedbacks?["attachments"]?.map((e) => e['path']).toList();
     selectedPriority = widget.feedbacks['priority'];
     selectedStatus = widget.status;
   }
@@ -263,16 +263,16 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Utils.buildDropdownButton(
-                      'Select Priority',
-                      priority,
-                      selectedPriority,
-                      (value) {
-                        setState(() {
-                          selectedPriority = value;
-                        });
-                      },
-                    ),
+                    // Utils.buildDropdownButton(
+                    //   'Select Priority',
+                    //   priority,
+                    //   selectedPriority,
+                    //   (value) {
+                    //     setState(() {
+                    //       selectedPriority = value;
+                    //     });
+                    //   },
+                    // ),
                     const SizedBox(
                       height: 4,
                     ),
@@ -318,7 +318,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Utils.buildDropdownButton(
+                    /*Utils.buildDropdownButton(
                       'Select Status', // Changed from 'Select Priority' to 'Select Status'
                       status,
                       selectedStatus,
@@ -327,7 +327,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
                           selectedStatus = value;
                         });
                       },
-                    ),
+                    ),*/
                     const SizedBox(
                       height: 10,
                     ),

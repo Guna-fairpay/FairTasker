@@ -63,17 +63,22 @@ class Utils {
               ),
               const SizedBox(height: 8),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 10,
                 children: [
-                  Utils.getFilledButton(
-                    'Yes, delete it!',
-                        ()=>Navigator.pop(context, true),
-                    bgColor: AppC.blue,
+                  Expanded(
+                    child: Utils.getFilledButton(
+                      'Yes, delete it!',
+                          ()=>Navigator.pop(context, true),
+                      bgColor: AppC.blue,
+                    ),
                   ),
-                  Utils.getFilledButton(
-                    'Cancel',
-                        ()=>Navigator.pop(context, false),
-                    bgColor: AppC.redAccent,
+                  Flexible(
+                    child: Utils.getFilledButton(
+                      'Cancel',
+                          ()=>Navigator.pop(context, false),
+                      bgColor: AppC.redAccent,
+                    ),
                   ),
                 ],
               ),
@@ -1002,7 +1007,7 @@ class Utils {
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 4,
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.black87,
       textColor: Colors.white,
       fontSize: 15.0,
       webShowClose: true,
