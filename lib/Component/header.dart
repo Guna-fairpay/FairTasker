@@ -37,6 +37,7 @@ class _HeaderViewState extends State<HeaderView> {
   List<Map<String, dynamic>> branch = [];
   late TodoViewBloc todoViewBloc;
   int? branchNO;
+  String? userId;
 
   @override
   void initState() {
@@ -45,6 +46,7 @@ class _HeaderViewState extends State<HeaderView> {
     todoViewBloc.add(const GetBranchList());
     _loadUserRole();
     _loadBranchId();
+    _loadUserId();
   }
 
   Future<void> _loadUserRole() async {
@@ -62,6 +64,14 @@ class _HeaderViewState extends State<HeaderView> {
       branchNO = branchId;
     });
   }
+
+  Future<void> _loadUserId() async {
+    final id = await Utils.getStringPreference(Str.userIdPrefText);
+    setState(() {
+      userId = id;
+    });
+  }
+
 
   @override
   void dispose() {
@@ -91,10 +101,7 @@ class _HeaderViewState extends State<HeaderView> {
         backgroundColor: AppC.white,
         leadingWidth: 0,
         titleSpacing: 0,
-        leading: const Padding(
-          padding: EdgeInsets.only(bottom: 8.0, left: 12),
-          child: Icon(Icons.sort_outlined, color: AppC.trans),
-        ),
+        automaticallyImplyLeading: false,
         title: BlocBuilder<TodoViewBloc, TodoViewState>(
           builder: (context, state) {
             if (state is BranchListLoaded) {
@@ -150,7 +157,7 @@ class _HeaderViewState extends State<HeaderView> {
                   ),
                   const SizedBox(width: 12),
                   const Spacer(),
-                  if (userRole == 'Admin')
+                  if (userRole == 'Admin' || userId == '3')
                     GestureDetector(
                       onTap: () {
                         Navigator.push(

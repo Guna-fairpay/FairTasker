@@ -28,6 +28,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
   List<Map<String, dynamic>> filteredEmployees = [];
   bool loading = false;
   String? userRole;
+  String? userId;
 
   @override
   void initState() {
@@ -39,6 +40,11 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
             .first; // Assuming role is a List<String> and fetching the first value
       });
     });
+    Utils.getStringPreference(Str.userIdPrefText).then((id) {
+      setState(() {
+        userId = id;
+      });
+      });
   }
 
   void _filterEmployees(String query) {
@@ -207,7 +213,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                             }, searchController,),
                           ),
                           const SizedBox(width: 8),
-                          if (userRole == 'Admin')
+                          if (userRole == 'Admin' || userId == '3')
                             SizedBox(
                               height: 30,
                               child: Utils.getAddFilledButton('Add', () {
@@ -225,7 +231,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                               endActionPane: ActionPane(
                                 motion: const DrawerMotion(),
                                 children: [
-                                  if (userRole == 'Admin')
+                                  if (userRole == 'Admin' || userId == '3')
                                     SlidableAction(
                                       onPressed: (context) =>
                                           _deleteEmployee(index),
@@ -238,7 +244,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                               ),
                               child: GestureDetector(
                                 onTap: () {
-                                  if (userRole == 'Admin') {
+                                  if (userRole == 'Admin' || userId == '3') {
                                     _navigateToEmployeeEditUI(index);
                                   }
                                 },

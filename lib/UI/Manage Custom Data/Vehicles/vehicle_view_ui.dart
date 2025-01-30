@@ -372,22 +372,11 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                                     (TapDownDetails details) {
                                                   showMenu(
                                                     context: context,
-                                                    position:
-                                                        RelativeRect.fromLTRB(
-                                                      details.globalPosition
-                                                          .dx, // X-coordinate
-                                                      details.globalPosition
-                                                          .dy, // Y-coordinate
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width -
-                                                          details.globalPosition
-                                                              .dx, // Right offset
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .height -
-                                                          details.globalPosition
-                                                              .dy, // Bottom offset
+                                                    position: RelativeRect.fromLTRB(
+                                                      details.globalPosition.dx, // X-coordinate
+                                                      details.globalPosition.dy, // Y-coordinate
+                                                      MediaQuery.of(context).size.width - details.globalPosition.dx, // Right offset
+                                                      MediaQuery.of(context).size.height - details.globalPosition.dy, // Bottom offset
                                                     ),
                                                     items: [
                                                       const PopupMenuItem(

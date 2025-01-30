@@ -34,6 +34,7 @@ class _BottomNavigationForTaskViewState
   final GlobalKey _financeIconKey = GlobalKey();
   String? userRole;
   bool isRoleLoading = true; // Add loading state
+  String? userId;
 
   @override
   void initState() {
@@ -46,8 +47,14 @@ class _BottomNavigationForTaskViewState
         isRoleLoading = false; // Set loading to false when data is ready
       });
     });
-  }
+    Utils.getStringPreference(Str.userIdPrefText).then((users) {
+      setState(() {
+        userId = users;
+        isRoleLoading = false; // Set loading to false when data is ready
+      });
+    });
 
+  }
   @override
   void dispose() {
     _scrollController.dispose();
@@ -269,7 +276,7 @@ class _BottomNavigationForTaskViewState
             label: 'Feedback',
             itemIndex: 3,
           ),
-          if (!isRoleLoading && userRole == 'Admin') // Show only after role is loaded
+          if (!isRoleLoading && userRole == 'Admin' || userId=='3') // Show only after role is loaded
             BottomNavigationBarItem(
               icon: InkWell(
                 key: _financeIconKey,

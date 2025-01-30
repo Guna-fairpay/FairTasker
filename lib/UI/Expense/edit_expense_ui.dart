@@ -65,7 +65,7 @@ class _EditExpenseUIState extends State<EditExpenseUI>
                 (widget.categoriesListData![i]['subcategories'] ?? []);
             for (var element1
                 in (widget.categoriesListData![i]['subcategories'] ?? [])) {
-              if (element1.id ==
+              if (element1.userId ==
                   (widget.expenseSummaryData?['subcategory_id'] ?? 0)) {
                 selectedExpenseSubCategories = element1;
                 widget.expenseSummaryData?['subcategory_name'] = element1.name;
@@ -416,8 +416,8 @@ class _EditExpenseUIState extends State<EditExpenseUI>
                     .where((element) => element != null)
                     .cast<File>()
                     .toList(),
-                selectedExpenseCategories!.id,
-                selectedExpenseSubCategories!.id,
+                selectedExpenseCategories!.userId,
+                selectedExpenseSubCategories!.userId,
                 selectedExpenseSubCategories!.expenseTo,
                 amountController.text,
                 expenseDescriptionController.text,

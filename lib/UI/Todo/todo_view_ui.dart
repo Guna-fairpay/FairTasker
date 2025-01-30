@@ -95,7 +95,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   List<Map<String, dynamic>>  subCategoryList = [];
   List<Map<String, dynamic>> editPartsList = [];
   List<Map<String, dynamic>> editMultipleVehicleList = [];
-   List<Map<String, dynamic>> editSuppliesList = [];
+  List<Map<String, dynamic>> editSuppliesList = [];
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
   List<Map<String, dynamic>> multipleLocationAddressList = [];
   List<Map<String, dynamic>> selectedVehicleGroupList = [];
@@ -196,1076 +196,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
     super.dispose();
   }
 
-  String stripHtmlTags(String htmlString) {
-    return htmlString.replaceAll(RegExp(r'<[^>]*>'), '');
-  }
-
-  bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
-    for (Map<String, dynamic> res in resourceList) {
-      if ('${res['first_name']} ${res['last_name']}' ==
-          (vehiclesData['vehicle_name'] ?? '')) {
-        lastSelectedIsPerson = true;
-        return lastSelectedIsPerson;
-      }
-    }
-    for (Map<String, dynamic> veh in vehicleList) {
-      if (veh['vehicle_name'] == (vehiclesData['vehicle_name'] ?? '').trim()) {
-        return false;
-      }
-    }
-    return false;
-  }
-  Widget _buildTimeField(
-      String label, TextEditingController controller, Function onTapCallback) {
-    return Utils.getTextFormField(
-      '',
-      controller,
-      suffixIcon: const Icon(
-        Icons.access_time_sharp,
-        size: 16,
-        color: AppC.appColor,
-      ),
-      readOnly: true,
-      onTapCallback: () async {
-        await onTapCallback();
-      },
-      label: Utils.getText(label, color: AppC.grey),
-    );
-  }
-
-  String formatShiftTimings(String shiftTimings) {
-    try {
-      List<String> times = shiftTimings.split('-');
-      if (times.length != 2) return "Invalid format";
-      DateTime startTime = DateFormat("ha").parse(times[0].trim());
-      DateTime endTime = DateFormat("ha").parse(times[1].trim());
-      String formattedStartTime = DateFormat("hh:mm a").format(startTime);
-      String formattedEndTime = DateFormat("hh:mm a").format(endTime);
-      return "$formattedStartTime - $formattedEndTime";
-    } catch (e) {
-      return "Error formatting shift timings: $e";
-    }
-  }
-
-  String? timeValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter the time taken.';
-    }
-    final timeRegex = RegExp(r'^(?:[01]\d|2[0-3]):[0-5]\d$');
-    if (!timeRegex.hasMatch(value)) {
-      return 'Please enter time in the format HH:mm (e.g., 05:00).';
-    }
-    return null;
-  }
-
-  void applyFilters() {
-    setState(() {
-      todoList = todoListTemp.where((vehicle) {
-        if(vehicle['vehicle_name']!=null){
-          vehicleName = vehicle['vehicle_name']?.toString().toLowerCase() ?? '';}
-        else{
-          vehicleName = (vehicle['vehicles'] != null && vehicle['vehicles'] is List && vehicle['vehicles'].isNotEmpty)
-              ? (vehicle['vehicles'][0]['vehicle_name'] ?? '').toString().toLowerCase()
-              : '';
-        }
-        final yearMatch = selectedYears.isEmpty ||
-            selectedYears.any((year) => vehicleName.contains(year.toLowerCase()));
-        final makeMatch = selectedMakes.isEmpty ||
-            selectedMakes.any((make) => vehicleName.contains(make.toLowerCase()));
-        final modelMatch = selectedModels.isEmpty ||
-            selectedModels.any((model) => vehicleName.contains(model.toLowerCase()));
-        return yearMatch && makeMatch && modelMatch;
-      }).toList();
-    });
-  }
-
-  void taskFilter() {
-    if (selectedFilters.isEmpty) {
-      setState(() {
-        todoList = List<Map<String, dynamic>>.from(todoListTemp);
-      });
-      return;
-    }
-    setState(() {
-      todoList = todoListTemp.where((todo) {
-        final title = (todo['title'] ?? '').toString().toLowerCase();
-        return selectedFilters.any((filter) => title.toLowerCase() == filter.toLowerCase());
-      }).toList();
-    });
-  }
-
-
-  void _filterTodo(String query) {
-    setState(() {
-      final searchQuery = query.toLowerCase();
-      todoList = todoListTemp.where((todo) {
-        final name = (todo['title'] ?? '').toString().toLowerCase();
-        final vehicle = (todo['vehicle_name'] ?? '').toString().toLowerCase();
-        final vehicles = (todo['vehicles'] != null && todo['vehicles'] is List && todo['vehicles'].isNotEmpty)
-            ? (todo['vehicles'][0]['vehicle_name'] ?? '').toString().toLowerCase()
-            : '';
-        final time = (todo['todo_time'] ?? '').toString().toLowerCase();
-        final firstName = (todo['users']?['first_name'] ?? '').toString().toLowerCase();
-        final lastName = (todo['users']?['last_name'] ?? '').toString().toLowerCase();
-        final notes = (todo['notes'] ?? '').toString().toLowerCase();
-        return name.contains(searchQuery) ||
-            vehicle.contains(searchQuery) ||
-            vehicles.contains(searchQuery) ||
-            time.contains(searchQuery) ||
-            firstName.contains(searchQuery) ||
-            lastName.contains(searchQuery) ||
-            notes.contains(searchQuery);
-      }).toList();
-    });
-  }
-
-
-
-  void show(BuildContext context, String message, String status, String id,
-      String oldDate) {
-    OverlayEntry? overlay;
-    overlay = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 20,
-        left: 20,
-        child: ToastWidget(message, () {
-          if (status.isNotEmpty) {
-            todoBloc!.add(CompleteTodoItem(todoId: id, status: status));
-          } else {
-            String addedDate = DateFormat("yyyy-MM-dd").format(
-                DateTime.parse(oldDate).subtract(const Duration(days: 1)));
-            todoBloc!.add(EditTodoDate(
-                null, true, id.toString(), addedDate, null, null, null, null, null));
-          }
-          if (overlay != null && overlay!.mounted) {
-            overlay?.remove();
-            overlay = null;
-          }
-        }),
-      ),
-    );
-    Overlay.of(context).insert(overlay!);
-    Timer(const Duration(seconds: 3), () {
-      if (overlay != null && overlay!.mounted) {
-        overlay?.remove();
-        overlay = null; // Prevent further references
-      }
-    });
-  }
-
-  Future<void> _selectTime(BuildContext context, id) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-      initialEntryMode: TimePickerEntryMode.dialOnly,
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            dialogBackgroundColor: Colors.white,
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: Colors.white,
-              dialBackgroundColor: Colors.white,
-              hourMinuteTextColor:
-                  WidgetStateColor.resolveWith((states) => Colors.black),
-              hourMinuteShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(color: Colors.grey),
-              ),
-              dayPeriodTextColor: Colors.black,
-              dayPeriodShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(color: Colors.grey),
-              ),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              ),
-              hourMinuteColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? Colors.white
-                      : Colors.white),
-            ),
-          ),
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child!,
-          ),
-        );
-      },
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
-      final formattedTime = formatTimeOfDay(_selectedTime);
-
-      todoBloc!.add(EditTodoDate(formattedTime, false, id.toString(), null,
-          null, null, null, null, null));
-    }
-  }
-
-  String getDistance(String? taskVin, reservationVehicles, taskVehicles) {
-    if (taskVin != null) {
-      return reservationVehicles
-              ?.firstWhere(
-                (vehicle) => vehicle.vin.toUpperCase() == taskVin.toUpperCase(),
-                orElse: () => null,
-              )?.distance.toString() ?? '';
-    } else if (taskVehicles != null && taskVehicles.length == 1) {
-      return reservationVehicles
-              ?.firstWhere(
-                (vehicle) =>
-                    vehicle.vin.toUpperCase() ==
-                    taskVehicles[0].vin.toUpperCase(),
-                orElse: () => null,
-              )?.distance.toString() ?? '';
-    } else {
-      return '';
-    }
-  }
-
-  String formatTimeOfDay(TimeOfDay tod) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
-    final format = DateFormat("HH:mm:ss");
-    return format.format(dt);
-  }
-
-  String format24TimeOfDay(TimeOfDay tod) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
-    final format = DateFormat("HH:mm:ss");
-    return format.format(dt);
-  }
-
-  void _showImageDialog(List<dynamic> imageUrls, int index) {
-    Map<String, dynamic> img = {};
-    for (var n in todoList) {
-      img.addAll(n);
-    }
-    PageController pageController = PageController(initialPage: index);
-    ValueNotifier<double> rotationAngle = ValueNotifier<double>(0.0); // Track rotation angle
-    TransformationController transformationController = TransformationController(); // Controls zoom
-    double currentScale = 1.0; // Initial zoom level
-    showDialog(
-      useSafeArea: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: AppC.white,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: PageView.builder(
-                      itemCount: imageUrls.length,
-                      controller: pageController,
-                      onPageChanged: (newIndex) {
-                        rotationAngle.value = 0.0;
-                        transformationController.value = Matrix4.identity(); // Reset zoom on page change
-                        currentScale = 1.0; // Reset scale
-                      },
-                      itemBuilder: (context, index) {
-                        final imagePath = imageUrls[index]['path'];
-                        return ValueListenableBuilder<double>(
-                          valueListenable: rotationAngle,
-                          builder: (context, angle, child) {
-                            return Transform.rotate(
-                              angle: angle, // Apply rotation
-                              child: File(imagePath.toString()).existsSync()
-                                  ? Image.file(
-                                File(imagePath),
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(Icons.error, color: Colors.red),
-                                  );
-                                },
-                              )
-                                  : InteractiveViewer(
-                                maxScale: 8.0,
-                                minScale: 0.01,
-                                child: GestureDetector( onTap: (){
-                                  if (currentScale == 1.0) {
-                                    currentScale = 2.0; // Zoom in
-                                  } else {
-                                    currentScale = 1.0; // Reset to original scale
-                                  }
-                                  transformationController.value = Matrix4.identity()..scale(currentScale);
-                                },
-                                  child: CachedNetworkImage(
-                                    imageUrl: img['todoimages'] != null
-                                        ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
-                                        : Str.errorImage,
-                                    imageBuilder: (context, imageProvider) {
-                                      return Padding(
-                                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    errorWidget: (context, url, error) {
-                                      return Container(
-                                        alignment: Alignment.center,
-                                        child: Utils.getText(
-                                          "CT",
-                                          size: 22,
-                                          color: AppC.red,
-                                          weight: FontWeight.bold,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          Assets.whatsAppIcon,
-                          height: 24,
-                          width: 24,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: GestureDetector(
-                            onTap: () {
-                              rotationAngle.value += 3.14 / 2; // Rotate by 90 degrees (π/2 radians)
-                            },
-                            child: const Icon(Icons.rotate_right_rounded),
-                          ),
-                        ),
-                        Image.asset(
-                          Assets.mail,
-                          height: 24,
-                          width: 24,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SmoothPageIndicator(
-                    controller: pageController,
-                    count: imageUrls.length,
-                    effect: const JumpingDotEffect(
-                      spacing: 8.0,
-                      radius: 8.0,
-                      dotWidth: 10.0,
-                      dotHeight: 10.0,
-                      paintStyle: PaintingStyle.fill,
-                      strokeWidth: 1.5,
-                      dotColor: Colors.grey,
-                      activeDotColor: Colors.indigo,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void showObjectPopupMainMenuWithCheckBox(
-      BuildContext context,
-      List<Map<String, dynamic>> todoListMenu,
-      TapDownDetails details,
-      Function(List<Map<String, dynamic>>?) onSelect,
-      List<Map<String, dynamic>> taskCategoryGroupData,
-      List<Map<String, dynamic>> titleList,
-      ) async {
-    List<Map<String, dynamic>> taskList = [];
-    List<Map<String, dynamic>> headList = [];
-    List<Map<String, dynamic>> headListName = [];
-
-    for (var data in todoListMenu) {
-      var matchedSubcategory = subCategoryList.firstWhere(
-            (item) => item['name'].toString().toLowerCase() == data['title'].toString().toLowerCase(),
-        orElse: () => {},
-      );
-      if (matchedSubcategory.isNotEmpty) {
-        taskList.add(matchedSubcategory);
-        checkboxStates.putIfAbsent(matchedSubcategory['name'].toString(), () => false);
-      }
-      if (!['Check In', 'Check Out', 'Lunch'].contains(data['title'])
-          && !taskList.any((task) => task['id'] == data['id'])
-          && matchedSubcategory.isEmpty)
-      {
-        var newTask = {
-          'parent_id': -1,
-          'id': data['id'],
-          'name': data['title'],
-        };
-        taskList.add(newTask);
-        checkboxStates.putIfAbsent(newTask['name'].toString(), () => false);
-      }
-    }
-
-    for (var sub in taskList) {
-      var matchedGroup = titleList.firstWhere(
-            (item) => item['id'] == sub['parent_id'],
-        orElse: () => {},
-      );
-      if (matchedGroup.isNotEmpty && !headList.contains(matchedGroup)) {
-        headList.add(matchedGroup);
-      }
-    }
-
-    for (var head in headList) {
-      var matchedTitle = titleList.firstWhere(
-            (item) => item['id'] == head['id'],
-        orElse: () => {},
-      );
-      if (matchedTitle.isNotEmpty && !headListName.contains(matchedTitle)) {
-        headListName.add(matchedTitle);
-      }
-    }
-
-    showMenu<List<Map<String, dynamic>>>(
-      context: context,
-      color: const Color(0xffffffff).withOpacity(0.75),
-      constraints: BoxConstraints.tightFor(width: MediaQuery.sizeOf(context).width),
-      position: RelativeRect.fromLTRB(
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-      ),
-      items: <PopupMenuEntry<List<Map<String, dynamic>>>>[
-        PopupMenuItem<List<Map<String, dynamic>>>(
-          height: 22,
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
-                ),
-               
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.close, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Utils.getText('Close', weight: FontWeight.w900),
-                ],
-              ),
-            ),
-          ),
-        ),
-        PopupMenuItem<List<Map<String, dynamic>>>(
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return PopupMenuTheme(
-                data: const PopupMenuThemeData(color: Color(0xfff8f8ff),),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
-                        ),
-                        
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: Utils.getText(
-                              'All Todo',
-                              size: 12,
-                              weight: FontWeight.w900,
-                            ),
-                          ),
-                          Transform.scale(
-                            scale: 0.7,
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: Checkbox(
-                                activeColor: AppC.blue,
-                                value: checkboxStates['all'] ?? false,
-                                onChanged: (bool? newValue) {
-                                  setState(() {
-                                    checkboxStates['all'] = newValue ?? false;
-                                    for (var key in checkboxStates.keys) {
-                                      if (key != 'all') {
-                                        checkboxStates[key] = newValue ?? false;
-                                      }
-                                    }
-                                    if (newValue == true) {
-                                      selectedFilters.clear(); // Clear existing filters
-                                      selectedFilters.addAll(checkboxStates.keys.where((key) => key != 'all'));
-                                    } else {
-                                      selectedFilters.clear();
-                                    }
-                                    selectedTaskCount=selectedFilters.length;
-                                    taskFilter();
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Wrap(
-                      children: headListName.map((name) {
-                        var childTasks = taskList.where((task) => task['parent_id'] == name['id']).toList();
-                        return Padding(
-                          padding: const EdgeInsets.symmetric( vertical: 4),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Utils.getText(
-                                      name['name'] ?? '',
-                                      weight: FontWeight.w700,
-                                    ),
-                                    Transform.scale(
-                                      scale: 0.7,
-                                      child: SizedBox(
-                                        width: 30,
-                                        height: 20,
-                                        child: Checkbox(
-                                          activeColor: AppC.blue,
-                                          value: childTasks.every((task) =>
-                                          checkboxStates[task['name'].toString()] ?? false), // Check parent based on children
-                                          onChanged: (bool? newValue) {
-                                            setState(() {
-                                              for (var task in childTasks) {
-                                                checkboxStates[task['name'].toString()] = newValue ?? false;
-                                                if (newValue == true) {
-                                                  if (!selectedFilters.contains(task['name'])) {
-                                                    selectedFilters.add(task['name']);
-                                                  }
-                                                } else {
-                                                  selectedFilters.remove(task['name']);
-                                                }
-                                              }
-                                              selectedTaskCount=selectedFilters.length;
-                                              taskFilter();
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    Utils.getText(
-                                      ' ${childTasks.length}',
-                                      weight: FontWeight.w700,
-                                    ),
-                                  ],
-                                ),
-                                ...childTasks.fold<Map<String, int>>({}, (acc, task) {
-                                  String taskName = task['name'] ?? '';
-                                  acc[taskName] = (acc[taskName] ?? 0) + 1;
-                                  return acc;
-                                }).entries.map((entry) {
-                                  String taskName = entry.key;
-                                  int count = entry.value;
-                                  return Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Transform.scale(
-                                        scale: 0.7,
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: Checkbox(
-                                            activeColor: AppC.blue,
-                                            value: checkboxStates[taskName.toString()] ?? false,
-                                            onChanged: (bool? newValue) {
-                                              setState(() {
-                                                checkboxStates[taskName.toString()] = newValue ?? false;
-                                                if (newValue == true) {
-                                                  if (!selectedFilters.contains(taskName)) {
-                                                    selectedFilters.add(taskName);
-                                                  }
-                                                } else {
-                                                  selectedFilters.remove(taskName);
-                                                }
-                                                selectedTaskCount=selectedFilters.length;
-                                                taskFilter();
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                      Utils.getText(taskName, weight: FontWeight.w200),
-                                      const SizedBox(width: 5,),
-                                      Utils.getText('$count', weight: FontWeight.bold),
-                                    ],
-                                  );
-                                }).toList(),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  void showPopupWithCheckBoxDepartmentWise(
-    List<Map<String, dynamic>> resourceList,
-    details,
-    Function(List<Map<String, dynamic>?>) onSelect,
-    Map<String, bool> selectedStates,
-  )
-  async {
-    Map<String, List<Map<String, dynamic>>> groupedResources = {};
-    for (var resource in resourceList) {
-      String departmentName =
-          resource['departments'] != null && resource['departments']!.isNotEmpty
-              ? resource['departments']!['name'] ?? 'Unknown'
-              : 'Unknown';
-      if (departmentName == 'Admin Manager' || departmentName == 'Operations') {
-        departmentName = 'Core';
-      }
-      if (!groupedResources.containsKey(departmentName)) {
-        groupedResources[departmentName] = [];
-      }
-      groupedResources[departmentName]!.add(resource);
-      selectedStates.putIfAbsent(resource['id'].toString(), () => false);
-    }
-    bool isExpanded = false;
-    showMenu<List<Map<String, dynamic>?>>(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-      ),
-      elevation: 16,
-      constraints: const BoxConstraints.tightFor(width: 500),
-      surfaceTintColor: AppC.white,
-      color: const Color(0xffffffff).withOpacity(0.75),
-      items: <PopupMenuEntry<List<Map<String, dynamic>?>>>[
-        PopupMenuItem<List<Map<String, dynamic>?>>(
-          height: 22,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              child: const Icon(
-                Icons.close,
-                color: Colors.red,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-        PopupMenuItem<List<Map<String, dynamic>?>>(
-          onTap: () {
-            for (var key in selectedStates.keys) {
-              selectedStates[key] = false;
-            }
-            todoBloc!.add(GetTodoList(
-              selectedDate: filterDate,
-              status: statusFilter ? "Completed" : "In Progress",
-              resourceId: Utils.getStringFromObjectList([]),
-              branchId: branchNO.toString(), // No filters applied
-            ));
-          },
-          height: 20,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
-            child: Utils.getText(
-              'All',
-              size: 15,
-              weight: FontWeight.bold,
-            ),
-          ),
-        ),
-        PopupMenuItem<List<Map<String, dynamic>?>>(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              List<String> sortedDepartmentNames =
-                  groupedResources.keys.toList()
-                    ..sort((a, b) {
-                      bool aIsOffshore = a.toLowerCase().contains('offshore');
-                      bool bIsOffshore = b.toLowerCase().contains('offshore');
-                      if (aIsOffshore && !bIsOffshore) {
-                        return 1; // Move Offshore to the end
-                      }
-                      if (!aIsOffshore && bIsOffshore) return -1;
-                      return a.compareTo(b);
-                    });
-              List<String> displayedDepartments = isExpanded
-                  ? sortedDepartmentNames
-                  : sortedDepartmentNames.take(2).toList();
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...displayedDepartments.map((departmentName) {
-                      List<Map<String, dynamic>> resources =
-                          groupedResources[departmentName]!;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              departmentName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                          ),
-                          ...resources.map((resource) {
-                            String resourceId = resource['id'].toString();
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedStates[resourceId] =
-                                      !(selectedStates[resourceId] ?? false);
-                                });
-
-                                selectedUserCount = selectedStates.values
-                                    .where((isSelected) => isSelected)
-                                    .length;
-
-                                todoBloc!.add(GetTodoList(
-                                  selectedDate: filterDate,
-                                  status: statusFilter
-                                      ? "Completed"
-                                      : "In Progress",
-                                  resourceId: Utils.getStringFromObjectList(
-                                    resourceList.where(
-                                          (res) => selectedStates[res['id'].toString()] == true,
-                                    ).toList(),
-                                  ),
-                                  branchId: branchNO.toString(),
-                                ));
-                              },
-                              child: Container(
-                                height: 30.0,
-                                padding:const EdgeInsets.symmetric(horizontal: 0.0),
-                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Transform.scale(
-                                          scale: 0.8,
-                                          child: Checkbox(
-                                            activeColor: AppC().base,
-                                            value: selectedStates[resourceId],
-                                            onChanged: (bool? value) {
-                                              if (value != null) {
-                                                setState(() {
-                                                  selectedStates[resourceId] = value;
-                                                });
-                                                selectedUserCount =
-                                                    selectedStates.values
-                                                        .where((isSelected) => isSelected)
-                                                        .length;
-                                                todoBloc!.add(GetTodoList(
-                                                  selectedDate: filterDate,
-                                                  status: statusFilter
-                                                      ? "Completed"
-                                                      : "In Progress",
-                                                  resourceId: Utils.getStringFromObjectList(
-                                                    resourceList.where(
-                                                          (res) => selectedStates[res['id'].toString()] == true,
-                                                        ).toList(),
-                                                  ),
-                                                  branchId: branchNO.toString(),
-                                                ));
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        Utils.getText(
-                                          '${resource['first_name'] ?? ''} ${resource['last_name'] ?? ''}',
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Utils.getText(
-                                          resource['unavailable_days'] != null &&
-                                              resource['unavailable_days'] ==
-                                                  DateFormat('EEEE').format(DateTime.now())
-                                              ? 'Unavailable' : (resource['from_time'] != null &&
-                                              resource['from_time'].isNotEmpty &&
-                                              resource['to_time'] != null &&
-                                              resource['to_time'].isNotEmpty)
-                                                  ? "${Utils.convertString24HTo12H(resource['from_time'] ?? '')} - ${Utils.convertString24HTo12H(resource['to_time'] ?? '')}"
-                                                  : '',
-                                          weight: FontWeight.bold,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ],
-                      );
-                    }).toList(),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isExpanded = !isExpanded;
-                        });
-                      },
-                      child: Utils.getText(
-                        isExpanded ? 'Less' : 'More',
-                        color: Colors.black54,
-                        weight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                        size: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-    onSelect(resourceList
-        .where((res) => selectedStates[res['id'].toString()] == true)
-        .toList());
-  }
-
-  void showTaskCompletionDialog(BuildContext context,String? selectedTime) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-
-            return Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                color: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6.0,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Utils.getText(
-                              'Task Completed - Time',
-                              size: 16,
-                              weight: FontWeight.w700,
-                              color: AppC.appColor,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Icon(Icons.close_sharp),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Utils.getText(
-                          'How long this task taken to complete?',
-                          weight: FontWeight.bold,
-                        ),
-                        Wrap(
-                          spacing: 1.5,
-                          runSpacing: 1,
-                          children: [
-                            for (String time in [
-                              '00:15', '00:30', '00:45', '01:00', '01:15',
-                              '01:30', '01:45', '02:00', '02:15', '02:30',
-                              '02:45', '03:00', '03:15', '03:30', '03:45',
-                              '04:00',
-                            ])
-                              ChoiceChip(
-                                label: Utils.getText(
-                                  time,
-                                  color: selectedTime == time ? Colors.white : AppC.appColor,
-                                  weight: FontWeight.bold,
-                                ),
-                                selected: selectedTime == time,
-                                labelPadding: EdgeInsets.zero,
-                                selectedColor: AppC.appColor,
-                                disabledColor: Colors.blue[50],
-                                showCheckmark: false,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                  side: const BorderSide(
-                                    color: AppC.appColor,
-                                    width: 0.5,
-                                  ),
-                                ),
-                                backgroundColor: Colors.blue[50],
-                                onSelected: (bool selected) {
-                                  setState(() {
-                                    selectedTime = selected ? time : null;
-                                  });
-                                },
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 7.5),
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedTime = null;
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(7.5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[50],
-                                    border: Border.all(
-                                      width: 0.5,
-                                      color: AppC.appColor,
-                                    ),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Utils.getText('> 4 hours', color: AppC.red),
-                                ),
-                              ),
-                            ),
-                            if (selectedTime == null)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Utils.getText(
-                                      'Enter the time taken:',
-                                      weight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Utils.getTextFormField(
-                                      'eg: 05:00',
-                                      taskTimeController,
-                                      validator: (value) => timeValidator(value),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            Visibility(
-                              visible: taskTimeController.text.isEmpty && selectedTime == null,
-                              child: Utils.getText(
-                                'Please select time taken',
-                                color: AppC.red,
-                              ),
-                            ),
-                            Visibility(
-                              visible: taskTimeController.text.isNotEmpty && selectedTime == null,
-                              child: Utils.getText(
-                                'Please enter time in the format of 01:00',
-                                color: AppC.red,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Utils.getBorderedMultilineTextField('Reason', reasonController, minLines: 2),
-                            Visibility(
-                              visible: reasonController.text.isEmpty,
-                              child: Utils.getText(
-                                'Please enter reason for extra time',
-                                color: AppC.red,
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-
-  bool isTaskDateValid(String taskStart, DateTime now) {
-    final taskDate = DateFormat('yyyy-MM-dd').parse(taskStart);
-    return taskDate.isAtSameMomentAs(now) || taskDate.isAfter(now);
-  }
-
-  bool isValidTask(String taskStart, String? vin, List<dynamic>? vehicles) {
-    final now = DateTime.now();
-    return isTaskDateValid(taskStart, now) &&
-        (vin != null || (vehicles != null && vehicles.isNotEmpty));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1278,17 +208,17 @@ class _TodoViewUIState extends State<TodoViewUI> {
                   selectedDate: filterDate,
                   status: statusFilter ? "Completed" : "In Progress",
                   resourceId:
-                      Utils.getStringFromObjectList(selectedResourceMain ?? []),
+                  Utils.getStringFromObjectList(selectedResourceMain ?? []),
                   branchId: branchNO.toString(),
                 )),
             ),
             BlocProvider(
               create: (context) =>
-                  locationDataBloc!..add(const GetAddedLocationListData()),
+              locationDataBloc!..add(const GetAddedLocationListData()),
             ),
             BlocProvider(
               create: (context) =>
-                  locationDataBloc!..add(const GetAddedLocationListData()),
+              locationDataBloc!..add(const GetAddedLocationListData()),
             ),
           ],
           child: MultiBlocListener(
@@ -1366,21 +296,21 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       todoListTemp = [];
                       var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
                       var list1 = state.todoList
-                              ?.where((todo) =>
-                                  todo['user_id'] == userId &&
-                                  (todo['title'] == "Check In" ||
-                                      todo['title'] == "Check Out"))
-                              .toList() ??
+                          ?.where((todo) =>
+                      todo['user_id'] == userId &&
+                          (todo['title'] == "Check In" ||
+                              todo['title'] == "Check Out"))
+                          .toList() ??
                           [];
                       var list2 = state.todoList
-                              ?.where((todo) =>
-                                  todo['title'] != "Check In" &&
-                                  todo['title'] != "Check Out")
-                              .toList() ??
+                          ?.where((todo) =>
+                      todo['title'] != "Check In" &&
+                          todo['title'] != "Check Out")
+                          .toList() ??
                           [];
                       var combinedList = [...list1, ...list2];
                       combinedList.sort(
-                          (a, b) => a['todo_time']!.compareTo(b['todo_time']!));
+                              (a, b) => a['todo_time']!.compareTo(b['todo_time']!));
                       todoListTemp.addAll(combinedList);
                       todoList.addAll(combinedList);
                       for (dynamic tdl in combinedList) {
@@ -1402,7 +332,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       selectedResourceMain = [];
                       selectedResourceMain!.addAll(resourceList);
                       for (Map<String, dynamic> res
-                          in resourceListForCombination) {
+                      in resourceListForCombination) {
                         Map<String, dynamic> vehiclesData = {
                           'id': res['id'],
                           'vehicle_name': '${res['first_name']} ${res['last_name']}',
@@ -1515,7 +445,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             todoBloc!.add(GetTodoList(
                               selectedDate: filterDate,
                               status:
-                                  statusFilter ? "Completed" : "In Progress",
+                              statusFilter ? "Completed" : "In Progress",
                               resourceId: Utils.getStringFromObjectList(
                                   selectedResourceMain ?? []),
                               branchId: branchNO.toString(),
@@ -2087,7 +1017,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       scrollDirection: Axis.vertical,
                                       shrinkWrap: true,
                                       physics:
-                                          const AlwaysScrollableScrollPhysics(),
+                                      const AlwaysScrollableScrollPhysics(),
                                       itemCount: todoList.length,
                                       itemBuilder:
                                           (BuildContext context, int index) {
@@ -2117,6 +1047,1070 @@ class _TodoViewUIState extends State<TodoViewUI> {
               ))),
       drawer: const DrawerView(),
     );
+  }
+
+  String stripHtmlTags(String htmlString) {
+    return htmlString.replaceAll(RegExp(r'<[^>]*>'), '');
+  }
+
+  bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
+    for (Map<String, dynamic> res in resourceList) {
+      if ('${res['first_name']} ${res['last_name']}' ==
+          (vehiclesData['vehicle_name'] ?? '')) {
+        lastSelectedIsPerson = true;
+        return lastSelectedIsPerson;
+      }
+    }
+    for (Map<String, dynamic> veh in vehicleList) {
+      if (veh['vehicle_name'] == (vehiclesData['vehicle_name'] ?? '').trim()) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  Widget _buildTimeField(String label, TextEditingController controller, Function onTapCallback) {
+    return Utils.getTextFormField(
+      '',
+      controller,
+      suffixIcon: const Icon(
+        Icons.access_time_sharp,
+        size: 16,
+        color: AppC.appColor,
+      ),
+      readOnly: true,
+      onTapCallback: () async {
+        await onTapCallback();
+      },
+      label: Utils.getText(label, color: AppC.grey),
+    );
+  }
+
+  String formatShiftTimings(String shiftTimings) {
+    try {
+      List<String> times = shiftTimings.split('-');
+      if (times.length != 2) return "Invalid format";
+      DateTime startTime = DateFormat("ha").parse(times[0].trim());
+      DateTime endTime = DateFormat("ha").parse(times[1].trim());
+      String formattedStartTime = DateFormat("hh:mm a").format(startTime);
+      String formattedEndTime = DateFormat("hh:mm a").format(endTime);
+      return "$formattedStartTime - $formattedEndTime";
+    } catch (e) {
+      return "Error formatting shift timings: $e";
+    }
+  }
+
+  String? timeValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter the time taken.';
+    }
+    final timeRegex = RegExp(r'^(?:[01]\d|2[0-3]):[0-5]\d$');
+    if (!timeRegex.hasMatch(value)) {
+      return 'Please enter time in the format HH:mm (e.g., 05:00).';
+    }
+    return null;
+  }
+
+  void applyFilters() {
+    setState(() {
+      todoList = todoListTemp.where((vehicle) {
+        if(vehicle['vehicle_name']!=null){
+          vehicleName = vehicle['vehicle_name']?.toString().toLowerCase() ?? '';}
+        else{
+          vehicleName = (vehicle['vehicles'] != null && vehicle['vehicles'] is List && vehicle['vehicles'].isNotEmpty)
+              ? (vehicle['vehicles'][0]['vehicle_name'] ?? '').toString().toLowerCase()
+              : '';
+        }
+        final yearMatch = selectedYears.isEmpty ||
+            selectedYears.any((year) => vehicleName.contains(year.toLowerCase()));
+        final makeMatch = selectedMakes.isEmpty ||
+            selectedMakes.any((make) => vehicleName.contains(make.toLowerCase()));
+        final modelMatch = selectedModels.isEmpty ||
+            selectedModels.any((model) => vehicleName.contains(model.toLowerCase()));
+        return yearMatch && makeMatch && modelMatch;
+      }).toList();
+    });
+  }
+
+  void taskFilter() {
+    if (selectedFilters.isEmpty) {
+      setState(() {
+        todoList = List<Map<String, dynamic>>.from(todoListTemp);
+      });
+      return;
+    }
+    setState(() {
+      todoList = todoListTemp.where((todo) {
+        final title = (todo['title'] ?? '').toString().toLowerCase();
+        return selectedFilters.any((filter) => title.toLowerCase() == filter.toLowerCase());
+      }).toList();
+    });
+  }
+
+  void _filterTodo(String query) {
+    setState(() {
+      final searchQuery = query.toLowerCase();
+      todoList = todoListTemp.where((todo) {
+        final name = (todo['title'] ?? '').toString().toLowerCase();
+        final vehicle = (todo['vehicle_name'] ?? '').toString().toLowerCase();
+        final vehicles = (todo['vehicles'] != null && todo['vehicles'] is List && todo['vehicles'].isNotEmpty)
+            ? (todo['vehicles'][0]['vehicle_name'] ?? '').toString().toLowerCase()
+            : '';
+        final time = (todo['todo_time'] ?? '').toString().toLowerCase();
+        final firstName = (todo['users']?['first_name'] ?? '').toString().toLowerCase();
+        final lastName = (todo['users']?['last_name'] ?? '').toString().toLowerCase();
+        final notes = (todo['notes'] ?? '').toString().toLowerCase();
+        return name.contains(searchQuery) ||
+            vehicle.contains(searchQuery) ||
+            vehicles.contains(searchQuery) ||
+            time.contains(searchQuery) ||
+            firstName.contains(searchQuery) ||
+            lastName.contains(searchQuery) ||
+            notes.contains(searchQuery);
+      }).toList();
+    });
+  }
+
+  void show(BuildContext context, String message, String status, String id, String oldDate) {
+    OverlayEntry? overlay;
+    overlay = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 20,
+        left: 20,
+        child: ToastWidget(message, () {
+          if (status.isNotEmpty) {
+            todoBloc!.add(CompleteTodoItem(todoId: id, status: status));
+          } else {
+            String addedDate = DateFormat("yyyy-MM-dd").format(
+                DateTime.parse(oldDate).subtract(const Duration(days: 1)));
+            todoBloc!.add(EditTodoDate(
+                null, true, id.toString(), addedDate, null, null, null, null, null));
+          }
+          if (overlay != null && overlay!.mounted) {
+            overlay?.remove();
+            overlay = null;
+          }
+        }),
+      ),
+    );
+    Overlay.of(context).insert(overlay!);
+    Timer(const Duration(seconds: 3), () {
+      if (overlay != null && overlay!.mounted) {
+        overlay?.remove();
+        overlay = null; // Prevent further references
+      }
+    });
+  }
+
+  Future<void> _selectTime(BuildContext context, id) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      initialEntryMode: TimePickerEntryMode.dialOnly,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogBackgroundColor: Colors.white,
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: Colors.white,
+              dialBackgroundColor: Colors.white,
+              hourMinuteTextColor:
+                  WidgetStateColor.resolveWith((states) => Colors.black),
+              hourMinuteShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.grey),
+              ),
+              dayPeriodTextColor: Colors.black,
+              dayPeriodShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.grey),
+              ),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              ),
+              hourMinuteColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? Colors.white
+                      : Colors.white),
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child!,
+          ),
+        );
+      },
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
+      final formattedTime = formatTimeOfDay(_selectedTime);
+
+      todoBloc!.add(EditTodoDate(formattedTime, false, id.toString(), null,
+          null, null, null, null, null));
+    }
+  }
+
+  String getDistance(String? taskVin, reservationVehicles, taskVehicles) {
+    if (taskVin != null) {
+      return reservationVehicles
+              ?.firstWhere(
+                (vehicle) => vehicle.vin.toUpperCase() == taskVin.toUpperCase(),
+                orElse: () => null,
+              )?.distance.toString() ?? '';
+    } else if (taskVehicles != null && taskVehicles.length == 1) {
+      return reservationVehicles
+              ?.firstWhere(
+                (vehicle) =>
+                    vehicle.vin.toUpperCase() ==
+                    taskVehicles[0].vin.toUpperCase(),
+                orElse: () => null,
+              )?.distance.toString() ?? '';
+    } else {
+      return '';
+    }
+  }
+
+  String formatTimeOfDay(TimeOfDay tod) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
+    final format = DateFormat("HH:mm:ss");
+    return format.format(dt);
+  }
+
+  String format24TimeOfDay(TimeOfDay tod) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
+    final format = DateFormat("HH:mm:ss");
+    return format.format(dt);
+  }
+
+  void _showImageDialog(List<dynamic> imageUrls, int index) {
+    Map<String, dynamic> img = {};
+    for (var n in todoList) {
+      img.addAll(n);
+    }
+    PageController pageController = PageController(initialPage: index);
+    ValueNotifier<double> rotationAngle = ValueNotifier<double>(0.0); // Track rotation angle
+    TransformationController transformationController = TransformationController(); // Controls zoom
+    double currentScale = 1.0; // Initial zoom level
+    showDialog(
+      useSafeArea: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: AppC.white,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      itemCount: imageUrls.length,
+                      controller: pageController,
+                      onPageChanged: (newIndex) {
+                        rotationAngle.value = 0.0;
+                        transformationController.value = Matrix4.identity(); // Reset zoom on page change
+                        currentScale = 1.0; // Reset scale
+                      },
+                      itemBuilder: (context, index) {
+                        final imagePath = imageUrls[index]['path'];
+                        return ValueListenableBuilder<double>(
+                          valueListenable: rotationAngle,
+                          builder: (context, angle, child) {
+                            return Transform.rotate(
+                              angle: angle, // Apply rotation
+                              child: File(imagePath.toString()).existsSync()
+                                  ? Image.file(
+                                File(imagePath),
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(Icons.error, color: Colors.red),
+                                  );
+                                },
+                              )
+                                  : InteractiveViewer(
+                                maxScale: 8.0,
+                                minScale: 0.01,
+                                child: GestureDetector( onTap: (){
+                                  if (currentScale == 1.0) {
+                                    currentScale = 2.0; // Zoom in
+                                  } else {
+                                    currentScale = 1.0; // Reset to original scale
+                                  }
+                                  transformationController.value = Matrix4.identity()..scale(currentScale);
+                                },
+                                  child: CachedNetworkImage(
+                                    imageUrl: img['todoimages'] != null
+                                        ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
+                                        : Str.errorImage,
+                                    imageBuilder: (context, imageProvider) {
+                                      return Padding(
+                                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: imageProvider,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorWidget: (context, url, error) {
+                                      return Container(
+                                        alignment: Alignment.center,
+                                        child: Utils.getText(
+                                          "CT",
+                                          size: 22,
+                                          color: AppC.red,
+                                          weight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          Assets.whatsAppIcon,
+                          height: 24,
+                          width: 24,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: GestureDetector(
+                            onTap: () {
+                              rotationAngle.value += 3.14 / 2; // Rotate by 90 degrees (π/2 radians)
+                            },
+                            child: const Icon(Icons.rotate_right_rounded),
+                          ),
+                        ),
+                        Image.asset(
+                          Assets.mail,
+                          height: 24,
+                          width: 24,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SmoothPageIndicator(
+                    controller: pageController,
+                    count: imageUrls.length,
+                    effect: const JumpingDotEffect(
+                      spacing: 8.0,
+                      radius: 8.0,
+                      dotWidth: 10.0,
+                      dotHeight: 10.0,
+                      paintStyle: PaintingStyle.fill,
+                      strokeWidth: 1.5,
+                      dotColor: Colors.grey,
+                      activeDotColor: Colors.indigo,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showObjectPopupMainMenuWithCheckBox(
+      BuildContext context,
+      List<Map<String, dynamic>> todoListMenu,
+      TapDownDetails details,
+      Function(List<Map<String, dynamic>>?) onSelect,
+      List<Map<String, dynamic>> taskCategoryGroupData,
+      List<Map<String, dynamic>> titleList,)
+  async {
+    List<Map<String, dynamic>> taskList = [];
+    List<Map<String, dynamic>> headList = [];
+    List<Map<String, dynamic>> headListName = [];
+
+    for (var data in todoListMenu) {
+      var matchedSubcategory = subCategoryList.firstWhere(
+            (item) => item['name'].toString().toLowerCase() == data['title'].toString().toLowerCase(),
+        orElse: () => {},
+      );
+      if (matchedSubcategory.isNotEmpty) {
+        taskList.add(matchedSubcategory);
+        checkboxStates.putIfAbsent(matchedSubcategory['name'].toString(), () => false);
+      }
+      if (!['Check In', 'Check Out', 'Lunch'].contains(data['title'])
+          && !taskList.any((task) => task['id'] == data['id'])
+          && matchedSubcategory.isEmpty)
+      {
+        var newTask = {
+          'parent_id': -1,
+          'id': data['id'],
+          'name': data['title'],
+        };
+        taskList.add(newTask);
+        checkboxStates.putIfAbsent(newTask['name'].toString(), () => false);
+      }
+    }
+
+    for (var sub in taskList) {
+      var matchedGroup = titleList.firstWhere(
+            (item) => item['id'] == sub['parent_id'],
+        orElse: () => {},
+      );
+      if (matchedGroup.isNotEmpty && !headList.contains(matchedGroup)) {
+        headList.add(matchedGroup);
+      }
+    }
+
+    for (var head in headList) {
+      var matchedTitle = titleList.firstWhere(
+            (item) => item['id'] == head['id'],
+        orElse: () => {},
+      );
+      if (matchedTitle.isNotEmpty && !headListName.contains(matchedTitle)) {
+        headListName.add(matchedTitle);
+      }
+    }
+
+    showMenu<List<Map<String, dynamic>>>(
+      context: context,
+      color: const Color(0xffffffff).withOpacity(0.75),
+      constraints: BoxConstraints.tightFor(width: MediaQuery.sizeOf(context).width),
+      position: RelativeRect.fromLTRB(
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+      ),
+      items: <PopupMenuEntry<List<Map<String, dynamic>>>>[
+        PopupMenuItem<List<Map<String, dynamic>>>(
+          height: 22,
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                ),
+               
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.close, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Utils.getText('Close', weight: FontWeight.w900),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<List<Map<String, dynamic>>>(
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return PopupMenuTheme(
+                data: const PopupMenuThemeData(color: Color(0xfff8f8ff),),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                        ),
+                        
+                      ),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Utils.getText(
+                              'All Todo',
+                              size: 12,
+                              weight: FontWeight.w900,
+                            ),
+                          ),
+                          Transform.scale(
+                            scale: 0.7,
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Checkbox(
+                                activeColor: AppC.blue,
+                                value: checkboxStates['all'] ?? false,
+                                onChanged: (bool? newValue) {
+                                  setState(() {
+                                    checkboxStates['all'] = newValue ?? false;
+                                    for (var key in checkboxStates.keys) {
+                                      if (key != 'all') {
+                                        checkboxStates[key] = newValue ?? false;
+                                      }
+                                    }
+                                    if (newValue == true) {
+                                      selectedFilters.clear(); // Clear existing filters
+                                      selectedFilters.addAll(checkboxStates.keys.where((key) => key != 'all'));
+                                    } else {
+                                      selectedFilters.clear();
+                                    }
+                                    selectedTaskCount=selectedFilters.length;
+                                    taskFilter();
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Wrap(
+                      children: headListName.map((name) {
+                        var childTasks = taskList.where((task) => task['parent_id'] == name['id']).toList();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric( vertical: 4),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Utils.getText(
+                                      name['name'] ?? '',
+                                      weight: FontWeight.w700,
+                                    ),
+                                    Transform.scale(
+                                      scale: 0.7,
+                                      child: SizedBox(
+                                        width: 30,
+                                        height: 20,
+                                        child: Checkbox(
+                                          activeColor: AppC.blue,
+                                          value: childTasks.every((task) =>
+                                          checkboxStates[task['name'].toString()] ?? false), // Check parent based on children
+                                          onChanged: (bool? newValue) {
+                                            setState(() {
+                                              for (var task in childTasks) {
+                                                checkboxStates[task['name'].toString()] = newValue ?? false;
+                                                if (newValue == true) {
+                                                  if (!selectedFilters.contains(task['name'])) {
+                                                    selectedFilters.add(task['name']);
+                                                  }
+                                                } else {
+                                                  selectedFilters.remove(task['name']);
+                                                }
+                                              }
+                                              selectedTaskCount=selectedFilters.length;
+                                              taskFilter();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    Utils.getText(
+                                      ' ${childTasks.length}',
+                                      weight: FontWeight.w700,
+                                    ),
+                                  ],
+                                ),
+                                ...childTasks.fold<Map<String, int>>({}, (acc, task) {
+                                  String taskName = task['name'] ?? '';
+                                  acc[taskName] = (acc[taskName] ?? 0) + 1;
+                                  return acc;
+                                }).entries.map((entry) {
+                                  String taskName = entry.key;
+                                  int count = entry.value;
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Transform.scale(
+                                        scale: 0.7,
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: Checkbox(
+                                            activeColor: AppC.blue,
+                                            value: checkboxStates[taskName.toString()] ?? false,
+                                            onChanged: (bool? newValue) {
+                                              setState(() {
+                                                checkboxStates[taskName.toString()] = newValue ?? false;
+                                                if (newValue == true) {
+                                                  if (!selectedFilters.contains(taskName)) {
+                                                    selectedFilters.add(taskName);
+                                                  }
+                                                } else {
+                                                  selectedFilters.remove(taskName);
+                                                }
+                                                selectedTaskCount=selectedFilters.length;
+                                                taskFilter();
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Utils.getText(taskName, weight: FontWeight.w200),
+                                      const SizedBox(width: 5,),
+                                      Utils.getText('$count', weight: FontWeight.bold),
+                                    ],
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void showPopupWithCheckBoxDepartmentWise(
+    List<Map<String, dynamic>> resourceList,
+    details,
+    Function(List<Map<String, dynamic>?>) onSelect,
+    Map<String, bool> selectedStates,)
+  async {
+    Map<String, List<Map<String, dynamic>>> groupedResources = {};
+    for (var resource in resourceList) {
+      String departmentName =
+          resource['departments'] != null && resource['departments']!.isNotEmpty
+              ? resource['departments']!['name'] ?? 'Unknown'
+              : 'Unknown';
+      if (departmentName == 'Admin Manager' || departmentName == 'Operations') {
+        departmentName = 'Core';
+      }
+      if (!groupedResources.containsKey(departmentName)) {
+        groupedResources[departmentName] = [];
+      }
+      groupedResources[departmentName]!.add(resource);
+      selectedStates.putIfAbsent(resource['id'].toString(), () => false);
+    }
+    bool isExpanded = false;
+    showMenu<List<Map<String, dynamic>?>>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+      ),
+      elevation: 16,
+      constraints: const BoxConstraints.tightFor(width: 500),
+      surfaceTintColor: AppC.white,
+      color: const Color(0xffffffff).withOpacity(0.75),
+      items: <PopupMenuEntry<List<Map<String, dynamic>?>>>[
+        PopupMenuItem<List<Map<String, dynamic>?>>(
+          height: 22,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: const Icon(
+                Icons.close,
+                color: Colors.red,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<List<Map<String, dynamic>?>>(
+          onTap: () {
+            for (var key in selectedStates.keys) {
+              selectedStates[key] = false;
+            }
+            todoBloc!.add(GetTodoList(
+              selectedDate: filterDate,
+              status: statusFilter ? "Completed" : "In Progress",
+              resourceId: Utils.getStringFromObjectList([]),
+              branchId: branchNO.toString(), // No filters applied
+            ));
+          },
+          height: 20,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+            child: Utils.getText(
+              'All',
+              size: 15,
+              weight: FontWeight.bold,
+            ),
+          ),
+        ),
+        PopupMenuItem<List<Map<String, dynamic>?>>(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              List<String> sortedDepartmentNames =
+                  groupedResources.keys.toList()
+                    ..sort((a, b) {
+                      bool aIsOffshore = a.toLowerCase().contains('offshore');
+                      bool bIsOffshore = b.toLowerCase().contains('offshore');
+                      if (aIsOffshore && !bIsOffshore) {
+                        return 1; // Move Offshore to the end
+                      }
+                      if (!aIsOffshore && bIsOffshore) return -1;
+                      return a.compareTo(b);
+                    });
+              List<String> displayedDepartments = isExpanded
+                  ? sortedDepartmentNames
+                  : sortedDepartmentNames.take(2).toList();
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...displayedDepartments.map((departmentName) {
+                      List<Map<String, dynamic>> resources =
+                          groupedResources[departmentName]!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              departmentName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12.0,
+                              ),
+                            ),
+                          ),
+                          ...resources.map((resource) {
+                            String resourceId = resource['id'].toString();
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedStates[resourceId] =
+                                      !(selectedStates[resourceId] ?? false);
+                                });
+
+                                selectedUserCount = selectedStates.values
+                                    .where((isSelected) => isSelected)
+                                    .length;
+
+                                todoBloc!.add(GetTodoList(
+                                  selectedDate: filterDate,
+                                  status: statusFilter
+                                      ? "Completed"
+                                      : "In Progress",
+                                  resourceId: Utils.getStringFromObjectList(
+                                    resourceList.where(
+                                          (res) => selectedStates[res['id'].toString()] == true,
+                                    ).toList(),
+                                  ),
+                                  branchId: branchNO.toString(),
+                                ));
+                              },
+                              child: Container(
+                                height: 30.0,
+                                padding:const EdgeInsets.symmetric(horizontal: 0.0),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Transform.scale(
+                                          scale: 0.8,
+                                          child: Checkbox(
+                                            activeColor: AppC().base,
+                                            value: selectedStates[resourceId],
+                                            onChanged: (bool? value) {
+                                              if (value != null) {
+                                                setState(() {
+                                                  selectedStates[resourceId] = value;
+                                                });
+                                                selectedUserCount =
+                                                    selectedStates.values
+                                                        .where((isSelected) => isSelected)
+                                                        .length;
+                                                todoBloc!.add(GetTodoList(
+                                                  selectedDate: filterDate,
+                                                  status: statusFilter
+                                                      ? "Completed"
+                                                      : "In Progress",
+                                                  resourceId: Utils.getStringFromObjectList(
+                                                    resourceList.where(
+                                                          (res) => selectedStates[res['id'].toString()] == true,
+                                                        ).toList(),
+                                                  ),
+                                                  branchId: branchNO.toString(),
+                                                ));
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                        Utils.getText(
+                                          '${resource['first_name'] ?? ''} ${resource['last_name'] ?? ''}',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Utils.getText(
+                                          resource['unavailable_days'] != null &&
+                                              resource['unavailable_days'] ==
+                                                  DateFormat('EEEE').format(DateTime.now())
+                                              ? 'Unavailable' : (resource['from_time'] != null &&
+                                              resource['from_time'].isNotEmpty &&
+                                              resource['to_time'] != null &&
+                                              resource['to_time'].isNotEmpty)
+                                                  ? "${Utils.convertString24HTo12H(resource['from_time'] ?? '')} - ${Utils.convertString24HTo12H(resource['to_time'] ?? '')}"
+                                                  : '',
+                                          weight: FontWeight.bold,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      );
+                    }).toList(),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+                      child: Utils.getText(
+                        isExpanded ? 'Less' : 'More',
+                        color: Colors.black54,
+                        weight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        size: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+    onSelect(resourceList
+        .where((res) => selectedStates[res['id'].toString()] == true)
+        .toList());
+  }
+
+  void showTaskCompletionDialog(BuildContext context,String? selectedTime) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6.0,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Utils.getText(
+                              'Task Completed - Time',
+                              size: 16,
+                              weight: FontWeight.w700,
+                              color: AppC.appColor,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Icon(Icons.close_sharp),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Utils.getText(
+                          'How long this task taken to complete?',
+                          weight: FontWeight.bold,
+                        ),
+                        Wrap(
+                          spacing: 1.5,
+                          runSpacing: 1,
+                          children: [
+                            for (String time in [
+                              '00:15', '00:30', '00:45', '01:00', '01:15',
+                              '01:30', '01:45', '02:00', '02:15', '02:30',
+                              '02:45', '03:00', '03:15', '03:30', '03:45',
+                              '04:00',
+                            ])
+                              ChoiceChip(
+                                label: Utils.getText(
+                                  time,
+                                  color: selectedTime == time ? Colors.white : AppC.appColor,
+                                  weight: FontWeight.bold,
+                                ),
+                                selected: selectedTime == time,
+                                labelPadding: EdgeInsets.zero,
+                                selectedColor: AppC.appColor,
+                                disabledColor: Colors.blue[50],
+                                showCheckmark: false,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  side: const BorderSide(
+                                    color: AppC.appColor,
+                                    width: 0.5,
+                                  ),
+                                ),
+                                backgroundColor: Colors.blue[50],
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    selectedTime = selected ? time : null;
+                                  });
+                                },
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 7.5),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedTime = null;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(7.5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    border: Border.all(
+                                      width: 0.5,
+                                      color: AppC.appColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Utils.getText('> 4 hours', color: AppC.red),
+                                ),
+                              ),
+                            ),
+                            if (selectedTime == null)
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Utils.getText(
+                                      'Enter the time taken:',
+                                      weight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Utils.getTextFormField(
+                                      'eg: 05:00',
+                                      taskTimeController,
+                                      validator: (value) => timeValidator(value),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            Visibility(
+                              visible: taskTimeController.text.isEmpty && selectedTime == null,
+                              child: Utils.getText(
+                                'Please select time taken',
+                                color: AppC.red,
+                              ),
+                            ),
+                            Visibility(
+                              visible: taskTimeController.text.isNotEmpty && selectedTime == null,
+                              child: Utils.getText(
+                                'Please enter time in the format of 01:00',
+                                color: AppC.red,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Utils.getBorderedMultilineTextField('Reason', reasonController, minLines: 2),
+                            Visibility(
+                              visible: reasonController.text.isEmpty,
+                              child: Utils.getText(
+                                'Please enter reason for extra time',
+                                color: AppC.red,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  bool isTaskDateValid(String taskStart, DateTime now) {
+    final taskDate = DateFormat('yyyy-MM-dd').parse(taskStart);
+    return taskDate.isAtSameMomentAs(now) || taskDate.isAfter(now);
+  }
+
+  bool isValidTask(String taskStart, String? vin, List<dynamic>? vehicles) {
+    final now = DateTime.now();
+    return isTaskDateValid(taskStart, now) &&
+        (vin != null || (vehicles != null && vehicles.isNotEmpty));
   }
 
   Widget buildTime() {
@@ -4677,8 +4671,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     );
   }
 
-  List<Map<String, dynamic>>? getAddressFromLocations(
-      Map<String, dynamic> todos) {
+  List<Map<String, dynamic>>? getAddressFromLocations(Map<String, dynamic> todos) {
     for (int i = 0; i < multipleLocationAddressList.length; i++) {
       if (todos['location_id'] != null &&
           multipleLocationAddressList[i]['id'] ==

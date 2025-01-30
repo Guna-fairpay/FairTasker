@@ -1,7 +1,8 @@
 
-import 'dart:convert';
-import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
+import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart' as vdb;
 import 'package:fairpytasker/Component/readmore.dart';
+import 'package:fairpytasker/State/todo_view_state.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/resource_popup.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_pop.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -10,6 +11,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../../Utilities/appC.dart';
 import '../../../../../Utilities/utils.dart';
+import '../../../Bloc/todo_view_bloc.dart';
+import '../../../Bloc/vehicle_data_bloc.dart';
+import '../../../Event/todo_view_event.dart';
+import '../../dialog/delete_permission_dialog.dart';
 
 class VehicleHistoryViewUI extends StatefulWidget {
   final String? vin;
@@ -35,7 +40,9 @@ class VehicleHistoryViewUI extends StatefulWidget {
 }
 
 class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
-  late VehicleDataBloc vehicleDataBloc;
+  late VehicleDataBloc vehicleHistoryBloc;
+  TodoViewBloc? todoBloc;
+  vdb.VehicleDataBloc? vehicleDataBloc;
   List<Map<String, dynamic>> vehicleHistoryList = [];
   List<Map<String, dynamic>> vehicleDataList = [];
   List<Map<String, dynamic>> filterVehicleDataList = [];
@@ -54,11 +61,13 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
   @override
   void initState() {
     super.initState();
-    vehicleDataBloc = VehicleDataBloc();
+    todoBloc = TodoViewBloc();
+    vehicleHistoryBloc = vdb.VehicleDataBloc();
+    vehicleHistoryBloc = VehicleDataBloc();
     vin = widget.vin;
     vehicleName = widget.vehicleName;
     title = widget.title;
-    vehicleDataBloc.add(GetVehicleHistoryListData(currentPage.toString(), vin));
+    vehicleHistoryBloc.add(GetVehicleHistoryListData(currentPage.toString(), vin));
     _scrollController.addListener(_onScroll);
     userGroupList = widget.userGroupList;
     resourceList = widget.resourceList;
@@ -75,7 +84,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
         _scrollController.position.pixels != 0 &&
         !loading) {
       currentPage++;
-      vehicleDataBloc
+      vehicleHistoryBloc
           .add(GetVehicleHistoryListData(currentPage.toString(), vin));
     }
   }
@@ -83,10 +92,8 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
   void _filterVehicleDataList(String query) {
     setState(() {
       if (!sameTask) {
-        // Reset the filtered list to the original data
         filterVehicleDataList = vehicleDataList;
       } else {
-        // Apply filtering logic
         filterVehicleDataList = vehicleDataList.where((vehicleData) {
           final title = vehicleData['title']?.toLowerCase() ?? '';
           final lastName = vehicleData['last_name']?.toLowerCase() ?? '';
@@ -120,10 +127,10 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
             )
           : null,
       body: BlocProvider(
-        create: (context) => vehicleDataBloc,
+        create: (context) => vehicleHistoryBloc,
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
           listener: (context, state) {
-            if (state is VehicleDataLoading) {
+            if (state is VehicleDataLoading || state is TodoListLoading) {
               setState(() => loading = true);
             } else if (state is VehicleHistoryListLoaded) {
               setState(() {
@@ -134,7 +141,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
               });
             } else {
               setState(() {
-                vehicleDataBloc.add(GetVehicleHistoryListData(currentPage.toString(), vin));
+                vehicleHistoryBloc.add(GetVehicleHistoryListData(currentPage.toString(), vin));
                 loading = false;
               });
             }
@@ -143,8 +150,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
             return Stack(
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                   child: Column(
                     children: [
                       Row(
@@ -188,282 +194,229 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                             ),
                           ],
                         ),
-                      Expanded(
-                        child: filterVehicleDataList.isEmpty &&
-                                searchController.text.isNotEmpty
-                            ? Center(
-                                child: Utils.getText(
-                                  'No Results Found',
-                                  color: Colors.grey,
-                                  weight: FontWeight.bold,
-                                  size: 16,
+                      Expanded(child: filterVehicleDataList.isEmpty
+                          && searchController.text.isNotEmpty ? Center(
+                        child: Utils.getText(
+                          'No Results Found',
+                          color: Colors.grey,
+                          weight: FontWeight.bold,
+                          size: 16,
+                        ),
+                      )
+                          : ListView.separated(
+                        controller: _scrollController,
+                        itemCount: filterVehicleDataList.length,
+                        itemBuilder: (context, index) {
+                          final data = filterVehicleDataList[index];
+                          var d = data['todo_time'] ?? '';
+                          return Row(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            spacing: 5,
+                            children: [
+                              Flexible(
+                                child: Container(
+                                  padding:
+                                  const EdgeInsets.only(top: 6.0),
+                                  child: Utils.getText(
+                                      Utils.convertDateFormats(
+                                        data['todo_date'] ?? '',),
+                                      weight: FontWeight.bold,
+                                      color: AppC.green, size: 12),
                                 ),
-                              )
-                            : ListView.separated(
-                                controller: _scrollController,
-                                itemCount: filterVehicleDataList.length,
-                                itemBuilder: (context, index) {
-                                  final data = filterVehicleDataList[index];
-                                  var d = data['todo_time'] ?? '';
-                                  return Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    spacing: 5,
-                                    children: [
-                                      Flexible(
-                                        child: Container(
-                                          padding:
-                                              const EdgeInsets.only(top: 6.0),
-                                          child: Utils.getText(
-                                              Utils.convertDateFormats(
-                                                data['todo_date'] ?? '',
-                                              ),
-                                              weight: FontWeight.bold,
-                                              color: AppC.green,
-                                              size: 12),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 4,
-                                        child: ClipRRect(
-                                          child: Dismissible(
-                                            background: Container(),
-                                            secondaryBackground: Container(
-                                              alignment: Alignment.centerRight,
-                                              color: AppC.green.withValues(alpha: 0.8),
-                                              child: TextButton.icon(onPressed: (){}, label: Utils.getText("Complete", color: AppC.white, weight: FontWeight.w600), icon: Icon(Icons.check_circle_outline,color: AppC.white,)),
-                                            ),
-                                              direction:
-                                                  DismissDirection.endToStart,
-                                              confirmDismiss:
-                                                  (direction) async {
-                                                if (direction ==
-                                                    DismissDirection
-                                                        .endToStart) {
-                                                  print("OKAY");
-                                                }
-                                                return false;
-                                              },
-                                              key: UniqueKey(),
-                                              child: Container(
-                                                width: double.infinity,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  vertical: 4,
-                                                  horizontal: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  border: Border(
-                                                    top: const BorderSide(
-                                                        color: AppC.white,
-                                                        width: 1),
-                                                    left: const BorderSide(
-                                                        color: AppC.white,
-                                                        width: 1),
-                                                    right: const BorderSide(
-                                                        color: AppC.white,
-                                                        width: 1),
-                                                    bottom: BorderSide(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.4),
-                                                        width: 1.2),
-                                                  ),
-                                                  color: AppC.white,
-                                                ),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      spacing: 10,
-                                                      children: [
-                                                        Utils.getText(
-                                                          data['title'] ?? '',
-                                                          weight:
-                                                              FontWeight.bold,
-                                                          color: AppC.green,
-                                                        ),
-                                                        Expanded(
-                                                          child:
-                                                              GestureDetector(
-                                                            onTap: () async {
-                                                              final String
-                                                                  link =
-                                                                  data['custom_link_id'] ==
-                                                                          3
-                                                                      ? 'https://getaround.com/dashboard/rentals/${data['reference_id'] ?? data['reference_id']}'
-                                                                      : 'https://turo.com/us/en/reservation/${data['reference_id'] ?? data['reference_id']}';
-                                                              if (await canLaunch(
-                                                                  link)) {
-                                                                await launch(
-                                                                    link,
-                                                                    forceSafariVC:
-                                                                        false,
-                                                                    forceWebView:
-                                                                        false);
-                                                              } else {
-                                                                throw 'Could not launch $link';
-                                                              }
-                                                            },
-                                                            child:
-                                                                Utils.getText(
-                                                              data['custom_link_id'] !=
-                                                                          null &&
-                                                                      data['reference_id'] !=
-                                                                          null
-                                                                  ? (data['custom_link_id'] ==
-                                                                          3
-                                                                      ? 'G'
-                                                                      : 'T')
-                                                                  : data['reference_id'] !=
-                                                                          null
-                                                                      ? 'T'
-                                                                      : '',
-                                                              color: data['custom_link_id'] ==
-                                                                      3
-                                                                  ? const Color(
-                                                                      0xFFA608C0)
-                                                                  : Colors
-                                                                      .black,
-                                                              weight: FontWeight
-                                                                  .w900,
-                                                              size: 14,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Utils.getText(
-                                                          Utils.convertString24HTo12H(
-                                                              data['todo_time'] ??
-                                                                  ''),
-                                                          color: AppC.green,
-                                                        ),
-                                                        const Icon(
-                                                          Icons.delete_outline,
-                                                          color: AppC.redAccent,
-                                                          size: 14,
-                                                        )
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      spacing: 10,
-                                                      children: [
-                                                        if (data[
-                                                                'clean_required'] !=
-                                                            null)
-                                                          Utils.getText(
-                                                            '(${data['clean_required']})',
-                                                            weight:
-                                                                FontWeight.bold,
-                                                            color: AppC.orange,
-                                                          ),
-                                                        if (data[
-                                                                'parts']
-                                                            .isNotEmpty)
-                                                          InkWell(
-                                                              onTapDown: (details) => VehicleHistoryPop
-                                                                  .instance
-                                                                  .show(context,
-                                                                      data:
-                                                                          data,
-                                                                      details:
-                                                                          details,
-                                                                      compare:
-                                                                          "parts",
-                                                                      display:
-                                                                          "parts_name"),
-                                                              child: Utils.getText(
-                                                                  "P",
-                                                                  weight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  size: 13)),
-                                                        if (data['supplies']
-                                                            .isNotEmpty)
-                                                          InkWell(
-                                                              onTapDown: (details) => VehicleHistoryPop
-                                                                  .instance
-                                                                  .show(context,
-                                                                      data:
-                                                                          data,
-                                                                      details:
-                                                                          details,
-                                                                      compare:
-                                                                          "supplies",
-                                                                      display:
-                                                                          "supplies_name"),
-                                                              child: Utils.getText(
-                                                                  'S',
-                                                                  weight:
-                                                                      FontWeight
-                                                                          .bold)),
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      spacing: 10,
-                                                      children: [
-                                                        Expanded(
-                                                            child: (data['notes'] !=
-                                                                        null &&
-                                                                    data['notes']
-                                                                        .toString()
-                                                                        .isNotEmpty)
-                                                                ? ReadMoreText(
-                                                                    '(${data['notes']})',
-                                                                    trimLines:
-                                                                        1,
-                                                                    titleText: data[
-                                                                            'location'] ??
-                                                                        data[
-                                                                            'vendor_name'] ??
-                                                                        '',
-                                                                    titleTextStyle: context
-                                                                        .textTheme
-                                                                        .labelLarge
-                                                                        ?.copyWith(
-                                                                            color:
-                                                                                AppC.green,
-                                                                            fontWeight: FontWeight.w500),
-                                                                    trimMode:
-                                                                        TrimMode
-                                                                            .Line,
-                                                                    trimCollapsedText:
-                                                                        ' more',
-                                                                    trimExpandedText:
-                                                                        ' less',
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .black),
-                                                                    moreStyle: const TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .pink),
-                                                                    lessStyle: const TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .pink),
-                                                                  )
-                                                                : Container()),
-                                                        getUserGroupDataById(
-                                                          data,
-                                                          onPressed: Utils
-                                                              .showMobileToast,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              )),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                                separatorBuilder: (BuildContext context, int index) => 1.height,
                               ),
+                              Expanded(
+                                flex: 4,
+                                child: ClipRRect(
+                                  child: Dismissible(
+                                      key: ValueKey(data['id']),
+                                    background: Container(),
+                                      secondaryBackground: Container(
+                                        alignment: Alignment.centerRight,
+                                        color: AppC.green.withValues(alpha: 0.8),
+                                        child: TextButton.icon(onPressed: (){}, label: Utils.getText("Complete", color: AppC.white, weight: FontWeight.w600), icon: Icon(Icons.check_circle_outline,color: AppC.white,)),
+                                      ),
+                                      direction: DismissDirection.endToStart,
+                                      confirmDismiss: (direction) async {
+                                        if (direction == DismissDirection.endToStart) {
+                                          todoBloc!.add(CompleteTodoItem(
+                                              todoId: data['id'].toString(), status: 'Completed',
+                                              taskName: data['title']));
+                                        }
+                                        return false;
+                                        },
+                                      // key: UniqueKey(),
+                                      child: Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 4,
+                                          horizontal: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            top: const BorderSide(
+                                                color: AppC.white,
+                                                width: 1),
+                                            left: const BorderSide(
+                                                color: AppC.white,
+                                                width: 1),
+                                            right: const BorderSide(
+                                                color: AppC.white,
+                                                width: 1),
+                                            bottom: BorderSide(
+                                                color: Colors.grey
+                                                    .withOpacity(0.4),
+                                                width: 1.2),
+                                          ),
+                                          color: AppC.white,),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              spacing: 10,
+                                              children: [
+                                                Utils.getText(
+                                                  data['title'] ?? '',
+                                                  weight: FontWeight.bold,
+                                                  color: AppC.green,),
+                                                Expanded(
+                                                  child: GestureDetector(
+                                                    onTap: () async {
+                                                      final String link =
+                                                      data['custom_link_id'] == 3
+                                                          ? 'https://getaround.com/dashboard/rentals/${data['reference_id'] ?? data['reference_id']}'
+                                                          : 'https://turo.com/us/en/reservation/${data['reference_id'] ?? data['reference_id']}';
+                                                      if (await canLaunch(
+                                                          link)) {
+                                                        await launch(link,
+                                                            forceSafariVC:
+                                                            false,
+                                                            forceWebView: false);
+                                                      } else {
+                                                        throw 'Could not launch $link';
+                                                      }
+                                                      },
+                                                    child:
+                                                    Utils.getText(
+                                                      data['custom_link_id'] != null &&
+                                                          data['reference_id'] != null
+                                                          ? (data['custom_link_id'] == 3 ? 'G' : 'T')
+                                                          : data['reference_id'] !=
+                                                          null
+                                                          ? 'T' : '',
+                                                      color: data['custom_link_id'] == 3
+                                                          ? const Color(0xFFA608C0)
+                                                          : Colors.black,
+                                                      weight: FontWeight.w900,
+                                                      size: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Utils.getText(
+                                                  Utils.convertString24HTo12H(
+                                                      data['todo_time'] ?? ''),
+                                                  color: AppC.green,),
+                                                InkWell(
+                                                  onTap:(){
+                                                    DeletePermissionDialog.of.show(context, (val) {
+                                                      setState(() {
+                                                        if(val.isNotEmpty){
+                                                          todoBloc?.add(DeleteTodoEvent(
+                                                              todoId: data['id'].toString()));
+                                                          vehicleHistoryBloc.add(vdb.DeleteExpense(
+                                                              id: data['expense_id']));
+                                                        }
+                                                      });
+                                                    },);
+                                                  },
+                                                  child: const Icon(
+                                                    Icons.delete_outline,
+                                                    color: AppC.redAccent,
+                                                    size: 14,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            Row(
+                                              spacing: 10,
+                                              children: [
+                                                if (data['clean_required'] != null)
+                                                  Utils.getText('(${data['clean_required']})',
+                                                    weight: FontWeight.bold,
+                                                    color: AppC.orange,
+                                                  ),
+                                                if (data['parts'].isNotEmpty)
+                                                  InkWell(
+                                                      onTapDown: (details) =>
+                                                          VehicleHistoryPop.instance.show(
+                                                              context, data: data,
+                                                              details: details,
+                                                              compare: "parts",
+                                                              display: "parts_name"),
+                                                      child: Utils.getText(
+                                                          "P",
+                                                          weight: FontWeight.bold,
+                                                          size: 13)),
+                                                if (data['supplies'].isNotEmpty)
+                                                  InkWell(onTapDown: (details) =>
+                                                      VehicleHistoryPop.instance
+                                                          .show(context,
+                                                          data: data,
+                                                          details: details,
+                                                          compare: "supplies",
+                                                          display: "supplies_name"),
+                                                      child: Utils.getText('S',
+                                                          weight: FontWeight.bold)),
+                                              ],
+                                            ),
+                                            Row(
+                                              spacing: 10,
+                                              children: [
+                                                Expanded(
+                                                    child: (data['notes'] != null &&
+                                                        data['notes'].toString().isNotEmpty)
+                                                        ? ReadMoreText(
+                                                      '(${data['notes']})',
+                                                      trimLines: 1,
+                                                      titleText: data['location'] ??
+                                                          data['vendor_name'] ?? '',
+                                                      titleTextStyle: context
+                                                          .textTheme
+                                                          .labelLarge
+                                                          ?.copyWith(
+                                                          color: AppC.green,
+                                                          fontWeight: FontWeight.w500),
+                                                      trimMode: TrimMode.Line,
+                                                      trimCollapsedText: ' more',
+                                                      trimExpandedText: ' less',
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black),
+                                                      moreStyle: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.pink),
+                                                      lessStyle: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.pink),
+                                                    ) : Container()),
+                                                UserGroupWidget(
+                                                  todos: data,
+                                                  userGroupList: userGroupList,
+                                                  resourceList: resourceList,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                ),
+                              ),
+                            ],
+                          );
+                          },
+                        separatorBuilder: (BuildContext context, int index) => 1.height,
+                      ),
                       ),
                     ],
                   ),
@@ -475,65 +428,5 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
         ),
       ),
     );
-  }
-
-  Widget getUserGroupDataById(Map<String, dynamic> todos,
-      {Function(String val)? onPressed}) {
-    //log("$todos", name: "TODO_S");
-    String getInitials(String? firstName, String? lastName) {
-      return '${firstName?[0].toUpperCase() ?? ''}${lastName?[0].toUpperCase() ?? ''}';
-    }
-
-    if (todos['users'] != null) {
-      String userShortName = getInitials(
-        todos['users']?['first_name'],
-        todos['users']?['last_name'],
-      );
-
-      return Utils.getText(
-        userShortName,
-        color: AppC().base,
-        weight: FontWeight.bold,
-      );
-    } else {
-      String userGroupConcatenationName = '';
-      List<String> userInitials = [];
-
-      for (Map<String, dynamic> group in userGroupList) {
-        if (group['id'] == todos['user_group_id']) {
-          List<dynamic> userList = [];
-          try {
-            userList = json.decode(group['userId'] ?? '[]');
-          } catch (_) {
-            continue;
-          }
-
-          for (Map<String, dynamic> res in resourceList) {
-            if (userList.contains(res['id'])) {
-              String initials = getInitials(
-                res['first_name'],
-                res['last_name'],
-              );
-              userInitials.add(initials);
-            }
-          }
-          break;
-        }
-      }
-      if (userInitials.isNotEmpty) {
-        userGroupConcatenationName = (userInitials.length > 1)
-            ? "${userInitials.first}..."
-            : userInitials.join(',');
-      }
-      return GestureDetector(
-        onTap: () => onPressed?.call(userInitials.join(',')),
-        child: Utils.getText(
-            align: TextAlign.end,
-            userGroupConcatenationName,
-            color: AppC().base,
-            weight: FontWeight.bold,
-            overFlow: TextOverflow.ellipsis),
-      );
-    }
   }
 }
