@@ -89,18 +89,23 @@ class FeedBackTile extends StatelessWidget {
             title: Text("${feedback?.title}"),
             subtitle: (feedback?.attachments?.isEmpty ?? false)
                 ? null
-                : GestureDetector(
-                    onTap: onViewAttachment,
-                    child: Text(
-                      "View attachments",
-                      style: context.textTheme.labelLarge?.copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppC.appColor,
-                        color: AppC.appColor,
-                        fontWeight: FontWeight.bold,
+                : Row(
+                  children: [
+                    GestureDetector(
+                        onTap: onViewAttachment,
+                        child: Text(
+                          "View attachments",
+                          style: context.textTheme.labelLarge?.copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppC.appColor,
+                            color: AppC.appColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    const SizedBox.shrink(),
+                  ],
+                ),
             trailing: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Utils.getText([feedback?.user?.firstName, feedback?.user?.lastName].toInitial,

@@ -1,8 +1,9 @@
+import 'dart:async';
+
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'UI/Splash/splash_ui.dart';
 import 'package:intl/intl.dart';
 
@@ -14,13 +15,17 @@ String? formattedDate;
 DateTime selectedDate = DateTime.now();
 
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
-  await Session.of.init();
-  runApp(const MyApp());
-  configEasyLoading();
-  filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-  formattedDate = DateFormat('MMM dd').format(selectedDate);
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
+    await Session.of.init();
+    runApp(const MyApp());
+    configEasyLoading();
+    filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+    formattedDate = DateFormat('MMM dd').format(selectedDate);
+  }, (error, stack) {
+
+  });
 }
 
 void configEasyLoading() {

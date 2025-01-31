@@ -1,4 +1,14 @@
 import 'dart:io';
+import 'package:fairpytasker/Component/feedback_tab_button.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_form.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_edit_main_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_edit_main_events.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_main_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
@@ -8,20 +18,108 @@ import '../../Utilities/appC.dart';
 import '../../Utilities/utils.dart';
 import 'Comments/feedback_comments_ui.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'dart:convert';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class FeedbackEditViewUI extends StatefulWidget {
+class FeedbackEditViewUI extends StatelessWidget {
+  final dynamic feedBackId;
+  const FeedbackEditViewUI({super.key, required this.feedBackId});
+
+  @override
+  Widget build(BuildContext context1) {
+    return BlocProvider<FBEditBloc>(
+      create: (context) => FBEditBloc()..add(FBInitialEvent(feedBackId)),
+      child: BlocListener<FBEditBloc, FBEditStates>(
+        listener: (context, state) {
+          if (state is FBLoadingState) {
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is FBErrorState) {
+              Utils.showMobileToast(state.message);
+            } else if (state is FBSuccessState) {
+              Utils.showMobileToast(state.message);
+            }
+          }
+        },
+        child: BlocBuilder<FBEditBloc, FBEditStates>(
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              title: Utils.getText("Title of the Feedback",
+                  weight: FontWeight.bold, color: Colors.white),
+              backgroundColor: const Color(0xFF364290).withValues(alpha: 0.95),
+              foregroundColor: Colors.white,
+              actions: (context.read<FBEditBloc>().pageId != 0)
+                  ? []
+                  : [
+                IconButton(
+                  onPressed: () => context
+                      .read<FeedBackEditMainBloc>()
+                      .add(FeedBackEditMainSaveEvent()),
+                  icon: const Icon(Icons.save_rounded),
+                ),
+              ],
+            ),
+            body: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    spacing: 5,
+                    children: [
+                      Container(
+                        alignment: Alignment.bottomCenter,
+                        decoration: const BoxDecoration(
+                            border:
+                            BorderDirectional(bottom: BorderSide(width: 0.2))),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          spacing: 2,
+                          children: [
+                            FeedbackTabButton(
+                                buttonText: "Feedback",
+                                value: 0,
+                                selectedValue: context.read<FBEditBloc>().pageId,
+                                onPressed: (val) => context
+                                    .read<FeedBackEditMainBloc>()
+                                    .add(FeedBackTabChangeEvent(val))),
+                            FeedbackTabButton(
+                                buttonText: "Comments",
+                                value: 1,
+                                selectedValue: context.read<FBEditBloc>().pageId,
+                                badgeCount: 1,
+                                showBade: true,
+                                onPressed: (val) => context
+                                    .read<FeedBackEditMainBloc>()
+                                    .add(FeedBackTabChangeEvent(val))),
+                            const Spacer()
+                          ],
+                        ),
+                      ),
+                      const FeedbackEditForm(),
+                      // const CommentsUI(),
+                    ],
+                  ),
+                )),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FeedbackEditViewUi extends StatefulWidget {
   final Map<String, dynamic> feedbacks;
   final String status;
-  const FeedbackEditViewUI(
+
+  const FeedbackEditViewUi(
       {super.key, required this.feedbacks, required this.status});
 
   @override
-  State<FeedbackEditViewUI> createState() => _FeedbackEditViewUIState();
+  State<FeedbackEditViewUi> createState() => _FeedbackEditViewUIState();
 }
 
-class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
+class _FeedbackEditViewUIState extends State<FeedbackEditViewUi> {
   quill.QuillController descriptionController = quill.QuillController.basic();
   late TextEditingController titleController;
   PageController pageController = PageController(initialPage: 0);
@@ -48,7 +146,8 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUI> {
       document: quill.Document.fromHtml("${widget.feedbacks['description']}"),
       selection: const TextSelection.collapsed(offset: 0),
     );
-    imagePaths = widget.feedbacks?["attachments"]?.map((e) => e['path']).toList();
+    imagePaths =
+        widget.feedbacks?["attachments"]?.map((e) => e['path']).toList() ?? [];
     selectedPriority = widget.feedbacks['priority'];
     selectedStatus = widget.status;
   }

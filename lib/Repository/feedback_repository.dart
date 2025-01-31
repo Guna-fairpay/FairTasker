@@ -10,6 +10,7 @@ class FeedBackRepository {
 
   String get _viewApiUrl => "${Str.BASE_URL}feedback";
   String get _feedbackStatusApiUrl => "${Str.BASE_URL}feedback-status";
+  String get _feedbackComments => "${Str.BASE_URL}get-feedback-comments";
 
   Future<FeedbackViewResponse?> fetchFeedback() async {
     var response = await _apiClient.callGetMethod(_viewApiUrl);
@@ -31,6 +32,24 @@ class FeedBackRepository {
 
   Future<Map<String, dynamic>?> deleteFeedback(dynamic id) async {
     var response = await _apiClient.callDelete("$_viewApiUrl/$id");
+    if (response.isSuccess) {
+      return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
+    } else {
+      throw Exception("${response?.statusCode} : ${response?.reasonPhrase}");
+    }
+  }
+
+  Future<Map<String, dynamic>?> getFeedback(dynamic feedBackId) async {
+    var response = await _apiClient.callGetMethod("$_viewApiUrl/$feedBackId");
+    if (response.isSuccess) {
+      return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
+    } else {
+      throw Exception("${response?.statusCode} : ${response?.reasonPhrase}");
+    }
+  }
+
+  Future<Map<String, dynamic>?> getFeedBackComments(dynamic feedBackId) async {
+    var response = await _apiClient.callGetMethod("$_feedbackComments/$feedBackId");
     if (response.isSuccess) {
       return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
     } else {

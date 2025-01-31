@@ -45,9 +45,10 @@ class FeedBackUI extends StatelessWidget {
               var result = await Utils.showCustomDeleteDialog(context, "Do you want to delete the feedback?");
               if (result) context.read<FeedBackViewBloc>().add(FeedBackDeleteConfirmEvent(state.feedBackId));
             } else if (state is FeedBackEditState) {
-              await context.push<FeedbackAddUI>(FeedbackEditViewUI(feedbacks: state.feedbacks, status: ""));
+              // await context.push<FeedbackAddUI>(FeedbackEditViewUI(feedbacks: state.feedbacks, status: ""));
+              if (context != null) await context.push<FeedbackAddUI>(FeedbackEditViewUI(feedBackId: state.feedBackId,), fullscreenDialog: true);
             } else if (state is FeedBackAddState) {
-              await context.push<FeedbackAddUI>(const FeedbackAddUI());
+              if (context != null) await context.push<FeedbackAddUI>(const FeedbackAddUI());
             }
           }
         },
