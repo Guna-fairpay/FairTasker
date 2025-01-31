@@ -5,8 +5,8 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/State/workingHoursState.dart'
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Bloc/workHoursBloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../../Component/task_expansion.dart';
-import '../../../Component/task_expansion_list_tile.dart';
+import '../Component/task_expansion.dart';
+import '../Component/task_expansion_list_tile.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import 'Popups/task_filter.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../Utilities/Utils.dart';
-import '../Utilities/appC.dart';
+import '../../../Utilities/Utils.dart';
+import '../../../Utilities/appC.dart';
 
 class TaskExpansion extends StatelessWidget {
   final String leadingText;
@@ -18,20 +18,21 @@ class TaskExpansion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      initiallyExpanded: isInitialExpand,
-      leading: Utils.getText(
+    return
+      ExpansionTile(
+        initiallyExpanded: isInitialExpand,
+        leading: Utils.getText(
         leadingText,
         color: AppC.appColor,
         weight: FontWeight.bold,
-      ),
-      title: Utils.getText(
+        ),
+        title: Utils.getText(
         titleText,
         color: AppC.appColor,
         weight: FontWeight.bold,
         align: TextAlign.end,
-      ),
-      children: [
+        ),
+        children: [
         Container(
           width: MediaQuery.sizeOf(context).width,
           color: AppC.white,
@@ -40,16 +41,16 @@ class TaskExpansion extends StatelessWidget {
             children: children,
           ),
         ),
-      ],
-      collapsedShape: ContinuousRectangleBorder(
+        ],
+        collapsedShape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-      ),
-      shape: ContinuousRectangleBorder(
+        ),
+        shape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: const BorderSide(color: AppC.black, width: 0.15),
-      ),
-      backgroundColor: const Color(0xFFEAF0FA),
-      collapsedBackgroundColor: const Color(0xFFEAF0FA),
-    );
+        ),
+        backgroundColor: const Color(0xFFEAF0FA),
+        collapsedBackgroundColor: const Color(0xFFEAF0FA),
+      );
   }
 }

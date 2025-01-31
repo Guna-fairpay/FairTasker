@@ -64,7 +64,8 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
   }
 
 //Add Otherui
-  void _navigateToTaskAddUI() async {
+  void _navigateToTaskAddUI() async
+  {
     final newPersonList = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(builder: (context) =>  OtherAddUi()),
