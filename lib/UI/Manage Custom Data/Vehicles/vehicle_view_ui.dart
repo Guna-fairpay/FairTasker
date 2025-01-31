@@ -202,7 +202,6 @@ class _VehicleUIState extends State<VehicleViewUI> {
               filteredVehicle = List.from(vehicleName);
             }else if(state is VehicleGroupDataLoaded){
               vehicleData.addAll(state.vehicleGroupDataList??[]);
-              print('-------------------------------$vehicleData');
             }
             else {
               vehicleDataBloc.add(const GetActiveVehicleData());

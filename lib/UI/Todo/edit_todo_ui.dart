@@ -1006,26 +1006,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     ],
                                   ),
                                 ),
-                                const Divider(
-                                  indent: 15,
-                                  endIndent: 15,
-                                ),
                                 if (showExpenseTab == 0)
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 15),
-                                    child: SizedBox(
-                                        height: 400,
-                                        child: ExpenseEditUI(showHeader: false, expense: {},)),
-                                  )
+                                  const ExpenseEditUI(showHeader: false, expense: {},)
                                 else if (showExpenseTab == 1)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 15),
-                                    child: SizedBox(
-                                        height: MediaQuery.of(context).size.height *
-                                            0.6,
-                                        child:
-                                        const CreateTodoUI(showHeader: false)),
-                                  )
+                                  const CreateTodoUI(showHeader: false)
                                 else if (showExpenseTab == 2)
                                     Padding(
                                       padding:
@@ -1041,28 +1025,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       ),
                                     )
                                   else if (showExpenseTab == 3)
-                                      Padding(
-                                        padding:
-                                        const EdgeInsets.symmetric(horizontal: 15),
-                                        child: Column(
-                                          children: [
-                                            SizedBox(
-                                                height: MediaQuery.of(context).size.height * 0.6,
-                                                child: MaintenanceCheckListUI(
-                                                  maintenance: maintenanceCheckListData,
-                                                )),
-                                          ],
-                                        ),
+                                      MaintenanceCheckListUI(
+                                        maintenance: maintenanceCheckListData,
                                       )
                                     else if (showExpenseTab == 4)
-                                        Column(
-                                          children: [
-                                            SizedBox(
-                                                height: MediaQuery.of(context).size.height * 0.6,
-                                                child: VehicleEditUI(vehicle: setVehicleList,showHeader: false,)
-                                            ),
-                                          ],
-                                        )
+                                        VehicleEditUI(vehicle: setVehicleList,showHeader: false,)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),
@@ -2954,176 +2921,47 @@ class _EditTodoUIState extends State<EditTodoUI> {
   }
 
   Widget showBottomTabWidget() {
+    final List<Map<String, dynamic>> tabs = [
+      if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out')
+        {'label': 'Expense', 'index': 0, 'color': AppC().base},
+      {'label': 'Next Task', 'index': 1, 'color': AppC().base},
+      if (todoItem['title'] == 'Getaround Prechecks')
+        {'label': 'Check List', 'index': 2, 'color': AppC().base},
+      if (todoItem['title'] == 'Maintenance Check')
+        {'label': 'Maintenance', 'index': 3, 'color': AppC().base},
+      if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out' && todoItem['vehicle_name'] != null ||
+      todoItem['vehicles'].isNotEmpty)
+        {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
+    ];
     return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+      ),
       alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                if (todoItem['title'] != 'Check In' &&
-                    todoItem['title'] != 'Check Out')
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showExpenseTab = 0;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppC.trans,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(6),
-                          topRight: Radius.circular(6),
-                        ),
-                        border: Border.all(
-                          color: showExpenseTab == 0
-                              ? AppC().base
-                              : AppC.trans, // Set your desired border color here
-                          width: 1.0, // Set the border width
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Utils.getText(
-                          'Expense',
-                            weight: FontWeight.bold,
-                            color:AppC.appColor
-                        ),
-                      ),
-                    ),
-                  ),
-
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      showExpenseTab = 1;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppC.trans,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(6),
-                        topRight: Radius.circular(6),
-                      ),
-                      border: Border.all(
-                        color: showExpenseTab == 1
-                            ? AppC().base
-                            : AppC.trans, // Set your desired border color here
-                        width: 1.0, // Set the border width
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Utils.getText(
-                        'Next Task',
-                          weight: FontWeight.bold,
-                          color:AppC.appColor
-                      ),
-                    ),
+        child: Row(
+          children: tabs.map((tab) {
+            return GestureDetector(
+              onTap: () => setState(() => showExpenseTab = tab['index']),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppC.trans,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: showExpenseTab == tab['index'] ? tab['color'] : AppC.trans,
+                    width: 1.0,
                   ),
                 ),
-                if (todoItem['title'] == 'Getaround Prechecks')
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showExpenseTab = 2;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppC.trans,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(6),
-                          topRight: Radius.circular(6),
-                        ),
-                        border: Border.all(
-                          color: showExpenseTab == 2
-                              ? AppC().base
-                              : AppC.trans, // Set your desired border color here
-                          width: 1.0, // Set the border width
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Utils.getText(
-                          'Check List',
-                            weight: FontWeight.bold,
-                            color:AppC.appColor
-                        ),
-                      ),
-                    ),
-                  ),
-                if (todoItem['title'] == 'Maintenance Check')
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showExpenseTab = 3;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppC.trans,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(6),
-                          topRight: Radius.circular(6),
-                        ),
-                        border: Border.all(
-                          color: showExpenseTab == 3
-                              ? AppC().base
-                              : AppC.trans, // Set your desired border color here
-                          width: 1.0, // Set the border width
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Utils.getText(
-                          'Maintenance',
-                            weight: FontWeight.bold,
-                            color:AppC.appColor
-                        ),
-                      ),
-                    ),
-                  ),
-                if (todoItem['title'] != 'Check In' &&
-                    todoItem['title'] != 'Check Out')
-                  // if(todoItem['vehicle_name'] != 'Multiple Vehicles')
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showExpenseTab = 4;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppC.trans,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(6),
-                          topRight: Radius.circular(6),
-                        ),
-                        border: Border.all(
-                          color: showExpenseTab == 4
-                              ? AppC().base
-                              : AppC.trans, // Set your desired border color here
-                          width: 1.0, // Set the border width
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Utils.getText(
-                          'Set Vehicle',
-                          weight: FontWeight.bold,
-                          color:AppC.red
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
+                padding: const EdgeInsets.all(5),
+                child: Utils.getText(
+                  tab['label'],
+                  weight: FontWeight.bold,
+                  color: showExpenseTab == tab['index'] ? tab['color'] : AppC.black,
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ),
     );

@@ -173,7 +173,7 @@ class Utils {
               (dynamic value){
                 return DropdownMenuEntry<Map<String, dynamic>>(
                   value: value,
-                  label: '${value[labelKey]??''}',
+                  label: '${value[labelKey]??''}'.trim(),
                 );
               },
             ).toList(),

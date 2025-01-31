@@ -273,7 +273,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return (widget.showHeader) ?  Scaffold(
       backgroundColor: AppC.white,
       appBar: widget.showHeader
           ? AppBar(
@@ -381,31 +381,35 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               ],
             )
           : null,
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => todoBloc!..add(const GetAssignedToList()),
-          ),
-          BlocProvider(
-            create: (context) => vehicleDataBloc!..add(const VehicleInitial()),
-          ),
-          BlocProvider(
-            create: (context) =>
-                locationDataBloc!..add(const AddedLocationInitial()),
-          ),
-        ],
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<TodoViewBloc, TodoViewState>(
-              listener: (context, state) {
-                if (state is VehicleDataLoaded) {
-                  if (state.vehicleData != null) {
-                    vehicleList.addAll(state.vehicleData ?? []);
-                    editMultipleVehicleList.addAll(state.vehicleData ?? []);
-                    selectedVehicleName.addAll(state.vehicleData ?? []);
-                  }
-                } else if (state is AssignedToLoaded) {
-                 /* resourceList = state.resource ?? [];
+      body: body,
+    ) : body;
+  }
+
+  Widget get body => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (context) => todoBloc!..add(const GetAssignedToList()),
+      ),
+      BlocProvider(
+        create: (context) => vehicleDataBloc!..add(const VehicleInitial()),
+      ),
+      BlocProvider(
+        create: (context) =>
+        locationDataBloc!..add(const AddedLocationInitial()),
+      ),
+    ],
+    child: MultiBlocListener(
+      listeners: [
+        BlocListener<TodoViewBloc, TodoViewState>(
+          listener: (context, state) {
+            if (state is VehicleDataLoaded) {
+              if (state.vehicleData != null) {
+                vehicleList.addAll(state.vehicleData ?? []);
+                editMultipleVehicleList.addAll(state.vehicleData ?? []);
+                selectedVehicleName.addAll(state.vehicleData ?? []);
+              }
+            } else if (state is AssignedToLoaded) {
+              /* resourceList = state.resource ?? [];
                   if (widget.selectedAssignedTo != null &&
                       widget.selectedAssignedTo!.isNotEmpty) {
                     // selectedAssignedTo = (widget.selectedAssignedTo!??[])!;
@@ -453,488 +457,485 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       debugPrint('todoItem!.resource.id: ${resource['id']}');
                     }
                   }*/
-                  resourceList = [];
-                  resourceList = state.resource ?? [];
-                  resourceList.removeWhere((resource) => resource['id'] == 2);
-                  isSelected = true;
-                  selectedAssignedTo?.add(resourceList[0]);
-                  resourceListForCombination = state.resource ?? [];
-                  // for (Map<String, dynamic> resource in resourceList) {
-                  //   if (resource['id'].toString().trim() ==
-                  //       (todoItem['users']?['id'] ?? 0).toString()) {
-                  //     selectedResource = resource;
-                  //   }
-                  // }
-                  for (Map<String, dynamic> res in resourceListForCombination) {
-                    Map<String, dynamic> vehiclesData = {
-                      'id': res['id'],
-                      'vehicle_name':
-                      '${res['first_name']}${res['last_name']}',
-                      //'isSelected': false
-                    };
-                    editMultipleVehicleList.add(vehiclesData);
-                  }
-                } else if (state is TaskExpenseLoaded) {
-                  taskExpenseList = (state.resource ?? []);
-                } else if (state is VendorLoaded) {
-                  vendorList = (state.resource ?? []);
-                } else if (state is LocationLoaded) {
-                  locationList = (state.resource ?? []);
-                } else if (state is CreateTodoLoaded) {
-                  if (state.result != null && state.result!) {
-                    if (state.exitTheScreen != null && state.exitTheScreen!) {
-                      todoNameController.clear();
-                      descriptionController.clear();
-                      todoDateController.clear();
-                      todoListRepo!.chosenDateTimeString = null;
-                      todoListRepo!.selectedHours = null;
-                      todoListRepo!.endTimeString = null;
-                      selectedPriority = null;
-                      selectedAssignedTo = [];
-                      Navigator.of(context).pop(true);
-                    }
-
-                  }
-                } else if (state is PartsLoaded) {
-                  if (state.partsList != null) {
-                    editPartsList.addAll(state.partsList!);
-                  }
-                } else if (state is SuppliesLoaded) {
-                  if (state.suppliesList != null) {
-                    editSuppliesList.addAll(state.suppliesList!);
-                  }
-                } else if (state is VehicleGroupListLoaded) {
-                  vehicleGroupList.clear();
-                  vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
-                } else if (state is UserGroupListLoaded) {
-                  userGroupList.clear();
-                  userGroupList.addAll(state.userGroupDataList ?? []);
-                } else if (state is DropdownDataLoaded) {
-                  categoriesListData.clear();
-                  categoriesListData.addAll(
-                      state.createExpenseFieldData!.expenseCategories ?? []);
+              resourceList = [];
+              resourceList = state.resource ?? [];
+              resourceList.removeWhere((resource) => resource['id'] == 2);
+              isSelected = true;
+              selectedAssignedTo?.add(resourceList[0]);
+              resourceListForCombination = state.resource ?? [];
+              // for (Map<String, dynamic> resource in resourceList) {
+              //   if (resource['id'].toString().trim() ==
+              //       (todoItem['users']?['id'] ?? 0).toString()) {
+              //     selectedResource = resource;
+              //   }
+              // }
+              for (Map<String, dynamic> res in resourceListForCombination) {
+                Map<String, dynamic> vehiclesData = {
+                  'id': res['id'],
+                  'vehicle_name':
+                  '${res['first_name']}${res['last_name']}',
+                  //'isSelected': false
+                };
+                editMultipleVehicleList.add(vehiclesData);
+              }
+            } else if (state is TaskExpenseLoaded) {
+              taskExpenseList = (state.resource ?? []);
+            } else if (state is VendorLoaded) {
+              vendorList = (state.resource ?? []);
+            } else if (state is LocationLoaded) {
+              locationList = (state.resource ?? []);
+            } else if (state is CreateTodoLoaded) {
+              if (state.result != null && state.result!) {
+                if (state.exitTheScreen != null && state.exitTheScreen!) {
+                  todoNameController.clear();
+                  descriptionController.clear();
+                  todoDateController.clear();
+                  todoListRepo!.chosenDateTimeString = null;
+                  todoListRepo!.selectedHours = null;
+                  todoListRepo!.endTimeString = null;
+                  selectedPriority = null;
+                  selectedAssignedTo = [];
+                  Navigator.of(context).pop(true);
                 }
-              },
-            ),
-            BlocListener<VehicleDataBloc, VehicleDataState>(
-              listener: (context, state) {
-                if (state is TodoItemCompletedVeh) {
-                  show(
-                      context,
-                      (state.status) == 'In Progress'
-                          ? 'The todo marked as In Progress.'
-                          : 'The todo marked as Completed.',
-                      (state.status) == 'In Progress'
-                          ? 'Completed'
-                          : 'In Progress');
-                  if (state.result != null && state.result!) {
-                    vehicleDataBloc!.add(GetVehicleHistoryEvent(
-                        vin: createTodoParamForVHistory.vin,
-                        vehicleGroupId:
-                            createTodoParamForVHistory.vehicleGroupId != null
-                                ? int.parse(
-                                    createTodoParamForVHistory.vehicleGroupId!)
-                                : null));
+
+              }
+            } else if (state is PartsLoaded) {
+              if (state.partsList != null) {
+                editPartsList.addAll(state.partsList!);
+              }
+            } else if (state is SuppliesLoaded) {
+              if (state.suppliesList != null) {
+                editSuppliesList.addAll(state.suppliesList!);
+              }
+            } else if (state is VehicleGroupListLoaded) {
+              vehicleGroupList.clear();
+              vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
+            } else if (state is UserGroupListLoaded) {
+              userGroupList.clear();
+              userGroupList.addAll(state.userGroupDataList ?? []);
+            } else if (state is DropdownDataLoaded) {
+              categoriesListData.clear();
+              categoriesListData.addAll(
+                  state.createExpenseFieldData!.expenseCategories ?? []);
+            }
+          },
+        ),
+        BlocListener<VehicleDataBloc, VehicleDataState>(
+          listener: (context, state) {
+            if (state is TodoItemCompletedVeh) {
+              show(
+                  context,
+                  (state.status) == 'In Progress'
+                      ? 'The todo marked as In Progress.'
+                      : 'The todo marked as Completed.',
+                  (state.status) == 'In Progress'
+                      ? 'Completed'
+                      : 'In Progress');
+              if (state.result != null && state.result!) {
+                vehicleDataBloc!.add(GetVehicleHistoryEvent(
+                    vin: createTodoParamForVHistory.vin,
+                    vehicleGroupId:
+                    createTodoParamForVHistory.vehicleGroupId != null
+                        ? int.parse(
+                        createTodoParamForVHistory.vehicleGroupId!)
+                        : null));
+              }
+            } else if (state is VehicleHistoryLoaded) {
+              if (state.vehicleHistoryList != null) {
+                todoList.clear();
+                todoListRepo!.vehicleHistoryTempSearchList.clear();
+                for (Map<String, dynamic> todos
+                in state.vehicleHistoryList!) {
+                  if (todos['status'] == 'Completed') {
+                    textColors = AppC().base;
+                  } else {
+                    textColors = AppC.text;
                   }
-                } else if (state is VehicleHistoryLoaded) {
-                  if (state.vehicleHistoryList != null) {
-                    todoList.clear();
-                    todoListRepo!.vehicleHistoryTempSearchList.clear();
-                    for (Map<String, dynamic> todos
-                        in state.vehicleHistoryList!) {
-                      if (todos['status'] == 'Completed') {
-                        textColors = AppC().base;
-                      } else {
-                        textColors = AppC.text;
-                      }
-                    }
-                    /*List<Todos> list = [];
+                }
+                /*List<Todos> list = [];
                       list.addAll(state.vehicleHistoryList ?? []);
                       list.sort((a, b) => DateTime.parse(a.createdAt ?? '')
                           .compareTo(DateTime.parse(b.createdAt ?? '')));
                       todoList.addAll(list.reversed.toList());*/
-                    todoList.addAll(state.vehicleHistoryList!);
-                    todoListRepo!.vehicleHistoryTempSearchList
-                        .addAll(/*todoList*/ state.vehicleHistoryList!);
-                    // debugPrint(
-                    //     'cleancar.title: ${(todoListRepo!.vehicleHistoryTempSearchList)[0]['title'] ?? ''}');
-                    doSetState();
-                  }
-                } else if (state is VehicleHistoryListLoaded) {
-                  vehicleHistoryData.clear();
-                  vehicleHistoryData.addAll(state.todo ?? []);
-                }
-              },
-            ),
-            BlocListener<LocationDataBloc, LocationDataState>(
-              listener: (context, state) {
-                if (state is LocationListLoaded) {
-                  if (state.resource != null) {
-                    for (int i = 0; i < state.resource!.length; i++) {
-                      if (selectedMultipleAddressId != null &&
-                          state.resource![i]['id'] ==
-                              int.parse(selectedMultipleAddressId!)) {
-                        isShowMultipleAddressField = true;
-                        editMultipleAddressList
-                            .addAll(state.resource![i]['addresses'] ?? []);
-                      }
-                    }
+                todoList.addAll(state.vehicleHistoryList!);
+                todoListRepo!.vehicleHistoryTempSearchList
+                    .addAll(/*todoList*/ state.vehicleHistoryList!);
+                // debugPrint(
+                //     'cleancar.title: ${(todoListRepo!.vehicleHistoryTempSearchList)[0]['title'] ?? ''}');
+                doSetState();
+              }
+            } else if (state is VehicleHistoryListLoaded) {
+              vehicleHistoryData.clear();
+              vehicleHistoryData.addAll(state.todo ?? []);
+            }
+          },
+        ),
+        BlocListener<LocationDataBloc, LocationDataState>(
+          listener: (context, state) {
+            if (state is LocationListLoaded) {
+              if (state.resource != null) {
+                for (int i = 0; i < state.resource!.length; i++) {
+                  if (selectedMultipleAddressId != null &&
+                      state.resource![i]['id'] ==
+                          int.parse(selectedMultipleAddressId!)) {
+                    isShowMultipleAddressField = true;
+                    editMultipleAddressList
+                        .addAll(state.resource![i]['addresses'] ?? []);
                   }
                 }
-              },
-            )
-          ],
-          child: BlocBuilder<TodoViewBloc, TodoViewState>(
-            builder: (context, state) {
-              return Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        showList = false;
-                        showVehiclePersonList = false;
-                        showVendorLocationList = false;
-                        editShowPartsList = false;
-                        editShowSuppliesList = false;
-                        editShowMultipleVehicleList = false;
-                        editShowAddressList = false;
-                        setState(() {});
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 10,
-                          children: [
-                            if (widget.showHeader)
-                              const SizedBox(
-                                height: 15,
-                              ),
-                            Utils.getTextFormField(
-                              'Task Identifier', taskIdentifierController,
-                              label: Utils.getText('Task Identifier'),
-                              readOnly: false,
-                              onChangeCallback: (value) async {
-                                setState(() {
-                                  taskSuggestionList.clear();
-                                  if (value.isNotEmpty) {
-                                    List taskList = taskExpenseList
-                                        .map((e) => e['task'] ?? '')
-                                        .toList();
-                                    taskSuggestionList.addAll(
-                                        Utils.searchList(taskList, value));
-                                    showTaskList =
-                                        taskSuggestionList.isNotEmpty;
-                                  } else {
-                                    showTaskList = false;
-                                  }
-                                });
-                                String textCurrentlyEditing =
-                                    getTextBeforeCursor();
-                                debugPrint(
-                                    'textCurrentlyEditing: $textCurrentlyEditing');
-                                count = countHyphens(textCurrentlyEditing);
-                                debugPrint('count: $count');
-                                taskIdentifierSuggestionList.clear();
-                                if (count == 0) {
-                                  taskIdentifierSuggestionList.clear();
-                                  for (var e in taskExpenseList) {
-                                    if (e['task_identifier'] != null &&
-                                        e['task_identifier']!.isNotEmpty &&
-                                        (e['task_identifier']!)
-                                            .contains(stringArr[0])) {
-                                      taskNameList[e['task_identifier']!] =
-                                          (e['task'] ?? '');
-                                      taskIdentifierSuggestionList.add(
-                                          (e['task_identifier'] ?? '').trim());
-                                    }
-                                  }
-                                  showList = taskIdentifierSuggestionList
-                                          .isNotEmpty &&
-                                      stringArr[0].isNotEmpty;
-                                } else if (count == 1) {
-                                  taskIdentifierSuggestionList.clear();
-                                  // for (dynamic name in editMultipleVehicleList) {
-                                  //   if (name is Map<String, dynamic> && name.containsKey('vehicle_name')) {
-                                  //     taskIdentifierSuggestionList.add(name['vehicle_name']);
-                                  //   } else {
-                                  //     print("Unexpected data format: $name");
-                                  //   }
-                                  // }
-                                  for (var e in resourceListForCombination) {
-                                    if ((e['first_name'] != null ||
-                                            e['last_name'] != null) &&
-                                        ('${e['first_name'] ?? ''} ${e['last_name'] ?? ''}')
-                                            .contains(stringArr[1])) {
-                                      taskIdentifierSuggestionList.add(
-                                          '${e['first_name'] ?? ''.trim()} ${e['last_name'] ?? ''.trim()}');
-                                    }
-                                  }
-                                  for (var e in (vehicleList)) {
-                                    if (e['vehicle_name'] != null &&
-                                        (e['vehicle_name']!).contains(stringArr[1])) {
-                                      taskIdentifierSuggestionList.add(
-                                          e['vehicle_name'] ?? ''.trim());
-                                    }
-                                  }
-                                  for (var e in resourceListForCombination) {
-                                    if ((e['first_name'] != null &&
-                                            (e['first_name']!.toLowerCase())
-                                                .contains(stringArr[1]
-                                                    .toLowerCase())) ||
-                                        (e['last_name'] != null &&
-                                            (e['last_name']!.toLowerCase())
-                                                .contains(stringArr[1]
-                                                    .toLowerCase()))) {
-                                      taskIdentifierSuggestionList.add(
-                                          '${e['first_name']} ${e['last_name']}'
-                                              .trim());
-                                    }
-                                  }
-                                  for (var e in vehicleGroupList) {
-                                    if (e['name'] != null &&
-                                        (e['name']!).contains(stringArr[1])) {
-                                      taskIdentifierSuggestionList
-                                          .add(e['name'] ?? ''.trim());
-                                    }
-                                  }
-                                  showList = taskIdentifierSuggestionList
-                                          .isNotEmpty &&
-                                      stringArr[1].isNotEmpty;
-                                  await getSelectedVehiclePerson(
-                                          createTodoParamForVHistory)
-                                      .then((value) {
-                                    if ((value.vin != null &&
-                                            value.vin!.isNotEmpty) ||
-                                        (value.vehicleGroupId != null &&
-                                            value.vehicleGroupId!
-                                                .isNotEmpty)) {
-                                      editShowMultipleVehicleList = true;
-                                    } else {
-                                      editShowMultipleVehicleList = false;
-                                    }
-                                  });
-                                } else if (count == 2) {
-                                  taskIdentifierSuggestionList.clear();
-                                  for (var e in vendorList) {
-                                    if (e['name'] != null &&
-                                        (e['name']!).contains(stringArr[2])) {
-                                      taskIdentifierSuggestionList
-                                          .add(e['name'] ?? ''.trim());
-                                    }
-                                  }
-                                  for (var e in locationList) {
-                                    if (e['name'] != null &&
-                                        (e['name']!).contains(stringArr[2])) {
-                                      taskIdentifierSuggestionList
-                                          .add(e['name'] ?? ''.trim());
-                                    }
-                                  }
-                                  showList = taskIdentifierSuggestionList
-                                          .isNotEmpty &&
-                                      stringArr[2].isNotEmpty;
-                                }
-                                todoNameController.text =
-                                    stringArr.isNotEmpty ? stringArr[0] : '';
-                                vehiclePersonController.text =
-                                    stringArr.length >= 2 ? stringArr[1] : '';
-                                vendorLocationController.text =
-                                    stringArr.length >= 3 ? stringArr[2] : '';
-                              },
-                              // suffixIcon: Visibility(
-                              //   // visible: !editShowPartsList,
-                              //   child: InkWell(
-                              //       onTap: () async {
-                              //         await Navigator.of(context)
-                              //             .push(MaterialPageRoute(
-                              //           builder: (context) =>
-                              //           const TaskViewUI(),
-                              //         ));
-                              //        },
-                              //       child: Icon(Icons.add,
-                              //           color: AppC().base, size: 20)),
-                              // )
-                            ),
-                            taskIdentifierStack(),
-                            Column(
-                              children: [
-                                taskManagerDateTimeWidget(),
-                                repeatSwitches()
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Utils.getAddFilledButton(
-                                  'Save',
-                                  () async {
-                                    await doCreateTodo();
-                                  },
-                                  bgColor: AppC.green,
-                                ),
-                                const SizedBox(width: 5),
-                                /* if (selectedMultipleVehicleList.where((item) => item.vehicleId != null).isNotEmpty) ...[
-                                      Flexible(
-                                        child: Row(
-                                          children: [
-                                            Flexible(
-                                              child: Utils.getText(
-                                                selectedMultipleVehicleList.last.vehicleName ?? '',
-                                                color: AppC.text,
-                                                weight: FontWeight.bold,
-                                                overFlow: TextOverflow.ellipsis, // Add ellipsis to avoid overflow
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => VehicleHistoryViewUI(
-                                                      vin: selectedMultipleVehicleList.last.vin,
-                                                      vehicleName: selectedMultipleVehicleList.last.vehicleName,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(4),
-                                                  color: AppC.appColor,
-                                                ),
-                                                padding: const EdgeInsets.all(2.0),
-                                                child: Utils.getText(
-                                                  'History',
-                                                  color: AppC.white,
-                                                  weight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],*/
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            // Visibility(
-                            //     visible: isShowVehicleHistoryList,
-                            //
-                            //     child: BlocBuilder<VehicleDataBloc, VehicleDataState>(
-                            //       builder: (context, state) {
-                            //         return Column(
-                            //           children: [
-                            //             Padding(
-                            //               padding: const EdgeInsets.symmetric(
-                            //                   horizontal: 5.0),
-                            //               child: Row(
-                            //                 mainAxisSize: MainAxisSize.min,
-                            //                 children: [
-                            //                   Expanded(
-                            //                     child: Utils.getText(
-                            //                         createTodoParamForVHistory.vin != null
-                            //                             ? createTodoParamForVHistory.vehicleName ?? ''
-                            //                             : createTodoParamForVHistory.vehicleGroupName ?? '',
-                            //                         size: 16,
-                            //                         weight: FontWeight.w600),
-                            //                   ),
-                            //                   const SizedBox(
-                            //                     width: 12,
-                            //                   ),
-                            //                   InkWell(
-                            //                     onTap: () {
-                            //                       Utils.getImageTitleDialog(context,
-                            //                           createTodoParamForVHistory.vehicleName ?? '',
-                            //                           createTodoParamForVHistory.vehicleImage ?? '');
-                            //                     },
-                            //                     child: Icon(
-                            //                       Icons.remove_red_eye,
-                            //                       color: AppC().base,
-                            //                       size: 18,
-                            //                     ),
-                            //                   ),
-                            //                 ],
-                            //               ),
-                            //             ),
-                            //             const SizedBox(
-                            //               height: 15,
-                            //             ),
-                            //             Visibility(
-                            //               visible:
-                            //               true /*state is VehicleHistoryLoaded*/,
-                            //               child: vehicleHistoryUIWithoutScaffold(
-                            //                   outerTodos:(
-                            //                       vehicleName:
-                            //                       createTodoParamForVHistory
-                            //                           .vehicleName,
-                            //                       vehicleGroupId: 0,
-                            //                       vin:
-                            //                       createTodoParamForVHistory
-                            //                           .vin,
-                            //                       vehicleImage:
-                            //                       createTodoParamForVHistory
-                            //                           .vehicleImage,
-                            //                       vehicleGroupName:
-                            //                       createTodoParamForVHistory
-                            //                           .vehicleGroupName)),
-                            //             )
-                            //           ],
-                            //         );
-                            //       },
-                            //     )),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                          ],
+              }
+            }
+          },
+        )
+      ],
+      child: BlocBuilder<TodoViewBloc, TodoViewState>(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                physics: (widget.showHeader) ? NeverScrollableScrollPhysics() : ScrollPhysics(),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    showList = false;
+                    showVehiclePersonList = false;
+                    showVendorLocationList = false;
+                    editShowPartsList = false;
+                    editShowSuppliesList = false;
+                    editShowMultipleVehicleList = false;
+                    editShowAddressList = false;
+                    setState(() {});
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      if (widget.showHeader)
+                        const SizedBox(
+                          height: 15,
                         ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: showTaskList,
-                    child: Positioned(
-                      top: 60,
-                      left: 0,
-                      right: 0,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Utils.customAutoCompleteList(
-                          taskSuggestionList,
-                          (index) {
-                            setState(() {
+                      Utils.getTextFormField(
+                        'Task Identifier', taskIdentifierController,
+                        label: Utils.getText('Task Identifier'),
+                        readOnly: false,
+                        onChangeCallback: (value) async {
+                          setState(() {
+                            taskSuggestionList.clear();
+                            if (value.isNotEmpty) {
+                              List taskList = taskExpenseList
+                                  .map((e) => e['task'] ?? '')
+                                  .toList();
+                              taskSuggestionList.addAll(
+                                  Utils.searchList(taskList, value));
+                              showTaskList =
+                                  taskSuggestionList.isNotEmpty;
+                            } else {
                               showTaskList = false;
-                              countHyphens('');
-                              todoNameController.text =
-                                  taskSuggestionList[index];
-                              taskIdentifierController.text =
-                                  '${taskSuggestionList[index]}-'; // Hide the suggestions list after selection
-                              // Set the cursor at the end of the text
-                              todoNameController.selection =
-                                  TextSelection.fromPosition(
+                            }
+                          });
+                          String textCurrentlyEditing =
+                          getTextBeforeCursor();
+                          debugPrint(
+                              'textCurrentlyEditing: $textCurrentlyEditing');
+                          count = countHyphens(textCurrentlyEditing);
+                          debugPrint('count: $count');
+                          taskIdentifierSuggestionList.clear();
+                          if (count == 0) {
+                            taskIdentifierSuggestionList.clear();
+                            for (var e in taskExpenseList) {
+                              if (e['task_identifier'] != null &&
+                                  e['task_identifier']!.isNotEmpty &&
+                                  (e['task_identifier']!)
+                                      .contains(stringArr[0])) {
+                                taskNameList[e['task_identifier']!] =
+                                (e['task'] ?? '');
+                                taskIdentifierSuggestionList.add(
+                                    (e['task_identifier'] ?? '').trim());
+                              }
+                            }
+                            showList = taskIdentifierSuggestionList
+                                .isNotEmpty &&
+                                stringArr[0].isNotEmpty;
+                          } else if (count == 1) {
+                            taskIdentifierSuggestionList.clear();
+                            // for (dynamic name in editMultipleVehicleList) {
+                            //   if (name is Map<String, dynamic> && name.containsKey('vehicle_name')) {
+                            //     taskIdentifierSuggestionList.add(name['vehicle_name']);
+                            //   } else {
+                            //     print("Unexpected data format: $name");
+                            //   }
+                            // }
+                            for (var e in resourceListForCombination) {
+                              if ((e['first_name'] != null ||
+                                  e['last_name'] != null) &&
+                                  ('${e['first_name'] ?? ''} ${e['last_name'] ?? ''}')
+                                      .contains(stringArr[1])) {
+                                taskIdentifierSuggestionList.add(
+                                    '${e['first_name'] ?? ''.trim()} ${e['last_name'] ?? ''.trim()}');
+                              }
+                            }
+                            for (var e in (vehicleList)) {
+                              if (e['vehicle_name'] != null &&
+                                  (e['vehicle_name']!).contains(stringArr[1])) {
+                                taskIdentifierSuggestionList.add(
+                                    e['vehicle_name'] ?? ''.trim());
+                              }
+                            }
+                            for (var e in resourceListForCombination) {
+                              if ((e['first_name'] != null &&
+                                  (e['first_name']!.toLowerCase())
+                                      .contains(stringArr[1]
+                                      .toLowerCase())) ||
+                                  (e['last_name'] != null &&
+                                      (e['last_name']!.toLowerCase())
+                                          .contains(stringArr[1]
+                                          .toLowerCase()))) {
+                                taskIdentifierSuggestionList.add(
+                                    '${e['first_name']} ${e['last_name']}'
+                                        .trim());
+                              }
+                            }
+                            for (var e in vehicleGroupList) {
+                              if (e['name'] != null &&
+                                  (e['name']!).contains(stringArr[1])) {
+                                taskIdentifierSuggestionList
+                                    .add(e['name'] ?? ''.trim());
+                              }
+                            }
+                            showList = taskIdentifierSuggestionList
+                                .isNotEmpty &&
+                                stringArr[1].isNotEmpty;
+                            await getSelectedVehiclePerson(
+                                createTodoParamForVHistory)
+                                .then((value) {
+                              if ((value.vin != null &&
+                                  value.vin!.isNotEmpty) ||
+                                  (value.vehicleGroupId != null &&
+                                      value.vehicleGroupId!
+                                          .isNotEmpty)) {
+                                editShowMultipleVehicleList = true;
+                              } else {
+                                editShowMultipleVehicleList = false;
+                              }
+                            });
+                          } else if (count == 2) {
+                            taskIdentifierSuggestionList.clear();
+                            for (var e in vendorList) {
+                              if (e['name'] != null &&
+                                  (e['name']!).contains(stringArr[2])) {
+                                taskIdentifierSuggestionList
+                                    .add(e['name'] ?? ''.trim());
+                              }
+                            }
+                            for (var e in locationList) {
+                              if (e['name'] != null &&
+                                  (e['name']!).contains(stringArr[2])) {
+                                taskIdentifierSuggestionList
+                                    .add(e['name'] ?? ''.trim());
+                              }
+                            }
+                            showList = taskIdentifierSuggestionList
+                                .isNotEmpty &&
+                                stringArr[2].isNotEmpty;
+                          }
+                          todoNameController.text =
+                          stringArr.isNotEmpty ? stringArr[0] : '';
+                          vehiclePersonController.text =
+                          stringArr.length >= 2 ? stringArr[1] : '';
+                          vendorLocationController.text =
+                          stringArr.length >= 3 ? stringArr[2] : '';
+                        },
+                        // suffixIcon: Visibility(
+                        //   // visible: !editShowPartsList,
+                        //   child: InkWell(
+                        //       onTap: () async {
+                        //         await Navigator.of(context)
+                        //             .push(MaterialPageRoute(
+                        //           builder: (context) =>
+                        //           const TaskViewUI(),
+                        //         ));
+                        //        },
+                        //       child: Icon(Icons.add,
+                        //           color: AppC().base, size: 20)),
+                        // )
+                      ),
+                      taskIdentifierStack(),
+                      Column(
+                        children: [
+                          taskManagerDateTimeWidget(),
+                          repeatSwitches()
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Utils.getAddFilledButton(
+                            'Save',
+                                () async {
+                              await doCreateTodo();
+                            },
+                            bgColor: AppC.green,
+                          ),
+                          const SizedBox(width: 5),
+                          /* if (selectedMultipleVehicleList.where((item) => item.vehicleId != null).isNotEmpty) ...[
+                                    Flexible(
+                                      child: Row(
+                                        children: [
+                                          Flexible(
+                                            child: Utils.getText(
+                                              selectedMultipleVehicleList.last.vehicleName ?? '',
+                                              color: AppC.text,
+                                              weight: FontWeight.bold,
+                                              overFlow: TextOverflow.ellipsis, // Add ellipsis to avoid overflow
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => VehicleHistoryViewUI(
+                                                    vin: selectedMultipleVehicleList.last.vin,
+                                                    vehicleName: selectedMultipleVehicleList.last.vehicleName,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(4),
+                                                color: AppC.appColor,
+                                              ),
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: Utils.getText(
+                                                'History',
+                                                color: AppC.white,
+                                                weight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],*/
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      // Visibility(
+                      //     visible: isShowVehicleHistoryList,
+                      //
+                      //     child: BlocBuilder<VehicleDataBloc, VehicleDataState>(
+                      //       builder: (context, state) {
+                      //         return Column(
+                      //           children: [
+                      //             Padding(
+                      //               padding: const EdgeInsets.symmetric(
+                      //                   horizontal: 5.0),
+                      //               child: Row(
+                      //                 mainAxisSize: MainAxisSize.min,
+                      //                 children: [
+                      //                   Expanded(
+                      //                     child: Utils.getText(
+                      //                         createTodoParamForVHistory.vin != null
+                      //                             ? createTodoParamForVHistory.vehicleName ?? ''
+                      //                             : createTodoParamForVHistory.vehicleGroupName ?? '',
+                      //                         size: 16,
+                      //                         weight: FontWeight.w600),
+                      //                   ),
+                      //                   const SizedBox(
+                      //                     width: 12,
+                      //                   ),
+                      //                   InkWell(
+                      //                     onTap: () {
+                      //                       Utils.getImageTitleDialog(context,
+                      //                           createTodoParamForVHistory.vehicleName ?? '',
+                      //                           createTodoParamForVHistory.vehicleImage ?? '');
+                      //                     },
+                      //                     child: Icon(
+                      //                       Icons.remove_red_eye,
+                      //                       color: AppC().base,
+                      //                       size: 18,
+                      //                     ),
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //             ),
+                      //             const SizedBox(
+                      //               height: 15,
+                      //             ),
+                      //             Visibility(
+                      //               visible:
+                      //               true /*state is VehicleHistoryLoaded*/,
+                      //               child: vehicleHistoryUIWithoutScaffold(
+                      //                   outerTodos:(
+                      //                       vehicleName:
+                      //                       createTodoParamForVHistory
+                      //                           .vehicleName,
+                      //                       vehicleGroupId: 0,
+                      //                       vin:
+                      //                       createTodoParamForVHistory
+                      //                           .vin,
+                      //                       vehicleImage:
+                      //                       createTodoParamForVHistory
+                      //                           .vehicleImage,
+                      //                       vehicleGroupName:
+                      //                       createTodoParamForVHistory
+                      //                           .vehicleGroupName)),
+                      //             )
+                      //           ],
+                      //         );
+                      //       },
+                      //     )),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: showTaskList,
+                child: Positioned(
+                  top: 60,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Utils.customAutoCompleteList(
+                      taskSuggestionList,
+                          (index) {
+                        setState(() {
+                          showTaskList = false;
+                          countHyphens('');
+                          todoNameController.text =
+                          taskSuggestionList[index];
+                          taskIdentifierController.text =
+                          '${taskSuggestionList[index]}-'; // Hide the suggestions list after selection
+                          // Set the cursor at the end of the text
+                          todoNameController.selection =
+                              TextSelection.fromPosition(
                                 TextPosition(
                                     offset: todoNameController.text.length),
                               );
-                            });
-                          },
-                        ),
-                      ),
+                        });
+                      },
                     ),
                   ),
-                  Visibility(
-                      visible: state is TodoListLoading,
-                      child: Center(child: Utils.getProgressIndicator(context)))
-                ],
-              );
-            },
-          ),
-        ),
+                ),
+              ),
+              Visibility(
+                  visible: state is TodoListLoading,
+                  child: Center(child: Utils.getProgressIndicator(context)))
+            ],
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
 
   Future<void> openLink(String url) async {
     final Uri uri = Uri.parse(url);
