@@ -44,16 +44,16 @@ class _FeedbackListViewUIState extends State<FeedbackListViewUI> {
   }
 
   void _navigateToEditViewUI() async {
-    final updateFeedback = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FeedbackEditViewUI(
-          feedbacks: widget.feedbacks,
-          status: widget.status,
-        ),
-      ),
-    );
-    if (updateFeedback != null) {
+    // final updateFeedback = await Navigator.push<Map<String, dynamic>>(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => FeedbackEditViewUI(
+    //       // feedbacks: widget.feedbacks,
+    //       // status: widget.status,
+    //     ),
+    //   ),
+    // );
+    // if (updateFeedback != null) {
       // final updateFeedback = {
       //   'title': widget.feedbacks['title'],  // You might allow editing the name if needed
       //   'des': descriptionController.document.toDelta().toJson(),
@@ -61,10 +61,10 @@ class _FeedbackListViewUIState extends State<FeedbackListViewUI> {
       //   'timestamp': DateTime.now().toString(),
       //   'img': imagePaths.isNotEmpty ? List<String>.from(imagePaths) : [],
       // };
-      setState(() {
-        widget.feedbacks.addAll(updateFeedback);
-      });
-    }
+      // setState(() {
+      //   widget.feedbacks.addAll(updateFeedback);
+      // });
+    // }
   }
 
   void _closeFeedback() {

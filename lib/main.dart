@@ -1,7 +1,12 @@
+import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'UI/Splash/splash_ui.dart';
 import 'package:intl/intl.dart';
 
@@ -13,13 +18,21 @@ String? formattedDate;
 DateTime selectedDate = DateTime.now();
 
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
-  await Session.of.init();
-  runApp(const MyApp());
-  configEasyLoading();
-  filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-  formattedDate = DateFormat('MMM dd').format(selectedDate);
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
+    await Firebase.initializeApp();
+    await Session.of.init();
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+    runApp(const MyApp());
+    configEasyLoading();
+    filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+    formattedDate = DateFormat('MMM dd').format(selectedDate);
+  }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack, printDetails: true, fatal: true));
 }
 
 void configEasyLoading() {
@@ -51,6 +64,19 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fair Returns',
       theme: ThemeData(
+        dialogBackgroundColor: Colors.white,
+        cardColor: Colors.white,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
+        dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
+        searchBarTheme: SearchBarThemeData(
+          backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+          textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+          padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16))),
+          elevation: const WidgetStatePropertyAll(0),
+          side: const WidgetStatePropertyAll(BorderSide.none),
+        ),
         primarySwatch: Colors.blue,
         fontFamily: 'Lato',
       ),

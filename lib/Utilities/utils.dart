@@ -63,17 +63,22 @@ class Utils {
               ),
               const SizedBox(height: 8),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 10,
                 children: [
-                  Utils.getFilledButton(
-                    'Yes, delete it!',
-                        ()=>Navigator.pop(context, true),
-                    bgColor: AppC.blue,
+                  Expanded(
+                    child: Utils.getFilledButton(
+                      'Yes, delete it!',
+                          ()=>Navigator.pop(context, true),
+                      bgColor: AppC.blue,
+                    ),
                   ),
-                  Utils.getFilledButton(
-                    'Cancel',
-                        ()=>Navigator.pop(context, false),
-                    bgColor: AppC.redAccent,
+                  Flexible(
+                    child: Utils.getFilledButton(
+                      'Cancel',
+                          ()=>Navigator.pop(context, false),
+                      bgColor: AppC.redAccent,
+                    ),
                   ),
                 ],
               ),
@@ -416,49 +421,57 @@ class Utils {
       double borderRadius = Num.subradiusButton,
       double borderWidth = Num.borderWidthField}) {
     hintText = hintText ?? labelText;
-    return SizedBox(
-      // height: height ?? 35,
-      child: TextFormField(
-        key: key,
-        validator: validator,
-        autovalidateMode: autoValidate,
-        textInputAction: inputAction,
-        onTap: onTapCallback,
-        focusNode: focusNode,
-        autofocus: autoFocus,
-        controller: controller,
-        keyboardType: textType,
-        readOnly: readOnly,
-        maxLength: maxLength,
-        obscureText: obscure,
-        textCapitalization: TextCapitalization.sentences,
-        inputFormatters: textInputFormatter,
-        decoration: InputDecoration(
-            contentPadding: contentPadding,
-            label: label,
-            hintText: hintText,
-            counterText: '',
-            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-            labelStyle: const TextStyle(color: AppC.grey),
-            filled: true,
-            fillColor: fillColor,
-            focusedBorder: OutlineInputBorder(
+    return TextFormField(
+      key: key,
+      validator: validator,
+      autovalidateMode: autoValidate,
+      textInputAction: inputAction,
+      onTap: onTapCallback,
+      focusNode: focusNode,
+      autofocus: autoFocus,
+      controller: controller,
+      keyboardType: textType,
+      readOnly: readOnly,
+      maxLength: maxLength,
+      obscureText: obscure,
+      textCapitalization: TextCapitalization.sentences,
+      inputFormatters: textInputFormatter,
+      decoration: InputDecoration(
+          contentPadding: contentPadding,
+          label: label,
+          hintText: hintText,
+          counterText: '',
+          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+          labelStyle: const TextStyle(color: AppC.grey),
+          filled: true,
+          fillColor: fillColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: borderColor,
                   width: borderWidth,
                 ),
                 borderRadius: BorderRadius.circular(borderRadius)),
-            enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: borderColor, width: borderWidth),
-                borderRadius: BorderRadius.circular(borderRadius)),
-            suffixIcon: suffixIcon),
-        style: TextStyle(
-          // fontSize: textSize,
-          color: textColor,
-          fontWeight: fontWeight,
-        ),
-        onChanged: onChangeCallback,
+          suffixIcon: suffixIcon),
+      style: TextStyle(
+        // fontSize: textSize,
+        color: textColor,
+        fontWeight: fontWeight,
       ),
+      onChanged: onChangeCallback,
     );
   }
 
@@ -1002,7 +1015,7 @@ class Utils {
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 4,
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.black87,
       textColor: Colors.white,
       fontSize: 15.0,
       webShowClose: true,
