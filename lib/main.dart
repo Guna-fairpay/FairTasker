@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
@@ -18,14 +21,18 @@ DateTime selectedDate = DateTime.now();
 void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
+    await Firebase.initializeApp();
     await Session.of.init();
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
     runApp(const MyApp());
     configEasyLoading();
     filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     formattedDate = DateFormat('MMM dd').format(selectedDate);
-  }, (error, stack) {
-
-  });
+  }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack, printDetails: true, fatal: true));
 }
 
 void configEasyLoading() {
