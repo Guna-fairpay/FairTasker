@@ -507,8 +507,8 @@ class _AddExpenseUIState extends State<AddExpenseUI>
                     .where((element) => element != null)
                     .cast<File>()
                     .toList(),
-                selectedExpenseCategories!.id,
-                selectedExpenseSubCategories!.id,
+                selectedExpenseCategories!.userId,
+                selectedExpenseSubCategories!.userId,
                 selectedExpenseSubCategories!.expenseTo,
                 amountController.text,
                 expenseDescriptionController.text,

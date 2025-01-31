@@ -18,7 +18,6 @@ class PartViewUI extends StatefulWidget {
 
 class _PartViewUIState extends State<PartViewUI> {
   final TextEditingController searchController = TextEditingController();
-  final FocusNode searchFocusNode = FocusNode();
   late VehicleDataBloc partDataBloc;
   List<Map<String, dynamic>> parts = [];
   List<Map<String, dynamic>> filteredParts = [];
@@ -42,10 +41,8 @@ class _PartViewUIState extends State<PartViewUI> {
     setState(() {
       filteredParts = parts.where((part) {
         final partsName = part['name']?.toLowerCase() ?? '';
-        final description = part['note']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
-        return partsName.contains(searchQuery) ||
-            description.contains(searchQuery);
+        return partsName.contains(searchQuery);
       }).toList();
     });
   }
@@ -164,12 +161,12 @@ class _PartViewUIState extends State<PartViewUI> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        SizedBox(
-                          height: 40,
-                          child: Utils.getAddFilledButton('Add', () {
-                            _navigateToPartsAddUI();
-                          }),
-                        ),
+                        /*showDialog(
+                            context: context,
+                            builder: builder)*/
+                        Utils.getAddFilledButton('Add', () {
+                          _navigateToPartsAddUI();
+                        }),
                       ],
                     ),
                     Expanded(

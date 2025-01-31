@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
@@ -11,7 +12,7 @@ import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_view_ui.dart';
-import 'package:fairpytasker/UI/Vehicle/vehicle_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/auto_complete_widget.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -94,7 +95,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   List<Map<String, dynamic>>  subCategoryList = [];
   List<Map<String, dynamic>> editPartsList = [];
   List<Map<String, dynamic>> editMultipleVehicleList = [];
-   List<Map<String, dynamic>> editSuppliesList = [];
+  List<Map<String, dynamic>> editSuppliesList = [];
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
   List<Map<String, dynamic>> multipleLocationAddressList = [];
   List<Map<String, dynamic>> selectedVehicleGroupList = [];
@@ -195,6 +196,859 @@ class _TodoViewUIState extends State<TodoViewUI> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppC.white,
+      body: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => todoBloc!
+                ..add(GetTodoList(
+                  selectedDate: filterDate,
+                  status: statusFilter ? "Completed" : "In Progress",
+                  resourceId:
+                  Utils.getStringFromObjectList(selectedResourceMain ?? []),
+                  branchId: branchNO.toString(),
+                )),
+            ),
+            BlocProvider(
+              create: (context) =>
+              locationDataBloc!..add(const GetAddedLocationListData()),
+            ),
+            BlocProvider(
+              create: (context) =>
+              locationDataBloc!..add(const GetAddedLocationListData()),
+            ),
+          ],
+          child: MultiBlocListener(
+              listeners: [
+                BlocListener<TodoViewBloc, TodoViewState>(
+                  listener: (context, state) async {
+                    if (state is TaskExpenseLoaded) {
+                      taskExpenseList = state.resource ?? [];
+                    }
+                    else if (state is VendorLoaded) {
+                      vendorList = state.resource ?? [];
+                    }
+                    else if (state is PartsLoaded) {
+                      if (state.partsList != null) {
+                        editPartsList.addAll(state.partsList!);
+                      }
+                    }
+                    else if(state is TaskCategoryGroupLoaded){
+                      taskCategoryGroupData.clear();
+                      taskCategoryGroupData.addAll(state.data??[]);
+
+                      for (Map<String, dynamic> res in taskCategoryGroupData) {
+                        Map<String, dynamic> vehiclesData = {
+                          'id': res['id'],
+                          'name': res['name'],
+                        };
+                        titleList.add(vehiclesData);
+                        if (res.containsKey('subcategories') && res['subcategories'] is List) {
+                          for (Map<String, dynamic> subcategory in res['subcategories']) {
+                            Map<String, dynamic> subcategoryData = {
+                              'id': subcategory['id'],
+                              'name': subcategory['name'],
+                              'parent_id': res['id'],
+                            };
+                            subCategoryList.add(subcategoryData);
+                          }
+                        }
+                      }
+                      titleList.insert(0, {'id': -1, 'name': 'Other'});
+
+                    }
+                    else if (state is SuppliesLoaded) {
+                      if (state.suppliesList != null) {
+                        editSuppliesList.addAll(state.suppliesList!);
+                      }
+                    }
+                    else if (state is LocationLoaded) {
+                      locationList = state.resource ?? [];
+                    }
+                    else if (branchNO != branchNO) {
+                      todoBloc!.add(GetTodoList(
+                        selectedDate: filterDate,
+                        status: statusFilter ? "Completed" : "In Progress",
+                        resourceId: Utils.getStringFromObjectList(
+                            selectedResourceMain ?? []),
+                        branchId: branchNO.toString(),
+                      ));
+                    }
+                    else if (state is VehicleDataLoaded) {
+                      todoBloc!.add(GetTodoList(
+                        selectedDate: filterDate,
+                        status: statusFilter ? "Completed" : "In Progress",
+                        resourceId: Utils.getStringFromObjectList(
+                            selectedResourceMain ?? []),
+                        branchId: branchNO.toString(),
+                      ));
+
+                      if (state.vehicleData != null) {
+                        vehicleList.addAll(state.vehicleData ?? []);
+                        editMultipleVehicleList.addAll(state.vehicleData ?? []);
+                      }
+                    }
+                    else if (state is TodoListLoaded) {
+                      todoList = [];
+                      todoListTemp = [];
+                      var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
+                      var list1 = state.todoList
+                          ?.where((todo) =>
+                      todo['user_id'] == userId &&
+                          (todo['title'] == "Check In" ||
+                              todo['title'] == "Check Out"))
+                          .toList() ??
+                          [];
+                      var list2 = state.todoList
+                          ?.where((todo) =>
+                      todo['title'] != "Check In" &&
+                          todo['title'] != "Check Out")
+                          .toList() ??
+                          [];
+                      var combinedList = [...list1, ...list2];
+                      combinedList.sort(
+                              (a, b) => a['todo_time']!.compareTo(b['todo_time']!));
+                      todoListTemp.addAll(combinedList);
+                      todoList.addAll(combinedList);
+                      for (dynamic tdl in combinedList) {
+                        for (Map<String, dynamic> vd in vehicleList) {
+                          if (tdl['vin'].toString() == vd['vin'].toString()) {
+                            tdl['vehicle_number'] = vd['vehicle_number'];
+                          }
+                        }
+                      }
+                    }
+                    else if (state is AssignedToLoaded) {
+                      resourceListForCombination.clear();
+                      resourceList.clear();
+                      resourceListForPersonField.clear();
+                      resourceList.addAll(state.resource ?? []);
+                      resourceListForPersonField.addAll(state.resource ?? []);
+                      resourceList.removeWhere((resource) => resource['id'] == 2);
+                      resourceListForCombination.addAll(resourceList);
+                      selectedResourceMain = [];
+                      selectedResourceMain!.addAll(resourceList);
+                      for (Map<String, dynamic> res
+                      in resourceListForCombination) {
+                        Map<String, dynamic> vehiclesData = {
+                          'id': res['id'],
+                          'vehicle_name': '${res['first_name']} ${res['last_name']}',
+                        };
+                        editMultipleVehicleList.add(vehiclesData);
+                      }
+                    }
+                    else if (state is DeleteTodoLoaded) {
+                      todoBloc!.add(GetTodoList(
+                        selectedDate: filterDate,
+                        status: statusFilter ? "Completed" : "In Progress",
+                        resourceId: Utils.getStringFromObjectList(
+                            selectedResourceMain ?? []),
+                        branchId: branchNO.toString(),
+                      ));
+                    }
+                    else if (state is TodoItemCompletedV) {
+                      todoBloc!.add(GetTodoList(
+                        selectedDate: filterDate,
+                        status: statusFilter ? "Completed" : "In Progress",
+                        resourceId: Utils.getStringFromObjectList(
+                            selectedResourceMain ?? []),
+                        branchId: branchNO.toString(),
+                      ));
+                      if (state.taskName?.toLowerCase() == 'check in') {
+                        // getWorkingHourByUser
+                        Utils.getIntPreference(Str.hrmIdPrefText).then((value) {
+                          todoBloc!.add(GetWorkingHourByUserEvent(id: value));
+                        });
+                      }
+                      show(
+                          context,
+                          (state.status) == 'In Progress'
+                              ? 'Todo moved to In Progress'
+                              : 'Todo Completed',
+                          (state.status) == 'In Progress'
+                              ? 'Completed'
+                              : 'In Progress',
+                          (state.todoId ?? ''), '');
+                    }
+                    else if (state is EditTodoLoaded) {
+                      todoBloc!.add(const GetUserGroupingList());
+                      todoBloc!.add(GetTodoList(
+                        selectedDate: filterDate,
+                        status: statusFilter ? "Completed" : "In Progress",
+                        resourceId: Utils.getStringFromObjectList(
+                            selectedResourceMain ?? []),
+                        branchId: branchNO.toString(),
+                      ));
+                      if (state.isDate != null && state.isDate!) {
+                        /*if(overlay != null) {
+                    overlay?.remove();
+                  }*/
+                        show(context, 'Task moved Successfully', '',
+                            (state.todoId ?? ''), (state.date ?? ''));
+                      }
+                    }
+                    else if (state is VehicleGroupListLoaded) {
+                      vehicleGroupList.clear();
+                      vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
+
+                    }
+                    else if (state is VehicleGroupLoaded) {
+                      todoBloc!.add(const GetVehicleGroupingList());
+                      todoBloc!.add(GetTodoList(
+                        selectedDate: filterDate,
+                        status: statusFilter ? "Completed" : "In Progress",
+                        resourceId: Utils.getStringFromObjectList(
+                            selectedResourceMain ?? []),
+                        branchId: branchNO.toString(),
+                      ));
+                    }
+                    else if (state is UserGroupListLoaded) {
+                      userGroupList.clear();
+                      userGroupList.addAll(state.userGroupDataList ?? []);
+                    }
+                    else if (state is DropdownDataLoaded) {
+                      categoriesListData.clear();
+                      categoriesListData.addAll(
+                          state.createExpenseFieldData?.expenseCategories ??
+                              []);
+                    }
+                    else if (state is VehicleStatusListLoaded) {
+                      vehicleStatus.clear();
+                      vehicleStatus.addAll(state.vehiclesCount ?? []);
+                    }
+
+                  },
+                ),
+                BlocListener<LocationDataBloc, LocationDataState>(
+                  listener: (context, state) {
+                    if (state is LocationListLoaded) {
+                      if (state.resource != null) {
+                        multipleLocationAddressList
+                            .addAll(state.resource ?? []);
+                      }
+                    }
+                  },
+                )
+              ],
+              child: BlocBuilder<TodoViewBloc, TodoViewState>(
+                builder: (context, state) {
+                  return SafeArea(
+                    child: Stack(
+                      children: [
+                        RefreshIndicator(
+                          color: AppC().base,
+                          onRefresh: () async {
+                            // fetchFrom = 0;
+                            todoBloc!.add(GetTodoList(
+                              selectedDate: filterDate,
+                              status:
+                              statusFilter ? "Completed" : "In Progress",
+                              resourceId: Utils.getStringFromObjectList(
+                                  selectedResourceMain ?? []),
+                              branchId: branchNO.toString(),
+                            )
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 0, bottom: 0, left: 8),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        SizedBox(
+                                          width: 36,
+                                          child: Transform.scale(
+                                              alignment: Alignment.centerLeft,
+                                              scale: .6,
+                                              child: Switch(
+                                                  trackOutlineColor:
+                                                  WidgetStateColor
+                                                      .resolveWith(
+                                                        (states) {
+                                                      if (states.contains(
+                                                          WidgetState
+                                                              .selected)) {
+                                                        return AppC.green;
+                                                      } else {
+                                                        return AppC.grey;
+                                                      }
+                                                    },
+                                                  ),
+                                                  activeTrackColor: AppC.green,
+                                                  activeColor: AppC.white,
+                                                  inactiveThumbColor:
+                                                  AppC.white,
+                                                  inactiveTrackColor: AppC.grey,
+                                                  value: statusFilter,
+                                                  onChanged: (value) {
+                                                    if (value) {
+                                                      todoBloc!.add(GetTodoList(
+                                                        selectedDate:
+                                                        filterDate,
+                                                        status: "Completed",
+                                                        resourceId: Utils
+                                                            .getStringFromObjectList(
+                                                            selectedResourceMain ??
+                                                                []),
+                                                        branchId:
+                                                        branchNO.toString(),
+                                                      ));
+                                                    } else {
+                                                      todoBloc!.add(GetTodoList(
+                                                        selectedDate: filterDate,
+                                                        status: "In Progress",
+                                                        resourceId: Utils.getStringFromObjectList(
+                                                            selectedResourceMain ?? []),
+                                                        branchId: branchNO.toString(),
+                                                      ));
+                                                    }
+                                                    todoListResourceFilter
+                                                        .clear();
+                                                    todoListResourceFilter
+                                                        .addAll(todoList);
+                                                    // filterResource(null, fromOnchange: false);
+                                                    statusFilter = value;
+                                                    setState(() {});
+                                                  })),
+                                        ),
+                                        const SizedBox(width: 15),
+                                        InkWell(
+                                          key: _key,
+                                          onTap: () async {
+                                            filteredVehicle.clear();
+                                            for (var item in todoList) {
+                                              listToFilterVehicle.addAll(item);
+                                              List vehicles = listToFilterVehicle['vehicles'];
+
+                                              if (listToFilterVehicle['vin'] != null) {
+                                                var list = vehicleList.firstWhere(
+                                                      (item) => item['vin'] == listToFilterVehicle['vin'],
+                                                  orElse: () => {},
+                                                );
+                                                filteredVehicle.add(list);
+                                              } else {
+                                                for (var vehicle in vehicles) {
+                                                  var list = vehicleList.firstWhere(
+                                                        (item) => item['vin'] == vehicle['vin'],
+                                                    orElse: () => {},
+                                                  );
+                                                  filteredVehicle.add(list);
+                                                }
+                                              }
+                                            }
+
+                                            final RenderBox renderBox =
+                                            _key.currentContext!.findRenderObject() as RenderBox;
+                                            final Offset offset = renderBox.localToGlobal(Offset.zero);
+                                            final Size size = renderBox.size;
+
+                                            await showMenu(
+                                              elevation: 5,
+                                              color: AppC.white,
+                                              context: context,
+                                              position: RelativeRect.fromLTRB(
+                                                offset.dx,
+                                                offset.dy + size.height,
+                                                offset.dx + size.width,
+                                                offset.dy,
+                                              ),
+                                              items: [
+                                                PopupMenuItem(
+                                                  child: StatefulBuilder(
+                                                    builder: (context, setState) {
+                                                      return Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.close,
+                                                            color: AppC.red,
+                                                          ),
+                                                          const SizedBox(height: 3),
+                                                          SizedBox(
+                                                            height: 40,
+                                                            child: Utils.getSearchBarUI(
+                                                                  () {},
+                                                              // onSubmitted: () {
+                                                              //       log("DISMISS");
+                                                              //   Utils.dismissKeyboard(context);
+                                                              // },
+                                                                  (value) {
+                                                                setState(() {
+                                                                  searchQuery = value.toLowerCase();
+                                                                });
+                                                              },
+                                                              vehicleSearchController,
+                                                            ),
+                                                          ),
+                                                          if (filteredVehicle.isNotEmpty)
+                                                            ...[
+                                                              // Year Filter
+                                                              if (filteredVehicle
+                                                                  .map((e) => e['year'])
+                                                                  .where((year) => year != null && year != '')
+                                                                  .isNotEmpty)
+                                                                Utils.getText('Year', weight: FontWeight.w700),
+                                                              ...filteredVehicle
+                                                                  .map((e) => e['year'] ?? '')
+                                                                  .toSet()
+                                                                  .where((year) => year != '') // Filter out empty or null values
+                                                                  .map((year) => Row(
+                                                                children: [
+                                                                  Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: SizedBox(
+                                                                      height: 30,
+                                                                      width: 30,
+                                                                      child: Checkbox(
+                                                                        activeColor:AppC.blue,
+                                                                        value: selectedYears.contains(year),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            if (value == true) {
+                                                                              selectedYears.add(year);
+
+                                                                            } else {
+                                                                              selectedYears.remove(year);
+                                                                            }
+                                                                            applyFilters();
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Utils.getText('$year'),
+                                                                ],
+                                                              )),
+
+                                                              // Make Filter
+                                                              if (filteredVehicle
+                                                                  .map((e) => e['make'])
+                                                                  .where((make) => make != null && make != '')
+                                                                  .isNotEmpty)
+                                                                Utils.getText('Make', weight: FontWeight.w700),
+                                                              ...filteredVehicle
+                                                                  .map((e) => e['make'] ?? '')
+                                                                  .toSet()
+                                                                  .map((make) => Row(
+                                                                children: [
+                                                                  Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: SizedBox(
+                                                                      height: 30,
+                                                                      width: 30,
+                                                                      child: Checkbox(
+                                                                        activeColor:AppC.blue,
+                                                                        value: selectedMakes.contains(make),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            if (value == true) {
+                                                                              selectedMakes.add(make);
+                                                                            } else {
+                                                                              selectedMakes.remove(make);
+                                                                            }
+                                                                            applyFilters();
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Utils.getText('$make'),
+                                                                ],
+                                                              )),
+                                                              // Model Filter
+                                                              if (filteredVehicle
+                                                                  .map((e) => e['model'])
+                                                                  .where((model) => model != null && model != '')
+                                                                  .isNotEmpty)
+                                                                Utils.getText('Model', weight: FontWeight.w700),
+                                                              ...filteredVehicle
+                                                                  .map((e) => e['model'] ?? '')
+                                                                  .toSet()
+                                                                  .map((model) => Row(
+                                                                children: [
+                                                                  Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: SizedBox(
+                                                                      height: 30,
+                                                                      width: 30,
+                                                                      child: Checkbox(
+                                                                        activeColor:AppC.blue,
+                                                                        value: selectedModels.contains(model),
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            if (value == true) {
+                                                                              selectedModels.add(model);
+                                                                            } else {
+                                                                              selectedModels.remove(model);
+                                                                            }
+                                                                            applyFilters();
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Utils.getText('$model'),
+                                                                ],
+                                                              )),
+                                                            ],
+                                                        ],
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                          child: Image.asset(
+                                            Assets.vehicleSearchIcon,
+                                            height: 24,
+                                            width: 24,
+                                            color: selectedYears.isNotEmpty
+                                                ? AppC.red
+                                                : selectedMakes.isNotEmpty
+                                                ? AppC.red
+                                                : selectedModels.isNotEmpty
+                                                ? AppC.red
+                                                : AppC.appColor,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        InkWell(
+                                            onTap: () async {
+                                              selectedDate =
+                                                  selectedDate.subtract(
+                                                      const Duration(days: 1));
+                                              formattedDate =
+                                              (DateFormat("MMM dd")
+                                                  .format(selectedDate));
+                                              filterDate =
+                                              (DateFormat("yyyy-MM-dd")
+                                                  .format(selectedDate));
+                                              todoBloc!.add(GetTodoList(
+                                                selectedDate: filterDate,
+                                                status: statusFilter
+                                                    ? "Completed"
+                                                    : "In Progress",
+                                                resourceId: Utils
+                                                    .getStringFromObjectList(
+                                                    selectedResourceMain ??
+                                                        []),
+                                                branchId: branchNO.toString(),
+                                              ));
+                                              setState(() {});
+                                            },
+                                            child: Icon(
+                                              Icons.chevron_left,
+                                              color: AppC().base,
+                                              size: 24,
+                                            )),
+                                      ]),
+                                      Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const SizedBox(width: 5,),
+                                            InkWell(
+                                              onTap: () async {
+                                                Utils.todoDatePickerDialog(
+                                                  context, '',
+                                                  initial: selectedDate,
+                                                ).then((value) {
+                                                  setState(() {
+                                                    if (value != null) {
+                                                      selectedDate = value;
+                                                      formattedDate = (DateFormat("MMM dd").format(value));
+                                                      filterDate = (DateFormat("yyyy-MM-dd").format(value));
+                                                      todoBloc!.add(GetTodoList(
+                                                        selectedDate: filterDate,
+                                                        status: statusFilter
+                                                            ? "Completed"
+                                                            : "In Progress",
+                                                        resourceId: Utils.getStringFromObjectList(
+                                                            selectedResourceMain ?? []),
+                                                        branchId:branchNO.toString(),
+                                                      ));
+                                                    }
+                                                  });
+                                                });
+                                              },
+                                              child: Utils.getText(
+                                                  formattedDate!,
+                                                  size: 17,
+                                                  weight: FontWeight.w500),
+                                            ),
+                                            const SizedBox(width: 5,),
+                                          ]),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          InkWell(
+                                              onTap: () async {
+                                                selectedDate = selectedDate.add(
+                                                    const Duration(days: 1));
+                                                formattedDate = (DateFormat("MMM dd").format(selectedDate));
+                                                filterDate = (DateFormat("yyyy-MM-dd").format(selectedDate));
+                                                todoBloc!.add(GetTodoList(
+                                                  selectedDate: filterDate,
+                                                  status: statusFilter
+                                                      ? "Completed"
+                                                      : "In Progress",
+                                                  resourceId: Utils.getStringFromObjectList(selectedResourceMain ?? []),
+                                                  branchId: branchNO.toString(),
+                                                ));
+                                                setState(() {});
+                                              },
+                                              child: Icon(
+                                                Icons.chevron_right,
+                                                color: AppC().base,
+                                                size: 24,
+                                              )),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          InkWell(
+                                            onTapDown: (details) {
+                                              showPopupWithCheckBoxDepartmentWise(
+                                                resourceListForCombination,
+                                                details, // tap details
+                                                    (selectedResources) {
+                                                  // onSelect callback
+                                                  selectedResourceMain = [];
+                                                  selectedResourceMain!.addAll(
+                                                      selectedResources); // Add selected resources
+                                                  todoBloc!.add(GetTodoList(
+                                                    selectedDate: filterDate,
+                                                    status: statusFilter
+                                                        ? "Completed"
+                                                        : "In Progress",
+                                                    resourceId: Utils
+                                                        .getStringFromObjectList(
+                                                      selectedResourceMain ??
+                                                          [],
+                                                    ),
+                                                    branchId:
+                                                    branchNO.toString(),
+                                                  ));
+                                                },
+                                                selectedStates, // resource list
+                                                // Pass selectedStates
+                                              );
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Icon(selectedUserCount >= 1?
+                                                Icons.supervisor_account:Icons.person_outline,
+                                                  color: AppC().base,
+                                                  size: 24,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 15,
+                                          ),
+                                          InkWell(
+                                              onTapDown: (details) {
+                                                showObjectPopupMainMenuWithCheckBox(
+                                                  context,
+                                                  todoListTemp,
+                                                  details,
+                                                      (resource) {
+                                                    todoList = [];
+                                                    todoList.addAll(resource as Iterable<Map<String,dynamic>>);
+                                                    setState(() {});
+                                                  },
+                                                  taskCategoryGroupData,
+                                                  titleList,
+                                                );
+                                              },
+                                              child:
+                                              Row(
+                                                children: [
+                                                  Icon(selectedTaskCount < 1?
+                                                  Icons.filter_alt_outlined:Icons.filter_alt_sharp,
+                                                    color: AppC.black,
+                                                    size: 22,
+                                                  ),
+                                                ],
+                                              )),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Utils.getText('00:00',
+                                            weight: FontWeight.bold, size: 13),
+                                        const SizedBox(width: 3),
+                                        Utils.getText(
+                                          'Check in',
+                                          size: 12,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Utils.getText('00:00',
+                                            color: AppC.red,
+                                            weight: FontWeight.bold,
+                                            size: 13),
+                                        const SizedBox(width: 3),
+                                        Utils.getText(
+                                          'Hours Active',
+                                          size: 12,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Utils.getText('00:00',
+                                            color: AppC.red,
+                                            weight: FontWeight.bold,
+                                            size: 13),
+                                        const SizedBox(width: 3),
+                                        Utils.getText('Hours Total', size: 12),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  color: Colors.blue[50],
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Row(
+                                      children: [
+                                        InkWell(
+                                          onTap: () async {
+                                            // Navigate to the CreateTodoUI page and wait for the result
+                                            final newTodo = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => CreateTodoUI(
+                                                  selectedAssignedTo: selectedResourceMain,
+                                                ),
+                                              ),
+                                            );
+                                            if (newTodo != null) {
+                                              setState(() {
+                                                todoBloc!.add(const GetUserGroupingList());
+                                                todoBloc!.add(GetTodoList(
+                                                  selectedDate: filterDate,
+                                                  status: statusFilter
+                                                      ? "Completed"
+                                                      : "In Progress",
+                                                  resourceId: Utils.getStringFromObjectList(
+                                                      selectedResourceMain ?? []),
+                                                  branchId: branchNO.toString(),
+                                                ));
+                                              });
+                                            }
+                                          },
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 24,
+                                            color: AppC().base,
+                                          ),
+                                        ),
+
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                          child: SizedBox(
+                                            height: 35,
+                                            child: Utils.getSearchBarUI(() {},
+                                              // onSubmitted: () {
+                                              //   log("DISMISSa");
+                                              //   Utils.dismissKeyboard(context);
+                                              // },
+                                                  (value) {
+                                                _filterTodo(value);
+                                              }, searchController,),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        GestureDetector(
+                                          child: Icon(
+                                            Icons.mic_none,
+                                            size: 24,
+                                            color: AppC().base,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Visibility(
+                                  visible: todoList.isNotEmpty,
+                                  replacement: Center(
+                                      child: Utils.getEmptyTextWidget(
+                                          topPadding: 30)),
+                                  child: Expanded(
+                                    child: ReorderableListView.builder(
+                                      onReorder: (oldIndex, newIndex) {
+                                        todoBloc!.add(SwapTodo(
+                                            todoList[oldIndex]['id'].toString(),
+                                            todoList[newIndex]['id']
+                                                .toString()));
+                                      },
+                                      padding: EdgeInsets.zero,
+                                      scrollDirection: Axis.vertical,
+                                      shrinkWrap: true,
+                                      physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                      itemCount: todoList.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return Padding(
+                                          key: ValueKey(index),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 1.0),
+                                          child: listItem(
+                                              todoList[index], index, state),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                            visible: state is TodoListLoading,
+                            child: Center(
+                                child: Utils.getProgressIndicator(context)))
+                      ],
+                    ),
+                  );
+                },
+              ))),
+      drawer: const DrawerView(),
+    );
+  }
+
   String stripHtmlTags(String htmlString) {
     return htmlString.replaceAll(RegExp(r'<[^>]*>'), '');
   }
@@ -214,8 +1068,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
     }
     return false;
   }
-  Widget _buildTimeField(
-      String label, TextEditingController controller, Function onTapCallback) {
+
+  Widget _buildTimeField(String label, TextEditingController controller, Function onTapCallback) {
     return Utils.getTextFormField(
       '',
       controller,
@@ -293,7 +1147,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
     });
   }
 
-
   void _filterTodo(String query) {
     setState(() {
       final searchQuery = query.toLowerCase();
@@ -318,10 +1171,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     });
   }
 
-
-
-  void show(BuildContext context, String message, String status, String id,
-      String oldDate) {
+  void show(BuildContext context, String message, String status, String id, String oldDate) {
     OverlayEntry? overlay;
     overlay = OverlayEntry(
       builder: (context) => Positioned(
@@ -602,8 +1452,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
       TapDownDetails details,
       Function(List<Map<String, dynamic>>?) onSelect,
       List<Map<String, dynamic>> taskCategoryGroupData,
-      List<Map<String, dynamic>> titleList,
-      ) async {
+      List<Map<String, dynamic>> titleList,)
+  async {
     List<Map<String, dynamic>> taskList = [];
     List<Map<String, dynamic>> headList = [];
     List<Map<String, dynamic>> headListName = [];
@@ -855,8 +1705,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     List<Map<String, dynamic>> resourceList,
     details,
     Function(List<Map<String, dynamic>?>) onSelect,
-    Map<String, bool> selectedStates,
-  )
+    Map<String, bool> selectedStates,)
   async {
     Map<String, List<Map<String, dynamic>>> groupedResources = {};
     for (var resource in resourceList) {
@@ -1253,7 +2102,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
     );
   }
 
-
   bool isTaskDateValid(String taskStart, DateTime now) {
     final taskDate = DateFormat('yyyy-MM-dd').parse(taskStart);
     return taskDate.isAtSameMomentAs(now) || taskDate.isAfter(now);
@@ -1263,851 +2111,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
     final now = DateTime.now();
     return isTaskDateValid(taskStart, now) &&
         (vin != null || (vehicles != null && vehicles.isNotEmpty));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppC.white,
-      body: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (context) => todoBloc!
-                ..add(GetTodoList(
-                  selectedDate: filterDate,
-                  status: statusFilter ? "Completed" : "In Progress",
-                  resourceId:
-                      Utils.getStringFromObjectList(selectedResourceMain ?? []),
-                  branchId: branchNO.toString(),
-                )),
-            ),
-            BlocProvider(
-              create: (context) =>
-                  locationDataBloc!..add(const GetAddedLocationListData()),
-            ),
-            BlocProvider(
-              create: (context) =>
-                  locationDataBloc!..add(const GetAddedLocationListData()),
-            ),
-          ],
-          child: MultiBlocListener(
-              listeners: [
-                BlocListener<TodoViewBloc, TodoViewState>(
-                  listener: (context, state) async {
-                    if (state is TaskExpenseLoaded) {
-                      taskExpenseList = state.resource ?? [];
-                    }
-                    else if (state is VendorLoaded) {
-                      vendorList = state.resource ?? [];
-                    }
-                    else if (state is PartsLoaded) {
-                      if (state.partsList != null) {
-                        editPartsList.addAll(state.partsList!);
-                      }
-                    }
-                    else if(state is TaskCategoryGroupLoaded){
-                      taskCategoryGroupData.clear();
-                      taskCategoryGroupData.addAll(state.data??[]);
-
-                      for (Map<String, dynamic> res in taskCategoryGroupData) {
-                        Map<String, dynamic> vehiclesData = {
-                          'id': res['id'],
-                          'name': res['name'],
-                        };
-                        titleList.add(vehiclesData);
-                        if (res.containsKey('subcategories') && res['subcategories'] is List) {
-                          for (Map<String, dynamic> subcategory in res['subcategories']) {
-                            Map<String, dynamic> subcategoryData = {
-                              'id': subcategory['id'],
-                              'name': subcategory['name'],
-                              'parent_id': res['id'],
-                            };
-                            subCategoryList.add(subcategoryData);
-                          }
-                        }
-                      }
-                      titleList.insert(0, {'id': -1, 'name': 'Other'});
-
-                    }
-                    else if (state is SuppliesLoaded) {
-                      if (state.suppliesList != null) {
-                        editSuppliesList.addAll(state.suppliesList!);
-                      }
-                    }
-                    else if (state is LocationLoaded) {
-                      locationList = state.resource ?? [];
-                    }
-                    else if (branchNO != branchNO) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                    }
-                    else if (state is VehicleDataLoaded) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-
-                      if (state.vehicleData != null) {
-                        vehicleList.addAll(state.vehicleData ?? []);
-                        editMultipleVehicleList.addAll(state.vehicleData ?? []);
-                      }
-                    }
-                    else if (state is TodoListLoaded) {
-                      todoList = [];
-                      todoListTemp = [];
-                      var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
-                      var list1 = state.todoList
-                              ?.where((todo) =>
-                                  todo['user_id'] == userId &&
-                                  (todo['title'] == "Check In" ||
-                                      todo['title'] == "Check Out"))
-                              .toList() ??
-                          [];
-                      var list2 = state.todoList
-                              ?.where((todo) =>
-                                  todo['title'] != "Check In" &&
-                                  todo['title'] != "Check Out")
-                              .toList() ??
-                          [];
-                      var combinedList = [...list1, ...list2];
-                      combinedList.sort(
-                          (a, b) => a['todo_time']!.compareTo(b['todo_time']!));
-                      todoListTemp.addAll(combinedList);
-                      todoList.addAll(combinedList);
-                      for (dynamic tdl in combinedList) {
-                        for (Map<String, dynamic> vd in vehicleList) {
-                          if (tdl['vin'].toString() == vd['vin'].toString()) {
-                            tdl['vehicle_number'] = vd['vehicle_number'];
-                          }
-                        }
-                      }
-                    }
-                    else if (state is AssignedToLoaded) {
-                      resourceListForCombination.clear();
-                      resourceList.clear();
-                      resourceListForPersonField.clear();
-                      resourceList.addAll(state.resource ?? []);
-                      resourceListForPersonField.addAll(state.resource ?? []);
-                      resourceList.removeWhere((resource) => resource['id'] == 2);
-                      resourceListForCombination.addAll(resourceList);
-                      selectedResourceMain = [];
-                      selectedResourceMain!.addAll(resourceList);
-                      for (Map<String, dynamic> res
-                          in resourceListForCombination) {
-                        Map<String, dynamic> vehiclesData = {
-                          'id': res['id'],
-                          'vehicle_name': '${res['first_name']} ${res['last_name']}',
-                        };
-                        editMultipleVehicleList.add(vehiclesData);
-                      }
-                    }
-                    else if (state is DeleteTodoLoaded) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                    }
-                    else if (state is TodoItemCompletedV) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                      if (state.taskName?.toLowerCase() == 'check in') {
-                        // getWorkingHourByUser
-                        Utils.getIntPreference(Str.hrmIdPrefText).then((value) {
-                          todoBloc!.add(GetWorkingHourByUserEvent(id: value));
-                        });
-                      }
-                      show(
-                          context,
-                          (state.status) == 'In Progress'
-                              ? 'Todo moved to In Progress'
-                              : 'Todo Completed',
-                          (state.status) == 'In Progress'
-                              ? 'Completed'
-                              : 'In Progress',
-                          (state.todoId ?? ''), '');
-                    }
-                    else if (state is EditTodoLoaded) {
-                      todoBloc!.add(const GetUserGroupingList());
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                      if (state.isDate != null && state.isDate!) {
-                        /*if(overlay != null) {
-                    overlay?.remove();
-                  }*/
-                        show(context, 'Task moved Successfully', '',
-                            (state.todoId ?? ''), (state.date ?? ''));
-                      }
-                    }
-                    else if (state is VehicleGroupListLoaded) {
-                      vehicleGroupList.clear();
-                      vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
-
-                    }
-                    else if (state is VehicleGroupLoaded) {
-                      todoBloc!.add(const GetVehicleGroupingList());
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                    }
-                    else if (state is UserGroupListLoaded) {
-                      userGroupList.clear();
-                      userGroupList.addAll(state.userGroupDataList ?? []);
-                    }
-                    else if (state is DropdownDataLoaded) {
-                      categoriesListData.clear();
-                      categoriesListData.addAll(
-                          state.createExpenseFieldData?.expenseCategories ??
-                              []);
-                    }
-                    else if (state is VehicleStatusListLoaded) {
-                      vehicleStatus.clear();
-                      vehicleStatus.addAll(state.vehiclesCount ?? []);
-                    }
-
-                  },
-                ),
-                BlocListener<LocationDataBloc, LocationDataState>(
-                  listener: (context, state) {
-                    if (state is LocationListLoaded) {
-                      if (state.resource != null) {
-                        multipleLocationAddressList
-                            .addAll(state.resource ?? []);
-                      }
-                    }
-                  },
-                )
-              ],
-              child: BlocBuilder<TodoViewBloc, TodoViewState>(
-                builder: (context, state) {
-                  return SafeArea(
-                    child: Stack(
-                      children: [
-                        RefreshIndicator(
-                          color: AppC().base,
-                          onRefresh: () async {
-                            // fetchFrom = 0;
-                            todoBloc!.add(GetTodoList(
-                              selectedDate: filterDate,
-                              status:
-                                  statusFilter ? "Completed" : "In Progress",
-                              resourceId: Utils.getStringFromObjectList(
-                                  selectedResourceMain ?? []),
-                              branchId: branchNO.toString(),
-                            )
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 0, bottom: 0, left: 8),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(children: [
-                                        SizedBox(
-                                          width: 36,
-                                          child: Transform.scale(
-                                              alignment: Alignment.centerLeft,
-                                              scale: .6,
-                                              child: Switch(
-                                                  trackOutlineColor:
-                                                  WidgetStateColor
-                                                      .resolveWith(
-                                                        (states) {
-                                                      if (states.contains(
-                                                          WidgetState
-                                                              .selected)) {
-                                                        return AppC.green;
-                                                      } else {
-                                                        return AppC.grey;
-                                                      }
-                                                    },
-                                                  ),
-                                                  activeTrackColor: AppC.green,
-                                                  activeColor: AppC.white,
-                                                  inactiveThumbColor:
-                                                  AppC.white,
-                                                  inactiveTrackColor: AppC.grey,
-                                                  value: statusFilter,
-                                                  onChanged: (value) {
-                                                    if (value) {
-                                                      todoBloc!.add(GetTodoList(
-                                                        selectedDate:
-                                                        filterDate,
-                                                        status: "Completed",
-                                                        resourceId: Utils
-                                                            .getStringFromObjectList(
-                                                            selectedResourceMain ??
-                                                                []),
-                                                        branchId:
-                                                        branchNO.toString(),
-                                                      ));
-                                                    } else {
-                                                      todoBloc!.add(GetTodoList(
-                                                        selectedDate: filterDate,
-                                                        status: "In Progress",
-                                                        resourceId: Utils.getStringFromObjectList(
-                                                            selectedResourceMain ?? []),
-                                                        branchId: branchNO.toString(),
-                                                      ));
-                                                    }
-                                                    todoListResourceFilter
-                                                        .clear();
-                                                    todoListResourceFilter
-                                                        .addAll(todoList);
-                                                    // filterResource(null, fromOnchange: false);
-                                                    statusFilter = value;
-                                                    setState(() {});
-                                                  })),
-                                        ),
-                                        const SizedBox(width: 15),
-                                        InkWell(
-                                          key: _key,
-                                          onTap: () async {
-                                            filteredVehicle.clear();
-                                            for (var item in todoList) {
-                                              listToFilterVehicle.addAll(item);
-                                              List vehicles = listToFilterVehicle['vehicles'];
-
-                                              if (listToFilterVehicle['vin'] != null) {
-                                                var list = vehicleList.firstWhere(
-                                                      (item) => item['vin'] == listToFilterVehicle['vin'],
-                                                  orElse: () => {},
-                                                );
-                                                filteredVehicle.add(list);
-                                              } else {
-                                                for (var vehicle in vehicles) {
-                                                  var list = vehicleList.firstWhere(
-                                                        (item) => item['vin'] == vehicle['vin'],
-                                                    orElse: () => {},
-                                                  );
-                                                  filteredVehicle.add(list);
-                                                }
-                                              }
-                                            }
-
-                                            final RenderBox renderBox =
-                                            _key.currentContext!.findRenderObject() as RenderBox;
-                                            final Offset offset = renderBox.localToGlobal(Offset.zero);
-                                            final Size size = renderBox.size;
-
-                                            await showMenu(
-                                              elevation: 5,
-                                              color: AppC.white,
-                                              context: context,
-                                              position: RelativeRect.fromLTRB(
-                                                offset.dx,
-                                                offset.dy + size.height,
-                                                offset.dx + size.width,
-                                                offset.dy,
-                                              ),
-                                              items: [
-                                                PopupMenuItem(
-                                                  child: StatefulBuilder(
-                                                    builder: (context, setState) {
-                                                      return Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          const Icon(
-                                                            Icons.close,
-                                                            color: AppC.red,
-                                                          ),
-                                                          const SizedBox(height: 3),
-                                                          SizedBox(
-                                                            height: 40,
-                                                            child: Utils.getSearchBarUI(
-                                                                  () {},
-                                                                  (value) {
-                                                                setState(() {
-                                                                  searchQuery = value.toLowerCase();
-                                                                });
-                                                              },
-                                                              vehicleSearchController,
-                                                            ),
-                                                          ),
-                                                          if (filteredVehicle.isNotEmpty)
-                                                            ...[
-                                                              // Year Filter
-                                                              if (filteredVehicle
-                                                                  .map((e) => e['year'])
-                                                                  .where((year) => year != null && year != '')
-                                                                  .isNotEmpty)
-                                                                Utils.getText('Year', weight: FontWeight.w700),
-                                                              ...filteredVehicle
-                                                                  .map((e) => e['year'] ?? '')
-                                                                  .toSet()
-                                                                  .where((year) => year != '') // Filter out empty or null values
-                                                                  .map((year) => Row(
-                                                                children: [
-                                                                  Transform.scale(
-                                                                    scale: 0.8,
-                                                                    child: SizedBox(
-                                                                      height: 30,
-                                                                      width: 30,
-                                                                      child: Checkbox(
-                                                                        activeColor:AppC.blue,
-                                                                        value: selectedYears.contains(year),
-                                                                        onChanged: (value) {
-                                                                          setState(() {
-                                                                            if (value == true) {
-                                                                              selectedYears.add(year);
-
-                                                                            } else {
-                                                                              selectedYears.remove(year);
-                                                                            }
-                                                                            applyFilters();
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Utils.getText('$year'),
-                                                                ],
-                                                              )),
-
-                                                              // Make Filter
-                                                              if (filteredVehicle
-                                                                  .map((e) => e['make'])
-                                                                  .where((make) => make != null && make != '')
-                                                                  .isNotEmpty)
-                                                                Utils.getText('Make', weight: FontWeight.w700),
-                                                              ...filteredVehicle
-                                                                  .map((e) => e['make'] ?? '')
-                                                                  .toSet()
-                                                                  .map((make) => Row(
-                                                                children: [
-                                                                  Transform.scale(
-                                                                    scale: 0.8,
-                                                                    child: SizedBox(
-                                                                      height: 30,
-                                                                      width: 30,
-                                                                      child: Checkbox(
-                                                                        activeColor:AppC.blue,
-                                                                        value: selectedMakes.contains(make),
-                                                                        onChanged: (value) {
-                                                                          setState(() {
-                                                                            if (value == true) {
-                                                                              selectedMakes.add(make);
-                                                                            } else {
-                                                                              selectedMakes.remove(make);
-                                                                            }
-                                                                            applyFilters();
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Utils.getText('$make'),
-                                                                ],
-                                                              )),
-                                                              // Model Filter
-                                                              if (filteredVehicle
-                                                                  .map((e) => e['model'])
-                                                                  .where((model) => model != null && model != '')
-                                                                  .isNotEmpty)
-                                                                Utils.getText('Model', weight: FontWeight.w700),
-                                                              ...filteredVehicle
-                                                                  .map((e) => e['model'] ?? '')
-                                                                  .toSet()
-                                                                  .map((model) => Row(
-                                                                children: [
-                                                                  Transform.scale(
-                                                                    scale: 0.8,
-                                                                    child: SizedBox(
-                                                                      height: 30,
-                                                                      width: 30,
-                                                                      child: Checkbox(
-                                                                        activeColor:AppC.blue,
-                                                                        value: selectedModels.contains(model),
-                                                                        onChanged: (value) {
-                                                                          setState(() {
-                                                                            if (value == true) {
-                                                                              selectedModels.add(model);
-                                                                            } else {
-                                                                              selectedModels.remove(model);
-                                                                            }
-                                                                            applyFilters();
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Utils.getText('$model'),
-                                                                ],
-                                                              )),
-                                                            ],
-                                                        ],
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                          child: Image.asset(
-                                            Assets.vehicleSearchIcon,
-                                            height: 24,
-                                            width: 24,
-                                            color: selectedYears.isNotEmpty
-                                                ? AppC.red
-                                                : selectedMakes.isNotEmpty
-                                                ? AppC.red
-                                                : selectedModels.isNotEmpty
-                                                ? AppC.red
-                                                : AppC.appColor,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 20),
-                                        InkWell(
-                                            onTap: () async {
-                                              selectedDate =
-                                                  selectedDate.subtract(
-                                                      const Duration(days: 1));
-                                              formattedDate =
-                                              (DateFormat("MMM dd")
-                                                  .format(selectedDate));
-                                              filterDate =
-                                              (DateFormat("yyyy-MM-dd")
-                                                  .format(selectedDate));
-                                              todoBloc!.add(GetTodoList(
-                                                selectedDate: filterDate,
-                                                status: statusFilter
-                                                    ? "Completed"
-                                                    : "In Progress",
-                                                resourceId: Utils
-                                                    .getStringFromObjectList(
-                                                    selectedResourceMain ??
-                                                        []),
-                                                branchId: branchNO.toString(),
-                                              ));
-                                              setState(() {});
-                                            },
-                                            child: Icon(
-                                              Icons.chevron_left,
-                                              color: AppC().base,
-                                              size: 24,
-                                            )),
-                                      ]),
-                                      Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const SizedBox(width: 5,),
-                                            InkWell(
-                                              onTap: () async {
-                                                Utils.todoDatePickerDialog(
-                                                  context, '',
-                                                  initial: selectedDate,
-                                                ).then((value) {
-                                                  setState(() {
-                                                    if (value != null) {
-                                                      selectedDate = value;
-                                                      formattedDate = (DateFormat("MMM dd").format(value));
-                                                      filterDate = (DateFormat("yyyy-MM-dd").format(value));
-                                                      todoBloc!.add(GetTodoList(
-                                                        selectedDate: filterDate,
-                                                        status: statusFilter
-                                                            ? "Completed"
-                                                            : "In Progress",
-                                                        resourceId: Utils.getStringFromObjectList(
-                                                            selectedResourceMain ?? []),
-                                                        branchId:branchNO.toString(),
-                                                      ));
-                                                    }
-                                                  });
-                                                });
-                                              },
-                                              child: Utils.getText(
-                                                  formattedDate!,
-                                                  size: 17,
-                                                  weight: FontWeight.w500),
-                                            ),
-                                            const SizedBox(width: 5,),
-                                          ]),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          InkWell(
-                                              onTap: () async {
-                                                selectedDate = selectedDate.add(
-                                                    const Duration(days: 1));
-                                                formattedDate = (DateFormat("MMM dd").format(selectedDate));
-                                                filterDate = (DateFormat("yyyy-MM-dd").format(selectedDate));
-                                                todoBloc!.add(GetTodoList(
-                                                  selectedDate: filterDate,
-                                                  status: statusFilter
-                                                      ? "Completed"
-                                                      : "In Progress",
-                                                  resourceId: Utils.getStringFromObjectList(selectedResourceMain ?? []),
-                                                  branchId: branchNO.toString(),
-                                                ));
-                                                setState(() {});
-                                              },
-                                              child: Icon(
-                                                Icons.chevron_right,
-                                                color: AppC().base,
-                                                size: 24,
-                                              )),
-                                          const SizedBox(
-                                            width: 20,
-                                          ),
-                                          InkWell(
-                                            onTapDown: (details) {
-                                              showPopupWithCheckBoxDepartmentWise(
-                                                resourceListForCombination,
-                                                details, // tap details
-                                                    (selectedResources) {
-                                                  // onSelect callback
-                                                  selectedResourceMain = [];
-                                                  selectedResourceMain!.addAll(
-                                                      selectedResources); // Add selected resources
-                                                  todoBloc!.add(GetTodoList(
-                                                    selectedDate: filterDate,
-                                                    status: statusFilter
-                                                        ? "Completed"
-                                                        : "In Progress",
-                                                    resourceId: Utils
-                                                        .getStringFromObjectList(
-                                                      selectedResourceMain ??
-                                                          [],
-                                                    ),
-                                                    branchId:
-                                                    branchNO.toString(),
-                                                  ));
-                                                },
-                                                selectedStates, // resource list
-                                                // Pass selectedStates
-                                              );
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Icon(selectedUserCount >= 1?
-                                                Icons.supervisor_account:Icons.person_outline,
-                                                  color: AppC().base,
-                                                  size: 24,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 15,
-                                          ),
-                                          InkWell(
-                                              onTapDown: (details) {
-                                                showObjectPopupMainMenuWithCheckBox(
-                                                  context,
-                                                  todoListTemp,
-                                                  details,
-                                                      (resource) {
-                                                    todoList = [];
-                                                    todoList.addAll(resource as Iterable<Map<String,dynamic>>);
-                                                    setState(() {});
-                                                  },
-                                                  taskCategoryGroupData,
-                                                  titleList,
-                                                );
-                                              },
-                                              child:
-                                              Row(
-                                                children: [
-                                                  Icon(selectedTaskCount < 1?
-                                                  Icons.filter_alt_outlined:Icons.filter_alt_sharp,
-                                                    color: AppC.black,
-                                                    size: 22,
-                                                  ),
-                                                ],
-                                              )),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Utils.getText('00:00',
-                                            weight: FontWeight.bold, size: 13),
-                                        const SizedBox(width: 3),
-                                        Utils.getText(
-                                          'Check in',
-                                          size: 12,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Utils.getText('00:00',
-                                            color: AppC.red,
-                                            weight: FontWeight.bold,
-                                            size: 13),
-                                        const SizedBox(width: 3),
-                                        Utils.getText(
-                                          'Hours Active',
-                                          size: 12,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Utils.getText('00:00',
-                                            color: AppC.red,
-                                            weight: FontWeight.bold,
-                                            size: 13),
-                                        const SizedBox(width: 3),
-                                        Utils.getText('Hours Total', size: 12),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  color: Colors.blue[50],
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Row(
-                                      children: [
-                                        InkWell(
-                                          onTap: () async {
-                                            // Navigate to the CreateTodoUI page and wait for the result
-                                            final newTodo = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => CreateTodoUI(
-                                                  selectedAssignedTo: selectedResourceMain,
-                                                ),
-                                              ),
-                                            );
-                                            if (newTodo != null) {
-                                              setState(() {
-                                                todoBloc!.add(const GetUserGroupingList());
-                                                todoBloc!.add(GetTodoList(
-                                                  selectedDate: filterDate,
-                                                  status: statusFilter
-                                                      ? "Completed"
-                                                      : "In Progress",
-                                                  resourceId: Utils.getStringFromObjectList(
-                                                      selectedResourceMain ?? []),
-                                                  branchId: branchNO.toString(),
-                                                ));
-                                              });
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.add,
-                                            size: 24,
-                                            color: AppC().base,
-                                          ),
-                                        ),
-
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        Expanded(
-                                          child: SizedBox(
-                                            height: 35,
-                                            child: Utils.getSearchBarUI(() {},
-                                                  (value) {
-                                                _filterTodo(value);
-                                              }, searchController,),
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        GestureDetector(
-                                          child: Icon(
-                                            Icons.mic_none,
-                                            size: 24,
-                                            color: AppC().base,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Visibility(
-                                  visible: todoList.isNotEmpty,
-                                  replacement: Center(
-                                      child: Utils.getEmptyTextWidget(
-                                          topPadding: 30)),
-                                  child: Expanded(
-                                    child: ReorderableListView.builder(
-                                      onReorder: (oldIndex, newIndex) {
-                                        todoBloc!.add(SwapTodo(
-                                            todoList[oldIndex]['id'].toString(),
-                                            todoList[newIndex]['id']
-                                                .toString()));
-                                      },
-                                      padding: EdgeInsets.zero,
-                                      scrollDirection: Axis.vertical,
-                                      shrinkWrap: true,
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      itemCount: todoList.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return Padding(
-                                          key: ValueKey(index),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 1.0),
-                                          child: listItem(
-                                              todoList[index], index, state),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Visibility(
-                            visible: state is TodoListLoading,
-                            child: Center(
-                                child: Utils.getProgressIndicator(context)))
-                      ],
-                    ),
-                  );
-                },
-              ))),
-      drawer: const DrawerView(),
-    );
   }
 
   Widget buildTime() {
@@ -3243,7 +3246,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                 child: VehicleHistoryViewUI(
                                                   vin: vinToFind,
                                                   vehicleName: vehicle?['vehicle_name'] ?? '',
+                                                  title: todos['title'],
                                                   showHeader: false,
+                                                  showSameTask: true, resourceList: resourceList, userGroupList: userGroupList,
                                                 ),
                                               ),
                                             ],
@@ -4402,7 +4407,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
           }
         }
       }
-
       return Utils.getText((userGroupConcatenationName ?? ''),
           color: AppC().base, weight: FontWeight.bold);
     }
@@ -4667,8 +4671,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     );
   }
 
-  List<Map<String, dynamic>>? getAddressFromLocations(
-      Map<String, dynamic> todos) {
+  List<Map<String, dynamic>>? getAddressFromLocations(Map<String, dynamic> todos) {
     for (int i = 0; i < multipleLocationAddressList.length; i++) {
       if (todos['location_id'] != null &&
           multipleLocationAddressList[i]['id'] ==

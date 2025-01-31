@@ -90,7 +90,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
     '04:15',
     '04:30',
   ];
-  String? selectduration = '00:00';
+  String? selectDuration = '00:00';
 
   @override
   void initState() {
@@ -124,10 +124,10 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
   }
 
   void _updateEndTime() {
-    if (startTimeController.text.isNotEmpty && selectduration != null) {
+    if (startTimeController.text.isNotEmpty && selectDuration != null) {
       final startTime = DateFormat.jm()
           .parse(startTimeController.text); // Parse the start time
-      final durationParts = selectduration!.split(':');
+      final durationParts = selectDuration!.split(':');
       final hours = int.parse(durationParts[0]);
       final minutes = int.parse(durationParts[1]);
       final duration = Duration(hours: hours, minutes: minutes);
@@ -183,11 +183,11 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
   // Update end time based on the selected duration
   void _onDurationChanged(String? newDuration) {
     setState(() {
-      selectduration = newDuration;
-      if (startTimeController.text.isNotEmpty && selectduration != null) {
+      selectDuration = newDuration;
+      if (startTimeController.text.isNotEmpty && selectDuration != null) {
         final startTime =
             Utils.convertTimeStringToDateTime(startTimeController.text);
-        final duration = _parseDuration(selectduration!);
+        final duration = _parseDuration(selectDuration!);
         final endTime = startTime.add(duration);
         endTimeController.text = Utils.convertDateTimeToTimeString(endTime);
       }
@@ -234,7 +234,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
         controller.text = Utils.convertDateTimeToTimeString(selectedDateTime);
         // If endTimeController is empty, recalculate it
         if (endTimeController.text.isEmpty) {
-          _onDurationChanged(selectduration);
+          _onDurationChanged(selectDuration);
         }
       }
     });
@@ -333,7 +333,7 @@ class _RecurrenceTaskState extends State<RecurrenceTask> {
                         child: Utils.buildDropdownButton(
                           'Duration',
                           duration,
-                          selectduration,
+                          selectDuration,
                           _onDurationChanged,
                         ),
                       ),

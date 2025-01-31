@@ -33,6 +33,7 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
   List<Map<String, dynamic>> filter = [];
   dynamic selectedName;
   String? userRole;
+  String? userId;
   bool loading = false;
 
   @override
@@ -44,6 +45,11 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
     Utils.getStringListPreference(Str.rolePrefText).then((role) {
       setState(() {
         userRole = role.first;
+      });
+    });
+    Utils.getStringPreference(Str.userIdPrefText).then((id) {
+      setState(() {
+        userId = id;
       });
     });
     employeesList.insert(0, {'id': -1, 'first_name': 'All', 'last_name': ''});
@@ -195,11 +201,11 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
                             size: 16, weight: FontWeight.bold),
                       ],
                     ),
-                    if (userRole == 'Admin')
+                    if (userRole == 'Admin' || userId == '3')
                       const SizedBox(
                         height: 5,
                       ),
-                    if (userRole == 'Admin')
+                    if (userRole == 'Admin' || userId == '3')
                       Container(
                         height: 30,
                         decoration: BoxDecoration(
@@ -341,7 +347,7 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
 
                           return Stack(
                             children: [
-                              if (userRole == 'Admin')
+                              if (userRole == 'Admin' || userId == '3')
                                 Slidable(
                                   endActionPane: ActionPane(
                                     motion: const ScrollMotion(),

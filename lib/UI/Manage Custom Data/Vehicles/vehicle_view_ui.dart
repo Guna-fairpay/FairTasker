@@ -32,6 +32,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
   List<Map<String, dynamic>> cohortsData = [];
   List<Map<String, dynamic>> categoriesData = [];
   List<Map<String, dynamic>>? vehicleGroupData = [];
+  List<int> selectedVehicleIds = [];
   TextEditingController searchController = TextEditingController();
   dynamic selectedCohortsData;
   dynamic selectedCategoriesData;
@@ -200,8 +201,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
               vehicleName = list;
               filteredVehicle = List.from(vehicleName);
             }else if(state is VehicleGroupDataLoaded){
-              vehicleData?.addAll(state.vehicleGroupDataList??[]);
-              print('-------------------------------$vehicleData');
+              vehicleData.addAll(state.vehicleGroupDataList??[]);
             }
             else {
               vehicleDataBloc.add(const GetActiveVehicleData());
@@ -265,7 +265,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                           ),
                                         ),
                                         content: VehicleGroupingUI(
-                                            vehicleList: vehicleName, groupVehicleList: vehicleData,),
+                                            vehicleList: vehicleName, groupVehicleList: vehicleData, selectedVehicleIds: selectedVehicleIds,),
                                       );
                                     },
                                   );
@@ -320,12 +320,10 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                         _navigateToVehicleEditUI(index);
                                       },
                                       child: Card(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 4),
+                                        margin: const EdgeInsets.symmetric(vertical: 4),
                                         color: AppC.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
+                                          borderRadius: BorderRadius.circular(8.0),
                                         ),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -343,15 +341,17 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                                   child: Checkbox(
                                                     activeColor:
                                                         const Color(0xff4788ff),
-                                                    value: selectedVehicles[
-                                                            vehicleId] ??
-                                                        false,
+                                                    value: selectedVehicles[vehicleId] ?? false,
                                                     onChanged: (bool? value) {
                                                       setState(() {
-                                                        selectedVehicles[
-                                                                vehicleId] =
-                                                            value ?? false;
-                                                      });
+                                                        selectedVehicles[vehicleId] = value ?? false;
+                                                        if (value == true) {
+                                                          if (!selectedVehicleIds.contains(vehicleId)) {
+                                                            selectedVehicleIds.add(vehicleId); // Add ID if checked
+                                                          }
+                                                        } else {
+                                                          selectedVehicleIds.remove(vehicleId); // Remove ID if unchecked
+                                                        }                                                      });
                                                     },
                                                   ),
                                                 ),
@@ -371,22 +371,11 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                                     (TapDownDetails details) {
                                                   showMenu(
                                                     context: context,
-                                                    position:
-                                                        RelativeRect.fromLTRB(
-                                                      details.globalPosition
-                                                          .dx, // X-coordinate
-                                                      details.globalPosition
-                                                          .dy, // Y-coordinate
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width -
-                                                          details.globalPosition
-                                                              .dx, // Right offset
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .height -
-                                                          details.globalPosition
-                                                              .dy, // Bottom offset
+                                                    position: RelativeRect.fromLTRB(
+                                                      details.globalPosition.dx, // X-coordinate
+                                                      details.globalPosition.dy, // Y-coordinate
+                                                      MediaQuery.of(context).size.width - details.globalPosition.dx, // Right offset
+                                                      MediaQuery.of(context).size.height - details.globalPosition.dy, // Bottom offset
                                                     ),
                                                     items: [
                                                       const PopupMenuItem(

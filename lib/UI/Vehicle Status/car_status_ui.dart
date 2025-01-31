@@ -1,8 +1,9 @@
+
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
 import 'package:fairpytasker/Response/create_todo_status_response.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
-import 'package:fairpytasker/UI/Vehicle/vehicle_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_notes_history_view_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config_ui.dart';
@@ -1034,8 +1035,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                             },
                                                             child: const Icon(
                                                                 Icons.edit,
-                                                                color: AppC
-                                                                    .appColor,
+                                                                color: AppC.appColor,
                                                                 size: 16),
                                                           ),
                                                           InkWell(
@@ -1050,9 +1050,8 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                                         vehicleStatusListDataList[index]['vehicle_name'] ??
                                                                             '',
                                                                     vin: vehicleStatusListDataList[index]
-                                                                            [
-                                                                            'vin'] ??
-                                                                        '',
+                                                                            ['vin'] ??
+                                                                        '', resourceList:[], userGroupList:[],
                                                                   ),
                                                                 ),
                                                               );

@@ -18,7 +18,7 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
   bool loading = false;
   TextEditingController notesController = TextEditingController();
   List<Map<String, dynamic>> maintenance = [];
-  Map<String, dynamic> children={};
+  List<Map<String, dynamic>> children=[];
   List<bool> checkboxStates = [];
   dynamic selectedChecks;
   bool isAllCheck=false;
@@ -28,11 +28,6 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
     maintenance=widget.maintenance;
     //children=widget.children;
     checkboxStates = List.generate(maintenance.length, (index) => false);
-
-    children={};
-    for (var map in maintenance) {
-      children.addAll(map);
-    }
 
     super.initState();
   }
@@ -56,9 +51,9 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppC.white,
-      body:Column(
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
         children: [
           Row(
             children: [
@@ -68,101 +63,67 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                   setState(() {
                     isAllCheck = newValue!;
                   });
-                  }, ),
+                }, ),
               Utils.getText('Is all maintenance check done')
             ],
           ),
-          Flexible(
-            child: ListView.builder(
-              itemCount: maintenance.length,
-              itemBuilder: (context, index) {
-                final maintenanceCheckListData = maintenance[index];
-                var  checkList = (maintenanceCheckListData['children'] as List<dynamic>?) ?? [];
-                //final childrenData= children[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Utils.getText(
-                        maintenanceCheckListData['name']?.toString() ?? '',
-                        weight: FontWeight.bold,
-                      ),
-                      for (var i = 0; i < checkList.length; i++)
-                        Row(
-                          children: [
-                            checkBoxWithSingleTextAndTexBox(
-                              checkboxValue: checkboxStates[index],
-                              onCheckboxChanged: (bool? value) {
-                                setState(() {
-                                  checkboxStates[index] = value ?? false;
-                                });
-                                },
-                              label: checkList[i]['name'].trim() ?? 'Default Label',
-                            ),
-                            //if(filteredMaintenance['children']['children'] != null)
+          ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: maintenance.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final maintenanceCheckListData = maintenance[index];
+              var  checkList = maintenanceCheckListData['children'];
+              final dropDownValue = checkList.isNotEmpty ? checkList[0]['children'] : null;                return Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Utils.getText(
+                      maintenanceCheckListData['name']?.toString() ?? '',
+                      weight: FontWeight.bold,
+                    ),
+                    for (var i = 0; i < checkList.length; i++)
+                      Row(
+                        children: [
+                          checkBoxWithSingleTextAndTexBox(
+                            checkboxValue: checkboxStates[index],
+                            onCheckboxChanged: (bool? value) {
+                              setState(() {
+                                checkboxStates[index] = value ?? false;
+                              });
+                            },
+                            label: checkList[i]['name'].trim() ?? 'Default Label',
+                          ),
+                          if(checkList[i]['name'] !='Other')
                             Expanded(
-                              child:Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppC.fieldBase,
-                                    width: Num.borderWidthField,
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton)),
-                                ),
-                                child: DropdownButton<Map<String,dynamic>>(
-                                  hint: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                    child: Utils.getText(
-                                      'Select ExpenseTo',
-                                      color: AppC.grey,
-                                      overFlow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  value: selectedChecks,
-                                  isExpanded: true,
-                                  icon: const Icon(Icons.arrow_drop_down),
-                                  elevation: 3,
-                                  dropdownColor: AppC.white,
-                                  underline: Container(height: 0, color: Colors.transparent),
-                                  onChanged: (Map<String,dynamic>? value) {
+                              child:Utils.dropdownBox(
+                                  'Not Checked',
+                                  dropDownValue,
+                                      (selectedValue) {
                                     setState(() {
-                                      selectedChecks = value;
+                                      selectedChecks = selectedValue;
                                     });
-                                    },
-                                  items: maintenance.map<DropdownMenuItem<Map<String,dynamic>>>((Map<String,dynamic> value) {
-                                    return DropdownMenuItem<Map<String,dynamic>>(
-                                      value: value,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                        child: Utils.getText('${value['name']??''}'.trim()),
-                                      ),
-                                    );
-                                    },
-                                  ).toList(),
-                                ),
-                              ),
+                                  }, labelKey: 'name'),
                             ),
-                          ],
-                        ),
-                      if (index == maintenance.length - 1)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Utils.getBorderedMultilineTextField(
-                                'Notes',
-                                notesController,
-                                fillColor: AppC.white,
-                              ),
+                        ],
+                      ),
+                    if (index == maintenance.length - 1)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Utils.getBorderedMultilineTextField(
+                              'Notes',
+                              notesController,
+                              fillColor: AppC.white,
                             ),
-                          ],
-                        ),
-                    ],
-                  ),
-                );
-                },
-            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

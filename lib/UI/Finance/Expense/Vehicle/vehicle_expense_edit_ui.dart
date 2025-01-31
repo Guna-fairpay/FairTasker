@@ -120,49 +120,54 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return (widget.showHeader) ? Scaffold(
       backgroundColor: AppC.white,
       appBar: widget.showHeader
           ? const PreferredSize(
         preferredSize: Size.fromHeight(35.0),
         child: HeaderView(),
       ): null,
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-              create: (context) => cohortsBloc..add(const GetCohortsData())),
-          BlocProvider(
-              create: (context) =>
-                  vehicleDataBloc..add(const GetAddedVehicleListData())),
-        ],
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<TodoViewBloc, TodoViewState>(
-              listener: (context, state) {
-                if (state is TodoListLoading) {
-                  loading = true;
-                } else if (state is CohortsListLoaded) {
-                  loading = false;
-                  categoryDropdownList.clear();
-                  expenseDropdownList.addAll(state.expenseData ?? []);
-                  categoryDropdownList.addAll(state.expenseData ?? []);
-                  subCategoryDropdownList = state.expenseData!
-                      .where((category) =>
-                          category['id'].toString() == 'category_id'.toString())
-                      .map((category) => category['sub_categories'] ?? [])
-                      .expand((subcategoryList) => subcategoryList)
-                      .toList();
-                } else if (state is PaymentListLoaded) {
-                  setState(() {
-                    loading = false;
-                    paymentDropdownList.clear();
-                    paymentDropdownList.addAll(state.data ?? []);
-                  });
-                }
-              },
-            ),
-            BlocListener<VehicleDataBloc, VehicleDataState>(
-                listener: (context, state) {
+      body: body,
+      drawer: const DrawerView(),
+    ) : body;
+  }
+
+  Widget get body => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+          create: (context) => cohortsBloc..add(const GetCohortsData())),
+      BlocProvider(
+          create: (context) =>
+          vehicleDataBloc..add(const GetAddedVehicleListData())),
+    ],
+    child: MultiBlocListener(
+      listeners: [
+        BlocListener<TodoViewBloc, TodoViewState>(
+          listener: (context, state) {
+            if (state is TodoListLoading) {
+              loading = true;
+            } else if (state is CohortsListLoaded) {
+              loading = false;
+              categoryDropdownList.clear();
+              expenseDropdownList.addAll(state.expenseData ?? []);
+              categoryDropdownList.addAll(state.expenseData ?? []);
+              subCategoryDropdownList = state.expenseData!
+                  .where((category) =>
+              category['id'].toString() == 'category_id'.toString())
+                  .map((category) => category['sub_categories'] ?? [])
+                  .expand((subcategoryList) => subcategoryList)
+                  .toList();
+            } else if (state is PaymentListLoaded) {
+              setState(() {
+                loading = false;
+                paymentDropdownList.clear();
+                paymentDropdownList.addAll(state.data ?? []);
+              });
+            }
+          },
+        ),
+        BlocListener<VehicleDataBloc, VehicleDataState>(
+            listener: (context, state) {
               setState(() {
                 if (state is VehicleListLoaded) {
                   loading = false;
@@ -176,17 +181,16 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                 }
               });
             })
-          ],
-          child: BlocBuilder<TodoViewBloc, TodoViewState>(
-              builder: (context, state) {
+      ],
+      child: BlocBuilder<TodoViewBloc, TodoViewState>(
+          builder: (context, state) {
             return Stack(
               children: [
                 SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        if (widget.showHeader)
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      if (widget.showHeader)
                         Row(
                           children: [
                             GestureDetector(
@@ -202,323 +206,323 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             ),
                           ],
                         ),
-                        if (widget.showHeader)
-                          const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppC.blue,
-                                      width: Num.borderWidthField,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(Num.subradiusButton),
-                                    ),
-                                  ),
-                                  child: Utils.getOutlinedButton(
-                                    'Upload',
-                                    () => _pickImage(ImageSource.gallery),
-                                    iconData: const Icon(
-                                      Icons.cloud_upload,
-                                      color: AppC.blue,
-                                      size: 18,
-                                    ),
-                                    verticalPadding: 0,
-                                    radius: BorderRadius.zero,
-                                    bgColor: AppC.trans,
-                                    borderColor: AppC.trans,
-                                    textColor: AppC.blue,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: SizedBox(
-                                height: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppC.redAccent,
-                                      width: Num.borderWidthField,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(Num.subradiusButton),
-                                    ),
-                                  ),
-                                  child: Utils.getOutlinedButton(
-                                    'Capture',
-                                    () => _pickImage(ImageSource.camera),
-                                    iconData: const Icon(
-                                      Icons.camera_enhance,
-                                      color: AppC.redAccent,
-                                      size: 18,
-                                    ),
-                                    verticalPadding: 0,
-                                    radius: BorderRadius.zero,
-                                    bgColor: AppC.trans,
-                                    borderColor: AppC.trans,
-                                    textColor: AppC.redAccent,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      if (widget.showHeader)
                         const SizedBox(height: 10),
-                        if (_images.isNotEmpty)
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: _images.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                File image = entry.value;
-                                return Stack(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 10),
-                                      child: Image.file(
-                                        image,
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 10,
-                                      top: -15,
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(
-                                                Icons.remove_red_eye,
-                                                color: Colors.white,
-                                                size: 20),
-                                            onPressed: () => _viewImage(image),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.clear,
-                                                color: Colors.white, size: 20),
-                                            onPressed: () =>
-                                                _removeImage(index),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 35,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppC.blue,
+                                    width: Num.borderWidthField,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(Num.subradiusButton),
+                                  ),
+                                ),
+                                child: Utils.getOutlinedButton(
+                                  'Upload',
+                                      () => _pickImage(ImageSource.gallery),
+                                  iconData: const Icon(
+                                    Icons.cloud_upload,
+                                    color: AppC.blue,
+                                    size: 18,
+                                  ),
+                                  verticalPadding: 0,
+                                  radius: BorderRadius.zero,
+                                  bgColor: AppC.trans,
+                                  borderColor: AppC.trans,
+                                  textColor: AppC.blue,
+                                ),
+                              ),
                             ),
                           ),
-                        if (widget.showHeader)
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: SizedBox(
+                              height: 35,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppC.redAccent,
+                                    width: Num.borderWidthField,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(Num.subradiusButton),
+                                  ),
+                                ),
+                                child: Utils.getOutlinedButton(
+                                  'Capture',
+                                      () => _pickImage(ImageSource.camera),
+                                  iconData: const Icon(
+                                    Icons.camera_enhance,
+                                    color: AppC.redAccent,
+                                    size: 18,
+                                  ),
+                                  verticalPadding: 0,
+                                  radius: BorderRadius.zero,
+                                  bgColor: AppC.trans,
+                                  borderColor: AppC.trans,
+                                  textColor: AppC.redAccent,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (_images.isNotEmpty)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: _images.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              File image = entry.value;
+                              return Stack(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: Image.file(
+                                      image,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 10,
+                                    top: -15,
+                                    child: Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                              Icons.remove_red_eye,
+                                              color: Colors.white,
+                                              size: 20),
+                                          onPressed: () => _viewImage(image),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.clear,
+                                              color: Colors.white, size: 20),
+                                          onPressed: () =>
+                                              _removeImage(index),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      if (widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
-                        if (widget.showHeader)
+                      if (widget.showHeader)
                         Utils.getTextFormField(
                             '', vehicleController,
                             label: Utils.getText('Vehicle',
                                 color: AppC.grey),
                             onChangeCallback: (value) async {
-                                                    setState(() {
-                        vehicleSuggestionList.clear();
-                        if (value.isNotEmpty) {
-                          List taskList = vehicleNameList
-                              .map((e) => e['vehicle_name'] ?? '')
-                              .toList();
-                          vehicleSuggestionList
-                              .addAll(Utils.searchList(taskList, value));
-                          showVehicleList =
-                              vehicleSuggestionList.isNotEmpty;
-                        } else {
-                          showVehicleList = false;
-                        }
-                                                    });
-                                                  }),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Utils
-                                  .getTextFormField(
-                                '',
-                                amountController,
-                                label: Utils.getText('Amount in dollars',
-                                    color: AppC.grey),
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Container(
-                                height: 35,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: AppC.fieldBase,
-                                      width: Num.borderWidthField),
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(Num.subradiusButton)),
-                                ),
-                                child: DropdownButton<String>(
-                                  hint: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Utils.getText('Select',
-                                        color: AppC.grey),
-                                  ),
-                                  value: selectedPayment,
-                                  isExpanded: true,
-                                  icon: const Icon(Icons.arrow_drop_down),
-                                  elevation: 3,
-                                  dropdownColor: AppC.white,
-                                  underline: Container(
-                                    height: 0,
-                                    color: Colors.transparent,
-                                  ),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedPayment = value;
-                                    });
-                                  },
-                                  items: paymentDropdownList
-                                      .map<DropdownMenuItem<String>>((value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value['id'].toString(),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10.0),
-                                        child: Utils.getText(
-                                            '${value['name'].trim()}'),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                            '', vehicleController,
-                            label: Utils.getText('Enter Description',
-                                color: AppC.grey)),
-                        const SizedBox(height: 10),
-                        Container(
-                          height: 35,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: AppC.fieldBase,
-                                width: Num.borderWidthField),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton)),
-                          ),
-                          child: DropdownButton<String>(
-                            hint: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Utils.getText('Select Category',
-                                  color: AppC.grey),
-                            ),
-                            value: selectedCategory,
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            elevation: 3,
-                            dropdownColor: AppC.white,
-                            underline: Container(
-                              height: 0,
-                              color: Colors.transparent,
-                            ),
-                            onChanged: (value) {
                               setState(() {
-                                selectedCategory = value;
-                                selectedSubCategory = null;
-                                subCategoryDropdownList.clear();
-
-                                if (value != null) {
-                                  subCategoryDropdownList = (state
-                                          as CohortsListLoaded)
-                                      .expenseData!
-                                      .where((category) =>
-                                          category['id'].toString() ==
-                                          value.toString())
-                                      .map((category) =>
-                                          category['sub_categories'] ?? [])
-                                      .expand(
-                                          (subcategoryList) => subcategoryList)
+                                vehicleSuggestionList.clear();
+                                if (value.isNotEmpty) {
+                                  List taskList = vehicleNameList
+                                      .map((e) => e['vehicle_name'] ?? '')
                                       .toList();
+                                  vehicleSuggestionList
+                                      .addAll(Utils.searchList(taskList, value));
+                                  showVehicleList =
+                                      vehicleSuggestionList.isNotEmpty;
+                                } else {
+                                  showVehicleList = false;
                                 }
                               });
-                            },
-                            items: categoryDropdownList
-                                .map<DropdownMenuItem<String>>(
-                              (value) {
-                                return DropdownMenuItem<String>(
-                                  value: value['id'].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Utils.getText('${value['name']}'),
-                                  ),
-                                );
-                              },
-                            ).toList(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          height: 35,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: AppC.fieldBase,
-                                width: Num.borderWidthField),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton)),
-                          ),
-                          child: DropdownButton<String>(
-                            hint: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Utils.getText('Select SubCategory',
+                            }),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Utils
+                                .getTextFormField(
+                              '',
+                              amountController,
+                              label: Utils.getText('Amount in dollars',
                                   color: AppC.grey),
                             ),
-                            value: selectedSubCategory,
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            elevation: 3,
-                            dropdownColor: AppC.white,
-                            underline: Container(
-                              height: 0,
-                              color: Colors.transparent,
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedSubCategory = value;
-                              });
-                            },
-                            items: subCategoryDropdownList
-                                .map<DropdownMenuItem<String>>(
-                              (value) {
-                                return DropdownMenuItem<String>(
-                                  value: value['id'].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Utils.getText('${value['name']}'),
-                                  ),
-                                );
-                              },
-                            ).toList(),
                           ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Container(
+                              height: 35,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: AppC.fieldBase,
+                                    width: Num.borderWidthField),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(Num.subradiusButton)),
+                              ),
+                              child: DropdownButton<String>(
+                                hint: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Utils.getText('Select',
+                                      color: AppC.grey),
+                                ),
+                                value: selectedPayment,
+                                isExpanded: true,
+                                icon: const Icon(Icons.arrow_drop_down),
+                                elevation: 3,
+                                dropdownColor: AppC.white,
+                                underline: Container(
+                                  height: 0,
+                                  color: Colors.transparent,
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedPayment = value;
+                                  });
+                                },
+                                items: paymentDropdownList
+                                    .map<DropdownMenuItem<String>>((value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value['id'].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0),
+                                      child: Utils.getText(
+                                          '${value['name'].trim()}'),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Utils.getTextFormField(
+                          '', vehicleController,
+                          label: Utils.getText('Enter Description',
+                              color: AppC.grey)),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 35,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(Num.subradiusButton)),
                         ),
-                        if (widget.showHeader)
+                        child: DropdownButton<String>(
+                          hint: Padding(
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Utils.getText('Select Category',
+                                color: AppC.grey),
+                          ),
+                          value: selectedCategory,
+                          isExpanded: true,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          elevation: 3,
+                          dropdownColor: AppC.white,
+                          underline: Container(
+                            height: 0,
+                            color: Colors.transparent,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCategory = value;
+                              selectedSubCategory = null;
+                              subCategoryDropdownList.clear();
+
+                              if (value != null) {
+                                subCategoryDropdownList = (state
+                                as CohortsListLoaded)
+                                    .expenseData!
+                                    .where((category) =>
+                                category['id'].toString() ==
+                                    value.toString())
+                                    .map((category) =>
+                                category['sub_categories'] ?? [])
+                                    .expand(
+                                        (subcategoryList) => subcategoryList)
+                                    .toList();
+                              }
+                            });
+                          },
+                          items: categoryDropdownList
+                              .map<DropdownMenuItem<String>>(
+                                (value) {
+                              return DropdownMenuItem<String>(
+                                value: value['id'].toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Utils.getText('${value['name']}'),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 35,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(Num.subradiusButton)),
+                        ),
+                        child: DropdownButton<String>(
+                          hint: Padding(
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Utils.getText('Select SubCategory',
+                                color: AppC.grey),
+                          ),
+                          value: selectedSubCategory,
+                          isExpanded: true,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          elevation: 3,
+                          dropdownColor: AppC.white,
+                          underline: Container(
+                            height: 0,
+                            color: Colors.transparent,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedSubCategory = value;
+                            });
+                          },
+                          items: subCategoryDropdownList
+                              .map<DropdownMenuItem<String>>(
+                                (value) {
+                              return DropdownMenuItem<String>(
+                                value: value['id'].toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Utils.getText('${value['name']}'),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ),
+                      if (widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
-                        if (widget.showHeader)
+                      if (widget.showHeader)
                         Container(
                           height: 35,
                           decoration: BoxDecoration(
@@ -531,7 +535,7 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                           child: DropdownButton<String>(
                             hint: Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              const EdgeInsets.symmetric(horizontal: 10.0),
                               child: Utils.getText('Select ExpenseTo',
                                   color: AppC.grey),
                             ),
@@ -550,25 +554,25 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                               });
                             },
                             items: expenseToData.map<DropdownMenuItem<String>>(
-                              (value) {
+                                  (value) {
                                 return DropdownMenuItem<String>(
                                   value: value['id'].toString(),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10.0),
                                     child:
-                                        Utils.getText('${value['expense_to']}'),
+                                    Utils.getText('${value['expense_to']}'),
                                   ),
                                 );
                               },
                             ).toList(),
                           ),
                         ),
-                        if (widget.showHeader)
+                      if (widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
-                        if (widget.showHeader)
+                      if (widget.showHeader)
                         Stack(
                           alignment: Alignment.centerRight,
                           children: [
@@ -595,8 +599,8 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                                   if (value != null) {
                                     dateController.text =
                                         Utils.convertDateTimeToTheFormat(
-                                      value.toString(),
-                                    );
+                                          value.toString(),
+                                        );
                                   }
                                 });
                               },
@@ -613,11 +617,11 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                               ),
                           ],
                         ),
-                        if (!widget.showHeader)
+                      if (!widget.showHeader)
                         const SizedBox(
                           height: 10,
                         ),
-                        if (!widget.showHeader)
+                      if (!widget.showHeader)
                         Stack(alignment: Alignment.centerRight, children: [
                           Utils.getTextFormField(
                             '',
@@ -650,33 +654,32 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             ],
                           ),
                         ]),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Utils.getAddFilledButton(
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Utils.getAddFilledButton(
                               'Save',
-                              () {
+                                  () {
                                 // _save();
                               },
                               bgColor: AppC.green
-                            ),
-                            if (!widget.showHeader)
+                          ),
+                          if (!widget.showHeader)
                             const SizedBox(width: 10,),
-                            if (!widget.showHeader)
-                              Utils.getAddFilledButton(
-                                'Save Category',
-                                    () {
-                                  // _save();
-                                },
-                                bgColor: AppC.appColor,
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          if (!widget.showHeader)
+                            Utils.getAddFilledButton(
+                              'Save Category',
+                                  () {
+                                // _save();
+                              },
+                              bgColor: AppC.appColor,
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 Visibility(
@@ -690,16 +693,16 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                       padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Utils.customAutoCompleteList(
                         vehicleSuggestionList,
-                        (index) {
+                            (index) {
                           setState(() {
                             showVehicleList = false;
                             vehicleController.text =
-                                vehicleSuggestionList[index];
+                            vehicleSuggestionList[index];
                             vehicleController.selection =
                                 TextSelection.fromPosition(
-                              TextPosition(
-                                  offset: vehicleController.text.length),
-                            );
+                                  TextPosition(
+                                      offset: vehicleController.text.length),
+                                );
                           });
                         },
                       ),
@@ -712,9 +715,6 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
               ],
             );
           }),
-        ),
-      ),
-      drawer: const DrawerView(),
-    );
-  }
+    ),
+  );
 }

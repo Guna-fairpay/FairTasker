@@ -1,14 +1,14 @@
 //
 // import 'package:fairpytasker/Response/create_expense_field_data.dart';
-// import 'package:fairpytasker/Bloc/todo_view_bloc.dart' as tvb;
-// import 'package:fairpytasker/Event/todo_view_event.dart';
-// import 'package:fairpytasker/State/todo_view_state.dart';
+// import 'package:fairpytasker/bloc/todo_view_bloc.dart' as tvb;
+// import 'package:fairpytasker/event/todo_view_event.dart';
+// import 'package:fairpytasker/state/todo_view_state.dart';
 // import 'package:fairpytasker/Utilities/appC.dart';
 // import 'package:fairpytasker/Utilities/num.dart';
 // import 'package:fairpytasker/Utilities/str.dart';
 // import 'package:fairpytasker/Utilities/utils.dart';
 // import 'package:fairpytasker/Response/create_vehicle_data.dart';
-// import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
+// import 'package:fairpytasker/bloc/vehicle_data_bloc.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 //
@@ -16,10 +16,10 @@
 //   const TaskComponentUI({Key? key}) : super(key: key);
 //
 //   @override
-//   State<TaskComponentUI> createState() => _TaskComponentUIState();
+//   state<TaskComponentUI> createState() => _TaskComponentUIState();
 // }
 //
-// class _TaskComponentUIState extends State<TaskComponentUI> with TickerProviderStateMixin {
+// class _TaskComponentUIState extends state<TaskComponentUI> with TickerProviderStateMixin {
 //   late tvb.TodoViewBloc todoViewBloc;
 //   TextEditingController nameController = TextEditingController();
 //   TextEditingController amountController = TextEditingController();

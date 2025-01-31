@@ -30,7 +30,7 @@ class _TuroReservationState extends State<TuroReservation> {
 
   @override
   void dispose() {
-    textUploadBloc.close(); // Close the Bloc to prevent memory leaks
+    textUploadBloc.close(); // Close the bloc to prevent memory leaks
     uploadTaskController.dispose(); // Dispose of the controller as well
     super.dispose();
   }
