@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../UI/CheckIn CheckOut/UI/reason_employee_task_history.dart';
-import '../Utilities/Utils.dart';
-import '../Utilities/appC.dart';
+import '../UI/reason_employee_task_history.dart';
+import '../../../Utilities/Utils.dart';
+import '../../../Utilities/appC.dart';
 
 class TaskExpansionListTile extends StatelessWidget {
   final String leadingText;
