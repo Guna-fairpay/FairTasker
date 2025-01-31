@@ -81,7 +81,7 @@ dependencies:
   fbroadcast: ^2.0.0
   flutter_easyloading: ^3.0.5
   dropdown_button2: ^2.3.9
-
+  flutter_video_thumbnail_plus: ^1.0.5
   timeagoago: ^0.0.4
   timezone: ^0.10.0
   video_player: ^2.9.2

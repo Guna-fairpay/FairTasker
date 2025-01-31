@@ -11,23 +11,27 @@ class VideoPlayerView extends StatefulWidget {
   final bool showMediaControllers;
   final bool enableAudio;
   final bool fillHeight;
+  final bool autoPlay;
 
   const VideoPlayerView(
       {super.key,
       required this.videoInput,
+      this.autoPlay = true,
       this.showMediaControllers = true,
       this.enableAudio = true,
-      this.fillHeight = false}) : assert(fillHeight == true || showMediaControllers == true,
-  'Cannot provide both a fillHeight and a showMediaControllers\n'
-      'Can able to provide any one at a time".',
-  );
+      this.fillHeight = false})
+      : assert(
+          fillHeight == true || showMediaControllers == true,
+          'Cannot provide both a fillHeight and a showMediaControllers\n'
+          'Can able to provide any one at a time".',
+        );
 
   @override
   State<VideoPlayerView> createState() => _VideoPlayerViewState();
 }
 
 class _VideoPlayerViewState extends State<VideoPlayerView> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   double playSpeed = 1.0;
   double maxSpeed = 5.0;
   double minSpeed = 0.25;
@@ -37,16 +41,18 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   void initState() {
     if (widget.videoInput is String) {
       // URL
-      _controller = VideoPlayerController.networkUrl(
-          Uri.parse(widget.videoInput),
-          videoPlayerOptions: VideoPlayerOptions(
-            allowBackgroundPlayback: false,
-            mixWithOthers: false,
-          ))
-        ..initialize().then((value) {
-          _controller.setLooping(true);
-          if (!widget.enableAudio) _controller.setVolume(0);
-        }).whenComplete(() => _controller.play().whenComplete(() => _setState));
+      _controller =
+          VideoPlayerController.networkUrl(Uri.parse(widget.videoInput),
+              videoPlayerOptions: VideoPlayerOptions(
+                allowBackgroundPlayback: false,
+                mixWithOthers: false,
+              ))
+            ..initialize().then((value) {
+              if (widget.autoPlay) _controller?.setLooping(true);
+              if (!widget.enableAudio) _controller?.setVolume(0);
+              if (widget.autoPlay) _controller?.play();
+              _setState;
+            });
     } else if (widget.videoInput is File) {
       // File
       _controller = VideoPlayerController.file(widget.videoInput,
@@ -55,16 +61,18 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
             mixWithOthers: false,
           ))
         ..initialize().then((value) {
-          _controller.setLooping(true);
-          if (!widget.enableAudio) _controller.setVolume(0);
-        }).whenComplete(() => _controller.play().whenComplete(() => _setState));
+          if (widget.autoPlay) _controller?.setLooping(true);
+          if (!widget.enableAudio) _controller?.setVolume(0);
+          if (widget.autoPlay) _controller?.play();
+          _setState;
+        });
     }
     super.initState();
   }
 
   @override
   void dispose() async {
-    _controller.dispose();
+    _controller?.dispose();
     log("Dispose", name: "VideoPlayerView");
     super.dispose();
   }
@@ -76,10 +84,10 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   }
 
   void rewind() async {
-    var currentSpeed = _controller.value.playbackSpeed;
+    var currentSpeed = _controller?.value.playbackSpeed ?? 0;
     if (currentSpeed > minSpeed) {
-      await _controller.setPlaybackSpeed(currentSpeed - minSpeed);
-      playSpeed = _controller.value.playbackSpeed;
+      await _controller?.setPlaybackSpeed(currentSpeed - minSpeed);
+      playSpeed = _controller?.value.playbackSpeed ?? 0;
       showSpeed = true;
       _setState;
       await Future.delayed(const Duration(seconds: 1));
@@ -89,10 +97,10 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
   }
 
   void faster() async {
-    var currentSpeed = _controller.value.playbackSpeed;
+    var currentSpeed = _controller?.value.playbackSpeed ?? 0;
     if (currentSpeed < maxSpeed) {
-      await _controller.setPlaybackSpeed(currentSpeed + minSpeed);
-      playSpeed = _controller.value.playbackSpeed;
+      await _controller?.setPlaybackSpeed(currentSpeed + minSpeed);
+      playSpeed = _controller?.value.playbackSpeed ?? 0;
       showSpeed = true;
       _setState;
       await Future.delayed(const Duration(seconds: 1));
@@ -103,25 +111,25 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
 
   @override
   Widget build(BuildContext context) {
-    return _controller.value.isInitialized
+    return (_controller?.value.isInitialized ?? false)
         ? (widget.fillHeight)
             ? AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: Stack(
-                children: [
-                  VideoPlayer(_controller),
-                  if (showSpeed)
-                    Center(
-                      child: Text(
-                        "$playSpeed",
-                        style: context.textTheme.titleLarge?.copyWith(
-                            color: Colors.white60,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    )
-                ],
-              ),
-            )
+                aspectRatio: _controller?.value.aspectRatio ?? 0,
+                child: Stack(
+                  children: [
+                    if (_controller != null) VideoPlayer(_controller!),
+                    if (showSpeed)
+                      Center(
+                        child: Text(
+                          "$playSpeed",
+                          style: context.textTheme.titleLarge?.copyWith(
+                              color: Colors.white60,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      )
+                  ],
+                ),
+              )
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -137,10 +145,11 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                       children: [
                         Flexible(
                           child: AspectRatio(
-                            aspectRatio: _controller.value.aspectRatio,
+                            aspectRatio: _controller?.value.aspectRatio ?? 0,
                             child: Stack(
                               children: [
-                                VideoPlayer(_controller),
+                                if (_controller != null)
+                                  VideoPlayer(_controller!),
                                 if (showSpeed)
                                   Center(
                                     child: Text(
@@ -168,18 +177,22 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                                         const Icon(Icons.fast_rewind_rounded)),
                                 IconButton(
                                     onPressed: () async {
-                                      await (_controller.value.isPlaying
-                                          ? _controller.pause()
-                                          : (_controller.value.isCompleted)
-                                              ? _controller.setLooping(true)
-                                              : _controller.play());
+                                      await ((_controller?.value.isPlaying ??
+                                              false)
+                                          ? _controller?.pause()
+                                          : (_controller?.value.isCompleted ??
+                                                  false)
+                                              ? _controller?.setLooping(true)
+                                              : _controller?.play());
                                       _setState;
                                     },
-                                    icon: Icon((_controller.value.isPlaying)
-                                        ? Icons.pause_rounded
-                                        : (_controller.value.isCompleted)
-                                            ? Icons.replay_rounded
-                                            : Icons.play_arrow_rounded)),
+                                    icon: Icon(
+                                        (_controller?.value.isPlaying ?? false)
+                                            ? Icons.pause_rounded
+                                            : (_controller?.value.isCompleted ??
+                                                    false)
+                                                ? Icons.replay_rounded
+                                                : Icons.play_arrow_rounded)),
                                 IconButton(
                                     onPressed: faster,
                                     icon:
@@ -192,7 +205,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                   ),
                 ],
               )
-        : (_controller.value.hasError)
+        : (_controller?.value.hasError ?? false)
             ? Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

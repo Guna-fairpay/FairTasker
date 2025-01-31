@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
 abstract class FBEditEvents extends Equatable {
@@ -28,6 +30,15 @@ class FBFeedRemoveAttachmentEvent extends FBEditEvents {
   FBFeedRemoveAttachmentEvent(this.attachment);
   @override
   List<Object?> get props => [attachment];
+}
+
+class FBFeedViewAttachmentEvent extends FBEditEvents {
+  final dynamic attachment;
+  final List<dynamic> attachments;
+  FBFeedViewAttachmentEvent(this.attachment, this.attachments);
+  @override
+  List<Object?> get props => [attachment, attachments, Random().nextDouble()];
+
 }
 
 

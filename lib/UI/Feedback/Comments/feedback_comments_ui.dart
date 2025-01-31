@@ -1,5 +1,11 @@
 import 'dart:io';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -10,6 +16,134 @@ import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'comments_add_ui.dart';
 import 'comments_edit_ui.dart';
+
+class FeedbackEditComments extends StatelessWidget {
+  const FeedbackEditComments({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<FBEditBloc, FBEditStates>(
+        buildWhen: (previous, current) =>
+            current is FBFeedbackState || current is FBCommentState,
+        builder: (context, state) => (state is FBCommentState)
+            ? Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 12,
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                          var model = state.comments[index];
+                          return Slidable(
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (context) {},
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: AppC.red,
+                                  icon: Icons.delete_outline,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: Card.outlined(
+                                elevation: 3,
+                                shape: ContinuousRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(16)),
+                                clipBehavior: Clip.antiAliasWithSaveLayer,
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        minVerticalPadding: 0,
+                                        leading: CircleAvatar(
+                                          child: Center(
+                                              child: Utils.getText("I",
+                                                  size: 16,
+                                                  weight: FontWeight.bold,
+                                                  color: AppC.white)),
+                                        ),
+                                        title: Text("${model['users']?['first_name'] ?? ''} ${model['users']['last_name']}"),
+                                        subtitle: const Text("2days ago"),
+                                        trailing:
+                                        const Icon(Icons.open_in_new),
+                                        titleTextStyle: context
+                                            .textTheme.labelLarge
+                                            ?.copyWith(
+                                            fontFamily: "Lato",
+                                            fontWeight: FontWeight.bold),
+                                        subtitleTextStyle: context
+                                            .textTheme.labelSmall
+                                            ?.copyWith(
+                                            fontFamily: "Lato",
+                                            fontWeight:
+                                            FontWeight.normal),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Text(
+                                          "${model['comment']}",
+                                          style:
+                                          context.textTheme.titleMedium,
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: true,
+                                          maxLines: 3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                          },
+                          separatorBuilder: (context, index) => 5.height,
+                          itemCount: state.comments.length),
+                    ),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration:
+                                InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: () {},
+                            style: ButtonStyle(
+                                shape: WidgetStatePropertyAll(
+                                    ContinuousRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(16))),
+                                backgroundColor: WidgetStatePropertyAll(
+                                    context.theme.primaryColor),
+                                elevation: WidgetStatePropertyAll(5),
+                                foregroundColor:
+                                    WidgetStatePropertyAll(Colors.white),
+                                padding: WidgetStatePropertyAll(14.padding)),
+                            icon: Icon(Icons.send))
+                      ],
+                    )
+                  ],
+                ),
+              )
+            : const SizedBox.shrink());
+  }
+}
 
 class CommentsUI extends StatefulWidget {
   const CommentsUI({super.key});
@@ -96,7 +230,8 @@ class _CommentsUIState extends State<CommentsUI> {
   void _addNewComment() async {
     final newComment = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CommentsAddUI(), fullscreenDialog: true),
+      MaterialPageRoute(
+          builder: (context) => const CommentsAddUI(), fullscreenDialog: true),
     );
 
     if (newComment != null) {

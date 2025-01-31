@@ -1,7 +1,7 @@
-import 'package:fairpytasker/Component/attachment_slider_view.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/Component/attachment_slider_view.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 
 class ShowAttachmentsDialog {
@@ -9,10 +9,12 @@ class ShowAttachmentsDialog {
 
   static final ShowAttachmentsDialog of = ShowAttachmentsDialog._();
 
-  void show(BuildContext context,{required List<dynamic> attachments, required String? title}) async {
+  void show(BuildContext context,{required List<dynamic> attachments, required String? title, dynamic currentAttachment}) async {
+    var allAttachments = attachments;
+    allAttachments.removeWhere((element) => element == null);
     await showDialog(
       context: context,
-      builder: (context) => ShowAttachmentsDialogView(attachments: attachments, title: title),
+      builder: (context) => ShowAttachmentsDialogView(attachments: attachments, title: title, currentAttachment: currentAttachment,),
     );
   }
 }
@@ -20,7 +22,8 @@ class ShowAttachmentsDialog {
 class ShowAttachmentsDialogView extends StatelessWidget {
   final List<dynamic> attachments;
   final String? title;
-  const ShowAttachmentsDialogView({super.key, required this.attachments, required this.title});
+  final dynamic currentAttachment;
+  const ShowAttachmentsDialogView({super.key, required this.attachments, required this.title, this.currentAttachment});
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +51,7 @@ class ShowAttachmentsDialogView extends StatelessWidget {
         padding: 15.padding,
         child: AttachmentSliderView(
           attachments: attachments,
+          currentAttachment: currentAttachment,
         ),
       ),
     );

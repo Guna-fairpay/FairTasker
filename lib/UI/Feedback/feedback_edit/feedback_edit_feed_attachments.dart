@@ -1,16 +1,12 @@
-import 'dart:io';
-
-import 'package:fairpytasker/Component/close_badge.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
-import 'package:fairpytasker/Component/video_player_view.dart';
-import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
-import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart' as d;
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:flutter/material.dart';
+import 'package:fairpytasker/Component/image_viewer.dart';
+import 'package:fairpytasker/Component/close_badge.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 
 class FeedbackEditFeedAttachments extends StatelessWidget {
   const FeedbackEditFeedAttachments({super.key});
@@ -29,7 +25,8 @@ class FeedbackEditFeedAttachments extends StatelessWidget {
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10),
               itemBuilder: (context, index) {
-                var model = (context.read<FBEditBloc>().feedAttachments)[index];
+                var models = (context.read<FBEditBloc>().feedAttachments);
+                var model = models[index];
                 return ((index == 0) || (model == null))
                     ? CloseBadge(
                   showClose: false,
@@ -51,6 +48,7 @@ class FeedbackEditFeedAttachments extends StatelessWidget {
                 )
                     : CloseBadge(
                   showClose: (model is! String),
+                  onTapView: () => context.read<FBEditBloc>().add(FBFeedViewAttachmentEvent(model, models)),
                   onTapDelete: () => context.read<FBEditBloc>().add(FBFeedRemoveAttachmentEvent(model)),
                   child: Container(
                     constraints: BoxConstraints(
@@ -61,12 +59,11 @@ class FeedbackEditFeedAttachments extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         color: AppC.grey.withValues(alpha: 0.2)),
                     clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: ((model as Object).isImage) ? ImageViewer(
-                        fit: BoxFit.cover,
-                        imageInput: model) :
-                    (!((model).isImage))
-                    ? VideoPlayerView(videoInput: model, fillHeight: true, showMediaControllers: false, enableAudio: false)
-                    : Container(),
+                    child: ImageViewer(
+                      fit: BoxFit.cover,
+                      imageInput: model,
+                      isNotImage: !((model as Object).isImage),
+                    ),
                   ),
                 );
               },

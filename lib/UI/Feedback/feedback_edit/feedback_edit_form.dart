@@ -4,14 +4,10 @@ import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_feed_attach
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Component/custom_quill_editor.dart';
-import 'package:fairpytasker/Component/video_player_view.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
-import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 
 class FeedbackEditForm extends StatelessWidget {
   const FeedbackEditForm({super.key});
@@ -19,8 +15,8 @@ class FeedbackEditForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FBEditBloc, FBEditStates>(
-        buildWhen: (previous, current) => (current is FBFeedbackState),
-        builder: (context, state) => (state is! FBFeedbackState) ? Container() : Expanded(
+      buildWhen: (previous, current) => current is FBFeedbackState || current is FBCommentState,
+        builder: (context, state) => ((context.read<FBEditBloc>().pageId == 0) && (state is FBFeedbackState)) ? Expanded(
                 child: Form(
                     child: ListView(
               padding: const EdgeInsets.all(10),
@@ -90,6 +86,6 @@ class FeedbackEditForm extends StatelessWidget {
                   child: const Text("Submit"),
                 ),
               ],
-            ))));
+            ))) : SizedBox.shrink());
   }
 }

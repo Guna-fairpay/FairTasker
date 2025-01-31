@@ -19,6 +19,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
   List<dynamic> feedAttachments = [];
   Map<String, dynamic> feedbackResponse = {};
   Map<String, dynamic> commentResponse = {};
+  List<dynamic> comments = [];
   dynamic feedBackId;
   dynamic pageId = 0;
   FBEditBloc() : super(FBLoadingState()) {
@@ -32,6 +33,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         ]);
         feedbackResponse = response[0] ?? {};
         commentResponse = response[1] ?? {};
+        comments = commentResponse['comments'] ?? [];
         feedAttachments = (feedbackResponse['feedback']?['attachments'] ?? []).map((e) => e['path'].toString().toAttachmentURL).toList();
         feedAttachments.insert(0, null);
         feedTitleController = TextEditingController(text: "${feedbackResponse['feedback']?['title']}");
@@ -49,7 +51,11 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
 
     on<FBPageEvent>((event, emit) {
       pageId = event.pageId;
-      emit(pageId == 0 ? FBFeedState() : FBCommentState());
+      emit(pageId == 0 ? (state as FBFeedbackState).copyWith(
+          titleController: feedTitleController,
+          descriptionController: feedDescriptionController,
+          priority: feedbackResponse['feedback']?['priority']
+      ) : FBCommentState(comments));
     });
 
 
@@ -68,6 +74,8 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
       feedAttachments.remove(event.attachment);
       emit(FBFeedAttachmentState(feedAttachments));
     });
+
+    on<FBFeedViewAttachmentEvent>((event, emit) => emit(FBFeedViewAttachmentState(event.attachment, event.attachments)));
 
   }
 

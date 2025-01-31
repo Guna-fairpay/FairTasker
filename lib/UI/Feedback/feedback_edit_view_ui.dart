@@ -4,9 +4,11 @@ import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_form.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_header.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_edit_main_bloc.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_edit_main_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_main_state.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +27,7 @@ class FeedbackEditViewUI extends StatelessWidget {
   const FeedbackEditViewUI({super.key, required this.feedBackId});
 
   @override
-  Widget build(BuildContext context1) {
+  Widget build(BuildContext context) {
     return BlocProvider<FBEditBloc>(
       create: (context) => FBEditBloc()..add(FBInitialEvent(feedBackId)),
       child: BlocListener<FBEditBloc, FBEditStates>(
@@ -38,6 +40,8 @@ class FeedbackEditViewUI extends StatelessWidget {
               Utils.showMobileToast(state.message);
             } else if (state is FBSuccessState) {
               Utils.showMobileToast(state.message);
+            } else if (state is FBFeedViewAttachmentState) {
+              ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "", currentAttachment: state.attachment);
             }
           }
         },
@@ -63,41 +67,12 @@ class FeedbackEditViewUI extends StatelessWidget {
             body: SafeArea(
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  child: Column(
+                  child: const Column(
                     spacing: 5,
                     children: [
-                      Container(
-                        alignment: Alignment.bottomCenter,
-                        decoration: const BoxDecoration(
-                            border:
-                            BorderDirectional(bottom: BorderSide(width: 0.2))),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          spacing: 2,
-                          children: [
-                            FeedbackTabButton(
-                                buttonText: "Feedback",
-                                value: 0,
-                                selectedValue: context.read<FBEditBloc>().pageId,
-                                onPressed: (val) => context
-                                    .read<FeedBackEditMainBloc>()
-                                    .add(FeedBackTabChangeEvent(val))),
-                            FeedbackTabButton(
-                                buttonText: "Comments",
-                                value: 1,
-                                selectedValue: context.read<FBEditBloc>().pageId,
-                                badgeCount: 1,
-                                showBade: true,
-                                onPressed: (val) => context
-                                    .read<FeedBackEditMainBloc>()
-                                    .add(FeedBackTabChangeEvent(val))),
-                            const Spacer()
-                          ],
-                        ),
-                      ),
-                      const FeedbackEditForm(),
-                      // const CommentsUI(),
+                      FeedBackEditHeader(),
+                      FeedbackEditForm(),
+                      FeedbackEditComments(),
                     ],
                   ),
                 )),
