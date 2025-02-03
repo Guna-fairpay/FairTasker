@@ -3030,7 +3030,6 @@ class TodoListRepo {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data";
       debugPrint("getAssignedTo apiUrl: $apiUrl");
-
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         if (response.statusCode == 200) {

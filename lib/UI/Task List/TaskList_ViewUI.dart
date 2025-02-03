@@ -7,13 +7,15 @@ import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../Component/drawer_ui.dart';
-import '../Component/header.dart';
-import '../Event/todo_view_event.dart';
-import '../Utilities/appC.dart';
-import '../Utilities/num.dart';
-import '../Utilities/utils.dart';
+import '../../Component/drawer_ui.dart';
+import '../../Component/header.dart';
+import '../../Event/todo_view_event.dart';
+import '../../Utilities/appC.dart';
+import '../../Utilities/num.dart';
+import '../../Utilities/utils.dart';
 import 'package:intl/intl.dart';
+
+import 'Popup/text_Popup.dart';
 
 class TaskListViewUI extends StatefulWidget {
   const TaskListViewUI({super.key});
@@ -40,17 +42,17 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
   void initState() {
     todoViewBloc = TodoViewBloc();
     taskListBloc = TaskListBloc();
-    filteredTasks = tasks;
     DateTime now = DateTime.now();
-
     selectedDateRange = DateRange(
       now.subtract(const Duration(days: 7)),
       now,
     );
+    super.initState();
     String startDate = selectedDateRange!.start.toString();
     String endDate = selectedDateRange!.end.toString();
+    //DateFormat('yyyy-MM-dd').format(startDate)
+    todoViewBloc.add(const GetTaskExpense());
     taskListBloc.add(GetTaskListData(startDate, endDate));
-    super.initState();
   }
 
   String formatTimeToAmPm(String? time) {
@@ -65,8 +67,10 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
     }
   }
 
-  void filterTasksByDateRange() {
+  void filterTasksByDateRange()
+  {
     List<Map<String, dynamic>> result = tasks;
+    result.clear();
     if (selectedDateRange != null) {
       result = result.where((item) {
         final dateParts = item['date']?.split(' to ');
@@ -81,13 +85,57 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
       }).toList();
     }
     setState(() {
+      filteredTasks.clear();
       filteredTasks = result;
     });
   }
+  List<Map<String, dynamic>> overtimeTakenData = [];
+
+  int timeToMinutes(String timeString) {
+    List<String> parts = timeString.split(':');
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    return hours * 60 + minutes;
+  }
+int? hours,minutes,remainder_minutes;
+  void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData, List<Map<String, dynamic>> filteredTasks) {
+    overtimeTakenData.clear();
+    for (var item in filteredTasks) {
+      if (item['complete_time_taken'] != null) {
+        String taskName = item['title'].contains('-')
+            ? item['title'].split('-')[0].toLowerCase().replaceAll(' ', '')
+            : item['title'].toLowerCase().replaceAll(' ', '');
+
+        dynamic matchingRecord = expenseData.firstWhere(
+              (record) => record['task'].toLowerCase().replaceAll(' ', '') == taskName,
+          orElse: () => {},
+        );
+
+        if (matchingRecord == null) continue;
+
+        int timeTaken = matchingRecord['time_taken'] is String
+            ? int.tryParse(matchingRecord['time_taken']) ?? 0
+            : 0;
+
+        int completedTime = timeToMinutes(item['complete_time_taken']);
+
+        if (completedTime != timeTaken && item['complete_time_approved'] == 0) {
+          int overtimeTaken = completedTime - timeTaken;
+          int hours = overtimeTaken ~/ 60;
+          int remainder_minutes = overtimeTaken % 60;
+          Map<String, dynamic> fullRecord = Map<String, dynamic>.from(item);
+          fullRecord['overtime'] = '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          overtimeTakenData.add(fullRecord);
+        }
+      }
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context)
+  {
+    return
+      Scaffold(
       backgroundColor: AppC.white,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(35.0),
@@ -100,18 +148,19 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
           BlocProvider(
               create: (context) => taskListBloc
                 ..add(GetTaskListData(
-                  selectedDateRange!.start.toString(),
-                  selectedDateRange!.end.toString(),
+                  DateFormat('yyyy-MM-dd').format(selectedDateRange!.start),
+                  DateFormat('yyyy-MM-dd').format(selectedDateRange!.end),
                 ))),
         ],
         child: MultiBlocListener(
           listeners: [
             BlocListener<TodoViewBloc, TodoViewState>(
               listener: (context, state) {
-                if (state is CohortsListLoaded) {
+                if (state is TaskExpenseLoaded) {
                   setState(() {
                     expenseData.clear();
-                    expenseData.addAll(state.expenseData ?? []);
+                    expenseData.addAll(state.resource ?? []);
+                    //print("expenseData $expenseData");
                   });
                 }
               },
@@ -125,6 +174,8 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                     loading = false;
                     tasks.clear();
                     tasks.addAll(state.data);
+                    //print("tasks ${tasks[3]['title']}");
+                    filteredTasks.clear();
                     filteredTasks = List.from(state.data);
                   } else {
                     loading = false; // Set loading to false for other states
@@ -132,6 +183,7 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                 });
               },
             ),
+
           ],
           child: Stack(
             children: [
@@ -173,7 +225,8 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                 ),
                               ),
                               selectedDateRange: selectedDateRange,
-                              onDateRangeSelected: (DateRange? value) {
+                              onDateRangeSelected: (DateRange? value)
+                              {
                                 setState(() {
                                   selectedDateRange = value;
                                   String startDate =
@@ -208,7 +261,10 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                                   task['todo_user_type'] != 1)
                                               .toList();
                                         } else {
-                                          filteredTasks = List.from(tasks);
+                                          setState(() {
+                                            filteredTasks.clear();
+                                            filteredTasks = List.from(tasks);
+                                          });
                                         }
                                       });
                                     },
@@ -223,10 +279,23 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                   height: 15,
                                   child: Checkbox(
                                     value: extraHours,
-                                    onChanged: (bool? value) {
+                                    onChanged: (bool? value)
+                                    {
                                       setState(() {
                                         extraHours = value ?? false;
-                                        // Optionally, filter tasks by the checkbox value here
+                                        overtimeTakenData.clear(); // Ensure old data is cleared
+                                        if (extraHours) {
+                                          // Recalculate overtime taken
+                                          calculateOvertimeTaken(expenseData, tasks);
+
+                                          // Use the updated overtimeTakenData
+                                          filteredTasks.clear();
+                                          filteredTasks = List.from(overtimeTakenData);
+                                        } else {
+                                          // Restore the original list when unchecked
+                                          filteredTasks.clear();
+                                          filteredTasks = List.from(tasks);
+                                        }
                                       });
                                     },
                                   ),
@@ -311,10 +380,11 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                         itemCount: filteredTasks.length,
                         itemBuilder: (context, index) {
                           final taskList = filteredTasks[index];
-                          bool isChecked =
-                              (taskList['complete_time_approved'] == 1);
-
-                          return Card(
+                          bool isChecked = (taskList['complete_time_approved'] == 1);
+                          int vehicleCount = taskList['vehicles'] != null ? taskList['vehicles'].length : 0;
+                          print("filteredTasks ${filteredTasks[index]['title']} ${filteredTasks[index]['overtime']} vehicleCount $vehicleCount");
+                          return
+                            Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
                             color: AppC.white,
                             shape: RoundedRectangleBorder(
@@ -327,24 +397,26 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                 children: [
                                   Row(
                                     children: [
-                                      Utils.getText(taskList['title'] ?? '',
-                                          color: AppC.appColor,
+                                      Utils.getText("${taskList['title'] ?? ''} ",
+                                          color: !isChecked?AppC.red:AppC.appColor,
                                           weight: FontWeight.bold),
                                       Expanded(
-                                        child: Utils.getText(
-                                            '(${taskList['complete_time_taken'] ?? ' '})',
-                                            color: AppC.appColor,
-                                            weight: FontWeight.bold),
+                                        child:
+                                        (taskList['complete_time_taken'] != '' && taskList['complete_time_taken'] != null)?
+                                        Utils.getText(
+                                            "(${taskList['complete_time_taken']})",
+                                            color: !isChecked?AppC.red:AppC.appColor,
+                                            weight: FontWeight.bold): const Text(""),
                                       ),
                                       Utils.getText(
                                           taskList['todo_date']?.substring(5) ??
                                               '',
-                                          color: AppC.appColor),
+                                          color: !isChecked?AppC.red:AppC.appColor),
                                       const SizedBox(width: 5),
                                       Utils.getText(
                                           formatTimeToAmPm(
                                                   taskList['todo_time']),
-                                          color: AppC.appColor),
+                                          color: !isChecked?AppC.red:AppC.appColor),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
@@ -352,19 +424,20 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                     children: [
                                       Expanded(
                                         child: Utils.getText(
-                                            taskList['vehicle_name'] ??
-                                                taskList['person'] ??
-                                                '',
-                                            size: 12),
+                                          taskList['vehicle_name']?.isNotEmpty == true
+                                              ? taskList['vehicle_name']
+                                              : (taskList['vehicles'] != null && taskList['vehicles'].isNotEmpty
+                                              ? (taskList['vehicles'].length > 2 ? "MV" : taskList['vehicles'][0]['vehicle_name'])
+                                              : ""),
+                                          size: 12,
+                                          weight: taskList['vehicles'].length > 2? FontWeight.bold : FontWeight.normal
+                                        )
                                       ),
                                       const SizedBox(width: 5),
-                                      Expanded(
-                                        child: Utils.getText('(P)',
-                                            weight: FontWeight.bold),
-                                      ),
                                       if (taskList['users'] != null)
                                         Utils.getText(
-                                            '${taskList['users']['first_name'][0] ?? ''}${taskList['users']['last_name'][0] ?? ''}'),
+                                            '${taskList['users']['first_name'][0] ?? ''}${taskList['users']['last_name'][0] ?? ''}',
+                                            weight: FontWeight.bold),
                                       const SizedBox(width: 5),
                                       SizedBox(
                                         height: 15,
@@ -373,14 +446,35 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
                                           onChanged: (bool? value) {
                                             setState(() {
                                               isChecked = value ?? false;
-                                              taskList[
-                                                      'complete_time_approved'] =
-                                                  isChecked ? 1 : 0;
+                                              taskList['complete_time_approved'] = isChecked ? 1 : 0;
                                             });
                                           },
                                         ),
                                       ),
                                     ],
+                                  ),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (taskList["overtime"] != null && taskList["overtime"] != '')
+                                          Utils.getText(
+                                            "${taskList["overtime"]} - ",
+                                            color: !isChecked ? AppC.red : AppC.appColor,
+                                            weight: FontWeight.bold,
+                                          ),
+                                        if (taskList["notes_complete"] != null && taskList["notes_complete"] != '')
+                                          Expanded(
+                                              child:
+                                                taskList["notes_complete"].length > 17
+                                                    ? GestureDetector(onTap: (){ TextPopupTask.show(context, taskList["notes_complete"]);},
+                                                  child:
+                                                  Utils.getText("${taskList["notes_complete"].substring(0, 12)}..."),) // Show truncated text
+                                                    : Utils.getText(taskList["notes_complete"]),
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),

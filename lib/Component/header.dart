@@ -9,7 +9,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/UI/Chat/chat_preview_list_ui.dart';
 import 'package:flutter/cupertino.dart';
 import '../State/todo_view_state.dart';
-import '../UI/TaskList_ViewUI.dart';
+import '../UI/Task List/TaskList_ViewUI.dart';
 import '../Utilities/str.dart';
 import '../main.dart';
 import 'bottom_nav_for_task.dart';
