@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 import 'package:fairpytasker/Bloc/task_list_bloc.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
@@ -25,13 +26,17 @@ class TaskListViewUI extends StatefulWidget {
 }
 
 class _TaskListViewUIState extends State<TaskListViewUI> {
+  int? hours, minutes, remainder_minutes;
   late TodoViewBloc todoViewBloc;
   late TaskListBloc taskListBloc;
   TextEditingController dateController = TextEditingController();
   DateRange? selectedDateRange;
+  List<Map<String, dynamic>> overtimeTakenData = [];
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> filteredTasks = [];
   List<Map<String, dynamic>> expenseData = [];
+  List<Map<String, dynamic>> resourceData = [];
+  List<Map<String, dynamic>> resourceGroupData = [];
   bool loading = false;
   bool extraHours = false;
   bool offShore = true;
@@ -52,6 +57,8 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
     String endDate = selectedDateRange!.end.toString();
     //DateFormat('yyyy-MM-dd').format(startDate)
     todoViewBloc.add(const GetTaskExpense());
+    todoViewBloc.add(const GetUserGroupingList());
+    todoViewBloc.add(const GetAssignedToList());
     taskListBloc.add(GetTaskListData(startDate, endDate));
   }
 
@@ -67,8 +74,7 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
     }
   }
 
-  void filterTasksByDateRange()
-  {
+  void filterTasksByDateRange() {
     List<Map<String, dynamic>> result = tasks;
     result.clear();
     if (selectedDateRange != null) {
@@ -89,7 +95,6 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
       filteredTasks = result;
     });
   }
-  List<Map<String, dynamic>> overtimeTakenData = [];
 
   int timeToMinutes(String timeString) {
     List<String> parts = timeString.split(':');
@@ -97,8 +102,9 @@ class _TaskListViewUIState extends State<TaskListViewUI> {
     int minutes = int.parse(parts[1]);
     return hours * 60 + minutes;
   }
-int? hours,minutes,remainder_minutes;
-  void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData, List<Map<String, dynamic>> filteredTasks) {
+
+  void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData,
+      List<Map<String, dynamic>> filteredTasks) {
     overtimeTakenData.clear();
     for (var item in filteredTasks) {
       if (item['complete_time_taken'] != null) {
@@ -107,35 +113,82 @@ int? hours,minutes,remainder_minutes;
             : item['title'].toLowerCase().replaceAll(' ', '');
 
         dynamic matchingRecord = expenseData.firstWhere(
-              (record) => record['task'].toLowerCase().replaceAll(' ', '') == taskName,
+          (record) =>
+              record['task'].toLowerCase().replaceAll(' ', '') == taskName,
           orElse: () => {},
         );
-
         if (matchingRecord == null) continue;
 
         int timeTaken = matchingRecord['time_taken'] is String
             ? int.tryParse(matchingRecord['time_taken']) ?? 0
             : 0;
-
         int completedTime = timeToMinutes(item['complete_time_taken']);
-
         if (completedTime != timeTaken && item['complete_time_approved'] == 0) {
           int overtimeTaken = completedTime - timeTaken;
           int hours = overtimeTaken ~/ 60;
           int remainder_minutes = overtimeTaken % 60;
           Map<String, dynamic> fullRecord = Map<String, dynamic>.from(item);
-          fullRecord['overtime'] = '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          fullRecord['overtime'] =
+              '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
           overtimeTakenData.add(fullRecord);
         }
       }
     }
   }
 
+  List<String> getUserInitials(
+      int groupId,
+      List<Map<String, dynamic>> groupList,
+      List<Map<String, dynamic>> resource) {
+    List<String> userInitials = [];
+
+    // Find matching group safely
+    final matchingGroup = groupList.firstWhere(
+      (item) => item['id'] == groupId,
+      orElse: () => {'userId': []}, // Ensure fallback is correct
+    );
+
+    // Extract user IDs safely
+    var userIdData = matchingGroup['userId'];
+
+    // Ensure userId is a List<int>
+    List<int> userIds;
+    if (userIdData is List) {
+      userIds = List<int>.from(userIdData);
+    } else if (userIdData is String) {
+      // If userId is mistakenly a comma-separated string, split and convert to integers
+      userIds = userIdData
+          .split(',')
+          .map((e) => int.tryParse(e.trim()) ?? 0)
+          .where((e) => e != 0)
+          .toList();
+    } else {
+      userIds = [];
+    }
+
+    // Iterate over user IDs
+    for (int userId in userIds) {
+      // Find matching resource
+      Map<String, dynamic>? user = resource.firstWhere(
+        (res) => res['id'] == userId,
+        orElse: () => {},
+      );
+
+      if (user.isNotEmpty) {
+        String firstInitial =
+            user['first_name'].isNotEmpty ? user['first_name'][0] : "";
+        String lastInitial =
+            user['last_name'].isNotEmpty ? user['last_name'][0] : "";
+        userInitials.add("$firstInitial$lastInitial");
+      }
+    }
+
+    return userInitials;
+  }
+
   @override
-  Widget build(BuildContext context)
-  {
-    return
-      Scaffold(
+  Widget build(BuildContext context) {
+    return Scaffold(
       backgroundColor: AppC.white,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(35.0),
@@ -162,6 +215,16 @@ int? hours,minutes,remainder_minutes;
                     expenseData.addAll(state.resource ?? []);
                     //print("expenseData $expenseData");
                   });
+                } else if (state is UserGroupListLoaded) {
+                  resourceGroupData.clear();
+                  resourceGroupData.addAll(state.userGroupDataList
+                      as Iterable<Map<String, dynamic>>);
+                  //print("resourceGroupData $resourceGroupData");
+                } else if (state is AssignedToLoaded) {
+                  resourceData.clear();
+                  resourceData
+                      .addAll(state.resource as Iterable<Map<String, dynamic>>);
+                  //print("resourceData $resourceData");
                 }
               },
             ),
@@ -183,7 +246,6 @@ int? hours,minutes,remainder_minutes;
                 });
               },
             ),
-
           ],
           child: Stack(
             children: [
@@ -225,8 +287,7 @@ int? hours,minutes,remainder_minutes;
                                 ),
                               ),
                               selectedDateRange: selectedDateRange,
-                              onDateRangeSelected: (DateRange? value)
-                              {
+                              onDateRangeSelected: (DateRange? value) {
                                 setState(() {
                                   selectedDateRange = value;
                                   String startDate =
@@ -279,18 +340,20 @@ int? hours,minutes,remainder_minutes;
                                   height: 15,
                                   child: Checkbox(
                                     value: extraHours,
-                                    onChanged: (bool? value)
-                                    {
+                                    onChanged: (bool? value) {
                                       setState(() {
                                         extraHours = value ?? false;
-                                        overtimeTakenData.clear(); // Ensure old data is cleared
+                                        overtimeTakenData
+                                            .clear(); // Ensure old data is cleared
                                         if (extraHours) {
                                           // Recalculate overtime taken
-                                          calculateOvertimeTaken(expenseData, tasks);
+                                          calculateOvertimeTaken(
+                                              expenseData, tasks);
 
                                           // Use the updated overtimeTakenData
                                           filteredTasks.clear();
-                                          filteredTasks = List.from(overtimeTakenData);
+                                          filteredTasks =
+                                              List.from(overtimeTakenData);
                                         } else {
                                           // Restore the original list when unchecked
                                           filteredTasks.clear();
@@ -380,11 +443,20 @@ int? hours,minutes,remainder_minutes;
                         itemCount: filteredTasks.length,
                         itemBuilder: (context, index) {
                           final taskList = filteredTasks[index];
-                          bool isChecked = (taskList['complete_time_approved'] == 1);
-                          int vehicleCount = taskList['vehicles'] != null ? taskList['vehicles'].length : 0;
-                          print("filteredTasks ${filteredTasks[index]['title']} ${filteredTasks[index]['overtime']} vehicleCount $vehicleCount");
-                          return
-                            Card(
+                          bool isChecked =
+                              (taskList['complete_time_approved'] == 1);
+                          /*taskList['user_group_id'],
+                                                      resourceGroupData,
+                                                      resourceData*/
+                          // Ensure user_group_id is not null before calling the function
+                          int? groupId = taskList['user_group_id'] as int?;
+                          if (groupId == null) {
+                            print("Error: user_group_id is null");
+                          } else {
+                            dynamic initials = getUserInitials(groupId, resourceGroupData, resourceData);
+                            print("initials: $initials");
+                          }
+                          return Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
                             color: AppC.white,
                             shape: RoundedRectangleBorder(
@@ -397,47 +469,81 @@ int? hours,minutes,remainder_minutes;
                                 children: [
                                   Row(
                                     children: [
-                                      Utils.getText("${taskList['title'] ?? ''} ",
-                                          color: !isChecked?AppC.red:AppC.appColor,
+                                      Utils.getText(
+                                          "${taskList['title'] ?? ''} ",
+                                          color: !isChecked
+                                              ? AppC.red
+                                              : AppC.appColor,
                                           weight: FontWeight.bold),
                                       Expanded(
-                                        child:
-                                        (taskList['complete_time_taken'] != '' && taskList['complete_time_taken'] != null)?
-                                        Utils.getText(
-                                            "(${taskList['complete_time_taken']})",
-                                            color: !isChecked?AppC.red:AppC.appColor,
-                                            weight: FontWeight.bold): const Text(""),
+                                        child: (taskList[
+                                                        'complete_time_taken'] !=
+                                                    '' &&
+                                                taskList[
+                                                        'complete_time_taken'] !=
+                                                    null)
+                                            ? Utils.getText(
+                                                "(${taskList['complete_time_taken']})",
+                                                color: !isChecked
+                                                    ? AppC.red
+                                                    : AppC.appColor,
+                                                weight: FontWeight.bold)
+                                            : const Text(""),
                                       ),
                                       Utils.getText(
                                           taskList['todo_date']?.substring(5) ??
                                               '',
-                                          color: !isChecked?AppC.red:AppC.appColor),
+                                          color: !isChecked
+                                              ? AppC.red
+                                              : AppC.appColor),
                                       const SizedBox(width: 5),
                                       Utils.getText(
                                           formatTimeToAmPm(
-                                                  taskList['todo_time']),
-                                          color: !isChecked?AppC.red:AppC.appColor),
+                                              taskList['todo_time']),
+                                          color: !isChecked
+                                              ? AppC.red
+                                              : AppC.appColor),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
                                       Expanded(
-                                        child: Utils.getText(
-                                          taskList['vehicle_name']?.isNotEmpty == true
-                                              ? taskList['vehicle_name']
-                                              : (taskList['vehicles'] != null && taskList['vehicles'].isNotEmpty
-                                              ? (taskList['vehicles'].length > 2 ? "MV" : taskList['vehicles'][0]['vehicle_name'])
-                                              : ""),
-                                          size: 12,
-                                          weight: taskList['vehicles'].length > 2? FontWeight.bold : FontWeight.normal
-                                        )
-                                      ),
+                                          child: Utils.getText(
+                                              taskList['vehicle_name']
+                                                          ?.isNotEmpty ==
+                                                      true
+                                                  ? taskList['vehicle_name']
+                                                  : (taskList['vehicles'] !=
+                                                              null &&
+                                                          taskList['vehicles']
+                                                              .isNotEmpty
+                                                      ? (taskList['vehicles']
+                                                                  .length >
+                                                              2
+                                                          ? "MV"
+                                                          : taskList['vehicles']
+                                                                  [0]
+                                                              ['vehicle_name'])
+                                                      : ""),
+                                              size: 12,
+                                              weight:
+                                                  taskList['vehicles'].length >
+                                                          2
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal)),
                                       const SizedBox(width: 5),
-                                      if (taskList['users'] != null)
-                                        Utils.getText(
-                                            '${taskList['users']['first_name'][0] ?? ''}${taskList['users']['last_name'][0] ?? ''}',
-                                            weight: FontWeight.bold),
+                                      (taskList['users'] != null)
+                                          ? Utils.getText(
+                                              '${taskList['users']['first_name'][0] ?? ''}${taskList['users']['last_name'][0] ?? ''}',
+                                              weight: FontWeight.bold)
+                                          : Utils.getText(
+                                              getUserInitials(
+                                                      taskList['user_group_id'],
+                                                      resourceGroupData,
+                                                      resourceData)
+                                                  .join(', '),
+                                              weight: FontWeight.bold),
                                       const SizedBox(width: 5),
                                       SizedBox(
                                         height: 15,
@@ -446,7 +552,9 @@ int? hours,minutes,remainder_minutes;
                                           onChanged: (bool? value) {
                                             setState(() {
                                               isChecked = value ?? false;
-                                              taskList['complete_time_approved'] = isChecked ? 1 : 0;
+                                              taskList[
+                                                      'complete_time_approved'] =
+                                                  isChecked ? 1 : 0;
                                             });
                                           },
                                         ),
@@ -456,22 +564,37 @@ int? hours,minutes,remainder_minutes;
                                   SizedBox(
                                     width: double.infinity,
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        if (taskList["overtime"] != null && taskList["overtime"] != '')
+                                        if (taskList["overtime"] != null &&
+                                            taskList["overtime"] != '')
                                           Utils.getText(
                                             "${taskList["overtime"]} - ",
-                                            color: !isChecked ? AppC.red : AppC.appColor,
+                                            color: !isChecked
+                                                ? AppC.red
+                                                : AppC.appColor,
                                             weight: FontWeight.bold,
                                           ),
-                                        if (taskList["notes_complete"] != null && taskList["notes_complete"] != '')
+                                        if (taskList["notes_complete"] !=
+                                                null &&
+                                            taskList["notes_complete"] != '')
                                           Expanded(
-                                              child:
-                                                taskList["notes_complete"].length > 17
-                                                    ? GestureDetector(onTap: (){ TextPopupTask.show(context, taskList["notes_complete"]);},
-                                                  child:
-                                                  Utils.getText("${taskList["notes_complete"].substring(0, 12)}..."),) // Show truncated text
-                                                    : Utils.getText(taskList["notes_complete"]),
+                                            child: taskList["notes_complete"]
+                                                        .length >
+                                                    17
+                                                ? GestureDetector(
+                                                    onTap: () {
+                                                      TextPopupTask.show(
+                                                          context,
+                                                          taskList[
+                                                              "notes_complete"]);
+                                                    },
+                                                    child: Utils.getText(
+                                                        "${taskList["notes_complete"].substring(0, 12)}..."),
+                                                  ) // Show truncated text
+                                                : Utils.getText(
+                                                    taskList["notes_complete"]),
                                           ),
                                       ],
                                     ),
