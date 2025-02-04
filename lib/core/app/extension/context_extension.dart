@@ -6,7 +6,7 @@ extension ContextExtension on BuildContext {
   ThemeData get theme => Theme.of(this);
   TextTheme get textTheme => theme.textTheme;
 
-  Future<T> push<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.push(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
+  Future<void> push<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.push(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
   Future<T> pushReplacement<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.pushReplacement(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
   Future<T> pushAndRemoveUntil<T>(Widget page, { bool maintainRoute = false, bool fullscreenDialog = false }) async => await Navigator.pushAndRemoveUntil(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog), (route) => maintainRoute);
   Future<T?> pushNamed<T>(String routeName) async => await Navigator.pushNamed(this, routeName);

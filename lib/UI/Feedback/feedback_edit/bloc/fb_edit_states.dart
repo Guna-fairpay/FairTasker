@@ -27,10 +27,25 @@ class FBFeedbackState extends FBEditStates {
   final TextEditingController titleController;
   final QuillController descriptionController;
   final dynamic priority;
+  final int status;
 
-  FBFeedbackState(this.titleController, this.descriptionController, this.priority);
+  FBFeedbackState(this.titleController, this.descriptionController, this.priority, this.status);
+
+  FBFeedbackState copyWith(
+      {TextEditingController? titleController,
+      QuillController? descriptionController,
+      dynamic priority,
+        int? status,
+      }) =>
+      FBFeedbackState(
+        titleController ?? this.titleController,
+        descriptionController ?? this.descriptionController,
+        priority ?? this.priority,
+        status ?? this.status,
+      );
+
   @override
-  List<Object?> get props => [titleController, descriptionController, priority];
+  List<Object?> get props => [titleController, descriptionController, priority, status, Random().nextDouble()];
 }
 
 class FBFeedAttachmentState extends FBEditStates {
@@ -40,5 +55,28 @@ class FBFeedAttachmentState extends FBEditStates {
   List<Object?> get props => [attachments, Random().nextDouble()];
 }
 
-class FBFeedState extends FBEditStates{}
-class FBCommentState extends FBEditStates{}
+class FBFeedState extends FBEditStates{
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+class FBCommentState extends FBEditStates{
+  final List<dynamic> comments;
+  FBCommentState(this.comments);
+  @override
+  List<Object?> get props => [comments, Random().nextDouble()];
+}
+
+class FBFeedViewAttachmentState extends FBEditStates {
+  final dynamic attachment;
+  final List<dynamic> attachments;
+  FBFeedViewAttachmentState(this.attachment, this.attachments);
+  @override
+  List<Object?> get props => [attachment, attachments, Random().nextDouble()];
+}
+
+class FBCommentAttachments extends FBEditStates {
+  final List<dynamic> attachments;
+  FBCommentAttachments(this.attachments);
+  @override
+  List<Object?> get props => [attachments, Random().nextDouble()];
+}

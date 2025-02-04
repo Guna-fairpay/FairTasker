@@ -1,15 +1,14 @@
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/Component/video_player_view.dart';
+import 'package:fairpytasker/Component/image_preview.dart';
+import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:fairpytasker/Component/image_preview.dart';
-import 'package:fairpytasker/Component/video_player_view.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:flutter/material.dart';
-
 class AttachmentSliderView extends StatefulWidget {
   final List<dynamic> attachments;
-
-  const AttachmentSliderView({super.key, required this.attachments});
+  final Object? currentAttachment;
+  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment});
 
   @override
   State<AttachmentSliderView> createState() => _AttachmentSliderViewState();
@@ -24,7 +23,7 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
 
   @override
   void initState() {
-    currentAttachment = widget.attachments.first;
+    currentAttachment = widget.currentAttachment ?? widget.attachments.first;
     currentIndex = widget.attachments
         .indexWhere((element) => element == currentAttachment);
     attachments = widget.attachments;
@@ -33,6 +32,7 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
   }
 
   String get _getValue {
+    log("${currentAttachment.runtimeType}", name: "ATTACHMENT_SLIDER_VIEW");
     var result = "";
     if (currentAttachment is File) {
       result = (currentAttachment as File).path;

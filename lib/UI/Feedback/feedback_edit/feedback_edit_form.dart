@@ -1,17 +1,15 @@
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_feed_attachments.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Component/custom_quill_editor.dart';
-import 'package:fairpytasker/Component/video_player_view.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
-import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 
 class FeedbackEditForm extends StatelessWidget {
   const FeedbackEditForm({super.key});
@@ -19,8 +17,8 @@ class FeedbackEditForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FBEditBloc, FBEditStates>(
-        buildWhen: (previous, current) => (current is FBFeedbackState),
-        builder: (context, state) => (state is! FBFeedbackState) ? Container() : Expanded(
+      buildWhen: (previous, current) => current is FBFeedbackState || current is FBCommentState,
+        builder: (context, state) => ((context.read<FBEditBloc>().pageId == 0) && (state is FBFeedbackState)) ? Expanded(
                 child: Form(
                     child: ListView(
               padding: const EdgeInsets.all(10),
@@ -43,7 +41,7 @@ class FeedbackEditForm extends StatelessWidget {
                       .map((e) =>
                           DropdownMenuItem<String>(value: e.toLowerCase(), child: Text(e)))
                       .toList(),
-                  onChanged: (value) {},
+                  onChanged: (value) => context.read<FBEditBloc>().add(FBFeedPriorityChangeEvent(value)),
                   value: state.priority,
                   validator: (value) =>
                       (value == null) ? "Priority is required" : null,
@@ -68,12 +66,37 @@ class FeedbackEditForm extends StatelessWidget {
                   hintText: "Enter your description here...",
                 ),
                 10.height,
+                DropdownButtonFormField<int>(
+                  items: context.read<FBEditBloc>().statuses
+                      .mapIndexed((index, element) =>
+                      DropdownMenuItem<int>(value: index, child: Text(element)))
+                      .toList(),
+                  onChanged: (value) => context.read<FBEditBloc>().add(FBFeedStatusChangeEvent(value)),
+                  value: state.status,
+                  validator: (value) =>
+                  (value == null) ? "Status is required" : null,
+                  borderRadius: BorderRadius.circular(5),
+                  style: context.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.normal),
+                  decoration: InputDecoration(
+                      hintText: "Select Status",
+                      filled: true,
+                      hintStyle: context.textTheme.labelMedium?.copyWith(
+                          color: context.theme.hintColor,
+                          fontWeight: FontWeight.bold),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      fillColor: Colors.grey.withValues(alpha: 0.1),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none)),
+                ),
+                10.height,
                 const Text("Attachments"), // ATTACHMENTS
                 5.height,
                 const FeedbackEditFeedAttachments(),
                 16.height,
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => context.read<FBEditBloc>().add(FBFeedSubmitEvent()),
                   style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         AppC.green.withValues(alpha: 0.7),
@@ -90,6 +113,6 @@ class FeedbackEditForm extends StatelessWidget {
                   child: const Text("Submit"),
                 ),
               ],
-            ))));
+            ))) : SizedBox.shrink());
   }
 }

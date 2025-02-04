@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/core/app/extension/color_extension.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -77,7 +79,7 @@ class MyApp extends StatelessWidget {
           elevation: const WidgetStatePropertyAll(0),
           side: const WidgetStatePropertyAll(BorderSide.none),
         ),
-        primarySwatch: Colors.blue,
+        primarySwatch: AppC.appColor.toMaterialColor,
         fontFamily: 'Lato',
       ),
       builder: EasyLoading.init(),

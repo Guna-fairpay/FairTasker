@@ -26,4 +26,6 @@ extension StringExtension on String? {
   bool get isImageFile => ((this?.endsWith('.jpg') ?? false) || (this?.endsWith('.png') ?? false) || (this?.endsWith('.jpeg') ?? false));
 
   String get toAttachmentURL => "${Str.TODO_ATTACHMENTS_URL}$this";
+
+  bool get isNetworkURL => ((this?.startsWith('http') ?? false) || (this?.startsWith('https') ?? false));
 }
