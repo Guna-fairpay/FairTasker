@@ -1744,7 +1744,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
       createTodoParams.vehicleStatusId = selectedChecklistForTodo!['id'];
       createTodoParams.vehicleStatus =
           vehicleStatusListDataList['vehicle_status'];
-      createTodoParams.userId = selectedResource!['id']!.toString();
+      createTodoParams.todoId = selectedResource!['id']!;
       createTodoParams.vehicleStatusChecklist =
           selectedChecklistForTodo!['checklist_id'];
       createTodoParams.vehicleStatusCategory =

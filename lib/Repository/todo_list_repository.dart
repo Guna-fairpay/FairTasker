@@ -40,12 +40,14 @@ import '../Response/branch_response.dart';
 import '../Response/category_config_response.dart';
 import '../Response/checklist_response.dart';
 import '../Response/cohorts_response.dart';
+import '../Response/create_fix_task_data.dart';
 import '../Response/expense_other_categories.dart';
 import '../Response/expense_other_response.dart';
 import '../Response/expense_person_response.dart';
 import '../Response/expense_response.dart';
 import '../Response/finance_statement_response.dart';
 import '../Response/payment_response.dart';
+import '../Response/task_miles.dart';
 import '../Response/task_response.dart';
 import '../Response/todo_list_response.dart';
 import '../Response/vehicle_list_response.dart';
@@ -1098,21 +1100,17 @@ class TodoListRepo {
   Future<bool?> createATodo(CreateTodoParams createTodoParams) async {
     try {
       String apiUrl = '';
-      if (createTodoParams.userId != null &&
-          createTodoParams.userId!.isNotEmpty) {
-        apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.userId}";
+      if (createTodoParams.todoId != null) {
+        apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.todoId}";
       } else {
         apiUrl = "${Str.BASE_URL}add-todo";
       }
       String body = jsonEncode({
         "title": createTodoParams.todoTitle,
-        if (createTodoParams.userId != null &&
-            createTodoParams.userId!.isNotEmpty)
+        if (createTodoParams.todoId != null)
           "todo_date": createTodoParams.todoDate
-        else
-          "start_at": createTodoParams.todoDate,
-        if (createTodoParams.userId != null &&
-            createTodoParams.userId!.isNotEmpty)
+        else "start_at": createTodoParams.todoDate,
+        if (createTodoParams.todoId != null)
           "type": "Inline",
         // if(createTodoParams.existingUserGroupId != null)
         //   "user_group_id": createTodoParams.existingUserGroupId!.toString(),
@@ -1124,6 +1122,7 @@ class TodoListRepo {
         "vin": createTodoParams.vin,
         "vehicle_name": createTodoParams.vehicleName,
         "vehicle_image": createTodoParams.vehicleImage,
+        "maintenance_task_id":createTodoParams.maintenanceTaskId,
         "repeatPeriod":
         (createTodoParams.repeatPeriod ?? '').toString().toLowerCase(),
         "repeatDay":
@@ -1161,8 +1160,7 @@ class TodoListRepo {
         "supplies": createTodoParams.supplyList,
         "notes": createTodoParams.notes.toString(),
         "vehicle_group_id": createTodoParams.vehicleGroupId.toString(),
-        if (createTodoParams.userId != null &&
-            createTodoParams.userId!.isNotEmpty)
+        if (createTodoParams.todoId != null)
           "user_group_data": createTodoParams.selectedUserGroupId == null
               ? ''
               : (createTodoParams.selectedUserGroupId ?? []).toString(),
@@ -1766,7 +1764,7 @@ class TodoListRepo {
         "title": createTodoParams.todoTitle,
         "start_at": createTodoParams.todoDate,
         "todo_time": createTodoParams.todoTime,
-        "user_id": createTodoParams.userId,
+        "user_id": createTodoParams.todoId,
         "cohort_id": createTodoParams.cohortId,
         "vin": createTodoParams.vin,
         "vehicle_name": createTodoParams.vehicleName,
@@ -1912,7 +1910,7 @@ class TodoListRepo {
         "config_id": createTodoParams.configId,
         "vin": createTodoParams.vin,
         "task_name": createTodoParams.taskName,
-        "user_id": createTodoParams.userId,
+        "user_id": createTodoParams.todoId,
         "cohort_id": createTodoParams.cohortId,
         "cohort_name": createTodoParams.cohortName,
         "vehicle_name": createTodoParams.vehicleName,
@@ -3235,6 +3233,92 @@ class TodoListRepo {
       }
     } catch (error) {
       debugPrint('delete Supply For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createFixTask(CreateFixTaskData createFixTaskData ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+
+      String body = jsonEncode({
+        "identifier_id":createFixTaskData.identifierId,
+        "user_group_id":createFixTaskData.userGroupId,
+        "user_id":createFixTaskData.userId,
+        "title": createFixTaskData.title,
+        "maintenance_task_id":createFixTaskData.maintenanceTaskId,
+        "notes":createFixTaskData.notes,
+        "todo_time": createFixTaskData.todoTime,
+        "start_at": createFixTaskData.startAt,
+        'vehicles': createFixTaskData.vehicleList,
+        "vendor_id": createFixTaskData.vendorId,
+        "vendor_name": createFixTaskData.vendorName,
+        "location": createFixTaskData.location,
+        "location_id": createFixTaskData.locationId,
+        "custom_link": createFixTaskData.customLink,
+        "custom_link_id": createFixTaskData.customLinkId,
+        "reference_id": createFixTaskData.referenceId,
+        "platform": "TaskerApp",
+      });
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('addVehicleCreateTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskMilesResponse?> getTaskMiles() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getTaskMiles";
+      debugPrint("getTaskMiles apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getTaskMiles api.response.body: ${response.body}');
+        debugPrint('getTaskMiles api.statusCode: ${response.statusCode}');
+        TaskMilesResponse taskMilesResponse =
+        TaskMilesResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return taskMilesResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskMiles.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<PreviousOdometer?> getPreviousOdometer(String? todoDate, int? identifierId, String? vin) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getPreviousOdometer?todo_date=$todoDate&identifier_id=$identifierId&vin=$vin";
+      debugPrint("getPreviousOdometer apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getPreviousOdometer api.response.body: ${response.body}');
+        debugPrint('getPreviousOdometer api.statusCode: ${response.statusCode}');
+        PreviousOdometer previousOdometer = PreviousOdometer.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return previousOdometer;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getPreviousOdometer.exception : ${error.toString()}');
       return null;
     }
   }

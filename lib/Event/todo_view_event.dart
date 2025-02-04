@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
+
+import '../Response/create_fix_task_data.dart';
 
 abstract class TodoViewEvent extends Equatable {
   const TodoViewEvent();
@@ -1025,5 +1028,34 @@ class GetTaskCategoryGroup extends TodoViewEvent {
   @override
   List<Object> get props => [];
 }
+
+class AddFixTask extends TodoViewEvent {
+  final CreateFixTaskData? createFixTaskData;
+  const AddFixTask({required this.createFixTaskData,});
+  @override
+  List<Object?> get props => [createFixTaskData];
+}
+
+class GetTaskMiles extends TodoViewEvent {
+  const GetTaskMiles();
+  @override
+  List<Object> get props => [];
+}
+
+class GetPreviousOdometer extends TodoViewEvent {
+  final String? todoDate;
+  final String? vin;
+  final int? identifierId;
+  final Map<String, dynamic>? todoData;
+  const GetPreviousOdometer({
+    required this.todoDate,
+    required this.vin,
+    required this.identifierId,
+    this.todoData,
+  });
+  @override
+  List<Object?> get props => [todoDate,vin,identifierId, todoData, Random().nextDouble()];
+}
+
 
 //---

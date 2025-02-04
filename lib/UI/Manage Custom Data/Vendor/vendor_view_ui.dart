@@ -88,7 +88,7 @@ class _VendorViewUIState extends State<VendorViewUI> {
         phone: updatedVendor['phone'],
         expertise: updatedVendor['expertise'],
         description: updatedVendor['description'],
-        vendor_typeId: updatedVendor['vendorType']?.userId.toString(),
+        vendor_typeId: updatedVendor['vendorType']?.todoId.toString(),
         images: updatedVendor['images']!
             .map((e) => (e['path'] ?? '').isEmpty ? e.fileType : null)
             .where((element) => element != null)

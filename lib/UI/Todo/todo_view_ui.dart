@@ -18,6 +18,7 @@ import 'package:fairpytasker/Utilities/auto_complete_widget.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -68,6 +69,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
   TextEditingController vehiclePersonController = TextEditingController();
   TextEditingController editTodoDateController = TextEditingController();
   TextEditingController todoTimeController = TextEditingController();
+  TextEditingController oilChangeOdometerController = TextEditingController();
+  TextEditingController nextMilesCheckController = TextEditingController();
+  TextEditingController nextOdometerController = TextEditingController();
 
   final FocusNode searchFocusNode = FocusNode();
   final FocusNode vehicleSearchFocusNode = FocusNode();
@@ -101,6 +105,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   List<Map<String, dynamic>> selectedVehicleGroupList = [];
   List<Map<String, dynamic>> editMultipleAddressList = [];
   List<Map<String, dynamic>> editVehicleGroupList = [];
+  List<Map<String, dynamic>> taskMiles = [];
 
   int? selectedIndex;
   int? branchNO;
@@ -114,6 +119,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   String? userGroupConcatenationName;
   String searchQuery = '';
   String chosenDateTimeString = '';
+  String previousOdometer='';
 
   dynamic vendor;
   dynamic vehicleName;
@@ -185,6 +191,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     todoBloc?.add(const GetUserGroupingList());
     todoBloc?.add(const GetVehicleStatusList());
     todoBloc?.add(const GetTaskCategoryGroup());
+    todoBloc?.add(const GetTaskMiles());
     taskTimeController.addListener(() {setState(() {});});
     reasonController.addListener(() {setState(() {});});
     super.initState();
@@ -419,7 +426,27 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       vehicleStatus.clear();
                       vehicleStatus.addAll(state.vehiclesCount ?? []);
                     }
+                    else if (state is TaskMilesLoaded) {
+                      taskMiles.clear();
+                      taskMiles.addAll(state.data ?? []);
+                    }
+                    else if (state is PreviousOdometerLoaded) {
+                      previousOdometer= (state.data ?? 0).toString();
+                      showOilCheckPopup(
+                        context,
+                        oilChangeOdometerController,
+                        nextMilesCheckController,
+                        nextOdometerController,
+                        taskMiles,
+                        (state.todoData ?? {}),
+                        previousOdometer,
+                      );
+                      // setState(() {
+                      //   previousOdometer=(state.data!).toString();
+                      //   print("PREVIOUS ODOMETER----$previousOdometer");
+                      // });
 
+                    }
                   },
                 ),
                 BlocListener<LocationDataBloc, LocationDataState>(
@@ -1003,8 +1030,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                 Visibility(
                                   visible: todoList.isNotEmpty,
                                   replacement: Center(
-                                      child: Utils.getEmptyTextWidget(
-                                          topPadding: 30)),
+                                      child: Utils.getEmptyTextWidget(topPadding: 30)
+                                  ),
                                   child: Expanded(
                                     child: ReorderableListView.builder(
                                       onReorder: (oldIndex, newIndex) {
@@ -1016,15 +1043,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       padding: EdgeInsets.zero,
                                       scrollDirection: Axis.vertical,
                                       shrinkWrap: true,
-                                      physics:
-                                      const AlwaysScrollableScrollPhysics(),
+                                      physics: const AlwaysScrollableScrollPhysics(),
                                       itemCount: todoList.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
+                                      itemBuilder: (BuildContext context, int index) {
                                         return Padding(
                                           key: ValueKey(index),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 1.0),
+                                          padding: const EdgeInsets.symmetric(vertical: 1.0),
                                           child: listItem(
                                               todoList[index], index, state),
                                         );
@@ -2198,7 +2222,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
       todoImages.clear();
       todoImages.addAll(todos['todoimages']); // Use addAll to avoid nesting
     }
-
     return Row(
       children: [
         Column(
@@ -2522,18 +2545,31 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   },
                 );
-
               } else {
                 if (statusFilter) {
                   todoBloc!.add(CompleteTodoItem(
                       todoId: todos['id'].toString(), status: 'In Progress'));
+                }else if(todos['title'] == 'Oil Change' || todos['title'] == 'Oil Change Check'){
+                  todoBloc!.add(GetPreviousOdometer(todoDate: todos['todo_date'], identifierId: todos['identifier_id'], vin: vinToFind, todoData: todos));
+                  // showOilCheckPopup(
+                  //   context,
+                  //   oilChangeOdometerController,
+                  //   nextMilesCheckController,
+                  //   nextOdometerController,
+                  //   taskMiles,
+                  //   todos,
+                  //   previousOdometer,
+                  // );
                 } else {
                   if (todos['title'] != 'Maintenance Check') {
                     todoBloc!.add(CompleteTodoItem(
                         todoId: todos['id'].toString(),
                         status: 'Completed',
-                        taskName: todos['title']));
-                  } else {
+                        taskName: todos['title']
+                    ),
+                    );
+                  }
+                  else {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -2550,7 +2586,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   }
                 }
-                return true;
+                return false;
               }
               return null;
             },
@@ -2638,7 +2674,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                           multipleLocationAddressList),
                                 ),
                               );
-                              if (result != null && result) {
+                           //   if (result != null && result) {
                                 todoBloc!.add(const GetUserGroupingList());
                                 todoBloc!.add(GetTodoList(
                                   selectedDate: filterDate,
@@ -2649,7 +2685,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       selectedResourceMain ?? []),
                                   branchId: branchNO.toString(),
                                 ));
-                              }
+                             // }
                             },
                             child: Utils.getText('${todos['title']}',
                                 color: todos['time_sensitive'] == 1
@@ -4670,6 +4706,130 @@ class _TodoViewUIState extends State<TodoViewUI> {
       ),
     );
   }
+
+  void showOilCheckPopup(BuildContext context,
+      TextEditingController oilChangeOdometerController,
+      TextEditingController nextMilesCheckController,
+      TextEditingController nextOdometerController,
+      List<Map<String, dynamic>> taskMiles,
+      Map<String, dynamic> todos,
+      dynamic previousOdometer) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        print("PREVIOUS ODOMETER----$previousOdometer");
+
+        final data = taskMiles.firstWhere(
+              (data) => data['identifier_id'] == todos['identifier_id'],
+          orElse: () => {}, // Ensure it returns an empty map to avoid null issues
+        );
+
+        if (data.isNotEmpty) {
+          nextMilesCheckController.text = data['miles'].toString();
+        } else {
+          nextMilesCheckController.text = '';
+        }
+
+        nextOdometerController.text = nextOdometerController.text = ((double.tryParse(oilChangeOdometerController.text.toString()) ?? 0) + ((double.tryParse(nextMilesCheckController.text.toString()) ?? 0))).toString();
+
+        nextMilesCheckController.addListener(() => nextOdometerController.text = ((double.tryParse(oilChangeOdometerController.text.toString()) ?? 0) + ((double.tryParse(nextMilesCheckController.text.toString()) ?? 0))).toString());
+        oilChangeOdometerController.addListener(() => nextOdometerController.text = ((double.tryParse(oilChangeOdometerController.text.toString()) ?? 0) + ((double.tryParse(nextMilesCheckController.text.toString()) ?? 0))).toString());
+
+        return Align(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6.0,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.close),
+                      ),
+                    ),
+                    Text.rich(TextSpan(
+                        text: "Previous Oil Change Odometer : ",
+                        children: [
+                          TextSpan(text: "$previousOdometer", style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w900))
+                        ]
+                    ), style: context.textTheme.labelLarge,),
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: Utils.getText(
+                            'Oil Change Odometer',
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                        Expanded(
+                          child: Utils.getText(
+                            'Next Miles Check',
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: Utils.getTextFormField(
+                              'Oil Change Odometer',
+                              autoValidate: AutovalidateMode.always,
+                              oilChangeOdometerController,
+                              textType: TextInputType.number,
+                              inputAction: TextInputAction.next,
+                            validator: (val) => (double.tryParse(val.toString()) ?? 0) < (double.tryParse(previousOdometer.toString()) ?? 0) ? "Cannot enter lower than previous oil change odometer" : null,
+                          ),
+                        ),
+                        Expanded(
+                          child: Utils.getTextFormField(
+                              'Next Miles Check',
+                              nextMilesCheckController,
+                              textType: TextInputType.number,
+                              inputAction: TextInputAction.done
+                          ),
+                        ),
+                      ],
+                    ),
+                    Utils.getText('Next Odometer', weight: FontWeight.bold),
+                    Utils.getTextFormField('Next Odometer', nextOdometerController, readOnly: true),
+                    Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    ).whenComplete(() {
+      oilChangeOdometerController.clear();
+      nextMilesCheckController.clear();
+      nextOdometerController.clear();
+    });
+  }
+
 
   List<Map<String, dynamic>>? getAddressFromLocations(Map<String, dynamic> todos) {
     for (int i = 0; i < multipleLocationAddressList.length; i++) {

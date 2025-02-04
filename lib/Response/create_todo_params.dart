@@ -13,6 +13,7 @@ int? categoryId;
 int? checkboxValue;
 int? configId;
 int? customLinkId;
+int? identifierId;
 String? customLink = '';
 String? referenceId = '';
 String? taskName = '';
@@ -20,6 +21,7 @@ List<int?>? selectedUserGroupId = [];
 String? cohortId = '';
 String? cohortName = '';
 String? vehicleName = '';
+String? maintenanceTaskId = '';
 int? vehicleStatusId = 0;
 int? vehicleStatus = 0;
 String? vehicleImage = '';
@@ -56,7 +58,7 @@ String? repeatDateMonth = '';
   // end_after eg:1,2,3…
   String? endAfter = '';
   String? todoReminder='';
-String? userId = '';
+int? todoId;
 List<int>? multipleAddressList;
 int? existingUserGroupId;
 int? timeSensitive;
@@ -74,9 +76,8 @@ List<dynamic>? vehicleList = [];
 List<VehicleTodoParam>? vehicleTodoParamList = [];
 List<File> todoImage = [];
 
-
 CreateTodoParams({
-  this.userId,
+  this.todoId,
   this.todoTitle,
   this.todoDate,
   this.todoTime,
@@ -109,7 +110,8 @@ CreateTodoParams({
   this.timeSensitive,
   this.vehicleStatusCategory,
   this.vehicleImage,
-  this.vehicleTodoParamList
+  this.vehicleTodoParamList,
+  this.maintenanceTaskId,
 });
 }
 

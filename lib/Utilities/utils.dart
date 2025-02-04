@@ -977,6 +977,14 @@ class Utils {
       return DateFormat(formatToConvert).format(DateTime.now());
     }
   }
+  static String convertCurrentDateToStringFormat(DateTime? value,
+      {String formatToConvert = 'yyyy-MM-dd'}) {
+    if (value != null) {
+      return DateFormat(formatToConvert).format(value);
+    } else {
+      return DateFormat(formatToConvert).format(DateTime.now());
+    }
+  }
 
   static String amountInputFormatter(String nValue) {
     if (nValue.split('.').length > 2) {

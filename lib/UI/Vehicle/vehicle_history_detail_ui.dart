@@ -124,7 +124,7 @@ class _VehicleUIState extends State<VehicleHistoryDetailUI>
                           expensesData!['category_name'] = element['name'];
                           for (var element1
                               in (element['subcategories'] ?? [])) {
-                            if (element1.userId ==
+                            if (element1.todoId ==
                                 expensesData?['subcategory_id']!) {
                               expensesData?['subCategory_name'] =
                                   element1['name'];
