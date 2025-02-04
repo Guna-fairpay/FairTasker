@@ -995,6 +995,14 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       });
     });
 
+    on<AddFixTask>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.createFixTask(event.createFixTaskData!
+      ).then((value) {
+        emit(CreateTodoLoaded(
+            result: value,));
+      });
+    });
 
     //---
   }

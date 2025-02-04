@@ -594,7 +594,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             children: [
               SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
-                physics: (widget.showHeader) ? NeverScrollableScrollPhysics() : ScrollPhysics(),
+                physics: (widget.showHeader) ? const AlwaysScrollableScrollPhysics() : const ScrollPhysics(),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {

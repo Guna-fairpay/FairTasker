@@ -176,7 +176,8 @@ class _TaskViewUIState extends State<TaskViewUI> {
         ),
         body: BlocProvider(
           create: (context) => todoViewBloc..add(const GetTaskData()),
-          child: BlocConsumer<TodoViewBloc, TodoViewState>(listener: (context, state) {
+          child: BlocConsumer<TodoViewBloc, TodoViewState>(
+              listener: (context, state) {
             if (state is TodoListLoading) {
               loading = true;
             } else if (state is TaskListLoaded) {

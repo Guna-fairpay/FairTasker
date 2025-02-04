@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
 
+import '../Response/create_fix_task_data.dart';
+
 abstract class TodoViewEvent extends Equatable {
   const TodoViewEvent();
 }
@@ -1024,6 +1026,13 @@ class GetTaskCategoryGroup extends TodoViewEvent {
   const GetTaskCategoryGroup();
   @override
   List<Object> get props => [];
+}
+
+class AddFixTask extends TodoViewEvent {
+  final CreateFixTaskData? createFixTaskData;
+  const AddFixTask({required this.createFixTaskData,});
+  @override
+  List<Object?> get props => [createFixTaskData];
 }
 
 //---

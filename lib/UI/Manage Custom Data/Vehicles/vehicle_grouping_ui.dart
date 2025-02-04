@@ -40,7 +40,7 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
     for (var vehicleId in widget.selectedVehicleIds) {
       final match = widget.vehicleList.firstWhere(
             (vehicle) => vehicle['id'] == vehicleId,
-        orElse: () => {}, // Return null if no match is found
+        orElse: () => {},
       );
       selectedMultipleVehicleList.add(match);
         }
@@ -203,7 +203,8 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
                     ),
                   ),
                 );
-              })
+              }
+              )
           )
         ],
       ),

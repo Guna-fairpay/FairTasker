@@ -32,6 +32,8 @@ import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'PopUp/oil_change_check_complete_dialog.dart';
+
 
 List<Map<String, dynamic>?>? selectedResourceMain;
 
@@ -1003,8 +1005,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                 Visibility(
                                   visible: todoList.isNotEmpty,
                                   replacement: Center(
-                                      child: Utils.getEmptyTextWidget(
-                                          topPadding: 30)),
+                                      child: Utils.getEmptyTextWidget(topPadding: 30)
+                                  ),
                                   child: Expanded(
                                     child: ReorderableListView.builder(
                                       onReorder: (oldIndex, newIndex) {
@@ -1016,15 +1018,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       padding: EdgeInsets.zero,
                                       scrollDirection: Axis.vertical,
                                       shrinkWrap: true,
-                                      physics:
-                                      const AlwaysScrollableScrollPhysics(),
+                                      physics: const AlwaysScrollableScrollPhysics(),
                                       itemCount: todoList.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
+                                      itemBuilder: (BuildContext context, int index) {
                                         return Padding(
                                           key: ValueKey(index),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 1.0),
+                                          padding: const EdgeInsets.symmetric(vertical: 1.0),
                                           child: listItem(
                                               todoList[index], index, state),
                                         );
@@ -2522,18 +2521,22 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   },
                 );
-
               } else {
                 if (statusFilter) {
                   todoBloc!.add(CompleteTodoItem(
                       todoId: todos['id'].toString(), status: 'In Progress'));
+                }else if(todos['title'] == 'Clean Car'){
+                  //OilChangeCheckCompleteDialog();
                 } else {
                   if (todos['title'] != 'Maintenance Check') {
                     todoBloc!.add(CompleteTodoItem(
                         todoId: todos['id'].toString(),
                         status: 'Completed',
-                        taskName: todos['title']));
-                  } else {
+                        taskName: todos['title']
+                    ),
+                    );
+                  }
+                  else {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -2638,7 +2641,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                           multipleLocationAddressList),
                                 ),
                               );
-                              if (result != null && result) {
+                           //   if (result != null && result) {
                                 todoBloc!.add(const GetUserGroupingList());
                                 todoBloc!.add(GetTodoList(
                                   selectedDate: filterDate,
@@ -2649,7 +2652,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       selectedResourceMain ?? []),
                                   branchId: branchNO.toString(),
                                 ));
-                              }
+                             // }
                             },
                             child: Utils.getText('${todos['title']}',
                                 color: todos['time_sensitive'] == 1

@@ -39,9 +39,11 @@ import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
-import '../maintenance_check_list_ui.dart';
+import 'check_list_ui.dart';
+import 'maintenance_check_list_ui.dart';
 
 class EditTodoUI extends StatefulWidget {
+
   final Map<String, dynamic> todoItem;
   final List<Map<String, dynamic>>? userGroupList;
   final List<Map<String, dynamic>>? resourceList;
@@ -143,12 +145,19 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<String> taskIdentifierSuggestionList = [];
   List<String> vehiclePersonSuggestionList = [];
   List<String>? vehicleGroupVinNumbersList;
-  static List<String> stringArr = [];
 
-  List<String> priorityList = ['High - On Time', 'Medium', 'Low', 'Feature'];
-  List<String> repeatList = ["Doesn't repeat", 'Daily', 'Weekly', 'Monthly', 'Yearly'];
-  List<String> daysList = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  List<String> monthsList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  List<String> priorityList = [
+    'High - On Time', 'Medium', 'Low', 'Feature'];
+  List<String> repeatList = [
+    "Doesn't repeat", 'Daily', 'Weekly', 'Monthly', 'Yearly'];
+  List<String> daysList = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  List<String> monthsList = [
+    'January', 'February', 'March',
+    'April', 'May', 'June',
+    'July', 'August', 'September',
+    'October', 'November', 'December'
+  ];
   List<Map<String, dynamic>> customTaskOptions = [
     { 'id': "1", 'label': "Custom Link" },
     { 'id': "2", 'label': "Turo Reservation ID" },
@@ -718,6 +727,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       setState(() {});
                       // });
                     }
+                  }
+                  else if (state is CheckListLoaded) {
+                    checkListData.clear();
+                    checkListData.addAll(state.data ?? []);
+                  } else if (state is MaintenanceCheckListLoaded) {
+                    maintenanceCheckListData.clear();
+                    childrenData.clear();
+                    maintenanceCheckListData.addAll(state.data ?? []);
                   } else if (state is UserGroupListLoaded) {
                     userGroupList.clear();
                     userGroupList.addAll(state.userGroupDataList ?? []);
@@ -892,7 +909,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           for (var element1 in (widget.categoriesListData![i]
                           ['subcategories'] ??
                               [])) {
-                            if (element1.userId ==
+                            if (element1.todoId ==
                                 (existingExpenseDate?['subcategory_id'] ?? 0)) {
                               selectedExpenseSubCategories = element1;
                               existingExpenseDate?['subcategory_name'] =
@@ -902,13 +919,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
-                  } else if (state is CheckListLoaded) {
-                    checkListData.clear();
-                    checkListData.addAll(state.data ?? []);
-                  } else if (state is MaintenanceCheckListLoaded) {
-                    maintenanceCheckListData.clear();
-                    childrenData.clear();
-                    maintenanceCheckListData.addAll(state.data ?? []);
                   }
                 },
               ),
@@ -963,7 +973,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
                         }
                       }*/
-                      doSetState();
+                      setState(() {});
                     }
                   }
                 },
@@ -1011,22 +1021,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 else if (showExpenseTab == 1)
                                   const CreateTodoUI(showHeader: false)
                                 else if (showExpenseTab == 2)
-                                    Padding(
-                                      padding:
-                                      const EdgeInsets.symmetric(horizontal: 15),
-                                      child: SizedBox(
-                                        height: 300, // Set an appropriate height
-                                        child: ListView.builder(
-                                          itemCount: checkListData.length,
-                                          itemBuilder: (context, index) {
-                                            return checkList(checkListData[index]);
-                                          },
-                                        ),
-                                      ),
-                                    )
+                                   CheckListUI(
+                                       checkListData:checkListData,
+                                     todoItems: todoItem,
+                                   )
                                   else if (showExpenseTab == 3)
                                       MaintenanceCheckListUI(
                                         maintenance: maintenanceCheckListData,
+                                        todoItems: todoItem,
                                       )
                                     else if (showExpenseTab == 4)
                                         VehicleEditUI(vehicle: setVehicleList,showHeader: false,)
@@ -1222,30 +1224,22 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       children: [
                         Wrap(
                           children: List<Widget>.generate(
-                            selectedMultipleVehicleList.length,
-                                (int idx) {
+                            selectedMultipleVehicleList.length, (int idx) {
                               return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
                                   child: Chip(
-                                    // deleteIconColor: AppC.red,
                                     onDeleted: () {
                                       for (var element
                                       in editMultipleVehicleList) {
                                         if (element['vehicle_name'] ==
-                                            selectedMultipleVehicleList[idx]
-                                            ['vehicle_name']) {
+                                            selectedMultipleVehicleList[idx]['vehicle_name']) {
                                           isVehicleSelected = false;
-                                          // element.isMultipleVehSelected = false;
                                         }
                                       }
                                       selectedMultipleVehicleList.removeAt(idx);
                                       setState(() {});
                                     },
-                                    side: const BorderSide(
-                                        color: AppC
-                                            .trans), // Corrected from Border.all to BorderSide
-
+                                    side: const BorderSide(color: AppC.trans),
                                     deleteIcon: const Icon(
                                       Icons.close,
                                       color: AppC.red,
@@ -1254,7 +1248,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     backgroundColor:AppC.lowGreen,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
-                                    // side: BorderSide(),
                                     label: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -1266,7 +1259,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           ),
                                       ],
                                     ),
-                                  ));
+                                  )
+                              );
                             },
                           ).toList(),
                         ),
@@ -2619,7 +2613,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     else {
       CreateTodoParams editCreateTodoParams = CreateTodoParams();
       if (todoName == null) {
-        editCreateTodoParams.userId = todoItem['id']!.toString();
+        editCreateTodoParams.todoId =todoItem['id']!;
       }
       editCreateTodoParams.todoTitle = todoName ?? editTodoNameController.text;
       editCreateTodoParams.todoDate = editTodoDateController.text;
@@ -2925,7 +2919,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out')
         {'label': 'Expense', 'index': 0, 'color': AppC().base},
       {'label': 'Next Task', 'index': 1, 'color': AppC().base},
-      if (todoItem['title'] == 'Getaround Prechecks')
+      if (todoItem['title'] == 'Getaround Prechecks' || todoItem['title'] == 'Pre Checks')
         {'label': 'Check List', 'index': 2, 'color': AppC().base},
       if (todoItem['title'] == 'Maintenance Check')
         {'label': 'Maintenance', 'index': 3, 'color': AppC().base},
@@ -2957,39 +2951,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 child: Utils.getText(
                   tab['label'],
                   weight: FontWeight.bold,
-                  color: showExpenseTab == tab['index'] ? tab['color'] : AppC.black,
+                  color: tab['label'] == 'Set Vehicle' ? AppC.red : (showExpenseTab == tab['index'] ? tab['color'] : AppC.black),
                 ),
               ),
             );
           }).toList(),
         ),
       ),
-    );
-  }
-
-  Widget checkList(Map<String, dynamic> checkListData) {
-    bool front = false;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Checkbox(
-          value: front,
-          onChanged: (bool? value) {
-            setState(() {
-              front = value ?? false;
-            });
-          },
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Utils.getText(checkListData['title']?.toString() ?? ''),
-            Utils.getText(
-                "(${checkListData['description']?.toString() ?? ''})"),
-          ],
-        ),
-      ],
     );
   }
 
@@ -3008,7 +2976,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   int countHyphens(String inputString) {
     List<String> stringArrLocal = inputString.split("-");
     int hyphenCount = stringArrLocal.length - 1;
-    stringArr = taskIdentifierController.text.split("-");
     return hyphenCount;
   }
 
@@ -3357,7 +3324,4 @@ class _EditTodoUIState extends State<EditTodoUI> {
     });
   }
 
-  void doSetState() {
-    setState(() {});
-  }
 }
