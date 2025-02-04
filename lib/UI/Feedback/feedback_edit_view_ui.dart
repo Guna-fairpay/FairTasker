@@ -32,6 +32,7 @@ class FeedbackEditViewUI extends StatelessWidget {
       create: (context) => FBEditBloc()..add(FBInitialEvent(feedBackId)),
       child: BlocListener<FBEditBloc, FBEditStates>(
         listener: (context, state) {
+          Utils.dismissKeyboard(context);
           if (state is FBLoadingState) {
             EasyLoading.show();
           } else {
@@ -49,7 +50,7 @@ class FeedbackEditViewUI extends StatelessWidget {
           builder: (context, state) => Scaffold(
             appBar: AppBar(
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              title: Utils.getText("Title of the Feedback",
+              title: Utils.getText("${context.read<FBEditBloc>().pageTitle}",
                   weight: FontWeight.bold, color: Colors.white),
               backgroundColor: const Color(0xFF364290).withValues(alpha: 0.95),
               foregroundColor: Colors.white,

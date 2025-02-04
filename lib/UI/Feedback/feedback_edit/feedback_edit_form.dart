@@ -1,4 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_feed_attachments.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -39,7 +41,7 @@ class FeedbackEditForm extends StatelessWidget {
                       .map((e) =>
                           DropdownMenuItem<String>(value: e.toLowerCase(), child: Text(e)))
                       .toList(),
-                  onChanged: (value) {},
+                  onChanged: (value) => context.read<FBEditBloc>().add(FBFeedPriorityChangeEvent(value)),
                   value: state.priority,
                   validator: (value) =>
                       (value == null) ? "Priority is required" : null,
@@ -64,12 +66,37 @@ class FeedbackEditForm extends StatelessWidget {
                   hintText: "Enter your description here...",
                 ),
                 10.height,
+                DropdownButtonFormField<int>(
+                  items: context.read<FBEditBloc>().statuses
+                      .mapIndexed((index, element) =>
+                      DropdownMenuItem<int>(value: index, child: Text(element)))
+                      .toList(),
+                  onChanged: (value) => context.read<FBEditBloc>().add(FBFeedStatusChangeEvent(value)),
+                  value: state.status,
+                  validator: (value) =>
+                  (value == null) ? "Status is required" : null,
+                  borderRadius: BorderRadius.circular(5),
+                  style: context.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.normal),
+                  decoration: InputDecoration(
+                      hintText: "Select Status",
+                      filled: true,
+                      hintStyle: context.textTheme.labelMedium?.copyWith(
+                          color: context.theme.hintColor,
+                          fontWeight: FontWeight.bold),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      fillColor: Colors.grey.withValues(alpha: 0.1),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none)),
+                ),
+                10.height,
                 const Text("Attachments"), // ATTACHMENTS
                 5.height,
                 const FeedbackEditFeedAttachments(),
                 16.height,
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => context.read<FBEditBloc>().add(FBFeedSubmitEvent()),
                   style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         AppC.green.withValues(alpha: 0.7),

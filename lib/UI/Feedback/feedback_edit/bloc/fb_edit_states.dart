@@ -27,21 +27,25 @@ class FBFeedbackState extends FBEditStates {
   final TextEditingController titleController;
   final QuillController descriptionController;
   final dynamic priority;
+  final int status;
 
-  FBFeedbackState(this.titleController, this.descriptionController, this.priority);
+  FBFeedbackState(this.titleController, this.descriptionController, this.priority, this.status);
 
   FBFeedbackState copyWith(
       {TextEditingController? titleController,
       QuillController? descriptionController,
-      dynamic priority}) =>
+      dynamic priority,
+        int? status,
+      }) =>
       FBFeedbackState(
         titleController ?? this.titleController,
         descriptionController ?? this.descriptionController,
         priority ?? this.priority,
+        status ?? this.status,
       );
 
   @override
-  List<Object?> get props => [titleController, descriptionController, priority, Random().nextDouble()];
+  List<Object?> get props => [titleController, descriptionController, priority, status, Random().nextDouble()];
 }
 
 class FBFeedAttachmentState extends FBEditStates {
@@ -68,4 +72,11 @@ class FBFeedViewAttachmentState extends FBEditStates {
   FBFeedViewAttachmentState(this.attachment, this.attachments);
   @override
   List<Object?> get props => [attachment, attachments, Random().nextDouble()];
+}
+
+class FBCommentAttachments extends FBEditStates {
+  final List<dynamic> attachments;
+  FBCommentAttachments(this.attachments);
+  @override
+  List<Object?> get props => [attachments, Random().nextDouble()];
 }
