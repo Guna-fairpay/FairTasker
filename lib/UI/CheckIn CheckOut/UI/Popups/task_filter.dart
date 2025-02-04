@@ -51,7 +51,8 @@ class _CheckboxPopupState extends State<CheckboxPopup> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 32),
-      child: Dialog(
+      child:
+      Dialog(
         backgroundColor: Colors.white,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,

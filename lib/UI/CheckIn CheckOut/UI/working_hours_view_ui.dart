@@ -410,7 +410,8 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                 DefaultTextStyle(
                                   style: TextStyle(color: AppC.black, fontSize: 12),
                                   textAlign: TextAlign.center,
-                                  child: DateRangeField(
+                                  child:
+                                  DateRangeField(
                                     decoration: InputDecoration(
                                       contentPadding:
                                       const EdgeInsets.only(left: 0,top: 0,right: 0,bottom: 0),
