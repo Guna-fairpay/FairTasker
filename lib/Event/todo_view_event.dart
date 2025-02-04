@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -1045,13 +1046,15 @@ class GetPreviousOdometer extends TodoViewEvent {
   final String? todoDate;
   final String? vin;
   final int? identifierId;
+  final Map<String, dynamic>? todoData;
   const GetPreviousOdometer({
     required this.todoDate,
     required this.vin,
     required this.identifierId,
+    this.todoData,
   });
   @override
-  List<Object?> get props => [todoDate,vin,identifierId];
+  List<Object?> get props => [todoDate,vin,identifierId, todoData, Random().nextDouble()];
 }
 
 

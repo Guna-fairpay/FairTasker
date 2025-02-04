@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/expense_summary_response.dart';
@@ -657,7 +659,8 @@ class TaskMilesLoaded extends TodoViewState{
 
 class PreviousOdometerLoaded extends TodoViewState{
   final int? data;
-  const PreviousOdometerLoaded({required this.data});
+  final Map<String, dynamic>? todoData;
+  const PreviousOdometerLoaded({required this.data, this.todoData});
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, todoData, Random().nextDouble()];
 }

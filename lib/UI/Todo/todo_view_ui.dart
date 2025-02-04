@@ -18,6 +18,7 @@ import 'package:fairpytasker/Utilities/auto_complete_widget.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -430,10 +431,20 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       taskMiles.addAll(state.data ?? []);
                     }
                     else if (state is PreviousOdometerLoaded) {
-                      setState(() {
-                        previousOdometer=(state.data!).toString();
-                        print("PREVIOUS ODOMETER----$previousOdometer");
-                      });
+                      previousOdometer= (state.data ?? 0).toString();
+                      showOilCheckPopup(
+                        context,
+                        oilChangeOdometerController,
+                        nextMilesCheckController,
+                        nextOdometerController,
+                        taskMiles,
+                        (state.todoData ?? {}),
+                        previousOdometer,
+                      );
+                      // setState(() {
+                      //   previousOdometer=(state.data!).toString();
+                      //   print("PREVIOUS ODOMETER----$previousOdometer");
+                      // });
 
                     }
                   },
@@ -2539,16 +2550,16 @@ class _TodoViewUIState extends State<TodoViewUI> {
                   todoBloc!.add(CompleteTodoItem(
                       todoId: todos['id'].toString(), status: 'In Progress'));
                 }else if(todos['title'] == 'Oil Change' || todos['title'] == 'Oil Change Check'){
-                  todoBloc!.add(GetPreviousOdometer(todoDate: todos['todo_date'], identifierId: todos['identifier_id'], vin: vinToFind,));
-                  showOilCheckPopup(
-                    context,
-                    oilChangeOdometerController,
-                    nextMilesCheckController,
-                    nextOdometerController,
-                    taskMiles,
-                    todos,
-                    previousOdometer,
-                  );
+                  todoBloc!.add(GetPreviousOdometer(todoDate: todos['todo_date'], identifierId: todos['identifier_id'], vin: vinToFind, todoData: todos));
+                  // showOilCheckPopup(
+                  //   context,
+                  //   oilChangeOdometerController,
+                  //   nextMilesCheckController,
+                  //   nextOdometerController,
+                  //   taskMiles,
+                  //   todos,
+                  //   previousOdometer,
+                  // );
                 } else {
                   if (todos['title'] != 'Maintenance Check') {
                     todoBloc!.add(CompleteTodoItem(
@@ -2575,7 +2586,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   }
                 }
-                return true;
+                return false;
               }
               return null;
             },
@@ -4718,85 +4729,105 @@ class _TodoViewUIState extends State<TodoViewUI> {
         } else {
           nextMilesCheckController.text = '';
         }
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                color: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6.0,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
+
+        nextOdometerController.text = nextOdometerController.text = ((double.tryParse(oilChangeOdometerController.text.toString()) ?? 0) + ((double.tryParse(nextMilesCheckController.text.toString()) ?? 0))).toString();
+
+        nextMilesCheckController.addListener(() => nextOdometerController.text = ((double.tryParse(oilChangeOdometerController.text.toString()) ?? 0) + ((double.tryParse(nextMilesCheckController.text.toString()) ?? 0))).toString());
+        oilChangeOdometerController.addListener(() => nextOdometerController.text = ((double.tryParse(oilChangeOdometerController.text.toString()) ?? 0) + ((double.tryParse(nextMilesCheckController.text.toString()) ?? 0))).toString());
+
+        return Align(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6.0,
+                      offset: Offset(0, 3),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.close),
+                      ),
+                    ),
+                    Text.rich(TextSpan(
+                        text: "Previous Oil Change Odometer : ",
+                        children: [
+                          TextSpan(text: "$previousOdometer", style: context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w900))
+                        ]
+                    ), style: context.textTheme.labelLarge,),
+                    Row(
+                      spacing: 10,
                       children: [
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: const Icon(Icons.close),
+                        Expanded(
+                          child: Utils.getText(
+                            'Oil Change Odometer',
+                            weight: FontWeight.bold,
                           ),
                         ),
-                        Utils.getText('Previous Oil Change Odometer : $previousOdometer'),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Utils.getText(
-                                'Oil Change Odometer',
-                                weight: FontWeight.bold,
-                              ),
-                            ),
-                            Expanded(
-                              child: Utils.getText(
-                                'Next Miles Check',
-                                weight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        Expanded(
+                          child: Utils.getText(
+                            'Next Miles Check',
+                            weight: FontWeight.bold,
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Utils.getTextFormField(
-                                'Oil Change Odometer',
-                                oilChangeOdometerController,
-                              ),
-                            ),
-                            Expanded(
-                              child: Utils.getTextFormField(
-                                'Next Miles Check',
-                                nextMilesCheckController,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Utils.getText('Next Odometer', weight: FontWeight.bold),
-                        Utils.getTextFormField('Next Odometer', nextOdometerController),
-                        Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
                       ],
                     ),
-                  ),
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: Utils.getTextFormField(
+                              'Oil Change Odometer',
+                              autoValidate: AutovalidateMode.always,
+                              oilChangeOdometerController,
+                              textType: TextInputType.number,
+                              inputAction: TextInputAction.next,
+                            validator: (val) => (double.tryParse(val.toString()) ?? 0) < (double.tryParse(previousOdometer.toString()) ?? 0) ? "Cannot enter lower than previous oil change odometer" : null,
+                          ),
+                        ),
+                        Expanded(
+                          child: Utils.getTextFormField(
+                              'Next Miles Check',
+                              nextMilesCheckController,
+                              textType: TextInputType.number,
+                              inputAction: TextInputAction.done
+                          ),
+                        ),
+                      ],
+                    ),
+                    Utils.getText('Next Odometer', weight: FontWeight.bold),
+                    Utils.getTextFormField('Next Odometer', nextOdometerController, readOnly: true),
+                    Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
-    );
+    ).whenComplete(() {
+      oilChangeOdometerController.clear();
+      nextMilesCheckController.clear();
+      nextOdometerController.clear();
+    });
   }
 
 

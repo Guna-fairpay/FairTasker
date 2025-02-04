@@ -1022,6 +1022,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           .then((value) {
         emit(PreviousOdometerLoaded(
           data: value?.data,
+          todoData: event.todoData
         ));
       });
     });
