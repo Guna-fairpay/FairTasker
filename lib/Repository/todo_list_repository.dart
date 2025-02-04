@@ -27,6 +27,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/categories_response.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
+import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
@@ -391,8 +392,9 @@ class TodoListRepo {
       );
       if (response != null) {
         // if (response.statusCode == 200) {
-        VehicleStatusResponseList assignedToResponse =
-        VehicleStatusResponseList.fromJson(json.decode(response.body));
+        VehicleStatusResponseList assignedToResponse = await parseString<VehicleStatusResponseList>(response.body, (json) => VehicleStatusResponseList.fromJson(json));
+        // VehicleStatusResponseList assignedToResponse =
+        // VehicleStatusResponseList.fromJson(json.decode(response.body));
 
         return assignedToResponse;
         /*  } else {
