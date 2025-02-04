@@ -32,8 +32,6 @@ import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'PopUp/oil_change_check_complete_dialog.dart';
-
 
 List<Map<String, dynamic>?>? selectedResourceMain;
 
@@ -70,6 +68,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
   TextEditingController vehiclePersonController = TextEditingController();
   TextEditingController editTodoDateController = TextEditingController();
   TextEditingController todoTimeController = TextEditingController();
+  TextEditingController oilChangeOdometerController = TextEditingController();
+  TextEditingController nextMilesCheckController = TextEditingController();
+  TextEditingController nextOdometerController = TextEditingController();
 
   final FocusNode searchFocusNode = FocusNode();
   final FocusNode vehicleSearchFocusNode = FocusNode();
@@ -103,6 +104,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   List<Map<String, dynamic>> selectedVehicleGroupList = [];
   List<Map<String, dynamic>> editMultipleAddressList = [];
   List<Map<String, dynamic>> editVehicleGroupList = [];
+  List<Map<String, dynamic>> taskMiles = [];
 
   int? selectedIndex;
   int? branchNO;
@@ -116,6 +118,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
   String? userGroupConcatenationName;
   String searchQuery = '';
   String chosenDateTimeString = '';
+  String previousOdometer='';
 
   dynamic vendor;
   dynamic vehicleName;
@@ -187,6 +190,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
     todoBloc?.add(const GetUserGroupingList());
     todoBloc?.add(const GetVehicleStatusList());
     todoBloc?.add(const GetTaskCategoryGroup());
+    todoBloc?.add(const GetTaskMiles());
     taskTimeController.addListener(() {setState(() {});});
     reasonController.addListener(() {setState(() {});});
     super.initState();
@@ -421,7 +425,17 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       vehicleStatus.clear();
                       vehicleStatus.addAll(state.vehiclesCount ?? []);
                     }
+                    else if (state is TaskMilesLoaded) {
+                      taskMiles.clear();
+                      taskMiles.addAll(state.data ?? []);
+                    }
+                    else if (state is PreviousOdometerLoaded) {
+                      setState(() {
+                        previousOdometer=(state.data!).toString();
+                        print("PREVIOUS ODOMETER----$previousOdometer");
+                      });
 
+                    }
                   },
                 ),
                 BlocListener<LocationDataBloc, LocationDataState>(
@@ -2197,7 +2211,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
       todoImages.clear();
       todoImages.addAll(todos['todoimages']); // Use addAll to avoid nesting
     }
-
     return Row(
       children: [
         Column(
@@ -2525,8 +2538,17 @@ class _TodoViewUIState extends State<TodoViewUI> {
                 if (statusFilter) {
                   todoBloc!.add(CompleteTodoItem(
                       todoId: todos['id'].toString(), status: 'In Progress'));
-                }else if(todos['title'] == 'Clean Car'){
-                  //OilChangeCheckCompleteDialog();
+                }else if(todos['title'] == 'Oil Change' || todos['title'] == 'Oil Change Check'){
+                  todoBloc!.add(GetPreviousOdometer(todoDate: todos['todo_date'], identifierId: todos['identifier_id'], vin: vinToFind,));
+                  showOilCheckPopup(
+                    context,
+                    oilChangeOdometerController,
+                    nextMilesCheckController,
+                    nextOdometerController,
+                    taskMiles,
+                    todos,
+                    previousOdometer,
+                  );
                 } else {
                   if (todos['title'] != 'Maintenance Check') {
                     todoBloc!.add(CompleteTodoItem(
@@ -4673,6 +4695,110 @@ class _TodoViewUIState extends State<TodoViewUI> {
       ),
     );
   }
+
+  void showOilCheckPopup(BuildContext context,
+      TextEditingController oilChangeOdometerController,
+      TextEditingController nextMilesCheckController,
+      TextEditingController nextOdometerController,
+      List<Map<String, dynamic>> taskMiles,
+      Map<String, dynamic> todos,
+      dynamic previousOdometer) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        print("PREVIOUS ODOMETER----$previousOdometer");
+
+        final data = taskMiles.firstWhere(
+              (data) => data['identifier_id'] == todos['identifier_id'],
+          orElse: () => {}, // Ensure it returns an empty map to avoid null issues
+        );
+
+        if (data.isNotEmpty) {
+          nextMilesCheckController.text = data['miles'].toString();
+        } else {
+          nextMilesCheckController.text = '';
+        }
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6.0,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: const Icon(Icons.close),
+                          ),
+                        ),
+                        Utils.getText('Previous Oil Change Odometer : $previousOdometer'),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Utils.getText(
+                                'Oil Change Odometer',
+                                weight: FontWeight.bold,
+                              ),
+                            ),
+                            Expanded(
+                              child: Utils.getText(
+                                'Next Miles Check',
+                                weight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Utils.getTextFormField(
+                                'Oil Change Odometer',
+                                oilChangeOdometerController,
+                              ),
+                            ),
+                            Expanded(
+                              child: Utils.getTextFormField(
+                                'Next Miles Check',
+                                nextMilesCheckController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Utils.getText('Next Odometer', weight: FontWeight.bold),
+                        Utils.getTextFormField('Next Odometer', nextOdometerController),
+                        Utils.getAddFilledButton('Submit', () {}, bgColor: AppC.green),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
 
   List<Map<String, dynamic>>? getAddressFromLocations(Map<String, dynamic> todos) {
     for (int i = 0; i < multipleLocationAddressList.length; i++) {

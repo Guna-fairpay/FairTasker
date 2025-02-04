@@ -984,7 +984,6 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
     on<GetTaskCategoryGroup>((event, emit) async {
       emit(TodoListLoading());
-
       await todoListRepo.getTaskCategoryGroup()
           .then((value) {
         if (value != null) {
@@ -1001,6 +1000,29 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       ).then((value) {
         emit(CreateTodoLoaded(
             result: value,));
+      });
+    });
+
+    on<GetTaskMiles>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.getTaskMiles()
+          .then((value) {
+        if (value != null) {
+          emit(TaskMilesLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<GetPreviousOdometer>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo
+          .getPreviousOdometer(event.todoDate, event.identifierId,event.vin,)
+          .then((value) {
+        emit(PreviousOdometerLoaded(
+          data: value?.data,
+        ));
       });
     });
 

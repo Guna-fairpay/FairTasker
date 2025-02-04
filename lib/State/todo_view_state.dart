@@ -647,3 +647,17 @@ class TaskCategoryGroupLoaded extends TodoViewState{
   @override
   List<Object?> get props => [data];
 }
+
+class TaskMilesLoaded extends TodoViewState{
+  final List<Map<String, dynamic>>? data;
+  const TaskMilesLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class PreviousOdometerLoaded extends TodoViewState{
+  final int? data;
+  const PreviousOdometerLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}

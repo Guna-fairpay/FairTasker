@@ -1035,4 +1035,24 @@ class AddFixTask extends TodoViewEvent {
   List<Object?> get props => [createFixTaskData];
 }
 
+class GetTaskMiles extends TodoViewEvent {
+  const GetTaskMiles();
+  @override
+  List<Object> get props => [];
+}
+
+class GetPreviousOdometer extends TodoViewEvent {
+  final String? todoDate;
+  final String? vin;
+  final int? identifierId;
+  const GetPreviousOdometer({
+    required this.todoDate,
+    required this.vin,
+    required this.identifierId,
+  });
+  @override
+  List<Object?> get props => [todoDate,vin,identifierId];
+}
+
+
 //---

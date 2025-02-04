@@ -46,6 +46,7 @@ import '../Response/expense_person_response.dart';
 import '../Response/expense_response.dart';
 import '../Response/finance_statement_response.dart';
 import '../Response/payment_response.dart';
+import '../Response/task_miles.dart';
 import '../Response/task_response.dart';
 import '../Response/todo_list_response.dart';
 import '../Response/vehicle_list_response.dart';
@@ -3267,6 +3268,55 @@ class TodoListRepo {
       }
     } catch (error) {
       log('addVehicleCreateTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskMilesResponse?> getTaskMiles() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getTaskMiles";
+      debugPrint("getTaskMiles apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getTaskMiles api.response.body: ${response.body}');
+        debugPrint('getTaskMiles api.statusCode: ${response.statusCode}');
+        TaskMilesResponse taskMilesResponse =
+        TaskMilesResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return taskMilesResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskMiles.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<PreviousOdometer?> getPreviousOdometer(String? todoDate, int? identifierId, String? vin) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getPreviousOdometer?todo_date=$todoDate&identifier_id=$identifierId&vin=$vin";
+      debugPrint("getPreviousOdometer apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getPreviousOdometer api.response.body: ${response.body}');
+        debugPrint('getPreviousOdometer api.statusCode: ${response.statusCode}');
+        PreviousOdometer previousOdometer = PreviousOdometer.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return previousOdometer;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getPreviousOdometer.exception : ${error.toString()}');
       return null;
     }
   }
