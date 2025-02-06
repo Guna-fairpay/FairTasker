@@ -970,6 +970,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                 builder: (context) => CreateTodoUI(
                                                   selectedAssignedTo: selectedResourceMain,
                                                 ),
+                                                fullscreenDialog: true
                                               ),
                                             );
                                             if (newTodo != null) {

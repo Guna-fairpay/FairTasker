@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:fairpytasker/Utilities/str.dart';
@@ -131,6 +132,7 @@ class ApiClient {
       } else {
         debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken()}');
       }
+      if (body.isNotEmpty) log("$body", name: "POST_BODY");
       http.Response response = await client.post(Utils.getUri(url),
           headers:
               tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),

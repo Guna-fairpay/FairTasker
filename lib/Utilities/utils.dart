@@ -403,12 +403,14 @@ class Utils {
       ValueChanged? onChangeCallback,
       TextInputType textType = TextInputType.text,
       TextInputAction? inputAction,
+        TextStyle? style,
       int? maxLength,
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.text,
       String? hintText,
       Widget? suffixIcon,
       bool obscure = false,
+        bool isDense = false,
       double? height,
       TextStyle? hintTextStyle,
       Color fillColor = AppC.trans,
@@ -439,6 +441,7 @@ class Utils {
       inputFormatters: textInputFormatter,
       decoration: InputDecoration(
           contentPadding: contentPadding,
+          isDense: isDense,
           label: label,
           hintText: hintText,
           counterText: '',
@@ -467,7 +470,7 @@ class Utils {
                 ),
                 borderRadius: BorderRadius.circular(borderRadius)),
           suffixIcon: suffixIcon),
-      style: TextStyle(
+      style: style ?? TextStyle(
         // fontSize: textSize,
         color: textColor,
         fontWeight: fontWeight,
