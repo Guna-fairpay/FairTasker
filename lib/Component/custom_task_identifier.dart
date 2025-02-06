@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:searchfield/searchfield.dart';
@@ -14,6 +13,9 @@ class TaskIdentifier extends StatefulWidget {
   final List<dynamic> vendors;
   final List<dynamic> location;
   final TextEditingController taskIdentifierController;
+  final ValueNotifier<Map<String, dynamic>>? selectedTask;
+  final ValueNotifier<List<Map<String, dynamic>>>? selectedVPersons;
+  final ValueNotifier<Map<String, dynamic>>? selectedVLocations;
 
   const TaskIdentifier(
       {super.key,
@@ -22,7 +24,10 @@ class TaskIdentifier extends StatefulWidget {
       required this.persons,
       required this.tasks,
       required this.vehicles,
-      required this.vendors});
+      required this.vendors,
+      this.selectedTask,
+      this.selectedVPersons,
+      this.selectedVLocations});
 
   @override
   State<TaskIdentifier> createState() => _TaskIdentifierState();
@@ -42,9 +47,33 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
   void initState() {
     updateCommonList();
     _focusNode = FocusNode();
-    log("InitState", name: "TaskIdentifier");
-    widget.taskIdentifierController.addListener(_checkHyphens);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _listenNotifiers());
     super.initState();
+  }
+
+  void _listenNotifiers() {
+    widget.selectedTask?.addListener(() {
+      if (widget.selectedTask?.value != null) {
+        selectedList[1] = widget.selectedTask?.value;
+        _setValue(emit: false);
+      }
+    });
+    widget.selectedVPersons?.addListener(() {
+      if (widget.selectedVPersons?.value != null) {
+        var value = widget.selectedVPersons?.value.lastOrNull;
+        if (value == null) selectedList.remove(2); _setValue(emit: false);
+        if ((selectedList[2] == null) || (selectedList[2]['value'] != value)) {
+          selectedList[2] = value;
+          _setValue(emit: false);
+        }
+      }
+    });
+    widget.selectedVLocations?.addListener(() {
+      if (widget.selectedVLocations?.value != null) {
+        selectedList[3] = widget.selectedVLocations?.value;
+        _setValue(emit: false);
+      }
+    });
   }
 
   @override
@@ -57,20 +86,6 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
         (oldWidget.location != widget.location)) {
       updateCommonList();
     }
-  }
-
-  void _checkHyphens() {
-    var inputValue = widget.taskIdentifierController.text;
-    var inputParts = inputValue.split("-");
-    if (inputParts.length > 3) {
-      widget.taskIdentifierController.text = inputValue.substring(0, inputValue.length - 1);
-    }
-    inputParts.forEachIndexed((index, element) {
-      if (element.isEmpty) {
-        selectedList.remove(index+1);
-      }
-    });
-    log("InputPartsCount ${inputParts} ${inputParts.length}", name: "TaskIdentifier");
   }
 
   void updateCommonList() {
@@ -115,15 +130,60 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
     _setState;
   }
 
-  void _setValue() {
+  void _setValue({bool emit = true}) {
     var keys = selectedList.keys.toList();
     keys.sort((a, b) => a.compareTo(b));
-    var values = keys.map((e) => selectedList[e]['name'].toString()).toList();
-    widget.taskIdentifierController.text = values.join("-");
-    if ((selectedList.values.isNotEmpty) && (selectedList.values.length < 3)) widget.taskIdentifierController.text = "${widget.taskIdentifierController.text}-";
     widget.taskIdentifierController.value.copyWith(
         selection: TextSelection.collapsed(offset: widget.taskIdentifierController.text.length - 1)
     );
+    if (emit) {
+      selectedList.forEach((key, value) {
+        if (key == 1) {
+          widget.selectedTask?.value = value;
+        } else if (key == 2) {
+          if (value['type'] == "person") widget.selectedVPersons?.value = [value];
+          if (value['type'] == "vehicles") {
+            widget.selectedVPersons?.value.removeWhere((
+                element) => element['type'] == "person");
+            if ((value is! Map<String, dynamic>)) widget.selectedVPersons?.value = [...(widget.selectedVPersons?.value ?? []), ...value ];
+          }
+          widget.selectedVPersons?.notifyListeners();
+        } else if (key == 3) {
+          widget.selectedVLocations?.value = value;
+        }
+      });
+    }
+    widget.taskIdentifierController.text = formatMapData(selectedList);
+  }
+
+  String formatMapData(Map<int, dynamic> mapData) {
+    List<String> names = [];
+    // Sorting the map by keys
+    var sortedEntries = mapData.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    // Convert back to a Map
+    Map sortedMap = Map.fromEntries(sortedEntries);
+
+
+    // Extract names from mapData
+    sortedMap.forEach((key, value) {
+      if (value.containsKey('name')) {
+        names.add(value['name']);
+      }
+    });
+
+    // Convert to string with conditions
+    String result = names.join('-');
+    if (names.length < 3) {
+    if (mapData.containsKey(2)) {
+      return '-$result-'; // Wrap with '-'
+    } else if (mapData.containsKey(3)) {
+      return '-$result'; // Start with '-'
+    }
+    }
+
+    return result; // Default case
   }
 
   get _setState => setState(() { });
@@ -238,7 +298,7 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
         selectedList.remove(index+1);
       }
     });
-    log("InputPartsCount ${inputParts} ${inputParts.length} $cursorPosition $hyphenPositions $typedPart $partNumber", name: "TaskIdentifier");
+    log("InputPartsCount(s) ${inputParts} ${inputParts.length} $cursorPosition $hyphenPositions $typedPart $partNumber", name: "TaskIdentifier");
     return commonList.where((element) => element['name'].toString().toLowerCase().contains(typedPart.toLowerCase())).map((e) => SearchFieldListItem(
         (e['name']),
         item: e)).toList();

@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
+import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
+import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
@@ -89,7 +91,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   List<Map<String, dynamic>> userGroupList = [];
   List<Map<String, dynamic>> categoriesListData = [];
   List<Map<String, dynamic>> selectedSuppliesList = [];
-  List<Map<String, dynamic>> selectedMultipleVehicleList = [];
+  ValueNotifier<List<Map<String, dynamic>>> selectedMultipleVehicleList = ValueNotifier([]);
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
   List<Map<String, dynamic>> editMultipleAddressList = [];
   List<Map<String, dynamic>> todoImages = [];
@@ -230,6 +232,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   TextEditingController linkController = TextEditingController();
   TextEditingController searchController = TextEditingController();
 
+  ValueNotifier<List<Map<String, dynamic>>> selectedVPersons = ValueNotifier(List.empty(growable: true));
+  ValueNotifier<Map<String, dynamic>> selectedTask = ValueNotifier({});
+  ValueNotifier<Map<String, dynamic>> selectedVLocation = ValueNotifier({});
+
   @override
   void initState() {
     todoListRepo = TodoListRepo();
@@ -287,7 +293,27 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
       (item) => item['month'] == 'January',
       orElse: () => {},
     );
+    _listenVNotifier(); // LISTEN NOTIFIER FOR SELECTED VALUES
     super.initState();
+  }
+
+  void _listenVNotifier() {
+    selectedTask.addListener(() {
+      log("SelectedTask:\t${selectedTask.value}", name: "AddToDoTask");
+      var value = selectedTask.value['value'];
+      todoNameController.text = value['task'];
+    });
+    selectedVPersons.addListener(() {
+      log("selectedVPersons:\t${selectedVPersons.value}", name: "AddToDoTask");
+      var value = selectedVPersons.value.map((e) => e['name']).toList();
+      selectedMultipleVehicleList.value = selectedVPersons.value.map<Map<String, dynamic>>((e) => e['value']).toList();
+      selectedMultipleVehicleList.notifyListeners();
+    });
+    selectedVLocation.addListener(() {
+      log("selectedVLocation:\t${selectedVLocation.value}", name: "AddToDoTask");
+      var value = selectedVLocation.value['name'];
+      vendorLocationController.text = value;
+    });
   }
 
   @override
@@ -593,7 +619,11 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                               persons: resourceListForCombination,
                               tasks: taskExpenseList,
                               vehicles: vehicleList,
-                              vendors: vendorList),
+                              vendors: vendorList,
+                            selectedTask: selectedTask,
+                            selectedVLocations: selectedVLocation,
+                            selectedVPersons: selectedVPersons,
+                          ),
                           /*Utils.getTextFormField(
                             'Task Identifier',
                             taskIdentifierController,
@@ -1204,13 +1234,14 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       ? const Icon(Icons.error_outline, color: Colors.red)
                       : null,
             ),
-            Visibility(
+            CustomVehiclePersonField(vehiclesList: vehicleList, personsList: resourceListForCombination, selectedVPersons: selectedVPersons),
+            /*Visibility(
               visible: isMultipleVehicleChecked,
               child: Column(
                 children: [
-                  /*const SizedBox(
+                  *//*const SizedBox(
                     height: 15,
-                  ),*/
+                  ),*//*
                   Container(
                     padding:
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
@@ -1227,7 +1258,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       children: [
                         Wrap(
                           children: List<Widget>.generate(
-                            selectedMultipleVehicleList.length,
+                            selectedMultipleVehicleList.value.length,
                             (int idx) {
                               return Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -1238,13 +1269,13 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       for (var element
                                           in editMultipleVehicleList) {
                                         if (element['vehicle_name'] ==
-                                            selectedMultipleVehicleList[idx]
+                                            selectedMultipleVehicleList.value[idx]
                                                 ['vehicle_name']) {
                                           isVehicleSelected = false;
                                           // element.isMultipleVehSelected = false;
                                         }
                                       }
-                                      selectedMultipleVehicleList.removeAt(idx);
+                                      selectedMultipleVehicleList.value.removeAt(idx);
                                       setState(() {});
                                     },
                                     side: const BorderSide(color: AppC.trans),
@@ -1261,7 +1292,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Utils.getText(
-                                            selectedMultipleVehicleList[idx]
+                                            selectedMultipleVehicleList.value[idx]
                                                     ['vehicle_name'] ??
                                                 '',
                                             color: AppC.text),
@@ -1324,13 +1355,13 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                   ),
                 ],
               ),
-            ),
+            ),*/
             Stack(
               children: [
                 Column(
                   children: [vendorLocationStack()],
                 ),
-                Visibility(
+                /*Visibility(
                   visible: editShowMultipleVehicleList,
                   child: Utils.customAutoCompleteWithUnSelectedOption(
                       editMultipleVehicleSuggestionList, (index) {
@@ -1338,8 +1369,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     countHyphens('');
                     if (findIsPersonOrVehicle(
                         editMultipleVehicleSuggestionList[index])) {
-                      selectedMultipleVehicleList.clear();
-                      selectedMultipleVehicleList
+                      selectedMultipleVehicleList.value.clear();
+                      selectedMultipleVehicleList.value
                           .add(editMultipleVehicleSuggestionList[index]);
                       isSelected = true;
                       vehiclePersonController.selection =
@@ -1355,10 +1386,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       );
                     } else {
                       if (lastSelectedIsPerson) {
-                        selectedMultipleVehicleList.clear();
+                        selectedMultipleVehicleList.value.clear();
                         lastSelectedIsPerson = false;
                       }
-                      selectedMultipleVehicleList
+                      selectedMultipleVehicleList.value
                           .add(editMultipleVehicleSuggestionList[index]);
                       isSelected = true;
                       vehiclePersonController.selection =
@@ -1374,7 +1405,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       );
                     }
                   }, isVehicleData: true),
-                ),
+                ),*/
               ],
             ),
           ],
@@ -1513,7 +1544,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             /*const SizedBox(
               height: 15,
             ),*/
-            Utils.getTextFormField(
+            CustomVendorLocationField(vendorsList: vendorList, locationsList: locationList, selectedVLocations: selectedVLocation,),
+            /*Utils.getTextFormField(
               'Vendor / Location', vendorLocationController,
               label: Utils.getText('Vendor / Location'),
               readOnly: false,
@@ -1555,7 +1587,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               //       },
               //       child: Icon(Icons.add, color: AppC().base, size: 20)),
               // )
-            ),
+            ),*/
             partsStack()
           ],
         ),
@@ -2544,7 +2576,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         createTodoParams.repeatPeriod = '';
       }
 
-      if (selectedMultipleVehicleList.isNotEmpty ||
+      if (selectedMultipleVehicleList.value.isNotEmpty ||
           vehiclePersonController.text.isNotEmpty) {
         await getSelectedVehiclePerson(createTodoParams);
       }
@@ -2608,9 +2640,9 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
       CreateTodoParams createTodoParams) {
     List<dynamic> vehiclesNameData = [];
     for (Map<String, dynamic> res in resourceList) {
-      if (selectedMultipleVehicleList.isNotEmpty &&
+      if (selectedMultipleVehicleList.value.isNotEmpty &&
           '${res['first_name']}${res['last_name']}' ==
-              selectedMultipleVehicleList[0]['vehicle_name']) {
+              selectedMultipleVehicleList.value[0]['vehicle_name']) {
         createTodoParams.person = '${res['first_name']} ${res['last_name']}';
         createTodoParams.personId = res['id']!.toString();
       } else if ('${res['first_name']} ${res['last_name']}' ==
@@ -2619,7 +2651,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         createTodoParams.personId = res['id']!.toString();
       }
     }
-    for (Map<String, dynamic> veh in selectedMultipleVehicleList) {
+    for (Map<String, dynamic> veh in selectedMultipleVehicleList.value) {
       var matchedGroup = vehicleList
           .where((item) => item['vehicle_id'] == veh['vehicle_id'])
           .toList();
