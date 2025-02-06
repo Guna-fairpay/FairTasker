@@ -60,7 +60,7 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       }
     });
     widget.selectedVPersons?.addListener(() {
-      if ((widget.selectedVPersons?.value != null) && (widget.selectedVPersons?.value.isNotEmpty ?? false)) {
+      if ((widget.selectedVPersons?.value != null)) {
         var value = widget.selectedVPersons?.value.lastOrNull;
         if (value == null) selectedList.remove(2); _setValue(emit: false);
         if ((selectedList[2] == null) || (selectedList[2] != value)) {
@@ -184,13 +184,17 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
 
     // Convert to string with conditions
     String result = names.join('-');
-    if (names.length < 2) {
-    if (mapData.containsKey(2)) {
-      return '-$result-'; // Wrap with '-'
+    log("${names.length}", name: "NAME_LENGTH");
+    if (names.length == 3) return names.join("-");
+    if (mapData.containsKey(2) && !mapData.containsKey(3)) {
+      return '${mapData.containsKey(1) ? "" : "-"}$result-'; // Wrap with '-'
     } else if (mapData.containsKey(3)) {
       return '-$result'; // Start with '-'
+    } else if (mapData.containsKey(1) && !mapData.containsKey(3)) {
+      return '$result-';
     }
-    }
+
+
 
     return result; // Default case
   }
