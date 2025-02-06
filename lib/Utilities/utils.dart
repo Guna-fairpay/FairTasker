@@ -1,12 +1,15 @@
 
 
 
+import 'dart:developer';
+
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart'
     as DateRangePicker;
+import 'package:url_launcher/url_launcher.dart';
 
 enum ImageUploadType {
   gallery,
@@ -2679,6 +2683,24 @@ class Utils {
       return DateFormat('yyyy-MM-dd').format(startOfMonth);
     } else {
       return DateFormat('yyyy-MM-dd').format(val);
+    }
+  }
+
+  static void openURL(String url) async {
+    if (!url.isNetworkURL) return;
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        showMobileToast("Could not launch $url");
+      }
+    } catch (e) {
+      log('Error launching URL: $e');
+      showMobileToast(e.toString());
     }
   }
 }

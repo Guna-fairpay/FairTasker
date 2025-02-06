@@ -13,6 +13,9 @@ class Str{
 
     static const String TODO_ATTACHMENTS_URL ="https://apidevfairtasker.fairreturns.in/";
 
+    static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
+    static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";
+
   static const String loginPrefText = 'LoginPref';
   static const String userPermissionPrefText = 'UserPermissionPref';
   static const String userIdPrefText = 'UserIdPref';

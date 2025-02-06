@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
@@ -5,7 +7,8 @@ import 'package:searchfield/searchfield.dart';
 class CustomVendorLocationField extends StatelessWidget {
   final ValueNotifier<Map<String, dynamic>>? selectedVLocations;
   final List<Map<String, dynamic>> vendorsList, locationsList;
-  CustomVendorLocationField({super.key, this.selectedVLocations, required this.vendorsList, required this.locationsList}) {
+  final TextEditingController? controller;
+  CustomVendorLocationField({super.key, this.selectedVLocations, required this.vendorsList, required this.locationsList, this.controller}) {
     _prepareData();
     _checkSelectedVData();
   }
@@ -36,11 +39,12 @@ class CustomVendorLocationField extends StatelessWidget {
       "value": element
     })
         .toList();
-    commonList.value = [...persons, ...vehicles];
+    commonList.value = [...vehicles, ...persons];
   }
 
   void _checkSelectedVData() {
     selectedVLocations?.addListener(() {
+      log("selectedVLocations: ${selectedVLocations?.value}", name: "checkSelectedVData");
       var value = selectedVLocations?.value;
       selectedList.value = (value ?? {});
       selectedList.notifyListeners();
@@ -53,6 +57,7 @@ class CustomVendorLocationField extends StatelessWidget {
         valueListenable: commonList,
         builder: (context, value, child) =>
             CustomSearchField<Map<String, dynamic>>(
+              controller: controller,
               suggestions: value,
               labelText: "Vendor/Location",
               itemAsString: (item) => item['name'].toString(),

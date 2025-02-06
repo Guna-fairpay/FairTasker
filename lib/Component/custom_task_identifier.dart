@@ -42,6 +42,7 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> vPersons = [];
   List<Map<String, dynamic>> vLocations = [];
+  int trigger = 0;
 
   @override
   void initState() {
@@ -59,10 +60,10 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       }
     });
     widget.selectedVPersons?.addListener(() {
-      if (widget.selectedVPersons?.value != null) {
+      if ((widget.selectedVPersons?.value != null) && (widget.selectedVPersons?.value.isNotEmpty ?? false)) {
         var value = widget.selectedVPersons?.value.lastOrNull;
         if (value == null) selectedList.remove(2); _setValue(emit: false);
-        if ((selectedList[2] == null) || (selectedList[2]['value'] != value)) {
+        if ((selectedList[2] == null) || (selectedList[2] != value)) {
           selectedList[2] = value;
           _setValue(emit: false);
         }
@@ -89,6 +90,7 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
   }
 
   void updateCommonList() {
+    log("UpdateCommonList (${trigger++}) ${widget.tasks.length} ${widget.vehicles.length} ${widget.persons.length} ${widget.vendors.length} ${widget.location.length}", name: "TRIGGER_IDENTIFIER");
     tasks = widget.tasks
         .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
         .toList();
@@ -104,11 +106,12 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
     {
       "id": element['id'],
       "name": element['vehicle_name'],
+      "subname" : "\t(${element['vehicle_number']})",
       "type": "vehicles",
       "partNumber" : 2,
       "value" : element
     }).toList();
-    vPersons = [...persons, ...vehicles];
+    vPersons = [...vehicles, ...persons];
     var locations = widget.location.map((element) =>
     {
       "id": element['id'],
@@ -120,40 +123,46 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
     var vendors = widget.vendors.map((element) => {
       "id": element['id'],
       "name": element['name'],
-      "type": "location",
+      "type": "vendors",
       "partNumber" : 3,
       "value" : element
     }).toList();
-    vLocations = [...locations, ...vendors];
+    vLocations = [...vendors, ...locations];
     commonList = tasks;
-    log("UpdateCommonList", name: "TaskIdentifier");
+    log("UpdateCommonList ${commonList.length} ${tasks.length} ${vPersons.length} ${vLocations.length}", name: "TRIGGER_IDENTIFIER_COMMON");
     _setState;
   }
 
   void _setValue({bool emit = true}) {
-    var keys = selectedList.keys.toList();
-    keys.sort((a, b) => a.compareTo(b));
-    widget.taskIdentifierController.value.copyWith(
-        selection: TextSelection.collapsed(offset: widget.taskIdentifierController.text.length - 1)
-    );
+    log("setValue:\t$selectedList", name: "TaskIdentifier");
     if (emit) {
-      selectedList.forEach((key, value) {
-        if (key == 1) {
-          widget.selectedTask?.value = value;
-        } else if (key == 2) {
-          if (value['type'] == "person") widget.selectedVPersons?.value = [value];
-          if (value['type'] == "vehicles") {
-            widget.selectedVPersons?.value.removeWhere((
-                element) => element['type'] == "person");
-            if ((value is! Map<String, dynamic>)) widget.selectedVPersons?.value = [...(widget.selectedVPersons?.value ?? []), ...value ];
+      try {
+        selectedList.forEach((key, value) {
+          log("setValue(b):	$key $value", name: "TaskIdentifier");
+          if (key == 1) {
+            widget.selectedTask?.value = value;
+          } else if (key == 2) {
+            try {
+              if (value['type'] == "person") widget.selectedVPersons?.value = [value];
+              if (value['type'] == "vehicles") {
+                widget.selectedVPersons?.value.removeWhere((
+                    element) => element.containsKey('type') && (element['type'] == "person"));
+                if (widget.selectedVPersons?.value.contains(value) == false) widget.selectedVPersons?.value = [...(widget.selectedVPersons?.value ?? []), ...[value] ];
+              }
+              widget.selectedVPersons?.notifyListeners();
+            } on Exception catch (e) {
+              log("Exception:	$e", name: "TaskIdentifier");
+            }
+          } else if (key == 3) {
+            widget.selectedVLocations?.value = value;
           }
-          widget.selectedVPersons?.notifyListeners();
-        } else if (key == 3) {
-          widget.selectedVLocations?.value = value;
-        }
-      });
+        });
+      } on Exception catch (e) {
+        log("Exception(b):	$e", name: "TaskIdentifier");
+      }
     }
     widget.taskIdentifierController.text = formatMapData(selectedList);
+    widget.taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset: widget.taskIdentifierController.text.length - 1));
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
@@ -168,14 +177,14 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
 
     // Extract names from mapData
     sortedMap.forEach((key, value) {
-      if (value.containsKey('name')) {
+      if (value?.containsKey('name') ?? false) {
         names.add(value['name']);
       }
     });
 
     // Convert to string with conditions
     String result = names.join('-');
-    if (names.length < 3) {
+    if (names.length < 2) {
     if (mapData.containsKey(2)) {
       return '-$result-'; // Wrap with '-'
     } else if (mapData.containsKey(3)) {
@@ -202,10 +211,11 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       key: UniqueKey(),
         suggestions: commonList,
         focusNode: _focusNode,
-        itemAsString: (item) => item['name'].toString(),
+        itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
         onTap: _requestFocus,
         onTapOutSide: _unRequestFocus,
         onSuggestionTap: (val) {
+        log("PartNumber:\t${val['partNumber']}", name: "VALUE_NUMBER");
           selectedList[val['partNumber']] = val;
           _setValue();
           _requestFocus();
@@ -219,12 +229,16 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
   }
 
  List<SearchFieldListItem<Map<String, dynamic>>>? onSearch(String val) {
-    if (val.isEmpty) selectedList.clear();
+    if (val.isEmpty) {
+      selectedList.clear();
+      // _unRequestFocus();
+      // return null;
+    }
     var inputValue = val.toLowerCase();
     if (!inputValue.contains("-")) {
       commonList = tasks;
-      return commonList.where((element) => element['name'].toString().toLowerCase().contains(val.toLowerCase())).map((e) => SearchFieldListItem(
-          (e['name']),
+      return commonList.where((element) => isExist(element, val) ).map((e) => SearchFieldListItem(
+          e['name'],
           item: e)).toList();
     }
     var inputParts = inputValue.split("-");
@@ -299,9 +313,17 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       }
     });
     log("InputPartsCount(s) ${inputParts} ${inputParts.length} $cursorPosition $hyphenPositions $typedPart $partNumber", name: "TaskIdentifier");
-    return commonList.where((element) => element['name'].toString().toLowerCase().contains(typedPart.toLowerCase())).map((e) => SearchFieldListItem(
-        (e['name']),
+    return commonList.where((element) => isExist(element, typedPart) ).map((e) => SearchFieldListItem(
+        (e.containsKey("subname") ? "${e['name']}${e['subname']}" : e['name'].toString()),
         item: e)).toList();
+  }
+
+  bool isExist(Map<String, dynamic> data, String input) {
+    if (data.containsKey("subname")) {
+      return data['name'].toString().toLowerCase().contains(input.toLowerCase()) || data['subname'].toString().toLowerCase().contains(input.toLowerCase());
+    } else {
+      return data['name'].toString().toLowerCase().contains(input.toLowerCase());
+    }
   }
 
 

@@ -10,11 +10,12 @@ import 'package:searchfield/searchfield.dart';
 class CustomVehiclePersonField extends StatelessWidget {
   final ValueNotifier<List<Map<String, dynamic>>>? selectedVPersons;
   final List<Map<String, dynamic>> vehiclesList, personsList;
+  final TextEditingController? controller;
 
   CustomVehiclePersonField({super.key,
     this.selectedVPersons,
     required this.vehiclesList,
-    required this.personsList}) {
+    required this.personsList, this.controller}) {
     _prepareData();
     _checkSelectedVData();
   }
@@ -40,13 +41,13 @@ class CustomVehiclePersonField extends StatelessWidget {
         .map((element) =>
     {
       "id": element['id'],
-      "name": element['vehicle_name'],
+      "name": element['vehicle_name'] + "\t(${element['vehicle_number']})",
       "type": "vehicles",
       "partNumber": 2,
       "value": element
     })
         .toList();
-    commonList.value = [...persons, ...vehicles];
+    commonList.value = [...vehicles, ...persons];
   }
 
   void _checkSelectedVData() {
@@ -61,7 +62,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.zero,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(color: AppC.fieldBase,
               width: Num.borderWidthField),
@@ -71,7 +72,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                 width: Num.borderWidthField),
           ),
           borderRadius:
-          const BorderRadius.all(Radius.circular(6))),
+          BorderRadius.all(Radius.circular(6))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +118,9 @@ class CustomVehiclePersonField extends StatelessWidget {
               valueListenable: commonList,
               builder: (context, value, child) =>
                   CustomSearchField<Map<String, dynamic>>(
+                    controller: controller,
                     suggestions: value,
+                    autoControllerClear: true,
                     labelText: "Vehicle/Person",
                     itemAsString: (item) => item['name'].toString(),
                     suggestionState: Suggestion.hidden,

@@ -6,11 +6,10 @@ import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -30,14 +29,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:searchfield/searchfield.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../Response/todo_list_response.dart';
 import '../../Utilities/image_pick_helper.dart';
 import '../../widget/time_picker_only.dart';
 import '../Manage Custom Data/Parts/part_view_ui.dart';
 import '../Manage Custom Data/Supplies/supplies_view_ui.dart';
-import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_detail_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 
@@ -545,16 +541,9 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         textColors = AppC.text;
                       }
                     }
-                    /*List<Todos> list = [];
-                      list.addAll(state.vehicleHistoryList ?? []);
-                      list.sort((a, b) => DateTime.parse(a.createdAt ?? '')
-                          .compareTo(DateTime.parse(b.createdAt ?? '')));
-                      todoList.addAll(list.reversed.toList());*/
                     todoList.addAll(state.vehicleHistoryList!);
                     todoListRepo!.vehicleHistoryTempSearchList
-                        .addAll(/*todoList*/ state.vehicleHistoryList!);
-                    // debugPrint(
-                    //     'cleancar.title: ${(todoListRepo!.vehicleHistoryTempSearchList)[0]['title'] ?? ''}');
+                        .addAll(state.vehicleHistoryList!);
                     doSetState();
                   }
                 } else if (state is VehicleHistoryListLoaded) {
@@ -624,138 +613,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                             selectedVLocations: selectedVLocation,
                             selectedVPersons: selectedVPersons,
                           ),
-                          /*Utils.getTextFormField(
-                            'Task Identifier',
-                            taskIdentifierController,
-                            label: Utils.getText('Task Identifier'),
-                            readOnly: false,
-                            onChangeCallback: (value) async {
-                              setState(() {
-                                taskSuggestionList.clear();
-                                if (value.isNotEmpty) {
-                                  List taskList = taskExpenseList
-                                      .map((e) => e['task'] ?? '')
-                                      .toList();
-                                  taskSuggestionList.addAll(
-                                      Utils.searchList(taskList, value));
-                                  showTaskList = taskSuggestionList.isNotEmpty;
-                                } else {
-                                  showTaskList = false;
-                                }
-                              });
-                              String textCurrentlyEditing =
-                                  getTextBeforeCursor();
-                              debugPrint(
-                                  'textCurrentlyEditing: $textCurrentlyEditing');
-                              count = countHyphens(textCurrentlyEditing);
-                              debugPrint('count: $count');
-                              taskIdentifierSuggestionList.clear();
-                              if (count == 0) {
-                                taskIdentifierSuggestionList.clear();
-                                for (var e in taskExpenseList) {
-                                  if (e['task_identifier'] != null &&
-                                      e['task_identifier']!.isNotEmpty &&
-                                      (e['task_identifier']!)
-                                          .contains(stringArr[0])) {
-                                    taskNameList[e['task_identifier']!] =
-                                        (e['task'] ?? '');
-                                    taskIdentifierSuggestionList.add(
-                                        (e['task_identifier'] ?? '').trim());
-                                  }
-                                }
-                                showList =
-                                    taskIdentifierSuggestionList.isNotEmpty &&
-                                        stringArr[0].isNotEmpty;
-                              } else if (count == 1) {
-                                taskIdentifierSuggestionList.clear();
-                                // for (dynamic name in editMultipleVehicleList) {
-                                //   if (name is Map<String, dynamic> && name.containsKey('vehicle_name')) {
-                                //     taskIdentifierSuggestionList.add(name['vehicle_name']);
-                                //   } else {
-                                //     print("Unexpected data format: $name");
-                                //   }
-                                // }
-                                for (var e in resourceListForCombination) {
-                                  if ((e['first_name'] != null ||
-                                          e['last_name'] != null) &&
-                                      ('${e['first_name'] ?? ''} ${e['last_name'] ?? ''}')
-                                          .contains(stringArr[1])) {
-                                    taskIdentifierSuggestionList.add(
-                                        '${e['first_name'] ?? ''.trim()} ${e['last_name'] ?? ''.trim()}');
-                                  }
-                                }
-                                for (var e in (vehicleList)) {
-                                  if (e['vehicle_name'] != null &&
-                                      (e['vehicle_name']!)
-                                          .contains(stringArr[1])) {
-                                    taskIdentifierSuggestionList
-                                        .add(e['vehicle_name'] ?? ''.trim());
-                                  }
-                                }
-                                for (var e in resourceListForCombination) {
-                                  if ((e['first_name'] != null &&
-                                          (e['first_name']!.toLowerCase())
-                                              .contains(stringArr[1]
-                                                  .toLowerCase())) ||
-                                      (e['last_name'] != null &&
-                                          (e['last_name']!.toLowerCase())
-                                              .contains(stringArr[1]
-                                                  .toLowerCase()))) {
-                                    taskIdentifierSuggestionList.add(
-                                        '${e['first_name']} ${e['last_name']}'
-                                            .trim());
-                                  }
-                                }
-                                for (var e in vehicleGroupList) {
-                                  if (e['name'] != null &&
-                                      (e['name']!).contains(stringArr[1])) {
-                                    taskIdentifierSuggestionList
-                                        .add(e['name'] ?? ''.trim());
-                                  }
-                                }
-                                showList =
-                                    taskIdentifierSuggestionList.isNotEmpty &&
-                                        stringArr[1].isNotEmpty;
-                                await getSelectedVehiclePerson(
-                                        createTodoParamForVHistory)
-                                    .then((value) {
-                                  if ((value.vin != null &&
-                                          value.vin!.isNotEmpty) ||
-                                      (value.vehicleGroupId != null &&
-                                          value.vehicleGroupId!.isNotEmpty)) {
-                                    editShowMultipleVehicleList = true;
-                                  } else {
-                                    editShowMultipleVehicleList = false;
-                                  }
-                                });
-                              } else if (count == 2) {
-                                taskIdentifierSuggestionList.clear();
-                                for (var e in vendorList) {
-                                  if (e['name'] != null &&
-                                      (e['name']!).contains(stringArr[2])) {
-                                    taskIdentifierSuggestionList
-                                        .add(e['name'] ?? ''.trim());
-                                  }
-                                }
-                                for (var e in locationList) {
-                                  if (e['name'] != null &&
-                                      (e['name']!).contains(stringArr[2])) {
-                                    taskIdentifierSuggestionList
-                                        .add(e['name'] ?? ''.trim());
-                                  }
-                                }
-                                showList =
-                                    taskIdentifierSuggestionList.isNotEmpty &&
-                                        stringArr[2].isNotEmpty;
-                              }
-                              todoNameController.text =
-                                  stringArr.isNotEmpty ? stringArr[0] : '';
-                              vehiclePersonController.text =
-                                  stringArr.length >= 2 ? stringArr[1] : '';
-                              vendorLocationController.text =
-                                  stringArr.length >= 3 ? stringArr[2] : '';
-                            },
-                          ),*/
                           taskIdentifierStack(),
                           Column(
                             children: [
@@ -818,22 +675,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
           ),
         ),
       );
-
-  Future<void> openLink(String url) async {
-    final Uri uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
-      } else {
-        throw 'Could not launch $url';
-      }
-    } catch (e) {
-      log('Error launching URL: $e');
-    }
-  }
 
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
     for (Map<String, dynamic> res in resourceList) {
@@ -1213,384 +1054,36 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   }
 
   Widget taskIdentifierStack() {
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 10,
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
-          children: [
-            //const SizedBox(height: 10),
-            Utils.getTextFormField(
-              'Task Name',
-              todoNameController,
-              label: Utils.getText('Task Name'),
-              borderColor:
-                  isTaskNameFieldEmpty && todoNameController.text.isEmpty
-                      ? Colors.red
-                      : AppC.fieldBase,
-              suffixIcon:
-                  isTaskNameFieldEmpty && todoNameController.text.isEmpty
-                      ? const Icon(Icons.error_outline, color: Colors.red)
-                      : null,
-            ),
-            CustomVehiclePersonField(vehiclesList: vehicleList, personsList: resourceListForCombination, selectedVPersons: selectedVPersons),
-            /*Visibility(
-              visible: isMultipleVehicleChecked,
-              child: Column(
-                children: [
-                  *//*const SizedBox(
-                    height: 15,
-                  ),*//*
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppC.fieldBase,
-                          width: Num.borderWidthField,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(Num.subradiusButton))),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          children: List<Widget>.generate(
-                            selectedMultipleVehicleList.value.length,
-                            (int idx) {
-                              return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Chip(
-                                    // deleteIconColor: AppC.red,
-                                    onDeleted: () {
-                                      for (var element
-                                          in editMultipleVehicleList) {
-                                        if (element['vehicle_name'] ==
-                                            selectedMultipleVehicleList.value[idx]
-                                                ['vehicle_name']) {
-                                          isVehicleSelected = false;
-                                          // element.isMultipleVehSelected = false;
-                                        }
-                                      }
-                                      selectedMultipleVehicleList.value.removeAt(idx);
-                                      setState(() {});
-                                    },
-                                    side: const BorderSide(color: AppC.trans),
-                                    deleteIcon: const Icon(
-                                      Icons.close,
-                                      color: AppC.red,
-                                      size: 18,
-                                    ),
-                                    backgroundColor: const Color(0xffb5d2bb),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    // side: BorderSide(),
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Utils.getText(
-                                            selectedMultipleVehicleList.value[idx]
-                                                    ['vehicle_name'] ??
-                                                '',
-                                            color: AppC.text),
-                                      ],
-                                    ),
-                                  ));
-                            },
-                          ).toList(),
-                        ),
-                        const SizedBox(height: 5),
-                        Utils.getTextFormField(
-                            'Vehicle/Person', vehiclePersonController,
-                            label: Utils.getText('Vehicle/Person'),
-                            readOnly: false, onChangeCallback: (value) {
-                          editMultipleVehicleSuggestionList.clear();
-                          if (value.isNotEmpty) {
-                            List<dynamic> multipleVehicleList =
-                                editMultipleVehicleList; // Keep your original list
-                            editMultipleVehicleSuggestionList.addAll(
-                                Utils.searchObjectList(
-                                    multipleVehicleList, value,
-                                    isVehicleData: true));
-                            editShowMultipleVehicleList =
-                                editMultipleVehicleSuggestionList.isNotEmpty;
-                          } else {
-                            // If the input is empty, set editShowMultipleVehicleList to false
-                            editShowMultipleVehicleList = false;
-                          }
-                          setState(() {});
-                        },
-                            suffixIcon: Visibility(
-                              visible: !editShowMultipleVehicleList &&
-                                  vehiclePersonController.text.isNotEmpty,
-                              child: InkWell(
-                                  onTapDown: (details) {
-                                    Utils.showStringPopupMenu(
-                                        context,
-                                        ['Add Vehicle', 'Add Person'],
-                                        details, (value) async {
-                                      if (value == 'Add Vehicle') {
-                                        await Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              const VehicleViewUI(),
-                                        ));
-                                      } else {
-                                        await Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              const EmployeesViewUI(),
-                                        ));
-                                      }
-                                    });
-                                  },
-                                  child: Icon(Icons.add,
-                                      color: AppC().base, size: 20)),
-                            )),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),*/
-            Stack(
-              children: [
-                Column(
-                  children: [vendorLocationStack()],
-                ),
-                /*Visibility(
-                  visible: editShowMultipleVehicleList,
-                  child: Utils.customAutoCompleteWithUnSelectedOption(
-                      editMultipleVehicleSuggestionList, (index) {
-                    editShowMultipleVehicleList = false;
-                    countHyphens('');
-                    if (findIsPersonOrVehicle(
-                        editMultipleVehicleSuggestionList[index])) {
-                      selectedMultipleVehicleList.value.clear();
-                      selectedMultipleVehicleList.value
-                          .add(editMultipleVehicleSuggestionList[index]);
-                      isSelected = true;
-                      vehiclePersonController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(
-                            offset: (vehiclePersonController.text.length)),
-                      );
-                      setState(() {});
-                      vehiclePersonController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(
-                            offset: (vehiclePersonController.text.length)),
-                      );
-                    } else {
-                      if (lastSelectedIsPerson) {
-                        selectedMultipleVehicleList.value.clear();
-                        lastSelectedIsPerson = false;
-                      }
-                      selectedMultipleVehicleList.value
-                          .add(editMultipleVehicleSuggestionList[index]);
-                      isSelected = true;
-                      vehiclePersonController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(
-                            offset: (vehiclePersonController.text.length)),
-                      );
-                      setState(() {});
-                      vehiclePersonController.selection =
-                          TextSelection.fromPosition(
-                        TextPosition(
-                            offset: (vehiclePersonController.text.length)),
-                      );
-                    }
-                  }, isVehicleData: true),
-                ),*/
-              ],
-            ),
-          ],
+        Utils.getTextFormField(
+          'Task Name',
+          todoNameController,
+          label: Utils.getText('Task Name'),
+          borderColor:
+          isTaskNameFieldEmpty && todoNameController.text.isEmpty
+              ? Colors.red
+              : AppC.fieldBase,
+          suffixIcon:
+          isTaskNameFieldEmpty && todoNameController.text.isEmpty
+              ? const Icon(Icons.error_outline, color: Colors.red)
+              : null,
         ),
-        Visibility(
-          visible: showList,
-          child: Container(
-            decoration: BoxDecoration(
-                color: AppC.white,
-                borderRadius: BorderRadius.circular(Num.radiusButton),
-                border: Border.all(
-                  color: AppC.fieldBase,
-                  width: Num.borderWidthThinField,
-                )),
-            height: (30.0 * (taskIdentifierSuggestionList.length) > 350
-                ? 350
-                : (30.0 * (taskIdentifierSuggestionList.length))),
-            child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-                itemCount: taskIdentifierSuggestionList.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                      onTap: () async {
-                        showList = false;
-                        if (count == 0) {
-                          todoNameController.text = taskNameList[
-                                  taskIdentifierSuggestionList[index]] ??
-                              '';
-                          if (stringArr.length == 1) {
-                            taskIdentifierController.text =
-                                '${taskIdentifierSuggestionList[index]}-';
-                          } else if (stringArr.length == 2) {
-                            taskIdentifierController.text =
-                                '${taskIdentifierSuggestionList[index]}-${stringArr[1]}-';
-                          } else if (stringArr.length == 3) {
-                            taskIdentifierController.text =
-                                '${taskIdentifierSuggestionList[index]}-${stringArr[1]}-${stringArr[2]}';
-                          }
-                          cursorPosition =
-                              '${taskIdentifierSuggestionList[index]}-'.length;
-                        } else if (count == 1) {
-                          vehiclePersonController.text =
-                              taskIdentifierSuggestionList[index];
-                          if (stringArr.length == 2) {
-                            taskIdentifierController.text =
-                                '${stringArr[0]}-${taskIdentifierSuggestionList[index]}-';
-                          } else if (stringArr.length == 3) {
-                            taskIdentifierController.text =
-                                '${stringArr[0]}-${taskIdentifierSuggestionList[index]}-${stringArr[2]}';
-                          }
-                          cursorPosition =
-                              '${stringArr[0]}-${taskIdentifierSuggestionList[index]}-'
-                                  .length;
-                          if (vehiclePersonController.text.isNotEmpty) {
-                            await getSelectedVehiclePerson(
-                                    createTodoParamForVHistory)
-                                .then((value) {
-                              if ((value.vin != null &&
-                                      value.vin!.isNotEmpty) ||
-                                  (value.vehicleGroupId != null &&
-                                      value.vehicleGroupId!.isNotEmpty)) {
-                                isShowVehicleHistoryList = true;
-                                // vehicleDataBloc = VehicleDataBloc();
-                                vehicleDataBloc!.add(GetVehicleHistoryEvent(
-                                    vin: value.vin,
-                                    vehicleGroupId: /*value.vehicleGroupId != null ?*/
-                                        /*int.parse(value.vehicleGroupId??'0') :*/ null));
-                                setState(() {});
-                              } else {
-                                isShowVehicleHistoryList = false;
-                                setState(() {});
-                              }
-
-                              setState(() {});
-                            });
-                          }
-                        } else if (count == 2) {
-                          vendorLocationController.text =
-                              taskIdentifierSuggestionList[index];
-                          if (stringArr.length == 3) {
-                            taskIdentifierController.text =
-                                '${stringArr[0]}-${stringArr[1]}-${taskIdentifierSuggestionList[index]}';
-                            cursorPosition =
-                                taskIdentifierController.text.length;
-                          }
-                          if (vendorLocationController.text.isNotEmpty) {
-                            await getSelectedVendorLocation(
-                                    createTodoParamForVHistory)
-                                .then((value) {
-                              if (value.locationId != null &&
-                                  value.locationId!.isNotEmpty) {
-                                isShowMultipleAddressField = true;
-                                //TODO: call location GetAddedLocationListData()
-                                selectedMultipleAddressId = value.locationId!;
-                                locationDataBloc!
-                                    .add(const GetAddedLocationListData());
-                                setState(() {});
-                              } else {
-                                isShowMultipleAddressField = false;
-                                setState(() {});
-                              }
-
-                              setState(() {});
-                            });
-                          }
-                        }
-                        taskIdentifierController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(offset: (cursorPosition)),
-                        );
-                        setState(() {});
-                        // Move the cursor to the end of the text
-                        taskIdentifierController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(offset: (cursorPosition)),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
-                        child:
-                            Utils.getText(taskIdentifierSuggestionList[index]),
-                      ));
-                }),
-          ),
-        ),
+        CustomVehiclePersonField(vehiclesList: vehicleList, personsList: resourceListForCombination, selectedVPersons: selectedVPersons, ),
+        vendorLocationStack(),
       ],
     );
   }
 
   Widget vendorLocationStack() {
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /*const SizedBox(
-              height: 15,
-            ),*/
-            CustomVendorLocationField(vendorsList: vendorList, locationsList: locationList, selectedVLocations: selectedVLocation,),
-            /*Utils.getTextFormField(
-              'Vendor / Location', vendorLocationController,
-              label: Utils.getText('Vendor / Location'),
-              readOnly: false,
-              onChangeCallback: (value) {
-                // String textCurrentlyEditing = getTextBeforeCursor();
-                // debugPrint('textCurrentlyEditing: $textCurrentlyEditing');
-                vendorLocationSuggestionList.clear();
-                if (value.isNotEmpty) {
-                  List vendorLocationList =
-                      vendorList.map((e) => e['name'] ?? '').toList() +
-                          locationList.map((e) => e['name'] ?? '').toList();
-                  vendorLocationSuggestionList
-                      .addAll(Utils.searchList(vendorLocationList, value));
-                  showVendorLocationList =
-                      vendorLocationSuggestionList.isNotEmpty;
-                } else {
-                  showVendorLocationList = false;
-                }
-
-                setState(() {});
-              },
-              // suffixIcon: Visibility(
-              //   // visible: !editShowVendorLocationList,
-              //   child: InkWell(
-              //       onTapDown: (details) {
-              //         Utils.showStringPopupMenu(
-              //             context, ['Add Vendor', 'Add Location'], details,
-              //                 (value) async {
-              //               if (value == 'Add Vendor') {
-              //                 await Navigator.of(context).push(MaterialPageRoute(
-              //                   builder: (context) => const VendorViewUI(),
-              //                 ));
-              //               } else {
-              //                 await Navigator.of(context).push(MaterialPageRoute(
-              //                   builder: (context) => const LocationViewUI(),
-              //                 ));
-              //               }
-              //             });
-              //       },
-              //       child: Icon(Icons.add, color: AppC().base, size: 20)),
-              // )
-            ),*/
-            partsStack()
-          ],
-        ),
+        CustomVendorLocationField(vendorsList: vendorList, locationsList: locationList, selectedVLocations: selectedVLocation, controller: vendorLocationController,),
+        partsStack()
       ],
     );
   }
@@ -1617,12 +1110,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               InkWell(
                   onTap: () async {
                     if (modifiedDateTime != null) {
-                      // debugPrint('modifiedDateTime1: $modifiedDateTime');
                       await doCreateTodo(
                           todoName: 'Clean Car',
                           time:
                               DateFormat("HH:mm:ss").format(modifiedDateTime!));
-                      // debugPrint('modifiedDateTime2: ${DateFormat("HH:mm:ss").format(modifiedDateTime!)}');
                     }
                   },
                   child: Container(
@@ -1684,731 +1175,567 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   }
 
   Widget partsStack() {
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Utils.getTextFormField('Notes', notesController,
-                label: Utils.getText('Notes'),
-                readOnly: false,
-                onChangeCallback: (value) {}),
-            const SizedBox(
-              height: 10,
-            ),
-            Visibility(
-              visible: !showMore,
-              child: InkWell(
-                  onTap: () {
-                    showMore = !showMore;
-                    setState(() {});
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Utils.getText('More...',
-                          color: Colors.lightBlue.shade800),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: SizedBox(
-                          height: 30,
-                          child: Utils.dropdownBox(
-                            '',
-                            customTaskOptions,
-                            (selectedValue) {
-                              setState(() {
-                                selectedLink = selectedValue;
-                              });
-                            },
-                            labelKey: 'label',
-                            selectedKey: selectedLink,
-                            initialSelection: selectedLink,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        key: _key,
-                        onTap: () async {
-                          final RenderBox renderBox = _key.currentContext!
-                              .findRenderObject() as RenderBox;
-                          final Offset offset =
-                              renderBox.localToGlobal(Offset.zero);
-                          final Size size = renderBox.size;
-                          await showMenu(
-                            elevation: 5,
-                            color: AppC.white,
-                            context: context,
-                            constraints: BoxConstraints.tightFor(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                height: 45),
-                            position: RelativeRect.fromLTRB(
-                              offset.dx,
-                              offset.dy + size.height,
-                              offset.dx + size.width,
-                              offset.dy,
-                            ),
-                            // Adjust as needed
-                            items: [
-                              PopupMenuItem(
-                                height: 30,
-                                child: Builder(builder: (context) {
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          height: 30,
-                                          child: selectedLink['id'] == '1'
-                                              ? Utils.getTextFormField(
-                                                  'Link', linkController)
-                                              : Utils.getTextFormField(
-                                                  'Reservation',
-                                                  reservationController,
-                                                ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.pop(
-                                              context); // Close the popup menu
-                                        },
-                                        child: const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Icon(
-                                            Icons.close,
-                                            color: AppC.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }),
-                              ),
-                            ],
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color: AppC.appColor,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 3.0),
-                          child: Utils.getText(
-                            selectedLink['id'] == '1'
-                                ? '+ Link'
-                                : '+ Reservation',
-                            color: AppC.white,
-                            size: 12,
-                            overFlow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-            ),
-            Visibility(visible: showMore, child: getPartSupplyCheckBoxRow()),
-            Visibility(
-              visible: isPartChecked && showMore,
-              child: Column(
+        const SizedBox(
+          height: 10,
+        ),
+        Utils.getTextFormField('Notes', notesController,
+            label: Utils.getText('Notes'),
+            readOnly: false,
+            onChangeCallback: (value) {}),
+        const SizedBox(
+          height: 10,
+        ),
+        Visibility(
+          visible: !showMore,
+          child: InkWell(
+              onTap: () {
+                showMore = !showMore;
+                setState(() {});
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Utils.getText('More...',
+                      color: Colors.lightBlue.shade800),
                   const SizedBox(
-                    height: 10,
+                    width: 10,
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(
-                        top: 10, left: 3, right: 3, bottom: 10),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppC.fieldBase,
-                          width: Num.borderWidthField,
+                  Expanded(
+                    child: SizedBox(
+                      height: 30,
+                      child: Utils.dropdownBox(
+                        '',
+                        customTaskOptions,
+                            (selectedValue) {
+                          setState(() {
+                            selectedLink = selectedValue;
+                          });
+                        },
+                        labelKey: 'label',
+                        selectedKey: selectedLink,
+                        initialSelection: selectedLink,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  InkWell(
+                    key: _key,
+                    onTap: () async {
+                      final RenderBox renderBox = _key.currentContext!
+                          .findRenderObject() as RenderBox;
+                      final Offset offset =
+                      renderBox.localToGlobal(Offset.zero);
+                      final Size size = renderBox.size;
+                      await showMenu(
+                        elevation: 5,
+                        color: AppC.white,
+                        context: context,
+                        constraints: BoxConstraints.tightFor(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: 45),
+                        position: RelativeRect.fromLTRB(
+                          offset.dx,
+                          offset.dy + size.height,
+                          offset.dx + size.width,
+                          offset.dy,
                         ),
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(Num.subradiusButton))),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          children: List<Widget>.generate(
-                            selectedPartsList.length,
-                            (int idx) {
-                              return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Chip(
-                                    // deleteIconColor: AppC.red,
-                                    onDeleted: () {
-                                      selectedPartsList.removeAt(idx);
-                                      setState(() {});
-                                    },
-                                    side: const BorderSide(color: AppC.trans),
-                                    deleteIcon: const Icon(
-                                      Icons.close,
-                                      color: AppC.red,
-                                      size: 18,
+                        // Adjust as needed
+                        items: [
+                          PopupMenuItem(
+                            height: 30,
+                            child: Builder(builder: (context) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 30,
+                                      child: selectedLink['id'] == '1'
+                                          ? Utils.getTextFormField(
+                                          'Link', linkController)
+                                          : Utils.getTextFormField(
+                                        'Reservation',
+                                        reservationController,
+                                      ),
                                     ),
-                                    backgroundColor: const Color(0xffb5d2bb),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    // side: BorderSide(),
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Utils.getText(
-                                            selectedPartsList[idx]['name'] ??
-                                                '',
-                                            color: AppC.text),
-                                      ],
-                                    ),
-                                  ));
-                            },
-                          ).toList(),
-                        ),
-                        //const SizedBox(height: 15),
-                        CustomSearchField<Map<String, dynamic>>(
-                            suggestions: editPartsList,
-                            itemAsString: (item) => item['name'].toString(),
-                            onSuggestionTap: (val) {
-                              selectedPartsList.add(val);
-                              doSetState();
-                            },
-                            controller: editPartsController,
-                            autoControllerClear: true,
-                            suggestionState: Suggestion.expand,
-                            labelText: "Parts",
-                            onEmptyTap: () => context.push(const PartViewUI(),
-                                fullscreenDialog: true)),
-                        /*Utils.getTextFormField(
-                          'Parts',
-                          editPartsController,
-                          label: Utils.getText('Parts'),
-                          readOnly: false,
-                          onChangeCallback: (value) {
-                            // Clear the current suggestions and filter the parts based on input
-                            setState(() {
-                              if (value.isNotEmpty) {
-                                editPartsSuggestionList.clear();
-                                editPartsSuggestionList = editPartsList
-                                    .where((part) => part['name']
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()))
-                                    .toList();
-                                // Show the list only if there are suggestions
-                                editShowPartsList =
-                                    editPartsSuggestionList.isNotEmpty;
-                                setState(() {});
-                              } else {
-                                editShowPartsList = false;
-                              }
-                            });
-                          },
-                          suffixIcon: Visibility(
-                            visible: !editShowPartsList &&
-                                editPartsController.text.isNotEmpty,
-                            child: InkWell(
-                              onTap: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const PartViewUI(),
                                   ),
-                                );
-                              },
-                              child:
-                                  Icon(Icons.add, color: AppC().base, size: 20),
-                            ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pop(
+                                          context); // Close the popup menu
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppC.red,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
                           ),
-                        ),*/
-                      ],
+                        ],
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppC.appColor,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 3.0),
+                      child: Utils.getText(
+                        selectedLink['id'] == '1'
+                            ? '+ Link'
+                            : '+ Reservation',
+                        color: AppC.white,
+                        size: 12,
+                        overFlow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ],
-              ),
-            ),
-            suppliesStack()
-          ],
+              )),
         ),
+        Visibility(visible: showMore, child: getPartSupplyCheckBoxRow()),
         Visibility(
-          visible: showVendorLocationList,
-          child: Utils.customAutoCompleteList(vendorLocationSuggestionList,
-              (index) async {
-            showVendorLocationList = false;
-            countHyphens('');
-            vendorLocationController.text =
-                vendorLocationSuggestionList[index] ?? '';
-            if (stringArr.length == 1) {
-              taskIdentifierController.text =
-                  '${stringArr[0]}--${vendorLocationSuggestionList[index]}';
-            } else if (stringArr.length >= 2) {
-              taskIdentifierController.text =
-                  '${stringArr[0]}-${stringArr[1]}-${vendorLocationSuggestionList[index]}';
-            }
-            vendorLocationController.selection = TextSelection.fromPosition(
-              TextPosition(offset: (vendorLocationController.text.length)),
-            );
-            setState(() {});
-            vendorLocationController.selection = TextSelection.fromPosition(
-              TextPosition(offset: (vendorLocationController.text.length)),
-            );
-            if (vendorLocationController.text.isNotEmpty) {
-              await getSelectedVendorLocation(createTodoParamForVHistory)
-                  .then((value) {
-                if (value.locationId != null && value.locationId!.isNotEmpty) {
-                  selectedMultipleAddressId = value.locationId!;
-                  //TODO: call location GetAddedLocationListData()
-                  locationDataBloc!.add(const GetAddedLocationListData());
-                  setState(() {});
-                }
-                /*else {
-                  isShowMultipleAddressField = false;
-                  setState(() {});
-                }
-*/
-                setState(() {});
-              });
-            }
-          }),
+          visible: isPartChecked && showMore,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: const EdgeInsets.only(
+                    top: 10, left: 3, right: 3, bottom: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppC.fieldBase,
+                      width: Num.borderWidthField,
+                    ),
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(Num.subradiusButton))),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      children: List<Widget>.generate(
+                        selectedPartsList.length,
+                            (int idx) {
+                          return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5.0),
+                              child: Chip(
+                                // deleteIconColor: AppC.red,
+                                onDeleted: () {
+                                  selectedPartsList.removeAt(idx);
+                                  setState(() {});
+                                },
+                                side: const BorderSide(color: AppC.trans),
+                                deleteIcon: const Icon(
+                                  Icons.close,
+                                  color: AppC.red,
+                                  size: 18,
+                                ),
+                                backgroundColor: const Color(0xffb5d2bb),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)),
+                                // side: BorderSide(),
+                                label: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Utils.getText(
+                                        selectedPartsList[idx]['name'] ??
+                                            '',
+                                        color: AppC.text),
+                                  ],
+                                ),
+                              ));
+                        },
+                      ).toList(),
+                    ),
+                    CustomSearchField<Map<String, dynamic>>(
+                        suggestions: editPartsList,
+                        itemAsString: (item) => item['name'].toString(),
+                        onSuggestionTap: (val) {
+                          selectedPartsList.add(val);
+                          doSetState();
+                        },
+                        controller: editPartsController,
+                        autoControllerClear: true,
+                        suggestionState: Suggestion.expand,
+                        labelText: "Parts",
+                        onEmptyTap: () => context.push(const PartViewUI(),
+                            fullscreenDialog: true)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+        suppliesStack()
       ],
     );
   }
 
   Widget suppliesStack() {
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Visibility(
-              visible: isSupplyChecked && showMore,
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(
-                        top: 10, left: 3, right: 3, bottom: 10),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppC.fieldBase,
-                          width: Num.borderWidthField,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                            Radius.circular(Num.subradiusButton))),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          children: List<Widget>.generate(
-                            selectedSuppliesList.length,
+        Visibility(
+          visible: isSupplyChecked && showMore,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: const EdgeInsets.only(
+                    top: 10, left: 3, right: 3, bottom: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppC.fieldBase,
+                      width: Num.borderWidthField,
+                    ),
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(Num.subradiusButton))),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      children: List<Widget>.generate(
+                        selectedSuppliesList.length,
                             (int idx) {
-                              return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Chip(
-                                    // deleteIconColor: AppC.red,
-                                    onDeleted: () {
-                                      for (var element in editSuppliesList) {
-                                        if (element['id'] ==
-                                            selectedSuppliesList[idx]['id']) {
-                                          isSelected = false;
-                                        }
-                                      }
-                                      selectedSuppliesList.removeAt(idx);
-                                      setState(() {});
-                                    },
-                                    side: const BorderSide(color: AppC.trans),
-                                    deleteIcon: const Icon(
-                                      Icons.close,
-                                      color: AppC.red,
-                                      size: 18,
-                                    ),
-                                    backgroundColor: const Color(0xffb5d2bb),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    // side: BorderSide(),
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Utils.getText(
-                                            selectedSuppliesList[idx]['name'] ??
-                                                '',
-                                            color: AppC.text),
-                                      ],
-                                    ),
-                                  ));
-                            },
-                          ).toList(),
+                          return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5.0),
+                              child: Chip(
+                                // deleteIconColor: AppC.red,
+                                onDeleted: () {
+                                  for (var element in editSuppliesList) {
+                                    if (element['id'] ==
+                                        selectedSuppliesList[idx]['id']) {
+                                      isSelected = false;
+                                    }
+                                  }
+                                  selectedSuppliesList.removeAt(idx);
+                                  setState(() {});
+                                },
+                                side: const BorderSide(color: AppC.trans),
+                                deleteIcon: const Icon(
+                                  Icons.close,
+                                  color: AppC.red,
+                                  size: 18,
+                                ),
+                                backgroundColor: const Color(0xffb5d2bb),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)),
+                                // side: BorderSide(),
+                                label: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Utils.getText(
+                                        selectedSuppliesList[idx]['name'] ??
+                                            '',
+                                        color: AppC.text),
+                                  ],
+                                ),
+                              ));
+                        },
+                      ).toList(),
+                    ),
+                    //const SizedBox(height: 15),
+                    CustomSearchField<Map<String, dynamic>>(
+                        suggestions: editSuppliesList,
+                        itemAsString: (item) => item['name'].toString(),
+                        onSuggestionTap: (val) {
+                          selectedSuppliesList.add(val);
+                          doSetState();
+                        },
+                        controller: editSuppliesController,
+                        autoControllerClear: true,
+                        suggestionState: Suggestion.hidden,
+                        labelText: "Supplies",
+                        onEmptyTap: () => context.push(
+                            const SuppliesViewUI(),
+                            fullscreenDialog: true)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        //SizedBox(height: 10,),
+        Visibility(
+          visible: showMore,
+          child: InkWell(
+            onTap: () {
+              showMore = !showMore;
+              setState(() {});
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Utils.getText('Less...',
+                      color: Colors.lightBlue.shade800),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 30,
+                      child: Utils.dropdownBox(
+                        '',
+                        customTaskOptions,
+                            (selectedValue) {
+                          setState(() {
+                            selectedLink = selectedValue;
+                          });
+                        },
+                        labelKey: 'label',
+                        selectedKey: selectedLink,
+                        initialSelection: selectedLink,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  InkWell(
+                    key: _key,
+                    onTap: () async {
+                      final RenderBox renderBox = _key.currentContext!
+                          .findRenderObject() as RenderBox;
+                      final Offset offset =
+                      renderBox.localToGlobal(Offset.zero);
+                      final Size size = renderBox.size;
+                      await showMenu(
+                        elevation: 5,
+                        color: AppC.white,
+                        context: context,
+                        constraints: BoxConstraints.tightFor(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: 45),
+                        position: RelativeRect.fromLTRB(
+                          offset.dx,
+                          offset.dy + size.height,
+                          offset.dx + size.width,
+                          offset.dy,
                         ),
-                        //const SizedBox(height: 15),
-                        CustomSearchField<Map<String, dynamic>>(
-                            suggestions: editSuppliesList,
-                            itemAsString: (item) => item['name'].toString(),
-                            onSuggestionTap: (val) {
-                              selectedSuppliesList.add(val);
-                              doSetState();
-                            },
-                            controller: editSuppliesController,
-                            autoControllerClear: true,
-                            suggestionState: Suggestion.hidden,
-                            labelText: "Supplies",
-                            onEmptyTap: () => context.push(
-                                const SuppliesViewUI(),
-                                fullscreenDialog: true)),
-                      ],
+                        // Adjust as needed
+                        items: [
+                          PopupMenuItem(
+                            height: 30,
+                            child: Builder(builder: (context) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 30,
+                                      child: selectedLink['id'] == '1'
+                                          ? Utils.getTextFormField(
+                                          'Link', linkController)
+                                          : Utils.getTextFormField(
+                                        'Reservation',
+                                        reservationController,
+                                      ),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pop(
+                                          context); // Close the popup menu
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppC.red,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                          ),
+                        ],
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppC.appColor,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 3.0),
+                      child: Utils.getText(
+                        selectedLink['id'] == '1'
+                            ? '+ Link'
+                            : '+ Reservation',
+                        color: AppC.white,
+                        size: 12,
+                        overFlow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            //SizedBox(height: 10,),
-            Visibility(
-              visible: showMore,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Flexible(
               child: InkWell(
                 onTap: () {
-                  showMore = !showMore;
-                  setState(() {});
+                  String url = '';
+                  if (selectedLink['id'] == '2') {
+                    url = reservationController.text.toTuroReserveUrl;
+                  } else if (selectedLink['id'] == '3') {
+                    url = reservationController.text.toGetAroundReserveUrl;
+                  } else if (selectedLink['id'] == '1') {
+                    url = linkController.text;
+                  }
+                  Utils.openURL(url);
                 },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Utils.getText('Less...',
-                          color: Colors.lightBlue.shade800),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: SizedBox(
-                          height: 30,
-                          child: Utils.dropdownBox(
-                            '',
-                            customTaskOptions,
-                            (selectedValue) {
-                              setState(() {
-                                selectedLink = selectedValue;
-                              });
-                            },
-                            labelKey: 'label',
-                            selectedKey: selectedLink,
-                            initialSelection: selectedLink,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        key: _key,
-                        onTap: () async {
-                          final RenderBox renderBox = _key.currentContext!
-                              .findRenderObject() as RenderBox;
-                          final Offset offset =
-                              renderBox.localToGlobal(Offset.zero);
-                          final Size size = renderBox.size;
-                          await showMenu(
-                            elevation: 5,
-                            color: AppC.white,
-                            context: context,
-                            constraints: BoxConstraints.tightFor(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                height: 45),
-                            position: RelativeRect.fromLTRB(
-                              offset.dx,
-                              offset.dy + size.height,
-                              offset.dx + size.width,
-                              offset.dy,
-                            ),
-                            // Adjust as needed
-                            items: [
-                              PopupMenuItem(
-                                height: 30,
-                                child: Builder(builder: (context) {
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          height: 30,
-                                          child: selectedLink['id'] == '1'
-                                              ? Utils.getTextFormField(
-                                                  'Link', linkController)
-                                              : Utils.getTextFormField(
-                                                  'Reservation',
-                                                  reservationController,
-                                                ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.pop(
-                                              context); // Close the popup menu
-                                        },
-                                        child: const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Icon(
-                                            Icons.close,
-                                            color: AppC.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }),
-                              ),
-                            ],
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color: AppC.appColor,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 3.0),
-                          child: Utils.getText(
-                            selectedLink['id'] == '1'
-                                ? '+ Link'
-                                : '+ Reservation',
-                            color: AppC.white,
-                            size: 12,
-                            overFlow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                child: Utils.getText(
+                  (selectedLink['id'] == '2' ||
+                      selectedLink['id'] == '3') &&
+                      reservationController.text.isNotEmpty
+                      ? 'Reservation No - ${reservationController.text}'
+                      : linkController.text,
+                  color: AppC.appColor,
+                  decoration: TextDecoration.underline,
+                  colorDecoration: AppC.appColor,
+                  overFlow: TextOverflow.ellipsis,
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Flexible(
-                  child: InkWell(
-                    onTap: () {
-                      String url = '';
-                      if (selectedLink['id'] == '2') {
-                        url =
-                            'https://turo.com/us/en/reservation/${reservationController.text}';
-                      } else if (selectedLink['id'] == '3') {
-                        url =
-                            'https://getaround.com/dashboard/rentals/${reservationController.text}';
-                      } else if (selectedLink['id'] == '1') {
-                        url = linkController.text;
-                      }
-                      if (url.isNotEmpty) {
-                        openLink(url);
-                      }
-                    },
-                    child: Utils.getText(
-                      (selectedLink['id'] == '2' ||
-                                  selectedLink['id'] == '3') &&
-                              reservationController.text.isNotEmpty
-                          ? 'Reservation No - ${reservationController.text}'
-                          : linkController.text,
-                      color: AppC.appColor,
-                      decoration: TextDecoration.underline,
-                      colorDecoration: AppC.appColor,
-                      overFlow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Stack(
-              children: [
-                Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Utils.getText('Task Manager', weight: FontWeight.bold),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Wrap(
-                          children: List<Widget>.generate(
-                            resourceList.length,
-                            (int idx) {
-                              final resourceId =
-                                  resourceList[idx]['id'].toString();
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2.0, vertical: 2),
-                                child: ChoiceChip(
-                                  showCheckmark: false,
-                                  padding: EdgeInsets.zero,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  labelPadding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  selectedColor: AppC.appColor,
-                                  backgroundColor: const Color(0xfff3f6f9),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  side: const BorderSide(color: AppC.appColor),
-                                  label: Utils.getText(
-                                    '${resourceList[idx]['first_name']} ${resourceList[idx]['last_name']}',
-                                    color: selectedIds.contains(resourceId)
-                                        ? AppC.white
-                                        : AppC.text,
-                                    size: 12,
-                                  ),
-                                  selected: selectedIds.contains(resourceId),
-                                  onSelected: (bool selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        if (!selectedIds.contains(resourceId)) {
-                                          selectedIds.add(resourceId);
-                                          selectedAssignedTo
-                                              ?.add(resourceList[idx]);
-                                        }
-                                      } else {
-                                        selectedIds.remove(resourceId);
-                                        selectedAssignedTo?.removeWhere(
-                                          (item) =>
-                                              item?['id'] ==
-                                              resourceList[idx]['id'],
-                                        );
-                                      }
-                                    });
-                                  },
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        if (selectedIds.isEmpty)
-                          Utils.getText('Please select task manager',
-                              color: const Color(0xffd01601)),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Utils.getText('Task Date/Time',
-                            weight: FontWeight.w500),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            Expanded(
-                              child: Utils.getTextFormField(
-                                  style: context.textTheme.titleMedium,
-                                  isDense: true,
-                                  'Todo Date',
-                                  todoDateController,
-                                  contentPadding: const EdgeInsets.all(10),
-                                  readOnly: true, onTapCallback: () {
-                                Utils.todoDatePickerDialog(context, '')
-                                    .then((value) {
-                                  selectedDate = value!;
-                                  todoDateController.text =
-                                      Utils.convertDateTimeToTheFormat(
-                                          value.toString());
-                                });
-                              }, label: Utils.getText('Todo Date')),
-                            ),
-                            Expanded(
-                                child: TimePickerViewOnly(
-                              todoListRepo: todoListRepo,
-                              textStyle: context.textTheme.titleMedium,
-                              padding: 10.padding,
-                              voidCallback: doSetState,
-                            )),
-                            Expanded(child: repeatDropdown()),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-/*
-                        Utils.getDropDownSearch(
-                            priorityList[0],
-                            priorityList,
-                                (value) {
-                              selectedPriority = value;
-                              setState(() {});
-                            },
-                            selectedPriority,
-                            'Priority',
-                                (context, value, isSelected) {
-                              return Utils.popupDropDownBuilder(label: value);
-                            },
-                                (context, value) {
-                              return Utils.getText(value ?? '');
-                            }, showSearch: false),
-                        const SizedBox(
-                          height: 15,
-                        ),
-*/
-                      ],
-                    ),
-                    Visibility(
-                        visible: editShowSuppliesList,
-                        child: Utils.customAutoCompleteWithUnSelectedOption(
-                            editSuppliesSuggestionList, (index) {
-                          editShowSuppliesList = false;
-                          countHyphens('');
-                          selectedSuppliesList
-                              .add(editSuppliesSuggestionList[index]);
-                          isSelected = true;
-                          editSuppliesController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(
-                                offset: (editSuppliesController.text.length)),
-                          );
-                          setState(() {});
-                          editSuppliesController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(
-                                offset: (editSuppliesController.text.length)),
-                          );
-                        })),
-                  ],
-                ),
-              ],
-            ),
           ],
         ),
-        Visibility(
-          visible: editShowPartsList,
-          child: Utils.customAutoCompleteListParts(
-            editPartsSuggestionList,
-            (index) {
-              setState(() {
-                editShowPartsList = false;
-                countHyphens('');
-                // Add selected part to the list and update UI
-                selectedPartsList.add(editPartsSuggestionList[index]);
-                editPartsController.text =
-                    editPartsSuggestionList[index]['name'];
-
-                // Move cursor to the end of the text field
-                editPartsController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: editPartsController.text.length),
-                );
-              });
-            },
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Utils.getText('Task Manager', weight: FontWeight.bold),
+            const SizedBox(
+              height: 5,
+            ),
+            Wrap(
+              children: List<Widget>.generate(
+                resourceList.length,
+                    (int idx) {
+                  final resourceId =
+                  resourceList[idx]['id'].toString();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 2.0, vertical: 2),
+                    child: ChoiceChip(
+                      showCheckmark: false,
+                      padding: EdgeInsets.zero,
+                      materialTapTargetSize:
+                      MaterialTapTargetSize.shrinkWrap,
+                      labelPadding:
+                      const EdgeInsets.symmetric(horizontal: 4),
+                      selectedColor: AppC.appColor,
+                      backgroundColor: const Color(0xfff3f6f9),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      side: const BorderSide(color: AppC.appColor),
+                      label: Utils.getText(
+                        '${resourceList[idx]['first_name']} ${resourceList[idx]['last_name']}',
+                        color: selectedIds.contains(resourceId)
+                            ? AppC.white
+                            : AppC.text,
+                        size: 12,
+                      ),
+                      selected: selectedIds.contains(resourceId),
+                      onSelected: (bool selected) {
+                        setState(() {
+                          if (selected) {
+                            if (!selectedIds.contains(resourceId)) {
+                              selectedIds.add(resourceId);
+                              selectedAssignedTo
+                                  ?.add(resourceList[idx]);
+                            }
+                          } else {
+                            selectedIds.remove(resourceId);
+                            selectedAssignedTo?.removeWhere(
+                                  (item) =>
+                              item?['id'] ==
+                                  resourceList[idx]['id'],
+                            );
+                          }
+                        });
+                      },
+                    ),
+                  );
+                },
+              ).toList(),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            if (selectedIds.isEmpty)
+              Utils.getText('Please select task manager',
+                  color: const Color(0xffd01601)),
+            const SizedBox(
+              height: 10,
+            ),
+            Utils.getText('Task Date/Time',
+                weight: FontWeight.w500),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              spacing: 10,
+              children: [
+                Expanded(
+                  child: Utils.getTextFormField(
+                      style: context.textTheme.titleMedium,
+                      isDense: true,
+                      'Todo Date',
+                      todoDateController,
+                      contentPadding: const EdgeInsets.all(10),
+                      readOnly: true, onTapCallback: () {
+                    Utils.todoDatePickerDialog(context, '')
+                        .then((value) {
+                      selectedDate = value!;
+                      todoDateController.text =
+                          Utils.convertDateTimeToTheFormat(
+                              value.toString());
+                    });
+                  }, label: Utils.getText('Todo Date')),
+                ),
+                Expanded(
+                    child: TimePickerViewOnly(
+                      todoListRepo: todoListRepo,
+                      textStyle: context.textTheme.titleMedium,
+                      padding: 10.padding,
+                      voidCallback: doSetState,
+                    )),
+                Expanded(child: repeatDropdown()),
+              ],
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+          ],
         ),
       ],
     );
@@ -2593,51 +1920,13 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             .cast<int>()
             .toList();
       }
-      debugPrint('createTodoParams.parameters: '
-          // 'userId : ${createTodoParams.userId},'
-          // 'todoTitle: ${createTodoParams.todoTitle},'
-          // 'todoDate: ${createTodoParams.todoDate},'
-          // 'todoTime: ${createTodoParams.todoTime},'
-          // 'priority: ${createTodoParams.priority},'
-          // 'assignedTo: ${createTodoParams.assignedTo},'
-          // 'cohortId: ${createTodoParams.cohortId},'
-          // 'cohortName: ${createTodoParams.cohortName},'
-          // 'vehicleName: ${createTodoParams.vehicleName},'
-          // 'vehicleImage: ${createTodoParams.vehicleImage},'
-          // 'vin: ${createTodoParams.vin},'
-          //  'Time Sensitive: ${createTodoParams.timeSensitive}'
-          // 'repeatPeriod: ${createTodoParams.repeatPeriod},'
-          // 'repeatDay: ${createTodoParams.repeatDay},'
-          // 'repeatWeek: ${createTodoParams.repeatWeek},'
-          // 'weekDay: ${createTodoParams.weekDay},'
-          // 'recurMonthlyType: ${createTodoParams.recurMonthlyType},'
-          // 'repeatDateMonth: ${createTodoParams.repeatDateMonth},'
-          // 'repeatMonth: ${createTodoParams.repeatMonth},'
-          // 'repeatDayMonth: ${createTodoParams.repeatDayMonth},'
-          // 'repeatDateYear: ${createTodoParams.repeatDateYear},'
-          // 'repeatMonthYear: ${createTodoParams.repeatMonthYear},'
-          // 'endType: ${createTodoParams.endType},'
-          // 'endAt: ${createTodoParams.endAt},'
-          // 'person: ${createTodoParams.person},'
-          // 'personId: ${createTodoParams.personId},'
-          // 'vendorId: ${createTodoParams.vendorId},'
-          // 'vendorName: ${createTodoParams.vendorName},'
-          // 'locationId: ${createTodoParams.locationId},'
-          // 'location: ${createTodoParams.location},'
-          // 'todoReminder: ${createTodoParams.todoReminder},'
-          // 'notes: ${createTodoParams.notes},'
-          // 'vehicleGroupId: ${createTodoParams.vehicleGroupId},'
-          // 'vehicles: ${createTodoParams.vehicleList},'
-          // 'endAfter: ${createTodoParams.endAfter}'
-          );
 
       todoBloc!.add(CreateTodoEvent(
           createTodoParams: createTodoParams, exitTheScreen: todoName == null));
     }
   }
 
-  Future<CreateTodoParams> getSelectedVehiclePerson(
-      CreateTodoParams createTodoParams) {
+  Future<CreateTodoParams> getSelectedVehiclePerson(CreateTodoParams createTodoParams) {
     List<dynamic> vehiclesNameData = [];
     for (Map<String, dynamic> res in resourceList) {
       if (selectedMultipleVehicleList.value.isNotEmpty &&
@@ -2692,8 +1981,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         if (todoListRepo!.vehicleHistoryTempSearchList.isNotEmpty) {
           if (todoListRepo!.vehicleHistoryTempSearchList[0]['title']
                       ?.toLowerCase() ==
-                  'clean car' /* &&
-            todoListRepo!.vehicleHistoryTempSearchList[0].status == 'Completed'*/
+                  'clean car'
               ) {
             debugPrint(
                 'todoListRepo!.chosenDateTime: ${todoListRepo!.chosenDateTime}');
