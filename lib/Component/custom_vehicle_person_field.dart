@@ -41,8 +41,9 @@ class CustomVehiclePersonField extends StatelessWidget {
         .map((element) =>
     {
       "id": element['id'],
-      "name": element['vehicle_name'] + "\t(${element['vehicle_number']})",
+      "name": element['vehicle_name'],
       "type": "vehicles",
+      "subname" : "\t(${element['vehicle_number']})",
       "partNumber": 2,
       "value": element
     })
@@ -122,7 +123,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                     suggestions: value,
                     autoControllerClear: true,
                     labelText: "Vehicle/Person",
-                    itemAsString: (item) => item['name'].toString(),
+                    itemAsString: (item) => formatMapData(item),
                     suggestionState: Suggestion.hidden,
                     onSuggestionTap: _onSuggested,
                   )),
@@ -148,5 +149,17 @@ class CustomVehiclePersonField extends StatelessWidget {
     selectedList.value = (selectedVPersons?.value ?? []);
     selectedList.notifyListeners();
     selectedVPersons?.notifyListeners();
+  }
+
+  String formatMapData(Map<String, dynamic> e) {
+    return (e.containsKey("subname") ? "${e['name']}${e['subname']}" : e['name'].toString());
+  }
+
+  bool isExist(Map<String, dynamic> data, String input) {
+    if (data.containsKey("subname")) {
+      return data['name'].toString().toLowerCase().contains(input.toLowerCase()) || data['subname'].toString().toLowerCase().contains(input.toLowerCase());
+    } else {
+      return data['name'].toString().toLowerCase().contains(input.toLowerCase());
+    }
   }
 }
