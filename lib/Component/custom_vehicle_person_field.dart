@@ -52,6 +52,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   }
 
   void _checkSelectedVData() {
+    if (selectedVPersons?.value.isNotEmpty ?? false) { selectedList.value = (selectedVPersons?.value ?? []); }
     selectedVPersons?.addListener(() {
       var value = selectedVPersons?.value;
       selectedList.value = (value ?? []);

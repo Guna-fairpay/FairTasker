@@ -66,5 +66,7 @@ class Str{
   //error image URL
     static const errorImage='https://media.wired.com/photos/5a0201b14834c514857a7ed7/master/pass/1217-WI-APHIST-01.jpg';
 
+    static const List<int> platFormCheckIds = [268, 211, 209];
+
 
 }

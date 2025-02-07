@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
@@ -231,6 +232,9 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   ValueNotifier<List<Map<String, dynamic>>> selectedVPersons = ValueNotifier(List.empty(growable: true));
   ValueNotifier<Map<String, dynamic>> selectedTask = ValueNotifier({});
   ValueNotifier<Map<String, dynamic>> selectedVLocation = ValueNotifier({});
+  ValueNotifier<bool> showPlatformCheck = ValueNotifier(false);
+
+  bool enablePlatformCheck = false;
 
   @override
   void initState() {
@@ -298,6 +302,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
       log("SelectedTask:\t${selectedTask.value}", name: "AddToDoTask");
       var value = selectedTask.value['value'];
       todoNameController.text = value['task'];
+      showPlatformCheck.value = Str.platFormCheckIds.contains(value['id']);
+      showPlatformCheck.notifyListeners();
     });
     selectedVPersons.addListener(() {
       log("selectedVPersons:\t${selectedVPersons.value}", name: "AddToDoTask");
@@ -1072,7 +1078,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               ? const Icon(Icons.error_outline, color: Colors.red)
               : null,
         ),
-        CustomVehiclePersonField(vehiclesList: vehicleList, personsList: resourceListForCombination, selectedVPersons: selectedVPersons, ),
+        CustomVehiclePersonField(vehiclesList: vehicleList, personsList: resourceListForCombination, selectedVPersons: selectedVPersons, controller: vehiclePersonController,),
         vendorLocationStack(),
       ],
     );
@@ -1169,7 +1175,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               ),
             ],
           ),
-        )
+        ) // TODO: NEED_TO_ADD_CLEAN_CAR_TIME
       ],
     );
   }
@@ -1188,6 +1194,15 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         const SizedBox(
           height: 10,
         ),
+        ValueListenableBuilder(valueListenable: showPlatformCheck, builder: (context, value, child) {
+          return Visibility(
+            visible: value,
+            child: Utils.getCircleCheckWidget(() {
+              enablePlatformCheck = !enablePlatformCheck;
+              doSetState();
+            }, enablePlatformCheck, 'Platform Check'),
+          );
+        }),
         Visibility(
           visible: !showMore,
           child: InkWell(
@@ -1308,80 +1323,82 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         Visibility(visible: showMore, child: getPartSupplyCheckBoxRow()),
         Visibility(
           visible: isPartChecked && showMore,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                padding: const EdgeInsets.only(
-                    top: 10, left: 3, right: 3, bottom: 10),
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppC.fieldBase,
-                      width: Num.borderWidthField,
-                    ),
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(Num.subradiusButton))),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      children: List<Widget>.generate(
-                        selectedPartsList.length,
-                            (int idx) {
-                          return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0),
-                              child: Chip(
-                                // deleteIconColor: AppC.red,
-                                onDeleted: () {
-                                  selectedPartsList.removeAt(idx);
-                                  setState(() {});
-                                },
-                                side: const BorderSide(color: AppC.trans),
-                                deleteIcon: const Icon(
-                                  Icons.close,
-                                  color: AppC.red,
-                                  size: 18,
-                                ),
-                                backgroundColor: const Color(0xffb5d2bb),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)),
-                                // side: BorderSide(),
-                                label: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Utils.getText(
-                                        selectedPartsList[idx]['name'] ??
-                                            '',
-                                        color: AppC.text),
-                                  ],
-                                ),
-                              ));
-                        },
-                      ).toList(),
-                    ),
-                    CustomSearchField<Map<String, dynamic>>(
-                        suggestions: editPartsList,
-                        itemAsString: (item) => item['name'].toString(),
-                        onSuggestionTap: (val) {
-                          selectedPartsList.add(val);
-                          doSetState();
-                        },
-                        controller: editPartsController,
-                        autoControllerClear: true,
-                        suggestionState: Suggestion.expand,
-                        labelText: "Parts",
-                        onEmptyTap: () => context.push(const PartViewUI(),
-                            fullscreenDialog: true)),
-                  ],
-                ),
-              ),
-            ],
+          child: CustomMultiSelectionChipsField<Map<String, dynamic>>(selectedPartsList: selectedPartsList, suggestionsList: editPartsList,
+            controller: editPartsController,
+            labelText: "Parts",
+            itemAsString: (item) => item['name'].toString(),
+            onEmptyTap: () => context.push(const PartViewUI(), fullscreenDialog: true)
           ),
         ),
+        /*Visibility(
+          visible: isPartChecked && showMore,
+          child: Container(
+            padding: const EdgeInsets.only(
+                top: 10, left: 3, right: 3, bottom: 10),
+            decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppC.fieldBase,
+                  width: Num.borderWidthField,
+                ),
+                borderRadius: const BorderRadius.all(
+                    Radius.circular(Num.subradiusButton))),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  children: List<Widget>.generate(
+                    selectedPartsList.length,
+                        (int idx) {
+                      return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5.0),
+                          child: Chip(
+                            // deleteIconColor: AppC.red,
+                            onDeleted: () {
+                              selectedPartsList.removeAt(idx);
+                              setState(() {});
+                            },
+                            side: const BorderSide(color: AppC.trans),
+                            deleteIcon: const Icon(
+                              Icons.close,
+                              color: AppC.red,
+                              size: 18,
+                            ),
+                            backgroundColor: const Color(0xffb5d2bb),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                            // side: BorderSide(),
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Utils.getText(
+                                    selectedPartsList[idx]['name'] ??
+                                        '',
+                                    color: AppC.text),
+                              ],
+                            ),
+                          ));
+                    },
+                  ).toList(),
+                ),
+                CustomSearchField<Map<String, dynamic>>(
+                    suggestions: editPartsList,
+                    itemAsString: (item) => item['name'].toString(),
+                    onSuggestionTap: (val) {
+                      selectedPartsList.add(val);
+                      doSetState();
+                    },
+                    controller: editPartsController,
+                    autoControllerClear: true,
+                    suggestionState: Suggestion.expand,
+                    labelText: "Parts",
+                    onEmptyTap: () => context.push(const PartViewUI(),
+                        fullscreenDialog: true)),
+              ],
+            ),
+          ),
+        ),*/
         suppliesStack()
       ],
     );
@@ -1390,8 +1407,18 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   Widget suppliesStack() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 5,
       children: [
         Visibility(
+          visible: isSupplyChecked && showMore,
+          child: CustomMultiSelectionChipsField<Map<String, dynamic>>(selectedPartsList: selectedSuppliesList, suggestionsList: editSuppliesList,
+            controller: editSuppliesController,
+            labelText: "Supplies",
+            itemAsString: (item) => item['name'].toString(),
+            onEmptyTap: () => context.push(const SuppliesViewUI(), fullscreenDialog: true)
+          ),
+        ),
+        /*Visibility(
           visible: isSupplyChecked && showMore,
           child: Column(
             children: [
@@ -1474,7 +1501,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               ),
             ],
           ),
-        ),
+        ),*/
         //SizedBox(height: 10,),
         Visibility(
           visible: showMore,

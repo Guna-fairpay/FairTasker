@@ -41,6 +41,7 @@ class CustomSearchField<T> extends StatelessWidget {
       },
       suggestionDirection: SuggestionDirection.flex,
       suggestionState: suggestionState,
+      textInputAction: TextInputAction.done,
       searchInputDecoration: SearchInputDecoration(
         searchStyle: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
         border: OutlineInputBorder(
@@ -59,7 +60,7 @@ class CustomSearchField<T> extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(
             bottom: Radius.circular(10)),
       ),
-      emptyWidget: (emptyText?.isNotEmpty ?? false) ? Center(
+      emptyWidget: (emptyText != null) ? Center(
           child: TextButton.icon(
             onPressed: onEmptyTap,
             label: Utils.getText("$emptyText",
