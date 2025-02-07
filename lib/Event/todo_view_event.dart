@@ -522,10 +522,11 @@ class UpdateExpenseInTodo extends TodoViewEvent {
 
 class CreateExpenseTodo extends TodoViewEvent {
   final List<File>? files;
-  final String? expenseId;
+  final int? expenseId;
   final int? categoryId;
   final int? subCategoryId;
   final int? expenseTo;
+  final int? paymentMethodId;
   final String? expenseAmount;
   final String? expenseDescription;
   final String? cohortId;
@@ -533,44 +534,41 @@ class CreateExpenseTodo extends TodoViewEvent {
   final String? date;
   final String? odometer;
   final int? todoId;
-  final bool? isVehicleGroup;
-  final bool? dontUpdateTodosExpense;
 
-  const CreateExpenseTodo(
-      this.expenseId,
-      this.files,
-      this.categoryId,
-      this.subCategoryId,
-      this.expenseTo,
-      this.expenseAmount,
-      this.expenseDescription,
-      this.cohortId,
-      this.vin,
-      this.date,
-      this.todoId,
-      this.odometer,
-      {this.isVehicleGroup,
-        this.dontUpdateTodosExpense});
+  const CreateExpenseTodo({
+      required this.expenseId,
+      required this.files,
+      required this.categoryId,
+      required this.paymentMethodId,
+      required this.subCategoryId,
+      required this.expenseTo,
+      required this.expenseAmount,
+      required this.expenseDescription,
+      required this.cohortId,
+      required this.vin,
+      required this.date,
+      required this.todoId,
+      required this.odometer,
+      });
   @override
   List<Object?> get props => [
     files,
     categoryId,
     subCategoryId,
+    paymentMethodId,
     expenseTo,
     expenseAmount,
     expenseDescription,
     cohortId,
     vin,
     date,
-    isVehicleGroup,
-    dontUpdateTodosExpense,
     odometer
   ];
 }
 
-class DeleteExpenseImage extends TodoViewEvent {
+class DeleteExpenseTodoImage extends TodoViewEvent {
   final int? id;
-  const DeleteExpenseImage({required this.id});
+  const DeleteExpenseTodoImage({required this.id});
   @override
   List<Object?> get props => [id];
 }

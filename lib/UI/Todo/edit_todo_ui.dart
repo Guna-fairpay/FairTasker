@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/vehicle_expense_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
@@ -39,6 +38,7 @@ import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
+import 'Todo_edit_expense_ui.dart';
 import 'check_list_ui.dart';
 import 'maintenance_check_list_ui.dart';
 
@@ -106,6 +106,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<dynamic> insuranceImage = [];
   List<dynamic> selectedMultipleVehicleList = [];
   List<dynamic> editMultipleVehicleSuggestionList = [];
+  List<dynamic> subCategoryList = [];
 
   List<Map<String, dynamic>> vehicleGroupList = [];
   List<Map<String, dynamic>> vehicleList = [];
@@ -137,6 +138,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> userGroupList = [];
   List<Map<String, dynamic>> maintenanceCheckListData = [];
   List<Map<String, dynamic>> childrenData = [];
+  List<Map<String, dynamic>> categoryList = [];
+  List<Map<String, dynamic>> paymentList = [];
 
   List<String> vinList=[];
   List<String> selectedIds = [];
@@ -224,9 +227,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Map<String, String> taskNameList = {};
   Map<String,dynamic>? carName;
   Map<String, dynamic>? selectedResource;
+  Map<String, dynamic>? expenseData;
   late Map<String, dynamic> todoItem;
 
-  dynamic existingExpenseDate;
+  Map<String,dynamic>existingExpenseDate={};
   dynamic selectedCohort;
   dynamic selectedVehicle;
   dynamic selectedExpenseCategories;
@@ -314,6 +318,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   @override
   void initState() {
+    todoItem = widget.todoItem;
     todoBloc = TodoViewBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
     todoBloc!.add(const GetDropdownData());
@@ -328,6 +333,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
     todoBloc!.add(const GetCheckList());
     todoBloc!.add(const GetMaintenanceCheckList());
     todoBloc!.add(const GetUserGroupingList());
+    todoBloc!.add(const GetPaymentData());
+    todoBloc!.add(const GetCohortsData());
+    todoBloc!.add(GetExpenseToData(expenseId: todoItem['expense_id']));
     selectedRepeat = repeatList[0];
     selectedPriority = priorityList[1];
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 60));
@@ -335,7 +343,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 30));
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 15));
     selectedCleanCarTime = cleanCarTimeValuesList[0];
-    todoItem = widget.todoItem;
+
 
     if (widget.todoItem['title'] != 'Check In' &&
         widget.todoItem['title'] != 'Check Out') {
@@ -695,7 +703,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       vin = todoItem['vin'];
                     }
                     vin ??= '';
-
                     setVehicleList =  vehicleList.firstWhere(
                           (emp) => emp['vin'] == vin,
                       orElse: () => {},
@@ -717,15 +724,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             vehicleGroupId: /*value.vehicleGroupId != null ?*/
                             /*int.parse(value.vehicleGroupId??'0') :*/ null,
                             needUI: false));
-                        setState(() {});
+                        // setState(() {});
                       }
-                      // else {
-                      // isShowVehicleHistoryList = false;
-                      // setState(() {});
-                      // }
-
-                      setState(() {});
-                      // });
                     }
                   }
                   else if (state is CheckListLoaded) {
@@ -749,6 +749,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       }
                     }
                   }
+
                   else if (state is AssignedToLoaded) {
                     resourceList = [];
                     resourceList = state.resource ?? [];
@@ -772,8 +773,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       editMultipleVehicleList.add(vehiclesData);
                     }
                   }
-                  else if (state is TaskExpenseLoaded) {
-                    taskExpenseList = state.resource ?? [];
+                  else if (state is CohortsListLoaded) {
+                    categoryList.clear();
+                    categoryList.addAll(state.expenseData ?? []);
                   } else if (state is VendorLoaded) {
                     vendorList = state.resource ?? [];
                   } else if (state is LocationLoaded) {
@@ -789,10 +791,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       expenseIdsCount++;
                       if (expenseIds.isEmpty) {
                         expenseIds =
-                        '${state.expenseSummaryResponse!.data![0]['id']}';
+                        '${state.expenseSummaryResponse!.expense![0]['id']}';
                       } else {
                         expenseIds =
-                        '$expenseIds,${state.expenseSummaryResponse!.data![0]['id']}';
+                        '$expenseIds,${state.expenseSummaryResponse!.expense![0]['id']}';
                         if (expenseIdsCount ==
                             vehicleGroupVinNumbersList!.length) {
                           todoBloc!.add(EditTodoDate(
@@ -875,50 +877,15 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     }
                   }
                   else if (state is ExpenseTodoLoaded) {
-                    existingExpenseDate = state.expenseSummaryData;
-                    expenseDescriptionController.text =
-                        existingExpenseDate?['expense_description'] ?? '';
-                    if (editedExpenseIdsLength != null) {
-                      amountController.text =
-                          ((existingExpenseDate?['expense_amount'] ?? 0) *
-                              editedExpenseIdsLength!)
-                              .toString();
-                    } else {
-                      amountController.text =
-                          (existingExpenseDate?['expense_amount'] ?? 0)
-                              .toString();
-                    }
-                    attachmentImage =
-                    (existingExpenseDate['attachments'] ?? []);
-                    if ((existingExpenseDate?['category_id'] ?? 0) != 0) {
-                      categoriesData.clear();
-                      categoriesData = (widget.categoriesListData ?? []);
-                      for (int i = 0;
-                      i < (widget.categoriesListData ?? []).length;
-                      i++) {
-                        // var element = categoriesData[i];
-                        if (widget.categoriesListData![i]['id'] ==
-                            (existingExpenseDate?['category_id'] ?? 0)) {
-                          selectedExpenseCategories =
-                          widget.categoriesListData![i];
-                          existingExpenseDate?['category_name'] =
-                          widget.categoriesListData![i]['name'];
-                          subCategoriesData = (widget.categoriesListData![i]
-                          ['subcategories'] ??
-                              []);
-                          for (var element1 in (widget.categoriesListData![i]
-                          ['subcategories'] ??
-                              [])) {
-                            if (element1.todoId ==
-                                (existingExpenseDate?['subcategory_id'] ?? 0)) {
-                              selectedExpenseSubCategories = element1;
-                              existingExpenseDate?['subcategory_name'] =
-                                  element1.name;
-                            }
-                          }
-                        }
-                      }
-                    }
+                    expenseData = state.expenseSummaryData??{};
+                    print("expenseData: $expenseData");
+                  }
+                  else if (state is TaskExpenseLoaded) {
+                    taskExpenseList.addAll(state.resource ?? []);
+                  }
+                  else if (state is PaymentListLoaded) {
+                    paymentList.clear();
+                    paymentList.addAll(state.data ?? []);
                   }
                 },
               ),
@@ -1017,7 +984,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                   ),
                                 ),
                                 if (showExpenseTab == 0)
-                                  const ExpenseEditUI(showHeader: false, expense: {},)
+                                  TodoEditExpenseUI(
+                                    expenseData: existingExpenseDate,
+                                    vehicle: vehicle,
+                                    vehicleName: vehicleName,
+                                    taskList: taskExpenseList,
+                                    todoData: todoItem,
+                                  )
                                 else if (showExpenseTab == 1)
                                   const CreateTodoUI(showHeader: false)
                                 else if (showExpenseTab == 2)
@@ -1416,19 +1389,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                     .lightBlue.shade800),
                                             const SizedBox(width: 20,),
                                             Expanded(child:
-                                            SizedBox(height: 30,
-                                              child: Utils.dropdownBox(
-                                                '',
-                                                selectedKey: selectedLink,
-                                                customTaskOptions,
-                                                    (selectedValue) {
-                                                  setState(() {
-                                                    selectedLink = selectedValue;
-                                                  });
-                                                },
-                                                initialSelection: selectedLink,
-                                                labelKey: 'label',
-                                              ),
+                                            Utils.dropdownBox(
+                                              '',
+                                              selectedKey: selectedLink,
+                                              customTaskOptions,
+                                                  (selectedValue) {
+                                                setState(() {
+                                                  selectedLink = selectedValue;
+                                                });
+                                              },
+                                              initialSelection: selectedLink,
+                                              labelKey: 'label',
                                             ),
                                             ),
                                             const SizedBox(
@@ -1866,19 +1837,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               color: Colors.lightBlue.shade800),
                                           const SizedBox(width: 20,),
                                           Expanded(
-                                            child: SizedBox(height:30,
-                                              child: Utils.dropdownBox(
-                                                '',
-                                                customTaskOptions ,
-                                                    (selectedValue) {
-                                                  setState(() {
-                                                    selectedLink = selectedValue;
-                                                  });
-                                                },
-                                                labelKey: 'label',
-                                                selectedKey: selectedLink,
-                                                initialSelection: selectedLink,
-                                              ),
+                                            child: Utils.dropdownBox(
+                                              '',
+                                              customTaskOptions ,
+                                                  (selectedValue) {
+                                                setState(() {
+                                                  selectedLink = selectedValue;
+                                                });
+                                              },
+                                              labelKey: 'label',
+                                              selectedKey: selectedLink,
+                                              initialSelection: selectedLink,
                                             ),
                                           ),
                                           const SizedBox(

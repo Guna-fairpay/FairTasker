@@ -27,5 +27,7 @@ extension StringExtension on String? {
 
   String get toAttachmentURL => "${Str.TODO_ATTACHMENTS_URL}$this";
 
+  String get toStorageURL => "${Str.STORAGE_BASE_URL}$this";
+
   bool get isNetworkURL => ((this?.startsWith('http') ?? false) || (this?.startsWith('https') ?? false));
 }

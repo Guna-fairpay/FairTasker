@@ -86,8 +86,9 @@ class CreateExpenseLoaded extends TodoViewState {
 }
 
 class ExpenseTodoLoaded extends TodoViewState {
-  final List<Map<String, dynamic>>? expenseSummaryData;
+  final Map<String, dynamic>? expenseSummaryData;
   const ExpenseTodoLoaded({required this.expenseSummaryData});
+
   @override
   List<Object?> get props => [expenseSummaryData];
 }
@@ -288,7 +289,7 @@ class VendorLoaded extends TodoViewState {
 }
 
 class ExpenseSummaryLoaded extends TodoViewState {
-  final List<Map<String, dynamic>>? expenseSummaryList;
+  final Map<String,dynamic>? expenseSummaryList;
   const ExpenseSummaryLoaded({required this.expenseSummaryList});
   @override
   List<Object?> get props => [expenseSummaryList];

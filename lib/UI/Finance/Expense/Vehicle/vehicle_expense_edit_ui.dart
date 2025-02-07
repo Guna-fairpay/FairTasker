@@ -1,3 +1,4 @@
+
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -7,7 +8,6 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Bloc/todo_view_bloc.dart';
 import '../../../../Component/drawer_ui.dart';
-import '../../../../Component/header.dart';
 import '../../../../Event/todo_view_event.dart';
 import '../../../../Utilities/num.dart';
 import '../../../../Utilities/utils.dart';
@@ -35,10 +35,10 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
   List<Map<String, dynamic>> expenseDropdownList = [];
   List<Map<String, dynamic>> vehicleNameList = [];
   List<dynamic> subCategoryDropdownList = [];
-  String? selectedCategory;
-  String? selectedSubCategory;
-  String? selectedExpenseCategory;
-  String? selectedPayment;
+  dynamic selectedCategory;
+  dynamic selectedSubCategory;
+  dynamic selectedExpenseCategory;
+  dynamic selectedPayment;
   bool isDateFieldEmpty = false;
   bool loading = false;
 
@@ -50,6 +50,9 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
   final GlobalKey vehicleFieldKey = GlobalKey();
   List<String> vehicleSuggestionList = [];
   List<Map<String, dynamic>> expenseToData = [];
+  List<Map<String, dynamic>> categoryData = [];
+
+  Map<String, dynamic> expense = {};
 
   @override
   void initState() {
@@ -58,9 +61,15 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
     vehicleDataBloc = VehicleDataBloc();
     cohortsBloc.add(const GetPaymentData());
     vehicleDataBloc.add(const GetSubCategory());
-    dateController.text =
-        Utils.convertDateTimeToTheFormat(DateTime.now().toString());
+   expense= widget.expense;
+   vehicleController.text=expense['vehicle']?['vehicle_name']??'';
+   amountController.text=(expense['expense_amount']??'').toString();
+   descriptionController.text=expense['expense_description']??'';
+   dateController.text=expense['expense_date']?? Utils.convertDateTimeToTheFormat(DateTime.now().toString());
+   odometerController.text=expense['odometer']??'';
+
   }
+
 
   Future<void> _pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
@@ -95,15 +104,14 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
           .zero; // Return a default position if RenderBox is not available
     }
   }
-
   void _save() {
     setState(() {
-      // isPartsFieldEmpty = partsController.text.isEmpty;
+
     });
     if (vehicleController.text.isEmpty) {
       return Utils.showMobileToast('Please fill the required field');
     }
-    final updatedParts = {
+    final updatedExpense = {
       'id': widget.expense['id'],
       'vehicle_id': vehicleController.text,
       'expense_amount': amountController.text,
@@ -115,7 +123,7 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
       'expense_date': dateController.text,
       'odometer': widget.expense['odometer'],
     };
-    Navigator.pop(context, updatedParts);
+    Navigator.pop(context, updatedExpense);
   }
 
   @override
@@ -123,9 +131,21 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
     return (widget.showHeader) ? Scaffold(
       backgroundColor: AppC.white,
       appBar: widget.showHeader
-          ? const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+          ? AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: Utils.getText(
+            expense['vehicle']['vehicle_name']??'',
+            color: AppC.white,overFlow: TextOverflow.ellipsis
+        ),
+        actions: [
+          IconButton(onPressed: (){
+            _save();
+          }, icon: const Icon(Icons.delete_outline,color: AppC.redAccent,)),
+          IconButton(onPressed: (){
+            Navigator.pop(context);
+            }, icon: const Icon(Icons.close,color: AppC.white,))
+        ],
       ): null,
       body: body,
       drawer: const DrawerView(),
@@ -151,17 +171,31 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
               categoryDropdownList.clear();
               expenseDropdownList.addAll(state.expenseData ?? []);
               categoryDropdownList.addAll(state.expenseData ?? []);
-              subCategoryDropdownList = state.expenseData!
-                  .where((category) =>
-              category['id'].toString() == 'category_id'.toString())
-                  .map((category) => category['sub_categories'] ?? [])
-                  .expand((subcategoryList) => subcategoryList)
-                  .toList();
+              selectedCategory = categoryDropdownList.firstWhere(
+                    (e) => e['id'] == expense['category_id'],
+                orElse: () => {},
+              );
+                subCategoryDropdownList = state.expenseData!
+                    .where((category) =>
+                category['id'].toString() == expense['category_id'].toString())
+                    .map((category) => category['sub_categories'] ?? [])
+                    .expand((subcategoryList) => subcategoryList)
+                    .toList();
+              selectedSubCategory= subCategoryDropdownList.firstWhere(
+                    (e) => e['id'] == expense['subcategory_id'],
+                orElse: () => {},
+              );
+
             } else if (state is PaymentListLoaded) {
               setState(() {
                 loading = false;
                 paymentDropdownList.clear();
                 paymentDropdownList.addAll(state.data ?? []);
+                selectedPayment = paymentDropdownList.firstWhere(
+                      (e) => e['id'] == expense['payment_method_id'],
+                  orElse: () => {},
+                );
+
               });
             }
           },
@@ -175,39 +209,29 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                   vehicleNameList.addAll(state.vehicleDataList ?? []);
                 } else if (state is SubCategoryListLoaded) {
                   setState(() {
-                    expenseToData
-                        .addAll((state.categoriesResponse?.expenseTo ?? []));
+                    categoryData.addAll(state.categoriesResponse?.data ?? []);
+                    expenseToData.addAll((state.categoriesResponse?.expenseTo ?? []));
+                    selectedExpenseCategory = expenseToData.firstWhere(
+                          (e) => e['id'] == expense['expense_to'],
+                      orElse: () => {},
+                    );
                   });
                 }
               });
-            })
+            }),
       ],
       child: BlocBuilder<TodoViewBloc, TodoViewState>(
           builder: (context, state) {
             return Stack(
               children: [
                 SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
                     children: [
-                      if (widget.showHeader)
-                        Row(
-                          children: [
-                            GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Icon(Icons.arrow_back)),
-                            const SizedBox(width: 5),
-                            Utils.getText(
-                              'Edit Expense',
-                              size: 20,
-                              weight: FontWeight.bold,
-                            ),
-                          ],
-                        ),
-                      if (widget.showHeader)
-                        const SizedBox(height: 10),
+                      if (!widget.showHeader)
+                      Utils.getText(expense['vehicle']?['vehicle_name']??''),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -274,7 +298,6 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
                       if (_images.isNotEmpty)
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -320,10 +343,6 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                           ),
                         ),
                       if (widget.showHeader)
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      if (widget.showHeader)
                         Utils.getTextFormField(
                             '', vehicleController,
                             label: Utils.getText('Vehicle',
@@ -344,7 +363,6 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                                 }
                               });
                             }),
-                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
@@ -358,219 +376,80 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                           ),
                           const SizedBox(width: 20),
                           Expanded(
-                            child: Container(
-                              height: 35,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: AppC.fieldBase,
-                                    width: Num.borderWidthField),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(Num.subradiusButton)),
-                              ),
-                              child: DropdownButton<String>(
-                                hint: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText('Select',
-                                      color: AppC.grey),
-                                ),
-                                value: selectedPayment,
-                                isExpanded: true,
-                                icon: const Icon(Icons.arrow_drop_down),
-                                elevation: 3,
-                                dropdownColor: AppC.white,
-                                underline: Container(
-                                  height: 0,
-                                  color: Colors.transparent,
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedPayment = value;
-                                  });
-                                },
-                                items: paymentDropdownList
-                                    .map<DropdownMenuItem<String>>((value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value['id'].toString(),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      child: Utils.getText(
-                                          '${value['name'].trim()}'),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                            child:
+                            Utils.dropdownBox(
+                              'Select Payment Method',
+                              paymentDropdownList,
+                              initialSelection: selectedPayment,
+                                  (selectedValue) {
+                                setState(() {
+                                  selectedPayment = selectedValue;
+                                });
+                              },
+                              selectedKey: selectedPayment,
+                              //initialSelection: selectedSubCategory,
+                              labelKey: 'name',
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
                       Utils.getTextFormField(
-                          '', vehicleController,
-                          label: Utils.getText('Enter Description',
-                              color: AppC.grey)),
-                      const SizedBox(height: 10),
-                      Container(
-                        height: 35,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
-                        ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select Category',
-                                color: AppC.grey),
+                          '', descriptionController,
+                          label: Utils.getText(
+                              'Enter Description',
+                              color: AppC.grey,
                           ),
-                          value: selectedCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCategory = value;
-                              selectedSubCategory = null;
-                              subCategoryDropdownList.clear();
-
-                              if (value != null) {
-                                subCategoryDropdownList = (state
-                                as CohortsListLoaded)
-                                    .expenseData!
-                                    .where((category) =>
-                                category['id'].toString() ==
-                                    value.toString())
-                                    .map((category) =>
-                                category['sub_categories'] ?? [])
-                                    .expand(
-                                        (subcategoryList) => subcategoryList)
-                                    .toList();
-                              }
-                            });
-                          },
-                          items: categoryDropdownList
-                              .map<DropdownMenuItem<String>>(
-                                (value) {
-                              return DropdownMenuItem<String>(
-                                value: value['id'].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText('${value['name']}'),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
                       ),
-                      const SizedBox(height: 10),
-                      Container(
-                        height: 35,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
-                        ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select SubCategory',
-                                color: AppC.grey),
-                          ),
-                          value: selectedSubCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedSubCategory = value;
-                            });
+                      Utils.dropdownBox(
+                          'Select Category',
+                          categoryDropdownList,
+                              selectedKey: selectedCategory,
+                              initialSelection: selectedCategory,
+                              (selectedValue) {
+                                setState(() {
+                                  selectedCategory = selectedValue;
+                                  selectedSubCategory= "Select SubCategory";
+                                  subCategoryDropdownList.clear();
+                                  if (selectedValue != null) {
+                                    subCategoryDropdownList = (state as CohortsListLoaded)
+                                        .expenseData!
+                                        .where((category) =>
+                                    category['id'].toString() ==
+                                        selectedValue['id'].toString())
+                                        .map((category) =>
+                                    category['sub_categories'] ?? [])
+                                        .expand(
+                                            (subcategoryList) => subcategoryList)
+                                        .toList();
+                                  }
+                                });
                           },
-                          items: subCategoryDropdownList
-                              .map<DropdownMenuItem<String>>(
-                                (value) {
-                              return DropdownMenuItem<String>(
-                                value: value['id'].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText('${value['name']}'),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
+                           labelKey: 'name'),
+                      Utils.dropdownBox(
+                        'Select SubCategory',
+                        subCategoryDropdownList,
+                            initialSelection: selectedSubCategory,
+                            (selectedValue) {
+                          setState(() {
+                            selectedSubCategory = selectedValue;
+                          });
+                        },
+                        selectedKey: selectedSubCategory,
+                        //initialSelection: selectedSubCategory,
+                        labelKey: 'name',
                       ),
                       if (widget.showHeader)
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      if (widget.showHeader)
-                        Container(
-                          height: 35,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: AppC.fieldBase,
-                                width: Num.borderWidthField),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton)),
-                          ),
-                          child: DropdownButton<String>(
-                            hint: Padding(
-                              padding:
-                              const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Utils.getText('Select ExpenseTo',
-                                  color: AppC.grey),
-                            ),
-                            value: selectedExpenseCategory,
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            elevation: 3,
-                            dropdownColor: AppC.white,
-                            underline: Container(
-                              height: 0,
-                              color: Colors.transparent,
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedExpenseCategory = value;
-                              });
-                            },
-                            items: expenseToData.map<DropdownMenuItem<String>>(
-                                  (value) {
-                                return DropdownMenuItem<String>(
-                                  value: value['id'].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child:
-                                    Utils.getText('${value['expense_to']}'),
-                                  ),
-                                );
-                              },
-                            ).toList(),
-                          ),
-                        ),
-                      if (widget.showHeader)
-                        const SizedBox(
-                          height: 10,
+                        Utils.dropdownBox(
+                          'Select ExpenseTo',
+                          expenseToData,
+                          initialSelection: selectedExpenseCategory,
+                              (selectedValue) {
+                            setState(() {
+                              selectedExpenseCategory = selectedValue;
+                            });
+                          },
+                          selectedKey: selectedExpenseCategory,
+                          labelKey: 'expense_to',
                         ),
                       if (widget.showHeader)
                         Stack(
@@ -618,10 +497,6 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                           ],
                         ),
                       if (!widget.showHeader)
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      if (!widget.showHeader)
                         Stack(alignment: Alignment.centerRight, children: [
                           Utils.getTextFormField(
                             '',
@@ -654,9 +529,6 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                             ],
                           ),
                         ]),
-                      const SizedBox(
-                        height: 15,
-                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -686,7 +558,7 @@ class _ExpenseEditUIState extends State<ExpenseEditUI> {
                   visible: showVehicleList,
                   child: Positioned(
                     top: _getWidgetPosition(vehicleFieldKey).dy +
-                        130, // Adjust offset as needed
+                        130,
                     left: 0,
                     right: 0,
                     child: Padding(

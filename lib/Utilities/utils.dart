@@ -1,6 +1,8 @@
 
 
 
+import 'dart:developer';
+
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -106,7 +108,7 @@ class Utils {
         // TextEditingController? controller,
       }) {
     return Container(
-      height: 35,
+      // height: 35,
       decoration: BoxDecoration(
         border: Border.all(
           color: AppC.fieldBase,
@@ -118,48 +120,49 @@ class Utils {
       ),
       child: Stack(
         children: [
-          Container(
-            alignment: Alignment.centerRight,
-            child: const Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: Icon(
-                Icons.keyboard_arrow_down_sharp,
-                color:AppC.appColor,
-                size: 14,
-              ),
-            ),
-          ),
+          // Container(
+          //   alignment: Alignment.centerRight,
+          //   child: const Padding(
+          //     padding: EdgeInsets.only(right: 20.0),
+          //     child: Icon(
+          //       Icons.keyboard_arrow_down_sharp,
+          //       color:AppC.appColor,
+          //       size: 14,
+          //     ),
+          //   ),
+          // ),
           DropdownMenu<dynamic>(
             key: ValueKey(selectedKey),
             initialSelection: initialSelection,
            // controller: controller,
             hintText: hintText,
             menuHeight: 250,
+
             //enableSearch: enableSearch,
           //  requestFocusOnTap:requestFocusOnTap ,
            // enableFilter: enableFilter,
-            trailingIcon: const Icon(
+            /*trailingIcon: const Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 12,
-              color: AppC.trans,
+              // color: AppC.trans,
             ),
             selectedTrailingIcon: const Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 12,
-              color: AppC.trans,
-            ),
+              // color: AppC.trans,
+            ),*/
             textStyle: const TextStyle(
+              color: AppC.text,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 overflow: TextOverflow.ellipsis),
             inputDecorationTheme: const InputDecorationTheme(
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 10,
-              ),
+              contentPadding: EdgeInsets.all(10),
               border: InputBorder.none,
-              suffixIconColor: AppC.trans,
+              // suffixIconColor: AppC.trans,
               isCollapsed: true,
               isDense: true,
+              constraints: BoxConstraints(maxHeight: 40)
             ),
             searchCallback: (entries, query) {
               if (query.isEmpty) return null;
@@ -168,18 +171,21 @@ class Utils {
             },
             menuStyle: MenuStyle(
               backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              shadowColor: WidgetStateProperty.all<Color>(Colors.grey),
-              //surfaceTintColor: WidgetStateProperty.all<Color>(Colors.white),
               visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
             ),
             expandedInsets: const EdgeInsets.only(top: 50),
             dropdownMenuEntries:
                 listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
               (dynamic value){
-                return DropdownMenuEntry<Map<String, dynamic>>(
+                return  DropdownMenuEntry<Map<String, dynamic>>(
                   value: value,
                   label: '${value[labelKey]??''}'.trim(),
-                );
+                  /*style: ButtonStyle(
+                    textStyle: WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.w500)),
+                    backgroundColor: WidgetStatePropertyAll(((selectedKey is Map<String, dynamic>) && (value[labelKey] == selectedKey?[labelKey])) ? AppC.text : AppC.trans),
+                     foregroundColor: WidgetStatePropertyAll(((selectedKey is Map<String, dynamic>) && (value[labelKey] == selectedKey?[labelKey])) ? AppC.white : AppC.text),
+                  )*/
+                ) ;
               },
             ).toList(),
             onSelected: (selectedValue) {
