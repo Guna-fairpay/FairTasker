@@ -6,7 +6,7 @@ import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 
-class TaskIdentifier extends StatefulWidget {
+class TaskIdentifier extends StatelessWidget {
   final List<dynamic> tasks;
   final List<dynamic> vehicles;
   final List<dynamic> persons;
@@ -17,7 +17,7 @@ class TaskIdentifier extends StatefulWidget {
   final ValueNotifier<List<Map<String, dynamic>>>? selectedVPersons;
   final ValueNotifier<Map<String, dynamic>>? selectedVLocations;
 
-  const TaskIdentifier(
+  TaskIdentifier(
       {super.key,
       required this.taskIdentifierController,
       required this.location,
@@ -27,41 +27,36 @@ class TaskIdentifier extends StatefulWidget {
       required this.vendors,
       this.selectedTask,
       this.selectedVPersons,
-      this.selectedVLocations});
+      this.selectedVLocations}) {
+    initState();
+  }
 
-  @override
-  State<TaskIdentifier> createState() => _TaskIdentifierState();
-}
-
-class _TaskIdentifierState extends State<TaskIdentifier> {
   String type = "task";
   int partNumber = 1;
-  late FocusNode _focusNode;
+  final FocusNode _focusNode = FocusNode();
   Map<int, dynamic> selectedList = {};
   List<Map<String, dynamic>> commonList = [];
-  List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> vTasks = [];
   List<Map<String, dynamic>> vPersons = [];
   List<Map<String, dynamic>> vLocations = [];
+  final ValueNotifier<bool> setState = ValueNotifier(false);
   int trigger = 0;
 
-  @override
   void initState() {
     updateCommonList();
-    _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _listenNotifiers());
-    super.initState();
   }
 
   void _listenNotifiers() {
-    widget.selectedTask?.addListener(() {
-      if (widget.selectedTask?.value != null) {
-        selectedList[1] = widget.selectedTask?.value;
+    selectedTask?.addListener(() {
+      if (selectedTask?.value != null) {
+        selectedList[1] = selectedTask?.value;
         _setValue(emit: false);
       }
     });
-    widget.selectedVPersons?.addListener(() {
-      if ((widget.selectedVPersons?.value != null)) {
-        var value = widget.selectedVPersons?.value.lastOrNull;
+     selectedVPersons?.addListener(() {
+      if (( selectedVPersons?.value != null)) {
+        var value =  selectedVPersons?.value.lastOrNull;
         if (value == null) selectedList.remove(2); _setValue(emit: false);
         if ((selectedList[2] == null) || (selectedList[2] != value)) {
           selectedList[2] = value;
@@ -69,15 +64,15 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
         }
       }
     });
-    widget.selectedVLocations?.addListener(() {
-      if (widget.selectedVLocations?.value != null) {
-        selectedList[3] = widget.selectedVLocations?.value;
+     selectedVLocations?.addListener(() {
+      if ( selectedVLocations?.value != null) {
+        selectedList[3] =  selectedVLocations?.value;
         _setValue(emit: false);
       }
     });
   }
 
-  @override
+  /*@override
   void didUpdateWidget(covariant TaskIdentifier oldWidget) {
     super.didUpdateWidget(oldWidget);
     if ((oldWidget.tasks != widget.tasks) ||
@@ -87,14 +82,14 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
         (oldWidget.location != widget.location)) {
       updateCommonList();
     }
-  }
+  }*/
 
   void updateCommonList() {
-    log("UpdateCommonList (${trigger++}) ${widget.tasks.length} ${widget.vehicles.length} ${widget.persons.length} ${widget.vendors.length} ${widget.location.length}", name: "TRIGGER_IDENTIFIER");
-    tasks = widget.tasks
+    log("UpdateCommonList (${trigger++}) ${ tasks.length} ${ vehicles.length} ${ persons.length} ${ vendors.length} ${ location.length}", name: "TRIGGER_IDENTIFIER");
+    vTasks =  tasks
         .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
         .toList();
-    var persons = widget.persons.map((element) =>
+    var person =  persons.map((element) =>
     {
       "id": element['id'],
       "name": [element['first_name'], element['last_name']].join(" "),
@@ -102,7 +97,7 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       "partNumber" : 2,
       "value" : element
     }).toList();
-    var vehicles = widget.vehicles.map((element) =>
+    var vehicle =  vehicles.map((element) =>
     {
       "id": element['id'],
       "name": element['vehicle_name'],
@@ -111,8 +106,8 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       "partNumber" : 2,
       "value" : element
     }).toList();
-    vPersons = [...vehicles, ...persons];
-    var locations = widget.location.map((element) =>
+    vPersons = [...vehicle, ...person];
+    var locations =  location.map((element) =>
     {
       "id": element['id'],
       "name": element['name'],
@@ -120,16 +115,16 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       "partNumber" : 3,
       "value" : element
     }).toList();
-    var vendors = widget.vendors.map((element) => {
+    var vendor = vendors.map((element) => {
       "id": element['id'],
       "name": element['name'],
       "type": "vendors",
       "partNumber" : 3,
       "value" : element
     }).toList();
-    vLocations = [...vendors, ...locations];
-    commonList = tasks;
-    log("UpdateCommonList ${commonList.length} ${tasks.length} ${vPersons.length} ${vLocations.length}", name: "TRIGGER_IDENTIFIER_COMMON");
+    vLocations = [...vendor, ...locations];
+    commonList = vTasks;
+    log("UpdateCommonList ${commonList.length} ${vTasks.length} ${vPersons.length} ${vLocations.length}", name: "TRIGGER_IDENTIFIER_COMMON");
     _setState;
   }
 
@@ -140,29 +135,29 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
         selectedList.forEach((key, value) {
           log("setValue(b):	$key $value", name: "TaskIdentifier");
           if (key == 1) {
-            widget.selectedTask?.value = value;
+             selectedTask?.value = value;
           } else if (key == 2) {
             try {
-              if (value['type'] == "person") widget.selectedVPersons?.value = [value];
+              if (value['type'] == "person")  selectedVPersons?.value = [value];
               if (value['type'] == "vehicles") {
-                widget.selectedVPersons?.value.removeWhere((
+                 selectedVPersons?.value.removeWhere((
                     element) => element.containsKey('type') && (element['type'] == "person"));
-                if (widget.selectedVPersons?.value.contains(value) == false) widget.selectedVPersons?.value = [...(widget.selectedVPersons?.value ?? []), ...[value] ];
+                if ( selectedVPersons?.value.contains(value) == false)  selectedVPersons?.value = [...( selectedVPersons?.value ?? []), ...[value] ];
               }
-              widget.selectedVPersons?.notifyListeners();
+               selectedVPersons?.notifyListeners();
             } on Exception catch (e) {
               log("Exception:	$e", name: "TaskIdentifier");
             }
           } else if (key == 3) {
-            widget.selectedVLocations?.value = value;
+             selectedVLocations?.value = value;
           }
         });
       } on Exception catch (e) {
         log("Exception(b):	$e", name: "TaskIdentifier");
       }
     }
-    widget.taskIdentifierController.text = formatMapData(selectedList);
-    widget.taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset: widget.taskIdentifierController.text.length - 1));
+     taskIdentifierController.text = formatMapData(selectedList);
+     taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
@@ -199,7 +194,10 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
     return result; // Default case
   }
 
-  get _setState => setState(() { });
+  get _setState {
+    setState.value = true;
+    setState.notifyListeners();
+  }
 
   void _requestFocus() {
     _focusNode.requestFocus();
@@ -211,28 +209,32 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomSearchField<Map<String, dynamic>>(
-      key: UniqueKey(),
-        suggestions: commonList,
-        focusNode: _focusNode,
-        itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
-        onTap: _requestFocus,
-        onTapOutSide: _unRequestFocus,
-        onSuggestionTap: (val) {
-        log("PartNumber:\t${val['partNumber']}", name: "VALUE_NUMBER");
-          selectedList[val['partNumber']] = val;
-          _setValue();
-          _requestFocus();
-        },
-        onSearchTextChanged: onSearch,
-        controller: widget.taskIdentifierController,
-        suggestionState: Suggestion.hidden,
-        labelText: "Task Identifier",
-        onEmptyTap: () =>
-            context.push(const TaskAddUI(), fullscreenDialog: true));
+    return ValueListenableBuilder(
+      valueListenable: setState,
+      builder: (context, value, child) => child ?? Container(),
+      child: CustomSearchField<Map<String, dynamic>>(
+          key: UniqueKey(),
+          suggestions: commonList,
+          focusNode: _focusNode,
+          itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
+          onTap: _requestFocus,
+          onTapOutSide: _unRequestFocus,
+          onSuggestionTap: (val) {
+            log("PartNumber:\t${val['partNumber']}", name: "VALUE_NUMBER");
+            selectedList[val['partNumber']] = val;
+            _setValue();
+            _requestFocus();
+          },
+          onSearchTextChanged: onSearch,
+          controller:  taskIdentifierController,
+          suggestionState: Suggestion.hidden,
+          labelText: "Task Identifier",
+          onEmptyTap: () =>
+              context.push(const TaskAddUI(), fullscreenDialog: true)),
+    );
   }
 
- List<SearchFieldListItem<Map<String, dynamic>>>? onSearch(String val) {
+  List<SearchFieldListItem<Map<String, dynamic>>>? onSearch(String val) {
     if (val.isEmpty) {
       selectedList.clear();
       // _unRequestFocus();
@@ -240,13 +242,13 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
     }
     var inputValue = val.toLowerCase();
     if (!inputValue.contains("-")) {
-      commonList = tasks;
+      commonList = vTasks;
       return commonList.where((element) => isExist(element, val) ).map((e) => SearchFieldListItem(
           e['name'],
           item: e)).toList();
     }
     var inputParts = inputValue.split("-");
-    var cursorPosition = widget.taskIdentifierController.selection.start;
+    var cursorPosition =  taskIdentifierController.selection.start;
     var filteredRecords = [];
     List<int> hyphenPositions = [];
     for (int i = 0; i < inputValue.length; i++) {
@@ -278,14 +280,14 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
     switch(partNumber) {
       case 1: {
         type = "task";
-        commonList = tasks;
+        commonList = vTasks;
       }
       break;
       case 2:
         {
           if (typedPart.isEmpty) {
             // PART 1
-            filteredRecords = tasks.where((element) => element['name'].toString().toLowerCase().contains(inputParts[0].toLowerCase())).toList();
+            filteredRecords = vTasks.where((element) => element['name'].toString().toLowerCase().contains(inputParts[0].toLowerCase())).toList();
             selectedList[1] = filteredRecords.firstOrNull;
           }
           type = "vperson";
@@ -329,6 +331,4 @@ class _TaskIdentifierState extends State<TaskIdentifier> {
       return data['name'].toString().toLowerCase().contains(input.toLowerCase());
     }
   }
-
-
 }
