@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -38,9 +39,9 @@ import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
-import 'Todo_edit_expense_ui.dart';
+import 'todo_edti_expense/ui/Todo_edit_expense_ui.dart';
 import 'check_list_ui.dart';
-import 'maintenance_check_list_ui.dart';
+import 'maintenance/maintenance_check_list_ui.dart';
 
 class EditTodoUI extends StatefulWidget {
 
@@ -1005,6 +1006,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       )
                                     else if (showExpenseTab == 4)
                                         VehicleEditUI(vehicle: setVehicleList,showHeader: false,)
+                                      else if (showExpenseTab == 5)
+                                          TotoExpense(expenseId: todoItem['expense_id'],)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),
@@ -2895,6 +2898,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out' && todoItem['vehicle_name'] != null ||
       todoItem['vehicles'].isNotEmpty)
         {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
+      if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out')
+        {'label': 'TodoExpense', 'index': 5, 'color': AppC().base},
     ];
     return Container(
       decoration: const BoxDecoration(

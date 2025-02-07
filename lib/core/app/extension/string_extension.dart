@@ -29,5 +29,7 @@ extension StringExtension on String? {
 
   String get toStorageURL => "${Str.STORAGE_BASE_URL}$this";
 
+  String get removeStorageUrl => this?.replaceAll(Str.STORAGE_BASE_URL, "") ?? "";
+
   bool get isNetworkURL => ((this?.startsWith('http') ?? false) || (this?.startsWith('https') ?? false));
 }

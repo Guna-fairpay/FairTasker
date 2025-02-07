@@ -3,9 +3,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/repository/parts_re
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../Utilities/Utils.dart';
 import '../event/parts_event.dart';
-import '../part_add_ui.dart';
 import '../state/parts_state.dart';
 
 class PartsBloc extends Bloc<PartsEvent, PartsState> {

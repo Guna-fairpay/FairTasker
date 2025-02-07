@@ -1322,7 +1322,7 @@ class TodoListRepo {
         ExpenseSummaryResponse expenseSummaryResponse =
         ExpenseSummaryResponse.fromJson(json.decode(response.body));
 
-        debugPrint('getAExpenseTodo api.statusCode: ${expenseSummaryResponse}');
+        debugPrint('getAExpenseTodo api.statusCode: $expenseSummaryResponse');
         if (response.statusCode == 200 || response.statusCode == 201) {
           // Utils.showMobileToast(generalResponse.message!);
           return expenseSummaryResponse;
