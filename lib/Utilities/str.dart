@@ -68,5 +68,7 @@ class Str{
 
     static const List<int> platFormCheckIds = [268, 211, 209];
 
+    static const List<int> reqTaskManagerIds = [3,17,19,20,26,31,32];
+
 
 }

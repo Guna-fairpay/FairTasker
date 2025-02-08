@@ -838,14 +838,14 @@ class Utils {
 
   static Future<DateTime?> todoDatePickerDialog(
       BuildContext context, String existingDate,
-      {DateTime? initial, DateTime? last}) {
+      {DateTime? initial, DateTime? last, int lastYear = 1}) {
     var initialDate = initial;
     var currentDate = DateTime.now();
     if (existingDate.isNotEmpty) {
       currentDate = convertStringToDateTime(existingDate);
     }
     var lastDate = last ??
-        DateTime(currentDate.year + 1, currentDate.month, currentDate.day);
+        DateTime(currentDate.year + lastYear, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: initialDate ?? DateTime.now(),
