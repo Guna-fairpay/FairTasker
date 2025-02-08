@@ -6,6 +6,7 @@ import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/UI/Todo/add_todo/add_todo_main_form.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -35,6 +36,16 @@ import '../../widget/time_picker_only.dart';
 import '../Manage Custom Data/Parts/part_view_ui.dart';
 import '../Manage Custom Data/Supplies/supplies_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
+
+class AddToDoUi extends StatelessWidget {
+  const AddToDoUi({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(child: AddTodoMainForm(), minimum: 20.padding,);
+  }
+}
+
 
 class CreateTodoUI extends StatefulWidget {
   final List<Map<String, dynamic>?>? selectedAssignedTo;
@@ -413,7 +424,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     ],
                   )
                 : null,
-            body: body,
+            body: AddToDoUi(),
           )
         : body;
   }
