@@ -991,23 +991,24 @@ class GetTaskExpense extends TodoViewEvent {
 
 class AddTaskData extends TodoViewEvent {
 
+
+  final int? categoryId;
+  final int? subCategoryId;
   final String? name;
-  final String? subCategory;
-  final String? category;
   final String? timeTaken;
-  final String? userType;
+  final int? userType;
   final int? id;
 
   const AddTaskData({
+    required this.categoryId,
+    required this.subCategoryId,
     required this.name,
-    required this.subCategory,
-    required this.category,
     required this.timeTaken,
     required this.userType,
     required this.id,
   });
   @override
-  List<Object?> get props => [name, category, subCategory,timeTaken,userType, id];
+  List<Object?> get props => [categoryId, subCategoryId,name, timeTaken,userType, id];
 }
 
 class DeleteTaskData extends TodoViewEvent {

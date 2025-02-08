@@ -992,9 +992,9 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
       await todoListRepo.createTask(
         event.id,
+        event.categoryId,
+        event.subCategoryId,
         event.name,
-        event.category,
-        event.subCategory,
         event.timeTaken,
         event.userType,
       )

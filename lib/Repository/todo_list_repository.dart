@@ -2956,14 +2956,20 @@ class TodoListRepo {
     }
   }
 
-  Future<TaskResponse?> createTask(int? id, String? task, String? category, String? subCategory,String? timeTaken,String? userType) async {
+  Future<TaskResponse?> createTask(
+      int? id,
+      int? categoryId,
+      int? subCategoryId,
+      String? task,
+      String? timeTaken,
+      int? userType) async {
     try {
       String body = jsonEncode({
-        "category_id": category,
-        "subcategory_id": subCategory,
+        "category_id": categoryId,
+        "subcategory_id": subCategoryId,
+        "task": task,
         "time_taken":timeTaken,
         "user_type":userType,
-        "task": task,
         "platform": "TaskerApp",
         "status": "1"
       });
@@ -2979,10 +2985,10 @@ class TodoListRepo {
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
+
       if (response != null) {
         TaskResponse taskResponse =
         TaskResponse.fromJson(json.decode(response.body));
-
         if (response.statusCode == 200) {
           return taskResponse;
         } else {
@@ -2999,7 +3005,7 @@ class TodoListRepo {
 
   Future<TaskResponse?> deleteTask(String? id) async {
     try {
-      String apiUrl = "${Str.LIST_BASE_URL}deleteDepartment/$id";
+      String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
 
       final http.Response? response = await apiClient.callDelete(apiUrl);
 

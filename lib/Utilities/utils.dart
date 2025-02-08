@@ -104,6 +104,11 @@ class Utils {
         // bool requestFocusOnTap = false,
         // bool enableFilter = false,
          dynamic selectedKey,
+        double topLRadius=4,
+        double topRRadius=4,
+        double bottomLRadius=4,
+        double bottomRRadius=4,
+
         // Color? arrowColor=AppC.appColor,
         // TextEditingController? controller,
       }) {
@@ -114,9 +119,12 @@ class Utils {
           color: AppC.fieldBase,
           width: Num.borderWidthField,
         ),
-        borderRadius: const BorderRadius.all(
-          Radius.circular(Num.subradiusButton),
-        ),
+        borderRadius:  BorderRadius.only(
+            topLeft: Radius.circular(topLRadius),
+            topRight: Radius.circular(topRRadius),
+            bottomLeft: Radius.circular(bottomLRadius),
+            bottomRight: Radius.circular(bottomRRadius))
+
       ),
       child: Stack(
         children: [
@@ -308,6 +316,27 @@ class Utils {
     return format.format(dateTime);
   }
 
+  static Widget getAddElevatedButton(
+      VoidCallback onPressedCallback, {
+        String text='Add',
+        Color? bgColor=AppC.appColor,
+        Color textColor = AppC.white,
+        double borderRadius = Num.subradiusButton,
+        double textSize= 12,
+        IconData? icon,
+      }) {
+    return ElevatedButton.icon(
+        onPressed: onPressedCallback,
+      label: Utils.getText(text, color: AppC.white, weight: FontWeight.bold),
+      icon: icon != null ? Icon(icon) : const SizedBox(),
+      style: ButtonStyle(
+          backgroundColor:  WidgetStatePropertyAll(bgColor),
+          iconColor: const WidgetStatePropertyAll(AppC.white),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16)))),
+    );
+  }
+
   static Widget getAddFilledButton(
     String textLabel,
     VoidCallback onPressedCallback, {
@@ -403,7 +432,7 @@ class Utils {
       Widget? label,
       double textSize = 12,
       Color textColor = AppC.text,
-      FontWeight fontWeight = FontWeight.normal,
+      FontWeight fontWeight = FontWeight.w300,
       bool readOnly = false,
       bool autoFocus = false,
       ValueChanged? onChangeCallback,
@@ -2538,16 +2567,29 @@ class Utils {
   static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
       TextEditingController searchController) {
     return SearchBar(
-        shadowColor: WidgetStateProperty.all(Colors.white),
-        backgroundColor: WidgetStateProperty.all(Colors.white),
+
+      backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+      textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+      padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+      shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(16))),
+      elevation: const WidgetStatePropertyAll(0),
+      side: const WidgetStatePropertyAll(BorderSide.none),
+
+        // padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+        // shadowColor: WidgetStateProperty.all(Colors.white),
+        // backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
         controller: searchController,
         onTap: onTap,
+        // shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+        //     borderRadius: BorderRadius.circular(16))),
         onChanged: onChange,
         leading: const Icon(Icons.search,color: AppC.text,),
-        textStyle: WidgetStateProperty.all(Utils.getTextStyle()),
-        elevation: WidgetStateProperty.all(0),
-        hintText: 'Search',
-        hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
+        // textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+        // elevation: WidgetStateProperty.all(0),
+        hintText: 'Search...',
+      // side: const WidgetStatePropertyAll(BorderSide.none),
+      hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
               (Set<WidgetState> states) {
             // Define different styles for different states
             if (states.contains(WidgetState.focused)) {
@@ -2557,10 +2599,10 @@ class Utils {
             }
           },
         ),
-        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+        /*shape: WidgetStateProperty.all(RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: const BorderSide(color: AppC.fieldBase),
-        )));
+        ))*/);
   }
 
 /*  static Widget getSearchBarUI(
