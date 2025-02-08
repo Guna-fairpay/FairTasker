@@ -56,7 +56,8 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
     required bool checkboxValue,
     required ValueChanged<bool?> onCheckboxChanged,
     required String label,
-  }) {
+  })
+  {
     return Row(
       children: [
         SizedBox(
@@ -267,7 +268,6 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
               ),
             ),
           ),
-
       ],
     );
   }

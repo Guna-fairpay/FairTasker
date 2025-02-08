@@ -75,6 +75,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         });
       }
     });
+    //
 
     on<DeleteVehicleImage>((event, emit) async {
         emit(const VehicleDataLoading());

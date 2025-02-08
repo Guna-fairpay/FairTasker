@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/Response/vehicle_notes_history_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
@@ -11,6 +12,7 @@ import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 
 import '../Response/todo_list_response.dart';
 import '../Response/vehicle_grouping_response.dart';
@@ -27,6 +29,7 @@ class VehicleDataRepo {
       } else {
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
       }
+      print("${createVehicleData}");
       Map<String, String> reqMap = {
         "vehicle_id": createVehicleData.vehicleId,
         "vin": createVehicleData.vin,
@@ -62,48 +65,62 @@ class VehicleDataRepo {
         "oil_change_odometer": createVehicleData.oilChangeOdometer,
         "maintenance_check": createVehicleData.maintenanceCheck,
         "registration_renewal_date": createVehicleData.regStickerDate.toString(),
-        "insurance_agent":createVehicleData.insuranceAgent.toString(),
-        "insurance_cost":createVehicleData.insuranceCost.toString(),
+        "insurance_agent": createVehicleData.insuranceAgent.toString(),
+        "insurance_cost": createVehicleData.insuranceCost.toString(),
         "platform_from": 'TaskerApp'
       };
-      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
+      var request = http.MultipartRequest("POST", Uri.parse(apiUrl));
       request.headers.addAll(Utils.getHeaders());
-
       request.fields.addAll(reqMap);
+      print("createVehicleData ${createVehicleData.chosenFiles.length}");
+      for (var file in createVehicleData.chosenFiles) {
+        debugPrint('Checking file: ${file.path}');
+        bool fileExists = await File(file.path).exists();
+        debugPrint(fileExists ? '✅ File found: ${file.path}' : 'File does not exist');
+      }
 
-      for (int i = 0;
-          i < (createVehicleData.chosenPurchaseReceipts.length);
-          i++) {
+      for (int i = 0; i < createVehicleData.chosenPurchaseReceipts.length; i++) {
         var file = createVehicleData.chosenPurchaseReceipts[i];
 
         var multipartFile = http.MultipartFile.fromBytes(
           'files[$i]',
-          (await file.readAsBytes()).toList(),
+          await file.readAsBytes(),
           filename: file.path.split('/').last,
         );
         request.files.add(multipartFile);
       }
 
-      // Add files to the request
-      for (int i = 0; i < (createVehicleData.chosenFiles.length); i++) {
+      for (int i = 0; i < createVehicleData.chosenFiles.length; i++)
+      {
         var file = createVehicleData.chosenFiles[i];
-
-        var multipartFile = http.MultipartFile.fromBytes(
-          'images[$i]',
-          (await file.readAsBytes()).toList(),
-          filename: file.path.split('/').last,
-        );
-        request.files.add(multipartFile);
+        if (await File(file.path).exists()) {
+          var multipartFile = http.MultipartFile.fromBytes(
+            'images[$i]',
+            await file.readAsBytes(),
+            filename: file.path.split('/').last,
+          );
+          request.files.add(multipartFile);
+        } else {
+          debugPrint('File not found: ${file.path}');
+        }
       }
 
       var response = await request.send();
       debugPrint('createVehicle.statusCode: ${response.statusCode}');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        CreateVehicleResponse createVehicleResponse = CreateVehicleResponse();
-        return createVehicleResponse;
+      if (response.statusCode == 200 || response.statusCode == 201)
+      {
+        final responseBody = await response.stream.bytesToString();
+        try {
+          final jsonResponse = jsonDecode(responseBody);
+
+          CreateVehicleResponse createVehicleResponse = CreateVehicleResponse.fromJson(jsonResponse);
+          return createVehicleResponse;
+        } catch (e) {
+          debugPrint('Error parsing JSON response: $e');
+          return null;
+        }
       } else {
-        // Handle error response
         Utils.showSomethingWentWrong();
         return null;
       }
@@ -113,6 +130,14 @@ class VehicleDataRepo {
     }
   }
 
+
+  Future<void> checkPermissions() async {
+    if (await Permission.storage.request().isGranted) {
+      debugPrint("✅ Storage permission granted");
+    } else {
+      debugPrint("❌ Storage permission denied");
+    }
+  }
 /*
   Future<bool?> createVehicle(CreateVehicleData createVehicleData) async {
     try {

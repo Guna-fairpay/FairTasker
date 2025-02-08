@@ -31,7 +31,7 @@ class VehicleListLoaded extends VehicleDataState {
   @override
   List<Object?> get props => [vehicleDataList];
 }
-
+//
 
 class VehicleGroupListLoadedV extends VehicleDataState {
   final List<Map<String,dynamic>>? vehicleGroupDataList;
