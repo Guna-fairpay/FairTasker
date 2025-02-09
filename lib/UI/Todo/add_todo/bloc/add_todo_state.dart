@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class AddToDoState extends Equatable {
   final bool isLoading;
+  final bool showAppBar;
   final List<dynamic> tasks;
   final List<dynamic> vPersons;
   final List<dynamic> vLocations;
@@ -23,6 +24,7 @@ class AddToDoState extends Equatable {
   final TimeOfDay? selectedTime;
 
   const AddToDoState({
+    required this.showAppBar,
     required this.isLoading,
     required this.tasks,
     required this.vLocations,
@@ -45,6 +47,7 @@ class AddToDoState extends Equatable {
   });
 
   AddToDoState copyWith({
+    bool? showAppBar,
     bool? isLoading,
     bool? isSelectedPlatformCheck,
     bool? isPartServiceEnable,
@@ -66,6 +69,7 @@ class AddToDoState extends Equatable {
     List<dynamic>? linkOptions,
   }) =>
       AddToDoState(
+          showAppBar: showAppBar ?? this.showAppBar,
           isLoading: isLoading ?? this.isLoading,
           isSelectedPlatformCheck:
               isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
@@ -90,6 +94,7 @@ class AddToDoState extends Equatable {
 
   @override
   List<Object?> get props => [
+        showAppBar,
         isLoading,
         tasks,
         vPersons,
