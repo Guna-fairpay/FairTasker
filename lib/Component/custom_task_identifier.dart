@@ -12,6 +12,8 @@ class TaskIdentifier extends StatelessWidget {
   final List<dynamic> persons;
   final List<dynamic> vendors;
   final List<dynamic> location;
+  final Map<int, dynamic>? selected;
+  final void Function(Map<int, dynamic> val)? onSelected;
   final TextEditingController taskIdentifierController;
   final ValueNotifier<Map<String, dynamic>>? selectedTask;
   final ValueNotifier<List<Map<String, dynamic>>>? selectedVPersons;
@@ -25,6 +27,8 @@ class TaskIdentifier extends StatelessWidget {
       required this.tasks,
       required this.vehicles,
       required this.vendors,
+      this.onSelected,
+      this.selected,
       this.selectedTask,
       this.selectedVPersons,
       this.selectedVLocations}) {
@@ -48,6 +52,15 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void _listenNotifiers() {
+    if ((selected != null) && (selected?.isNotEmpty ?? false)) {
+      if (selected![1] != null) selectedList[1] = selected![1];
+      if (selected![2] != null) selectedList[2] = selected![2];
+      if (selected![3] != null) selectedList[3] = selected![3];
+      if (selected?.containsKey(1) == false) selectedList.remove(1);
+      if (selected?.containsKey(2) == false) selectedList.remove(2);
+      if (selected?.containsKey(3) == false) selectedList.remove(3);
+      _setValue(emit: false);
+    }
     selectedTask?.addListener(() {
       if (selectedTask?.value != null) {
         selectedList[1] = selectedTask?.value;
@@ -85,7 +98,6 @@ class TaskIdentifier extends StatelessWidget {
   }*/
 
   void updateCommonList() {
-    log("UpdateCommonList (${trigger++}) ${ tasks.length} ${ vehicles.length} ${ persons.length} ${ vendors.length} ${ location.length}", name: "TRIGGER_IDENTIFIER");
     vTasks =  tasks
         .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
         .toList();
@@ -124,7 +136,6 @@ class TaskIdentifier extends StatelessWidget {
     }).toList();
     vLocations = [...vendor, ...locations];
     commonList = vTasks;
-    log("UpdateCommonList ${commonList.length} ${vTasks.length} ${vPersons.length} ${vLocations.length}", name: "TRIGGER_IDENTIFIER_COMMON");
     _setState;
   }
 
@@ -133,7 +144,6 @@ class TaskIdentifier extends StatelessWidget {
     if (emit) {
       try {
         selectedList.forEach((key, value) {
-          log("setValue(b):	$key $value", name: "TaskIdentifier");
           if (key == 1) {
              selectedTask?.value = value;
           } else if (key == 2) {
@@ -145,19 +155,19 @@ class TaskIdentifier extends StatelessWidget {
                 if ( selectedVPersons?.value.contains(value) == false)  selectedVPersons?.value = [...( selectedVPersons?.value ?? []), ...[value] ];
               }
                selectedVPersons?.notifyListeners();
-            } on Exception catch (e) {
-              log("Exception:	$e", name: "TaskIdentifier");
-            }
+            } on Exception catch (e) { log("Exception:	$e", name: "TaskIdentifier"); }
           } else if (key == 3) {
              selectedVLocations?.value = value;
           }
         });
+        onSelected?.call(selectedList);
       } on Exception catch (e) {
         log("Exception(b):	$e", name: "TaskIdentifier");
       }
     }
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
+     _requestFocus();
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
@@ -179,17 +189,14 @@ class TaskIdentifier extends StatelessWidget {
 
     // Convert to string with conditions
     String result = names.join('-');
-    log("${names.length}", name: "NAME_LENGTH");
     if (names.length == 3) return names.join("-");
     if (mapData.containsKey(2) && !mapData.containsKey(3)) {
       return '${mapData.containsKey(1) ? "" : "-"}$result-'; // Wrap with '-'
-    } else if (mapData.containsKey(3)) {
+    } else if (mapData.containsKey(3) && !mapData.containsKey(2)) {
       return '-$result'; // Start with '-'
     } else if (mapData.containsKey(1) && !mapData.containsKey(3)) {
       return '$result-';
     }
-
-
 
     return result; // Default case
   }
@@ -220,11 +227,12 @@ class TaskIdentifier extends StatelessWidget {
           onTap: _requestFocus,
           onTapOutSide: _unRequestFocus,
           onSuggestionTap: (val) {
-            log("PartNumber:\t${val['partNumber']}", name: "VALUE_NUMBER");
             selectedList[val['partNumber']] = val;
             _setValue();
             _requestFocus();
           },
+          isDense: true,
+          style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
           onSearchTextChanged: onSearch,
           controller:  taskIdentifierController,
           suggestionState: Suggestion.hidden,
@@ -318,7 +326,6 @@ class TaskIdentifier extends StatelessWidget {
         selectedList.remove(index+1);
       }
     });
-    log("InputPartsCount(s) ${inputParts} ${inputParts.length} $cursorPosition $hyphenPositions $typedPart $partNumber", name: "TaskIdentifier");
     return commonList.where((element) => isExist(element, typedPart) ).map((e) => SearchFieldListItem(
         (e.containsKey("subname") ? "${e['name']}${e['subname']}" : e['name'].toString()),
         item: e)).toList();

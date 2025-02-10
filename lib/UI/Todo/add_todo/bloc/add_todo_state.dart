@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -5,13 +7,21 @@ class AddToDoState extends Equatable {
   final bool isLoading;
   final bool showAppBar;
   final List<dynamic> tasks;
-  final List<dynamic> vPersons;
-  final List<dynamic> vLocations;
+  final List<dynamic> vehicles;
+  final List<dynamic> persons;
+  final List<dynamic> vendors;
+  final List<dynamic> locations;
   final List<dynamic> partServices;
   final List<dynamic> supplies;
   final List<dynamic> resources;
   final List<dynamic> clearDurations;
   final List<dynamic> linkOptions;
+  final List<dynamic> selectedTaskPersons;
+  final List<dynamic> selectedParts;
+  final List<dynamic> selectedSupplies;
+  final List<dynamic> recurringTypes;
+  final List<Map<String, dynamic>> selectedVPerson;
+  final Map<int, dynamic> selectedTaskIdentifier;
   final dynamic selectedClearDuration;
   final dynamic selectedLinkOption;
   final bool showPlatformCheck;
@@ -22,20 +32,28 @@ class AddToDoState extends Equatable {
   final bool showCleanCar;
   final DateTime? selectedDate;
   final TimeOfDay? selectedTime;
+  final dynamic selectedRecurring;
 
   const AddToDoState({
     required this.showAppBar,
     required this.isLoading,
     required this.tasks,
-    required this.vLocations,
-    required this.vPersons,
+    required this.vendors,
+    required this.persons,
+    required this.vehicles,
+    required this.locations,
     required this.partServices,
     required this.supplies,
     required this.resources,
     required this.clearDurations,
     required this.linkOptions,
+    required this.selectedVPerson,
+    required this.selectedTaskPersons,
     this.selectedClearDuration,
     this.selectedLinkOption,
+    required this.selectedSupplies,
+    required this.selectedParts,
+    required this.selectedTaskIdentifier,
     required this.isSelectedPlatformCheck,
     required this.showPlatformCheck,
     required this.isMoreEnable,
@@ -44,6 +62,8 @@ class AddToDoState extends Equatable {
     required this.showCleanCar,
     required this.selectedDate,
     required this.selectedTime,
+    required this.recurringTypes,
+    this.selectedRecurring,
   });
 
   AddToDoState copyWith({
@@ -59,46 +79,69 @@ class AddToDoState extends Equatable {
     dynamic selectedTime,
     dynamic selectedClearDuration,
     dynamic selectedLinkOption,
+    Map<int, dynamic>? selectedTaskIdentifier,
+    List<Map<String, dynamic>>? selectedVPerson,
     List<dynamic>? tasks,
-    List<dynamic>? vPersons,
-    List<dynamic>? vLocations,
+    List<dynamic>? vehicles,
+    List<dynamic>? persons,
+    List<dynamic>? vendors,
+    List<dynamic>? locations,
     List<dynamic>? partServices,
     List<dynamic>? supplies,
     List<dynamic>? resources,
     List<dynamic>? clearDurations,
     List<dynamic>? linkOptions,
+    List<dynamic>? selectedTaskPersons,
+    List<dynamic>? selectedParts,
+    List<dynamic>? selectedSupplies,
+    List<dynamic>? recurringTypes,
+    dynamic selectedRecurring,
   }) =>
       AddToDoState(
-          showAppBar: showAppBar ?? this.showAppBar,
-          isLoading: isLoading ?? this.isLoading,
-          isSelectedPlatformCheck:
-              isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
-          showPlatformCheck: showPlatformCheck ?? this.showPlatformCheck,
-          isMoreEnable: isMoreEnable ?? this.isMoreEnable,
-          isPartServiceEnable: isPartServiceEnable ?? this.isPartServiceEnable,
-          isSuppliesEnable: isSuppliesEnable ?? this.isSuppliesEnable,
-          showCleanCar: showCleanCar ?? this.showCleanCar,
-          selectedDate: selectedDate ?? this.selectedDate,
-          selectedTime: selectedTime ?? this.selectedTime,
-          clearDurations: clearDurations ?? this.clearDurations,
-          vLocations: vLocations ?? this.vLocations,
-          linkOptions: linkOptions ?? this.linkOptions,
-          partServices: partServices ?? this.partServices,
-          resources: resources ?? this.resources,
-          supplies: supplies ?? this.supplies,
-          tasks: tasks ?? this.tasks,
-          vPersons: vPersons ?? this.vPersons,
-          selectedClearDuration:
-              selectedClearDuration ?? this.selectedClearDuration,
-          selectedLinkOption: selectedLinkOption ?? this.selectedLinkOption);
+        showAppBar: showAppBar ?? this.showAppBar,
+        isLoading: isLoading ?? this.isLoading,
+        selectedVPerson: selectedVPerson ?? this.selectedVPerson,
+        isSelectedPlatformCheck:
+            isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
+        showPlatformCheck: showPlatformCheck ?? this.showPlatformCheck,
+        isMoreEnable: isMoreEnable ?? this.isMoreEnable,
+        isPartServiceEnable: isPartServiceEnable ?? this.isPartServiceEnable,
+        isSuppliesEnable: isSuppliesEnable ?? this.isSuppliesEnable,
+        showCleanCar: showCleanCar ?? this.showCleanCar,
+        selectedDate: selectedDate ?? this.selectedDate,
+        selectedTime: selectedTime ?? this.selectedTime,
+        clearDurations: clearDurations ?? this.clearDurations,
+        vehicles: vehicles ?? this.vehicles,
+        persons: persons ?? this.persons,
+        vendors: vendors ?? this.vendors,
+        locations: locations ?? this.locations,
+        linkOptions: linkOptions ?? this.linkOptions,
+        partServices: partServices ?? this.partServices,
+        resources: resources ?? this.resources,
+        supplies: supplies ?? this.supplies,
+        tasks: tasks ?? this.tasks,
+        selectedTaskIdentifier:
+            selectedTaskIdentifier ?? this.selectedTaskIdentifier,
+        selectedClearDuration:
+            selectedClearDuration ?? this.selectedClearDuration,
+        selectedLinkOption: selectedLinkOption ?? this.selectedLinkOption,
+        selectedTaskPersons: selectedTaskPersons ?? this.selectedTaskPersons,
+        selectedSupplies: selectedSupplies ?? this.selectedSupplies,
+        selectedParts: selectedParts ?? this.selectedParts,
+        recurringTypes: recurringTypes ?? this.recurringTypes,
+        selectedRecurring: selectedRecurring ?? this.selectedRecurring,
+      );
 
   @override
   List<Object?> get props => [
         showAppBar,
+        selectedVPerson,
         isLoading,
         tasks,
-        vPersons,
-        vLocations,
+        vehicles,
+        persons,
+        vendors,
+        locations,
         partServices,
         supplies,
         resources,
@@ -111,8 +154,15 @@ class AddToDoState extends Equatable {
         isMoreEnable,
         isPartServiceEnable,
         isSuppliesEnable,
+        selectedTaskIdentifier,
         showCleanCar,
         selectedDate,
         selectedTime,
+        selectedParts,
+        selectedSupplies,
+        selectedTaskPersons,
+        recurringTypes,
+        selectedRecurring,
+        Random().nextDouble()
       ];
 }

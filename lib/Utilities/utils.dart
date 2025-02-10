@@ -3,6 +3,7 @@
 
 import 'dart:developer';
 
+import 'package:date_time/date_time.dart' as dt;
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -344,13 +345,14 @@ class Utils {
       {double size = 14,
       TextAlign? align,
       Color color = AppC.text,
+      TextStyle? style,
       FontWeight weight = FontWeight.normal,
       TextDecoration? decoration,
         Color? colorDecoration,
       TextOverflow? overFlow}) {
     return Text(text,
         textAlign: align,
-        style: TextStyle(
+        style: style ?? TextStyle(
           color: color,
           fontSize: size,
           fontWeight: weight,
@@ -445,6 +447,7 @@ class Utils {
       inputFormatters: textInputFormatter,
       decoration: InputDecoration(
           contentPadding: contentPadding,
+          constraints: BoxConstraints(),
           isDense: isDense,
           label: label,
           hintText: hintText,
@@ -1876,6 +1879,17 @@ class Utils {
                 ),
               )));
     }).closed;
+  }
+
+  static String formatDateTime({dynamic input, required String? format}) {
+    if (input is DateTime) {
+      return DateFormat(format).format(input);
+    } else if (input is TimeOfDay) {
+      var val = input;
+      return DateFormat(format).format(dt.Time.fromMinutes(val.hour * 60 + val.minute).asDateTime);
+    } else {
+      return "";
+    }
   }
 
   /* ListView.builder(

@@ -1,9 +1,11 @@
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:flutter/material.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:searchfield/searchfield.dart';
+import 'package:flutter/material.dart';
 
 class CustomMultiSelectionChipsField<T> extends StatelessWidget {
   final List<T> selectedPartsList;
@@ -14,17 +16,23 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
   final VoidCallback? onEmptyTap;
   final bool controllerAutoClear;
   final Suggestion suggestionState;
-  CustomMultiSelectionChipsField({super.key, required this.selectedPartsList, required this.suggestionsList, this.itemAsString, this.controller, this.emptyText, this.hintText, this.labelText, this.onEmptyTap, this.controllerAutoClear = true, this.suggestionState = Suggestion.expand}) {
-    isSelected.value = (selectedPartsList.isNotEmpty);
-  }
-  final ValueNotifier<bool> isSelected = ValueNotifier(false);
+  final void Function(bool isChecked, T value)? onChanged;
+
+  CustomMultiSelectionChipsField(
+      {super.key,
+      required this.selectedPartsList,
+      required this.suggestionsList,
+      this.itemAsString,
+      this.controller,
+      this.emptyText,
+      this.hintText,
+      this.labelText,
+      this.onEmptyTap,
+      this.controllerAutoClear = true,
+      this.suggestionState = Suggestion.expand,
+      this.onChanged});
 
   final FocusNode _focusNode = FocusNode();
-
-  void doSetState() {
-    isSelected.value = (selectedPartsList.isNotEmpty);
-    isSelected.notifyListeners();
-  }
 
   void requestFocus() {
     _focusNode.requestFocus();
@@ -36,8 +44,8 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var commonBorderSide = const BorderSide(color: AppC.fieldBase,
-        width: Num.borderWidthField);
+    var commonBorderSide =
+        const BorderSide(color: AppC.fieldBase, width: Num.borderWidthField);
     return Container(
       padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(top: 10),
@@ -47,26 +55,24 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
             right: commonBorderSide,
             left: commonBorderSide,
           ),
-          borderRadius: const BorderRadius.all(
-              Radius.circular(Num.subradiusButton))),
+          borderRadius:
+              const BorderRadius.all(Radius.circular(Num.subradiusButton))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 5,
+        spacing: selectedPartsList.isEmpty ? 0 : 5,
         children: [
-          ValueListenableBuilder(valueListenable: isSelected, builder: (context, value, child) => Wrap(
+          Wrap(
             children: List<Widget>.generate(
               selectedPartsList.length,
-                  (int idx) {
+              (int idx) {
                 return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: Chip(
-                      onDeleted: () {
-                        selectedPartsList.removeAt(idx);
-                        doSetState();
-                      },
+                      onDeleted: () =>
+                          onChanged?.call(false, selectedPartsList[idx]),
                       side: const BorderSide(color: AppC.trans),
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
                       deleteIcon: const Icon(
                         Icons.close,
                         color: AppC.red,
@@ -76,25 +82,22 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
                       // side: BorderSide(),
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Utils.getText(
-                              itemAsString?.call(selectedPartsList[idx]) ?? "",
-                              color: AppC.text),
-                        ],
-                      ),
+                      label: Utils.getText(
+                          itemAsString?.call(selectedPartsList[idx]) ?? "",
+                          color: AppC.text),
                     ));
               },
             ).toList(),
-          ),),
+          ),
           CustomSearchField<T>(
-            focusNode: _focusNode,
+              focusNode: _focusNode,
               suggestions: suggestionsList,
               itemAsString: itemAsString,
+              isDense: true,
+              contentPadding: 10.padding,
+              style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
               onSuggestionTap: (val) {
-              if (!selectedPartsList.contains(val)) selectedPartsList.add(val);
-                doSetState();
+                onChanged?.call(true, val);
                 requestFocus();
               },
               controller: controller,
@@ -102,7 +105,6 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
               suggestionState: suggestionState,
               labelText: labelText,
               hintText: hintText,
-              // emptyText: emptyText,
               onEmptyTap: onEmptyTap),
         ],
       ),

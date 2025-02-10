@@ -22,7 +22,7 @@ class CustomWrapChoice<T> extends StatelessWidget {
                 horizontal: 2.0, vertical: 2),
             child: ChoiceChip(
               showCheckmark: false,
-              padding: EdgeInsets.zero,
+              padding: EdgeInsets.symmetric(horizontal: 5),
               materialTapTargetSize:
               MaterialTapTargetSize.shrinkWrap,
               labelPadding:
@@ -34,10 +34,11 @@ class CustomWrapChoice<T> extends StatelessWidget {
               ),
               side: const BorderSide(color: AppC.appColor),
               label: Utils.getText(
-                '${itemAsString?.call(items[idx])}',
+                itemAsString?.call(items[idx]) ?? "${items[idx]}",
                 color: selectedItems?.contains(items[idx]) ?? false
                     ? AppC.white
                     : AppC.text,
+                weight: (selectedItems?.contains(items[idx]) ?? false) ? FontWeight.bold : FontWeight.normal,
                 size: 12,
               ),
               selected: selectedItems?.contains(items[idx]) ?? false,

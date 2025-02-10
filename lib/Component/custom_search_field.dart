@@ -1,5 +1,6 @@
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,10 @@ class CustomSearchField<T> extends StatelessWidget {
   final FocusNode? focusNode;
   final List<SearchFieldListItem<T>>? Function(String)? onSearchTextChanged;
   final VoidCallback? onTap, onTapOutSide;
-  const CustomSearchField({super.key, this.controller, required this.suggestions, this.itemAsString, this.onEmptyTap, this.onSuggestionTap, this.hintText = "Type here...", this.labelText, this.emptyText = "Create new", this.autoControllerClear = false, this.suggestionState = Suggestion.expand, this.onSearchChanged, this.onSearchTextChanged, this.focusNode, this.onTap, this.onTapOutSide});
+  final bool isDense;
+  final TextStyle? style;
+  final EdgeInsets? contentPadding;
+  const CustomSearchField({super.key, this.controller, required this.suggestions, this.itemAsString, this.onEmptyTap, this.onSuggestionTap, this.hintText = "Type here...", this.labelText, this.emptyText = "Create new", this.autoControllerClear = false, this.suggestionState = Suggestion.expand, this.onSearchChanged, this.onSearchTextChanged, this.focusNode, this.onTap, this.onTapOutSide, this.isDense = false, this.style, this.contentPadding});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +47,11 @@ class CustomSearchField<T> extends StatelessWidget {
       suggestionState: suggestionState,
       textInputAction: TextInputAction.done,
       searchInputDecoration: SearchInputDecoration(
+        isDense: isDense,
         searchStyle: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5)),
-        contentPadding: const EdgeInsets.all(10),
+        contentPadding: contentPadding ?? 10.padding,
         labelText: labelText,
         hintText: hintText,
         hintStyle: context.textTheme.labelLarge
@@ -54,6 +59,7 @@ class CustomSearchField<T> extends StatelessWidget {
         labelStyle: context.textTheme.labelLarge
             ?.copyWith(color: context.theme.hintColor),
       ),
+      suggestionStyle: style,
       suggestionAction: SuggestionAction.next,
       suggestionsDecoration: SuggestionDecoration(
         color: Colors.white,

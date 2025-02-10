@@ -7,6 +7,9 @@ import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_main_form.dart';
+import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
+import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
+import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -42,7 +45,19 @@ class AddToDoUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: AddTodoMainForm(), minimum: 20.padding,);
+    return BlocProvider(create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(true)),
+      child: BlocListener<AddToDoBloc, AddToDoState>(
+        listenWhen: (previous, current) => (current is AddToDoState),
+          listener: (context, state) {
+        if (state.isLoading) {
+          EasyLoading.show();
+        } else {
+          if (EasyLoading.isShow) EasyLoading.dismiss();
+        }
+      },
+       child: SafeArea(child: AddTodoMainForm(), minimum: 20.padding,)),
+
+    );
   }
 }
 

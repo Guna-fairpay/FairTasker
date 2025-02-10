@@ -68,7 +68,11 @@ class Str{
 
     static const List<int> platFormCheckIds = [268, 211, 209];
 
+    static const List<int> cleanCarCheckIds = [209, 210]; // 30 IS NOT INCLUDED DUE TO IT'LL SHOW JUST ICON
+
     static const List<int> reqTaskManagerIds = [3,17,19,20,26,31,32];
+
+    static const List<int> getAroundIds = [268, 177];
 
 
 }

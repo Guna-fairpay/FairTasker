@@ -1,24 +1,29 @@
+import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CustomDateTimePicker<T> extends StatelessWidget {
   final T? value;
   final TextStyle? textStyle;
   final TextAlign? textAlign;
   final String? labelText;
+  final String? format;
   final Function(T value)? onChanged;
   final TextEditingController controller;
 
   CustomDateTimePicker(
       {super.key,
       this.labelText = "Select",
+      this.format,
       this.value,
       required this.controller,
       this.textStyle,
       this.textAlign,
       this.onChanged}) {
-    controller.text = valueLabel;
+    controller.text = Utils.formatDateTime(format: format, input: value);
   }
 
   @override
@@ -31,7 +36,9 @@ class CustomDateTimePicker<T> extends StatelessWidget {
         } else if (value is TimeOfDay) {
           result = await _pickTimePicker(context);
         }
-        if (result != null) onChanged?.call(result as T);
+        controller.text = Utils.formatDateTime(format: format, input: result);
+        controller.notifyListeners();
+        if (result != null) onChanged?.call(result);
       },
       radius: Num.radiusButton,
       borderRadius: BorderRadius.circular(Num.radiusButton),
@@ -44,7 +51,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
         child: ValueListenableBuilder(
             valueListenable: controller,
             builder: (context, value, child) => Text(
-                  value.text.isEmpty ? (labelText ?? "") : value.text,
+                  value.text.isEmpty ? Utils.formatDateTime(input: value, format: format) : value.text,
                   style: textStyle ?? context.textTheme.labelLarge,
                   textAlign: textAlign,
                 )),
@@ -53,7 +60,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   }
 
   Future<DateTime?> _pickDatePicker(BuildContext context) async {
-    if ((T is! DateTime) || (value is! DateTime)) return null;
+    if ((value is! DateTime)) return null;
     var result = await showDatePicker(
         context: context,
         firstDate: DateTime.now().subtract(const Duration(days: 180)),
@@ -65,7 +72,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   }
 
   Future<TimeOfDay?> _pickTimePicker(BuildContext context) async {
-    if ((T is! TimeOfDay) || (value is! TimeOfDay)) return null;
+    if ((value is! TimeOfDay)) return null;
     var result = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(DateTime.now()),
@@ -74,14 +81,14 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     return result;
   }
 
-  String get valueLabel {
-    if (value is DateTime) {
-      return (value as DateTime).toIso8601String();
-    } else if (value is TimeOfDay) {
-      var val = (value as TimeOfDay);
-      return "${val.hour}:${val.minute}";
-    } else {
-      return "";
-    }
-  }
+// String get valueLabel {
+//   if (value is DateTime) {
+//     return DateFormat(format).format(value as DateTime);
+//   } else if (value is TimeOfDay) {
+//     var val = (value as TimeOfDay);
+//     return DateFormat(format).format(Time.fromMinutes(val.hour * 60 + val.minute).asDateTime);
+//   } else {
+//     return "";
+//   }
+// }
 }
