@@ -116,7 +116,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
   List<Map<String, dynamic>> todoImages = [];
   List<Map<String, dynamic>> editSuppliesList = [];
-  List<Map<String, dynamic>> attachmentImage = [];
+  List<dynamic> attachmentImage = [];
   List<Map<String, dynamic>> vendorList = [];
   List<Map<String, dynamic>> taskExpenseList = [];
   List<Map<String, dynamic>> locationList = [];
@@ -902,51 +902,60 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
-                  } else if (state is ExpenseTodoLoaded) {
+                  }
+                  else if (state is ExpenseTodoLoaded) {
+                    print("state.expenseSummaryData ${state.expenseSummaryData}");
                     existingExpenseDate = state.expenseSummaryData;
-                    expenseDescriptionController.text =
-                        existingExpenseDate?['expense_description'] ?? '';
-                    if (editedExpenseIdsLength != null) {
-                      amountController.text =
-                          ((existingExpenseDate?['expense_amount'] ?? 0) *
-                                  editedExpenseIdsLength!)
-                              .toString();
-                    } else {
-                      amountController.text =
-                          (existingExpenseDate?['expense_amount'] ?? 0)
-                              .toString();
-                    }
-                    attachmentImage =
-                        (existingExpenseDate['attachments'] ?? []);
-                    if ((existingExpenseDate?['category_id'] ?? 0) != 0) {
-                      categoriesData.clear();
-                      categoriesData = (widget.categoriesListData ?? []);
-                      for (int i = 0;
-                          i < (widget.categoriesListData ?? []).length;
-                          i++) {
-                        // var element = categoriesData[i];
-                        if (widget.categoriesListData![i]['id'] ==
-                            (existingExpenseDate?['category_id'] ?? 0)) {
-                          selectedExpenseCategories =
-                              widget.categoriesListData![i];
-                          existingExpenseDate?['category_name'] =
-                              widget.categoriesListData![i]['name'];
-                          subCategoriesData = (widget.categoriesListData![i]
-                                  ['subcategories'] ??
-                              []);
-                          for (var element1 in (widget.categoriesListData![i]
-                                  ['subcategories'] ??
-                              [])) {
-                            if (element1.todoId ==
-                                (existingExpenseDate?['subcategory_id'] ?? 0)) {
-                              selectedExpenseSubCategories = element1;
-                              existingExpenseDate?['subcategory_name'] =
-                                  element1.name;
+                    if(existingExpenseDate != null && existingExpenseDate.isNotEmpty)
+                    {
+                      final expense = existingExpenseDate[0];
+                      expenseDescriptionController.text = expense['expense_description'] ?? '';
+                      if (editedExpenseIdsLength != null) {
+                        amountController.text =
+                            ((expense['expense_amount'] ?? 0) *
+                                editedExpenseIdsLength!)
+                                .toString();
+                      } else {
+                        amountController.text =
+                            (expense?['expense_amount'] ?? 0)
+                                .toString();
+                      }
+                      attachmentImage =
+                      (expense['attachments'] ?? []);
+                      if ((expense?['category_id'] ?? 0) != 0) {
+                        categoriesData.clear();
+                        categoriesData = (widget.categoriesListData ?? []);
+                        for (int i = 0;
+                        i < (widget.categoriesListData ?? []).length;
+                        i++) {
+                          // var element = categoriesData[i];
+                          if (widget.categoriesListData![i]['id'] ==
+                              (expense?['category_id'] ?? 0)) {
+                            selectedExpenseCategories =
+                            widget.categoriesListData![i];
+                            expense?['category_name'] =
+                            widget.categoriesListData![i]['name'];
+                            subCategoriesData = (widget.categoriesListData![i]
+                            ['subcategories'] ??
+                                []);
+                            for (var element1 in (widget.categoriesListData![i]
+                            ['subcategories'] ??
+                                [])) {
+                              if (element1.todoId ==
+                                  (expense?['subcategory_id'] ?? 0)) {
+                                selectedExpenseSubCategories = element1;
+                                expense?['subcategory_name'] =
+                                    element1.name;
+                              }
                             }
                           }
                         }
                       }
                     }
+                    else {
+                      print('Error: expenseSummaryData is null or empty.');
+                    }
+
                   }
                 },
               ),
