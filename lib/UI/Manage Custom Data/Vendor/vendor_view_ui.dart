@@ -214,7 +214,8 @@ class _VendorViewUIState extends State<VendorViewUI> {
       backgroundColor: AppC.white,
       appBar: AppBar(
         backgroundColor: AppC.appColor,
-        title: Utils.getText('Vendor',color: AppC.white,size: 20),
+        title:const Text('Vendor',),
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(

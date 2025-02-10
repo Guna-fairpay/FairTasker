@@ -81,20 +81,17 @@ class _TaskEditUIState extends State<TaskEditUI> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar:AppBar(
-        title: Utils.getText(
-            'Edit Task',
-            weight: FontWeight.bold,
-            size: 18,
-            color: AppC.white
-        ),
         backgroundColor: AppC.appColor,
+        title:const Text('Edit Task',),
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-              onPressed: (){
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.close,color: AppC.white,)),
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.close,
+                color: AppC.white,
+              ))
         ],
       ),
 

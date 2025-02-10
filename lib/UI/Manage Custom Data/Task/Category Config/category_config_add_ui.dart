@@ -57,12 +57,8 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
       appBar: AppBar(
         backgroundColor: AppC.appColor,
         automaticallyImplyLeading: false,
-        title: Utils.getText(
-            'Add Category Config',
-            weight: FontWeight.bold,
-            size: 18,
-            color: AppC.white
-        ),
+        title: const Text('Add Category Config',),
+        foregroundColor:AppC.white,
         actions:  [
           IconButton(
               onPressed: () => Navigator.pop(context),

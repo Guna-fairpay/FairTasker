@@ -67,13 +67,9 @@ class _TaskAddUIState extends State<TaskAddUI> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Utils.getText(
-            'Add Task',
-            weight: FontWeight.bold,
-            size: 18,
-            color: AppC.white
-        ),
+        title: const Text('Add Task',),
         backgroundColor: AppC.appColor,
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -82,6 +78,7 @@ class _TaskAddUIState extends State<TaskAddUI> {
               },
               icon: const Icon(Icons.close,color: AppC.white,)),
         ],
+
       ),
       body: BlocProvider(
         create: (context) => cohortsBloc..add(const GetCohortsData()),
