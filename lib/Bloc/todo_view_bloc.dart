@@ -938,8 +938,12 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
     on<AddCategoryConfigData>((event, emit) async {
       emit(TodoListLoading());
 
-      await todoListRepo.createCategoryConfig(event.id,event.name,event.userType,event.parentId)
-          .then((value) {
+      await todoListRepo.createCategoryConfig(
+          event.id,
+          event.name,
+          event.userType,
+          event.parentId
+      ).then((value) {
         if (value != null) {
           emit(CategoryConfigLoaded(
             message: value.message ?? [].toString(),

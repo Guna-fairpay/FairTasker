@@ -955,8 +955,8 @@ class GetCategoryConfigData extends TodoViewEvent {
 class AddCategoryConfigData extends TodoViewEvent {
 
   final String name;
-  final String userType;
-  final String parentId;
+  final int? userType;
+  final int? parentId;
   final int? id;
 
   const AddCategoryConfigData({

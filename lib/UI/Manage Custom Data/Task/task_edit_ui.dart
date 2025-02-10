@@ -272,7 +272,7 @@ class _TaskEditUIState extends State<TaskEditUI> {
                           children: [
                             SizedBox(
                               height: 40,
-                              child: Utils.getAddElevatedButton(() {
+                              child: Utils.getElevatedButton(() {
                                 _save();
                               },
                                 text: 'Save',

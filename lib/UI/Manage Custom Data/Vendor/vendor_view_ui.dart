@@ -1,13 +1,16 @@
-import 'dart:io';
 
+import 'dart:io';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import '../../../Bloc/vendor_data_bloc.dart';
+import '../../dialog/show_attachments_dialog.dart';
 import 'vendor_add_ui.dart';
 import 'vendor_edit_ui.dart';
 import 'dart:math' as math;
@@ -28,6 +31,7 @@ class _VendorViewUIState extends State<VendorViewUI> {
   List<Map<String, dynamic>> vendors = [];
   List<Map<String, dynamic>> filteredVendors = [];
   bool loading = false;
+  List<dynamic> images=[];
 
   @override
   void initState() {
@@ -195,8 +199,8 @@ class _VendorViewUIState extends State<VendorViewUI> {
     );
   }
 
-  Future<void> _deleteVendor(int index) async {
-    final confirmed = await _confirmDelete(context);
+  void _deleteVendor(int index) async {
+    final confirmed = await Utils.showCustomDeleteDialog(context,'vendor');
     if (confirmed == true) {
       final vendor = filteredVendors[index];
       vendorDataBloc.add(DeleteVendorEvent(id: vendor['id']));
@@ -204,39 +208,22 @@ class _VendorViewUIState extends State<VendorViewUI> {
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure?'),
-        content: Utils.getText('Are you sure you want to delete this vendor?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        title: Utils.getText('Vendor',color: AppC.white,size: 20),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                  Icons.close,
+                color: AppC.white,
+              ))
+        ],
       ),
       body: BlocProvider(
         create: (context) => vendorDataBloc..add(const GetVendorList()),
@@ -269,25 +256,11 @@ class _VendorViewUIState extends State<VendorViewUI> {
             return Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 5),
                   child: Column(
                     children: [
                       Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back),
-                          ),
-                          Utils.getText('Vendor',
-                              size: 20, weight: FontWeight.bold)
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
+                        spacing:10,
                         children: [
                           Expanded(
                             child: SizedBox(
@@ -297,100 +270,80 @@ class _VendorViewUIState extends State<VendorViewUI> {
                               }, searchController,),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Add', () {
-                              _navigateToVendorAddUI();
-                            }),
-                          ),
+                          Utils.getAddElevatedButton(_navigateToVendorAddUI),
                         ],
                       ),
                       Expanded(
-                        child: ListView.builder(
+                        child: ListView.separated(
                           itemCount: filteredVendors.length,
                           itemBuilder: (context, index) {
                             final vendor = filteredVendors[index];
-                            return Slidable(
-                              endActionPane: ActionPane(
-                                motion: const ScrollMotion(),
-                                children: [
-                                  SlidableAction(
-                                    onPressed: (context) =>
-                                        _deleteVendor(index),
-                                    backgroundColor: AppC.white,
-                                    foregroundColor: AppC.red,
-                                    icon: Icons.delete_outline,
-                                    label: 'Delete',
-                                  ),
-                                ],
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  _navigateToEditVendorUI(index);
-                                },
-                                child: Card(
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 4),
-                                  color: AppC.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                            return GestureDetector(
+                              onTap: () => _navigateToEditVendorUI(index),
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      spacing:10,
                                       children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Utils.getText(
-                                                vendor['name'] ?? '',
-                                                weight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            if (vendor['images'] != null &&
-                                                vendor['images']!.isNotEmpty)
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Utils.getImageTitleDialog(
-                                                      context,
-                                                      vendor['name'].toString(),
-                                                      vendor['images']
-                                                          .toString(),
-                                                      '',
-                                                      AppC.trans);
-                                                },
-                                                child: const Icon(
-                                                  Icons.remove_red_eye_outlined,
-                                                  color: AppC.appColor,
-                                                  size: 15,
-                                                ),
-                                              ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                            // Icon(Icons.navigation_outlined,size: 15,)
-                                            Transform(
-                                              alignment: Alignment.center,
-                                              transform: Matrix4.rotationZ(
-                                                  50 * math.pi / 180),
-                                              child: const Icon(
-                                                Icons.navigation_outlined,
-                                                color: AppC.green,
-                                                size: 15,
-                                              ),
-                                            ),
-                                          ],
+                                        Expanded(
+                                          child: Utils.getText(
+                                            vendor['name'] ?? '',
+                                            weight: FontWeight.bold,
+                                          ),
                                         ),
+                                        if (vendor['images'] != null &&
+                                            vendor['images']!.isNotEmpty)
+                                          GestureDetector(
+                                            onTap: () {
+                                              ShowAttachmentsDialog.of.show(context,
+                                                  attachments: filteredVendors[index]?['images']?.map((e) => e['path'].toString().toStorageURL).toList(),
+                                                  title: vendor['name'] ?? '');
+                                            },
+                                            child: const Icon(
+                                              Icons.visibility_outlined,
+                                              color: AppC.appColor,
+                                            ),
+                                          ),
+                                        // Icon(Icons.navigation_outlined,size: 15,)
+                                        if(vendor['latitude'] != null && vendor['longitude'] != null)
+                                        GestureDetector(
+                                          onTap:()async {
+                                            final Uri mapsUri = Uri(
+                                              scheme: 'https',
+                                              host: 'www.google.com',
+                                              path: '/maps/search/ ${vendor['latitude']}, ${vendor['longitude']}',
+                                              queryParameters: {'q': '${vendor['latitude']}, ${vendor['longitude']}'},
+                                            );
+                                            if (await canLaunchUrl(mapsUri)) {
+                                              await launchUrl(mapsUri, mode: LaunchMode.externalApplication);
+                                            } else {
+                                              throw 'Could not open the map.';
+                                            }
+                                            },
+                                          child: Transform(
+                                            alignment: Alignment.center,
+                                            transform: Matrix4.rotationZ(
+                                                50 * math.pi / 180),
+                                            child: const Icon(
+                                              Icons.navigation_outlined,
+                                              color: AppC.green,
+                                            ),
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap:()=>_deleteVendor(index),
+                                            child: const Icon(Icons.delete_outline,color: AppC.redAccent,)),
                                       ],
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             );
-                          },
+                          }, separatorBuilder: (context,index) => const Divider(height: 0.5,),
                         ),
                       ),
                     ],

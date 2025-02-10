@@ -2866,7 +2866,11 @@ class TodoListRepo {
     }
   }
 
-  Future<CategoryConfigResponse?> createCategoryConfig(int? id,String? name,String? parentId,String? userType) async {
+  Future<CategoryConfigResponse?> createCategoryConfig(
+      int? id,
+      String? name,
+      int? parentId,
+      int? userType) async {
     try {
       String body = jsonEncode({
         "name": name,
@@ -2878,15 +2882,16 @@ class TodoListRepo {
 
       String apiUrl = '';
       http.Response? response;
+
       if(id != null) {
         apiUrl = "${Str.BASE_URL}updateTaskCategory/$id";
-        debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }else{
         apiUrl = "${Str.BASE_URL}addTaskCategory";
-        debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
+      log('getTaskCategoryGroup.exception : ${response?.body}');
+
       if (response != null) {
 
         CategoryConfigResponse categoryConfigResponse =

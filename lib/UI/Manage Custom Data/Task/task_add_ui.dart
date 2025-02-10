@@ -237,19 +237,10 @@ class _TaskAddUIState extends State<TaskAddUI> {
                           labelKey: 'name',
                           initialSelection: selectedUserType,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 40,
-                              child: Utils.getAddElevatedButton(() {
-                                _save();
-                              },
-                                  text: 'Save',
-                                  bgColor: AppC.green
-                              ),
-                            ),
-                          ],
+                        Utils.getElevatedButton(
+                            () => _save(),
+                            text: 'Save',
+                            bgColor: AppC.green
                         ),
                       ],
                     ),

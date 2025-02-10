@@ -1,14 +1,12 @@
 
+
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Event/todo_view_event.dart';
 import '../../../State/todo_view_state.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'Category Config/category_config_view_ui.dart';
 import 'task_add_ui.dart';
 import 'task_edit_ui.dart';
@@ -33,6 +31,8 @@ class _TaskViewUIState extends State<TaskViewUI> {
   bool isNoCategorySelected = false;
   bool loading = false;
   int selectedIndex = 0;
+  bool noCategory = false;
+
 
   @override
   void initState() {
@@ -41,16 +41,24 @@ class _TaskViewUIState extends State<TaskViewUI> {
     todoViewBloc.add(const GetCohortsData());
   }
 
-  void _filterTasks(String query) {
+  void _filterTasks() {
+    var query = searchController.text;
     setState(() {
       filteredTask = task.where((task) {
         final taskName = task['task']?.toLowerCase() ?? '';
-        final category = task['category_name']?.toLowerCase() ?? '';
-        final subcategory = task['subcategory_name']?.toLowerCase() ?? '';
+        final category = task['category_name'];  // Keep as nullable
+        final subcategory = task['subcategory_name'];  // Keep as nullable
         final searchQuery = query.toLowerCase();
-        return taskName.contains(searchQuery) ||
-            category.contains(searchQuery) ||
-            subcategory.contains(searchQuery);
+        final matchesQuery = taskName.contains(searchQuery) ||
+            (category?.toLowerCase().contains(searchQuery) ?? false) ||
+            (subcategory?.toLowerCase().contains(searchQuery) ?? false);
+        return matchesQuery;
+      }).toList();
+      filteredTask = filteredTask.where((task) {
+        final category = task['category_name'];  // Keep as nullable
+        final subcategory = task['subcategory_name'];  // Keep as nullable
+        final matchesNoCategory = !noCategory || (category == null || subcategory == null);
+        return matchesNoCategory;
       }).toList();
     });
   }
@@ -97,7 +105,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
   }
 
   void _deleteTask(int index) async {
-    final confirmed = await Utils.showCustomDeleteDialog(context, 'Do you want to delete this identifier');
+    final confirmed = await Utils.showCustomDeleteDialog(context, 'identifier');
     if (confirmed == true) {
       final delete = filteredTask[index];
       todoViewBloc.add(DeleteTaskData(id: delete['id'].toString()));
@@ -111,47 +119,29 @@ class _TaskViewUIState extends State<TaskViewUI> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        drawer: const DrawerView(),
         backgroundColor: AppC.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(100.0),
-          child: Column (
-            children: [
-              const HeaderView(),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(0),
-                    border: const Border(
-                      bottom: BorderSide(
-                        color: AppC.appColor, // Your desired border color
-                        width: 1.0, // Adjust thickness as needed
-                      ),
-                    )
-                  ),
-                  child: TabBar(
-                    tabs: const [
-                      Tab(text: 'Task', height: 30),
-                      Tab(text: 'Category Config', height: 30),
-                    ],
-                    dividerColor: AppC.trans,
-                    labelStyle: const TextStyle(fontSize: 16),
-                    labelColor: AppC.appColor,
-                    unselectedLabelColor: AppC.text,
-                    indicator: BoxDecoration(
-                      color: AppC.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppC.appColor)
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                ),
-              ),
+        appBar: AppBar(
+          backgroundColor: AppC.appColor,
+          automaticallyImplyLeading: true,
+          foregroundColor: Colors.white,
+          leadingWidth: 20,
+          title: TabBar(
+            tabs: const [
+              Tab(text: 'Task', height: 30),
+              Tab(text: 'Category Config', height: 30),
             ],
+
+            dividerColor: AppC.trans,
+            labelStyle: const TextStyle(fontSize: 16),
+            labelColor: AppC.appColor,
+            unselectedLabelColor: AppC.white,
+            indicator: BoxDecoration(
+              color: AppC.white,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: AppC.appColor)
+            ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),
         body: BlocProvider(
@@ -186,33 +176,54 @@ class _TaskViewUIState extends State<TaskViewUI> {
             return Stack(
               children: [
                 TabBarView(
+                  physics:  const AlwaysScrollableScrollPhysics(),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                          Row(
                            spacing: 10,
                            children: [
-                             const Icon(Icons.arrow_back),
                              Expanded(
                                child: SizedBox(
-                                 height: 45,
+                                 height: 40,
                                  child: Utils.getSearchBarUI(
                                        () {},
                                        (value) {
-                                     _filterTasks(value);
+                                     _filterTasks();
                                    },
                                    searchController,
                                  ),
                                ),
                              ),
-                             Utils.getAddElevatedButton(() {
-                               _navigateToTaskAddUI();},
-                               icon: Icons.add
-                             ),
+                             Utils.getAddElevatedButton(
+                                   ()=> _navigateToTaskAddUI(),),
                            ]
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Checkbox(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                activeColor: AppC.redAccent,
+                                checkColor: AppC.white,
+                                    value: noCategory,
+                                    onChanged: (value){
+                                  setState(() {
+                                    noCategory = value!;
+                                    // noCategoryCheck();
+                                    _filterTasks();
+                                  });
+                                    }),
+                                Utils.getText('No Category',weight: FontWeight.bold),
+                            ],
+                          ),
+                           const Divider(
+                            height:0.5,
                           ),
                           Expanded(
                             child:filteredTask.isEmpty && state is TaskListLoaded
@@ -221,6 +232,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
                               size: 16
                             )): ListView.separated(
                               itemCount: filteredTask.length,
+                              shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 final task = filteredTask[index];
                                 selectedCategory = category.firstWhere(
@@ -236,116 +248,114 @@ class _TaskViewUIState extends State<TaskViewUI> {
                                       (e) => e['id'] == task['subcategory_id'],
                                   orElse: () => {},
                                 );
-
-                                return Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  color: AppC.white,
-                                  elevation: 3,
-                                  child: ListTile(
-                                     contentPadding: const EdgeInsets.symmetric(horizontal: 8,vertical:4 ),
-                                    title: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            task['task'] ?? 'No Title',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                return ListTile(
+                                  dense: true,
+                                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  title: Row(
+                                    spacing: 10,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          task['task'] ?? '-No Title-',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
                                           ),
                                         ),
-                                        IconButton(
-                                            onPressed: () => _navigateToTaskEditUI(index),
-                                            icon:const Icon(
-                                                Icons.edit_outlined,
-                                              color: AppC.appColor,
+                                      ),
+                                      GestureDetector(
+
+                                          onTap: () => _navigateToTaskEditUI(index),
+                                          child:const Icon(
+                                              Icons.edit_outlined,
+                                            color: AppC.appColor,
+                                          ),
+                                      ),
+                                      GestureDetector(
+                                          onTap: () => _deleteTask(index),
+                                          child:const Icon(
+                                              Icons.delete_outline,
+                                            color: AppC.redAccent,
+                                          )
+                                      ),
+                                    ],
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 10,),
+                                      Row(
+                                        spacing: 10,
+                                        children: [
+                                          Expanded(
+                                            child: Utils.dropdownBoxSmallSize(
+                                              "Select Category",
+                                              category,
+                                                  (value) {
+                                                setState(() {
+                                                  selectedCategory = value;
+                                                  selectedSubCategory = null;
+                                                  subCategory.clear();
+                                                  if (value != null) {
+                                                    subCategory = category
+                                                        .where((category) => category['id'].toString() == value['id'].toString())
+                                                        .map((category) => category['sub_categories'] ?? [])
+                                                        .expand((subcategoryList) => subcategoryList)
+                                                        .toList();
+                                                  }
+                                                });
+                                                todoViewBloc.add(AddTaskData(
+                                                  id: task['id'],
+                                                  name: task['task'],
+                                                  userType: task['userType'],
+                                                  timeTaken: task['timeTaken'],
+                                                  categoryId: selectedCategory['id'],
+                                                  subCategoryId: null,
+                                                ));
+                                              },
+                                              initialSelection: selectedCategory,
+                                              selectedKey: selectedCategory,
+                                              labelKey: 'name',
                                             ),
-                                        ),
-                                        IconButton(
-                                            onPressed: () => _deleteTask(index),
-                                            icon:const Icon(
-                                                Icons.delete_outline,
-                                              color: AppC.redAccent,
-                                            )
-                                        ),
-                                      ],
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          spacing: 10,
-                                          children: [
-                                            Expanded(
-                                              child: Utils.dropdownBox(
-                                                "Select Category",
-                                                category,
-                                                    (value) {
-                                                  setState(() {
-                                                    selectedCategory = value;
-                                                    selectedSubCategory = null;
-                                                    subCategory.clear();
-                                                    if (value != null) {
-                                                      subCategory = category
-                                                          .where((category) => category['id'].toString() == value['id'].toString())
-                                                          .map((category) => category['sub_categories'] ?? [])
-                                                          .expand((subcategoryList) => subcategoryList)
-                                                          .toList();
-                                                    }
-                                                  });
-                                                  todoViewBloc.add(AddTaskData(
-                                                    id: task['id'],
-                                                    name: task['task'],
-                                                    userType: task['userType'],
-                                                    timeTaken: task['timeTaken'],
-                                                    categoryId: selectedCategory['id'],
-                                                    subCategoryId: null,
-                                                  ));
-                                                },
-                                                initialSelection: selectedCategory,
-                                                selectedKey: selectedCategory,
-                                                labelKey: 'name',
-                                              ),
+                                          ),
+                                          Expanded(
+                                            child: Utils.dropdownBoxSmallSize(
+                                              "Select Subcategory",
+                                              subCategory,
+                                                  (value) {
+                                                setState(() {
+                                                  selectedSubCategory = value;
+                                                });
+                                                todoViewBloc.add(AddTaskData(
+                                                  id: task['id'],
+                                                  name: task['task'],
+                                                  userType: task['userType'],
+                                                  timeTaken: task['time_taken'],
+                                                  categoryId: task['category_id'],
+                                                  subCategoryId: selectedSubCategory['id'],
+                                                ));
+                                              },
+                                              initialSelection: selectedSubCategory,
+                                              selectedKey: selectedSubCategory,
+                                              labelKey: 'name',
                                             ),
-                                            Expanded(
-                                              child: Utils.dropdownBox(
-                                                "Select Subcategory",
-                                                subCategory,
-                                                    (value) {
-                                                  setState(() {
-                                                    selectedSubCategory = value;
-                                                  });
-                                                  todoViewBloc.add(AddTaskData(
-                                                    id: task['id'],
-                                                    name: task['task'],
-                                                    userType: task['userType'],
-                                                    timeTaken: task['time_taken'],
-                                                    categoryId: task['category_id'],
-                                                    subCategoryId: selectedSubCategory['id'],
-                                                  ));
-                                                },
-                                                initialSelection: selectedSubCategory,
-                                                selectedKey: selectedSubCategory,
-                                                labelKey: 'name',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 );
                               },
-                              separatorBuilder: (context, index) => const SizedBox(height: 1),
+                              separatorBuilder: (context, index) => const Divider(
+                                height: 0.5,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
                       child: CategoryConfigViewUI(),
                     ),
                   ],

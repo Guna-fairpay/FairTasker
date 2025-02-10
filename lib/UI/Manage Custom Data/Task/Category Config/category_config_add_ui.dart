@@ -1,17 +1,12 @@
 
-import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:flutter/material.dart';
 import '../../../../Bloc/todo_view_bloc.dart';
-import '../../../../Component/drawer_ui.dart';
-import '../../../../Component/header.dart';
-import '../../../../Event/todo_view_event.dart';
 import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/num.dart';
 import '../../../../Utilities/utils.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoryConfigAddUI extends StatefulWidget {
-  const CategoryConfigAddUI({super.key});
+  final List<Map<String, dynamic>>? category;
+  const CategoryConfigAddUI({super.key,required this.category});
 
   @override
   State<CategoryConfigAddUI> createState() => _CategoryConfigAddUIState();
@@ -21,17 +16,23 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
   late TodoViewBloc todoViewBloc;
   TextEditingController nameController = TextEditingController();
   List<Map<String, dynamic>> category = [];
-  String? selectedCategory;
-  List<String> userType = ['select', 'Support Task'];
-  String? selectedUserType;
-  String? selectedTask;
+  List<Map<String, dynamic>> userType = [
+    {'id':1,'name':'select'},
+    {'id':2,'name':'Support Task'}
+  ];
+  dynamic selectedCategory;
+  dynamic selectedUserType;
   bool isFirstNameFieldEmpty = false;
-  bool loading = true;
 
   @override
   void initState() {
     super.initState();
     todoViewBloc = TodoViewBloc();
+    category.addAll(
+      widget.category!.where(
+              (item) => item['parent_id'] == null),
+    );
+    selectedUserType = userType[0];
   }
 
   void _save() {
@@ -43,197 +44,93 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
     }
     final newConfig = {
       'name': nameController.text,
-      'parent_id': selectedCategory ?? '',
-      'todo_user_type': selectedUserType == 'Support Task' ? 1 : 0,
+      'parent_id': selectedCategory['id'],
+      'todo_user_type': selectedUserType?['id'] == 2 ? 1 : 0,
     };
-    Navigator.of(context).pop(newConfig);
+   Navigator.of(context).pop(newConfig);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: Utils.getText(
+            'Add Category Config',
+            weight: FontWeight.bold,
+            size: 18,
+            color: AppC.white
+        ),
+        actions:  [
+          IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon:  const Icon(Icons.close,color: AppC.white,)),
+        ],
       ),
-      body: BlocProvider(
-        create: (context) =>
-            todoViewBloc..add(const GetCategoryConfigData()),
-        child: BlocConsumer<TodoViewBloc, TodoViewState>(
-            listener: (context, state) {
-          if (state is TodoListLoading) {
-            loading = true;
-          } else if (state is CategoryConfigListLoaded) {
-            loading = false;
-            category.clear();
-            category.addAll(state.data ?? []);
-          }
-        }, builder: (context, state) {
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Icon(Icons.arrow_back)),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Utils.getText('Add Category Config ',
-                              size: 20, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              nameController,
-                              label: Utils.getText('Name', color: AppC.grey),
-                              borderColor: isFirstNameFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
-                            ),
-                            if (isFirstNameFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
+      body:  Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        Utils.getTextFormField(
+                          '',
+                          nameController,
+                          label: Utils.getText('Name', color: AppC.grey),
+                          borderColor: isFirstNameFieldEmpty
+                              ? Colors.red
+                              : AppC.fieldBase,
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
-                        ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select Category',
-                                color: AppC.grey),
+                        if (isFirstNameFieldEmpty)
+                          const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(Icons.error_outline,
+                                color: Colors.red),
                           ),
-                          value: selectedCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCategory = value;
-                            });
-                          },
-                          items: category
-                              .where((item) =>
-                                  item['parent_id'] ==
-                                  null) // Filter where parent_id is null
-                              .map<DropdownMenuItem<String>>((value) {
-                            return DropdownMenuItem<String>(
-                              value: value['id'].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0),
-                                child: Utils.getText('${value['name']}'),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton)),
-                          ),
-                          child: DropdownButton<String>(
-                            hint: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Utils.getText('select', color: AppC.grey),
-                            ),
-                            value: selectedUserType,
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            elevation: 3,
-                            dropdownColor: AppC.white,
-                            underline: Container(
-                              height: 0,
-                              color: Colors.transparent,
-                            ),
-                            onChanged: (String? value) {
-                              // This is called when the user selects an item.
-                              setState(() {
-                                selectedUserType = value;
-                              });
-                            },
-                            items: userType
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText(value),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Save', () {
-                              _save();
-                            }),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                    Utils.dropdownBox(
+                        'Select Category',
+                        category,
+                            (value) {
+                      setState(() {
+                        selectedCategory = value;
+                        print(selectedCategory['id']);
+                      });
+                      },
+                        labelKey: 'name'),
+                    Utils.dropdownBox(
+                        'Select',
+                        userType,
+                            (value) {
+                          setState(() {
+                            selectedUserType = value;
+                            print(selectedUserType);
+
+                          });
+                        },
+                        labelKey: 'name',
+
+                    ),
+                    Utils.getElevatedButton(
+                            () => _save(),
+                        text: 'Save',
+                        bgColor: AppC.green
+                    ),
+                  ],
                 ),
               ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
+            ),
             ],
-          );
-        }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }
