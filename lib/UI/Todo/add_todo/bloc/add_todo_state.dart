@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 class AddToDoState extends Equatable {
   final bool isLoading;
   final bool showAppBar;
+  final bool isTimeSensitive;
   final List<dynamic> tasks;
   final List<dynamic> vehicles;
   final List<dynamic> persons;
@@ -20,6 +21,7 @@ class AddToDoState extends Equatable {
   final List<dynamic> selectedParts;
   final List<dynamic> selectedSupplies;
   final List<dynamic> recurringTypes;
+  final List<dynamic> attachments;
   final List<Map<String, dynamic>> selectedVPerson;
   final Map<int, dynamic> selectedTaskIdentifier;
   final dynamic selectedClearDuration;
@@ -37,6 +39,7 @@ class AddToDoState extends Equatable {
   const AddToDoState({
     required this.showAppBar,
     required this.isLoading,
+    required this.isTimeSensitive,
     required this.tasks,
     required this.vendors,
     required this.persons,
@@ -63,12 +66,14 @@ class AddToDoState extends Equatable {
     required this.selectedDate,
     required this.selectedTime,
     required this.recurringTypes,
+    required this.attachments,
     this.selectedRecurring,
   });
 
   AddToDoState copyWith({
     bool? showAppBar,
     bool? isLoading,
+    bool? isTimeSensitive,
     bool? isSelectedPlatformCheck,
     bool? isPartServiceEnable,
     bool? isSuppliesEnable,
@@ -95,11 +100,13 @@ class AddToDoState extends Equatable {
     List<dynamic>? selectedParts,
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
+    List<dynamic>? attachments,
     dynamic selectedRecurring,
   }) =>
       AddToDoState(
         showAppBar: showAppBar ?? this.showAppBar,
         isLoading: isLoading ?? this.isLoading,
+        isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
         selectedVPerson: selectedVPerson ?? this.selectedVPerson,
         isSelectedPlatformCheck:
             isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
@@ -130,6 +137,7 @@ class AddToDoState extends Equatable {
         selectedParts: selectedParts ?? this.selectedParts,
         recurringTypes: recurringTypes ?? this.recurringTypes,
         selectedRecurring: selectedRecurring ?? this.selectedRecurring,
+        attachments: attachments ?? this.attachments,
       );
 
   @override
@@ -137,6 +145,7 @@ class AddToDoState extends Equatable {
         showAppBar,
         selectedVPerson,
         isLoading,
+        isTimeSensitive,
         tasks,
         vehicles,
         persons,
@@ -163,6 +172,7 @@ class AddToDoState extends Equatable {
         selectedTaskPersons,
         recurringTypes,
         selectedRecurring,
+        attachments,
         Random().nextDouble()
       ];
 }

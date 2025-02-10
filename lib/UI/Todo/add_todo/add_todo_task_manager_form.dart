@@ -13,24 +13,22 @@ class AddTodoTaskManagerForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AddToDoBloc, AddToDoState>(
       builder: (context, state)  {
-        return Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-              Utils.getText('Task Manager', weight: FontWeight.bold),
-              CustomWrapChoice<dynamic>(items: state.persons,
-                itemAsString: (item) => item['first_name']+"\t${item['last_name']}",
-                selectedItems: state.selectedTaskPersons,
-                onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddToDoPersonTapEvent(value, isChecked)),
-              ),
-              if (state.selectedTaskPersons.isEmpty)
-              Utils.getText('Please select task manager',
-                  color: const Color(0xffd01601))
-            ],
-          ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Utils.getText('Task Manager', weight: FontWeight.bold),
+            CustomWrapChoice<dynamic>(items: state.persons,
+              itemAsString: (item) => item['first_name']+"\t${item['last_name']}",
+              selectedItems: state.selectedTaskPersons,
+              onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddToDoPersonTapEvent(value, isChecked)),
+            ),
+            if (state.selectedTaskPersons.isEmpty)
+            Utils.getText('Please select task manager',
+                color: const Color(0xffd01601))
+          ],
         );
       }
     );

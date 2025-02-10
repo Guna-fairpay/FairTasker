@@ -37,6 +37,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       : super(AddToDoState(
             showAppBar: true,
             isLoading: false,
+            isTimeSensitive: false,
             tasks: const [],
             vehicles: const [],
             persons: const [],
@@ -49,6 +50,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedVPerson: const [],
             selectedParts: const [],
             selectedSupplies: const [],
+      attachments: const [],
             selectedTaskIdentifier: const {},
             recurringTypes: AddToDoConfig.recurringOptions,
             clearDurations: AddToDoConfig.cleanCarDurations,
@@ -243,6 +245,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoDateChangeEvent>((event, emit) => emit(state.copyWith(selectedDate: event.selectedDate)));
 
     on<AddToDoTimeChangeEvent>((event, emit) => emit(state.copyWith(selectedTime: event.selectedTime)));
+
+    on<AddToDoTimeSensitiveEvent>((event, emit) => emit(state.copyWith(isTimeSensitive: !state.isTimeSensitive)));
 
   }
 

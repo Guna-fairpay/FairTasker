@@ -45,22 +45,123 @@ class AddToDoUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(true)),
+    return BlocProvider(
+      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(true)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
-        listenWhen: (previous, current) => (current is AddToDoState),
           listener: (context, state) {
-        if (state.isLoading) {
-          EasyLoading.show();
-        } else {
-          if (EasyLoading.isShow) EasyLoading.dismiss();
-        }
-      },
-       child: SafeArea(child: AddTodoMainForm(), minimum: 20.padding,)),
+            if (state.isLoading) {
+              EasyLoading.show();
+            } else {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
+            }
+          },
+          child: BlocBuilder<AddToDoBloc, AddToDoState>(
+            builder: (context, state) {
+              return Scaffold(
+                backgroundColor: AppC.white,
+                appBar: state.showAppBar
+                    ? AppBar(
+                  elevation: 0,
+                  backgroundColor: AppC.appColor,
+                  foregroundColor: Colors.white,
+                  automaticallyImplyLeading: false,
+                  title: Utils.getText('Add Todo',
+                      size: 18, weight: FontWeight.w700, color: AppC.white),
+                  actions: [
+                    IconButton(
+                      onPressed: () async {
+                        var result = await MultiImagePickHelper()
+                            .getMultiImage(ImageSource.gallery);
 
+                      },
+                      icon: const Icon(Icons.upload_rounded),
+                      padding: EdgeInsets.zero,
+                      // constraints: const BoxConstraints(),
+                      style: const ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize
+                            .shrinkWrap, // the '2023' part
+                      ),
+                    ),
+                    if (state.attachments.isNotEmpty)
+                      IconButton(
+                        onPressed: () {
+                          ShowAttachmentsDialog.of.show(context,
+                              attachments: state.attachments, title: "Add ToDo");
+                        },
+                        icon: const Icon(Icons.remove_red_eye_outlined),
+                        padding: EdgeInsets.zero,
+                        style: const ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize
+                              .shrinkWrap, // the '2023' part
+                        ),
+                      ),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      radius: 2,
+                      splashFactory: InkSplash.splashFactory,
+                      onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 10,
+                        children: [
+                          SizedBox(
+                            width: 10,
+                            child: Checkbox(
+                              value: state.isTimeSensitive,
+                              checkColor: AppC.white,
+                              // The color of the check mark
+                              shape: ContinuousRectangleBorder(
+                                  side: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(10)),
+                              side: BorderSide.none,
+                              fillColor:
+                              WidgetStateProperty.resolveWith<Color>(
+                                      (states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return AppC.blue;
+                                    }
+                                    return AppC.white;
+                                  }),
+                              onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
+                            ),
+                          ),
+                          Utils.getText('Time Sensitive',
+                              color: AppC.white, weight: FontWeight.bold)
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.save),
+                      padding: EdgeInsets.zero,
+                      style: const ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize
+                            .shrinkWrap, // the '2023' part
+                      ),
+                    ),
+                    const CloseButton(
+                      color: Colors.white,
+                      style: ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize
+                            .shrinkWrap, // the '2023' part
+                      ),
+                    ),
+                  ],
+                )
+                    : null,
+                body: SafeArea(
+                  minimum: 20.padding,
+                  child: const AddTodoMainForm(),
+                ),
+              );
+            }
+          )),
     );
   }
 }
-
 
 class CreateTodoUI extends StatefulWidget {
   final List<Map<String, dynamic>?>? selectedAssignedTo;
@@ -98,7 +199,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
 
   List<Map<String, dynamic>?>? selectedAssignedTo = [];
 
-
   List<Map<String, dynamic>> resourceList = [];
   List<Map<String, dynamic>> resourceListForCombination = [];
   List<Map<String, dynamic>> vendorList = [];
@@ -109,7 +209,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
 
   List<Map<String, dynamic>> editPartsList = [];
   List<Map<String, dynamic>> selectedSuppliesList = [];
-  ValueNotifier<List<Map<String, dynamic>>> selectedMultipleVehicleList = ValueNotifier([]);
+  ValueNotifier<List<Map<String, dynamic>>> selectedMultipleVehicleList =
+      ValueNotifier([]);
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
   List<Map<String, dynamic>> editMultipleAddressList = [];
   List<Map<String, dynamic>> todoImages = [];
@@ -117,7 +218,6 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   List<Map<String, dynamic>> editMultipleVehicleList = [];
 
   List<dynamic> selectedVehicleName = [];
-
 
   List<String> selectedIds = [];
 
@@ -237,7 +337,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   TextEditingController reservationController = TextEditingController();
   TextEditingController linkController = TextEditingController();
 
-  ValueNotifier<List<Map<String, dynamic>>> selectedVPersons = ValueNotifier(List.empty(growable: true));
+  ValueNotifier<List<Map<String, dynamic>>> selectedVPersons =
+      ValueNotifier(List.empty(growable: true));
   ValueNotifier<Map<String, dynamic>> selectedTask = ValueNotifier({});
   ValueNotifier<Map<String, dynamic>> selectedVLocation = ValueNotifier({});
   ValueNotifier<bool> showPlatformCheck = ValueNotifier(false);
@@ -250,12 +351,12 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     todoBloc = TodoViewBloc();
     vehicleDataBloc = VehicleDataBloc();
     // todoBloc!.add(const GetDropdownData());
-    todoBloc!.add(const GetVehicleListData());
-    todoBloc!.add(const GetTaskExpenseData());
-    todoBloc!.add(const GetVendorData());
-    todoBloc!.add(const GetLocationData());
-    todoBloc!.add(const GetPartsList());
-    todoBloc!.add(const GetSuppliesList());
+    // todoBloc!.add(const GetVehicleListData());
+    // todoBloc!.add(const GetTaskExpenseData());
+    // todoBloc!.add(const GetVendorData());
+    // todoBloc!.add(const GetLocationData());
+    // todoBloc!.add(const GetPartsList());
+    // todoBloc!.add(const GetSuppliesList());
     // todoBloc!.add(const GetVehicleGroupingList());
     // todoBloc!.add(const GetUserGroupingList());
     selectedPriority = priorityList[1];
@@ -316,11 +417,14 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     selectedVPersons.addListener(() {
       log("selectedVPersons:\t${selectedVPersons.value}", name: "AddToDoTask");
       var value = selectedVPersons.value.map((e) => e['name']).toList();
-      selectedMultipleVehicleList.value = selectedVPersons.value.map<Map<String, dynamic>>((e) => e['value']).toList();
+      selectedMultipleVehicleList.value = selectedVPersons.value
+          .map<Map<String, dynamic>>((e) => e['value'])
+          .toList();
       selectedMultipleVehicleList.notifyListeners();
     });
     selectedVLocation.addListener(() {
-      log("selectedVLocation:\t${selectedVLocation.value}", name: "AddToDoTask");
+      log("selectedVLocation:\t${selectedVLocation.value}",
+          name: "AddToDoTask");
       var value = selectedVLocation.value['name'];
       vendorLocationController.text = value;
     });
@@ -328,6 +432,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
 
   @override
   Widget build(BuildContext context) {
+    return AddToDoUi();
     return (widget.showHeader)
         ? Scaffold(
             backgroundColor: AppC.white,
@@ -383,7 +488,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         borderRadius: BorderRadius.circular(10),
                         radius: 2,
                         splashFactory: InkSplash.splashFactory,
-                        onTap: () => setState(() => timeSensitive = !timeSensitive),
+                        onTap: () =>
+                            setState(() => timeSensitive = !timeSensitive),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           spacing: 10,
@@ -392,14 +498,15 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                               width: 10,
                               child: Checkbox(
                                 value: timeSensitive,
-                                checkColor: AppC.white, // The color of the check mark
+                                checkColor: AppC.white,
+                                // The color of the check mark
                                 shape: ContinuousRectangleBorder(
                                     side: BorderSide.none,
-                                    borderRadius: BorderRadius.circular(10)
-                                ),
+                                    borderRadius: BorderRadius.circular(10)),
                                 side: BorderSide.none,
                                 fillColor:
-                                WidgetStateProperty.resolveWith<Color>((states) {
+                                    WidgetStateProperty.resolveWith<Color>(
+                                        (states) {
                                   if (states.contains(WidgetState.selected)) {
                                     return AppC.blue;
                                   }
@@ -439,7 +546,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                     ],
                   )
                 : null,
-            body: AddToDoUi(),
+            body: body,
           )
         : body;
   }
@@ -476,9 +583,15 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                   resourceList = [];
                   resourceList = state.resource ?? [];
                   resourceList.removeWhere((resource) => resource['id'] == 2);
-                  resourceList.removeWhere((resource) => ((!Str.reqTaskManagerIds.contains(resource['id'])) && (resource['branch_id'] != Session.of.getInt(Str.branchIdPrefText))) || (resource['deleted_at'] != null));
-                  log("Branch ID:\t${Session.of.getInt(Str.branchIdPrefText)}", name: "BRANCH_ID");
-                  log("RESOURCE_IDs:\t${resourceList.map((e) => e['id'])}", name: "RESOURCE_ID");
+                  resourceList.removeWhere((resource) =>
+                      ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+                          (resource['branch_id'] !=
+                              Session.of.getInt(Str.branchIdPrefText))) ||
+                      (resource['deleted_at'] != null));
+                  log("Branch ID:\t${Session.of.getInt(Str.branchIdPrefText)}",
+                      name: "BRANCH_ID");
+                  log("RESOURCE_IDs:\t${resourceList.map((e) => e['id'])}",
+                      name: "RESOURCE_ID");
                   // resourceList.toList().removeWhere((resource) => (resource['branch_id'] != Session.of.getInt(Str.branchIdPrefText)) && (!Str.reqTaskManagerIds.contains(resource['id'])));
                   isSelected = true;
                   selectedAssignedTo?.add(resourceList[0]);
@@ -577,7 +690,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             builder: (context, state) {
               return SingleChildScrollView(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 physics: (widget.showHeader)
                     ? const AlwaysScrollableScrollPhysics()
                     : const ScrollPhysics(),
@@ -603,8 +716,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         ),
                       // TODO: TASK IDENTIFIER
                       TaskIdentifier(
-                        taskIdentifierController:
-                        taskIdentifierController,
+                        taskIdentifierController: taskIdentifierController,
                         location: locationList,
                         persons: resourceListForCombination,
                         tasks: taskExpenseList,
@@ -626,7 +738,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         children: [
                           Utils.getAddFilledButton(
                             'Save',
-                                () async {
+                            () async {
                               await doCreateTodo();
                             },
                             bgColor: AppC.green,
@@ -1011,16 +1123,19 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
           'Task Name',
           todoNameController,
           label: Utils.getText('Task Name'),
-          borderColor:
-          isTaskNameFieldEmpty && todoNameController.text.isEmpty
+          borderColor: isTaskNameFieldEmpty && todoNameController.text.isEmpty
               ? Colors.red
               : AppC.fieldBase,
-          suffixIcon:
-          isTaskNameFieldEmpty && todoNameController.text.isEmpty
+          suffixIcon: isTaskNameFieldEmpty && todoNameController.text.isEmpty
               ? const Icon(Icons.error_outline, color: Colors.red)
               : null,
         ),
-        CustomVehiclePersonField(vehiclesList: vehicleList, personsList: resourceListForCombination, selectedVPersons: selectedVPersons, controller: vehiclePersonController,),
+        CustomVehiclePersonField(
+          vehiclesList: vehicleList,
+          personsList: resourceListForCombination,
+          selectedVPersons: selectedVPersons,
+          controller: vehiclePersonController,
+        ),
         vendorLocationStack(),
       ],
     );
@@ -1030,7 +1145,12 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomVendorLocationField(vendorsList: vendorList, locationsList: locationList, selectedVLocations: selectedVLocation, controller: vendorLocationController,),
+        CustomVendorLocationField(
+          vendorsList: vendorList,
+          locationsList: locationList,
+          selectedVLocations: selectedVLocation,
+          controller: vendorLocationController,
+        ),
         partsStack()
       ],
     );
@@ -1136,15 +1256,17 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         const SizedBox(
           height: 10,
         ),
-        ValueListenableBuilder(valueListenable: showPlatformCheck, builder: (context, value, child) {
-          return Visibility(
-            visible: value,
-            child: Utils.getCircleCheckWidget(() {
-              enablePlatformCheck = !enablePlatformCheck;
-              doSetState();
-            }, enablePlatformCheck, 'Platform Check'),
-          );
-        }),
+        ValueListenableBuilder(
+            valueListenable: showPlatformCheck,
+            builder: (context, value, child) {
+              return Visibility(
+                visible: value,
+                child: Utils.getCircleCheckWidget(() {
+                  enablePlatformCheck = !enablePlatformCheck;
+                  doSetState();
+                }, enablePlatformCheck, 'Platform Check'),
+              );
+            }),
         Visibility(
           visible: !showMore,
           child: InkWell(
@@ -1155,8 +1277,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Utils.getText('More...',
-                      color: Colors.lightBlue.shade800),
+                  Utils.getText('More...', color: Colors.lightBlue.shade800),
                   const SizedBox(
                     width: 10,
                   ),
@@ -1166,7 +1287,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       child: Utils.dropdownBox(
                         '',
                         customTaskOptions,
-                            (selectedValue) {
+                        (selectedValue) {
                           setState(() {
                             selectedLink = selectedValue;
                           });
@@ -1183,10 +1304,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                   InkWell(
                     key: _key,
                     onTap: () async {
-                      final RenderBox renderBox = _key.currentContext!
-                          .findRenderObject() as RenderBox;
+                      final RenderBox renderBox =
+                          _key.currentContext!.findRenderObject() as RenderBox;
                       final Offset offset =
-                      renderBox.localToGlobal(Offset.zero);
+                          renderBox.localToGlobal(Offset.zero);
                       final Size size = renderBox.size;
                       await showMenu(
                         elevation: 5,
@@ -1214,11 +1335,11 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       height: 30,
                                       child: selectedLink['id'] == '1'
                                           ? Utils.getTextFormField(
-                                          'Link', linkController)
+                                              'Link', linkController)
                                           : Utils.getTextFormField(
-                                        'Reservation',
-                                        reservationController,
-                                      ),
+                                              'Reservation',
+                                              reservationController,
+                                            ),
                                     ),
                                   ),
                                   InkWell(
@@ -1227,8 +1348,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                           context); // Close the popup menu
                                     },
                                     child: const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 8.0),
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 8.0),
                                       child: Icon(
                                         Icons.close,
                                         color: AppC.red,
@@ -1250,9 +1371,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8.0, vertical: 3.0),
                       child: Utils.getText(
-                        selectedLink['id'] == '1'
-                            ? '+ Link'
-                            : '+ Reservation',
+                        selectedLink['id'] == '1' ? '+ Link' : '+ Reservation',
                         color: AppC.white,
                         size: 12,
                         overFlow: TextOverflow.ellipsis,
@@ -1265,12 +1384,14 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
         Visibility(visible: showMore, child: getPartSupplyCheckBoxRow()),
         Visibility(
           visible: isPartChecked && showMore,
-          child: CustomMultiSelectionChipsField<Map<String, dynamic>>(selectedPartsList: selectedPartsList, suggestionsList: editPartsList,
-            controller: editPartsController,
-            labelText: "Parts",
-            itemAsString: (item) => item['name'].toString(),
-            onEmptyTap: () => context.push(const PartViewUI(), fullscreenDialog: true)
-          ),
+          child: CustomMultiSelectionChipsField<Map<String, dynamic>>(
+              selectedPartsList: selectedPartsList,
+              suggestionsList: editPartsList,
+              controller: editPartsController,
+              labelText: "Parts",
+              itemAsString: (item) => item['name'].toString(),
+              onEmptyTap: () =>
+                  context.push(const PartViewUI(), fullscreenDialog: true)),
         ),
         suppliesStack()
       ],
@@ -1284,12 +1405,14 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
       children: [
         Visibility(
           visible: isSupplyChecked && showMore,
-          child: CustomMultiSelectionChipsField<Map<String, dynamic>>(selectedPartsList: selectedSuppliesList, suggestionsList: editSuppliesList,
-            controller: editSuppliesController,
-            labelText: "Supplies",
-            itemAsString: (item) => item['name'].toString(),
-            onEmptyTap: () => context.push(const SuppliesViewUI(), fullscreenDialog: true)
-          ),
+          child: CustomMultiSelectionChipsField<Map<String, dynamic>>(
+              selectedPartsList: selectedSuppliesList,
+              suggestionsList: editSuppliesList,
+              controller: editSuppliesController,
+              labelText: "Supplies",
+              itemAsString: (item) => item['name'].toString(),
+              onEmptyTap: () =>
+                  context.push(const SuppliesViewUI(), fullscreenDialog: true)),
         ),
         //SizedBox(height: 10,),
         Visibility(
@@ -1304,8 +1427,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Utils.getText('Less...',
-                      color: Colors.lightBlue.shade800),
+                  Utils.getText('Less...', color: Colors.lightBlue.shade800),
                   const SizedBox(
                     width: 10,
                   ),
@@ -1315,7 +1437,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       child: Utils.dropdownBox(
                         '',
                         customTaskOptions,
-                            (selectedValue) {
+                        (selectedValue) {
                           setState(() {
                             selectedLink = selectedValue;
                           });
@@ -1332,10 +1454,10 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                   InkWell(
                     key: _key,
                     onTap: () async {
-                      final RenderBox renderBox = _key.currentContext!
-                          .findRenderObject() as RenderBox;
+                      final RenderBox renderBox =
+                          _key.currentContext!.findRenderObject() as RenderBox;
                       final Offset offset =
-                      renderBox.localToGlobal(Offset.zero);
+                          renderBox.localToGlobal(Offset.zero);
                       final Size size = renderBox.size;
                       await showMenu(
                         elevation: 5,
@@ -1363,11 +1485,11 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                       height: 30,
                                       child: selectedLink['id'] == '1'
                                           ? Utils.getTextFormField(
-                                          'Link', linkController)
+                                              'Link', linkController)
                                           : Utils.getTextFormField(
-                                        'Reservation',
-                                        reservationController,
-                                      ),
+                                              'Reservation',
+                                              reservationController,
+                                            ),
                                     ),
                                   ),
                                   InkWell(
@@ -1376,8 +1498,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                                           context); // Close the popup menu
                                     },
                                     child: const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 8.0),
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 8.0),
                                       child: Icon(
                                         Icons.close,
                                         color: AppC.red,
@@ -1399,9 +1521,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8.0, vertical: 3.0),
                       child: Utils.getText(
-                        selectedLink['id'] == '1'
-                            ? '+ Link'
-                            : '+ Reservation',
+                        selectedLink['id'] == '1' ? '+ Link' : '+ Reservation',
                         color: AppC.white,
                         size: 12,
                         overFlow: TextOverflow.ellipsis,
@@ -1430,9 +1550,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                   Utils.openURL(url);
                 },
                 child: Utils.getText(
-                  (selectedLink['id'] == '2' ||
-                      selectedLink['id'] == '3') &&
-                      reservationController.text.isNotEmpty
+                  (selectedLink['id'] == '2' || selectedLink['id'] == '3') &&
+                          reservationController.text.isNotEmpty
                       ? 'Reservation No - ${reservationController.text}'
                       : linkController.text,
                   color: AppC.appColor,
@@ -1454,19 +1573,16 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             Wrap(
               children: List<Widget>.generate(
                 resourceList.length,
-                    (int idx) {
-                  final resourceId =
-                  resourceList[idx]['id'].toString();
+                (int idx) {
+                  final resourceId = resourceList[idx]['id'].toString();
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 2.0, vertical: 2),
                     child: ChoiceChip(
                       showCheckmark: false,
                       padding: EdgeInsets.zero,
-                      materialTapTargetSize:
-                      MaterialTapTargetSize.shrinkWrap,
-                      labelPadding:
-                      const EdgeInsets.symmetric(horizontal: 4),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                       selectedColor: AppC.appColor,
                       backgroundColor: const Color(0xfff3f6f9),
                       shape: RoundedRectangleBorder(
@@ -1486,15 +1602,12 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                           if (selected) {
                             if (!selectedIds.contains(resourceId)) {
                               selectedIds.add(resourceId);
-                              selectedAssignedTo
-                                  ?.add(resourceList[idx]);
+                              selectedAssignedTo?.add(resourceList[idx]);
                             }
                           } else {
                             selectedIds.remove(resourceId);
                             selectedAssignedTo?.removeWhere(
-                                  (item) =>
-                              item?['id'] ==
-                                  resourceList[idx]['id'],
+                              (item) => item?['id'] == resourceList[idx]['id'],
                             );
                           }
                         });
@@ -1513,8 +1626,7 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
             const SizedBox(
               height: 10,
             ),
-            Utils.getText('Task Date/Time',
-                weight: FontWeight.w500),
+            Utils.getText('Task Date/Time', weight: FontWeight.w500),
             const SizedBox(
               height: 10,
             ),
@@ -1533,19 +1645,21 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
                         .then((value) {
                       selectedDate = value!;
                       todoDateController.text =
-                          Utils.convertDateTimeToTheFormat(
-                              value.toString());
+                          Utils.convertDateTimeToTheFormat(value.toString());
                     });
                   }, label: Utils.getText('Todo Date')),
                 ),
                 Flexible(
                     child: TimePickerViewOnly(
-                      todoListRepo: todoListRepo,
-                      textStyle: context.textTheme.titleMedium,
-                      padding: 5.padding,
-                      voidCallback: doSetState,
-                    )),
-                Expanded(child: repeatDropdown(), flex: 2,)
+                  todoListRepo: todoListRepo,
+                  textStyle: context.textTheme.titleMedium,
+                  padding: 5.padding,
+                  voidCallback: doSetState,
+                )),
+                Expanded(
+                  child: repeatDropdown(),
+                  flex: 2,
+                )
               ],
             ),
             const SizedBox(
@@ -1742,7 +1856,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
     }
   }
 
-  Future<CreateTodoParams> getSelectedVehiclePerson(CreateTodoParams createTodoParams) {
+  Future<CreateTodoParams> getSelectedVehiclePerson(
+      CreateTodoParams createTodoParams) {
     List<dynamic> vehiclesNameData = [];
     for (Map<String, dynamic> res in resourceList) {
       if (selectedMultipleVehicleList.value.isNotEmpty &&
@@ -1796,9 +1911,8 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
       if (taskIdentifierController.text.toLowerCase().contains('dropcar')) {
         if (todoListRepo!.vehicleHistoryTempSearchList.isNotEmpty) {
           if (todoListRepo!.vehicleHistoryTempSearchList[0]['title']
-                      ?.toLowerCase() ==
-                  'clean car'
-              ) {
+                  ?.toLowerCase() ==
+              'clean car') {
             debugPrint(
                 'todoListRepo!.chosenDateTime: ${todoListRepo!.chosenDateTime}');
             modifiedDateTime = todoListRepo!.chosenDateTime!

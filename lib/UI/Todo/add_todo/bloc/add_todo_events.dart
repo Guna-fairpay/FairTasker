@@ -116,3 +116,5 @@ class AddToDoTimeChangeEvent extends AddToDoEvent {
   @override
   List<Object?> get props => [selectedTime];
 }
+
+class AddToDoTimeSensitiveEvent extends AddToDoEvent {}

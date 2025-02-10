@@ -52,8 +52,8 @@ void configEasyLoading() {
     ..maskColor = Colors.transparent
     ..maskType = EasyLoadingMaskType.clear
     ..loadingStyle = EasyLoadingStyle.custom
-    ..userInteractions = true
-    ..dismissOnTap = true
+    ..userInteractions = false
+    ..dismissOnTap = false
     ..boxShadow = [];
 }
 
