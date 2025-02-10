@@ -425,64 +425,68 @@ class Utils {
       // VoidCallback? suffixIconCallback,
       VoidCallback? onTapCallback,
       String? Function(String?)? validator,
+        bool showErrorSuffix = false,
       AutovalidateMode autoValidate = AutovalidateMode.disabled,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
       double borderWidth = Num.borderWidthField}) {
     hintText = hintText ?? labelText;
-    return TextFormField(
-      key: key,
-      validator: validator,
-      autovalidateMode: autoValidate,
-      textInputAction: inputAction,
-      onTap: onTapCallback,
-      focusNode: focusNode,
-      autofocus: autoFocus,
-      controller: controller,
-      keyboardType: textType,
-      readOnly: readOnly,
-      maxLength: maxLength,
-      obscureText: obscure,
-      textCapitalization: TextCapitalization.sentences,
-      inputFormatters: textInputFormatter,
-      decoration: InputDecoration(
-          contentPadding: contentPadding,
-          constraints: BoxConstraints(),
-          isDense: isDense,
-          label: label,
-          hintText: hintText,
-          counterText: '',
-          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-          labelStyle: const TextStyle(color: AppC.grey),
-          filled: true,
-          fillColor: fillColor,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) => TextFormField(
+        key: key,
+        validator: validator,
+        autovalidateMode: autoValidate,
+        textInputAction: inputAction,
+        onTap: onTapCallback,
+        focusNode: focusNode,
+        autofocus: autoFocus,
+        controller: controller,
+        keyboardType: textType,
+        readOnly: readOnly,
+        maxLength: maxLength,
+        obscureText: obscure,
+        textCapitalization: TextCapitalization.sentences,
+        inputFormatters: textInputFormatter,
+        decoration: InputDecoration(
+            contentPadding: contentPadding,
+            constraints: BoxConstraints(),
+            isDense: isDense,
+            label: label,
+            hintText: hintText,
+            counterText: '',
+            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+            labelStyle: const TextStyle(color: AppC.grey),
+            filled: true,
+            fillColor: fillColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
             ),
-          ),
-          focusedBorder: OutlineInputBorder(
+            focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: borderColor,
                   width: borderWidth,
                 ),
                 borderRadius: BorderRadius.circular(borderRadius)),
-          suffixIcon: suffixIcon),
-      style: style ?? TextStyle(
-        // fontSize: textSize,
-        color: textColor,
-        fontWeight: fontWeight,
-      ),
-      onChanged: onChangeCallback,
+            suffixIcon: showErrorSuffix ? (((validator != null) && (value.text.isEmpty)) ? suffixIcon : null) : suffixIcon),
+        style: style ?? TextStyle(
+          // fontSize: textSize,
+          color: textColor,
+          fontWeight: fontWeight,
+        ),
+        onChanged: onChangeCallback,
+      )
     );
   }
 

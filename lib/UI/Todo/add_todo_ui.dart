@@ -69,14 +69,10 @@ class AddToDoUi extends StatelessWidget {
                       size: 18, weight: FontWeight.w700, color: AppC.white),
                   actions: [
                     IconButton(
-                      onPressed: () async {
-                        var result = await MultiImagePickHelper()
-                            .getMultiImage(ImageSource.gallery);
-
-                      },
+                      onPressed: () => context.read<AddToDoBloc>().add(AddToDoAddAttachmentEvent()),
                       icon: const Icon(Icons.upload_rounded),
                       padding: EdgeInsets.zero,
-                      // constraints: const BoxConstraints(),
+                      constraints: state.attachments.isNotEmpty ? const BoxConstraints() : null,
                       style: const ButtonStyle(
                         tapTargetSize: MaterialTapTargetSize
                             .shrinkWrap, // the '2023' part
@@ -84,10 +80,7 @@ class AddToDoUi extends StatelessWidget {
                     ),
                     if (state.attachments.isNotEmpty)
                       IconButton(
-                        onPressed: () {
-                          ShowAttachmentsDialog.of.show(context,
-                              attachments: state.attachments, title: "Add ToDo");
-                        },
+                        onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo"),
                         icon: const Icon(Icons.remove_red_eye_outlined),
                         padding: EdgeInsets.zero,
                         style: const ButtonStyle(

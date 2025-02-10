@@ -102,14 +102,15 @@ class AddTodoMoreForm extends StatelessWidget {
                 child: CustomDropdown<dynamic>(
                   items: state.linkOptions,
                   value: state.selectedLinkOption,
-                  onChanged: (val) {},
+                  onChanged: (val) => context.read<AddToDoBloc>().add(AddToDoSelectLinkOptionEvent(val)),
                   itemAsString: (item) => item['label'].toString(),
                 ),
               )
             ],
           ),
+          if (state.selectedLinkOption != null)
           Utils.getTextFormField(
-              "Custom Link", context.read<AddToDoBloc>().customLinkController,
+              "${state.selectedLinkOption!['label']}", context.read<AddToDoBloc>().customLinkController,
               inputAction: TextInputAction.done,
             isDense: true,
             contentPadding: 10.padding,

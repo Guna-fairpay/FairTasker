@@ -21,7 +21,7 @@ class CustomDropdown<T> extends StatelessWidget {
             contentPadding: const EdgeInsets.all(10),
             isDense: true,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Num.radiusButton),
+              borderRadius: BorderRadius.circular(Num.radiusButton)
             ),
             labelText: "Select"),
         borderRadius: BorderRadius.circular(Num.radiusButton),

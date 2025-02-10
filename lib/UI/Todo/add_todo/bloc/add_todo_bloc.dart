@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'dart:developer';
-
-import 'package:collection/collection.dart';
+import 'dart:io';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/location_response.dart';
@@ -17,6 +15,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
@@ -183,18 +182,19 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       var oldIdentifier = state.selectedTaskIdentifier;
       var existingVPersons = state.selectedVPerson;
+      log("${existingVPersons}", name: "AddToDoBloc-Person-before");
       existingVPersons.addAll(event.vPerson);
       oldIdentifier.update(
           2, (value) => (event.vPerson[0] as Map<String, dynamic>));
       existingVPersons.removeWhere((element) =>
-          element['type'] !=
+          element['type'] ==
           ((event.vPerson.first['type'] == 'persons')
               ? 'vehicles'
               : 'persons'));
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier));
-      log("${event.vPerson}", name: "AddToDoBloc-Person");
+      log("${existingVPersons}", name: "AddToDoBloc-Person");
     });
 
     on<AddToDoVLocationEvent>((event, emit) {
@@ -248,6 +248,25 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoTimeSensitiveEvent>((event, emit) => emit(state.copyWith(isTimeSensitive: !state.isTimeSensitive)));
 
+    on<AddToDoAddAttachmentEvent>((event, emit) async {
+      var result = await _pickFiles();
+      if (result != null) {
+        var existing = List.from(state.attachments);
+        var existingPaths = List.from(state.attachments).whereType<File>().map((e) => (e.path)).toList();
+        for (var element in result) {
+          if (!existingPaths.contains(element.path)) existing.add(element);
+        }
+        emit(state.copyWith(attachments: existing));
+      }
+    });
+
+    on<AddToDoSelectLinkOptionEvent>((event, emit) => emit(state.copyWith(selectedLinkOption: event.linkOption)));
+  }
+
+  // PICK MULTI IMAGES / FILES
+  Future<List<File>?> _pickFiles() async {
+    var result = await ImagePicker().pickMultiImage();
+    return result.map((e) => File(e.path)).toList();
   }
 
   // API CALL: TASKS

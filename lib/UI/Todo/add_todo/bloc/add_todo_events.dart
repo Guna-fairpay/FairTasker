@@ -118,3 +118,12 @@ class AddToDoTimeChangeEvent extends AddToDoEvent {
 }
 
 class AddToDoTimeSensitiveEvent extends AddToDoEvent {}
+
+class AddToDoAddAttachmentEvent extends AddToDoEvent {}
+
+class AddToDoSelectLinkOptionEvent extends AddToDoEvent {
+  final dynamic linkOption;
+  AddToDoSelectLinkOptionEvent(this.linkOption);
+  @override
+  List<Object?> get props => [linkOption];
+}
