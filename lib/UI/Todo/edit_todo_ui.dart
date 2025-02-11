@@ -135,6 +135,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> userGroupList = [];
   List<Map<String, dynamic>> maintenanceCheckListData = [];
   List<Map<String, dynamic>> childrenData = [];
+  List<Map<String, dynamic>> categoryList = [];
+  List<Map<String, dynamic>> paymentList = [];
 
   List<String> vinList = [];
   List<String> selectedIds = [];
@@ -241,6 +243,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Map<String, String> taskNameList = {};
   Map<String, dynamic>? carName;
   Map<String, dynamic>? selectedResource;
+  Map<String, dynamic>? expenseData;
   late Map<String, dynamic> todoItem;
 
   dynamic existingExpenseDate;
