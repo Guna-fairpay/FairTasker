@@ -9,7 +9,6 @@ class VehicleInitial extends VehicleDataEvent {
   @override
   List<Object?> get props => [];
 }
-
 class GetDropdownVehicleData extends VehicleDataEvent {
   const GetDropdownVehicleData();
   @override

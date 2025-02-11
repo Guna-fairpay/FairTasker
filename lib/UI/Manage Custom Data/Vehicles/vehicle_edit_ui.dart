@@ -23,9 +23,10 @@ import '../../dialog/show_attachments_dialog.dart';
 class VehicleEditUI extends StatefulWidget {
   final bool showHeader;
   final Map<String, dynamic> vehicle;
+  final Map<String, dynamic>? data;
 
   const VehicleEditUI(
-      {super.key, required this.vehicle, this.showHeader = true});
+      {super.key, required this.vehicle, this.showHeader = true, this.data});
 
   @override
   State<VehicleEditUI> createState() => _VehicleEditUIState();
@@ -59,6 +60,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   List<dynamic> vehicleImageFile = [];
   List<dynamic> receiptImageFile = [];
   CreateVehicleData? createVehicleData;
+  bool loading = false;
   bool showMore = false;
   bool isYearFieldEmpty = false;
   bool isMakeFieldEmpty = false;
@@ -101,6 +103,10 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     vehicleDataBloc.add(const GetDropdownVehicleData());
     vehicleDataBloc.add(const VehicleStatusCategory());
     vehicleDataBloc.add(const GetAddedVehicleListData());
+    // if(widget.vehicle['vehicle_name']==widget.data?['vehicle_name'])
+    //   {
+    //
+    //   }
     yearController = TextEditingController(text: widget.vehicle['year'] ?? '');
     makeController = TextEditingController(text: widget.vehicle['make'] ?? '');
     modelController =
@@ -171,28 +177,28 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
 
     var tireImages = (widget.vehicle['images'] as List<dynamic>?)
             ?.where((image) => image['vehicle_image_type'] == 2)
-    .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
             .toList() ??
         [];
     tireImageFile.addAll(tireImages);
 
     var tollImages = (widget.vehicle['images'] as List<dynamic>?)
             ?.where((image) => image['vehicle_image_type'] == 5)
-        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
             .toList() ??
         [];
     tollImage.addAll(tollImages);
 
     var uploadRegStickers = (widget.vehicle['images'] as List<dynamic>?)
             ?.where((image) => image['vehicle_image_type'] == 3)
-        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
             .toList() ??
         [];
     uploadRegSticker.addAll(uploadRegStickers);
 
     var insuranceImages = (widget.vehicle['images'] as List<dynamic>?)
             ?.where((image) => image['vehicle_image_type'] == 4)
-        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
             .toList() ??
         [];
     insuranceImage.addAll(insuranceImages);
@@ -212,8 +218,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       showMore = true;
     }
 
-    d.log("$tireImageFile", name: "vehicle_edit");
-
+    print("tollImage $tollImage");
+    d.log("$tollImage", name: "vehicle_edit");
   }
 
   void _save() {
@@ -230,7 +236,11 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       isPurchaseDateFieldEmpty = purchaseDateController.text.isEmpty;
     });
 
-    if (isYearFieldEmpty || isMakeFieldEmpty || isModelFieldEmpty || isPurchaseFieldEmpty || isPurchaseDateFieldEmpty) {
+    if (isYearFieldEmpty ||
+        isMakeFieldEmpty ||
+        isModelFieldEmpty ||
+        isPurchaseFieldEmpty ||
+        isPurchaseDateFieldEmpty) {
       return Utils.showMobileToast('Please fill the required fields');
     }
 
@@ -273,18 +283,22 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       ..selectedCohort = selectedCohortsData?['id']
       ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0;
 
-    createVehicleData.insuranceImage = insuranceImage.whereType<File>().toList();
+    createVehicleData.insuranceImage =
+        insuranceImage.whereType<File>().toList();
     createVehicleData.tollImage = tollImage.whereType<File>().toList();
     createVehicleData.tireImage = tireImageFile.whereType<File>().toList();
-    createVehicleData.uploadRegSticker = uploadRegSticker.whereType<File>().toList();
+    createVehicleData.uploadRegSticker =
+        uploadRegSticker.whereType<File>().toList();
 
-    vehicleDataBloc.add(AddVehicleDataEvent(createVehicleData: createVehicleData));
+    vehicleDataBloc
+        .add(AddVehicleDataEvent(createVehicleData: createVehicleData));
     Navigator.of(context).pop(createVehicleData);
-    }
-    int boolToInt(bool value) => value ? 1 : 0;
+  }
 
+  int boolToInt(bool value) => value ? 1 : 0;
 
-  Future<List<File>?> _pickImages2({ImageSource source = ImageSource.gallery}) async {
+  Future<List<File>?> _pickImages2(
+      {ImageSource source = ImageSource.gallery}) async {
     final List<XFile> images = await ImagePicker().pickMultiImage();
     return images.map((e) => File(e.path)).toList();
   }
@@ -402,11 +416,16 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             body: body)
         : body;
   }
-        Widget get body => BlocProvider(
+
+  Widget get body => BlocProvider(
         create: (context) => vehicleDataBloc,
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) {
-          if (state is DropdownVehicleDataLoaded) {
+          if (state is VehicleDataLoading) {
+            loading = true;
+          } else if (state is DropdownVehicleDataLoaded) {
+            print("vehicle data ${widget.vehicle['vehicle_name']}");
+            print("dropDownData ${widget.data}");
             createExpenseFieldData = state.createExpenseFieldData;
             if (state.createExpenseFieldData != null) {
               cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
@@ -422,16 +441,16 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               }
               // categoriesData = state.createExpenseFieldData!.expenseCategories ?? [];
             }
-          }
-          if (state is VehicleStatusCategoryLoaded) {
+          } else if (state is VehicleStatusCategoryLoaded) {
             categoriesData = state.vehicleStatusDataList ?? [];
             categoriesDataIsSelected = true;
             selectedCategoriesData = categoriesData[0];
+          } else {
+            loading = false;
           }
         }, builder: (context, state) {
-          return
-            Stack(
-              children: [
+          return Stack(
+            children: [
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -696,17 +715,18 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                     bgColor: AppC.trans,
                                     borderColor: AppC.trans,
                                     textColor: AppC.grey),
-                                ),
-                            ),
-                              const SizedBox(
-                              height: 10,
                               ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
                             Visibility(
                               visible: receiptImageFile.isNotEmpty,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 5.0),
                                 child: SizedBox(
-                                  height: 100, // Set a height for the ListView
+                                  height: 100,
+                                  // Set a height for the ListView
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: receiptImageFile.length,
@@ -1162,32 +1182,27 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                                   const BorderRadius.all(
                                                       Radius.circular(Num
                                                           .subradiusButton))),
-                                          child:
-                                          // Utils.getOutlinedButton(
-                                          //   'Toll Image',
-                                          //       () => _pickImages(tireImageFile, ImageSource.gallery),
-                                          //   iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                          //   verticalPadding: 0,
-                                          //   radius: BorderRadius.zero,
-                                          //   bgColor: AppC.trans,
-                                          //   borderColor: AppC.trans,
-                                          //   textColor: AppC.grey,
-                                          // ),
-                                          Utils.getOutlinedButton(
+                                          child: Utils.getOutlinedButton(
                                             'Toll Image',
-                                                () async {
+                                            () async {
                                               var result = await _pickImages2();
                                               if (result != null) {
-                                                var files = tollImage.whereType<File>().map((e) => e.path);
+                                                var files = tollImage
+                                                    .whereType<File>()
+                                                    .map((e) => e.path);
                                                 for (var element in result) {
-                                                  if (!files.contains(element.path)) {
+                                                  if (!files
+                                                      .contains(element.path)) {
                                                     tollImage.add(element);
                                                   }
                                                 }
                                                 setState(() {});
                                               }
                                             },
-                                            iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                            iconData: const Icon(
+                                                Icons.cloud_upload,
+                                                color: AppC.blue,
+                                                size: 12),
                                             verticalPadding: 0,
                                             radius: BorderRadius.zero,
                                             bgColor: AppC.trans,
@@ -1224,48 +1239,73 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                 children: [
                                   Visibility(
                                     visible: tollImage.isNotEmpty && tollTags,
-                                    child:
-                                    GridView.builder(
+                                    child: GridView.builder(
                                       gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
                                         crossAxisSpacing: 10.0,
                                         mainAxisSpacing: 10.0,
                                         childAspectRatio: 1.0,
                                       ),
                                       physics:
-                                      const NeverScrollableScrollPhysics(),
+                                          const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount: tollImage.length,
                                       itemBuilder: (context, index) {
-                                        return
-                                          CloseBadge(
-                                              onTapView: () {
-                                                ShowAttachmentsDialog.of.show(context,
-                                                    attachments: tollImage,
-                                                    title: "",
-                                                    currentAttachment: tollImage[index]);
-                                              },
-                                              onTapDelete: () {
-                                                tollImage.removeWhere((element) => (element is File) && element == tollImage[index]);
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  minHeight: MediaQuery.sizeOf(context).height,
-                                                  minWidth: MediaQuery.sizeOf(context).width,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    color: AppC.grey.withValues(alpha: 0.2)),
-                                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                                child:  ImageViewer(
-                                                  fit: BoxFit.cover,
-                                                  imageInput: tollImage[index],
-                                                  isNotImage: !(tollImage[index] as Object).isImage,
-                                                ),
-                                              )
-                                          );
+                                        return CloseBadge(
+                                            onTapView: () {
+                                              ShowAttachmentsDialog.of.show(
+                                                  context,
+                                                  attachments: tollImage,
+                                                  title: "",
+                                                  currentAttachment:
+                                                      tollImage[index]);
+                                            },
+                                            onTapDelete: () {
+                                              setState(() {
+                                                if (tollImage[index] is File) {
+                                                  tollImage.removeAt(index);
+                                                } else {
+                                                  int? tollImageId = (widget.vehicle['images'] as List<dynamic>?)
+                                                      ?.firstWhere(
+                                                          (image) =>
+                                                      tollImage[index].split('/').last == image['path'].split('/').last,
+                                                      orElse: () => null)
+                                                  ?['id'];
+                                                  print("tollImageId: $tollImageId");
+                                                  if (tollImageId != null) {
+                                                    context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: tollImageId));
+                                                    tollImage.removeAt(index);
+                                                  }
+                                                }
+                                                tollImage = List.from(tollImage);
+                                              });
+                                              context.read<VehicleDataBloc>().add(const GetAddedVehicleListData());
+                                            },
+                                            child: Container(
+                                              constraints: BoxConstraints(
+                                                minHeight:
+                                                    MediaQuery.sizeOf(context)
+                                                        .height,
+                                                minWidth:
+                                                    MediaQuery.sizeOf(context)
+                                                        .width,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  color: AppC.grey
+                                                      .withValues(alpha: 0.2)),
+                                              clipBehavior:
+                                                  Clip.antiAliasWithSaveLayer,
+                                              child: ImageViewer(
+                                                fit: BoxFit.cover,
+                                                imageInput: tollImage[index],
+                                                isNotImage: !(tollImage[index]
+                                                        as Object)
+                                                    .isImage,
+                                              ),
+                                            ));
                                       },
                                     ),
                                   ),
@@ -1341,66 +1381,30 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(
                                                 Num.subradiusButton))),
-                                    child:
-
-                                    Utils.getOutlinedButton(
+                                    child: Utils.getOutlinedButton(
                                       'Tire Image Upload',
-                                          () async {
+                                      () async {
                                         var result = await _pickImages2();
                                         if (result != null) {
-                                          var files = tireImageFile.whereType<File>().map((e) => e.path);
+                                          var files = tireImageFile
+                                              .whereType<File>()
+                                              .map((e) => e.path);
                                           for (var element in result) {
-                                              if (!files.contains(element.path)) {
-                                                tireImageFile.add(element);
-                                              }
+                                            if (!files.contains(element.path)) {
+                                              tireImageFile.add(element);
                                             }
+                                          }
                                           setState(() {});
                                         }
-                                          },
-                                      iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                      },
+                                      iconData: const Icon(Icons.cloud_upload,
+                                          color: AppC.blue, size: 12),
                                       verticalPadding: 0,
                                       radius: BorderRadius.zero,
                                       bgColor: AppC.trans,
                                       borderColor: AppC.trans,
                                       textColor: AppC.grey,
                                     ),
-                                    // Utils.getOutlinedButton(
-                                    //     'Tire Image Upload', () async {
-                                    //   // List<XFile>? images = await ImagePicker().pickMultiImage();
-                                    //   // if (images != null && images.isNotEmpty) {
-                                    //   //   setState(() {
-                                    //   //     for (var image in images) {
-                                    //   //       if (image.path.isNotEmpty) { // Ensure it's not empty
-                                    //   //         var file = File(image.path);
-                                    //   //         print("Added File: ${file.path}"); // Debugging Log
-                                    //   //         tireImageFile.add({'file': file, 'path': ''});
-                                    //   //       }
-                                    //   //     }
-                                    //   //   });
-                                    //   // }
-                                    //
-                                    //   MultiImagePickHelper imageHelper = MultiImagePickHelper();
-                                    //   await imageHelper.getMultiImage(ImageSource.gallery).then((selectedFiles) {
-                                    //     if (selectedFiles.isNotEmpty) {
-                                    //       for (var filePath in selectedFiles) {
-                                    //         debugPrint('filePath: $filePath');
-                                    //         tireImageFile.add({
-                                    //           'path': filePath,
-                                    //         });
-                                    //       }
-                                    //       setState(() {}); // Refresh the UI
-                                    //     } else {
-                                    //       debugPrint("No images selected.");
-                                    //     }
-                                    //   });
-                                    // },
-                                    //     iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                    //     verticalPadding: 0,
-                                    //     radius: BorderRadius.zero,
-                                    //     bgColor: AppC.trans,
-                                    //     borderColor: AppC.trans,
-                                    //     textColor: AppC.grey
-                                    // ),
                                   ),
                                 ),
                                 const SizedBox(
@@ -1420,8 +1424,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                 children: [
                                   Visibility(
                                     visible: tireImageFile.isNotEmpty,
-                                    child:
-                                    GridView.builder(
+                                    child: GridView.builder(
                                       gridDelegate:
                                           const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
@@ -1434,35 +1437,61 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       shrinkWrap: true,
                                       itemCount: tireImageFile.length,
                                       itemBuilder: (context, index) {
-                                        return
-                                          CloseBadge(
-                                              onTapView: () {
-                                                ShowAttachmentsDialog.of.show(context,
-                                                    attachments: tireImageFile,
-                                                    title: "",
-                                                    currentAttachment: tireImageFile[index]);
-                                              },
-                                              onTapDelete: () {
-                                                tireImageFile.removeWhere((element) => (element is File) && element == tireImageFile[index]);
-                                                // tireImageFile.removeAt(index);
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  minHeight: MediaQuery.sizeOf(context).height,
-                                                  minWidth: MediaQuery.sizeOf(context).width,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    color: AppC.grey.withValues(alpha: 0.2)),
-                                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                                child:  ImageViewer(
-                                                  fit: BoxFit.cover,
-                                                  imageInput: tireImageFile[index],
-                                                  isNotImage: !(tireImageFile[index] as Object).isImage,
-                                                ),
-                                              )
-                                          );
+                                        return CloseBadge(
+                                            onTapView: () {
+                                              ShowAttachmentsDialog.of.show(
+                                                  context,
+                                                  attachments: tireImageFile,
+                                                  title: "",
+                                                  currentAttachment:
+                                                      tireImageFile[index]);
+                                            },
+                                            onTapDelete: () {
+                                              setState(() {
+                                                if (tireImageFile[index] is File) {
+                                                  tireImageFile.removeAt(index);
+                                                } else {
+                                                  int? Id = (widget.vehicle['images'] as List<dynamic>?)
+                                                      ?.firstWhere(
+                                                          (image) =>
+                                                      tireImageFile[index].split('/').last == image['path'].split('/').last,
+                                                      orElse: () => null)
+                                                  ?['id'];
+                                                  if (tireImageFile != null) {
+                                                    context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: Id));
+                                                    tireImageFile.removeAt(index);
+                                                  }
+                                                }
+                                                tireImageFile = List.from(tireImageFile);
+                                              });
+                                              context.read<VehicleDataBloc>().add(const GetAddedVehicleListData());
+                                            },
+                                            child: Container(
+                                              constraints: BoxConstraints(
+                                                minHeight:
+                                                    MediaQuery.sizeOf(context)
+                                                        .height,
+                                                minWidth:
+                                                    MediaQuery.sizeOf(context)
+                                                        .width,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  color: AppC.grey
+                                                      .withValues(alpha: 0.2)),
+                                              clipBehavior:
+                                                  Clip.antiAliasWithSaveLayer,
+                                              child: ImageViewer(
+                                                fit: BoxFit.cover,
+                                                imageInput:
+                                                    tireImageFile[index],
+                                                isNotImage:
+                                                    !(tireImageFile[index]
+                                                            as Object)
+                                                        .isImage,
+                                              ),
+                                            ));
                                       },
                                     ),
                                   ),
@@ -1569,22 +1598,27 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                                 const BorderRadius.all(
                                                     Radius.circular(
                                                         Num.subradiusButton))),
-                                        child:
-                                        Utils.getOutlinedButton(
+                                        child: Utils.getOutlinedButton(
                                           'Upload Reg Sticker',
-                                              () async {
+                                          () async {
                                             var result = await _pickImages2();
                                             if (result != null) {
-                                              var files = uploadRegSticker.whereType<File>().map((e) => e.path);
+                                              var files = uploadRegSticker
+                                                  .whereType<File>()
+                                                  .map((e) => e.path);
                                               for (var element in result) {
-                                                if (!files.contains(element.path)) {
+                                                if (!files
+                                                    .contains(element.path)) {
                                                   uploadRegSticker.add(element);
                                                 }
                                               }
                                               setState(() {});
                                             }
                                           },
-                                          iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                          iconData: const Icon(
+                                              Icons.cloud_upload,
+                                              color: AppC.blue,
+                                              size: 12),
                                           verticalPadding: 0,
                                           radius: BorderRadius.zero,
                                           bgColor: AppC.trans,
@@ -1605,48 +1639,74 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                 children: [
                                   Visibility(
                                     visible: uploadRegSticker.isNotEmpty,
-                                    child:
-                                    GridView.builder(
+                                    child: GridView.builder(
                                       gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 4,
                                         crossAxisSpacing: 10.0,
                                         mainAxisSpacing: 10.0,
                                         childAspectRatio: 1.0,
                                       ),
                                       physics:
-                                      const NeverScrollableScrollPhysics(),
+                                          const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount: uploadRegSticker.length,
                                       itemBuilder: (context, index) {
-                                        return
-                                          CloseBadge(
-                                              onTapView: () {
-                                                ShowAttachmentsDialog.of.show(context,
-                                                    attachments: uploadRegSticker,
-                                                    title: "",
-                                                    currentAttachment: uploadRegSticker[index]);
-                                              },
-                                              onTapDelete: () {
-                                                uploadRegSticker.removeWhere((element) => (element is File) && element == uploadRegSticker[index]);
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  minHeight: MediaQuery.sizeOf(context).height,
-                                                  minWidth: MediaQuery.sizeOf(context).width,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    color: AppC.grey.withValues(alpha: 0.2)),
-                                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                                child:  ImageViewer(
-                                                  fit: BoxFit.cover,
-                                                  imageInput: uploadRegSticker[index],
-                                                  isNotImage: !(uploadRegSticker[index] as Object).isImage,
-                                                ),
-                                              )
-                                          );
+                                        return CloseBadge(
+                                            onTapView: () {
+                                              ShowAttachmentsDialog.of.show(
+                                                  context,
+                                                  attachments: uploadRegSticker,
+                                                  title: "",
+                                                  currentAttachment:
+                                                      uploadRegSticker[index]);
+                                            },
+                                            onTapDelete: () {
+                                              setState(() {
+                                                if (uploadRegSticker[index] is File) {
+                                                  uploadRegSticker.removeAt(index);
+                                                } else {
+                                                  int? Id = (widget.vehicle['images'] as List<dynamic>?)
+                                                      ?.firstWhere(
+                                                          (image) =>
+                                                      uploadRegSticker[index].split('/').last == image['path'].split('/').last,
+                                                      orElse: () => null)
+                                                  ?['id'];
+                                                  if (uploadRegSticker != null) {
+                                                    context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: Id));
+                                                    uploadRegSticker.removeAt(index);
+                                                  }
+                                                }
+                                                uploadRegSticker = List.from(uploadRegSticker);
+                                              });
+                                              context.read<VehicleDataBloc>().add(const GetAddedVehicleListData());
+                                            },
+                                            child: Container(
+                                              constraints: BoxConstraints(
+                                                minHeight:
+                                                    MediaQuery.sizeOf(context)
+                                                        .height,
+                                                minWidth:
+                                                    MediaQuery.sizeOf(context)
+                                                        .width,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  color: AppC.grey
+                                                      .withValues(alpha: 0.2)),
+                                              clipBehavior:
+                                                  Clip.antiAliasWithSaveLayer,
+                                              child: ImageViewer(
+                                                fit: BoxFit.cover,
+                                                imageInput:
+                                                    uploadRegSticker[index],
+                                                isNotImage:
+                                                    !(uploadRegSticker[index]
+                                                            as Object)
+                                                        .isImage,
+                                              ),
+                                            ));
                                       },
                                     ),
                                   ),
@@ -1715,10 +1775,12 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       Radius.circular(Num.subradiusButton))),
                               child: Utils.getOutlinedButton(
                                 'Insurance Image',
-                                    () async {
+                                () async {
                                   var result = await _pickImages2();
                                   if (result != null) {
-                                    var files = insuranceImage.whereType<File>().map((e) => e.path);
+                                    var files = insuranceImage
+                                        .whereType<File>()
+                                        .map((e) => e.path);
                                     for (var element in result) {
                                       if (!files.contains(element.path)) {
                                         insuranceImage.add(element);
@@ -1727,7 +1789,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                     setState(() {});
                                   }
                                 },
-                                iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                iconData: const Icon(Icons.cloud_upload,
+                                    color: AppC.blue, size: 12),
                                 verticalPadding: 0,
                                 radius: BorderRadius.zero,
                                 bgColor: AppC.trans,
@@ -1740,49 +1803,69 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                   const EdgeInsets.symmetric(vertical: 5.0),
                               child: Visibility(
                                 visible: insuranceImage.isNotEmpty,
-                                child:
-                                GridView.builder(
+                                child: GridView.builder(
                                   gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
                                     crossAxisSpacing: 10.0,
                                     mainAxisSpacing: 10.0,
                                     childAspectRatio: 1.0,
                                   ),
-                                  physics:
-                                  const NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   itemCount: insuranceImage.length,
                                   itemBuilder: (context, index) {
-                                    return
-                                      CloseBadge(
-                                          onTapView: () {
-                                            ShowAttachmentsDialog.of.show(context,
-                                                attachments: insuranceImage,
-                                                title: "",
-                                                currentAttachment: insuranceImage[index]);
-                                          },
-                                          onTapDelete: () {
-                                            insuranceImage.removeWhere((element) => (element is File) && element == insuranceImage[index]);
-                                            setState(() {});
-                                          },
-                                          child: Container(
-                                            constraints: BoxConstraints(
-                                              minHeight: MediaQuery.sizeOf(context).height,
-                                              minWidth: MediaQuery.sizeOf(context).width,
-                                            ),
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(16),
-                                                color: AppC.grey.withValues(alpha: 0.2)
-                                            ),
-                                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                                            child:  ImageViewer(
-                                              fit: BoxFit.cover,
-                                              imageInput: insuranceImage[index],
-                                              isNotImage: !(insuranceImage[index] as Object).isImage,
-                                            ),
-                                          )
-                                      );
+                                    return CloseBadge(
+                                        onTapView: () {
+                                          ShowAttachmentsDialog.of.show(context,
+                                              attachments: insuranceImage,
+                                              title: "",
+                                              currentAttachment:
+                                                  insuranceImage[index]);
+                                        },
+                                        onTapDelete: () {
+                                          setState(() {
+                                            if (insuranceImage[index] is File) {
+                                              insuranceImage.removeAt(index);
+                                            } else {
+                                              int? Id = (widget.vehicle['images'] as List<dynamic>?)
+                                                  ?.firstWhere(
+                                                      (image) =>
+                                                  insuranceImage[index].split('/').last == image['path'].split('/').last,
+                                                  orElse: () => null)
+                                              ?['id'];
+                                              if (insuranceImage != null) {
+                                                context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: Id));
+                                                insuranceImage.removeAt(index);
+                                              }
+                                            }
+                                            insuranceImage = List.from(insuranceImage);
+                                          });
+                                          context.read<VehicleDataBloc>().add(const GetAddedVehicleListData());
+                                        },
+                                        child: Container(
+                                          constraints: BoxConstraints(
+                                            minHeight:
+                                                MediaQuery.sizeOf(context)
+                                                    .height,
+                                            minWidth: MediaQuery.sizeOf(context)
+                                                .width,
+                                          ),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              color: AppC.grey
+                                                  .withValues(alpha: 0.2)),
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          child: ImageViewer(
+                                            fit: BoxFit.cover,
+                                            imageInput: insuranceImage[index],
+                                            isNotImage: !(insuranceImage[index]
+                                                    as Object)
+                                                .isImage,
+                                          ),
+                                        ));
                                   },
                                 ),
                               ),
@@ -1823,6 +1906,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                   ),
                 ),
               ),
+              Visibility(
+                  visible: loading,
+                  child: Center(child: Utils.getProgressIndicator(context)))
             ],
           );
         }),

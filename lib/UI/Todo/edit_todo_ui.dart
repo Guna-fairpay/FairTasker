@@ -249,6 +249,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   dynamic selectedExpenseSubCategories;
   dynamic selectedLink;
   dynamic selectedVin;
+  dynamic selectedDropDownData;
   dynamic selectedSentiments;
 
   String? selectedPriority;
@@ -525,7 +526,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
 
 
-
+  bool isDataLoaded = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -755,19 +756,30 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       // setState(() {});
                       // }
 
-                      setState(() {});
+                      setState(() {
+                        isDataLoaded = true;
+                      });
                       // });
                     }
                   } else if (state is CheckListLoaded) {
                     checkListData.clear();
                     checkListData.addAll(state.data ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is MaintenanceCheckListLoaded) {
                     maintenanceCheckListData.clear();
                     childrenData.clear();
                     maintenanceCheckListData.addAll(state.data ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is UserGroupListLoaded) {
                     userGroupList.clear();
                     userGroupList.addAll(state.userGroupDataList ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is DropdownDataLoaded) {
                     createExpenseFieldData = state.createExpenseFieldData;
                     if (state.createExpenseFieldData != null) {
@@ -779,6 +791,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 [];
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is AssignedToLoaded) {
                     resourceList = [];
                     resourceList = state.resource ?? [];
@@ -802,16 +817,31 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       };
                       editMultipleVehicleList.add(vehiclesData);
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is TaskExpenseLoaded) {
                     taskExpenseList = state.resource ?? [];
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is VendorLoaded) {
                     vendorList = state.resource ?? [];
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is LocationLoaded) {
                     locationList = state.resource ?? [];
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is CreateTodoLoaded) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                       //Navigator.push(context,MaterialPageRoute(builder: (context)=>const TodoViewUI()));
+                      setState(() {
+                        isDataLoaded = true;
+                      });
                     }
                   } else if (state is CreateExpenseLoaded) {
                     if (state.expenseSummaryResponse != null &&
@@ -838,10 +868,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is TodoItemCompletedV) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is PartsLoaded) {
                     if (state.partsList != null) {
                       editPartsList.addAll(state.partsList!);
@@ -863,10 +899,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is DeleteTodoLoaded) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is SuppliesLoaded) {
                     if (state.suppliesList != null) {
                       editSuppliesList.addAll(state.suppliesList!);
@@ -887,6 +929,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is VehicleGroupListLoaded) {
                     vehicleGroupList.clear();
                     vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
@@ -902,9 +947,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is ExpenseTodoLoaded) {
-                    print("state.expenseSummaryData ${state.expenseSummaryData}");
                     existingExpenseDate = state.expenseSummaryData;
                     if(existingExpenseDate != null && existingExpenseDate.isNotEmpty)
                     {
@@ -955,7 +1002,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     else {
                       print('Error: expenseSummaryData is null or empty.');
                     }
-
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                 },
               ),
@@ -1011,6 +1060,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       }*/
                       setState(() {});
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                 },
               ),
@@ -1072,6 +1124,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               VehicleEditUI(
                                 vehicle: setVehicleList,
                                 showHeader: false,
+                                data: selectedDropDownData,
                               )
                             else
                               Container(
@@ -2411,6 +2464,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       (selectedValue) {
                         setState(() {
                           selectedVin = selectedValue;
+
+                          return selectedDropDownData= selectedVin;
+                          print("selected vehicle details ${selectedVin}");
                         });
                       },
                       labelKey: 'vehicle_name',
@@ -2484,13 +2540,107 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 ],
               ),
             ),
+
           ],
         ),
         getRecurringDetails(),
         const SizedBox(
           height: 20,
         ),
+        // if (isDataLoaded) showBottomTabWidget(),
       ],
+    );
+  }
+
+
+  Widget showBottomTabWidget()
+  {
+    final List<Map<String, dynamic>> tabs = [
+      if ((todoItem['title'] != 'Check In' &&
+          todoItem['title'] != 'Check Out') ||
+          (todoItem['title'] != 'CheckIn Car Rental' &&
+              todoItem['title'] != 'Pickup Car Rental') ||
+          todoItem['title'] != 'Email Notofication Form' ||
+          todoItem['title'] != "Refuel Car")
+        {'label': 'Expense', 'index': 0, 'color': AppC().base},
+      {'label': 'Next Task', 'index': 1, 'color': AppC().base},
+      if (todoItem['title'] == 'Getaround Prechecks' ||
+          todoItem['title'] == 'Pre Checks')
+        {'label': 'Check List', 'index': 2, 'color': AppC().base},
+      if (todoItem['title'] == 'Maintenance Check')
+        {'label': 'Maintenance', 'index': 3, 'color': AppC().base},
+      if (todoItem['title'] != 'Check In' &&
+          todoItem['title'] != 'Check Out' &&
+          todoItem['vehicle_name'] != null ||
+          todoItem['vehicles'].isNotEmpty)
+        {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
+    ];
+    if (tabTitle.isEmpty) {
+      switch (todoItem["title"]) {
+        case "Check In":
+        case "Check Out":
+        case "CheckIn Car Rental":
+        case "Pickup Car Rental":
+        case 'Email Notofication Form':
+        case 'Refuel Car':
+          tabTitle = "Expense";
+          break;
+        case "Getaround Prechecks":
+        case "Pre Checks":
+          tabTitle = "Check List";
+          break;
+        case "Maintenance Check":
+          tabTitle = "Maintenance";
+          break;
+      // default:
+      //   tabTitle = "Set Vehicle";
+      //   break;
+      }
+    }
+    showExpenseTab = tabs
+        .where((element) => element['label'] == tabTitle)
+        .firstOrNull?['index'] ?? 0;
+    //print("todoItem ${showExpenseTab}   tabs ------> $tabs");
+    return
+      Container(
+        decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+        ),
+        alignment: Alignment.centerLeft,
+        child:
+        SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: tabs.map((tab) {
+            return GestureDetector(
+              onTap: () => setState(() => tabTitle = tab['label']),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppC.trans,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: showExpenseTab == tab['index']
+                        ? tab['color']
+                        : AppC.trans,
+                    width: 1.0,
+                  ),
+                ),
+                padding: const EdgeInsets.all(5),
+                child:
+                Utils.getText(
+                  tab['label'],
+                  weight: FontWeight.bold,
+                  color: tab['label'] == 'Set Vehicle'
+                      ? AppC.red
+                      : (showExpenseTab == tab['index']
+                      ? tab['color']
+                      : AppC.black),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -3199,93 +3349,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   }
 
 //CheckIn Car Rental Email Notofication Form Refuel Car
-  Widget showBottomTabWidget() {
-    final List<Map<String, dynamic>> tabs = [
-      if ((todoItem['title'] != 'Check In' &&
-              todoItem['title'] != 'Check Out') ||
-          (todoItem['title'] != 'CheckIn Car Rental' &&
-              todoItem['title'] != 'Pickup Car Rental') ||
-          todoItem['title'] != 'Email Notofication Form' ||
-          todoItem['title'] != "Refuel Car")
-        {'label': 'Expense', 'index': 0, 'color': AppC().base},
-      {'label': 'Next Task', 'index': 1, 'color': AppC().base},
-      if (todoItem['title'] == 'Getaround Prechecks' ||
-          todoItem['title'] == 'Pre Checks')
-        {'label': 'Check List', 'index': 2, 'color': AppC().base},
-      if (todoItem['title'] == 'Maintenance Check')
-        {'label': 'Maintenance', 'index': 3, 'color': AppC().base},
-      if (todoItem['title'] != 'Check In' &&
-              todoItem['title'] != 'Check Out' &&
-              todoItem['vehicle_name'] != null ||
-          todoItem['vehicles'].isNotEmpty)
-        {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
-    ];
-    if (tabTitle.isEmpty) {
-      switch (todoItem["title"]) {
-        case "Check In":
-        case "Check Out":
-        case "CheckIn Car Rental":
-        case "Pickup Car Rental":
-        case 'Email Notofication Form':
-        case 'Refuel Car':
-          tabTitle = "Expense";
-          break;
-        case "Getaround Prechecks":
-        case "Pre Checks":
-          tabTitle = "Check List";
-          break;
-        case "Maintenance Check":
-          tabTitle = "Maintenance";
-          break;
-        // default:
-        //   tabTitle = "Set Vehicle";
-        //   break;
-      }
-    }
-    showExpenseTab = tabs
-            .where((element) => element['label'] == tabTitle)
-            .firstOrNull?['index'] ?? 0;
-    //print("todoItem ${showExpenseTab}   tabs ------> $tabs");
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
-      ),
-      alignment: Alignment.centerLeft,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: tabs.map((tab) {
-            return GestureDetector(
-              onTap: () => setState(() => tabTitle = tab['label']),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppC.trans,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: showExpenseTab == tab['index']
-                        ? tab['color']
-                        : AppC.trans,
-                    width: 1.0,
-                  ),
-                ),
-                padding: const EdgeInsets.all(5),
-                child:
-                Utils.getText(
-                  tab['label'],
-                  weight: FontWeight.bold,
-                  color: tab['label'] == 'Set Vehicle'
-                      ? AppC.red
-                      : (showExpenseTab == tab['index']
-                          ? tab['color']
-                          : AppC.black),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
+
 
   String getTextBeforeCursor() {
     TextSelection selection = taskIdentifierController.selection;
