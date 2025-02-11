@@ -34,6 +34,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
         emit(VehicleDataLoaded(vehicleData: value?.data ?? []));
       });
     });
+    //
 
     on<GetVehicleGroupingList>((event, emit) async {
       emit(TodoListLoading());

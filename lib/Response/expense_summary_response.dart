@@ -6,9 +6,9 @@ class ExpenseSummaryResponse {
   });
 
   ExpenseSummaryResponse.fromJson(dynamic json) {
-    data = json['data'] is Map<String, dynamic>
-        ? [Map<String, dynamic>.from(json['data'] ?? {})]
-        : List<Map<String, dynamic>>.from(json['data'] ?? []);
+    data = json['expenses'] is Map<String, dynamic>
+        ? [Map<String, dynamic>.from(json['expenses'] ?? {})]
+        : List<Map<String, dynamic>>.from(json['expenses'] ?? []);
     message = json['message'] ?? "";
     status = json['status'];
   }

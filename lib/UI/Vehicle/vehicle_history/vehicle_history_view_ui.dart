@@ -118,7 +118,8 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
       resizeToAvoidBottomInset: true,
       backgroundColor: AppC.white,
       appBar: widget.showHeader
-          ? AppBar(
+          ?
+      AppBar(
               backgroundColor: AppC.appColor,
               iconTheme: const IconThemeData(color: Colors.white),
               title: Utils.getText(vehicleName ?? '',
@@ -150,7 +151,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
             return Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
                       Row(
@@ -158,13 +159,39 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                           Expanded(
                             child: SizedBox(
                               height: 40,
-                              child: Utils.getSearchBarUI(
-                                () {},
-                                (value) => _filterVehicleDataList(value),
-                                searchController,
-                               // inputAction: TextInputAction.search
+                              child:
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                  borderRadius: BorderRadius.circular(5)
+                                ),
+                                child: Utils.getSearchBarUI(
+                                  () {},
+                                  (value) => _filterVehicleDataList(value),
+                                  searchController,
+                                 //inputAction: TextInputAction.search
+                                ),
                               ),
                             ),
+                          ),
+                          const SizedBox(width: 10,),
+                          // Utils.getAddFilledButton("Search", (){}),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppC.appColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6), // Rounded corners
+                              ),
+                              elevation: 0, // Remove default elevation for a flatter look
+                              // Optional: Add a slight shadow (subtle effect)
+                              shadowColor: Colors.black.withOpacity(0.2),
+                            ),
+                            child: Text("Search"),
                           ),
                         ],
                       ),
