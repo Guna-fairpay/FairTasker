@@ -172,3 +172,5 @@ class AddToDoRecurringEndDateSelectionEvent extends AddToDoEvent {
   @override
   List<Object?> get props => [dateTime];
 }
+
+class AddToDoOpenCustomLinkEvent extends AddToDoEvent {}

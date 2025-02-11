@@ -54,4 +54,10 @@ extension StringExtension on String? {
   bool get isDailyOrWeekly => isDaily || isWeekly;
 
   bool get isMonthlyOrYearly => isMonthly || isYearly;
+
+  bool get isCustomLink => this?.toLowerCase() == "custom link";
+
+  bool get isGetAroundReservation => this?.toLowerCase() == "Getaround ReservationID";
+
+  bool get isTuroReservation => this?.toLowerCase() == "Turo Reservation ID";
 }

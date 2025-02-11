@@ -13,6 +13,8 @@ import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -315,6 +317,15 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoRecurringEndDateEvent>((event, emit) => emit(state.copyWith(isRecurringEndDate: event.isRecurringEndDate)));
     on<AddToDoRecurringYearlySelectedMonthEvent>((event, emit) => emit(state.copyWith(recurringYearlySelectedMonth: event.selectedMonth)));
     on<AddToDoRecurringEndDateSelectionEvent>((event, emit) => emit(state.copyWith(selectedRecurringEndDate: event.dateTime)));
+
+    on<AddToDoOpenCustomLinkEvent>((event, emit) {
+      var url = (state.selectedLinkOption?['label'].toString().isCustomLink ?? false)
+      ? customLinkController.text
+      : (state.selectedLinkOption?['label'].toString().isTuroReservation ?? false)
+      ? customLinkController.text.toTuroReserveUrl
+      : customLinkController.text.toGetAroundReserveUrl;
+      Utils.openURL(url);
+    });
   }
 
   // PICK MULTI IMAGES / FILES
