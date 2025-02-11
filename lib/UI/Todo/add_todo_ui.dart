@@ -88,10 +88,10 @@ class AddToDoUi extends StatelessWidget {
                               .shrinkWrap, // the '2023' part
                         ),
                       ),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(10),
-                      radius: 2,
-                      splashFactory: InkSplash.splashFactory,
+                    GestureDetector(
+                      // borderRadius: BorderRadius.circular(10),
+                      // radius: 2,
+                      // splashFactory: InkSplash.splashFactory,
                       onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -107,14 +107,7 @@ class AddToDoUi extends StatelessWidget {
                                   side: BorderSide.none,
                                   borderRadius: BorderRadius.circular(10)),
                               side: BorderSide.none,
-                              fillColor:
-                              WidgetStateProperty.resolveWith<Color>(
-                                      (states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return AppC.blue;
-                                    }
-                                    return AppC.white;
-                                  }),
+                              fillColor: WidgetStateProperty.resolveWith<Color>((states) => (states.contains(WidgetState.selected)) ? AppC.blue : AppC.white),
                               onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
                             ),
                           ),

@@ -127,3 +127,11 @@ class AddToDoSelectLinkOptionEvent extends AddToDoEvent {
   @override
   List<Object?> get props => [linkOption];
 }
+
+class AddToDoAddressSelectionEvent extends AddToDoEvent {
+  final dynamic data;
+  final bool isChecked;
+  AddToDoAddressSelectionEvent(this.data, this.isChecked);
+  @override
+  List<Object?> get props => [data, isChecked];
+}

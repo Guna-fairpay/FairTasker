@@ -22,6 +22,7 @@ class AddToDoState extends Equatable {
   final List<dynamic> selectedSupplies;
   final List<dynamic> recurringTypes;
   final List<dynamic> attachments;
+  final List<dynamic> addresses;
   final List<Map<String, dynamic>> selectedVPerson;
   final Map<int, dynamic> selectedTaskIdentifier;
   final dynamic selectedClearDuration;
@@ -67,6 +68,7 @@ class AddToDoState extends Equatable {
     required this.selectedTime,
     required this.recurringTypes,
     required this.attachments,
+    required this.addresses,
     this.selectedRecurring,
   });
 
@@ -101,6 +103,7 @@ class AddToDoState extends Equatable {
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
     List<dynamic>? attachments,
+    List<dynamic>? addresses,
     dynamic selectedRecurring,
   }) =>
       AddToDoState(
@@ -138,6 +141,7 @@ class AddToDoState extends Equatable {
         recurringTypes: recurringTypes ?? this.recurringTypes,
         selectedRecurring: selectedRecurring ?? this.selectedRecurring,
         attachments: attachments ?? this.attachments,
+        addresses: addresses ?? this.addresses,
       );
 
   @override
@@ -173,6 +177,7 @@ class AddToDoState extends Equatable {
         recurringTypes,
         selectedRecurring,
         attachments,
+        addresses,
         Random().nextDouble()
       ];
 }

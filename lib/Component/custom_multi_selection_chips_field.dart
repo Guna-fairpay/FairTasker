@@ -45,7 +45,7 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var commonBorderSide =
-        const BorderSide(color: AppC.fieldBase, width: Num.borderWidthField);
+        const BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField);
     return Container(
       padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(top: 10),

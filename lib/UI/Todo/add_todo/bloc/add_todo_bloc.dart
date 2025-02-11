@@ -49,7 +49,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedVPerson: const [],
             selectedParts: const [],
             selectedSupplies: const [],
-      attachments: const [],
+            attachments: const [],
+            addresses: const [],
             selectedTaskIdentifier: const {},
             recurringTypes: AddToDoConfig.recurringOptions,
             clearDurations: AddToDoConfig.cleanCarDurations,
@@ -107,7 +108,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
                 (resource['branch_id'] !=
                     Session.of.getInt(Str.branchIdPrefText))) ||
             (resource['deleted_at'] != null));
-        var selectedUser = resources.where((element) => element['id'].toString() == currentUserId).toList();
+        var selectedUser = resources
+            .where((element) => element['id'].toString() == currentUserId)
+            .toList();
         emit(state.copyWith(
             isLoading: false,
             tasks: taskResponse?.data ?? [],
@@ -147,7 +150,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existing[2] != null) {
-        if (existing[2]?['type'] == 'persons') vPersonController.text = existing[2]?['name'] ?? "";
+        if (existing[2]?['type'] == 'persons')
+          vPersonController.text = existing[2]?['name'] ?? "";
         existingVPersons.removeWhere((element) =>
             element['type'] !=
             ((existing[2]?['type'] == 'persons') ? 'vehicles' : 'persons'));
@@ -197,7 +201,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     });
 
     on<AddToDoVLocationEvent>((event, emit) {
-      var existing = state.selectedTaskIdentifier;
+      var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       existing[3] = event.vLocation;
       emit(state.copyWith(selectedTaskIdentifier: existing));
     });
@@ -239,19 +243,26 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       emit(state.copyWith(selectedSupplies: existing));
     });
 
-    on<AddToDoRecurringTypeEvent>((event, emit) => emit(state.copyWith(selectedRecurring: event.recurringType)));
+    on<AddToDoRecurringTypeEvent>((event, emit) =>
+        emit(state.copyWith(selectedRecurring: event.recurringType)));
 
-    on<AddToDoDateChangeEvent>((event, emit) => emit(state.copyWith(selectedDate: event.selectedDate)));
+    on<AddToDoDateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedDate: event.selectedDate)));
 
-    on<AddToDoTimeChangeEvent>((event, emit) => emit(state.copyWith(selectedTime: event.selectedTime)));
+    on<AddToDoTimeChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedTime: event.selectedTime)));
 
-    on<AddToDoTimeSensitiveEvent>((event, emit) => emit(state.copyWith(isTimeSensitive: !state.isTimeSensitive)));
+    on<AddToDoTimeSensitiveEvent>((event, emit) =>
+        emit(state.copyWith(isTimeSensitive: !state.isTimeSensitive)));
 
     on<AddToDoAddAttachmentEvent>((event, emit) async {
       var result = await _pickFiles();
       if (result != null) {
         var existing = List.from(state.attachments);
-        var existingPaths = List.from(state.attachments).whereType<File>().map((e) => (e.path)).toList();
+        var existingPaths = List.from(state.attachments)
+            .whereType<File>()
+            .map((e) => (e.path))
+            .toList();
         for (var element in result) {
           if (!existingPaths.contains(element.path)) existing.add(element);
         }
@@ -259,7 +270,18 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
     });
 
-    on<AddToDoSelectLinkOptionEvent>((event, emit) => emit(state.copyWith(selectedLinkOption: event.linkOption)));
+    on<AddToDoSelectLinkOptionEvent>((event, emit) =>
+        emit(state.copyWith(selectedLinkOption: event.linkOption)));
+
+    on<AddToDoAddressSelectionEvent>((event, emit) {
+      var existing = List.from(state.addresses);
+      if (event.isChecked) {
+        if (!existing.contains(event.data)) existing.add(event.data);
+      } else {
+        if (existing.contains(event.data)) existing.remove(event.data);
+      }
+      emit(state.copyWith(addresses: existing));
+    });
   }
 
   // PICK MULTI IMAGES / FILES

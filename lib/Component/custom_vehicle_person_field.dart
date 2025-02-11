@@ -75,11 +75,11 @@ class CustomVehiclePersonField extends StatelessWidget {
       padding: EdgeInsets.zero,
       decoration: selectedList.value.isEmpty ? null : const BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppC.text, width: Num.borderWidthField),
+            top: BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField),
             right:
-                BorderSide(color: AppC.text, width: Num.borderWidthField),
+                BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField),
             left:
-                BorderSide(color: AppC.text, width: Num.borderWidthField),
+                BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField),
           ),
           borderRadius: BorderRadius.all(Radius.circular(6))),
       child: Column(

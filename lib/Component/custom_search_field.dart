@@ -61,7 +61,7 @@ class CustomSearchField<T> extends StatelessWidget {
         hintText: hintText,
         hintStyle: context.textTheme.labelLarge
             ?.copyWith(color: context.theme.hintColor),
-        labelStyle: context.textTheme.labelLarge
+        labelStyle: context.textTheme.labelMedium
             ?.copyWith(color: context.theme.hintColor),
       ),
       suggestionStyle: style,

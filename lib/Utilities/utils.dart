@@ -419,6 +419,7 @@ class Utils {
         bool isDense = false,
       double? height,
       TextStyle? hintTextStyle,
+      TextStyle? labelStyle,
       Color fillColor = AppC.trans,
       EdgeInsets contentPadding =
           const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -452,11 +453,12 @@ class Utils {
             contentPadding: contentPadding,
             constraints: BoxConstraints(),
             isDense: isDense,
-            label: label,
+            // label: label,
+            labelText: labelText,
             hintText: hintText,
             counterText: '',
             hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-            labelStyle: const TextStyle(color: AppC.grey),
+            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey),
             filled: true,
             fillColor: fillColor,
             border: OutlineInputBorder(
@@ -479,7 +481,7 @@ class Utils {
             //       width: borderWidth,
             //     ),
             //     borderRadius: BorderRadius.circular(borderRadius)),
-            suffixIcon: showErrorSuffix ? (((validator != null) && (value.text.isEmpty)) ? suffixIcon : null) : suffixIcon),
+            suffixIcon: suffixIcon),
         style: style ?? TextStyle(
           // fontSize: textSize,
           color: textColor,

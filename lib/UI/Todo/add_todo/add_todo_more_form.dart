@@ -20,7 +20,7 @@ class AddTodoMoreForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(
       builder: (context, state) => Column(
         mainAxisSize: MainAxisSize.min,
-        spacing: 10,
+        spacing: 5,
         children: [
           if (state.isMoreEnable)
             Row(
@@ -116,6 +116,8 @@ class AddTodoMoreForm extends StatelessWidget {
             isDense: true,
             borderRadius: Num.borderRadius,
             contentPadding: 10.padding,
+              labelStyle: context.textTheme.labelMedium
+                  ?.copyWith(color: context.theme.hintColor),
             style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")
           ),
         ],

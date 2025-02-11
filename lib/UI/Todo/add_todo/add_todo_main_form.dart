@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
@@ -41,14 +42,14 @@ class AddTodoMainForm extends StatelessWidget {
                   'Task Name',
                   context.read<AddToDoBloc>().taskNameController,
                   isDense: true,
-                  suffixIcon: const Icon(Icons.info_outline_rounded),
                   showErrorSuffix: true,
                   borderRadius: Num.borderRadius,
                   autoValidate: AutovalidateMode.onUserInteraction,
                   validator: (val) => (val?.isEmpty ?? false) ? "Task name is missing" : null,
                   contentPadding: 10.padding,
+                  labelStyle: context.textTheme.labelMedium
+                      ?.copyWith(color: context.theme.hintColor),
                   style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
-                  label: Utils.getText('Task Name'),
                 ),
                 10.height,
                 CustomVehiclePersonField(
@@ -70,12 +71,25 @@ class AddTodoMainForm extends StatelessWidget {
                       .add(AddToDoVLocationEvent(val)),
                   controller: context.read<AddToDoBloc>().vLocationController,
                 ),
+                if (state.selectedTaskIdentifier.containsKey(3) && state.selectedTaskIdentifier[3]['type'] == 'location')
+                10.height,
+                if (state.selectedTaskIdentifier.containsKey(3) && state.selectedTaskIdentifier[3]['type'] == 'location')
+                  CustomMultiSelectionChipsField<dynamic>(
+                      selectedPartsList: state.addresses,
+                      suggestionsList: state.selectedTaskIdentifier[3]['value']['addresses'],
+                      controller: TextEditingController(),
+                      labelText: "Address",
+                      onChanged: (isChecked, value) => context
+                          .read<AddToDoBloc>()
+                          .add(AddToDoAddressSelectionEvent(value, isChecked)),
+                      itemAsString: (item) => item['address'].toString()),
                 10.height,
                 Utils.getTextFormField(
                     'Notes', context.read<AddToDoBloc>().notesController,
-                    label: Utils.getText('Notes'),
                     isDense: true,
                     contentPadding: 10.padding,
+                    labelStyle: context.textTheme.labelMedium
+                        ?.copyWith(color: context.theme.hintColor),
                     style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
                     readOnly: false,
                     onChangeCallback: (value) {}),
