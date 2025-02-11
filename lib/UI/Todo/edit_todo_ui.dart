@@ -246,7 +246,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Map<String, dynamic>? expenseData;
   late Map<String, dynamic> todoItem;
 
-  dynamic existingExpenseDate;
   dynamic selectedCohort;
   dynamic selectedVehicle;
   dynamic selectedExpenseCategories;
@@ -336,8 +335,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   @override
   void initState() {
+    todoItem = widget.todoItem;
     todoBloc = TodoViewBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
+    todoBloc!.add(const GetCohortsData());
     todoBloc!.add(const GetDropdownData());
     todoBloc!.add(const GetVehicleListData());
     todoBloc!.add(const GetTaskExpenseData());
@@ -350,6 +351,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
     todoBloc!.add(const GetCheckList());
     todoBloc!.add(const GetMaintenanceCheckList());
     todoBloc!.add(const GetUserGroupingList());
+    todoBloc!.add(const GetPaymentData());
+    todoBloc!.add(GetExpenseToData(expenseId: todoItem['expense_id']));
     selectedRepeat = repeatList[0];
     selectedPriority = priorityList[1];
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 60));
@@ -357,7 +360,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 30));
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 15));
     selectedCleanCarTime = cleanCarTimeValuesList[0];
-    todoItem = widget.todoItem;
 
     if (widget.todoItem['title'] != 'Check In' &&
         widget.todoItem['title'] != 'Check Out') {
@@ -1066,7 +1068,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 ),
                                 if (showExpenseTab == 0)
                                   TodoEditExpenseUI(
-                                    expenseData: existingExpenseDate,
+                                    expenseData: expenseData ?? {},
                                     vehicle: vehicle,
                                     vehicleName: vehicleName,
                                     taskList: taskExpenseList,
