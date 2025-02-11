@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -256,6 +257,7 @@ class _HeaderViewState extends State<HeaderView> {
                             selectedValue = value;
                             Utils.setIntPreference(
                                 Str.branchIdPrefText, selectedValue?['id']!);
+                            Session.of.set(Str.branchIdPrefText, "${selectedValue?['id'] ?? 1}");
                             Navigator.push(
                               context,
                               MaterialPageRoute(

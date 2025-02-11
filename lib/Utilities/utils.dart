@@ -1,12 +1,16 @@
 
 
 
+import 'dart:developer';
+
+import 'package:date_time/date_time.dart' as dt;
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart'
     as DateRangePicker;
+import 'package:url_launcher/url_launcher.dart';
 
 enum ImageUploadType {
   gallery,
@@ -33,6 +38,8 @@ enum ImageUploadType {
 class Utils {
   static final Connectivity _connectivity = Connectivity();
   final viewTransformationController = TransformationController();
+
+  static String get returnBearerToken => Session.of.getString(Str.frBearerToken).toBearer;
 
   static Future showCustomDeleteDialog(
       BuildContext context,
@@ -340,13 +347,14 @@ class Utils {
       {double size = 14,
       TextAlign? align,
       Color color = AppC.text,
+      TextStyle? style,
       FontWeight weight = FontWeight.normal,
       TextDecoration? decoration,
         Color? colorDecoration,
       TextOverflow? overFlow}) {
     return Text(text,
         textAlign: align,
-        style: TextStyle(
+        style: style ?? TextStyle(
           color: color,
           fontSize: size,
           fontWeight: weight,
@@ -403,76 +411,86 @@ class Utils {
       ValueChanged? onChangeCallback,
       TextInputType textType = TextInputType.text,
       TextInputAction? inputAction,
+        TextStyle? style,
       int? maxLength,
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.text,
       String? hintText,
       Widget? suffixIcon,
       bool obscure = false,
+        bool isDense = false,
       double? height,
       TextStyle? hintTextStyle,
+      TextStyle? labelStyle,
       Color fillColor = AppC.trans,
       EdgeInsets contentPadding =
           const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       // VoidCallback? suffixIconCallback,
       VoidCallback? onTapCallback,
       String? Function(String?)? validator,
+        bool showErrorSuffix = false,
       AutovalidateMode autoValidate = AutovalidateMode.disabled,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
       double borderWidth = Num.borderWidthField}) {
     hintText = hintText ?? labelText;
-    return TextFormField(
-      key: key,
-      validator: validator,
-      autovalidateMode: autoValidate,
-      textInputAction: inputAction,
-      onTap: onTapCallback,
-      focusNode: focusNode,
-      autofocus: autoFocus,
-      controller: controller,
-      keyboardType: textType,
-      readOnly: readOnly,
-      maxLength: maxLength,
-      obscureText: obscure,
-      textCapitalization: TextCapitalization.sentences,
-      inputFormatters: textInputFormatter,
-      decoration: InputDecoration(
-          contentPadding: contentPadding,
-          label: label,
-          hintText: hintText,
-          counterText: '',
-          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-          labelStyle: const TextStyle(color: AppC.grey),
-          filled: true,
-          fillColor: fillColor,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) => TextFormField(
+        key: key,
+        validator: validator,
+        autovalidateMode: autoValidate,
+        textInputAction: inputAction,
+        onTap: onTapCallback,
+        focusNode: focusNode,
+        autofocus: autoFocus,
+        controller: controller,
+        keyboardType: textType,
+        readOnly: readOnly,
+        maxLength: maxLength,
+        obscureText: obscure,
+        textCapitalization: TextCapitalization.sentences,
+        inputFormatters: textInputFormatter,
+        decoration: InputDecoration(
+            contentPadding: contentPadding,
+            constraints: BoxConstraints(),
+            isDense: isDense,
+            // label: label,
+            labelText: labelText,
+            hintText: hintText,
+            counterText: '',
+            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey),
+            filled: true,
+            fillColor: fillColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
             ),
-          ),
-          focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                borderRadius: BorderRadius.circular(borderRadius)),
-          suffixIcon: suffixIcon),
-      style: TextStyle(
-        // fontSize: textSize,
-        color: textColor,
-        fontWeight: fontWeight,
-      ),
-      onChanged: onChangeCallback,
+            // focusedBorder: OutlineInputBorder(
+            //     borderSide: BorderSide(
+            //       color: borderColor,
+            //       width: borderWidth,
+            //     ),
+            //     borderRadius: BorderRadius.circular(borderRadius)),
+            suffixIcon: suffixIcon),
+        style: style ?? TextStyle(
+          // fontSize: textSize,
+          color: textColor,
+          fontWeight: fontWeight,
+        ),
+        onChanged: onChangeCallback,
+      )
     );
   }
 
@@ -831,14 +849,14 @@ class Utils {
 
   static Future<DateTime?> todoDatePickerDialog(
       BuildContext context, String existingDate,
-      {DateTime? initial, DateTime? last}) {
+      {DateTime? initial, DateTime? last, int lastYear = 1}) {
     var initialDate = initial;
     var currentDate = DateTime.now();
     if (existingDate.isNotEmpty) {
       currentDate = convertStringToDateTime(existingDate);
     }
     var lastDate = last ??
-        DateTime(currentDate.year + 1, currentDate.month, currentDate.day);
+        DateTime(currentDate.year + lastYear, currentDate.month, currentDate.day);
 
     Widget dialog = DatePickerDialog(
       initialDate: initialDate ?? DateTime.now(),
@@ -1009,12 +1027,12 @@ class Utils {
     };
   }
 
-  static Map<String, String> getHeadersWithToken() {
+  static Map<String, String> getHeadersWithToken({required String url}) {
     debugPrint('accessTokenGlobal: $accessTokenGlobal');
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessTokenGlobal'
+      'Authorization': (url.isFairReturns) ? returnBearerToken : 'Bearer $accessTokenGlobal'
     };
   }
 
@@ -1871,6 +1889,17 @@ class Utils {
     }).closed;
   }
 
+  static String formatDateTime({dynamic input, required String? format}) {
+    if (input is DateTime) {
+      return DateFormat(format).format(input);
+    } else if (input is TimeOfDay) {
+      var val = input;
+      return DateFormat(format).format(dt.Time.fromMinutes(val.hour * 60 + val.minute).asDateTime);
+    } else {
+      return "";
+    }
+  }
+
   /* ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -2676,6 +2705,24 @@ class Utils {
       return DateFormat('yyyy-MM-dd').format(startOfMonth);
     } else {
       return DateFormat('yyyy-MM-dd').format(val);
+    }
+  }
+
+  static void openURL(String url) async {
+    if (!url.isNetworkURL) return;
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        showMobileToast("Could not launch $url");
+      }
+    } catch (e) {
+      log('Error launching URL: $e');
+      showMobileToast(e.toString());
     }
   }
 }

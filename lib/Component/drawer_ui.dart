@@ -1,7 +1,11 @@
 
 import 'package:fairpytasker/UI/Leave%20Management/leave_management_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../UI/Settings/google_authenticator.dart';
@@ -200,7 +204,15 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 icon: Icons.power_settings_new,
                 label: "Logout",
                 onTap: () {
-                  showDialog(
+                  AskPermissionDialog.show(context, title: "Confirm logout", description: "Are you sure you want to logout?", negativeText: "No", positiveText: "Yes", onPositivePressed: () async {
+                    await Authenticator.instance.logout();
+                    Utils.deletePreferences(key: Str.loginPrefText);
+                    Utils.deletePreferences(key: Str.accessTokenPrefText);
+                    Utils.deletePreferences(key: Str.userIdPrefText);
+                    Session.of.clear();
+                    context.pushAndRemoveUntil(const AuthenticationUI());
+                  });
+                  /*showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -241,7 +253,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                         ],
                       );
                     },
-                  );
+                  );*/
                 },
               ),
             ],
