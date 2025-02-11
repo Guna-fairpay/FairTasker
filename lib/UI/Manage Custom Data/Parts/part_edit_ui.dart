@@ -50,32 +50,21 @@ class _PartEditUIState extends State<PartEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar:AppBar(
+        title: const Text("Edit Parts"),
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: ()=>Navigator.pop(context))
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+        child: ListView(
           children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Edit Parts', size: 20, weight: FontWeight.bold),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
             SizedBox(
               height: 40,
               child: Stack(
@@ -112,12 +101,13 @@ class _PartEditUIState extends State<PartEditUI> {
             ),
             const SizedBox(height: 15),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
                   height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
+                  child: Utils.getElevatedButton(
+                    text: 'Save',
+                    bgColor: AppC.green,
                     () {
                       _save();
                     },
@@ -128,7 +118,6 @@ class _PartEditUIState extends State<PartEditUI> {
           ],
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

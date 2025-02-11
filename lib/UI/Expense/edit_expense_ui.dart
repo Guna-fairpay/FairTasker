@@ -264,7 +264,7 @@ class _EditExpenseUIState extends State<EditExpenseUI>
                             if ((imageFile[index]['path'] ?? '').isEmpty) {
                               imageFile.removeAt(index);
                             } else {
-                              todoBloc!.add(DeleteExpenseImage(
+                              todoBloc!.add(DeleteExpenseTodoImage(
                                   id: imageFile[index]['id']));
                               imageFile.removeAt(index);
                             }
@@ -408,26 +408,27 @@ class _EditExpenseUIState extends State<EditExpenseUI>
           /*else if (amountController.text.isEmpty) {
               Utils.showMobileToast(Str.createTodoAlertText("Expense Amount"));
             } */
-          else {
+          /*else {
             todoBloc!.add(CreateExpenseTodo(
-                widget.expenseSummaryData!['id']!.toString(),
-                imageFile
-                    .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
-                    .where((element) => element != null)
-                    .cast<File>()
-                    .toList(),
-                selectedExpenseCategories!.todoId,
-                selectedExpenseSubCategories!.todoId,
-                selectedExpenseSubCategories!.expenseTo,
-                amountController.text,
-                expenseDescriptionController.text,
-                widget.expenseSummaryData!['cohort_id']!.toString(),
-                widget.expenseSummaryData!['vin'],
-                todoDateController.text,
-                widget.todoId,
-                '' /*odometerController.text*/,
-                dontUpdateTodosExpense: true));
-          }
+              *//*todoItem!.expenseId*//*
+
+              files: imageFile
+                  .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
+                  .where((element) => element != null)
+                  .cast<File>()
+                  .toList(),
+              selectedExpenseCategories!.todoId,
+              todoId:  selectedExpenseSubCategories!.todoId,
+              expenseTo:  selectedExpenseSubCategories!.expenseTo,
+              expenseAmount:  amountController.text,
+              expenseDescription: expenseDescriptionController.text,
+              cohortId:  widget.expenseSummaryData!['cohortId'].toString(),
+              vin:   widget.expenseSummaryData!['vin'],
+              date:  todoDateController.text,
+              odometer:  null,
+              expenseId: '', categoryId: null, paymentMethodId: '', subCategoryId: null,
+            ));
+          }*/
         }),
         const SizedBox(height: 15),
       ],

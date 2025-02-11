@@ -1321,6 +1321,8 @@ class TodoListRepo {
 
         ExpenseSummaryResponse expenseSummaryResponse =
         ExpenseSummaryResponse.fromJson(json.decode(response.body));
+
+        debugPrint('getAExpenseTodo api.statusCode: $expenseSummaryResponse');
         if (response.statusCode == 200 || response.statusCode == 201) {
           // Utils.showMobileToast(generalResponse.message!);
           return expenseSummaryResponse;
@@ -1445,8 +1447,64 @@ class TodoListRepo {
     }
   }
 
-  // date: 2023-10-05
-  // time: 14:30:00
+  Future<bool?> editExpenseTodo(
+      int? expenseId,
+      int? todoId,
+      int? paymentMethodId,
+      String? expenseAmount,
+      String? expenseDescription,
+      int? categoryId,
+      int? subcategoryId,
+      int? expenseTo,
+      String? cohortId,
+      String? vin,
+      String? expenseDate,
+      ) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      body = jsonEncode({
+        "type": "Inline",
+        "expense_id": expenseId,
+        "payment_method_id": paymentMethodId,
+        "expense_amount": expenseAmount,
+        "expense_description": expenseDescription,
+        "category_id": categoryId,
+        "subcategory_id": subcategoryId,
+        "expense_to": expenseTo,
+        "cohort_id": cohortId,
+        "vin": vin,
+        "expense_date": expenseDate,
+      });
+      debugPrint("editExpenseTodo apiUrl: $apiUrl");
+      debugPrint("editExpenseTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+          debugPrint('editExpenseTodo api.response.body: ${response.body}');
+          debugPrint('editExpenseTodo api.statusCode: ${response.statusCode}');
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+          if (generalResponse.status == 200 || generalResponse.status == 201) {
+            Utils.showMobileToast(generalResponse.message!);
+            return true;
+          } else {
+            Utils.showSomethingWentWrong();
+            return false;
+          }
+      }
+      else{
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    }catch(e){
+      log('editExpenseTodo.exception : ${e.toString()}');
+      return null;
+    }
+  }
+
+
+
   Future<bool?> editATodoDate(
       String todoId,
       String? todoDate,
@@ -2029,15 +2087,6 @@ class TodoListRepo {
           debugPrint('completeATodo api.response.body: ${response.body}');
           debugPrint('completeATodo api.statusCode: ${response.statusCode}');
 
-          // GeneralResponse generalResponse =
-          // GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          // Utils.showNoResultFound();
-          // return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          // return false;
-          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -2052,82 +2101,12 @@ class TodoListRepo {
     return null;
   }
 
-/*
-  Future<bool?> createExpense(List<File>? files, int? categoryId, int? subCategoryId, int? expenseTo,
-      String? expenseAmount, String? expenseDescription, String? cohortId , String? vin) async{
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}expenses";
-      debugPrint("createExpenseData apiUrl: $apiUrl");
-      var body = jsonEncode({
-        "category_id": categoryId.toString(),
-        "subcategory_id": subCategoryId.toString(),
-        "expense_to": expenseTo.toString(),
-        "expense_amount": expenseAmount??'',
-        "expense_description": expenseDescription??'',
-        "expense_date": Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
-        "cohort_id": cohortId??'',
-        "vin": vin??'',
-        "platform ": 'TaskerApp'
-      });
-      Map<String, String> reqMap = {};
-      reqMap["category_id"] = "$categoryId";
-      reqMap["subcategory_id"] = "$subCategoryId";
-      reqMap["expense_to"] = "$expenseTo";
-      reqMap["expense_amount"] = "$expenseAmount";
-      reqMap["expense_description"] = "$expenseDescription";
-      reqMap["expense_date"] = Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now());
-      reqMap["cohort_id"] = cohortId??'';
-      reqMap["vin"] = vin??'';
-      reqMap["platform"] = "TaskerApp";
-
-      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
-      request.headers.addAll(Utils.getHeaders());
-      int i=0;
-        for (var element in (files??[])) {
-          i++;
-          request.files.add(await http.MultipartFile.fromPath('files$i', element.path));
-        }
-      request.fields.addAll(reqMap);
-      var response = await request.send();
-      // return GeneralResponse.fromJson(json.decode(responseString));
-      debugPrint('createExpense.statusCode: ${response.statusCode}');
-
-      if (response != null) {
-        if (response.statusCode == 200) {
-          var responseData = await response.stream.toBytes();
-          var responseString = String.fromCharCodes(responseData);
-          // debugPrint('createExpenseData api.response.body: ${response.body}');
-          // debugPrint('createExpenseData api.statusCode: ${response.statusCode}');
-
-          */
-/*CommonResponse commonResponse =
-          CommonResponse.fromJson(json.decode(responseString));*/ /*
-
-          // Utils.showMobileToast(commonResponse.message!);
-          debugPrint('returning true');
-          return true;
-        } else {
-          debugPrint('returning false');
-          Utils.showSomethingWentWrong();
-          return false;
-        }
-      } else {
-        debugPrint('returning null1');
-        return null;
-      }
-    } catch (error) {
-      debugPrint('returning null');
-      debugPrint('createExpenseData.exception : ${error.toString()}');
-      return null;
-    }
-  }
-*/
-
-  Future<ExpenseSummaryResponse?> createExpense(
-      String? expenseId,
+  Future<Map<String, dynamic>?> createExpense(
+      int? expenseId,
       List<File>? files,
       int? categoryId,
       int? subCategoryId,
+      int? paymentId,
       int? expenseTo,
       String? expenseAmount,
       String? expenseDescription,
@@ -2138,7 +2117,7 @@ class TodoListRepo {
       String? odometer) async {
     try {
       String apiUrl = '';
-      if (expenseId != null && expenseId.isNotEmpty) {
+      if (expenseId != null) {
         apiUrl = "${Str.LIST_BASE_URL}expenses_update/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}expenses";
@@ -2148,13 +2127,14 @@ class TodoListRepo {
       Map<String, String> reqMap = {
         "category_id": "$categoryId",
         "subcategory_id": "$subCategoryId",
+        "payment_method_id": "$paymentId",
         "expense_to": "$expenseTo",
-        if (expenseAmount!.isNotEmpty) "expense_amount": expenseAmount,
+        "expense_amount": "$expenseAmount",
         "expense_description": "$expenseDescription",
-        "expense_date": expenseId != null && expenseId.isNotEmpty
+        "expense_date": expenseId != null
             ? "$expenseDate"
             : Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
-        "cohort_id": cohortId ?? '',
+        "cohort_id": cohortId??'',
         "vin": vin ?? '',
         "odometer": odometer ?? '',
         "type": "inline",
@@ -2165,14 +2145,9 @@ class TodoListRepo {
 
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
-
-      // Add fields to the request
       request.fields.addAll(reqMap);
-
-      // Add files to the request
       for (int i = 0; i < (files?.length ?? 0); i++) {
         var file = files![i];
-
         var multipartFile = http.MultipartFile.fromBytes(
           'files[$i]',
           (await file.readAsBytes()).toList(),
@@ -2185,20 +2160,9 @@ class TodoListRepo {
       debugPrint('createExpense.statusCode: ${streamedResponse.statusCode}');
 
       if (streamedResponse.statusCode == 200) {
-        // Successful response handling
         final http.Response response =
         await http.Response.fromStream(streamedResponse);
-        ExpenseSummaryResponse expenseSummaryResponse =
-        ExpenseSummaryResponse.fromJson(json.decode(response.body));
-
-        /*'expense_attachment': jsonEncode({
-            for(int i=0; i<(expenseSummaryResponse.data?[0].attachments??[]).length; i++)
-            '${expenseSummaryResponse.data?[0].attachments?[i].id}': expenseSummaryResponse.data?[0].attachments?[i].path,
-          }),*/
-        // Prepare the payload
-        // return editATodoDate(todoId.toString(), null, null, null, null, null, null, expenseSummaryResponse.data?[0].id.toString());
-
-        return expenseSummaryResponse;
+        return json.decode(response.body);
       } else {
         // Handle error response
         Utils.showSomethingWentWrong();
@@ -2209,64 +2173,6 @@ class TodoListRepo {
       return null;
     }
   }
-
-  /*
-  Future<bool?> createExpense(List<File>? files, int? categoryId, int? subCategoryId, int? expenseTo,
-      String? expenseAmount, String? expenseDescription, String? cohortId , String? vin) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse("${Str.LIST_BASE_URL}expenses"),
-    );
-
-    // Add files to the request
-    for (int i = 0; i < (files??[]).length; i++) {
-      */
-/*var file = files![i];
-      var stream = http.ByteStream.fromBytes(await file.readAsBytes());
-      var length = await file.length();
-      var multipartFile = http.MultipartFile('files', stream, length,
-          filename: 'file$i.jpg'); // You can change the filename as needed
-      request.files.add(multipartFile);*/ /*
-
-      request.files.add(await http.MultipartFile.fromPath('file$i', files![i].path));
-    }
-
-    // Add body parameters to the request
-    Map<String, String> bodyParams =
-    {"category_id": categoryId.toString(),
-      "subcategory_id": subCategoryId.toString(),
-      "expense_to": expenseTo.toString(),
-      "expense_amount": expenseAmount??'',
-      "expense_description": expenseDescription??'',
-      "expense_date": Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
-      "cohort_id": cohortId??'',
-      "vin": vin??'',
-      "platform ": 'TaskerApp'
-    };
-
-    Map<String, String> headers = {
-      'accept': 'application/json',
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $accessTokenGlobal'};
-
-    request.headers.addAll(headers);
-    request.fields.addAll(bodyParams);
-
-    try {
-      var response = await request.send();
-      if (response.statusCode == 200) {
-        debugPrint('Upload success');
-        return true;
-      } else {
-        debugPrint('Upload failed with status: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      debugPrint('Error during upload: $e');
-      return false;
-    }
-  }
-*/
 
   Future<ChatMessageResponse?> getChatsList(int sender, int receiver) async {
     try {
@@ -2960,7 +2866,11 @@ class TodoListRepo {
     }
   }
 
-  Future<CategoryConfigResponse?> createCategoryConfig(int? id,String? name,String? parentId,String? userType) async {
+  Future<CategoryConfigResponse?> createCategoryConfig(
+      int? id,
+      String? name,
+      int? parentId,
+      int? userType) async {
     try {
       String body = jsonEncode({
         "name": name,
@@ -2972,15 +2882,16 @@ class TodoListRepo {
 
       String apiUrl = '';
       http.Response? response;
+
       if(id != null) {
         apiUrl = "${Str.BASE_URL}updateTaskCategory/$id";
-        debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }else{
         apiUrl = "${Str.BASE_URL}addTaskCategory";
-        debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
+      log('getTaskCategoryGroup.exception : ${response?.body}');
+
       if (response != null) {
 
         CategoryConfigResponse categoryConfigResponse =
@@ -3050,14 +2961,20 @@ class TodoListRepo {
     }
   }
 
-  Future<TaskResponse?> createTask(int? id, String? task, String? category, String? subCategory,String? timeTaken,String? userType) async {
+  Future<TaskResponse?> createTask(
+      int? id,
+      int? categoryId,
+      int? subCategoryId,
+      String? task,
+      String? timeTaken,
+      int? userType) async {
     try {
       String body = jsonEncode({
-        "category_id": category,
-        "subcategory_id": subCategory,
+        "category_id": categoryId,
+        "subcategory_id": subCategoryId,
+        "task": task,
         "time_taken":timeTaken,
         "user_type":userType,
-        "task": task,
         "platform": "TaskerApp",
         "status": "1"
       });
@@ -3073,10 +2990,10 @@ class TodoListRepo {
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
+
       if (response != null) {
         TaskResponse taskResponse =
         TaskResponse.fromJson(json.decode(response.body));
-
         if (response.statusCode == 200) {
           return taskResponse;
         } else {
@@ -3093,7 +3010,7 @@ class TodoListRepo {
 
   Future<TaskResponse?> deleteTask(String? id) async {
     try {
-      String apiUrl = "${Str.LIST_BASE_URL}deleteDepartment/$id";
+      String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
 
       final http.Response? response = await apiClient.callDelete(apiUrl);
 

@@ -160,6 +160,7 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
+                      spacing: 10,
                       children: [
                         Row(
                           children: [
@@ -179,13 +180,13 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                               ),
                           ],
                         ),
-                          const SizedBox(height: 10),
                         Row(
+                          spacing: 10,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: Container(
-                                height: 30,
+                                height: 40,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: AppC.blue,
@@ -203,7 +204,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                                       const Icon(
                                         Icons.cloud_upload,
                                         color: AppC.blue,
-                                        size: 12,
                                       ),
                                       const SizedBox(
                                         width: 5,
@@ -214,10 +214,9 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 20),
                             Expanded(
                               child: Container(
-                                height: 30,
+                                height: 40,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: AppC.redAccent,
@@ -235,7 +234,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                                       const Icon(
                                         Icons.camera_enhance,
                                         color: AppC.redAccent,
-                                        size: 12,
                                       ),
                                       const SizedBox(
                                         width: 5,
@@ -294,11 +292,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                               }).toList(),
                             ),
                           ),
-
-                          const SizedBox(
-                            height: 10,
-                          ),
-
                           Utils.getTextFormField(
                               'Vehicle', vehicleController,
                               onChangeCallback: (value) async {
@@ -317,8 +310,8 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                               }
                             });
                           }),
-                        const SizedBox(height: 10),
                         Row(
+                          spacing: 20,
                           children: [
                             Expanded(
                               child: Utils
@@ -327,7 +320,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                                 amountController,
                               ),
                             ),
-                            const SizedBox(width: 20),
                             Expanded(
                               child: Utils.dropdownBox(
                                   'Select Category', paymentDropdownList,
@@ -519,7 +511,6 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                                   child: const Icon(
                                     Icons.date_range,
                                     color: AppC.appColor,
-                                    size: 16,
                                   ),
                                 ),
                                 readOnly: true,
@@ -554,38 +545,17 @@ class _ExpenseAddUIState extends State<ExpenseAddUI> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Stack(alignment: Alignment.centerRight, children: [
-                          Utils.getTextFormField(
-                            '',
-                            odometerController,
-                            contentPadding:
-                                const EdgeInsets.only(left: 10, right: 40),
-                            label: Utils.getText('Odometer', color: AppC.grey),
+                        Utils.getTextFormField(
+                          '',
+                          odometerController,
+                          contentPadding:
+                              const EdgeInsets.only(left: 10, right: 40),
+                          label: Utils.getText('Odometer', color: AppC.grey),
+                          suffixIcon: const Icon(
+                            Icons.speed,
+                            color: Colors.red,
                           ),
-                          Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                  height: 32,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                      color: AppC.grey.shade300,
-                                      borderRadius:
-                                          const BorderRadiusDirectional.only(
-                                        topEnd: Radius.circular(4),
-                                        bottomEnd: Radius.circular(4),
-                                      )),
-                                  child: const Icon(
-                                    Icons.speed,
-                                    size: 16,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ]),
+                        ),
                         const SizedBox(
                           height: 15,
                         ),

@@ -100,9 +100,16 @@ class _PartViewUIState extends State<PartViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text("Parts"),
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: ()=>Navigator.pop(context))
+        ],
       ),
       body: BlocProvider(
         create: (context) => partDataBloc..add(const GetPartsListV()),
@@ -113,7 +120,6 @@ class _PartViewUIState extends State<PartViewUI> {
           } else if (state is PartsListLoaded) {
             loading = false;
             filteredParts.clear();
-            filteredParts.addAll(state.partsDataList ?? []);
             List<Map<String, dynamic>> list = [];
             list.addAll(state.partsDataList ?? []);
             list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
@@ -129,28 +135,12 @@ class _PartViewUIState extends State<PartViewUI> {
           return Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
                 child: Column(
+                  spacing: 10,
                   children: [
                     Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Utils.getText('Parts',
-                            size: 20, weight: FontWeight.bold),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
+                      spacing:10,
                       children: [
                         Expanded(
                           child: SizedBox(
@@ -160,59 +150,32 @@ class _PartViewUIState extends State<PartViewUI> {
                             }, searchController),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        /*showDialog(
-                            context: context,
-                            builder: builder)*/
-                        Utils.getAddFilledButton('Add', () {
-                          _navigateToPartsAddUI();
-                        }),
+                        Utils.getAddElevatedButton(()=>
+                          _navigateToPartsAddUI()),
                       ],
                     ),
                     Expanded(
-                      child: ListView.builder(
+                      child: ListView.separated(
                         itemCount: filteredParts.length,
+                        separatorBuilder: (context, index) => const Divider(height: 0.5,),
                         itemBuilder: (context, index) {
                           final part = filteredParts[index];
-                          return Slidable(
-                            endActionPane: ActionPane(
-                              motion: const ScrollMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) => _deletePart(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                _navigateToEditPartUI(index);
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                color: AppC.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Utils.getText(
-                                          part['name'] ?? '',
-                                          weight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
+                          return GestureDetector(
+                            onTap: () {
+                              _navigateToEditPartUI(index);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Utils.getText(
+                                      part['name'] ?? '',
+                                      weight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
+                                  Icon(Icons.delete_outline,color: AppC.redAccent,)
+                                ],
                               ),
                             ),
                           );

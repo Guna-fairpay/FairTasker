@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/color_extension.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -81,7 +81,9 @@ class MyApp extends StatelessWidget {
           side: const WidgetStatePropertyAll(BorderSide.none),
         ),
         primarySwatch: AppC.appColor.toMaterialColor,
-        fontFamily: 'Lato',
+        textTheme: GoogleFonts.sairaTextTheme(
+          Typography.blackCupertino.copyWith()
+        ),
       ),
       builder: EasyLoading.init(),
       home: const SplashScreen(),

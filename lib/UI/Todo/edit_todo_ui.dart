@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/vehicle_expense_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -38,8 +38,9 @@ import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
+import 'todo_edti_expense/ui/Todo_edit_expense_ui.dart';
 import 'check_list_ui.dart';
-import 'maintenance_check_list_ui.dart';
+import 'maintenance/maintenance_check_list_ui.dart';
 
 class EditTodoUI extends StatefulWidget {
   final Map<String, dynamic> todoItem;
@@ -134,6 +135,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> userGroupList = [];
   List<Map<String, dynamic>> maintenanceCheckListData = [];
   List<Map<String, dynamic>> childrenData = [];
+  List<Map<String, dynamic>> categoryList = [];
+  List<Map<String, dynamic>> paymentList = [];
 
   List<String> vinList = [];
   List<String> selectedIds = [];
@@ -240,6 +243,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Map<String, String> taskNameList = {};
   Map<String, dynamic>? carName;
   Map<String, dynamic>? selectedResource;
+  Map<String, dynamic>? expenseData;
   late Map<String, dynamic> todoItem;
 
   dynamic existingExpenseDate;
@@ -456,18 +460,18 @@ class _EditTodoUIState extends State<EditTodoUI> {
     debugPrint('userName-1: $userShortName');
 
     if (todoItem['vin'] == null) {
-      if (todoItem['vehicles'] is List &&
-          todoItem['vehicles'].isNotEmpty &&
-          todoItem['vehicles'].length == 1) {
+      if (todoItem['vehicles'] is List && todoItem['vehicles'].isNotEmpty && todoItem['vehicles'].length==1) {
         vinToFind = todoItem['vehicles'][0]['vin'];
-      } else if (todoItem['vehicles'].length > 1) {
-        for (int i = 0; i < todoItem['vehicles'].length; i++) {
+      }
+      else if(todoItem['vehicles'].length > 1){
+        for(int i=0;i<todoItem['vehicles'].length;i++){
           vinList.add(todoItem['vehicles'][i]['vin']);
         }
       }
     } else {
       vinToFind = todoItem['vin'];
     }
+
 
     if (vehicleLists != null && vehicleLists!.isNotEmpty) {
       isVehiclePresented = true;
@@ -487,6 +491,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     //print("selectedLink----> $selectedLink");
     reservationController.text = todoItem['reference_id'] ?? "";
     reasonController.addListener(() {
+
       setState(() {});
     });
     if (todoItem['vehicles'] is List) {
@@ -494,12 +499,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
     }
 
     if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
-      todoImages.addAll(
-          (todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
+      todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
     }
 
     if (todoItem['users']?['id'] != null) {
-      selectedIds = ((todoItem['users']?['id']).toString()).split(',');
+      selectedIds=((todoItem['users']?['id']).toString()).split(',');
     }
 
     if (todoItem['user_group_id'] != null) {
@@ -514,6 +518,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
+
     super.initState();
   }
 
@@ -588,13 +593,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
             GestureDetector(
               child: Transform.scale(
                 scale: 0.6,
-                child: SizedBox(
-                  width: 40,
+                child: SizedBox(width: 40,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Switch(
                         trackOutlineColor: WidgetStateColor.resolveWith(
-                          (states) {
+                              (states) {
                             if (states.contains(WidgetState.selected)) {
                               return AppC.green;
                             } else {
@@ -636,19 +640,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 child: Icon(Icons.delete_outline, color: Colors.red),
               ),
               onTap: () {
-                DeletePermissionDialog.of.show(
-                  context,
-                  (val) {
-                    setState(() {
-                      if (val.isNotEmpty) {
-                        todoBloc?.add(
-                            DeleteTodoEvent(todoId: todoItem['id'].toString()));
-                        vehicleDataBloc?.add(vdb.DeleteExpense(
-                            id: widget.todoItem['expense_id']));
-                      }
-                    });
-                  },
-                );
+                DeletePermissionDialog.of.show(context, (val) {
+                  setState(() {
+                    if(val.isNotEmpty){
+                      todoBloc?.add(DeleteTodoEvent(
+                          todoId: todoItem['id'].toString()));
+                      vehicleDataBloc?.add(vdb.DeleteExpense(
+                          id: widget.todoItem['expense_id']));
+                    }
+                  });
+                },);
               },
             ),
             GestureDetector(
@@ -676,14 +677,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
             BlocProvider(
                 create: (context) => todoBloc!
                   ..add(widget.todoItem['expense_id'] != null &&
-                          widget.todoItem['expense_id']!.isNotEmpty
+                      widget.todoItem['expense_id']!.isNotEmpty
                       ? GetExpenseToData(
-                          expenseId: getEditedExpenseId(
-                              widget.todoItem['expense_id'] ?? ''))
+                      expenseId: getEditedExpenseId(
+                          widget.todoItem['expense_id'] ?? ''))
                       : const TodoViewInitialEvent())),
             BlocProvider(
               create: (context) =>
-                  vehicleDataBloc!..add(const vdb.VehicleInitial()),
+              vehicleDataBloc!..add(const vdb.VehicleInitial()),
             ),
             /*BlocProvider(
               create: (context) => locationDataBloc!..add(const AddedLocationInitial()),
@@ -693,6 +694,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
             listeners: [
               BlocListener<TodoViewBloc, TodoViewState>(
                 listener: (context, state) async {
+
                   if (state is VehicleDataLoaded) {
                     vehicleList.addAll(state.vehicleData ?? []);
                     editMultipleVehicleList.addAll(state.vehicleData ?? []);
@@ -716,11 +718,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         orElse: () => {},
                       );
                     }
+
                     if (todoItem['vin'] == null) {
                       if (selectedVin != null && selectedVin['vin'] != null) {
                         vin = selectedVin['vin'];
-                      } else if (todoItem['vehicles'] is List &&
-                          todoItem['vehicles'].isNotEmpty) {
+                      } else if (todoItem['vehicles'] is List && todoItem['vehicles'].isNotEmpty) {
                         vin = todoItem['vehicles'][0]?['vin'];
                       }
                     } else {
@@ -787,8 +789,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           state.createExpenseFieldData!.cohortsData ?? [];
                       if (categoriesData.isEmpty) {
                         categoriesData =
-                            state.createExpenseFieldData!.expenseCategories ??
-                                [];
+                            state.createExpenseFieldData!.expenseCategories ??  [];
                       }
                     }
                     setState(() {
@@ -807,12 +808,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     //     selectedResource = resource;
                     //   }
                     // }
-                    for (Map<String, dynamic> res
-                        in resourceListForCombination) {
+                    for (Map<String, dynamic> res in resourceListForCombination) {
                       Map<String, dynamic> vehiclesData = {
                         'id': res['id'],
                         'vehicle_name':
-                            '${res['first_name']}${res['last_name']}',
+                        '${res['first_name']}${res['last_name']}',
                         //'isSelected': false
                       };
                       editMultipleVehicleList.add(vehiclesData);
@@ -825,6 +825,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     setState(() {
                       isDataLoaded = true;
                     });
+                  }
+                  else if (state is CohortsListLoaded) {
+                    categoryList.clear();
+                    categoryList.addAll(state.expenseData ?? []);
                   } else if (state is VendorLoaded) {
                     vendorList = state.resource ?? [];
                     setState(() {
@@ -849,10 +853,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       expenseIdsCount++;
                       if (expenseIds.isEmpty) {
                         expenseIds =
-                            '${state.expenseSummaryResponse!.data![0]['id']}';
+                        '${state.expenseSummaryResponse!.expense![0]['id']}';
                       } else {
                         expenseIds =
-                            '$expenseIds,${state.expenseSummaryResponse!.data![0]['id']}';
+                        '$expenseIds,${state.expenseSummaryResponse!.expense![0]['id']}';
                         if (expenseIdsCount ==
                             vehicleGroupVinNumbersList!.length) {
                           todoBloc!.add(EditTodoDate(
@@ -886,9 +890,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         isPartChecked = true;
                         selectedPartsList.clear();
                         for (Map<String, dynamic> parts
-                            in widget.todoItem['parts']!) {
+                        in widget.todoItem['parts']!) {
                           for (Map<String, dynamic> partsData
-                              in editPartsList) {
+                          in editPartsList) {
                             if (parts['parts_id'] ==
                                 partsData['id'].toString()) {
                               partIsSelected = true;
@@ -916,9 +920,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           widget.todoItem['supplies']!.isNotEmpty) {
                         isSupplyChecked = true;
                         for (Map<String, dynamic> supply
-                            in widget.todoItem['supplies']!) {
+                        in widget.todoItem['supplies']!) {
                           for (Map<String, dynamic> supplyData
-                              in editSuppliesList) {
+                          in editSuppliesList) {
                             if (supply['supplies_id'] ==
                                 supplyData['id'].toString()) {
                               suppliesIsSelected = true;
@@ -937,7 +941,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
                     if (editVehiclePersonController.text.isEmpty) {
                       for (Map<String, dynamic> vehicleGroupData
-                          in vehicleGroupList) {
+                      in vehicleGroupList) {
                         if (vehicleGroupData['id'] ==
                             todoItem['vehicle_group_id']) {
                           vehicleGroupName = vehicleGroupData['name'] ?? '';
@@ -952,59 +956,15 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     });
                   }
                   else if (state is ExpenseTodoLoaded) {
-                    existingExpenseDate = state.expenseSummaryData;
-                    if(existingExpenseDate != null && existingExpenseDate.isNotEmpty)
-                    {
-                      final expense = existingExpenseDate[0];
-                      expenseDescriptionController.text = expense['expense_description'] ?? '';
-                      if (editedExpenseIdsLength != null) {
-                        amountController.text =
-                            ((expense['expense_amount'] ?? 0) *
-                                editedExpenseIdsLength!)
-                                .toString();
-                      } else {
-                        amountController.text =
-                            (expense?['expense_amount'] ?? 0)
-                                .toString();
-                      }
-                      attachmentImage =
-                      (expense['attachments'] ?? []);
-                      if ((expense?['category_id'] ?? 0) != 0) {
-                        categoriesData.clear();
-                        categoriesData = (widget.categoriesListData ?? []);
-                        for (int i = 0;
-                        i < (widget.categoriesListData ?? []).length;
-                        i++) {
-                          // var element = categoriesData[i];
-                          if (widget.categoriesListData![i]['id'] ==
-                              (expense?['category_id'] ?? 0)) {
-                            selectedExpenseCategories =
-                            widget.categoriesListData![i];
-                            expense?['category_name'] =
-                            widget.categoriesListData![i]['name'];
-                            subCategoriesData = (widget.categoriesListData![i]
-                            ['subcategories'] ??
-                                []);
-                            for (var element1 in (widget.categoriesListData![i]
-                            ['subcategories'] ??
-                                [])) {
-                              if (element1.todoId ==
-                                  (expense?['subcategory_id'] ?? 0)) {
-                                selectedExpenseSubCategories = element1;
-                                expense?['subcategory_name'] =
-                                    element1.name;
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                    else {
-                      print('Error: expenseSummaryData is null or empty.');
-                    }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    expenseData = state.expenseSummaryData??{};
+                    print("expenseData: $expenseData");
+                  }
+                  else if (state is TaskExpenseLoaded) {
+                    taskExpenseList.addAll(state.resource ?? []);
+                  }
+                  else if (state is PaymentListLoaded) {
+                    paymentList.clear();
+                    paymentList.addAll(state.data ?? []);
                   }
                 },
               ),
@@ -1023,10 +983,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       vehicleDataBloc!.add(vdb.GetVehicleHistoryEvent(
                           vin: createTodoParamForVHistory.vin,
                           vehicleGroupId: createTodoParamForVHistory
-                                      .vehicleGroupId !=
-                                  null
+                              .vehicleGroupId !=
+                              null
                               ? int.parse(
-                                  createTodoParamForVHistory.vehicleGroupId!)
+                              createTodoParamForVHistory.vehicleGroupId!)
                               : null,
                           needUI: true));
                     }
@@ -1035,7 +995,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       todoList.clear();
                       todoListRepo.vehicleHistoryTempSearchList.clear();
                       for (Map<String, dynamic> todos
-                          in state.vehicleHistoryList!) {
+                      in state.vehicleHistoryList!) {
                         if (todos['status'] == 'Completed') {
                           textColors = AppC().base;
                         } else {
@@ -1069,82 +1029,83 @@ class _EditTodoUIState extends State<EditTodoUI> {
             ],
             child: BlocBuilder<TodoViewBloc, TodoViewState>(
                 builder: (context, state) {
-              return SafeArea(
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          showList = false;
-                          showVehiclePersonList = false;
-                          showVendorLocationList = false;
-                          editShowList = false;
-                          editShowVehiclePersonList = false;
-                          editShowVendorLocationList = false;
-                          editShowPartsList = false;
-                          editShowSuppliesList = false;
-                          editShowMultipleAddressList = false;
-                          setState(() {});
-                        },
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding:
+
+                  return SafeArea(
+                    child: Stack(
+                      children: [
+                        SingleChildScrollView(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              showList = false;
+                              showVehiclePersonList = false;
+                              showVendorLocationList = false;
+                              editShowList = false;
+                              editShowVehiclePersonList = false;
+                              editShowVendorLocationList = false;
+                              editShowPartsList = false;
+                              editShowSuppliesList = false;
+                              editShowMultipleAddressList = false;
+                              setState(() {});
+                            },
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
                                   const EdgeInsets.symmetric(horizontal: 15),
-                              child: editTodoWidget(),
-                            ),
-                            Padding(
-                              padding:
+                                  child: editTodoWidget(),
+                                ),
+                                Padding(
+                                  padding:
                                   const EdgeInsets.symmetric(horizontal: 15),
-                              child: Column(
-                                children: [
-                                  showBottomTabWidget(),
-                                ],
-                              ),
+                                  child: Column(
+                                    children: [
+                                      showBottomTabWidget(),
+                                    ],
+                                  ),
+                                ),
+                                if (showExpenseTab == 0)
+                                  TodoEditExpenseUI(
+                                    expenseData: existingExpenseDate,
+                                    vehicle: vehicle,
+                                    vehicleName: vehicleName,
+                                    taskList: taskExpenseList,
+                                    todoData: todoItem,
+                                  )
+                                else if (showExpenseTab == 1)
+                                  const CreateTodoUI(showHeader: false)
+                                else if (showExpenseTab == 2)
+                                   CheckListUI(
+                                       checkListData:checkListData,
+                                     todoItems: todoItem,
+                                   )
+                                  else if (showExpenseTab == 3)
+                                      MaintenanceCheckListUI(
+                                        maintenance: maintenanceCheckListData,
+                                        todoItems: todoItem,
+                                      )
+                                    else if (showExpenseTab == 4)
+                                        VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,)
+                                      else if (showExpenseTab == 5)
+                                          TotoExpense(expenseId: todoItem['expense_id'],)
+                                      else
+                                        Container(
+                                          margin: const EdgeInsets.only(top: 30),
+                                          child:
+                                          Utils.getText('No Vehicle Exist', size: 16),
+                                        ),
+                              ],
                             ),
-                            if (showExpenseTab == 0)
-                              const ExpenseEditUI(
-                                showHeader: false,
-                                expense: {},
-                              )
-                            else if (showExpenseTab == 1)
-                              const CreateTodoUI(showHeader: false)
-                            else if (showExpenseTab == 2)
-                              CheckListUI(
-                                checkListData: checkListData,
-                                todoItems: todoItem,
-                              )
-                            else if (showExpenseTab == 3)
-                              MaintenanceCheckListUI(
-                                maintenance: maintenanceCheckListData,
-                                todoItems: todoItem,
-                              )
-                            else if (showExpenseTab == 4)
-                              VehicleEditUI(
-                                vehicle: setVehicleList,
-                                showHeader: false,
-                                data: selectedDropDownData,
-                              )
-                            else
-                              Container(
-                                margin: const EdgeInsets.only(top: 30),
-                                child:
-                                    Utils.getText('No Vehicle Exist', size: 16),
-                              ),
-                          ],
+                          ),
                         ),
-                      ),
+                        Visibility(
+                            visible: state is TodoListLoading || state is vdb.VehicleDataLoading,
+                            child: Center(child: Utils.getProgressIndicator(context))
+                        )
+                      ],
                     ),
-                    Visibility(
-                        visible: state is TodoListLoading ||
-                            state is vdb.VehicleDataLoading,
-                        child:
-                            Center(child: Utils.getProgressIndicator(context)))
-                  ],
-                ),
-              );
-            }),
+                  );
+                }),
           ),
         ));
   }
@@ -1830,43 +1791,29 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                           }
                                                           if (partId != 0) {
                                                             todoBloc!.add(
-                                                                DeletePartsEvent(
-                                                                    partsId:
-                                                                        partId));
+                                                                DeletePartsEvent(partsId: partId));
                                                           }
                                                           selectedPartsList
                                                               .removeAt(idx);
                                                           setState(() {});
                                                         },
-                                                        side: const BorderSide(
-                                                            color: AppC.trans),
+                                                        side: const BorderSide(color: AppC.trans),
                                                         deleteIcon: const Icon(
                                                           Icons.close,
                                                           color: AppC.red,
                                                           size: 18,
                                                         ),
-                                                        backgroundColor:
-                                                            const Color(
-                                                                0xffb5d2bb),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5)),
+                                                        backgroundColor: const Color(0xffb5d2bb),
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(5)),
                                                         // side: BorderSide(),
                                                         label: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
+                                                          mainAxisSize: MainAxisSize.min,
                                                           children: [
                                                             Utils.getText(
-                                                                selectedPartsList[
-                                                                            idx]
-                                                                        [
-                                                                        'name'] ??
+                                                                selectedPartsList[idx]['name'] ??
                                                                     '',
-                                                                color:
-                                                                    AppC.text),
+                                                                color: AppC.text),
                                                           ],
                                                         ),
                                                       ));
@@ -2190,37 +2137,33 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                   offset.dy + size.height,
                                                   offset.dx + size.width,
                                                   offset.dy,
-                                                ),
-                                                // Adjust as needed
+                                                ), // Adjust as needed
                                                 items: [
                                                   PopupMenuItem(
-                                                    height: 30,
+                                                    height:30,
                                                     child: Builder(
                                                         builder: (context) {
-                                                      return Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Expanded(
-                                                            child: SizedBox(
-                                                              height: 30,
-                                                              child: Utils
-                                                                  .getTextFormField(
-                                                                'Reservation',
-                                                                reservationController,
+                                                          return Row(
+                                                            mainAxisAlignment:
+                                                            MainAxisAlignment.start,
+                                                            children: [
+                                                              Expanded(
+                                                                child: SizedBox(
+                                                                  height:30,
+                                                                  child: Utils.getTextFormField(
+                                                                    'Reservation',
+                                                                    reservationController,
+                                                                  ),
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ),
-                                                          InkWell(
-                                                            onTap: () {
-                                                              Navigator.pop(
-                                                                  context); // Close the popup menu
-                                                            },
-                                                            child:
-                                                                const Padding(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
+                                                              InkWell(
+                                                                onTap: () {
+                                                                  Navigator.pop(
+                                                                      context); // Close the popup menu
+                                                                },
+                                                                child: const Padding(
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
                                                                       horizontal:
                                                                           8.0),
                                                               child: Icon(
@@ -2242,12 +2185,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                     BorderRadius.circular(4),
                                                 color: AppC.appColor,
                                               ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                      vertical: 3.0),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8.0, vertical: 3.0),
                                               child: Utils.getText(
-                                                selectedLink['id'] == '1'
+                                                selectedLink['id'] =='1'
                                                     ? '+ Link'
                                                     : '+ Reservation',
                                                 color: AppC.white,
@@ -3041,9 +2982,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (selectedIds.isNotEmpty) {
         if (selectedIds.length == 1) {
           editCreateTodoParams.selectedUserId = int.parse(selectedIds.first);
-          editCreateTodoParams.assignedTo = [
-            editCreateTodoParams.selectedUserId
-          ];
+          editCreateTodoParams.assignedTo = [editCreateTodoParams.selectedUserId];
         } else {
           editCreateTodoParams.selectedUserGroupId =
               selectedIds.map(int.tryParse).whereType<int>().toList();

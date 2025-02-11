@@ -64,7 +64,7 @@ class Utils {
               align: TextAlign.center),
               const SizedBox(height: 8),
               Utils.getText(
-                confirmText,
+                "Do you want to delete this $confirmText",
                 size: 12,
                 color: Colors.black54,
                 align: TextAlign.center,
@@ -109,6 +109,123 @@ class Utils {
         // bool requestFocusOnTap = false,
         // bool enableFilter = false,
          dynamic selectedKey,
+        double topLRadius=4,
+        double topRRadius=4,
+        double bottomLRadius=4,
+        double bottomRRadius=4,
+
+        // Color? arrowColor=AppC.appColor,
+        // TextEditingController? controller,
+      }) {
+    return Container(
+       //height: 35,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: AppC.fieldBase,
+          width: Num.borderWidthField,
+        ),
+        borderRadius:  BorderRadius.only(
+            topLeft: Radius.circular(topLRadius),
+            topRight: Radius.circular(topRRadius),
+            bottomLeft: Radius.circular(bottomLRadius),
+            bottomRight: Radius.circular(bottomRRadius))
+
+      ),
+      child: Stack(
+        children: [
+          // Container(
+          //   alignment: Alignment.centerRight,
+          //   child: const Padding(
+          //     padding: EdgeInsets.only(right: 20.0),
+          //     child: Icon(
+          //       Icons.keyboard_arrow_down_sharp,
+          //       color:AppC.appColor,
+          //       size: 14,
+          //     ),
+          //   ),
+          // ),
+          DropdownMenu<dynamic>(
+            key: ValueKey(selectedKey),
+            initialSelection: initialSelection,
+           // controller: controller,
+            hintText: hintText,
+            menuHeight: 250,
+
+            //enableSearch: enableSearch,
+          //  requestFocusOnTap:requestFocusOnTap ,
+           // enableFilter: enableFilter,
+            /*trailingIcon: const Icon(
+              Icons.keyboard_arrow_down_sharp,
+              size: 12,
+              // color: AppC.trans,
+            ),
+            selectedTrailingIcon: const Icon(
+              Icons.keyboard_arrow_down_sharp,
+              size: 12,
+              // color: AppC.trans,
+            ),*/
+            textStyle: const TextStyle(
+              color: AppC.text,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                overflow: TextOverflow.ellipsis),
+            inputDecorationTheme: const InputDecorationTheme(
+              contentPadding: EdgeInsets.all(10),
+              border: InputBorder.none,
+              // suffixIconColor: AppC.trans,
+              isCollapsed: true,
+              isDense: true,
+              constraints: BoxConstraints(maxHeight: 40)
+            ),
+            searchCallback: (entries, query) {
+              if (query.isEmpty) return null;
+              final int index = entries.indexWhere((entry) => entry.label == query);
+              return index != -1 ? index : null;
+            },
+            menuStyle: MenuStyle(
+              backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+              visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+            ),
+            expandedInsets: const EdgeInsets.only(top: 50),
+            dropdownMenuEntries:
+                listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
+              (dynamic value){
+                return  DropdownMenuEntry<Map<String, dynamic>>(
+                  value: value,
+                  label: '${value[labelKey]??''}'.trim(),
+                  /*style: ButtonStyle(
+                    textStyle: WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.w500)),
+                    backgroundColor: WidgetStatePropertyAll(((selectedKey is Map<String, dynamic>) && (value[labelKey] == selectedKey?[labelKey])) ? AppC.text : AppC.trans),
+                     foregroundColor: WidgetStatePropertyAll(((selectedKey is Map<String, dynamic>) && (value[labelKey] == selectedKey?[labelKey])) ? AppC.white : AppC.text),
+                  )*/
+                ) ;
+              },
+            ).toList(),
+            onSelected: (selectedValue) {
+              onSelected(selectedValue); // Adjust this as per the expected key
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  static Widget dropdownBoxSmallSize(
+      String hintText,
+      List<dynamic> listData,
+      Function(dynamic selectedValue) onSelected,
+      {required String labelKey,
+        dynamic initialSelection,
+        // bool enableSearch = false,
+        // bool requestFocusOnTap = false,
+        // bool enableFilter = false,
+        dynamic selectedKey,
+        double topLRadius=4,
+        double topRRadius=4,
+        double bottomLRadius=4,
+        double bottomRRadius=4,
+
         // Color? arrowColor=AppC.appColor,
         // TextEditingController? controller,
       }) {
@@ -142,19 +259,19 @@ class Utils {
            // controller: controller,
             hintText: hintText,
             menuHeight: 250,
-            //enableSearch: enableSearch,
-          //  requestFocusOnTap:requestFocusOnTap ,
+           // enableSearch: enableSearch,
+           // requestFocusOnTap:requestFocusOnTap ,
            // enableFilter: enableFilter,
-            trailingIcon: const Icon(
+            /*trailingIcon: const Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 12,
               color: AppC.trans,
-            ),
-            selectedTrailingIcon: const Icon(
+            ),*/
+            /*selectedTrailingIcon: const Icon(
               Icons.keyboard_arrow_down_sharp,
               size: 12,
               color: AppC.trans,
-            ),
+            ),*/
             textStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -181,11 +298,11 @@ class Utils {
             ),
             expandedInsets: const EdgeInsets.only(top: 50),
             dropdownMenuEntries:
-                listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-              (dynamic value){
+            listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
+                  (dynamic value){
                 return DropdownMenuEntry<Map<String, dynamic>>(
                   value: value,
-                  label: '${value[labelKey]??''}'.trim(),
+                  label: '${value[labelKey]??''}',
                 );
               },
             ).toList(),
@@ -197,6 +314,7 @@ class Utils {
       ),
     );
   }
+
 
   static Widget dropdownSearchBox(
       String hintText,
@@ -309,6 +427,44 @@ class Utils {
     return format.format(dateTime);
   }
 
+  static Widget getElevatedButton(
+      VoidCallback onPressedCallback, {
+        String text='Add',
+        Color? bgColor=AppC.appColor,
+        Color textColor = AppC.white,
+        double borderRadius = Num.subradiusButton,
+        double textSize= 12,
+        IconData? icon,
+      }) {
+    return ElevatedButton.icon(
+        onPressed: onPressedCallback,
+      label: Utils.getText(text, color: AppC.white, weight: FontWeight.bold),
+      icon: icon != null ? Icon(icon) : const SizedBox(),
+      style: ButtonStyle(
+          backgroundColor:  WidgetStatePropertyAll(bgColor),
+          iconColor: const WidgetStatePropertyAll(AppC.white),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16)))),
+    );
+  }
+
+  static Widget getAddElevatedButton(
+      VoidCallback onPressedCallback, {
+        Color? bgColor=AppC.appColor,
+        Color textColor = AppC.white,
+        double borderRadius = Num.subradiusButton,
+      }) {
+    return ElevatedButton(
+      onPressed: onPressedCallback,
+      style: ButtonStyle(
+          backgroundColor:  WidgetStatePropertyAll(bgColor),
+          iconColor: const WidgetStatePropertyAll(AppC.white),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16)))),
+      child: Icon(Icons.add,size: 20,color: textColor,),
+    );
+  }
+
   static Widget getAddFilledButton(
     String textLabel,
     VoidCallback onPressedCallback, {
@@ -405,7 +561,7 @@ class Utils {
       Widget? label,
       double textSize = 12,
       Color textColor = AppC.text,
-      FontWeight fontWeight = FontWeight.normal,
+      FontWeight fontWeight = FontWeight.w300,
       bool readOnly = false,
       bool autoFocus = false,
       ValueChanged? onChangeCallback,
@@ -548,8 +704,8 @@ class Utils {
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.text,
       Color? fillColor=AppC.white,
-
       int minLines = 5,
+      int? maxLines,
       Widget? label,
       bool autofocus = false}) {
     return TextFormField(
@@ -559,12 +715,13 @@ class Utils {
       controller: controller,
       keyboardType: TextInputType.text,
       maxLength: null,
-      maxLines: null,
+      maxLines: maxLines,
       minLines: minLines,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12.0, vertical: 5),        label: label,
+            horizontal: 12.0, vertical: 10),
+        label: label,
         hintText: labelText,
         hintStyle: TextStyle(color: hintTextColor),
         filled: true,
@@ -2561,16 +2718,29 @@ class Utils {
   static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
       TextEditingController searchController) {
     return SearchBar(
-        shadowColor: WidgetStateProperty.all(Colors.white),
-        backgroundColor: WidgetStateProperty.all(Colors.white),
+
+      backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+      textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+      padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+      shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(16))),
+      elevation: const WidgetStatePropertyAll(0),
+      side: const WidgetStatePropertyAll(BorderSide.none),
+
+        // padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+        // shadowColor: WidgetStateProperty.all(Colors.white),
+        // backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
         controller: searchController,
         onTap: onTap,
+        // shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+        //     borderRadius: BorderRadius.circular(16))),
         onChanged: onChange,
         leading: const Icon(Icons.search,color: AppC.text,),
-        textStyle: WidgetStateProperty.all(Utils.getTextStyle()),
-        elevation: WidgetStateProperty.all(0),
-        hintText: 'Search',
-        hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
+        // textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+        // elevation: WidgetStateProperty.all(0),
+        hintText: 'Search...',
+      // side: const WidgetStatePropertyAll(BorderSide.none),
+      hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
               (Set<WidgetState> states) {
             // Define different styles for different states
             if (states.contains(WidgetState.focused)) {
@@ -2580,10 +2750,10 @@ class Utils {
             }
           },
         ),
-        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+        /*shape: WidgetStateProperty.all(RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: const BorderSide(color: AppC.fieldBase),
-        )));
+        ))*/);
   }
 
 /*  static Widget getSearchBarUI(

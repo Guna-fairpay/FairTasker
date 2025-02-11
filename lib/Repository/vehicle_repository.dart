@@ -299,18 +299,13 @@ class VehicleDataRepo {
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
           debugPrint('deleteExpenseImages api.response.body: ${response.body}');
-          debugPrint(
-              'deleteExpenseImages api.statusCode: ${response.statusCode}');
+          debugPrint('deleteExpenseImages api.statusCode: ${response.statusCode}');
 
-          // GeneralResponse generalResponse =
-          // GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          // Utils.showNoResultFound();
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+          if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showNoResultFound();}
           return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          return false;
-          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;

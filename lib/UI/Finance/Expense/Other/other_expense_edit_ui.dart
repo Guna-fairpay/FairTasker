@@ -25,10 +25,7 @@ class _OtherEditUiState extends State<OtherEditUi> {
   final TextEditingController amountController= TextEditingController();
   final TextEditingController descriptionController=TextEditingController();
   final TextEditingController dateController=TextEditingController();
-  //dynamic selectedName;
   dynamic selectedCategory;
-  //dynamic selectedExpenseTo;
-  //dynamic selectedCategory;
   dynamic selectedSubCategory;
   dynamic selectedPayment;
   dynamic selectedChoice;
@@ -66,8 +63,8 @@ class _OtherEditUiState extends State<OtherEditUi> {
     descriptionController.text = widget.existingData['expense_description']?? '';
     selectedDates=DateTime.tryParse(widget.existingData['expense_date']);
     dateController.text = widget.existingData['expense_date'];
-    if (widget.existingData['category_id'] != null) {
-      selectedCategory = categoryNames.firstWhere(
+      if (widget.existingData['category_id'] != null) {
+        selectedCategory = categoryNames.firstWhere(
             (category) => category['id'] == widget.existingData['category_id'],
         orElse: () => {},
       );

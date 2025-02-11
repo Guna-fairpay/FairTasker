@@ -1,14 +1,14 @@
 
+import 'dart:math';
+
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/category_config_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/category_config_edit_ui.dart';
 import 'package:flutter/material.dart';
-import '../../../../Component/drawer_ui.dart';
 import '../../../../Event/todo_view_event.dart';
 import '../../../../State/todo_view_state.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/utils.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoryConfigViewUI extends StatefulWidget {
@@ -25,7 +25,6 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
   final FocusNode searchFocusNode = FocusNode();
   List<Map<String,dynamic>> categoryConfig = [];
   List<Map<String,dynamic>> filteredConfig = [];
-  List<Map<String,dynamic>> category = [];
 
   bool loading=true;
 
@@ -48,13 +47,13 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
   void _navigateToCategoryConfigAddUI() async {
     final newConfig = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) => const CategoryConfigAddUI()),
+      MaterialPageRoute(builder: (context) => CategoryConfigAddUI(category: categoryConfig,)),
     );
-
     if (newConfig != null) {
+      print( "Name : ${newConfig['name']}",);
       todoViewBloc.add(AddCategoryConfigData(
           name: newConfig['name'],
-          userType: newConfig['todo_user_type'].toString(),
+          userType: newConfig['todo_user_type'],
           parentId: newConfig['parent_id'],
           id: newConfig['id']));
       todoViewBloc.add(const GetCategoryConfigData());
@@ -71,11 +70,10 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
         ),
       ),
     );
-
     if (updateConfig != null) {
       todoViewBloc.add(AddCategoryConfigData(
           name: updateConfig['name'],
-          userType: updateConfig['todo_user_type'].toString(),
+          userType: updateConfig['todo_user_type'],
           parentId: updateConfig['parent_id'],
           id: updateConfig['id']));
       todoViewBloc.add(const GetCategoryConfigData());
@@ -84,43 +82,15 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
     }
   }
 
-
   void _deleteConfig(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context,'Category');
     if (confirmed == true) {
-     final delete=filteredConfig[index];
-     todoViewBloc.add(DeleteCategoryConfig(id: delete['id'].toString())
-     );
-     todoViewBloc.add(const GetCategoryConfigData());
+      final delete=filteredConfig[index];
+      todoViewBloc.add(DeleteCategoryConfig(id: delete['id'].toString())
+      );
+      todoViewBloc.add(const GetCategoryConfigData());
       Utils.showMobileToast('Deleted!');
     }
-  }
-
-
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content: Utils.getText('Are you sure you want to delete this task?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Confirm the deletion
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cancel the deletion
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -137,10 +107,12 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
               else if (state is CategoryConfigListLoaded) {
                 loading = false;
                 categoryConfig.clear();
-                categoryConfig.addAll(state.data??[]);
-                filteredConfig.addAll(state.data??[]);
-                filteredConfig = List.from(state.data??[]);
-                //List<String> reversedAnimals = filteredConfig.reversed.toList();
+                List<Map<String, dynamic>> list = [];
+                list.addAll(state.data ?? []);
+                list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+                .compareTo(DateTime.parse(a['created_at'] ?? '')));
+                categoryConfig=list;
+                filteredConfig.addAll(categoryConfig);
               }
               else if (state is CategoryConfigLoaded){
                 loading = false;
@@ -157,7 +129,7 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
               children: [
                 Column(
                   children: [
-                    Row(
+                    Row(spacing: 10,
                       children: [
                         Expanded(
                           child: SizedBox(
@@ -173,17 +145,34 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          height: 40,
-                          child: Utils.getAddFilledButton('Add', () {
-                            _navigateToCategoryConfigAddUI();
-                          }),
-                        ),
+                        Utils.getAddElevatedButton(
+                              ()=> _navigateToCategoryConfigAddUI(),),
                       ],
                     ),
+                    ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Container(
+                        color: AppC.blue50,
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: Utils.getText(
+                                'Name',
+                                weight: FontWeight.bold)
+                            ),
+                            Expanded(child: Utils.getText(
+                              'Category',
+                               weight: FontWeight.bold)
+                            ),
+                            const SizedBox(width: 25,)
+                          ],
+                        ),
+                      ),
+                    ),
                     Expanded(
-                      child: ListView.builder(
+                      child: ListView.separated(
                         itemCount: filteredConfig.length,
                         itemBuilder: (_, index) {
                           final config = filteredConfig[index];
@@ -191,68 +180,65 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                                 (cat) => cat['id'] == config['parent_id'],
                             orElse: () => {},
                           );
-                          return Slidable(
-                            key: ValueKey(filteredConfig[index]),
-                            endActionPane: ActionPane(
-                              motion: const DrawerMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed:(context) => _deleteConfig(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
+                          return GestureDetector(
+                            onTap: () => _navigateToCategoryConfigEditUI(index),
+                            child: ListTile(
+                              dense: true,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                spacing: 10,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Utils.getText(
+                                          config['name'] ?? '',
+                                          weight: FontWeight.bold,
 
-                                _navigateToCategoryConfigEditUI(index);
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                color: AppC.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-
-                                      Utils.getText(
-                                        config['name'] ?? '',
-                                        weight: FontWeight.bold,
-
-                                      ),
-                                      Utils.getText(
-                                        parentCategory['name'] ?? '',
-                                        weight: FontWeight.bold,
-                                        color: AppC.subText,
-                                      ),
-                                    ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Utils.getText(
+                                          parentCategory['name'] ?? '',
+                                          weight: FontWeight.bold,
+                                          color: AppC.subText,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => _deleteConfig(index),
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: AppC.redAccent,
+                                    ),
+                                  ),
+                                ],
                               ),
+
                             ),
                           );
-                        },
+                        }, separatorBuilder: (context, index) =>const Divider(height: 0.5,),
                       ),
                     ),
                   ],
                 ),
                 Visibility(
                     visible: loading,
-                    child: Center(child: Utils.getProgressIndicator(context)))
+                    child: Center(child: Utils.getProgressIndicator(context))
+                ),
               ],
             );
           }
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

@@ -1,9 +1,7 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart'; // Import the Slidable package
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../Component/drawer_ui.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
@@ -129,9 +127,16 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text('Supplies'),
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: ()=>Navigator.pop(context))
+        ],
       ),
       body: BlocProvider(
         create: (_) => suppliesDataBloc,
@@ -157,103 +162,61 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
           return Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15),
                 child: Column(
                   children: [
                     Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Utils.getText('Supplies',
-                            size: 20, weight: FontWeight.bold),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
+                      spacing: 10,
                       children: [
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {
-                              // onTap action for search bar if needed
-                            }, (value) {
-                              _filterSupplies(value);
-                            }, searchController,),
+                            child: Utils.getSearchBarUI(
+                              () {
+                                // onTap action for search bar if needed
+                              },
+                              (value) {
+                                _filterSupplies(value);
+                              },
+                              searchController,
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          height: 40,
-                          child: Utils.getAddFilledButton('Add', () {
-                            _navigateToSuppliesAddUI();
-                          }),
+                        Utils.getAddElevatedButton(()=>
+                          _navigateToSuppliesAddUI(),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
                     Expanded(
-                      child: ListView.builder(
+                      child: ListView.separated(
                         itemCount: filteredSupplies.length,
+                        separatorBuilder: (context,index) => const Divider(height: 0.5,),
                         itemBuilder: (context, index) {
                           final supply = filteredSupplies[index];
-                          return Slidable(
-                            endActionPane: ActionPane(
-                              motion: const ScrollMotion(),
+                          return GestureDetector(
+                            onTap: () {
+                              _navigateToEditSuppliesUI(index);
+                            },
+                            child: Row(
                               children: [
-                                SlidableAction(
-                                  onPressed: (context) => _deleteSupply(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                _navigateToEditSuppliesUI(index);
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                color: AppC.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(5.0),
-                                              child: Utils.getText(
-                                                supply['name'] ?? '',
-                                                weight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                Expanded(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.all(10.0),
+                                    child: Utils.getText(
+                                      supply['name'] ?? '',
+                                      weight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
+                                GestureDetector(
+                                    onTap: () {},
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: AppC.redAccent,
+                                    ),
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -269,7 +232,6 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

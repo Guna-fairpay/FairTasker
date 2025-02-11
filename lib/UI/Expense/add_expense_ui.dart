@@ -455,7 +455,7 @@ class _AddExpenseUIState extends State<AddExpenseUI>
                             if ((imageFile[index]['path'] ?? '').isEmpty) {
                               imageFile.removeAt(index);
                             } else {
-                              todoBloc!.add(DeleteExpenseImage(
+                              todoBloc!.add(DeleteExpenseTodoImage(
                                   id: imageFile[index]['id']));
                               imageFile.removeAt(index);
                             }
@@ -499,25 +499,26 @@ class _AddExpenseUIState extends State<AddExpenseUI>
           /*else if (amountController.text.isEmpty) {
               Utils.showMobileToast(Str.createTodoAlertText("Expense Amount"));
             } */
-          else {
+          /*else {
             todoBloc!.add(CreateExpenseTodo(
-                /*todoItem!.expenseId*/ null,
-                imageFile
+                *//*todoItem!.expenseId*//* null,
+                files: imageFile
                     .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
                     .where((element) => element != null)
                     .cast<File>()
                     .toList(),
                 selectedExpenseCategories!.todoId,
-                selectedExpenseSubCategories!.todoId,
-                selectedExpenseSubCategories!.expenseTo,
-                amountController.text,
-                expenseDescriptionController.text,
-                widget.vehicleStatusListData!['cohortId'].toString(),
-                widget.vehicleStatusListData!['vin'],
-                todoDateController.text,
-                null,
-                ''));
-          }
+               todoId:  selectedExpenseSubCategories!.todoId,
+               expenseTo:  selectedExpenseSubCategories!.expenseTo,
+                expenseAmount:  amountController.text,
+                expenseDescription: expenseDescriptionController.text,
+               cohortId:  widget.vehicleStatusListData!['cohortId'].toString(),
+              vin:   widget.vehicleStatusListData!['vin'],
+               date:  todoDateController.text,
+               odometer:  null,
+              expenseId: '', categoryId: null, paymentMethodId: '', subCategoryId: null,
+            ));
+          }*/
         }),
         const SizedBox(height: 15),
       ],
