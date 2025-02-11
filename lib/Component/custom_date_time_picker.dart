@@ -53,16 +53,16 @@ class CustomDateTimePicker<T> extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: ValueListenableBuilder(
             valueListenable: controller,
-            builder: (context, value, child) =>
+            builder: (context, val, child) =>
                 Text.rich(
                   TextSpan(
                       children: [
                         if (prefixIcon != null) WidgetSpan(child: prefixIcon!),
                         if (prefixIcon != null) WidgetSpan(child: 5.width),
                         TextSpan(
-                            text: value.text.isEmpty ? Utils.formatDateTime(
-                                input: value, format: format) : value.text),
-                        if (suffixIcon != null) WidgetSpan(child: 5.width),
+                            text: (value == null) ? labelText : Utils.formatDateTime(
+                                input: val.text, format: format)),
+                        if (suffixIcon != null) WidgetSpan(child: Spacer()),
                         if (suffixIcon != null) WidgetSpan(child: suffixIcon!),
                       ]
                   ),

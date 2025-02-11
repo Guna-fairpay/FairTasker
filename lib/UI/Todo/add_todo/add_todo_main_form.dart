@@ -4,6 +4,7 @@ import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_more_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_recurring_form.dart';
+import 'package:fairpytasker/UI/Todo/add_todo/add_todo_recurring_sub_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_task_manager_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
@@ -107,6 +108,8 @@ class AddTodoMainForm extends StatelessWidget {
                 const AddTodoTaskManagerForm(),
                 10.height,
                 const AddTodoRecurringForm(),
+                10.height,
+                const AddTodoRecurringSubForm(),
               ],
             )));
   }
