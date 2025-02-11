@@ -88,9 +88,11 @@ class _VehicleUIState extends State<VehicleViewUI> {
           builder: (context) => VehicleEditUI(vehicle: filteredVehicle[index])),
     );
     if (updateVehicle != null) {
+      print("updatedVehicle----------> $updateVehicle");
       vehicleDataBloc.add(
         AddVehicleDataEvent(createVehicleData: updateVehicle),
       );
+
       vehicleDataBloc.add(const GetAddedVehicleListData());
       Utils.showMobileToast('Vehicle updated successfully');
     }

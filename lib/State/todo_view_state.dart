@@ -34,6 +34,7 @@ class VehicleDataLoaded extends TodoViewState {
   @override
   List<Object?> get props => [vehicleData];
 }
+//
 
 class TodoListLoading extends TodoViewState {
   @override

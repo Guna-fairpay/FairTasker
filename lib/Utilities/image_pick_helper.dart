@@ -47,3 +47,33 @@ class MultiImagePickHelper {
   }
 }
 
+class MultiImagePickHelpers {
+  // This is for storing file paths (or you can store XFile if you want)
+  List<XFile> selectedFiles = [];
+
+  Future<List<XFile>> getMultiImage(ImageSource source) async {
+    try {
+      // Picking multiple images with specified parameters
+      List<XFile>? pickedFiles = await ImagePicker().pickMultiImage(
+        maxWidth: 1800,
+        maxHeight: 1800,
+        imageQuality: 40,
+      );
+
+      if (pickedFiles != null) {
+        // Add only unique files (avoids duplicates)
+        for (var file in pickedFiles) {
+          if (!selectedFiles.contains(file)) {
+            selectedFiles.add(file);
+          }
+        }
+      }
+    } catch (e) {
+      print("Error picking images: $e");
+    }
+
+    return selectedFiles;  // Return a list of XFile objects
+  }
+}
+
+

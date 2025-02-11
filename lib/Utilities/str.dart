@@ -13,6 +13,9 @@ class Str{
 
     static const String TODO_ATTACHMENTS_URL ="https://apidevfairtasker.fairreturns.in/";
 
+    static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
+    static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";
+
   static const String loginPrefText = 'LoginPref';
   static const String userPermissionPrefText = 'UserPermissionPref';
   static const String userIdPrefText = 'UserIdPref';
@@ -23,6 +26,7 @@ class Str{
   static const String radiusPrefText = 'RadiusPref';
   static const String namePrefText = 'NamePref';
   static const String emailPrefText = 'EmailPref';
+  static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
 
   static const String appName = "FairPYTasker";
@@ -62,6 +66,14 @@ class Str{
 
   //error image URL
     static const errorImage='https://media.wired.com/photos/5a0201b14834c514857a7ed7/master/pass/1217-WI-APHIST-01.jpg';
+
+    static const List<int> platFormCheckIds = [268, 211, 209];
+
+    static const List<int> cleanCarCheckIds = [209, 210]; // 30 IS NOT INCLUDED DUE TO IT'LL SHOW JUST ICON
+
+    static const List<int> reqTaskManagerIds = [3,17,19,20,26,31,32];
+
+    static const List<int> getAroundIds = [268, 177];
 
 
 }

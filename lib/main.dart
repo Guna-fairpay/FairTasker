@@ -25,6 +25,7 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
     await Firebase.initializeApp();
     await Session.of.init();
+    if (kDebugMode) await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -51,8 +52,8 @@ void configEasyLoading() {
     ..maskColor = Colors.transparent
     ..maskType = EasyLoadingMaskType.clear
     ..loadingStyle = EasyLoadingStyle.custom
-    ..userInteractions = true
-    ..dismissOnTap = true
+    ..userInteractions = false
+    ..dismissOnTap = false
     ..boxShadow = [];
 }
 

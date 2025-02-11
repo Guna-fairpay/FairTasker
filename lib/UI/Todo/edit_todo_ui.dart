@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -44,7 +43,6 @@ import 'check_list_ui.dart';
 import 'maintenance/maintenance_check_list_ui.dart';
 
 class EditTodoUI extends StatefulWidget {
-
   final Map<String, dynamic> todoItem;
   final List<Map<String, dynamic>>? userGroupList;
   final List<Map<String, dynamic>>? resourceList;
@@ -67,7 +65,6 @@ class EditTodoUI extends StatefulWidget {
 }
 
 class _EditTodoUIState extends State<EditTodoUI> {
-
   TodoViewBloc? todoBloc;
   vdb.VehicleDataBloc? vehicleDataBloc;
   CreateExpenseFieldData? createExpenseFieldData;
@@ -107,7 +104,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<dynamic> insuranceImage = [];
   List<dynamic> selectedMultipleVehicleList = [];
   List<dynamic> editMultipleVehicleSuggestionList = [];
-  List<dynamic> subCategoryList = [];
 
   List<Map<String, dynamic>> vehicleGroupList = [];
   List<Map<String, dynamic>> vehicleList = [];
@@ -139,8 +135,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> userGroupList = [];
   List<Map<String, dynamic>> maintenanceCheckListData = [];
   List<Map<String, dynamic>> childrenData = [];
-  List<Map<String, dynamic>> categoryList = [];
-  List<Map<String, dynamic>> paymentList = [];
 
   List<String> vinList=[];
   List<String> selectedIds = [];
@@ -228,10 +222,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Map<String, String> taskNameList = {};
   Map<String,dynamic>? carName;
   Map<String, dynamic>? selectedResource;
-  Map<String, dynamic>? expenseData;
   late Map<String, dynamic> todoItem;
 
-  Map<String,dynamic>existingExpenseDate={};
+  dynamic existingExpenseDate;
   dynamic selectedCohort;
   dynamic selectedVehicle;
   dynamic selectedExpenseCategories;
@@ -319,7 +312,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   @override
   void initState() {
-    todoItem = widget.todoItem;
     todoBloc = TodoViewBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
     todoBloc!.add(const GetDropdownData());
@@ -334,9 +326,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     todoBloc!.add(const GetCheckList());
     todoBloc!.add(const GetMaintenanceCheckList());
     todoBloc!.add(const GetUserGroupingList());
-    todoBloc!.add(const GetPaymentData());
-    todoBloc!.add(const GetCohortsData());
-    todoBloc!.add(GetExpenseToData(expenseId: todoItem['expense_id']));
     selectedRepeat = repeatList[0];
     selectedPriority = priorityList[1];
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 60));
@@ -344,7 +333,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 30));
     cleanCarTimeValuesList.add(CleanCarTimeValues(minutes: 15));
     selectedCleanCarTime = cleanCarTimeValuesList[0];
-
+    todoItem = widget.todoItem;
 
     if (widget.todoItem['title'] != 'Check In' &&
         widget.todoItem['title'] != 'Check Out') {
@@ -725,20 +714,38 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             vehicleGroupId: /*value.vehicleGroupId != null ?*/
                             /*int.parse(value.vehicleGroupId??'0') :*/ null,
                             needUI: false));
-                        // setState(() {});
+                        setState(() {});
                       }
+                      // else {
+                      // isShowVehicleHistoryList = false;
+                      // setState(() {});
+                      // }
+
+                      setState(() {
+                        isDataLoaded = true;
+                      });
+                      // });
                     }
                   }
                   else if (state is CheckListLoaded) {
                     checkListData.clear();
                     checkListData.addAll(state.data ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is MaintenanceCheckListLoaded) {
                     maintenanceCheckListData.clear();
                     childrenData.clear();
                     maintenanceCheckListData.addAll(state.data ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is UserGroupListLoaded) {
                     userGroupList.clear();
                     userGroupList.addAll(state.userGroupDataList ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is DropdownDataLoaded) {
                     createExpenseFieldData = state.createExpenseFieldData;
                     if (state.createExpenseFieldData != null) {
@@ -749,9 +756,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             state.createExpenseFieldData!.expenseCategories ??  [];
                       }
                     }
-                  }
-
-                  else if (state is AssignedToLoaded) {
+                    setState(() {
+                      isDataLoaded = true;
+                    });
+                  } else if (state is AssignedToLoaded) {
                     resourceList = [];
                     resourceList = state.resource ?? [];
                     resourceList.removeWhere((resource) => resource['id'] == 2);
@@ -773,18 +781,35 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       };
                       editMultipleVehicleList.add(vehiclesData);
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
+                  } else if (state is TaskExpenseLoaded) {
+                    taskExpenseList = state.resource ?? [];
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is CohortsListLoaded) {
                     categoryList.clear();
                     categoryList.addAll(state.expenseData ?? []);
                   } else if (state is VendorLoaded) {
                     vendorList = state.resource ?? [];
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is LocationLoaded) {
                     locationList = state.resource ?? [];
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is CreateTodoLoaded) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                       //Navigator.push(context,MaterialPageRoute(builder: (context)=>const TodoViewUI()));
+                      setState(() {
+                        isDataLoaded = true;
+                      });
                     }
                   } else if (state is CreateExpenseLoaded) {
                     if (state.expenseSummaryResponse != null &&
@@ -811,10 +836,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is TodoItemCompletedV) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is PartsLoaded) {
                     if (state.partsList != null) {
                       editPartsList.addAll(state.partsList!);
@@ -836,10 +867,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is DeleteTodoLoaded) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   } else if (state is SuppliesLoaded) {
                     if (state.suppliesList != null) {
                       editSuppliesList.addAll(state.suppliesList!);
@@ -876,6 +913,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is ExpenseTodoLoaded) {
                     expenseData = state.expenseSummaryData??{};
@@ -892,7 +932,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
               ),
               BlocListener<vdb.VehicleDataBloc, vdb.VehicleDataState>(
                 listener: (context, state) {
-
                   if (state is vdb.TodoItemCompletedVeh) {
                     show(
                         context,
@@ -1140,6 +1179,118 @@ class _EditTodoUIState extends State<EditTodoUI> {
             ),
           ],
         ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.end,
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: [
+        //     Expanded(
+        //       flex: 2,
+        //       child: Stack(
+        //         alignment: Alignment.centerRight,
+        //         children: [
+        //           Utils.getTextFormField(
+        //             contentPadding:
+        //             const EdgeInsets.only(right: 21, left: 10),
+        //             '',
+        //             editTodoDateController,
+        //             readOnly: true,
+        //             onTapCallback: () {
+        //               Utils.todoDatePickerDialog(
+        //                 context,
+        //                 '',
+        //                 initial: DateTime.parse(editTodoDateController.text),
+        //               ).then((value) {
+        //                 editSelectedDate = value;
+        //                 editTodoDateController.text =
+        //                     Utils.convertDateTimeToTheFormats(value.toString());
+        //               });
+        //             },
+        //             suffixIcon: GestureDetector(
+        //                 onTap: (){},
+        //                 child: const Icon(
+        //                   Icons.calendar_month,
+        //                    size: 16,
+        //                   color: AppC.appColor,
+        //                 ),
+        //             )
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //     Visibility(
+        //       visible: !editAllDay,
+        //       child: const SizedBox(width: 10),
+        //     ),
+        //     Flexible(
+        //     flex:4,
+        //         child:
+        //           Visibility(
+        //             visible: !editAllDay,
+        //             child: Expanded(
+        //               child: _buildTimeField('', todoTimeController, () async {
+        //                 TimeOfDay? pickedTime = await showTimePicker(
+        //                   context: context,
+        //                   initialTime: TimeOfDay(
+        //                     hour: int.parse(todoTimeController.text.split(":")[0]),
+        //                     minute: int.parse(todoTimeController.text.split(":")[1]),
+        //                   ),
+        //                   builder: (BuildContext context, Widget? child) {
+        //                     return MediaQuery(
+        //                       data: MediaQuery.of(context)
+        //                           .copyWith(alwaysUse24HourFormat: true),
+        //                       child: child!,
+        //                     );
+        //                   },
+        //                 );
+        //                 if (pickedTime != null) {
+        //                   final formattedTime =
+        //                       '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
+        //                   setState(() {
+        //                     todoTimeController.text = formattedTime;
+        //                   });
+        //                 }
+        //               }),
+        //             ),
+        //           ),
+        //
+        //     ),
+        //     Transform.scale(
+        //       scale: 0.7,
+        //       child: SizedBox(
+        //         width: 20,
+        //         child: Checkbox(
+        //           value: timeSensitive,
+        //           checkColor: AppC.white,
+        //           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+        //             if (states.contains(WidgetState.selected)) {
+        //               return AppC.blue;
+        //             }
+        //             return AppC.white;
+        //           }),
+        //           onChanged: (bool? value) {
+        //             setState(() {
+        //               timeSensitive = value ?? false;
+        //               todoItem['time_sensitive'] = timeSensitive ? 1 : 0;
+        //             });
+        //           },
+        //         ),
+        //       ),
+        //     ),
+        //     Column(
+        //       children: [
+        //         Utils.getText('Time \n Sensitive'),
+        //       ],
+        //     ),
+        //     const SizedBox(width: 5,),
+        //     InkWell(
+        //       onTapDown: (details) => resourceSelection(details, todoItem),
+        //       child: Visibility(
+        //         visible: todoItem['users'] != null || todoItem['user_group_id'] != null,
+        //         child: getUserGroupDataById(todoItem),
+        //       ),
+        //     ),
+        //   ],
+        // ),
         const SizedBox(
           height: 15,
         ),
@@ -1388,22 +1539,29 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           MainAxisAlignment.start,
                                           children: [
                                             Utils.getText('More...',
-                                                color: Colors
-                                                    .lightBlue.shade800),
-                                            const SizedBox(width: 20,),
-                                            Expanded(child:
-                                            Utils.dropdownBox(
-                                              '',
-                                              selectedKey: selectedLink,
-                                              customTaskOptions,
-                                                  (selectedValue) {
-                                                setState(() {
-                                                  selectedLink = selectedValue;
-                                                });
-                                              },
-                                              initialSelection: selectedLink,
-                                              labelKey: 'label',
+                                                color:
+                                                    Colors.lightBlue.shade800),
+                                            const SizedBox(
+                                              width: 20,
                                             ),
+                                            Expanded(
+                                              child: SizedBox(
+                                                height: 30,
+                                                child: Utils.dropdownBox(
+                                                  '',
+                                                  selectedKey: selectedLink,
+                                                  customTaskOptions,
+                                                  (selectedValue) {
+                                                    setState(() {
+                                                      selectedLink =
+                                                          selectedValue;
+                                                    });
+                                                  },
+                                                  initialSelection:
+                                                      selectedLink,
+                                                  labelKey: 'label',
+                                                ),
+                                              ),
                                             ),
                                             const SizedBox(
                                               width: 10,
@@ -1840,17 +1998,21 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               color: Colors.lightBlue.shade800),
                                           const SizedBox(width: 20,),
                                           Expanded(
-                                            child: Utils.dropdownBox(
-                                              '',
-                                              customTaskOptions ,
-                                                  (selectedValue) {
-                                                setState(() {
-                                                  selectedLink = selectedValue;
-                                                });
-                                              },
-                                              labelKey: 'label',
-                                              selectedKey: selectedLink,
-                                              initialSelection: selectedLink,
+                                            child: SizedBox(
+                                              height: 30,
+                                              child: Utils.dropdownBox(
+                                                '',
+                                                customTaskOptions,
+                                                (selectedValue) {
+                                                  setState(() {
+                                                    selectedLink =
+                                                        selectedValue;
+                                                  });
+                                                },
+                                                labelKey: 'label',
+                                                selectedKey: selectedLink,
+                                                initialSelection: selectedLink,
+                                              ),
                                             ),
                                           ),
                                           const SizedBox(
@@ -2211,13 +2373,107 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 ],
               ),
             ),
+
           ],
         ),
         getRecurringDetails(),
         const SizedBox(
           height: 20,
         ),
+        // if (isDataLoaded) showBottomTabWidget(),
       ],
+    );
+  }
+
+
+  Widget showBottomTabWidget()
+  {
+    final List<Map<String, dynamic>> tabs = [
+      if ((todoItem['title'] != 'Check In' &&
+          todoItem['title'] != 'Check Out') ||
+          (todoItem['title'] != 'CheckIn Car Rental' &&
+              todoItem['title'] != 'Pickup Car Rental') ||
+          todoItem['title'] != 'Email Notofication Form' ||
+          todoItem['title'] != "Refuel Car")
+        {'label': 'Expense', 'index': 0, 'color': AppC().base},
+      {'label': 'Next Task', 'index': 1, 'color': AppC().base},
+      if (todoItem['title'] == 'Getaround Prechecks' ||
+          todoItem['title'] == 'Pre Checks')
+        {'label': 'Check List', 'index': 2, 'color': AppC().base},
+      if (todoItem['title'] == 'Maintenance Check')
+        {'label': 'Maintenance', 'index': 3, 'color': AppC().base},
+      if (todoItem['title'] != 'Check In' &&
+          todoItem['title'] != 'Check Out' &&
+          todoItem['vehicle_name'] != null ||
+          todoItem['vehicles'].isNotEmpty)
+        {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
+    ];
+    if (tabTitle.isEmpty) {
+      switch (todoItem["title"]) {
+        case "Check In":
+        case "Check Out":
+        case "CheckIn Car Rental":
+        case "Pickup Car Rental":
+        case 'Email Notofication Form':
+        case 'Refuel Car':
+          tabTitle = "Expense";
+          break;
+        case "Getaround Prechecks":
+        case "Pre Checks":
+          tabTitle = "Check List";
+          break;
+        case "Maintenance Check":
+          tabTitle = "Maintenance";
+          break;
+      // default:
+      //   tabTitle = "Set Vehicle";
+      //   break;
+      }
+    }
+    showExpenseTab = tabs
+        .where((element) => element['label'] == tabTitle)
+        .firstOrNull?['index'] ?? 0;
+    //print("todoItem ${showExpenseTab}   tabs ------> $tabs");
+    return
+      Container(
+        decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+        ),
+        alignment: Alignment.centerLeft,
+        child:
+        SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: tabs.map((tab) {
+            return GestureDetector(
+              onTap: () => setState(() => tabTitle = tab['label']),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppC.trans,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: showExpenseTab == tab['index']
+                        ? tab['color']
+                        : AppC.trans,
+                    width: 1.0,
+                  ),
+                ),
+                padding: const EdgeInsets.all(5),
+                child:
+                Utils.getText(
+                  tab['label'],
+                  weight: FontWeight.bold,
+                  color: tab['label'] == 'Set Vehicle'
+                      ? AppC.red
+                      : (showExpenseTab == tab['index']
+                      ? tab['color']
+                      : AppC.black),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -2886,54 +3142,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-  Widget showBottomTabWidget() {
-    final List<Map<String, dynamic>> tabs = [
-      if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out')
-        {'label': 'Expense', 'index': 0, 'color': AppC().base},
-      {'label': 'Next Task', 'index': 1, 'color': AppC().base},
-      if (todoItem['title'] == 'Getaround Prechecks' || todoItem['title'] == 'Pre Checks')
-        {'label': 'Check List', 'index': 2, 'color': AppC().base},
-      if (todoItem['title'] == 'Maintenance Check')
-        {'label': 'Maintenance', 'index': 3, 'color': AppC().base},
-      if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out' && todoItem['vehicle_name'] != null ||
-      todoItem['vehicles'].isNotEmpty)
-        {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
-      if (todoItem['title'] != 'Check In' && todoItem['title'] != 'Check Out')
-        {'label': 'TodoExpense', 'index': 5, 'color': AppC().base},
-    ];
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
-      ),
-      alignment: Alignment.centerLeft,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: tabs.map((tab) {
-            return GestureDetector(
-              onTap: () => setState(() => showExpenseTab = tab['index']),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppC.trans,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: showExpenseTab == tab['index'] ? tab['color'] : AppC.trans,
-                    width: 1.0,
-                  ),
-                ),
-                padding: const EdgeInsets.all(5),
-                child: Utils.getText(
-                  tab['label'],
-                  weight: FontWeight.bold,
-                  color: tab['label'] == 'Set Vehicle' ? AppC.red : (showExpenseTab == tab['index'] ? tab['color'] : AppC.black),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
+//CheckIn Car Rental Email Notofication Form Refuel Car
+
 
   String getTextBeforeCursor() {
     TextSelection selection = taskIdentifierController.selection;
