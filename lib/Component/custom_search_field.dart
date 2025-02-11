@@ -1,3 +1,5 @@
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -26,6 +28,9 @@ class CustomSearchField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var border = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(Num.borderRadius),
+        borderSide: const BorderSide(color: AppC.borderColor, width: Num.borderWidthField));
     return SearchField<T>(
       key: UniqueKey(),
       focusNode: focusNode,
@@ -49,8 +54,8 @@ class CustomSearchField<T> extends StatelessWidget {
       searchInputDecoration: SearchInputDecoration(
         isDense: isDense,
         searchStyle: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5)),
+        border: border,
+        enabledBorder: border,
         contentPadding: contentPadding ?? 10.padding,
         labelText: labelText,
         hintText: hintText,
@@ -63,6 +68,7 @@ class CustomSearchField<T> extends StatelessWidget {
       suggestionAction: SuggestionAction.next,
       suggestionsDecoration: SuggestionDecoration(
         color: Colors.white,
+        border: Border.all(color: AppC.borderColor),
         borderRadius: const BorderRadius.vertical(
             bottom: Radius.circular(10)),
       ),

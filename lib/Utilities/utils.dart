@@ -473,12 +473,12 @@ class Utils {
                 width: borderWidth,
               ),
             ),
-            focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                borderRadius: BorderRadius.circular(borderRadius)),
+            // focusedBorder: OutlineInputBorder(
+            //     borderSide: BorderSide(
+            //       color: borderColor,
+            //       width: borderWidth,
+            //     ),
+            //     borderRadius: BorderRadius.circular(borderRadius)),
             suffixIcon: showErrorSuffix ? (((validator != null) && (value.text.isEmpty)) ? suffixIcon : null) : suffixIcon),
         style: style ?? TextStyle(
           // fontSize: textSize,

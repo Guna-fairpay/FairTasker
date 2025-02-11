@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Todo/add_todo/add_todo_task_manager_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -40,8 +41,9 @@ class AddTodoMainForm extends StatelessWidget {
                   'Task Name',
                   context.read<AddToDoBloc>().taskNameController,
                   isDense: true,
-                  suffixIcon: Icon(Icons.info_outline_rounded),
+                  suffixIcon: const Icon(Icons.info_outline_rounded),
                   showErrorSuffix: true,
+                  borderRadius: Num.borderRadius,
                   autoValidate: AutovalidateMode.onUserInteraction,
                   validator: (val) => (val?.isEmpty ?? false) ? "Task name is missing" : null,
                   contentPadding: 10.padding,

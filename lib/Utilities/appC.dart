@@ -42,4 +42,6 @@ static const redAccent = Color(0xffd01601);
   static const Color highOnTimeP = Color(0xff951818);
   static const Color featureP = Color(0xff2e9bf2);
 
+  static const borderColor = Color(0x6F9E9E9E);
+
 }

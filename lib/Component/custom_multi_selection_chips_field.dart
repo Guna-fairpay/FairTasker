@@ -49,14 +49,13 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
     return Container(
       padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(top: 10),
-      decoration: BoxDecoration(
+      decoration: selectedPartsList.isEmpty ? null : BoxDecoration(
           border: Border(
             top: commonBorderSide,
             right: commonBorderSide,
             left: commonBorderSide,
           ),
-          borderRadius:
-              const BorderRadius.all(Radius.circular(Num.subradiusButton))),
+          borderRadius: BorderRadius.circular(Num.borderRadius)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
@@ -10,21 +11,28 @@ class CustomDropdown<T> extends StatelessWidget {
   final ValueChanged<T?>? onChanged;
 
   const CustomDropdown(
-      {super.key, required this.items,  this.value,this.itemAsString, this.onChanged});
+      {super.key,
+      required this.items,
+      this.value,
+      this.itemAsString,
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {
+    var border = OutlineInputBorder(
+        borderSide: BorderSide(color: AppC.borderColor, width: Num.borderWidthField),
+        borderRadius: BorderRadius.circular(Num.borderRadius));
     return DropdownButtonFormField<T>(
         decoration: InputDecoration(
+            isCollapsed: true,
             labelStyle: context.textTheme.labelLarge,
-            constraints: BoxConstraints(),
+            constraints: const BoxConstraints(),
             contentPadding: const EdgeInsets.all(10),
             isDense: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Num.radiusButton)
-            ),
+            border: border,
+            enabledBorder: border,
             labelText: "Select"),
-        borderRadius: BorderRadius.circular(Num.radiusButton),
+        borderRadius: BorderRadius.circular(Num.borderRadius),
         padding: const EdgeInsets.all(5),
         isDense: true,
         style: context.textTheme.labelLarge,
@@ -32,9 +40,12 @@ class CustomDropdown<T> extends StatelessWidget {
         items: items
             .map((e) => DropdownMenuItem(
                 value: e,
-                child: Text((itemAsString != null)
-                    ? (itemAsString?.call(e).toString() ?? "")
-                    : e.toString())))
+                child: Text(
+                  (itemAsString != null)
+                      ? (itemAsString?.call(e).toString() ?? "")
+                      : e.toString(),
+                  overflow: TextOverflow.ellipsis,
+                )))
             .toList(),
         onChanged: onChanged);
   }

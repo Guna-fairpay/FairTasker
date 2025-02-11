@@ -112,13 +112,13 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             isLoading: false,
             tasks: taskResponse?.data ?? [],
             vehicles: vehicleResponse?.data ?? [],
-            persons: resources ?? [],
+            persons: resources,
             locations: locationResponse?.data ?? [],
             vendors: vendorResponse?.data ?? [],
             partServices: partsResponse?.data ?? [],
             supplies: suppliesResponse?.data ?? [],
             selectedTaskPersons: selectedUser,
-            resources: resources ?? [],
+            resources: resources,
             selectedLinkOption: AddToDoConfig.customOptions.first));
       } catch (e) {
         emit(state.copyWith(isLoading: false));
@@ -147,8 +147,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existing[2] != null) {
-        if (existing[2]?['type'] == 'persons')
-          vPersonController.text = existing[2]?['name'] ?? "";
+        if (existing[2]?['type'] == 'persons') vPersonController.text = existing[2]?['name'] ?? "";
         existingVPersons.removeWhere((element) =>
             element['type'] !=
             ((existing[2]?['type'] == 'persons') ? 'vehicles' : 'persons'));
@@ -169,7 +168,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           selectedLinkOption: selectedLink
               ? AddToDoConfig.customOptions.last
               : AddToDoConfig.customOptions[1]));
-      log("${existing}", name: "AddToDoBloc");
+      log("$existing", name: "AddToDoBloc");
     });
 
     on<AddToDoVPersonEvent>((event, emit) {
@@ -182,7 +181,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       var oldIdentifier = state.selectedTaskIdentifier;
       var existingVPersons = state.selectedVPerson;
-      log("${existingVPersons}", name: "AddToDoBloc-Person-before");
+      log("$existingVPersons", name: "AddToDoBloc-Person-before");
       existingVPersons.addAll(event.vPerson);
       oldIdentifier.update(
           2, (value) => (event.vPerson[0] as Map<String, dynamic>));
@@ -194,7 +193,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier));
-      log("${existingVPersons}", name: "AddToDoBloc-Person");
+      log("$existingVPersons", name: "AddToDoBloc-Person");
     });
 
     on<AddToDoVLocationEvent>((event, emit) {

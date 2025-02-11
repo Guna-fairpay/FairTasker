@@ -3,6 +3,7 @@ import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/Component/custom_dropdown.dart';
@@ -113,6 +114,7 @@ class AddTodoMoreForm extends StatelessWidget {
               "${state.selectedLinkOption!['label']}", context.read<AddToDoBloc>().customLinkController,
               inputAction: TextInputAction.done,
             isDense: true,
+            borderRadius: Num.borderRadius,
             contentPadding: 10.padding,
             style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")
           ),
