@@ -10,10 +10,10 @@ class SuppliesEditUI extends StatefulWidget {
   const SuppliesEditUI({super.key, required this.supply});
 
   @override
-  _SuppliesEditUIState createState() => _SuppliesEditUIState();
+  State<SuppliesEditUI> createState() => SuppliesEditUIState();
 }
 
-class _SuppliesEditUIState extends State<SuppliesEditUI> {
+class SuppliesEditUIState extends State<SuppliesEditUI> {
   late final TextEditingController suppliesController;
   late final TextEditingController descriptionController;
   bool isSuppliesFieldEmpty = false;
@@ -54,79 +54,64 @@ class _SuppliesEditUIState extends State<SuppliesEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        title: const Text(
+          'Edit Supplies',
+        ),
+        actions: [
+          IconButton(
+              onPressed: ()=> Navigator.pop(context),
+              icon: const Icon(
+                Icons.close,
+                color: AppC.white,
+              )),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        minimum: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
+        child: ListView(
           children: [
-            Row(
+            Stack(
+              alignment: Alignment.centerRight,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back),
+                Utils.getTextFormField(
+                  '',
+                  suppliesController,
+                  label: Utils.getText('Supplies Name', color: AppC.grey),
+                  borderColor:
+                      isSuppliesFieldEmpty ? Colors.red : AppC.fieldBase,
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Edit Supplies',
-                    size: 20, weight: FontWeight.bold),
+                if (isSuppliesFieldEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(Icons.error_outline, color: Colors.red),
+                  ),
               ],
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getTextFormField(
-                    '',
-                    suppliesController,
-                    label: Utils.getText('Supplies Name', color: AppC.grey),
-                    borderColor:
-                        isSuppliesFieldEmpty ? Colors.red : AppC.fieldBase,
-                  ),
-                  if (isSuppliesFieldEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(Icons.error_outline, color: Colors.red),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getTextFormField(
-                    '',
-                    descriptionController,
-                    label: Utils.getText('Description', color: AppC.grey),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            const SizedBox(height: 10),
+            Stack(
+              alignment: Alignment.centerRight,
               children: [
-                SizedBox(
-                  height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
-                    () {
-                      _save();
-                    },
-                  ),
+                Utils.getTextFormField(
+                  '',
+                  descriptionController,
+                  label: Utils.getText('Description', color: AppC.grey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Utils.getElevatedButton(
+                 text:  'Save',
+                  bgColor: AppC.green,
+                  () {
+                    _save();
+                  },
                 ),
               ],
             ),

@@ -22,8 +22,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
   final TextEditingController searchController = TextEditingController();
   List<Map<String, dynamic>> location = []; // Sample data list
   List<Map<String, dynamic>> filteredLocation = [];
-  // List<Map<String, dynamic>>addresses=[];
-  // List<Map<String, dynamic>>listAddresses=[];
   final FocusNode searchFocusNode = FocusNode();
 
   bool loading = false;
@@ -140,9 +138,16 @@ class _LocationViewUIState extends State<LocationViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text('Location'),
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              onPressed: ()=>Navigator.pop(context),
+              icon: const Icon(Icons.close))
+        ],
       ),
       body: BlocProvider(
         create: (context) =>
@@ -154,9 +159,7 @@ class _LocationViewUIState extends State<LocationViewUI> {
           } else if (state is LocationListLoaded) {
             loading = false;
             filteredLocation.clear();
-            filteredLocation.addAll(state.resource ?? []);
-            // addresses.addAll(filteredLocation.expand((e) => e['addresses'] ?? []));
-            List<Map<String, dynamic>> list = [];
+            final List<Map<String, dynamic>> list = [];
             list.addAll(state.resource ?? []);
             list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
@@ -170,28 +173,9 @@ class _LocationViewUIState extends State<LocationViewUI> {
           return Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 15),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Utils.getText('Location',
-                            size: 20, weight: FontWeight.bold),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
                     Row(
                       children: [
                         Expanded(
@@ -209,69 +193,44 @@ class _LocationViewUIState extends State<LocationViewUI> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        SizedBox(
-                          height: 40,
-                          child: Utils.getAddFilledButton('Add', () {
-                            _navigateToLocationAddUI();
-                          }),
-                        ),
+                        Utils.getAddElevatedButton(_navigateToLocationAddUI),
+
                       ],
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     Expanded(
-                      child: ListView.builder(
+                      child: ListView.separated(
                         itemCount: filteredLocation.length,
                         itemBuilder: (context, index) {
                           final location = filteredLocation[index];
-                          return Slidable(
-                            endActionPane: ActionPane(
-                              motion: const ScrollMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) =>
-                                      _deleteLocation(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                _navigateToEditLocationUI(index);
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                color: AppC.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          return GestureDetector(
+                            onTap: () {
+                              _navigateToEditLocationUI(index);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Utils.getText(
-                                              location['name'] ?? '',
-                                              weight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
+                                      Expanded(
+                                        child: Utils.getText(
+                                          location['name'] ?? '',
+                                          weight: FontWeight.bold,
+                                        ),
                                       ),
+                                      const Icon(Icons.delete_outline,color: AppC.redAccent,)
                                     ],
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                           );
-                        },
+                        }, separatorBuilder: (context, index)  => const Divider(height: 0.5,),
                       ),
                     ),
                   ],
@@ -284,7 +243,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

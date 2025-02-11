@@ -688,8 +688,8 @@ class Utils {
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.text,
       Color? fillColor=AppC.white,
-
       int minLines = 5,
+      int? maxLines,
       Widget? label,
       bool autofocus = false}) {
     return TextFormField(
@@ -699,12 +699,13 @@ class Utils {
       controller: controller,
       keyboardType: TextInputType.text,
       maxLength: null,
-      maxLines: null,
+      maxLines: maxLines,
       minLines: minLines,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12.0, vertical: 5),        label: label,
+            horizontal: 12.0, vertical: 10),
+        label: label,
         hintText: labelText,
         hintStyle: TextStyle(color: hintTextColor),
         filled: true,

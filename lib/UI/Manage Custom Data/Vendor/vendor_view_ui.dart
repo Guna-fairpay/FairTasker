@@ -3,10 +3,8 @@ import 'dart:io';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import '../../../Bloc/vendor_data_bloc.dart';
@@ -14,7 +12,6 @@ import '../../dialog/show_attachments_dialog.dart';
 import 'vendor_add_ui.dart';
 import 'vendor_edit_ui.dart';
 import 'dart:math' as math;
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class VendorViewUI extends StatefulWidget {
   const VendorViewUI({super.key});
@@ -69,9 +66,7 @@ class _VendorViewUIState extends State<VendorViewUI> {
             .where((element) => element != null)
             .cast<File>()
             .toList(),
-        //newVendor.vendorType!.id,
       ));
-
       vendorDataBloc.add(const GetVendorList());
     }
   }
@@ -101,103 +96,9 @@ class _VendorViewUIState extends State<VendorViewUI> {
       ));
 
       vendorDataBloc.add(const GetVendorList());
-      print(updatedVendor['address']);
     }
   }
 
-  void _showImageDialog(
-      List<Map<String, dynamic>> imageUrls, int initialIndex) {
-    PageController pageController = PageController(initialPage: initialIndex);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: AppC.white,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Utils.getText(
-                        'Images', // Adjust as needed
-                        color: AppC().base,
-                        size: 15,
-                        weight: FontWeight.w600,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Container(
-                  color: AppC.white,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  child: PageView.builder(
-                    itemCount: imageUrls.length,
-                    controller: pageController,
-                    itemBuilder: (context, index) {
-                      final image = imageUrls[index];
-                      final imagePath = image['path'];
-
-                      if (imagePath == null || !File(imagePath).existsSync()) {
-                        return Center(
-                          child: Text('Image not found: $imagePath'),
-                        );
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.all(0.0),
-                        child: Image.file(
-                          File(imagePath),
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            print('Error loading file image: $error');
-                            return const Center(
-                              child: Icon(Icons.error, color: Colors.red),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SmoothPageIndicator(
-                  controller: pageController,
-                  count: imageUrls.length,
-                  effect: const JumpingDotEffect(
-                    spacing: 8.0,
-                    radius: 8.0,
-                    dotWidth: 10.0,
-                    dotHeight: 10.0,
-                    paintStyle: PaintingStyle.fill,
-                    strokeWidth: 1.5,
-                    dotColor: Colors.grey,
-                    activeDotColor: Colors.indigo,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   void _deleteVendor(int index) async {
     final confirmed = await Utils.showCustomDeleteDialog(context,'vendor');
@@ -301,7 +202,7 @@ class _VendorViewUIState extends State<VendorViewUI> {
                                           GestureDetector(
                                             onTap: () {
                                               ShowAttachmentsDialog.of.show(context,
-                                                  attachments: filteredVendors[index]?['images']?.map((e) => e['path'].toString().toStorageURL).toList(),
+                                                  attachments: filteredVendors[index]['images']?.map((e) => e['path'].toString().toStorageURL).toList(),
                                                   title: vendor['name'] ?? '');
                                             },
                                             child: const Icon(
