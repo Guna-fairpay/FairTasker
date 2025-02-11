@@ -30,6 +30,19 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
 
+  final TextEditingController recurringEveryDayWeekController =
+      TextEditingController();
+  final TextEditingController recurringMonthDateController =
+      TextEditingController();
+  final TextEditingController recurringMonthMonthController =
+      TextEditingController();
+  final TextEditingController recurringYearDateController =
+      TextEditingController();
+  final TextEditingController recurringNoOccurrenceController =
+      TextEditingController();
+  final TextEditingController recurringEndDateController =
+      TextEditingController();
+
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
 
   AddToDoBloc()
@@ -51,6 +64,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedSupplies: const [],
             attachments: const [],
             addresses: const [],
+            selectedRecurringDays: const [],
             selectedTaskIdentifier: const {},
             recurringTypes: AddToDoConfig.recurringOptions,
             clearDurations: AddToDoConfig.cleanCarDurations,
@@ -61,6 +75,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             isPartServiceEnable: false,
             isSuppliesEnable: false,
             showCleanCar: false,
+            isRecurringEndDate: true,
+            isRecurringMonthOccurrence: true,
+            recurringYearlySelectedMonth: AddToDoConfig.months.first,
             selectedLinkOption: AddToDoConfig.customOptions.first,
             selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
             selectedRecurring: AddToDoConfig.recurringOptions.first,
@@ -150,8 +167,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existing[2] != null) {
-        if (existing[2]?['type'] == 'persons')
-          vPersonController.text = existing[2]?['name'] ?? "";
+        if (existing[2]?['type'] == 'persons') vPersonController.text = existing[2]?['name'] ?? "";
         existingVPersons.removeWhere((element) =>
             element['type'] !=
             ((existing[2]?['type'] == 'persons') ? 'vehicles' : 'persons'));
@@ -282,6 +298,23 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       emit(state.copyWith(addresses: existing));
     });
+
+    on<AddToDoRecurringWeekDaysEvent>((event, emit) {
+      var existing = List.from(state.selectedRecurringDays);
+      if (event.selectedRecurringDay != null) {
+        if (!existing.contains(event.selectedRecurringDay)) {
+          existing.add(event.selectedRecurringDay);
+        } else {
+          existing.remove(event.selectedRecurringDay);
+        }
+      }
+      emit(state.copyWith(selectedRecurringDays: existing));
+    });
+
+    on<AddToDoRecurringMonthOccurrenceEvent>((event, emit) => emit(state.copyWith(isRecurringMonthOccurrence: event.isRecurringMonthOccurrence)));
+    on<AddToDoRecurringEndDateEvent>((event, emit) => emit(state.copyWith(isRecurringEndDate: event.isRecurringEndDate)));
+    on<AddToDoRecurringYearlySelectedMonthEvent>((event, emit) => emit(state.copyWith(recurringYearlySelectedMonth: event.selectedMonth)));
+    on<AddToDoRecurringEndDateSelectionEvent>((event, emit) => emit(state.copyWith(selectedRecurringEndDate: event.dateTime)));
   }
 
   // PICK MULTI IMAGES / FILES

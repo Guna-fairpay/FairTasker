@@ -555,7 +555,8 @@ class Utils {
   }
 
   static Widget getTextFormField(
-      String labelText, TextEditingController controller,
+      String? labelText,
+      TextEditingController controller,
       {Key? key,
       FocusNode? focusNode,
       Widget? label,
@@ -589,7 +590,7 @@ class Utils {
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
       double borderWidth = Num.borderWidthField}) {
-    hintText = hintText ?? labelText;
+    // hintText = hintText ?? labelText;
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, value, child) => TextFormField(

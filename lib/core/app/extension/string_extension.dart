@@ -40,4 +40,18 @@ extension StringExtension on String? {
   String get toBearer => "Bearer ${this ?? ""}";
 
   bool get isFairReturns => this?.startsWith(Str.LIST_BASE_URL) ?? false;
+
+  bool get isDoesNotRepeat => this?.toLowerCase() == "doesn't repeat";
+
+  bool get isWeekly => this?.toLowerCase() == "weekly";
+
+  bool get isDaily => this?.toLowerCase() == "daily";
+
+  bool get isMonthly => this?.toLowerCase() == "monthly";
+
+  bool get isYearly => this?.toLowerCase() == "yearly";
+
+  bool get isDailyOrWeekly => isDaily || isWeekly;
+
+  bool get isMonthlyOrYearly => isMonthly || isYearly;
 }
