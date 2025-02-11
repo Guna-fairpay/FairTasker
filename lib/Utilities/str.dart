@@ -26,6 +26,7 @@ class Str{
   static const String radiusPrefText = 'RadiusPref';
   static const String namePrefText = 'NamePref';
   static const String emailPrefText = 'EmailPref';
+  static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
 
   static const String appName = "FairPYTasker";

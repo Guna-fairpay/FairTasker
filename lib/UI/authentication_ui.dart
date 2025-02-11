@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,6 +57,7 @@ class _AuthenticationUIState extends State<AuthenticationUI> {
 
 
                       Utils.setBoolPreference(Str.loginPrefText, true);
+                      await Authenticator.instance.getBearerToken();
                       await Navigator.of(context)
                           .pushReplacement(MaterialPageRoute(
                         builder: (context) => const BottomNavigationForTaskView(

@@ -32,4 +32,8 @@ extension StringExtension on String? {
   String get toTuroReserveUrl => "${Str.TURO_RESERV_URL}$this";
 
   String get toGetAroundReserveUrl => "${Str.GETAROUND_RESERV_URL}$this";
+
+  String get toBearer => "Bearer ${this ?? ""}";
+
+  bool get isFairReturns => this?.startsWith(Str.LIST_BASE_URL) ?? false;
 }

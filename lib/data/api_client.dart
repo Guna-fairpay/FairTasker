@@ -37,7 +37,7 @@ class ApiClient {
     if (await Utils.connection()) {
       http.Response response = await compute(_getCompute, {
         "url": url,
-        "token": Utils.getHeadersWithToken(),
+        "token": Utils.getHeadersWithToken(url: url),
       });
       // http.Response response = await client.get(Utils.getUri(url),
       //     headers: Utils.getHeadersWithToken());
@@ -58,7 +58,7 @@ class ApiClient {
     if (await Utils.connection()) {
       http.Response response = await compute(_postMultiPartCompute, {
         "url": Uri.parse(url),
-        "token": Utils.getHeadersWithToken(),
+        "token": Utils.getHeadersWithToken(url: url),
         "fields": body,
         "files": files,
         "fieldName": fieldName,
@@ -90,7 +90,7 @@ class ApiClient {
       // );
       http.Response response = await compute(_deleteCompute, {
         "url": url,
-        "token": Utils.getHeadersWithToken(),
+        "token": Utils.getHeadersWithToken(url: url),
       });
       return response;
     } else {
@@ -111,7 +111,7 @@ class ApiClient {
       }
       http.Response response = await client.put(Utils.getUri(url),
           headers:
-              tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),
+              tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(url: url),
           body: body);
       return response;
     } else {
@@ -130,12 +130,12 @@ class ApiClient {
       if (tokenNoNeed) {
         debugPrint('Utils.getHeaders(): ${Utils.getHeaders()}');
       } else {
-        debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken()}');
+        debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken(url: url)}');
       }
       if (body.isNotEmpty) log("$body", name: "POST_BODY");
       http.Response response = await client.post(Utils.getUri(url),
           headers:
-              tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(),
+              tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(url: url),
           body: body);
       return response;
     } else {

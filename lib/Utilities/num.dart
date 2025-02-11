@@ -5,6 +5,8 @@ class Num{
   static const double subradiusButton = 4.0;
   static const double radiusButton = 8.0;
   static const double borderRadius = 5.0;
+  static const double borderRadiusLarge = 10.0;
+  static const double borderRadiusXLarge = 16.0;
   static const double borderWidthButton = 1.0;
   static const double borderWidthField = 1.5;
   static const double borderWidthThinField = 0.5;

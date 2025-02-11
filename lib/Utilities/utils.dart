@@ -39,6 +39,8 @@ class Utils {
   static final Connectivity _connectivity = Connectivity();
   final viewTransformationController = TransformationController();
 
+  static String get returnBearerToken => Session.of.getString(Str.frBearerToken).toBearer;
+
   static Future showCustomDeleteDialog(
       BuildContext context,
       String confirmText,
@@ -1025,12 +1027,12 @@ class Utils {
     };
   }
 
-  static Map<String, String> getHeadersWithToken() {
+  static Map<String, String> getHeadersWithToken({required String url}) {
     debugPrint('accessTokenGlobal: $accessTokenGlobal');
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessTokenGlobal'
+      'Authorization': (url.isFairReturns) ? returnBearerToken : 'Bearer $accessTokenGlobal'
     };
   }
 
