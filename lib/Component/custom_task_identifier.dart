@@ -129,7 +129,7 @@ class TaskIdentifier extends StatelessWidget {
     }).toList();
     vLocations = [...vendor, ...locations];
     commonList = vTasks;
-    _setState;
+    // _setState;
   }
 
   void _setValue({bool emit = true}) {
@@ -157,10 +157,11 @@ class TaskIdentifier extends StatelessWidget {
       } on Exception catch (e) {
         log("Exception(b):	$e", name: "TaskIdentifier");
       }
+      _requestFocus();
     }
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
-     _requestFocus();
+     // _requestFocus();
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
@@ -185,7 +186,9 @@ class TaskIdentifier extends StatelessWidget {
     if (names.length == 3) return names.join("-");
     if (mapData.containsKey(2) && !mapData.containsKey(3)) {
       return '${mapData.containsKey(1) ? "" : "-"}$result-'; // Wrap with '-'
-    } else if (mapData.containsKey(3) && !mapData.containsKey(2)) {
+    } else if (mapData.containsKey(3) && !mapData.containsKey(2) && !mapData.containsKey(1)) {
+      return '-$result'; // Start with '-'
+    } else if (mapData.containsKey(2) && !mapData.containsKey(1) && mapData.containsKey(3)) {
       return '-$result'; // Start with '-'
     } else if (mapData.containsKey(1) && !mapData.containsKey(3)) {
       return '$result-';

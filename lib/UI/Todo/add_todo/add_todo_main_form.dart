@@ -76,9 +76,6 @@ class AddTodoMainForm extends StatelessWidget {
                 ),
                 if (state.selectedTaskIdentifier.containsKey(3) &&
                     state.selectedTaskIdentifier[3]['type'] == 'location')
-                  10.height,
-                if (state.selectedTaskIdentifier.containsKey(3) &&
-                    state.selectedTaskIdentifier[3]['type'] == 'location')
                   CustomMultiSelectionChipsField<dynamic>(
                       selectedPartsList: state.addresses,
                       suggestionsList: state.selectedTaskIdentifier[3]['value']

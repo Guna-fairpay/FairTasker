@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 class AddToDoState extends Equatable {
   final bool isLoading;
+  final bool redirect;
   final bool showAppBar;
   final bool isTimeSensitive;
   final List<dynamic> tasks;
@@ -45,6 +46,7 @@ class AddToDoState extends Equatable {
   const AddToDoState({
     required this.showAppBar,
     required this.isLoading,
+    required this.redirect,
     required this.isTimeSensitive,
     required this.tasks,
     required this.vendors,
@@ -85,6 +87,7 @@ class AddToDoState extends Equatable {
   AddToDoState copyWith({
     bool? showAppBar,
     bool? isLoading,
+    bool? redirect,
     bool? isTimeSensitive,
     bool? isSelectedPlatformCheck,
     bool? isPartServiceEnable,
@@ -124,6 +127,7 @@ class AddToDoState extends Equatable {
       AddToDoState(
         showAppBar: showAppBar ?? this.showAppBar,
         isLoading: isLoading ?? this.isLoading,
+        redirect: redirect ?? this.redirect,
         isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
         selectedVPerson: selectedVPerson ?? this.selectedVPerson,
         isSelectedPlatformCheck:
@@ -173,6 +177,7 @@ class AddToDoState extends Equatable {
         showAppBar,
         selectedVPerson,
         isLoading,
+        redirect,
         isTimeSensitive,
         tasks,
         vehicles,
