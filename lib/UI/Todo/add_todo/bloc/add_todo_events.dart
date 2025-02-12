@@ -174,3 +174,5 @@ class AddToDoRecurringEndDateSelectionEvent extends AddToDoEvent {
 }
 
 class AddToDoOpenCustomLinkEvent extends AddToDoEvent {}
+
+class AddToDoSaveEvent extends AddToDoEvent {}

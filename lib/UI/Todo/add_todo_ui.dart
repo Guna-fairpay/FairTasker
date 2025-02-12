@@ -89,9 +89,6 @@ class AddToDoUi extends StatelessWidget {
                         ),
                       ),
                     GestureDetector(
-                      // borderRadius: BorderRadius.circular(10),
-                      // radius: 2,
-                      // splashFactory: InkSplash.splashFactory,
                       onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -120,7 +117,7 @@ class AddToDoUi extends StatelessWidget {
                       width: 10,
                     ),
                     IconButton(
-                      onPressed: (){},
+                      onPressed: () => context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
                       icon: const Icon(Icons.save),
                       padding: EdgeInsets.zero,
                       style: const ButtonStyle(

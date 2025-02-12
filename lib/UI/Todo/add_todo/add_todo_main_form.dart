@@ -9,6 +9,7 @@ import 'package:fairpytasker/UI/Todo/add_todo/add_todo_task_manager_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -46,11 +47,13 @@ class AddTodoMainForm extends StatelessWidget {
                   showErrorSuffix: true,
                   borderRadius: Num.borderRadius,
                   autoValidate: AutovalidateMode.onUserInteraction,
-                  validator: (val) => (val?.isEmpty ?? false) ? "Task name is missing" : null,
+                  validator: (val) =>
+                      (val?.isEmpty ?? false) ? "Task name is missing" : null,
                   contentPadding: 10.padding,
                   labelStyle: context.textTheme.labelMedium
                       ?.copyWith(color: context.theme.hintColor),
-                  style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                  style: context.textTheme.labelLarge
+                      ?.copyWith(fontFamily: "Lato"),
                 ),
                 10.height,
                 CustomVehiclePersonField(
@@ -66,18 +69,20 @@ class AddTodoMainForm extends StatelessWidget {
                   vendorsList: state.vendors,
                   locationsList: state.locations,
                   selected: state.selectedTaskIdentifier,
-
                   onSelected: (val) => context
                       .read<AddToDoBloc>()
                       .add(AddToDoVLocationEvent(val)),
                   controller: context.read<AddToDoBloc>().vLocationController,
                 ),
-                if (state.selectedTaskIdentifier.containsKey(3) && state.selectedTaskIdentifier[3]['type'] == 'location')
-                10.height,
-                if (state.selectedTaskIdentifier.containsKey(3) && state.selectedTaskIdentifier[3]['type'] == 'location')
+                if (state.selectedTaskIdentifier.containsKey(3) &&
+                    state.selectedTaskIdentifier[3]['type'] == 'location')
+                  10.height,
+                if (state.selectedTaskIdentifier.containsKey(3) &&
+                    state.selectedTaskIdentifier[3]['type'] == 'location')
                   CustomMultiSelectionChipsField<dynamic>(
                       selectedPartsList: state.addresses,
-                      suggestionsList: state.selectedTaskIdentifier[3]['value']['addresses'],
+                      suggestionsList: state.selectedTaskIdentifier[3]['value']
+                          ['addresses'],
                       controller: TextEditingController(),
                       labelText: "Address",
                       onChanged: (isChecked, value) => context
@@ -91,7 +96,8 @@ class AddTodoMainForm extends StatelessWidget {
                     contentPadding: 10.padding,
                     labelStyle: context.textTheme.labelMedium
                         ?.copyWith(color: context.theme.hintColor),
-                    style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                    style: context.textTheme.labelLarge
+                        ?.copyWith(fontFamily: "Lato"),
                     readOnly: false,
                     onChangeCallback: (value) {}),
                 10.height,
@@ -110,6 +116,18 @@ class AddTodoMainForm extends StatelessWidget {
                 const AddTodoRecurringForm(),
                 10.height,
                 const AddTodoRecurringSubForm(),
+                16.height,
+                ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: const WidgetStatePropertyAll(AppC.buttonColor),
+                        textStyle: WidgetStatePropertyAll(context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold)),
+                        foregroundColor: const WidgetStatePropertyAll(AppC.white),
+                        shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(Num.borderRadiusLarge)))),
+                    onPressed: () =>
+                        context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
+                    child: const Text("Save"))
               ],
             )));
   }
