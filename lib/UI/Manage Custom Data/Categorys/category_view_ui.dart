@@ -140,11 +140,11 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
                 children: [
                   Expanded(
                     child: Utils.getSearchBarUI(
-                      () {},
+                      onChange:
                       (value) {
                         _filterCategory(value);
                       },
-                      searchController,
+                      searchController:searchController,
                     ),
                   ),
                   Utils.getAddElevatedButton(_navigateToCategoryAddUI,),

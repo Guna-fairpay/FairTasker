@@ -604,17 +604,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                           SizedBox(
                                                             height: 40,
                                                             child: Utils.getSearchBarUI(
-                                                                  () {},
-                                                              // onSubmitted: () {
-                                                              //       log("DISMISS");
-                                                              //   Utils.dismissKeyboard(context);
-                                                              // },
-                                                                  (value) {
+                                                                  onChange: (value) {
                                                                 setState(() {
                                                                   searchQuery = value.toLowerCase();
                                                                 });
                                                               },
-                                                              vehicleSearchController,
+                                                              searchController: vehicleSearchController,
                                                             ),
                                                           ),
                                                           if (filteredVehicle.isNotEmpty)
@@ -1001,14 +996,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                         Expanded(
                                           child: SizedBox(
                                             height: 35,
-                                            child: Utils.getSearchBarUI(() {},
-                                              // onSubmitted: () {
-                                              //   log("DISMISSa");
-                                              //   Utils.dismissKeyboard(context);
-                                              // },
-                                                  (value) {
-                                                _filterTodo(value);
-                                              }, searchController,),
+                                            child: Utils.getSearchBarUI(onChange: _filterTodo, searchController: searchController),
                                           ),
                                         ),
                                         const SizedBox(

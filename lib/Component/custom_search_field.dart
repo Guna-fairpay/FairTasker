@@ -65,7 +65,7 @@ class CustomSearchField<T> extends StatelessWidget {
             ?.copyWith(color: context.theme.hintColor),
       ),
       suggestionStyle: style,
-      suggestionAction: SuggestionAction.next,
+      // suggestionAction: SuggestionAction.next,
       suggestionsDecoration: SuggestionDecoration(
         color: Colors.white,
         border: Border.all(color: AppC.borderColor),

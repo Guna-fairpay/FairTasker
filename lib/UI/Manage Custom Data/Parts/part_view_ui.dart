@@ -140,9 +140,8 @@ class _PartViewUIState extends State<PartViewUI> {
                   spacing:10,
                   children: [
                     Expanded(
-                      child: Utils.getSearchBarUI(() {}, (value) {
-                        _filterParts(value);
-                      }, searchController),
+                      child: Utils.getSearchBarUI(onChange:
+                        _filterParts, searchController: searchController),
                     ),
                     Utils.getAddElevatedButton(()=>
                       _navigateToPartsAddUI()),

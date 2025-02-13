@@ -143,11 +143,11 @@ class _LocationViewUIState extends State<LocationViewUI> {
                   children: [
                     Expanded(
                       child: Utils.getSearchBarUI(
-                        () {},
-                        (value) {
+
+                        onChange: (value) {
                           _filterLocation(value);
                         },
-                        searchController,
+                        searchController: searchController,
                       ),
                     ),
                     Utils.getAddElevatedButton(_navigateToLocationAddUI),

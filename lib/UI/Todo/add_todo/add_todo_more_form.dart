@@ -3,12 +3,15 @@ import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +23,7 @@ class AddTodoMoreForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(
       builder: (context, state) => Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
         spacing: 5,
         children: [
           if (state.isMoreEnable)
@@ -103,23 +107,38 @@ class AddTodoMoreForm extends StatelessWidget {
                 child: CustomDropdown<dynamic>(
                   items: state.linkOptions,
                   value: state.selectedLinkOption,
-                  onChanged: (val) => context.read<AddToDoBloc>().add(AddToDoSelectLinkOptionEvent(val)),
+                  onChanged: (val) => context
+                      .read<AddToDoBloc>()
+                      .add(AddToDoSelectLinkOptionEvent(val)),
                   itemAsString: (item) => item['label'].toString(),
                 ),
               )
             ],
           ),
           if (state.selectedLinkOption != null)
-          Utils.getTextFormField(
-              "${state.selectedLinkOption!['label']}", context.read<AddToDoBloc>().customLinkController,
-              inputAction: TextInputAction.done,
-            isDense: true,
-            borderRadius: Num.borderRadius,
-            contentPadding: 10.padding,
-              labelStyle: context.textTheme.labelMedium
-                  ?.copyWith(color: context.theme.hintColor),
-            style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")
-          ),
+            Utils.getTextFormField("${state.selectedLinkOption!['label']}",
+                context.read<AddToDoBloc>().customLinkController,
+                inputAction: TextInputAction.done,
+                isDense: true,
+                borderRadius: Num.borderRadius,
+                contentPadding: 10.padding,
+                labelStyle: context.textTheme.labelMedium
+                    ?.copyWith(color: context.theme.hintColor),
+                style:
+                    context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")),
+          if (state.selectedLinkOption != null)
+            ValueListenableBuilder(
+              valueListenable: context.read<AddToDoBloc>().customLinkController,
+              builder: (context, value, child) => value.text.isEmpty ? Container() : Text.rich(TextSpan(
+                  text: "${state.selectedLinkOption!['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
+                  recognizer: TapGestureRecognizer()..onTap = () => context.read<AddToDoBloc>().add(AddToDoOpenCustomLinkEvent())),
+              textAlign: TextAlign.end,
+              style: context.textTheme.labelSmall?.copyWith(
+                color: AppC.appColor,
+                decoration: TextDecoration.underline,
+                decorationColor: AppC.appColor
+              ),),
+            )
         ],
       ),
     );

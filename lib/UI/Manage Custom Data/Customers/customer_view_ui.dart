@@ -171,9 +171,9 @@ class _CustomerViewUiState extends State<CustomerViewUi> {
                 Row(spacing: 10,
                   children: [
                     Expanded(
-                      child: Utils.getSearchBarUI(() {}, (value) {
+                      child: Utils.getSearchBarUI(onChange: (value) {
                         _filteredCustomer(value);
-                      }, searchController,),
+                      }, searchController: searchController,),
                     ),
                     Utils.getAddElevatedButton( () => _navigateToCustomerAddUI()
                     ),

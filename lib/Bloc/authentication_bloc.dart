@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:fairpytasker/Repository/authentication_repository.dart';
 import 'package:fairpytasker/Event/authentication_event.dart';
 import 'package:fairpytasker/State/authentication_state.dart';
-import 'package:fairpytasker/core/app/helper/authenticator.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   AuthenticationRepo authenticationRepo = AuthenticationRepo();

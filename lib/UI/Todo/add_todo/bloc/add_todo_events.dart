@@ -135,3 +135,44 @@ class AddToDoAddressSelectionEvent extends AddToDoEvent {
   @override
   List<Object?> get props => [data, isChecked];
 }
+
+class AddToDoRecurringWeekDaysEvent extends AddToDoEvent {
+  final dynamic selectedRecurringDay;
+  AddToDoRecurringWeekDaysEvent(this.selectedRecurringDay);
+  @override
+  List<Object?> get props => [selectedRecurringDay];
+}
+
+class AddToDoRecurringMonthOccurrenceEvent extends AddToDoEvent {
+  final bool isRecurringMonthOccurrence;
+  AddToDoRecurringMonthOccurrenceEvent(this.isRecurringMonthOccurrence);
+  @override
+  List<Object?> get props => [isRecurringMonthOccurrence];
+}
+
+class AddToDoRecurringEndDateEvent extends AddToDoEvent {
+  final bool isRecurringEndDate;
+
+  AddToDoRecurringEndDateEvent(this.isRecurringEndDate);
+
+  @override
+  List<Object?> get props => [isRecurringEndDate];
+}
+
+class AddToDoRecurringYearlySelectedMonthEvent extends AddToDoEvent {
+  final dynamic selectedMonth;
+  AddToDoRecurringYearlySelectedMonthEvent(this.selectedMonth);
+  @override
+  List<Object?> get props => [selectedMonth];
+}
+
+class AddToDoRecurringEndDateSelectionEvent extends AddToDoEvent {
+  final DateTime dateTime;
+  AddToDoRecurringEndDateSelectionEvent(this.dateTime);
+  @override
+  List<Object?> get props => [dateTime];
+}
+
+class AddToDoOpenCustomLinkEvent extends AddToDoEvent {}
+
+class AddToDoSaveEvent extends AddToDoEvent {}

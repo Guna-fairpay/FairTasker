@@ -167,9 +167,7 @@ class _VendorViewUIState extends State<VendorViewUI> {
                           Expanded(
                             child: SizedBox(
                               height: 40,
-                              child: Utils.getSearchBarUI(() {}, (value) {
-                                _filterVendors(value);
-                              }, searchController,),
+                              child: Utils.getSearchBarUI(onChange: _filterVendors, searchController: searchController,),
                             ),
                           ),
                           Utils.getAddElevatedButton(_navigateToVendorAddUI),

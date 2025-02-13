@@ -291,11 +291,10 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
                       children: [
                         Expanded(
                           child: Utils.getSearchBarUI(
-                            () {},
-                            (value) {
+                            onChange: (value) {
                               _filterEmployees(value);
                             },
-                            searchController,
+                            searchController: searchController,
                           ),
                         ),
                         const SizedBox(width: 8),

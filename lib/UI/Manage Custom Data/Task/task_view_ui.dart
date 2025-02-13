@@ -192,11 +192,11 @@ class _TaskViewUIState extends State<TaskViewUI> {
                            child: SizedBox(
                              height: 40,
                              child: Utils.getSearchBarUI(
-                                   () {},
+                                   onChange:
                                    (value) {
                                  _filterTasks();
                                },
-                               searchController,
+                               searchController:searchController,
                              ),
                            ),
                          ),

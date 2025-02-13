@@ -7,8 +7,8 @@ extension ResponseExtension on Response? {
 
   bool get isSuccess => (this != null) && _successCodes.contains(this?.statusCode);
 
-  Future<Map<String, dynamic>> get mapData async {
-    return (this == null) ? {} : await parseString<Map<String, dynamic>>(this!.body, (json) => Map<String, dynamic>.from(json));
+  Future<Map<String, dynamic>?> get mapData async {
+    return ((this == null) || (this?.body.isEmpty ?? false)) ? null : await parseString<Map<String, dynamic>>(this!.body, (json) => Map<String, dynamic>.from(json));
   }
 
 }

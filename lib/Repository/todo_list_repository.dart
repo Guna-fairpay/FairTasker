@@ -591,6 +591,15 @@ class TodoListRepo {
     }
   }
 
+  Future<Map<String, dynamic>?> cleanCar({required Map<String, dynamic> body}) async {
+    String apiUrl = "${Str.BASE_URL}add-todo";
+    final http.Response? response = await apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+    if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
+      return response.mapData;
+    }
+    return null;
+  }
+
   Future<bool?> addVehicleCreateTodo(
       int? checklistId,
       int? categoryId,
@@ -3217,6 +3226,11 @@ class TodoListRepo {
       log('getPreviousOdometer.exception : ${error.toString()}');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> addTodo({required Map<String, dynamic> body, required List<File>? images}) async {
+    var response = await apiClient.callPostMethodWithBody("", fieldName: "images", autoIncrement: true, files: images?.map((e) => e.path).toList(), body: body);
+    return response.mapData;
   }
 
   ///---------

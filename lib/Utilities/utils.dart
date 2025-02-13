@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:date_time/date_time.dart' as dt;
+import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -524,7 +525,8 @@ class Utils {
   }
 
   static Widget getTextFormField(
-      String labelText, TextEditingController controller,
+      String? labelText,
+      TextEditingController controller,
       {Key? key,
       FocusNode? focusNode,
       Widget? label,
@@ -558,7 +560,7 @@ class Utils {
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
       double borderWidth = Num.borderWidthField}) {
-    hintText = hintText ?? labelText;
+    // hintText = hintText ?? labelText;
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, value, child) => TextFormField(
@@ -2686,33 +2688,69 @@ class Utils {
     );
   }
 
-  static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
-      TextEditingController searchController) {
-    return SearchBar(
-      backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-      textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, color: Colors.grey)),
-      padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 5)),
-      shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(16))),
-      elevation: const WidgetStatePropertyAll(0),
-      side: const WidgetStatePropertyAll(BorderSide.none),
-      constraints:const BoxConstraints(maxHeight: 40.0, minHeight: 40.0),
-        controller: searchController,
-        onTap: onTap,
-        onChanged: onChange,
-        leading: const Icon(Icons.search,color: AppC.text,),
-        hintText: 'Search...',
-      hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.focused)) {
-                return Utils.getTextStyle();
-              } else {
-                return Utils.getTextStyle();
-              }
-              },
-      ),
+  static Widget getSearchBarUI({void Function(String)? onChange,
+    void Function(String value)? onSearch,
+    required TextEditingController searchController}) {
+    return CustomSearchBar(
+      controller: searchController,
+      onChanged: onChange,
+      onSearch: onSearch,
     );
   }
+
+/*  static Widget getSearchBarUI(
+      VoidCallback? onTap, Function(String) onChange,
+      TextEditingController searchController,
+      {FocusNode? searchFocusNode, VoidCallback? onSubmitted, TextInputAction? inputAction} )
+  {
+    return SizedBox(
+      height: 30,
+      child: TextField(
+        controller: searchController,
+        // focusNode: FocusNode(),
+        onChanged: onChange,
+        cursorColor: AppC.black, // Set the cursor color
+        style: const TextStyle(
+          fontSize: 16, // Text size for entered text
+          color: Colors.black, // Text color for entered text
+        ),
+        onEditingComplete: onSubmitted,
+        textInputAction: inputAction,
+        onSubmitted: (val) => onSubmitted?.call(),
+        decoration: InputDecoration(
+          prefixIcon: const Icon(
+            Icons.search_sharp,
+            color: AppC.grey,
+            size: 18,
+          ),
+          hintText: 'Search....',
+          hintStyle: const TextStyle(
+            color: Colors.grey,
+            fontSize: 14, // Hint text size
+          ),
+          filled: true,
+          fillColor: AppC.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 5.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppC.fieldBase,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppC.fieldBase,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }*/
+
 
   static Widget getBorderedIcon(IconData? icon,
       {Color iconColor = AppC.green,
