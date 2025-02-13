@@ -2463,7 +2463,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   onTapCallback: () {
                                                     Utils.todoDatePickerDialog(context, '').then((value) {
                                                       editSelectedDate = value;
-                                                      editTodoDateController.text = Utils.convertDateTimeToTheFormats(
+                                                      editTodoDateController.text = Utils.convertDateToYearMonthDateFormat(
                                                         value.toString(),
                                                       );
                                                     });

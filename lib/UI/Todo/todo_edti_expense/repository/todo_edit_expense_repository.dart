@@ -43,7 +43,7 @@ class TodoEditExpenseRepository {
         "expense_description": "$expenseDescription",
         "expense_date": expenseId != null
             ? "$expenseDate"
-            : Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
+            : Utils.convertCurrentDateToStringFormat(DateTime.now()),
         "cohort_id": cohortId??'',
         "vin": vin ?? '',
         "odometer": odometer ?? '',

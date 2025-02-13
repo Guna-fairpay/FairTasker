@@ -184,7 +184,7 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
                             .then((value) {
                           if (value != null) {
                             startDateController.text =
-                                Utils.convertDateTimeToTheFormats(
+                                Utils.convertDateToYearMonthDateFormat(
                                     value.toString());
                           }
                         });
@@ -199,7 +199,7 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
                             .then((value) {
                           if (value != null) {
                             endDateController.text =
-                                Utils.convertDateTimeToTheFormats(
+                                Utils.convertDateToYearMonthDateFormat(
                                     value.toString());
                           }
                         });

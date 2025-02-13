@@ -252,7 +252,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                                   padding:
                                   const EdgeInsets.only(top: 6.0),
                                   child: Utils.getText(
-                                      Utils.convertDateFormats(
+                                      Utils.convertDateToMonthDateYearFormat(
                                         data['todo_date'] ?? '',),
                                       weight: FontWeight.bold,
                                       color: AppC.green, size: 12),

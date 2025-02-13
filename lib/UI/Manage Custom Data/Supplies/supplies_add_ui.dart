@@ -1,6 +1,7 @@
+
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -12,24 +13,23 @@ class SuppliesAddUI extends StatefulWidget {
 }
 
 class _SuppliesAddUIState extends State<SuppliesAddUI> {
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool goBack = false;
   TextEditingController suppliesController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   bool isSuppliesFieldEmpty = false;
 
-  void _saveSupplies() {
-    setState(() {
-      isSuppliesFieldEmpty = suppliesController.text.isEmpty;
-    });
+  void _save() {
+    _formKey.currentState!.validate();
+    setState(() {});
     if (suppliesController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill the required field');
+      return;
     }
-
     final newSupplies = {
       'name': suppliesController.text,
       'description': descriptionController.text,
     };
-
     Navigator.of(context).pop(newSupplies);
   }
 
@@ -37,83 +37,54 @@ class _SuppliesAddUIState extends State<SuppliesAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        title: const Text(
+          'Add Supplies',
+        ),
+        actions: [
+          IconButton(
+              onPressed: ()=> Navigator.pop(context),
+              icon: const Icon(
+                Icons.close,
+                color: AppC.white,
+              )),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Add Supplies',
-                    size: 20, weight: FontWeight.bold),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getTextFormField(
-                    '',
-                    suppliesController,
-                    label: Utils.getText('Supplies Name', color: AppC.grey),
-                    borderColor:
-                        isSuppliesFieldEmpty ? Colors.red : AppC.fieldBase,
-                  ),
-                  if (isSuppliesFieldEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(Icons.error_outline, color: Colors.red),
-                    ),
-                ],
+      body: SafeArea(
+        minimum: 15.padding,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              Utils.getTextFormField(
+                'Supplies Name',
+                suppliesController,
+                autoValidate: AutovalidateMode.onUserInteraction,
+                validator: (val) => val!.isEmpty ? 'Please enter supplies name' : null,
               ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getTextFormField(
-                    '',
-                    descriptionController,
-                    label: Utils.getText('Description', color: AppC.grey),
-                  ),
-                ],
+              const SizedBox(height: 10),
+              Utils.getTextFormField(
+                'Description',
+                descriptionController,
               ),
-            ),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
-                    () {
-                      _saveSupplies();
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Utils.getElevatedButton(
+                    text:  'Save',
+                    bgColor: AppC.green,
+                        () {
+                      _save();
                     },
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       drawer: const DrawerView(),

@@ -16,21 +16,6 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       // TODO: implement event handler
     });
 
-
-    on<DeleteLocationEvent>((event, emit) async {
-      emit(const LocationDataLoading());
-      await locationDataRepo.deleteLocation(event.id!, isLocationAddress: event.isLocationAddress).then((value) {
-        emit(LocationDataLoaded(result: value, isDelete: true));
-      });
-    });
-
-    on<AddLocationData>((event, emit) async {
-      emit(const LocationDataLoading());
-      await locationDataRepo.createLocation(event.id, event.name??'', event.address).then((value) {
-        emit(LocationDataLoaded(result: value, isDelete: null));
-      });
-    });
-
     on<GetAddedLocationListData>((event, emit) async {
       emit(const LocationDataLoading());
       await todoListRepo
@@ -40,5 +25,27 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       });
     });
 
+    on<AddLocationData>((event, emit) async {
+      emit(const LocationDataLoading());
+      await locationDataRepo.createLocation(event.id, event.name, event.address).then((value) {
+        emit(LocationDataLoaded(message:value?.message ));
+      });
+    });
+
+    on<DeleteLocationEvent>((event, emit) async {
+      emit(const LocationDataLoading());
+      await locationDataRepo.deleteLocation(event.id).then((value) {
+        emit(LocationDataLoaded(message: value.toString()));
+      });
+    });
+
+    on<DeleteLocation>((event, emit) async {
+      emit(const LocationDataLoading());
+      await locationDataRepo.delete(event.id).then((value) {
+        emit(LocationDataLoaded(message: value.toString()));
+      });
+    });
+
   }
 }
+

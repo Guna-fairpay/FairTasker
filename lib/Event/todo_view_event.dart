@@ -968,14 +968,14 @@ class AddCategoryConfigData extends TodoViewEvent {
 }
 
 class DeleteCategoryConfig extends TodoViewEvent {
-  final String id;
+  final int? id;
 
   const DeleteCategoryConfig({
     required this.id,
   });
 
   @override
-  List<Object> get props => [id];
+  List<Object?> get props => [id];
 }
 
 class GetTaskData extends TodoViewEvent {

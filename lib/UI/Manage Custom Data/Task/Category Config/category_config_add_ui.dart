@@ -1,6 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Bloc/todo_view_bloc.dart';
+import '../../../../Event/todo_view_event.dart';
+import '../../../../State/todo_view_state.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/utils.dart';
 
@@ -65,67 +69,83 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
               icon:  const Icon(Icons.close,color: AppC.white,)),
         ],
       ),
-      body:  Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      alignment: Alignment.centerRight,
-                      children: [
-                        Utils.getTextFormField(
-                          '',
-                          nameController,
-                          label: Utils.getText('Name', color: AppC.grey),
-                          borderColor: isFirstNameFieldEmpty
-                              ? Colors.red
-                              : AppC.fieldBase,
-                        ),
-                        if (isFirstNameFieldEmpty)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Icon(Icons.error_outline,
-                                color: Colors.red),
+      body: BlocProvider(
+        create: (context) =>
+        todoViewBloc..add(const GetCategoryConfigData()),
+        child: BlocConsumer<TodoViewBloc, TodoViewState>(
+            listener: (context, state) {
+              if (state is TodoListLoading) {
+                EasyLoading.show();
+              } else{
+                if(EasyLoading.isShow)EasyLoading.dismiss();
+                if (state is CategoryConfigListLoaded) {
+                  category.clear();
+                  final List<Map<String, dynamic>> list = [];
+                  list.addAll(state.data ?? []);
+                  category.addAll(list.where((item) => item['parent_id'] == null));
+                }
+              }
+            }, builder: (context, state) {
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Utils.getTextFormField(
+                            'Name',
+                            nameController,
                           ),
-                      ],
-                    ),
-                    Utils.dropdownBox(
+                          if (isFirstNameFieldEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.error_outline,
+                                  color: Colors.red),
+                            ),
+                        ],
+                      ),
+                      Utils.dropdownBox(
                         'Select Category',
                         category,
                             (value) {
-                      setState(() {
-                        selectedCategory = value;
-                        print(selectedCategory['id']);
-                      });
-                      },
-                        labelKey: 'name'),
-                    Utils.dropdownBox(
+                          setState(() {
+                            selectedCategory = value;
+                          });
+                        },
+                        labelKey: 'name',
+                        initialSelection: selectedCategory,
+                        selectedKey: selectedCategory,
+                      ),
+                      Utils.dropdownBox(
                         'Select',
                         userType,
                             (value) {
                           setState(() {
                             selectedUserType = value;
-                            print(selectedUserType);
-
                           });
                         },
                         labelKey: 'name',
-
-                    ),
-                    Utils.getElevatedButton(
-                            () => _save(),
-                        text: 'Save',
-                        bgColor: AppC.green
-                    ),
-                  ],
+                        selectedKey: selectedUserType,
+                        initialSelection: selectedUserType,
+                      ),
+                      Utils.getElevatedButton(
+                              () => _save(),
+                          text: 'Save',
+                          bgColor: AppC.green
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
             ],
+          );
+        }),
       ),
     );
   }

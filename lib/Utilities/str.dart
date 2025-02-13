@@ -75,5 +75,7 @@ class Str{
 
     static const List<int> getAroundIds = [268, 177];
 
+    static const String noMatchFound = 'No data found. Please check your input and try again.';
+
 
 }

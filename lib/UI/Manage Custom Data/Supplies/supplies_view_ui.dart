@@ -1,6 +1,8 @@
 
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
@@ -88,7 +90,7 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
   }
 
   Future<void> _deleteSupply(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context,'supplies');
     if (confirmed == true) {
       final supplies = filteredSupplies[index];
       suppliesDataBloc.add(DeleteSupplyEvent(id: supplies['id']));
@@ -97,31 +99,6 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content: Utils.getText('Are you sure you want to delete this supply?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Confirm the deletion
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cancel the deletion
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,9 +120,9 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) async {
           if (state is VehicleDataLoading) {
-            loading = true;
+            EasyLoading.show();
           } else if (state is SupplyListLoaded) {
-            loading = false;
+            if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredSupplies.clear();
             filteredSupplies.addAll(state.supplyDataList ?? []);
             List<Map<String, dynamic>> list = [];
@@ -155,75 +132,68 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
             supplies = list;
             filteredSupplies = List.from(supplies);
           } else {
-            loading = true;
+            EasyLoading.show();
             suppliesDataBloc.add(const GetSuppliesListV());
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15),
-                child: Column(
+          return SafeArea(
+            minimum: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15),
+            child: Column(
+              children: [
+                Row(
+                  spacing: 10,
                   children: [
-                    Row(
-                      spacing: 10,
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: Utils.getSearchBarUI(
-                              onChange: _filterSupplies,
-                              searchController: searchController,
-                            ),
-                          ),
-                        ),
-                        Utils.getAddElevatedButton(()=>
-                          _navigateToSuppliesAddUI(),
-                        ),
-                      ],
-                    ),
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: filteredSupplies.length,
-                        separatorBuilder: (context,index) => const Divider(height: 0.5,),
-                        itemBuilder: (context, index) {
-                          final supply = filteredSupplies[index];
-                          return GestureDetector(
-                            onTap: () {
-                              _navigateToEditSuppliesUI(index);
-                            },
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.all(10.0),
-                                    child: Utils.getText(
-                                      supply['name'] ?? '',
-                                      weight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                    onTap: () {},
-                                    child: const Icon(
-                                      Icons.delete_outline,
-                                      color: AppC.redAccent,
-                                    ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                      child: SizedBox(
+                        height: 40,
+                        child: Utils.getSearchBarUI(
+                          onChange:
+                            _filterSupplies,
+                          searchController:
+                          searchController,
+                        ),
                       ),
+                    ),
+                    Utils.getAddElevatedButton(()=>
+                      _navigateToSuppliesAddUI(),
                     ),
                   ],
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: filteredSupplies.length,
+                    separatorBuilder: (context,index) => const Divider(height: 0.5,),
+                    itemBuilder: (context, index) {
+                      final supply = filteredSupplies[index];
+                      return InkWell(
+                        onTap: () {
+                          _navigateToEditSuppliesUI(index);
+                        },
+                        child: SafeArea(
+                          minimum: 10.padding,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Utils.getText(
+                                  supply['name'] ?? '',
+                                ),
+                              ),
+                              GestureDetector(
+                                  onTap: () =>_deleteSupply(index),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    color: AppC.redAccent,
+                                  ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           );
         }),
       ),

@@ -1,10 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class SubcategoryAddUI extends StatefulWidget {
   const SubcategoryAddUI({super.key});
@@ -22,6 +22,7 @@ class _SubcategoryAddUIState extends State<SubcategoryAddUI> {
   dynamic selectedExpenseTo;
   bool isSubcategoryFieldEmpty = false;
   Map<String, dynamic> list = {};
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -30,13 +31,10 @@ class _SubcategoryAddUIState extends State<SubcategoryAddUI> {
   }
 
   void _save() {
-    setState(() {
-      isSubcategoryFieldEmpty = subcategoryController.text.isEmpty;
-    });
-    if (subcategoryController.text.isEmpty ||
-        selectedCategory == null ||
-        selectedExpenseTo == null) {
-      return Utils.showMobileToast('Please fill in all required fields');
+    _formKey.currentState!.validate();
+    setState(() {});
+    if (subcategoryController.text.isEmpty) {
+      return;
     }
     final newSubcategory = {
       'name': subcategoryController.text,
@@ -50,173 +48,70 @@ class _SubcategoryAddUIState extends State<SubcategoryAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar:AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        title: const Text('Add Sub Category'),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close,),)
+        ],
       ),
       body: BlocProvider(
         create: (context) => vehicleDataBloc..add(const GetSubCategory()),
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
           listener: (context, state) async {
-            if (state is SubCategoryListLoaded) {
-              setState(() {
+            if (state is VehicleDataLoading) {
+              EasyLoading.show();
+            }
+            else if (state is SubCategoryListLoaded) {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
                 categoriesData = state.categoriesResponse?.data ?? [];
                 expenseToData = state.categoriesResponse?.expenseTo ?? [];
-              });
             }
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Utils.getText('Add Sub Category',
-                              size: 16, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              subcategoryController,
-                              label: Utils.getText('Subcategory',
-                                  color: AppC.grey),
-                              borderColor: isSubcategoryFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
-                            ),
-                            if (isSubcategoryFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // DropdownMenu<Map<String, dynamic>>(
-                      //   hintText: 'Select Category',
-                      //   menuHeight: 250,
-                      //   menuStyle: MenuStyle(
-                      //     backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                      //     shadowColor: WidgetStateProperty.all<Color>(Colors.indigo),
-                      //     surfaceTintColor: WidgetStateProperty.all<Color>(Colors.indigo),
-                      //     visualDensity: VisualDensity(vertical: VisualDensity.minimumDensity),
-                      //     side: WidgetStateProperty.all<BorderSide>(BorderSide(color: Colors.blue.shade50),
-                      //     ),
-                      //   ),
-                      //   expandedInsets: EdgeInsets.symmetric(horizontal: 0.0,),
-                      //   dropdownMenuEntries: categoriesData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-                      //         (Map<String, dynamic> value) {
-                      //       return DropdownMenuEntry<Map<String, dynamic>>(
-                      //         value: value,
-                      //         label: '${value['name']}',
-                      //       );
-                      //     },
-                      //   ).toList(),
-                      //   onSelected: (selectedValue) {
-                      //     setState(() {
-                      //       selectedCategory = selectedValue;  // Store the selected value
-                      //     });
-                      //   },
-                      // ),
-                      Utils.dropdownBox('Select Category', categoriesData,
-                          (selectedValue) {
-                        setState(() {
-                          selectedCategory = selectedValue;
-                        });
-                      }, labelKey: 'name'),
-                      //   Container(height: 40,
-                      //     decoration: BoxDecoration(
-                      //         border: Border.all(
-                      //           color: AppC.fieldBase,
-                      //           width: Num.borderWidthField,
-                      // ),
-                      // borderRadius: const BorderRadius.all(
-                      //     Radius.circular(
-                      //         Num.subradiusButton))),
-                      //     child: DropdownMenu<Map<String, dynamic>>(
-                      //       hintText: 'Select ExpenseTo',
-                      //       menuHeight: 250,
-                      //       textStyle: const TextStyle(fontSize:12,fontWeight: FontWeight.bold),
-                      //       inputDecorationTheme: const InputDecorationTheme(
-                      //        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      //         border: InputBorder. none,
-                      //         isDense: true,
-                      //       ),
-                      //       menuStyle: MenuStyle(
-                      //         backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                      //         shadowColor: WidgetStateProperty.all<Color>(Colors.blue),
-                      //         surfaceTintColor: WidgetStateProperty.all<Color>(Colors.blue),
-                      //         visualDensity: const VisualDensity(
-                      //             vertical: VisualDensity.minimumDensity),
-                      //       ),
-                      //       expandedInsets: const EdgeInsets.symmetric(horizontal: 0.0),
-                      //       dropdownMenuEntries: expenseToData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-                      //             (Map<String, dynamic> value) {
-                      //           return DropdownMenuEntry<Map<String, dynamic>>(
-                      //             value: value,
-                      //             label: '${value['expense_to']}', // Replace with your widget
-                      //           );
-                      //         },
-                      //       ).toList(),
-                      //       onSelected: (selectedValue) {
-                      //         setState(() {
-                      //           selectedExpenseTo = selectedValue;  // Store the selected value
-                      //         });
-                      //       },
-                      //     ),
-                      //   ),
-                      const SizedBox(height: 10),
-                      Utils.dropdownBox('Select ExpenseTo', expenseToData,
-                          (selectedValue) {
-                        setState(() {
-                          selectedExpenseTo = selectedValue;
-                        });
-                      }, labelKey: 'expense_to'),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton(
-                              'Save',
-                              _save,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            return SafeArea(
+              minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    Utils.getTextFormField(
+                      'Subcategory',
+                      subcategoryController,
+                      validator: (val) => val!.isEmpty ? 'Please enter sub category' : null,
+                    ),
+                    const SizedBox(height: 10),
+                    Utils.dropdownBox('Select Category', categoriesData,
+                        (selectedValue) {
+                      setState(() {
+                        selectedCategory = selectedValue;
+                      });
+                    }, labelKey: 'name'),
+                    const SizedBox(height: 10),
+                    Utils.dropdownBox('Select ExpenseTo', expenseToData,
+                        (selectedValue) {
+                      setState(() {
+                        selectedExpenseTo = selectedValue;
+                      });
+                    }, labelKey: 'expense_to'),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Utils.getElevatedButton(()=> _save()),
+                      ],
+                    )
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

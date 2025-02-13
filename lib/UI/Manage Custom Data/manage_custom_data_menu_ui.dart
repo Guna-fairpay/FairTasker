@@ -107,7 +107,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Parts',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const PartViewUI(),
+                  builder: (context) => const PartViewUI(),///PartView() ?? PartViewUI()
                 ));
               },
             ),
@@ -134,7 +134,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'SubCategory',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SubcategoryViewui(),
+                  builder: (context) => const SubcategoryViewUI(),
                 ));
               },
             ),
@@ -156,7 +156,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                 ));
               },
             ),
-            _buildCard(
+           /* _buildCard(
               icon: Icons.telegram,
               title: 'Customers',
               onTap: () async {
@@ -164,7 +164,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                   builder: (context) => const PartView(),
                 ));
               },
-            ),
+            ),*/
           ],
         ),
       ),
