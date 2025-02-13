@@ -1068,10 +1068,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 ),
                                 if (showExpenseTab == 0)
                                   TodoEditExpenseUI(
-                                    expenseData: expenseData ?? {},
                                     vehicle: vehicle,
                                     vehicleName: vehicleName,
-                                    taskList: taskExpenseList,
                                     todoData: todoItem,
                                   )
                                 else if (showExpenseTab == 1)
@@ -1174,7 +1172,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 ).then((value) {
                   editSelectedDate = value;
                   editTodoDateController.text =
-                      Utils.convertDateTimeToTheFormats(value.toString());
+                      Utils.convertDateToYearMonthDateFormat(value.toString());
                 });
               },
                       suffixIcon: GestureDetector(

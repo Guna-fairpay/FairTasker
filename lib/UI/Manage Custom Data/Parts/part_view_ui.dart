@@ -1,7 +1,7 @@
+
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,8 +87,7 @@ class _PartViewUIState extends State<PartViewUI> {
   }
 
   Future<void> _deletePart(int index) async {
-    final confirmed = await Utils.showCustomDeleteDialog(context,
-    'Do you want to delete this Vehicle Part?',);
+    final confirmed = await Utils.showCustomDeleteDialog(context,'Vehicle Part?');
     if (confirmed == true) {
       final parts = filteredParts[index];
       partDataBloc.add(DeletePartEvent(id: parts['id']));
@@ -116,11 +115,11 @@ class _PartViewUIState extends State<PartViewUI> {
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
               listener: (context, state) async {
           if (state is VehicleDataLoading) {
-            loading = true;
+            EasyLoading.show();
           } else if (state is PartsListLoaded) {
-            loading = false;
+            if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredParts.clear();
-            List<Map<String, dynamic>> list = [];
+            final List<Map<String, dynamic>> list = [];
             list.addAll(state.partsDataList ?? []);
             list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
@@ -128,71 +127,62 @@ class _PartViewUIState extends State<PartViewUI> {
             filteredParts = List.from(parts);
           } else {
             partDataBloc.add(const GetPartsListV());
-            loading = true;
+            EasyLoading.show();
           }
         },
             builder: (context, state) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
-                child: Column(
-                  spacing: 10,
+          return SafeArea(
+            minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+            child: Column(
+              spacing: 10,
+              children: [
+                Row(
+                  spacing:10,
                   children: [
-                    Row(
-                      spacing:10,
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: Utils.getSearchBarUI(() {}, (value) {
-                              _filterParts(value);
-                            }, searchController),
-                          ),
-                        ),
-                        Utils.getAddElevatedButton(()=>
-                          _navigateToPartsAddUI()),
-                      ],
-                    ),
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: filteredParts.length,
-                        separatorBuilder: (context, index) => const Divider(height: 0.5,),
-                        itemBuilder: (context, index) {
-                          final part = filteredParts[index];
-                          return GestureDetector(
-                            onTap: () {
-                              _navigateToEditPartUI(index);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Utils.getText(
-                                      part['name'] ?? '',
-                                      weight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Icon(Icons.delete_outline,color: AppC.redAccent,)
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                      child: Utils.getSearchBarUI(() {}, (value) {
+                        _filterParts(value);
+                      }, searchController),
                     ),
+                    Utils.getAddElevatedButton(()=>
+                      _navigateToPartsAddUI()),
                   ],
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: filteredParts.length,
+                    separatorBuilder: (context, index) => const Divider(height: 0.5,),
+                    itemBuilder: (context, index) {
+                      final part = filteredParts[index];
+                      return InkWell(
+                        onTap: ()=> _navigateToEditPartUI(index),
+                        child: SafeArea(
+                          minimum: 10.padding,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Utils.getText(
+                                  part['name'] ?? '',
+                                ),
+                              ),
+                              InkWell(
+                                onTap: ()=>_deletePart(index),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    color: AppC.redAccent,)
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

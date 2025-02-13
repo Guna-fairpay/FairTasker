@@ -22,17 +22,13 @@ import '../../../../Utilities/num.dart';
 
 class TodoEditExpenseUI extends StatefulWidget {
   final List<Map<String, dynamic>> vehicleName;
-  final Map<String, dynamic> expenseData;
   final Map<String, dynamic> todoData;
   final Map<String, dynamic> vehicle;
-  final List<Map<String, dynamic>> taskList;
 
   const TodoEditExpenseUI({
     super.key,
-    required this.expenseData,
     required this.vehicle,
     required this.vehicleName,
-    required this.taskList,
     required this.todoData,
   });
 

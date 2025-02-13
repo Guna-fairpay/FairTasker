@@ -348,7 +348,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                   .then((value) {
                                 if (value != null) {
                                   purchaseDateController.text =
-                                      Utils.convertDateTimeToTheFormats(
+                                      Utils.convertDateToYearMonthDateFormat(
                                           value.toString());
                                 }
                               });

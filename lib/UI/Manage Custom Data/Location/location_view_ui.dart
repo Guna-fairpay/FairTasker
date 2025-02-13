@@ -1,8 +1,7 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/location_data_bloc.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,17 +19,14 @@ class LocationViewUI extends StatefulWidget {
 class _LocationViewUIState extends State<LocationViewUI> {
   late LocationDataBloc locationDataBloc;
   final TextEditingController searchController = TextEditingController();
-  List<Map<String, dynamic>> location = []; // Sample data list
+  List<Map<String, dynamic>> location = [];
   List<Map<String, dynamic>> filteredLocation = [];
-  final FocusNode searchFocusNode = FocusNode();
-
-  bool loading = false;
 
   @override
   void initState() {
     super.initState();
     locationDataBloc = LocationDataBloc();
-    // locationDataBloc.add(const GetAddedLocationListData());
+    locationDataBloc.add(const GetAddedLocationListData());
   }
 
   @override
@@ -44,11 +40,8 @@ class _LocationViewUIState extends State<LocationViewUI> {
     setState(() {
       filteredLocation = location.where((locations) {
         final location = locations['name']?.toLowerCase() ?? '';
-        // final address = locations['addresses']?.map((e) => e['address']?.toLowerCase()).join(', ') ?? '';
         final searchQuery = query.toLowerCase();
-        return location
-                .contains(searchQuery) // || address.contains(searchQuery)
-            ;
+        return location.contains(searchQuery);
       }).toList();
     });
   }
@@ -58,7 +51,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
       context,
       MaterialPageRoute(builder: (context) => const LocationAddUI()),
     );
-
     if (newLocation != null) {
       setState(() {
         locationDataBloc.add(AddLocationData(
@@ -82,7 +74,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
         builder: (context) => LocationEditUI(location: filteredLocation[index]),
       ),
     );
-
     if (updatedLocation != null) {
       locationDataBloc.add(AddLocationData(
         name: updatedLocation['name'],
@@ -92,46 +83,18 @@ class _LocationViewUIState extends State<LocationViewUI> {
             .toList(),
         id: updatedLocation['id'],
       ));
-
       Utils.showMobileToast('Updated successfully');
     }
   }
 
   Future<void> _deleteLocation(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context ,'Location?');
     if (confirmed == true) {
       final location = filteredLocation[index];
-      locationDataBloc.add(DeleteLocationEvent(id: location['id']));
+      locationDataBloc.add(DeleteLocation(id: location['id']));
       locationDataBloc.add(const GetAddedLocationListData());
       Utils.showMobileToast('deleted successfully');
     }
-  }
-
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content:
-            Utils.getText('Are you sure you want to delete this Location?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Confirm the deletion
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cancel the deletion
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -155,9 +118,9 @@ class _LocationViewUIState extends State<LocationViewUI> {
         child: BlocConsumer<LocationDataBloc, LocationDataState>(
             listener: (context, state) async {
           if (state is LocationDataLoading) {
-            loading = true;
+            EasyLoading.show();
           } else if (state is LocationListLoaded) {
-            loading = false;
+            if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredLocation.clear();
             final List<Map<String, dynamic>> list = [];
             list.addAll(state.resource ?? []);
@@ -167,79 +130,60 @@ class _LocationViewUIState extends State<LocationViewUI> {
             filteredLocation = List.from(location);
           } else {
             locationDataBloc.add(const GetAddedLocationListData());
-            loading = true;
+            EasyLoading.show();
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 15),
-                child: Column(
+          return SafeArea(
+            minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+            child: Column(
+              spacing: 10,
+              children: [
+                Row(
+                  spacing: 10,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: Utils.getSearchBarUI(
-                              () {
-                                // onTap action for search bar if needed
-                              },
-                              (value) {
-                                _filterLocation(value);
-                              },
-                              searchController,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Utils.getAddElevatedButton(_navigateToLocationAddUI),
-
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: filteredLocation.length,
-                        itemBuilder: (context, index) {
-                          final location = filteredLocation[index];
-                          return GestureDetector(
-                            onTap: () {
-                              _navigateToEditLocationUI(index);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Utils.getText(
-                                          location['name'] ?? '',
-                                          weight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Icon(Icons.delete_outline,color: AppC.redAccent,)
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }, separatorBuilder: (context, index)  => const Divider(height: 0.5,),
+                      child: Utils.getSearchBarUI(
+                        () {},
+                        (value) {
+                          _filterLocation(value);
+                        },
+                        searchController,
                       ),
                     ),
+                    Utils.getAddElevatedButton(_navigateToLocationAddUI),
                   ],
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: filteredLocation.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 0.5),
+                    itemBuilder: (context, index) {
+                      final location = filteredLocation[index];
+                      return InkWell(
+                        onTap: () =>
+                          _navigateToEditLocationUI(index),
+                        child: SafeArea(
+                          minimum: const EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Utils.getText(
+                                  location['name'] ?? '',
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () => _deleteLocation(index),
+                                  child: const Icon(Icons.delete_outline,color: AppC.redAccent,))
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           );
         }),
       ),

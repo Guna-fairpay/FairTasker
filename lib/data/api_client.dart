@@ -132,7 +132,6 @@ class ApiClient {
       } else {
         debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken(url: url)}');
       }
-      if (body.isNotEmpty) log("$body", name: "POST_BODY");
       http.Response response = await client.post(Utils.getUri(url),
           headers:
               tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(url: url),
