@@ -45,4 +45,6 @@ static const redAccent = Color(0xffd01601);
   static const borderColor = Color(0x6F9E9E9E);
   static const labelColor = Color(0xd6373737);
 
+  static const buttonColor = Color(0xFF369f6f);
+
 }

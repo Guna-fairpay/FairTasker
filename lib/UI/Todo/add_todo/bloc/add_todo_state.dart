@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 class AddToDoState extends Equatable {
   final bool isLoading;
+  final bool redirect;
   final bool showAppBar;
   final bool isTimeSensitive;
   final List<dynamic> tasks;
@@ -23,6 +24,7 @@ class AddToDoState extends Equatable {
   final List<dynamic> recurringTypes;
   final List<dynamic> attachments;
   final List<dynamic> addresses;
+  final List<dynamic> selectedRecurringDays;
   final List<Map<String, dynamic>> selectedVPerson;
   final Map<int, dynamic> selectedTaskIdentifier;
   final dynamic selectedClearDuration;
@@ -33,13 +35,18 @@ class AddToDoState extends Equatable {
   final bool isPartServiceEnable;
   final bool isSuppliesEnable;
   final bool showCleanCar;
+  final bool isRecurringMonthOccurrence;
+  final bool isRecurringEndDate;
   final DateTime? selectedDate;
+  final DateTime? selectedRecurringEndDate;
   final TimeOfDay? selectedTime;
   final dynamic selectedRecurring;
+  final dynamic recurringYearlySelectedMonth;
 
   const AddToDoState({
     required this.showAppBar,
     required this.isLoading,
+    required this.redirect,
     required this.isTimeSensitive,
     required this.tasks,
     required this.vendors,
@@ -69,12 +76,18 @@ class AddToDoState extends Equatable {
     required this.recurringTypes,
     required this.attachments,
     required this.addresses,
+    required this.selectedRecurringDays,
     this.selectedRecurring,
+    this.selectedRecurringEndDate,
+    required this.isRecurringMonthOccurrence,
+    required this.isRecurringEndDate,
+    required this.recurringYearlySelectedMonth,
   });
 
   AddToDoState copyWith({
     bool? showAppBar,
     bool? isLoading,
+    bool? redirect,
     bool? isTimeSensitive,
     bool? isSelectedPlatformCheck,
     bool? isPartServiceEnable,
@@ -104,11 +117,17 @@ class AddToDoState extends Equatable {
     List<dynamic>? recurringTypes,
     List<dynamic>? attachments,
     List<dynamic>? addresses,
+    List<dynamic>? selectedRecurringDays,
     dynamic selectedRecurring,
+    dynamic recurringYearlySelectedMonth,
+    bool? isRecurringMonthOccurrence,
+    bool? isRecurringEndDate,
+    DateTime? selectedRecurringEndDate,
   }) =>
       AddToDoState(
         showAppBar: showAppBar ?? this.showAppBar,
         isLoading: isLoading ?? this.isLoading,
+        redirect: redirect ?? this.redirect,
         isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
         selectedVPerson: selectedVPerson ?? this.selectedVPerson,
         isSelectedPlatformCheck:
@@ -142,6 +161,15 @@ class AddToDoState extends Equatable {
         selectedRecurring: selectedRecurring ?? this.selectedRecurring,
         attachments: attachments ?? this.attachments,
         addresses: addresses ?? this.addresses,
+        selectedRecurringDays:
+            selectedRecurringDays ?? this.selectedRecurringDays,
+        recurringYearlySelectedMonth:
+            recurringYearlySelectedMonth ?? this.recurringYearlySelectedMonth,
+        isRecurringMonthOccurrence:
+            isRecurringMonthOccurrence ?? this.isRecurringMonthOccurrence,
+        isRecurringEndDate: isRecurringEndDate ?? this.isRecurringEndDate,
+        selectedRecurringEndDate:
+            selectedRecurringEndDate ?? this.selectedRecurringEndDate,
       );
 
   @override
@@ -149,6 +177,7 @@ class AddToDoState extends Equatable {
         showAppBar,
         selectedVPerson,
         isLoading,
+        redirect,
         isTimeSensitive,
         tasks,
         vehicles,
@@ -178,6 +207,11 @@ class AddToDoState extends Equatable {
         selectedRecurring,
         attachments,
         addresses,
+        selectedRecurringDays,
+        recurringYearlySelectedMonth,
+        isRecurringMonthOccurrence,
+        isRecurringEndDate,
+        selectedRecurringEndDate,
         Random().nextDouble()
       ];
 }

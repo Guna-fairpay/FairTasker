@@ -6,4 +6,5 @@ extension SizedExtension on num {
   SizedBox get height => SizedBox(height: toDouble());
 
   EdgeInsets get padding => EdgeInsets.all(toDouble());
+  EdgeInsets get horizontalPadding => EdgeInsets.symmetric(horizontal: toDouble());
 }
