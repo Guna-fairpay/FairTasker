@@ -170,12 +170,11 @@ class _RentalViewUIState extends State<RentalViewUI> {
                           child: SizedBox(
                             height: 40,
                             child: Utils.getSearchBarUI(
-                                    () {},
-                                    (value) {
+                                    onChange: (value) {
                                   _filterRentals(
                                       value); // Filter rentals based on search query
                                 },
-                                searchController,),
+                                searchController: searchController),
                           ),
                         ),
                         const SizedBox(width: 8),

@@ -135,13 +135,8 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                           child: SizedBox(
                             height: 40,
                             child: Utils.getSearchBarUI(
-                                  () {
-                                // onTap action for search bar if needed
-                              },
-                                  (value) {
-                                    _filteredConfig(value);
-                              },
-                              searchController,
+                                  onChange: _filteredConfig,
+                              searchController: searchController,
                             ),
                           ),
                         ),

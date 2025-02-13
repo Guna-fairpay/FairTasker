@@ -131,11 +131,10 @@ class _RevenueViewUIState extends State<RevenueViewUI> {
                 SizedBox(
                   height: 40,
                   child: Utils.getSearchBarUI(
-                    () {},
-                    (value) {
+                    onChange: (value) {
                       //  _filtercategory(value);
                     },
-                    searchController,
+                    searchController: searchController,
                   ),
                 ),
               ],

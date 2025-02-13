@@ -172,13 +172,8 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
                           child: SizedBox(
                             height: 40,
                             child: Utils.getSearchBarUI(
-                              () {
-                                // onTap action for search bar if needed
-                              },
-                              (value) {
-                                _filterSupplies(value);
-                              },
-                              searchController,
+                              onChange: _filterSupplies,
+                              searchController: searchController,
                             ),
                           ),
                         ),

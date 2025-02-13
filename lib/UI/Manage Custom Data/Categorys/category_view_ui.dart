@@ -178,11 +178,10 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
                             child: SizedBox(
                               height: 40,
                               child: Utils.getSearchBarUI(
-                                () {},
-                                (value) {
+                                onChange: (value) {
                                   _filtercategory(value);
                                 },
-                                searchController,
+                                searchController: searchController,
                               ),
                             ),
                           ),

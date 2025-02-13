@@ -145,9 +145,7 @@ class _PartViewUIState extends State<PartViewUI> {
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {}, (value) {
-                              _filterParts(value);
-                            }, searchController),
+                            child: Utils.getSearchBarUI(onChange: _filterParts, searchController: searchController),
                           ),
                         ),
                         Utils.getAddElevatedButton(()=>

@@ -208,9 +208,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                       Row(
                         children: [
                           Expanded(
-                            child: Utils.getSearchBarUI(() {}, (value) {
-                              _filterEmployees(value);
-                            }, searchController,),
+                            child: Utils.getSearchBarUI(onChange: _filterEmployees, searchController: searchController),
                           ),
                           const SizedBox(width: 8),
                           if (userRole == 'Admin' || userId == '3')

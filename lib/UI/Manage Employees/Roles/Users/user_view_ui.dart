@@ -199,9 +199,7 @@ class _UserViewUIState extends State<UserViewUI> {
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {}, (value) {
-                              _filterUsers(value);
-                            }, searchController,),
+                            child: Utils.getSearchBarUI(onChange: _filterUsers, searchController: searchController),
                           ),
                         ),
                         const SizedBox(width: 8),

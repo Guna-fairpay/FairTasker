@@ -1,9 +1,13 @@
 
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart' as vdb;
 import 'package:fairpytasker/Component/readmore.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/resource_popup.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_pop.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +75,9 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
     _scrollController.addListener(_onScroll);
     userGroupList = widget.userGroupList;
     resourceList = widget.resourceList;
+
+    log("USER-GROUPS:\t${jsonEncode(userGroupList)}", name: "VEHICLE_HISTORY_UG");
+    log("RESOURCE:\t${jsonEncode(resourceList)}", name: "VEHICLE_HISTORY_R");
   }
 
   @override
@@ -154,6 +161,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
+                      10.height,
                       Row(
                         children: [
                           Expanded(
@@ -169,10 +177,8 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                                   borderRadius: BorderRadius.circular(5)
                                 ),
                                 child: Utils.getSearchBarUI(
-                                  () {},
-                                  (value) => _filterVehicleDataList(value),
-                                  searchController,
-                                 //inputAction: TextInputAction.search
+                                  onChange: (value) => _filterVehicleDataList(value),
+                                  searchController: searchController,
                                 ),
                               ),
                             ),
@@ -191,7 +197,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                               // Optional: Add a slight shadow (subtle effect)
                               shadowColor: Colors.black.withOpacity(0.2),
                             ),
-                            child: Text("Search"),
+                            child: const Text("Search"),
                           ),
                         ],
                       ),
@@ -261,7 +267,7 @@ class _VehicleHistoryViewUIState extends State<VehicleHistoryViewUI> {
                                       secondaryBackground: Container(
                                         alignment: Alignment.centerRight,
                                         color: AppC.green.withValues(alpha: 0.8),
-                                        child: TextButton.icon(onPressed: (){}, label: Utils.getText("Complete", color: AppC.white, weight: FontWeight.w600), icon: Icon(Icons.check_circle_outline,color: AppC.white,)),
+                                        child: TextButton.icon(onPressed: (){}, label: Utils.getText("Complete", color: AppC.white, weight: FontWeight.w600), icon: const Icon(Icons.check_circle_outline,color: AppC.white,)),
                                       ),
                                       direction: DismissDirection.endToStart,
                                       confirmDismiss: (direction) async {
