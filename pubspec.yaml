@@ -99,6 +99,8 @@ dependencies:
       url: https://github.com/PrabhuC-FP/searchfield.git
       ref: master
   google_fonts: ^6.2.1
+  sticky_headers: ^0.3.0+2
+  number_pagination: ^1.1.6
 
 dev_dependencies:
   flutter_test:

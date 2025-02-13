@@ -204,9 +204,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
                               Expanded(
                                 child: SizedBox(
                                   height: 40,
-                                  child: Utils.getSearchBarUI(() {}, (value) {
-                                    _filterRoles(value);
-                                  }, searchController,),
+                                  child: Utils.getSearchBarUI(onChange: _filterRoles, searchController: searchController),
                                 ),
                               ),
                               const SizedBox(width: 8),

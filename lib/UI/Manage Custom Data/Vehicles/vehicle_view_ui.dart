@@ -224,11 +224,11 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                 child: SizedBox(
                                   height: 40,
                                   child: Utils.getSearchBarUI(
-                                    () {},
-                                    (value) {
+
+                                    onChange: (value) {
                                       _filteredVehicle(value);
                                     },
-                                    searchController,
+                                    searchController: searchController,
                                   ),
                                 ),
                               ),

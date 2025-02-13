@@ -4,6 +4,7 @@
 import 'dart:developer';
 
 import 'package:date_time/date_time.dart' as dt;
+import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -2716,45 +2717,14 @@ class Utils {
     );
   }
 
-  static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
-      TextEditingController searchController) {
-    return SearchBar(
-
-      backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-      textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
-      padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
-      shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(16))),
-      elevation: const WidgetStatePropertyAll(0),
-      side: const WidgetStatePropertyAll(BorderSide.none),
-
-        // padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
-        // shadowColor: WidgetStateProperty.all(Colors.white),
-        // backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-        controller: searchController,
-        onTap: onTap,
-        // shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-        //     borderRadius: BorderRadius.circular(16))),
-        onChanged: onChange,
-        leading: const Icon(Icons.search,color: AppC.text,),
-        // textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
-        // elevation: WidgetStateProperty.all(0),
-        hintText: 'Search...',
-      // side: const WidgetStatePropertyAll(BorderSide.none),
-      hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
-              (Set<WidgetState> states) {
-            // Define different styles for different states
-            if (states.contains(WidgetState.focused)) {
-              return Utils.getTextStyle();
-            } else {
-              return Utils.getTextStyle();
-            }
-          },
-        ),
-        /*shape: WidgetStateProperty.all(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: AppC.fieldBase),
-        ))*/);
+  static Widget getSearchBarUI({void Function(String)? onChange,
+    void Function(String value)? onSearch,
+    required TextEditingController searchController}) {
+    return CustomSearchBar(
+      controller: searchController,
+      onChanged: onChange,
+      onSearch: onSearch,
+    );
   }
 
 /*  static Widget getSearchBarUI(

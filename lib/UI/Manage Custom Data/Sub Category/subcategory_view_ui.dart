@@ -201,9 +201,7 @@ class _SubcategoryViewuiState extends State<SubcategoryViewui> {
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {}, (value) {
-                              _filterSubcategory(value);
-                            }, searchController,),
+                            child: Utils.getSearchBarUI(onChange: _filterSubcategory, searchController: searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),

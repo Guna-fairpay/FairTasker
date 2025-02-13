@@ -182,13 +182,11 @@ class _LocationViewUIState extends State<LocationViewUI> {
                           child: SizedBox(
                             height: 40,
                             child: Utils.getSearchBarUI(
-                              () {
-                                // onTap action for search bar if needed
-                              },
-                              (value) {
+
+                              onChange: (value) {
                                 _filterLocation(value);
                               },
-                              searchController,
+                              searchController: searchController,
                             ),
                           ),
                         ),

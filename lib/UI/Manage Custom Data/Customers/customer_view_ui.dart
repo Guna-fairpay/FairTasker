@@ -204,9 +204,9 @@ class _CustomerViewUiState extends State<CustomerViewUi> {
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {}, (value) {
+                            child: Utils.getSearchBarUI(onChange: (value) {
                               _filteredCustomer(value);
-                            }, searchController,),
+                            }, searchController: searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),
