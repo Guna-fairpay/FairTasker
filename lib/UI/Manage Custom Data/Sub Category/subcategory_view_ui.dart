@@ -145,8 +145,7 @@ class _SubcategoryViewUIState extends State<SubcategoryViewUI> {
                 Row(
                   spacing: 10,
                   children: [
-                    Expanded(
-                      child: Utils.getSearchBarUI(onChange: _filterSubcategory, searchController: searchController,),
+                    Expanded(child: Utils.getSearchBarUI(onChange: _filterSubcategory, searchController: searchController)),
                     Utils.getAddElevatedButton(() => _navigateToSubCategoryAddUI())
                   ],
                 ),
