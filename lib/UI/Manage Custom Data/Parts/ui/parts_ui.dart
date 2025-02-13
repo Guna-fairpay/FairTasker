@@ -1,11 +1,11 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/bloc/parts_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/event/parts_event.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Component/drawer_ui.dart';
 import '../../../../Component/header.dart';
-import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../state/parts_state.dart';
 
@@ -36,10 +36,9 @@ class PartView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Utils.getSearchBarUI(
-                            () {},
-                            (value) =>
+                            onChange: (value) =>
                                 context.read<PartsBloc>().add(SearchPartsEvent(value)),
-                            state.searchController),
+                            searchController: state.searchController),
                       ),
                       Utils.getAddFilledButton('Add', () => context.read<PartsBloc>().add(const AddPartsEvent(
                         '','',8,
