@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +22,10 @@ class _LocationEditUIState extends State<LocationEditUI> {
   late final TextEditingController locationController;
   final TextEditingController addressController = TextEditingController();
   List<dynamic> addressesList = [];
+  dynamic selectedAddress;
   bool isTaskFieldEmpty = false;
   bool isSelected = false;
-  bool isTap = false;
+  String _editAddress = '';
 
 
   @override
@@ -53,6 +56,7 @@ class _LocationEditUIState extends State<LocationEditUI> {
       'name': locationController.text,
       'addresses': addressesList,
     };
+
     Navigator.pop(context, updatedLocation);
   }
 
@@ -95,20 +99,29 @@ class _LocationEditUIState extends State<LocationEditUI> {
             Utils.getTextFormField(
               'Address',
               addressController,
+              inputAction: TextInputAction.done,
               label: Utils.getText('', color: AppC.grey),
               readOnly: false,
               suffixIcon: InkWell(
                 onTap: () {
                   if (addressController.text.isNotEmpty) {
                     setState(() {
-                      addressesList.add({
+                      if(selectedAddress != null){
+                        _editAddress= addressController.text;
+                        var index = addressesList.indexOf(selectedAddress);
+                        addressesList[index]['address'] = _editAddress;
+                        selectedAddress = null;
+                      }
+                      else{
+                        addressesList.add({
                         'address': addressController.text,
                       });
+                      }
                       addressController.clear();
                     });
                   }
                 },
-                child: Icon(isTap ? Icons.save : Icons.add),
+                child: Icon((selectedAddress != null) ? Icons.save : Icons.add),
               ),
             ),
             const SizedBox(height: 10),
@@ -118,10 +131,9 @@ class _LocationEditUIState extends State<LocationEditUI> {
               children: List.generate(addressesList.length, (index) {
                 return InkWell(
                   onTap: () {
-                    setState(() {
-                      isTap = true;
+                    setState(() {});
                       addressController.text=addressesList[index]['address'] ?? '';
-                    });
+                      selectedAddress = addressesList[index];
                   },
                   child: Chip(
                     label: Utils.getText(addressesList[index]['address'] ?? ''),
@@ -138,11 +150,10 @@ class _LocationEditUIState extends State<LocationEditUI> {
               children: [
                 Utils.getElevatedButton((){
                   if (addressController.text.isNotEmpty) {
-                    setState(() {
-                      addressesList.add({
-                        'address': addressController.text,
-                      });
+                    addressesList.add({
+                      'address': addressController.text,
                     });
+                    setState(() {});
                   }
                   _save();
                 },),

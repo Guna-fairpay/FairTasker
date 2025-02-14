@@ -27,8 +27,11 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
 
     on<AddLocationData>((event, emit) async {
       emit(const LocationDataLoading());
-      await locationDataRepo.createLocation(event.id, event.name, event.address).then((value) {
-        emit(LocationDataLoaded(message:value?.message ));
+      await locationDataRepo.createLocation(
+         id:  event.id,
+         name:  event.name,
+          address: event.address).then((value) {
+        emit(LocationDataLoaded(message:event.id==null?'Location Added Successfully':'Location Updated Successfully', ));
       });
     });
 

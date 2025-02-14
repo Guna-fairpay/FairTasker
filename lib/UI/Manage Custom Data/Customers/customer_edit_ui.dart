@@ -1,5 +1,4 @@
 
-import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/Event/private_rental_event.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
@@ -181,6 +180,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                     firstnameController,
                     autoValidate: AutovalidateMode.onUserInteraction,
                     validator: (val) => val!.isEmpty ? 'Please enter first name' : null,
+                      inputAction: TextInputAction.done
                   ),
                   const SizedBox(height: 10),
                   Utils.getTextFormField(
@@ -206,6 +206,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                     monthlyRentalController,
                     autoValidate: AutovalidateMode.onUserInteraction,
                     validator: (val) => val!.isEmpty ? 'Please enter monthly rental' : null,
+                      inputAction: TextInputAction.done
                   ),
                   const SizedBox(height: 10),
                   Utils.getTextFormField(
@@ -234,6 +235,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
                   Utils.getTextFormField(
                     'Notes',
                     notesController,
+                      inputAction: TextInputAction.done
                   ),
                   const SizedBox(height: 10),
                   if (userRole == 'Admin'|| userId == '3')

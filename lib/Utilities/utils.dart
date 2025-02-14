@@ -567,7 +567,7 @@ class Utils {
         key: key,
         validator: validator,
         autovalidateMode: autoValidate,
-        textInputAction: inputAction,
+        textInputAction: inputAction ?? TextInputAction.next,
         onTap: onTapCallback,
         focusNode: focusNode,
         autofocus: autoFocus,

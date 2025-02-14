@@ -121,12 +121,9 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
                 Row(spacing: 10,
                   children: [
                     Expanded(
-                      child: SizedBox(
-                        height: 40,
-                        child: Utils.getSearchBarUI(
-                          onChange: _filteredConfig,
-                          searchController: searchController,
-                        ),
+                      child: Utils.getSearchBarUI(
+                        onChange: _filteredConfig,
+                        searchController: searchController,
                       ),
                     ),
                     Utils.getAddElevatedButton(

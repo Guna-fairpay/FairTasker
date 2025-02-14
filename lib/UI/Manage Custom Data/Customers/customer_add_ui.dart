@@ -127,7 +127,7 @@ class _CustomerAddUIState extends State<CustomerAddUI> {
         minimum: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Form(
           key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: AutovalidateMode.onUnfocus,
           child: ListView(
             children: [
               const SizedBox(height: 10),
@@ -162,6 +162,7 @@ class _CustomerAddUIState extends State<CustomerAddUI> {
                 monthlyRentalController,
                 autoValidate: AutovalidateMode.onUserInteraction,
                 validator: (val) => val!.isEmpty ? 'Please enter monthly rental' : null,
+                inputAction: TextInputAction.done
               ),
               const SizedBox(height: 10),
               Utils.getTextFormField(
@@ -200,6 +201,7 @@ class _CustomerAddUIState extends State<CustomerAddUI> {
               Utils.getTextFormField(
                 'Notes',
                 notesController,
+                inputAction: TextInputAction.done
               ),
               const SizedBox(height: 10),
               if (userRole == 'Admin'|| userId == '3')

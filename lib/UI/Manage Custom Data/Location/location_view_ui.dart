@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/location_data_bloc.dart';
@@ -63,7 +65,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
         ));
       });
       locationDataBloc.add(const GetAddedLocationListData());
-      Utils.showMobileToast('Added successfully');
     }
   }
 
@@ -83,7 +84,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
             .toList(),
         id: updatedLocation['id'],
       ));
-      Utils.showMobileToast('Updated successfully');
     }
   }
 
@@ -119,18 +119,24 @@ class _LocationViewUIState extends State<LocationViewUI> {
             listener: (context, state) async {
           if (state is LocationDataLoading) {
             EasyLoading.show();
-          } else if (state is LocationListLoaded) {
+          }else if (state is LocationListLoaded) {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredLocation.clear();
-            final List<Map<String, dynamic>> list = [];
+            location.clear();
+            //filteredLocation.addAll(state.resource ?? []);
+            // addresses.addAll(filteredLocation.expand((e) => e['addresses'] ?? []));
+            List<Map<String, dynamic>> list = [];
             list.addAll(state.resource ?? []);
             list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
             location = list;
             filteredLocation = List.from(location);
-          } else {
+          }  else if (state is LocationDataLoaded) {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            Utils.showMobileToast(state.message ?? '');
+          }
+          else {
             locationDataBloc.add(const GetAddedLocationListData());
-            EasyLoading.show();
           }
         }, builder: (context, state) {
           return SafeArea(
