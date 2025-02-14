@@ -2421,8 +2421,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               vehicle['vehicle_name'] ??
                               selectedVin['vehicle_name'],
                           vin: vinToFind ?? selectedVin['vin'],
-                          resourceList: resourceList,
-                          userGroupList: userGroupList,
                         ),
                       ));
                     },

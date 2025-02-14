@@ -4,6 +4,7 @@ extension ContextExtension on BuildContext {
   double get height => MediaQuery.sizeOf(this).height;
   double get width => MediaQuery.sizeOf(this).width;
   ThemeData get theme => Theme.of(this);
+  ColorScheme get colorScheme => theme.colorScheme;
   TextTheme get textTheme => theme.textTheme;
 
   Future<void> push<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.push(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));

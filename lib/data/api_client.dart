@@ -33,11 +33,12 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callGetMethod(String url) async {
+  Future<http.Response?> callGetMethod(String url, {Map<String, dynamic>? params}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_getCompute, {
         "url": url,
         "token": Utils.getHeadersWithToken(url: url),
+        "params" : params
       });
       // http.Response response = await client.get(Utils.getUri(url),
       //     headers: Utils.getHeadersWithToken());

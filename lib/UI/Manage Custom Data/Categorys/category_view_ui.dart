@@ -3,7 +3,7 @@ import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../Utilities/Str.dart';
+import '../../../Utilities/str.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'category_add_ui.dart';

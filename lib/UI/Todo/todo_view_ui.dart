@@ -3273,7 +3273,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   vehicleName: vehicle?['vehicle_name'] ?? '',
                                                   title: todos['title'],
                                                   showHeader: false,
-                                                  showSameTask: true, resourceList: resourceList, userGroupList: userGroupList,
+                                                  showSameTask: true,
                                                 ),
                                               ),
                                             ],
