@@ -1,74 +1,68 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 
 class VehicleHistoryState extends Equatable {
-  final TextEditingController searchController;
   final dynamic vin;
+  final int totalPage;
+  final bool isLoading;
+  final int currentPage;
+  final bool hasMoreData;
   final String? vehicleName;
   final List<dynamic> apiResponse;
-  final List<dynamic> vehicleDataList;
-  final List<dynamic> filterVehicleDataList;
+  final Map<DateTime, List<dynamic>> vehicleDataList;
   final List<dynamic> resourceList;
   final List<dynamic> userGroupList;
-  final List<dynamic> filteredResponse;
-  final String? title;
-  final bool isLoading;
-
 
   const VehicleHistoryState({
     required this.apiResponse,
     required this.vehicleDataList,
-    required this.filteredResponse,
-    required this.filterVehicleDataList,
     required this.resourceList,
     required this.userGroupList,
-    required this.searchController,
     required this.vin,
     required this.vehicleName,
-    required this.title,
     required this.isLoading,
+    required this.totalPage,
+    required this.currentPage,
+    required this.hasMoreData,
   });
 
-  VehicleHistoryState copyWith(
-      {TextEditingController? searchController,
-        dynamic vin,
-        String? vehicleName,
-        required List<dynamic>? apiResponse,
-        required List<dynamic>? vehicleDataList,
-        required List<dynamic>? filteredResponse,
-        required List<dynamic>? filterVehicleDataList,
-        required List<dynamic>? resourceList,
-        required List<dynamic>? userGroupList,
-        required ScrollController scrollController,
-        required String? title,
-        required bool isLoading,}) {
+  VehicleHistoryState copyWith({
+    dynamic vin,
+    String? vehicleName,
+    List<dynamic>? apiResponse,
+    Map<DateTime, List<dynamic>>? vehicleDataList,
+    List<dynamic>? resourceList,
+    List<dynamic>? userGroupList,
+    String? title,
+    bool? isLoading,
+    int? totalPage,
+    int? currentPage,
+    bool? hasMoreData,
+  }) {
     return VehicleHistoryState(
-      searchController: searchController ?? this.searchController,
+      totalPage: totalPage ?? this.totalPage,
+      currentPage: currentPage ?? this.currentPage,
+      hasMoreData: hasMoreData ?? this.hasMoreData,
       vin: vin ?? this.vin,
       vehicleName: vehicleName ?? this.vehicleName,
       apiResponse: apiResponse ?? this.apiResponse,
       vehicleDataList: vehicleDataList ?? this.vehicleDataList,
-      filteredResponse: filteredResponse ?? this.filteredResponse,
-      filterVehicleDataList: filterVehicleDataList ?? this.filterVehicleDataList,
       resourceList: resourceList ?? this.resourceList,
       userGroupList: userGroupList ?? this.userGroupList,
-      title: title ?? this.title,
       isLoading: isLoading ?? this.isLoading,
     );
   }
 
   @override
   List<Object?> get props => [
-    searchController,
-    vin,
-    vehicleName,
-    apiResponse,
-    vehicleDataList,
-    filteredResponse,
-    filterVehicleDataList,
-    resourceList,
-    userGroupList,
-    title,
-    isLoading,
-  ];
+        totalPage,
+        currentPage,
+        hasMoreData,
+        vin,
+        vehicleName,
+        apiResponse,
+        vehicleDataList,
+        resourceList,
+        userGroupList,
+        isLoading,
+      ];
 }

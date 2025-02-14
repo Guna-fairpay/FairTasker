@@ -1051,7 +1051,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                                             '',
                                                                     vin: vehicleStatusListDataList[index]
                                                                             ['vin'] ??
-                                                                        '', resourceList:[], userGroupList:[],
+                                                                        '',
                                                                   ),
                                                                 ),
                                                               );

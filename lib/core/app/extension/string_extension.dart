@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 extension StringExtension on String? {
   DateTime? get toDate {
@@ -60,4 +61,11 @@ extension StringExtension on String? {
   bool get isGetAroundReservation => this?.toLowerCase() == "Getaround ReservationID";
 
   bool get isTuroReservation => this?.toLowerCase() == "Turo Reservation ID";
+
+  DateTime? toDateTime({String inputFormat = "yyyy-MM-dd"}) {
+    var input = this;
+    if ((input == null) || (input.isEmpty) ) return null;
+    var dateFormat = DateFormat(inputFormat);
+    return dateFormat.parse(input);
+  }
 }
