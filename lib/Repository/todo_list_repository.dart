@@ -57,6 +57,7 @@ import '../Response/vehicle_status_response.dart';
 import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
+import '../UI/Todo/create_sparekey_data.dart';
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -3149,6 +3150,45 @@ class TodoListRepo {
       }
     } catch (error) {
       debugPrint('delete Supply For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
+  Future<bool?> spareKeyTask(CreateSpareKeyData sparekeyData ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+
+      //title branch_id cohort_id identifier_id location location_id notes start_at time_sensitive(false) title todo_time todo_user_type user_group_id user_id
+      //vehicle_name vehicles vendor_id vendor_name vin
+      String body = jsonEncode({
+        "title": sparekeyData.title,
+        "branch_id":sparekeyData.branchId,
+        "cohort_id":sparekeyData.cohortId,
+        "identifier_id":sparekeyData.identifierId,
+        "location":sparekeyData.location,
+        "location_id":sparekeyData.locationId,
+        "notes": sparekeyData.notes ,
+        "start_at": sparekeyData.startAt,
+        'time_sensitive': sparekeyData.timeSensitive,
+        "todo_time": sparekeyData.todoTime,
+        "todo_user_type": sparekeyData.todoUserType,
+        "user_group_id": sparekeyData.userGroupId,
+        "user_id": sparekeyData.userId,
+        "vehicle_name": sparekeyData.vehicleName,
+        "vehicles": sparekeyData.vehicles,
+        "vendor_id": sparekeyData.vendorId,
+         "vendor_name": sparekeyData.vendorName,
+        "vin": sparekeyData.vin
+      });
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('spareKeyTask.exception : ${error.toString()}');
       return null;
     }
   }

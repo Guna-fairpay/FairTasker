@@ -82,21 +82,33 @@ class _VehicleUIState extends State<VehicleViewUI> {
   }
 
   Future<void> _navigateToVehicleEditUI(int index) async {
-    final updateVehicle = await Navigator.push<CreateVehicleData>(
+    // ✅ Create a deep copy to avoid modifying the original data prematurely
+    final Map<String, dynamic> selectedVehicle = Map<String, dynamic>.from(filteredVehicle[index]);
+
+    final updatedVehicle = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-          builder: (context) => VehicleEditUI(vehicle: filteredVehicle[index])),
+        builder: (context) => VehicleEditUI(vehicle: selectedVehicle, todoItems: {}),
+      ),
     );
-    if (updateVehicle != null) {
-      print("updatedVehicle----------> $updateVehicle");
+
+    if (updatedVehicle != null) {
+      print("✅ DEBUG: Updated vehicle received: $updatedVehicle");
+
+      setState(() {
+        // ✅ Update the existing vehicle in the list
+        filteredVehicle[index] = updatedVehicle;
+      });
+
       vehicleDataBloc.add(
-        AddVehicleDataEvent(createVehicleData: updateVehicle),
+        AddVehicleDataEvent(createVehicleData: CreateVehicleData.fromJson(updatedVehicle)),
       );
 
       vehicleDataBloc.add(const GetAddedVehicleListData());
       Utils.showMobileToast('Vehicle updated successfully');
     }
   }
+
 
   Future<void> _deleteVehicle(int index) async {
     final confirmed = await _confirmDelete(context);

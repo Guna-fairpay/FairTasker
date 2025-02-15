@@ -189,4 +189,19 @@ class VehicleNotesHistoryLoaded extends VehicleDataState {
   @override
   List<Object?> get props => [data];
 }
+class VehicleDataError extends VehicleDataState {
+  final String errorMessage;
+  const VehicleDataError({required this.errorMessage});
+  @override
+  List<Object?> get props => [];
+}
 
+class VehicleDataUpdatedState extends VehicleDataState {
+  final dynamic updatedVehicle; // Use your actual data model instead of dynamic
+
+  const VehicleDataUpdatedState({required this.updatedVehicle});
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [updatedVehicle];
+}

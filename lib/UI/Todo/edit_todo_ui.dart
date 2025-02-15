@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
+import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -62,6 +63,7 @@ class EditTodoUI extends StatefulWidget {
 
   @override
   State<EditTodoUI> createState() => _EditTodoUIState();
+
 }
 
 class _EditTodoUIState extends State<EditTodoUI> {
@@ -188,6 +190,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     {'name': 'Negative'}
   ];
 
+  bool isDataLoaded = false;
   bool showMore = false;
   bool completeAllDay = false;
   bool allDay = false;
@@ -237,7 +240,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   bool timeSensitive = false;
   bool isPartChecked = false;
   bool isSupplyChecked = false;
-
   Map<String, dynamic> vehicle = {};
   Map<String, dynamic> setVehicleList = {};
   Map<String, String> taskNameList = {};
@@ -336,6 +338,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   @override
   void initState() {
     todoItem = widget.todoItem;
+
     todoBloc = TodoViewBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
     todoBloc!.add(const GetCohortsData());
@@ -520,6 +523,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
+    //print("widget.todoItem ${widget.todoItem}");
 
     super.initState();
   }
@@ -531,9 +535,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
     super.dispose();
   }
 
+  bool isMaintenanceLoaded = false;
 
 
-  bool isDataLoaded = false;
+
+
+  //UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -670,6 +677,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const TodoViewUI()));
               },
             ),
           ],
@@ -699,6 +707,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
                   if (state is VehicleDataLoaded) {
                     vehicleList.addAll(state.vehicleData ?? []);
+                    print("vehicleList loaded data ${vehicleList[0]}");
                     editMultipleVehicleList.addAll(state.vehicleData ?? []);
                     if (vinToFind != null) {
                       vehicle = vehicleList.firstWhere(
@@ -772,9 +781,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       isDataLoaded = true;
                     });
                   } else if (state is MaintenanceCheckListLoaded) {
+                    //log("${state.data}", name: "MaintenanceCheckListLoaded");
                     maintenanceCheckListData.clear();
                     childrenData.clear();
                     maintenanceCheckListData.addAll(state.data ?? []);
+                    //print("maintenanceCheckListData ${maintenanceCheckListData}");
                     setState(() {
                       isDataLoaded = true;
                     });
@@ -872,6 +883,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               "[$expenseIds]",
                               null));
                         }
+                        setState(() {
+                          isDataLoaded = true;
+                        });
                       }
                     }
                     setState(() {
@@ -959,14 +973,23 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   }
                   else if (state is ExpenseTodoLoaded) {
                     expenseData = state.expenseSummaryData??{};
-                    print("expenseData: $expenseData");
+                    // print("expenseData: $expenseData");
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is TaskExpenseLoaded) {
                     taskExpenseList.addAll(state.resource ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is PaymentListLoaded) {
                     paymentList.clear();
                     paymentList.addAll(state.data ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                 },
               ),
@@ -1031,7 +1054,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
             ],
             child: BlocBuilder<TodoViewBloc, TodoViewState>(
                 builder: (context, state) {
-
+                  if (!isMaintenanceLoaded) isMaintenanceLoaded = state is MaintenanceCheckListLoaded;
+                  if (isMaintenanceLoaded) showExpenseTab = 3;
+                  //log("${state.runtimeType} $isMaintenanceLoaded", name: "STATE_TYPE");
                   return SafeArea(
                     child: Stack(
                       children: [
@@ -1066,8 +1091,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     ],
                                   ),
                                 ),
+                                if (isDataLoaded)
                                 if (showExpenseTab == 0)
-                                  TodoEditExpenseUI(
+                                   TodoEditExpenseUI(
                                     expenseData: expenseData ?? {},
                                     vehicle: vehicle,
                                     vehicleName: vehicleName,
@@ -1075,19 +1101,28 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     todoData: todoItem,
                                   )
                                 else if (showExpenseTab == 1)
-                                  const CreateTodoUI(showHeader: false)
+                                  const Placeholder()
+                                  // const CreateTodoUI(showHeader: false)
                                 else if (showExpenseTab == 2)
                                    CheckListUI(
                                        checkListData:checkListData,
                                      todoItems: todoItem,
                                    )
-                                  else if (showExpenseTab == 3)
+                                  else if ((showExpenseTab == 3) && isMaintenanceLoaded)
                                       MaintenanceCheckListUI(
                                         maintenance: maintenanceCheckListData,
                                         todoItems: todoItem,
                                       )
                                     else if (showExpenseTab == 4)
-                                        VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,)
+                                        // VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,
+                                        //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
+                                        // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
+                                        //   multipleLocationList: widget.multipleLocationList,)
+                                        VehicleEditUI(vehicle:
+                                        selectedDropDownData ==null? setVehicleList : selectedDropDownData,showHeader: false, data: selectedDropDownData,
+                                          todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
+                                          categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
+                                          multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
                                           TotoExpense(expenseId: todoItem['expense_id'],)
                                       else
@@ -1101,9 +1136,22 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           ),
                         ),
                         Visibility(
-                            visible: state is TodoListLoading || state is vdb.VehicleDataLoading,
+                            visible: (state is TodoListLoading || state is vdb.VehicleDataLoading)
+                            && ((state is! TodoViewInitial)
+                            || (state is! TodoListLoading)
+                            || (state is! CohortsListLoaded)
+                            || (state is! DropdownDataLoaded)
+                            || (state is! CheckListLoaded)
+                            || (state is! VehicleGroupListLoaded)
+                            || (state is! SuppliesLoaded)
+                            || (state is! MaintenanceCheckListLoaded)
+                            || (state is! UserGroupListLoaded)),
                             child: Center(child: Utils.getProgressIndicator(context))
                         )
+                        // Visibility(
+                        //     visible: isDataLoaded,
+                        //     child: Center(child: Utils.getProgressIndicator(context))
+                        // )
                       ],
                     ),
                   );
@@ -1111,7 +1159,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           ),
         ));
   }
-
+//END UI
   Widget editTodoWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1217,118 +1265,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
             ]),
           ],
         ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.end,
-        //   crossAxisAlignment: CrossAxisAlignment.center,
-        //   children: [
-        //     Expanded(
-        //       flex: 2,
-        //       child: Stack(
-        //         alignment: Alignment.centerRight,
-        //         children: [
-        //           Utils.getTextFormField(
-        //             contentPadding:
-        //             const EdgeInsets.only(right: 21, left: 10),
-        //             '',
-        //             editTodoDateController,
-        //             readOnly: true,
-        //             onTapCallback: () {
-        //               Utils.todoDatePickerDialog(
-        //                 context,
-        //                 '',
-        //                 initial: DateTime.parse(editTodoDateController.text),
-        //               ).then((value) {
-        //                 editSelectedDate = value;
-        //                 editTodoDateController.text =
-        //                     Utils.convertDateTimeToTheFormats(value.toString());
-        //               });
-        //             },
-        //             suffixIcon: GestureDetector(
-        //                 onTap: (){},
-        //                 child: const Icon(
-        //                   Icons.calendar_month,
-        //                    size: 16,
-        //                   color: AppC.appColor,
-        //                 ),
-        //             )
-        //           ),
-        //         ],
-        //       ),
-        //     ),
-        //     Visibility(
-        //       visible: !editAllDay,
-        //       child: const SizedBox(width: 10),
-        //     ),
-        //     Flexible(
-        //     flex:4,
-        //         child:
-        //           Visibility(
-        //             visible: !editAllDay,
-        //             child: Expanded(
-        //               child: _buildTimeField('', todoTimeController, () async {
-        //                 TimeOfDay? pickedTime = await showTimePicker(
-        //                   context: context,
-        //                   initialTime: TimeOfDay(
-        //                     hour: int.parse(todoTimeController.text.split(":")[0]),
-        //                     minute: int.parse(todoTimeController.text.split(":")[1]),
-        //                   ),
-        //                   builder: (BuildContext context, Widget? child) {
-        //                     return MediaQuery(
-        //                       data: MediaQuery.of(context)
-        //                           .copyWith(alwaysUse24HourFormat: true),
-        //                       child: child!,
-        //                     );
-        //                   },
-        //                 );
-        //                 if (pickedTime != null) {
-        //                   final formattedTime =
-        //                       '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-        //                   setState(() {
-        //                     todoTimeController.text = formattedTime;
-        //                   });
-        //                 }
-        //               }),
-        //             ),
-        //           ),
-        //
-        //     ),
-        //     Transform.scale(
-        //       scale: 0.7,
-        //       child: SizedBox(
-        //         width: 20,
-        //         child: Checkbox(
-        //           value: timeSensitive,
-        //           checkColor: AppC.white,
-        //           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-        //             if (states.contains(WidgetState.selected)) {
-        //               return AppC.blue;
-        //             }
-        //             return AppC.white;
-        //           }),
-        //           onChanged: (bool? value) {
-        //             setState(() {
-        //               timeSensitive = value ?? false;
-        //               todoItem['time_sensitive'] = timeSensitive ? 1 : 0;
-        //             });
-        //           },
-        //         ),
-        //       ),
-        //     ),
-        //     Column(
-        //       children: [
-        //         Utils.getText('Time \n Sensitive'),
-        //       ],
-        //     ),
-        //     const SizedBox(width: 5,),
-        //     InkWell(
-        //       onTapDown: (details) => resourceSelection(details, todoItem),
-        //       child: Visibility(
-        //         visible: todoItem['users'] != null || todoItem['user_group_id'] != null,
-        //         child: getUserGroupDataById(todoItem),
-        //       ),
-        //     ),
-        //   ],
-        // ),
         const SizedBox(
           height: 15,
         ),
@@ -2331,7 +2267,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           .text.length)),
                                 );
                               }
-                            }, isVehicleData: true)),
+                            }, isVehicleData: true)
+                        ),
                       ],
                     ),
                   ],
@@ -2407,10 +2344,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       (selectedValue) {
                         setState(() {
                           selectedVin = selectedValue;
-
                           return selectedDropDownData= selectedVin;
-                          print("selected vehicle details ${selectedVin}");
                         });
+                        print("selected vehicle details ${selectedDropDownData}");
                       },
                       labelKey: 'vehicle_name',
                       initialSelection: selectedVin,
@@ -2490,7 +2426,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         const SizedBox(
           height: 20,
         ),
-        // if (isDataLoaded) showBottomTabWidget(),
       ],
     );
   }
@@ -2543,48 +2478,59 @@ class _EditTodoUIState extends State<EditTodoUI> {
     showExpenseTab = tabs
         .where((element) => element['label'] == tabTitle)
         .firstOrNull?['index'] ?? 0;
-    //print("todoItem ${showExpenseTab}   tabs ------> $tabs");
+    print("todoItem ${showExpenseTab}");
     return
-      Container(
-        decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
-        ),
-        alignment: Alignment.centerLeft,
-        child:
-        SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: tabs.map((tab) {
-            return GestureDetector(
-              onTap: () => setState(() => tabTitle = tab['label']),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppC.trans,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: showExpenseTab == tab['index']
-                        ? tab['color']
-                        : AppC.trans,
-                    width: 1.0,
+      Visibility(
+        visible: isDataLoaded,
+          replacement: Visibility(
+              visible: isDataLoaded,
+              child: Center(child: Utils.getProgressIndicator(context))),
+        child: Container(
+          decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+          ),
+          alignment: Alignment.centerLeft,
+          child:
+          SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: tabs.map((tab) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    tabTitle = tab['label'];
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppC.trans,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: showExpenseTab == tab['index']
+                          ? tab['color']
+                          : AppC.trans,
+                      width: 1.0,
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.all(5),
-                child:
-                Utils.getText(
-                  tab['label'],
-                  weight: FontWeight.bold,
-                  color: tab['label'] == 'Set Vehicle'
-                      ? AppC.red
-                      : (showExpenseTab == tab['index']
-                      ? tab['color']
-                      : AppC.black),
-                ),
-              ),
-            );
-          }).toList(),
+                  padding: const EdgeInsets.all(5),
+                  child:
+                  Utils.getText(
+                    tab['label'],
+                    weight: FontWeight.bold,
+                    color: tab['label'] == 'Set Vehicle'
+                        ? AppC.red
+                        : (showExpenseTab == tab['index']
+                        ? tab['color']
+                        : AppC.black),
+
+                  ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
@@ -2923,7 +2869,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           icon: const Icon(Icons.arrow_back),
                         ),
                         SmoothPageIndicator(
-                          controller: pageController, // ✅ Now linked correctly
+                          controller: pageController,
                           count: imageUrls.length,
                           effect: const JumpingDotEffect(
                             spacing: 8.0,

@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
 
 import '../Response/create_fix_task_data.dart';
+import '../UI/Todo/create_sparekey_data.dart';
 
 abstract class TodoViewEvent extends Equatable {
   const TodoViewEvent();
@@ -1034,6 +1035,13 @@ class AddFixTask extends TodoViewEvent {
   const AddFixTask({required this.createFixTaskData,});
   @override
   List<Object?> get props => [createFixTaskData];
+}
+
+class AddSpareKeyTask extends TodoViewEvent {
+  final CreateSpareKeyData? createSpareKeyTaskData;
+  const AddSpareKeyTask({required this.createSpareKeyTaskData,});
+  @override
+  List<Object?> get props => [createSpareKeyTaskData];
 }
 
 class GetTaskMiles extends TodoViewEvent {

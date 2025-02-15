@@ -5,9 +5,8 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../../Bloc/todo_view_bloc.dart';
 import '../../../Component/close_badge.dart';
-import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
 import '../../../Component/image_viewer.dart';
 import '../../../Response/create_expense_field_data.dart';
@@ -17,22 +16,33 @@ import '../../../Utilities/num.dart';
 import '../../../Response/create_vehicle_data.dart';
 import '../../../Bloc/vehicle_data_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../../Todo/edit_todo_ui.dart';
 import '../../dialog/show_attachments_dialog.dart';
 
 class VehicleEditUI extends StatefulWidget {
   final bool showHeader;
-  final Map<String, dynamic> vehicle;
+  late final Map<String, dynamic> vehicle;
   final Map<String, dynamic>? data;
+  final Map<String, dynamic> todoItems;
+  final List<Map<String, dynamic>>? userGroupList;
+  final List<Map<String, dynamic>>? resourceList;
+  final List<Map<String, dynamic>>? categoriesListData;
+  final List<Map<String, dynamic>>? addressesList;
+  final List<Map<String, dynamic>>? multipleLocationList;
 
-  const VehicleEditUI(
-      {super.key, required this.vehicle, this.showHeader = true, this.data});
-
+  VehicleEditUI(
+      {super.key, required this.vehicle, this.showHeader = true, this.data,required this.todoItems, this.userGroupList, this.resourceList, this.categoriesListData, this.addressesList, this.multipleLocationList})
+  {
+  d.log("vehicle" ,name: vehicle.toString());
+  d.log("vehicle" ,name: data.toString());
+  d.log("todoItems--->" ,name: todoItems.toString());
+}
   @override
   State<VehicleEditUI> createState() => _VehicleEditUIState();
 }
 
 class _VehicleEditUIState extends State<VehicleEditUI> {
+  TodoViewBloc? todoViewBloc;
   late VehicleDataBloc vehicleDataBloc;
   late final TextEditingController yearController;
   late final TextEditingController makeController;
@@ -100,6 +110,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   void initState() {
     super.initState();
     vehicleDataBloc = VehicleDataBloc();
+    todoViewBloc=TodoViewBloc();
     vehicleDataBloc.add(const GetDropdownVehicleData());
     vehicleDataBloc.add(const VehicleStatusCategory());
     vehicleDataBloc.add(const GetAddedVehicleListData());
@@ -107,6 +118,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     //   {
     //
     //   }
+  setState(() {
     yearController = TextEditingController(text: widget.vehicle['year'] ?? '');
     makeController = TextEditingController(text: widget.vehicle['make'] ?? '');
     modelController =
@@ -156,6 +168,13 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         TextEditingController(text: widget.vehicle['insurance_cost'] ?? '');
     insuranceAgentController =
         TextEditingController(text: widget.vehicle['insurance_agent'] ?? '');
+
+    vehicleImageFile.clear();
+    tireImageFile.clear();
+    tollImage.clear();
+    uploadRegSticker.clear();
+    insuranceImage.clear();
+    receiptImageFile.clear();
     for (Map<String, dynamic> c in cohortsData) {
       if (c['id'] == widget.vehicle['cohort_id']) {
         selectedCohortsData = c;
@@ -167,44 +186,39 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       }
     }
     selectedVehicleStatus =
-        (widget.vehicle['active'] ?? vehicleStatusList[1]) == 1
-            ? vehicleStatusList[0]
-            : vehicleStatusList[1];
-    vehicleImageFile = (widget.vehicle['images'] as List<dynamic>?)
-            ?.where((image) => image['vehicle_image_type'] == 1)
-            .toList() ??
-        [];
+    (widget.vehicle['active'] ?? vehicleStatusList[1]) == 1
+        ? vehicleStatusList[0]
+        : vehicleStatusList[1];
 
+    vehicleImageFile = (widget.vehicle['images'] as List<dynamic>?)
+        ?.where((image) => image['vehicle_image_type'] == 1)
+        .toList() ??
+        [];
     var tireImages = (widget.vehicle['images'] as List<dynamic>?)
-            ?.where((image) => image['vehicle_image_type'] == 2)
-            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-            .toList() ??
+        ?.where((image) => image['vehicle_image_type'] == 2)
+        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+        .toList() ??
         [];
     tireImageFile.addAll(tireImages);
-
     var tollImages = (widget.vehicle['images'] as List<dynamic>?)
-            ?.where((image) => image['vehicle_image_type'] == 5)
-            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-            .toList() ??
+        ?.where((image) => image['vehicle_image_type'] == 5)
+        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+        .toList() ??
         [];
     tollImage.addAll(tollImages);
-
     var uploadRegStickers = (widget.vehicle['images'] as List<dynamic>?)
-            ?.where((image) => image['vehicle_image_type'] == 3)
-            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-            .toList() ??
+        ?.where((image) => image['vehicle_image_type'] == 3)
+        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+        .toList() ??
         [];
     uploadRegSticker.addAll(uploadRegStickers);
-
     var insuranceImages = (widget.vehicle['images'] as List<dynamic>?)
-            ?.where((image) => image['vehicle_image_type'] == 4)
-            .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-            .toList() ??
+        ?.where((image) => image['vehicle_image_type'] == 4)
+        .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+        .toList() ??
         [];
     insuranceImage.addAll(insuranceImages);
-
     receiptImageFile.addAll(widget.vehicle['expenses']?['attachments'] ?? []);
-
     bouncie = (widget.vehicle['bouncie'] == 1);
     airTag = (widget.vehicle['air_tag'] == 1);
     permanentPlate = (widget.vehicle['permanent_plate'] == 1);
@@ -213,21 +227,165 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     permanentPlate = (widget.vehicle['permanent_plate'] == 1);
     frontLicensePlate = (widget.vehicle['front_license_plate'] == 1);
     tollTags = (widget.vehicle['toll_tags'] == 1);
-
+  });
     if (widget.showHeader == false) {
       showMore = true;
     }
-
     print("tollImage $tollImage");
     d.log("$tollImage", name: "vehicle_edit");
+    d.log("${widget.showHeader}", name: "showHeader");
   }
 
-  void _save() {
+
+  //  @override
+  // void didUpdateWidget(covariant VehicleEditUI oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.vehicle != widget.vehicle) {
+  //     setState(() {
+  //       yearController =
+  //           TextEditingController(text: widget.vehicle['year'] ?? '');
+  //       makeController =
+  //           TextEditingController(text: widget.vehicle['make'] ?? '');
+  //       modelController =
+  //           TextEditingController(text: widget.vehicle['model'] ?? '');
+  //       numberPlateController =
+  //           TextEditingController(text: widget.vehicle['vehicle_number'] ?? '');
+  //       vinController =
+  //           TextEditingController(text: widget.vehicle['vin'] ?? '');
+  //       purchaseDateController =
+  //           TextEditingController(text: widget.vehicle['purchase_date'] ?? '');
+  //       vehicleIdController = TextEditingController(
+  //           text: (widget.vehicle['vehicle_id'] ?? '').toString());
+  //       purchasePriceController = TextEditingController(
+  //           text: (widget.vehicle['purchase_price'] ?? '').toString());
+  //       earningsController = TextEditingController(
+  //           text: (widget.vehicle['earnings'] ?? '').toString());
+  //       utilizationRateController = TextEditingController(
+  //           text: (widget.vehicle['utilization_rate'] ?? '').toString());
+  //       platformController = TextEditingController(
+  //           text: (widget.vehicle['platform'] ?? '').toString());
+  //       mileageController = TextEditingController(
+  //           text: (widget.vehicle['mileage'] ?? '').toString());
+  //       wholeSaleAmountController = TextEditingController(
+  //           text: (widget.vehicle['wholesale_amount'] ?? '').toString());
+  //       addressController =
+  //           TextEditingController(text: widget.vehicle['address'] ?? '');
+  //       carNumberController = TextEditingController(
+  //           text: (widget.vehicle['car_number'] ?? '').toString());
+  //       oilGradeController =
+  //           TextEditingController(text: widget.vehicle['oil_grade'] ?? '');
+  //       frontTireController =
+  //           TextEditingController(text: widget.vehicle['front_tire'] ?? '');
+  //       rearTireController =
+  //           TextEditingController(text: widget.vehicle['rear_tire'] ?? '');
+  //       renewalDateController = TextEditingController(
+  //           text: widget.vehicle['registration_renewal_date'] ?? '');
+  //       currentOdometerController =
+  //           TextEditingController(
+  //               text: widget.vehicle['current_odometer'] ?? '');
+  //       oilChangeOdometerController = TextEditingController(
+  //           text: widget.vehicle['oil_change_odometer'] ?? '');
+  //       maintenanceCheckController =
+  //           TextEditingController(
+  //               text: widget.vehicle['maintenance_check'] ?? '');
+  //       tollTagsIdController =
+  //           TextEditingController(text: widget.vehicle['toll_tags_id'] ?? '');
+  //       spareTireController =
+  //           TextEditingController(text: widget.vehicle['tire_size'] ?? '');
+  //       insuranceCostController =
+  //           TextEditingController(text: widget.vehicle['insurance_cost'] ?? '');
+  //       insuranceAgentController =
+  //           TextEditingController(
+  //               text: widget.vehicle['insurance_agent'] ?? '');
+  //       for (Map<String, dynamic> c in cohortsData) {
+  //         if (c['id'] == widget.vehicle['cohort_id']) {
+  //           selectedCohortsData = c;
+  //         }
+  //       }
+  //       for (Map<String, dynamic> c in categoriesData) {
+  //         if (c['id'] == widget.vehicle['vehicle_status']) {
+  //           selectedCategoriesData = c;
+  //         }
+  //       }
+  //       selectedVehicleStatus =
+  //       (widget.vehicle['active'] ?? vehicleStatusList[1]) == 1
+  //           ? vehicleStatusList[0]
+  //           : vehicleStatusList[1];
+  //       vehicleImageFile = (widget.vehicle['images'] as List<dynamic>?)
+  //           ?.where((image) => image['vehicle_image_type'] == 1)
+  //           .toList() ??
+  //           [];
+  //
+  //       var tireImages = (widget.vehicle['images'] as List<dynamic>?)
+  //           ?.where((image) => image['vehicle_image_type'] == 2)
+  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+  //           .toList() ??
+  //           [];
+  //       tireImageFile.addAll(tireImages);
+  //
+  //       var tollImages = (widget.vehicle['images'] as List<dynamic>?)
+  //           ?.where((image) => image['vehicle_image_type'] == 5)
+  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+  //           .toList() ??
+  //           [];
+  //       tollImage.addAll(tollImages);
+  //
+  //       var uploadRegStickers = (widget.vehicle['images'] as List<dynamic>?)
+  //           ?.where((image) => image['vehicle_image_type'] == 3)
+  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+  //           .toList() ??
+  //           [];
+  //       uploadRegSticker.addAll(uploadRegStickers);
+  //
+  //       var insuranceImages = (widget.vehicle['images'] as List<dynamic>?)
+  //           ?.where((image) => image['vehicle_image_type'] == 4)
+  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+  //           .toList() ??
+  //           [];
+  //       insuranceImage.addAll(insuranceImages);
+  //       receiptImageFile.addAll(
+  //           widget.vehicle['expenses']?['attachments'] ?? []);
+  //       bouncie = (widget.vehicle['bouncie'] == 1);
+  //       airTag = (widget.vehicle['air_tag'] == 1);
+  //       permanentPlate = (widget.vehicle['permanent_plate'] == 1);
+  //       spareTire = (widget.vehicle['spare_tire'] == 1);
+  //       spareKey = (widget.vehicle['spare_key'] == 1);
+  //       permanentPlate = (widget.vehicle['permanent_plate'] == 1);
+  //       frontLicensePlate = (widget.vehicle['front_license_plate'] == 1);
+  //       tollTags = (widget.vehicle['toll_tags'] == 1);
+  //     });
+  //   }
+  // }
+  // //
+  // void _load(Map<String, dynamic> data) {
+  //   setState(() {
+  //     createVehicleData = CreateVehicleData()
+  //       ..id = data["id"]
+  //       ..year = data["year"]
+  //       ..make = data["make"]
+  //       ..model = data["model"]
+  //       ..vehicleNumber = data["vehicleNumber"]
+  //       ..insuranceImage = (data["insuranceImage"] as List<dynamic>)
+  //           .map((path) => File(path))
+  //           .toList() // ✅ Convert paths back to File objects
+  //       ..tollImage = (data["tollImage"] as List<dynamic>)
+  //           .map((path) => File(path))
+  //           .toList()
+  //       ..tireImage = (data["tireImage"] as List<dynamic>)
+  //           .map((path) => File(path))
+  //           .toList();
+  //   });
+  // }
+  // Helper function to convert int to bool
+  // bool intToBool(int value) {
+  //   return value == 1;
+  // }
+
+
+  void _save() async {
     print("----> Save function triggered");
-    print("tireImageFile $tireImageFile "
-        "tollImage $tollImage "
-        "uploadRegSticker $uploadRegSticker "
-        "insuranceImage $insuranceImage");
+
+    // Validate required fields
     setState(() {
       isYearFieldEmpty = yearController.text.isEmpty;
       isMakeFieldEmpty = makeController.text.isEmpty;
@@ -241,7 +399,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         isModelFieldEmpty ||
         isPurchaseFieldEmpty ||
         isPurchaseDateFieldEmpty) {
-      return Utils.showMobileToast('Please fill the required fields');
+      Utils.showMobileToast('Please fill the required fields');
+      return;
     }
 
     final createVehicleData = CreateVehicleData()
@@ -271,7 +430,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       ..permanentPlate = boolToInt(permanentPlate)
       ..spareTire = boolToInt(spareTire)
       ..tollTag = boolToInt(tollTags)
-      ..spareKey = boolToInt(spareKey)
+      ..spareKey = spareKey == true ? 1 : 0
       ..frontLicensePlate = boolToInt(frontLicensePlate)
       ..tireSize = spareTireController.text
       ..regStickerDate = renewalDateController.text
@@ -283,20 +442,76 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       ..selectedCohort = selectedCohortsData?['id']
       ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0;
 
-    createVehicleData.insuranceImage =
-        insuranceImage.whereType<File>().toList();
-    createVehicleData.tollImage = tollImage.whereType<File>().toList();
-    createVehicleData.tireImage = tireImageFile.whereType<File>().toList();
-    createVehicleData.uploadRegSticker =
-        uploadRegSticker.whereType<File>().toList();
 
-    vehicleDataBloc
-        .add(AddVehicleDataEvent(createVehicleData: createVehicleData));
-    Navigator.of(context).pop(createVehicleData);
+    setState(() {
+      createVehicleData.insuranceImage = insuranceImage.whereType<File>().toList();
+      createVehicleData.tollImage = tollImage.whereType<File>().toList();
+      createVehicleData.tireImage = tireImageFile.whereType<File>().toList();
+      createVehicleData.uploadRegSticker = uploadRegSticker.whereType<File>().toList();
+      vehicleDataBloc.add(AddVehicleDataEvent(createVehicleData: createVehicleData));
+    });
+    await _fetchUpdatedImages(); // Fetch new images
+    imageCache.clear();
+    imageCache.clearLiveImages();
+    setState(() {
+      loading = false;
+    });
+    final updatedVehicle = createVehicleData.toJson();
+    Navigator.pop(context, updatedVehicle);
+    //await Future.delayed(const Duration(milliseconds: 100));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditTodoUI(
+        todoItem: widget.todoItems,
+        userGroupList: widget.userGroupList,
+        resourceList: widget.resourceList,
+        categoriesListData: widget.categoriesListData,
+        addressesList: widget.addressesList,
+        multipleLocationList: widget.multipleLocationList,
+      )),
+    );
+  }
+
+  Future<void> _fetchUpdatedImages() async {
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      vehicleImageFile = widget.vehicle['images'] ?? [];
+    });
+  }
+
+
+  @override
+  void dispose() {
+    yearController.dispose();
+    makeController.dispose();
+    modelController.dispose();
+    numberPlateController.dispose();
+    vinController.dispose();
+    purchaseDateController.dispose();
+    vehicleIdController.dispose();
+    purchasePriceController.dispose();
+    earningsController.dispose();
+    utilizationRateController.dispose();
+    platformController.dispose();
+    mileageController.dispose();
+    wholeSaleAmountController.dispose();
+    addressController.dispose();
+    carNumberController.dispose();
+    oilGradeController.dispose();
+    frontTireController.dispose();
+    rearTireController.dispose();
+    renewalDateController.dispose();
+    currentOdometerController.dispose();
+    oilChangeOdometerController.dispose();
+    maintenanceCheckController.dispose();
+    tollTagsIdController.dispose();
+    spareTireController.dispose();
+    insuranceCostController.dispose();
+    insuranceAgentController.dispose();
+    super.dispose();
   }
 
   int boolToInt(bool value) => value ? 1 : 0;
-
   Future<List<File>?> _pickImages2(
       {ImageSource source = ImageSource.gallery}) async {
     final List<XFile> images = await ImagePicker().pickMultiImage();
@@ -304,11 +519,13 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   }
 
   //Save Popups
-  void savePopUpMenu() {
+  void savePopUpMenu()
+  {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Align(
+        return
+          Align(
           alignment: Alignment.topCenter,
           child: Material(
             color: Colors.transparent,
@@ -316,8 +533,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               padding: const EdgeInsets.all(8.0),
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4),
@@ -336,31 +552,31 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                     Align(
                       alignment: Alignment.topRight,
                       child: InkWell(
-                          onTap: () {
+                          onTap: (){
                             Navigator.pop(context);
                           },
                           child: const Icon(Icons.close)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Utils.getText('Confirmation',
+                      child: Utils.getText(
+                          'Confirmation',
                           size: 18,
                           weight: FontWeight.bold,
-                          color: const Color(0xff495057)),
+                          color: const Color(0xff495057)
+                      ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Utils.getAddFilledButton('Save', () {
+                        Utils.getAddFilledButton('Save', (){
                           _save();
                           Navigator.pop(context);
                         }),
                         // const SizedBox(width: 16,),
-                        Utils.getAddFilledButton(
-                            'Save With Spare Key Task', () {},
-                            bgColor: AppC.green),
+                        Utils.getAddFilledButton('Save With Spare Key Task', (){},bgColor: AppC.green),
                         // const SizedBox(width: 16,),
-                        Utils.getAddFilledButton('Cancel', () {
+                        Utils.getAddFilledButton('Cancel', (){
                           Navigator.pop(context);
                         }, bgColor: AppC.redAccent),
                       ],
@@ -416,18 +632,27 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             body: body)
         : body;
   }
-
   Widget get body => BlocProvider(
-        create: (context) => vehicleDataBloc,
-        child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
-            listener: (context, state) {
+    create: (context) => vehicleDataBloc,
+    child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
+        listener: (context, state)
+        {
           if (state is VehicleDataLoading) {
-            loading = true;
-          } else if (state is DropdownVehicleDataLoaded) {
+            setState(() {
+              loading = true;
+            });
+          }
+          else if (state is DropdownVehicleDataLoaded)
+          {
             print("vehicle data ${widget.vehicle['vehicle_name']}");
             print("dropDownData ${widget.data}");
+
             createExpenseFieldData = state.createExpenseFieldData;
+
             if (state.createExpenseFieldData != null) {
+              setState(() {
+                loading = false;
+              });
               cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
               for (Map<String, dynamic> c in cohortsData) {
                 if (c['id'] == widget.vehicle['cohort_id']) {
@@ -439,16 +664,35 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                   selectedCategoriesData = c;
                 }
               }
-              // categoriesData = state.createExpenseFieldData!.expenseCategories ?? [];
             }
-          } else if (state is VehicleStatusCategoryLoaded) {
-            categoriesData = state.vehicleStatusDataList ?? [];
-            categoriesDataIsSelected = true;
-            selectedCategoriesData = categoriesData[0];
-          } else {
-            loading = false;
+            setState(() {
+              loading = false;
+            });
           }
-        }, builder: (context, state) {
+          else if (state is VehicleStatusCategoryLoaded) {
+            setState(() {
+              categoriesData = state.vehicleStatusDataList ?? [];
+              categoriesDataIsSelected = true;
+              selectedCategoriesData = categoriesData.isNotEmpty ? categoriesData[0] : null;
+              loading= false;
+            });
+          }
+          else if (state is VehicleDataUpdatedState) {
+            print("VehicleDataUpdatedState");
+            print("widget.vehicle (before): ${widget.vehicle}");
+            setState(() {
+              widget.vehicle = state.updatedVehicle;
+              loading = false;
+            });
+            Utils.showMobileToast('Vehicle updated successfully!');
+          }
+          else {
+            setState(() {
+              loading = false;
+            });
+          }
+        },
+        builder: (context, state) {
           return Stack(
             children: [
               Padding(
@@ -1322,6 +1566,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       widget.vehicle['spare_key'] =
                                           spareKey ? 1 : 0;
                                     });
+                                    print("spareKey: $spareKey");
                                   },
                                   label: 'Spare Key',
                                 ),
@@ -1446,24 +1691,32 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                                   currentAttachment:
                                                       tireImageFile[index]);
                                             },
-                                            onTapDelete: () {
+                                            onTapDelete: () async {
                                               setState(() {
                                                 if (tireImageFile[index] is File) {
                                                   tireImageFile.removeAt(index);
-                                                } else {
-                                                  int? Id = (widget.vehicle['images'] as List<dynamic>?)
-                                                      ?.firstWhere(
-                                                          (image) =>
-                                                      tireImageFile[index].split('/').last == image['path'].split('/').last,
-                                                      orElse: () => null)
-                                                  ?['id'];
-                                                  if (tireImageFile != null) {
-                                                    context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: Id));
-                                                    tireImageFile.removeAt(index);
-                                                  }
                                                 }
-                                                tireImageFile = List.from(tireImageFile);
                                               });
+                                              int? imageId;
+                                              if (tireImageFile[index] is! File) {
+                                                final image = (widget.vehicle['images'] as List<dynamic>?)
+                                                    ?.firstWhere(
+                                                      (image) => tireImageFile[index].split('/').last == image['path'].split('/').last,
+                                                  orElse: () => null,
+                                                );
+                                                if (image != null) {
+                                                  imageId = image['id'];
+                                                  context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: imageId));
+                                                }
+                                              }
+                                              // Await deletion if necessary
+                                              if (imageId != null) {
+                                                await Future.delayed(const Duration(milliseconds: 300));
+                                              }
+                                              setState(() {
+                                                tireImageFile.removeAt(index);
+                                              });
+                                              // Refresh the list after deletion
                                               context.read<VehicleDataBloc>().add(const GetAddedVehicleListData());
                                             },
                                             child: Container(
@@ -1893,10 +2146,10 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Utils.getAddFilledButton('Save', () {
-                            if (!widget.showHeader) {
+                            if (spareKey==false) {
                               savePopUpMenu();
                             }
-                            if (widget.showHeader) {
+                            else if (spareKey==true){
                               _save();
                             }
                           }, bgColor: AppC.green),
