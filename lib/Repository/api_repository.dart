@@ -21,6 +21,8 @@ class APiRepository {
 
   String get _completeToDoApi => "complete-todo";
 
+  String get _deleteToDoApi => "delete-todo";
+
   Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
       {int? currentPage, int itemsPerPage = 5, String? search}) async {
     try {
@@ -69,6 +71,19 @@ class APiRepository {
       final Map<String, dynamic> map = {};
       map['status'] = status;
       final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(map));
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<GeneralResponse?> deleteToDo(dynamic todoId, dynamic reason) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$todoId";
+      final Map<String, dynamic> map = {};
+      map['reason'] = reason;
+      final http.Response? response = await _apiClient.callDelete(apiUrl, body: map);
       var mapData = await response.mapData;
       return GeneralResponse.fromJson(mapData);
     } catch (error) {

@@ -128,6 +128,30 @@ class VehicleHistoryBloc
       }
     });
 
+    on<VehicleHistoryDeleteEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        var response = await _deleteTodo(event.todoId, event.reason);
+        if (response?.status == 200) {
+          emit(state.copyWith(vehicleDataList: {}));
+          var pageCount = state.currentPage;
+          var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
+          var vehicleDataList = _convertData(response?.data);
+          emit(state.copyWith(
+              isLoading: false,
+              vehicleDataList: vehicleDataList,
+              currentPage: response?.currentPage,
+              totalPage: response?.total,
+              hasMoreData: response?.hasMoreData));
+        } else {
+          Toaster.showError(response?.message);
+        }
+      } catch (e) {
+        Toaster.showError(e.toString());
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
   }
 
   Map<DateTime, List<dynamic>> _convertData(List<Map<String, dynamic>>? data) {
@@ -170,4 +194,7 @@ class VehicleHistoryBloc
   Future<UserGroupResponse?> _getGroupPersonList() async => await vehicleHistoryRepository.getGroupPersonList();
 
   Future<GeneralResponse?> _completeTodo(dynamic todoId, bool status) async => await vehicleHistoryRepository.completeToDo(todoId, status: status);
+
+  Future<GeneralResponse?> _deleteTodo(dynamic todoId, dynamic reason) async => await vehicleHistoryRepository.deleteToDo(todoId, reason);
+
 }

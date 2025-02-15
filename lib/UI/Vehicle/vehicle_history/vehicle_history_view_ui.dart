@@ -5,6 +5,7 @@ import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/bloc/vehicle_history_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/event/vehicle_history_event.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/state/vehicle_history_state.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -69,7 +70,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                         onSearch: (value) => context.read<VehicleHistoryBloc>().add(VehicleHistorySearchEvent(value)),
                       ),
                       10.height,
-                      if (state.vehicleDataList.isEmpty)
+                      if ( !state.isLoading && state.vehicleDataList.isEmpty)
                         const EmptyWidget(),
                       if (state.vehicleDataList.isNotEmpty)
                       Expanded(
@@ -129,7 +130,16 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                           Toaster.showInfo("Tap Under construction");
                                         },
                                         onDelete: () {
-                                          Toaster.showInfo("Delete Under construction");
+                                          // SHOW DIALOG AND GET CONFIRMATION WITH REASON
+                                          AskPermissionDialog
+                                              .show(context,
+                                              title: "Are you sure want to delete this task?",
+                                              description: "Kindly enter a valid reason to confirm the deletion",
+                                            positiveText: "Yes, delete it!",
+                                            negativeText: "Cancel",
+                                            isReasonRequired: true,
+                                            onReasonSubmitted: (reason) => context.read<VehicleHistoryBloc>().add(VehicleHistoryDeleteEvent(model['id'], reason)),
+                                          );
                                         },
                                         onParts: (){
                                           Toaster.showInfo("Parts Under construction");
@@ -141,7 +151,9 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                           Toaster.showInfo("User Under construction");
                                         },
                                         onCustom: (){
-                                          Toaster.showInfo("Custom Under construction");
+                                          var isCustom = (customId == 1);
+                                          if (isCustom) Toaster.showInfo("Custom Under construction");
+                                          else Toaster.showInfo("Reservation Under construction");
                                         },
                                       );
                                     },
