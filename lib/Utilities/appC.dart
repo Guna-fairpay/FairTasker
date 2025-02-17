@@ -46,5 +46,6 @@ static const redAccent = Color(0xffd01601);
   static const labelColor = Color(0xd6373737);
 
   static const buttonColor = Color(0xFF369f6f);
+  static const darkGreen = Color(0xFF075a33);
 
 }

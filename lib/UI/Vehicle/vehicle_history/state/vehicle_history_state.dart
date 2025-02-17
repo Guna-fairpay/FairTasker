@@ -6,8 +6,10 @@ class VehicleHistoryState extends Equatable {
   final bool isLoading;
   final int currentPage;
   final bool hasMoreData;
+  final bool isSameTaskSelected;
   final String? vehicleName;
   final List<dynamic> apiResponse;
+  final dynamic selectedTask;
   final Map<DateTime, List<dynamic>> vehicleDataList;
   final List<dynamic> resourceList;
   final List<dynamic> userGroupList;
@@ -19,14 +21,17 @@ class VehicleHistoryState extends Equatable {
     required this.userGroupList,
     required this.vin,
     required this.vehicleName,
+    required this.selectedTask,
     required this.isLoading,
     required this.totalPage,
     required this.currentPage,
     required this.hasMoreData,
+    required this.isSameTaskSelected,
   });
 
   VehicleHistoryState copyWith({
     dynamic vin,
+    dynamic selectedTask,
     String? vehicleName,
     List<dynamic>? apiResponse,
     Map<DateTime, List<dynamic>>? vehicleDataList,
@@ -37,9 +42,11 @@ class VehicleHistoryState extends Equatable {
     int? totalPage,
     int? currentPage,
     bool? hasMoreData,
+    bool? isSameTaskSelected,
   }) {
     return VehicleHistoryState(
       totalPage: totalPage ?? this.totalPage,
+      selectedTask: selectedTask ?? this.selectedTask,
       currentPage: currentPage ?? this.currentPage,
       hasMoreData: hasMoreData ?? this.hasMoreData,
       vin: vin ?? this.vin,
@@ -49,6 +56,7 @@ class VehicleHistoryState extends Equatable {
       resourceList: resourceList ?? this.resourceList,
       userGroupList: userGroupList ?? this.userGroupList,
       isLoading: isLoading ?? this.isLoading,
+      isSameTaskSelected: isSameTaskSelected ?? this.isSameTaskSelected,
     );
   }
 
@@ -64,5 +72,7 @@ class VehicleHistoryState extends Equatable {
         resourceList,
         userGroupList,
         isLoading,
+        selectedTask,
+        isSameTaskSelected,
       ];
 }

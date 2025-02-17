@@ -9,6 +9,7 @@ import 'package:fairpytasker/UI/Todo/add_todo/add_todo_task_manager_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -116,15 +117,37 @@ class AddTodoMainForm extends StatelessWidget {
                 16.height,
                 ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: const WidgetStatePropertyAll(AppC.buttonColor),
-                        textStyle: WidgetStatePropertyAll(context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold)),
-                        foregroundColor: const WidgetStatePropertyAll(AppC.white),
+                        backgroundColor:
+                            const WidgetStatePropertyAll(AppC.buttonColor),
+                        textStyle: WidgetStatePropertyAll(context
+                            .textTheme.labelLarge
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                        foregroundColor:
+                            const WidgetStatePropertyAll(AppC.white),
                         shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
                             borderRadius:
                                 BorderRadius.circular(Num.borderRadiusLarge)))),
                     onPressed: () =>
                         context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
-                    child: const Text("Save"))
+                    child: const Text("Save")),
+                if (state.selectedVPerson
+                        .where((element) => element['type'] == "vehicles")
+                        .lastOrNull !=
+                    null) ...[
+                  Container(
+                      constraints:
+                          BoxConstraints(maxHeight: context.height * 0.5),
+                      child: VehicleHistoryViewUI(
+                        showSameTask: (state.selectedTaskIdentifier.containsKey(1)),
+                          title: (state.selectedTaskIdentifier.containsKey(1)) ? state.selectedTaskIdentifier[1]['name'] : null,
+                          vin: state.selectedVPerson
+                              .where((element) => element['type'] == "vehicles")
+                              .lastOrNull?['value']?['vin'],
+                          vehicleName: state.selectedVPerson
+                              .where((element) => element['type'] == "vehicles")
+                              .lastOrNull?['name'],
+                          showHeader: false)),
+                ]
               ],
             )));
   }

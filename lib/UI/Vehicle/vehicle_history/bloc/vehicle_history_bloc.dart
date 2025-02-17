@@ -27,6 +27,7 @@ class VehicleHistoryBloc
   VehicleHistoryBloc()
       : super(const VehicleHistoryState(
           vin: '',
+          selectedTask: {},
           vehicleName: '',
           apiResponse: [],
           vehicleDataList: {},
@@ -36,6 +37,7 @@ class VehicleHistoryBloc
           totalPage: 1,
           currentPage: 1,
           hasMoreData: false,
+          isSameTaskSelected: false,
         )) {
     on<VehicleInitialEvent>((event, emit) async {
       vinNumber = event.vin;
@@ -66,7 +68,7 @@ class VehicleHistoryBloc
           vehicleDataList: vehicleDataList,
         ));
       } catch (e) {
-        debugPrint('Exception: $e');
+        log('${vinNumber} Exception: $e', name: "VEHICLE_HISTORY_BLOC");
       }
     });
 
@@ -109,13 +111,18 @@ class VehicleHistoryBloc
         emit(state.copyWith(isLoading: true));
         var response = await _completeTodo(event.todoId, event.status);
         if (response?.status == 200) {
-          emit(state.copyWith(isLoading: false, vehicleDataList: {}));
+          emit(state.copyWith(vehicleDataList: {}));
           var pageCount = state.currentPage;
           var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
           var vehicleDataList = _convertData(response?.data);
+          var selectedTask = state.selectedTask;
+          if (selectedTask != null) {
+            selectedTask = response?.data?.where((element) => element['id'] == selectedTask['id']).lastOrNull;
+          }
           emit(state.copyWith(
               isLoading: false,
               vehicleDataList: vehicleDataList,
+              selectedTask: selectedTask,
               currentPage: response?.currentPage,
               hasMoreData: response?.hasMoreData));
         } else {
@@ -150,6 +157,32 @@ class VehicleHistoryBloc
         Toaster.showError(e.toString());
         emit(state.copyWith(isLoading: false));
       }
+    });
+
+    on<VehicleHistorySameTaskEvent>((event, emit) async{
+      if (event.isChecked && (event.title.toString().isNotEmpty)) {
+        searchController.text = event.title;
+      } else {
+        searchController.clear();
+      }
+      var pageCount = 1;
+      try{
+        emit(state.copyWith(isLoading: true, vehicleDataList: {}, isSameTaskSelected: event.isChecked));
+        var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
+        var vehicleDataList = _convertData(response?.data);
+        emit(state.copyWith(
+            isLoading: false,
+            vehicleDataList: vehicleDataList,
+            currentPage: response?.currentPage,
+            hasMoreData: response?.hasMoreData,
+            totalPage: response?.total));
+      } catch (e) {
+        emit(state.copyWith(isLoading: false, isSameTaskSelected: event.isChecked));
+      }
+    });
+
+    on<VehicleHistoryViewEvent>((event, emit) async {
+      emit(state.copyWith(selectedTask: event.task));
     });
 
   }
