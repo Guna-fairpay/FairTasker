@@ -8,6 +8,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -39,6 +40,7 @@ import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
+import '../dialog/show_attachments_dialog.dart';
 import 'todo_edti_expense/ui/Todo_edit_expense_ui.dart';
 import 'check_list_ui.dart';
 import 'maintenance/maintenance_check_list_ui.dart';
@@ -117,7 +119,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> selectedSuppliesList = [];
   List<Map<String, dynamic>> editMultipleAddressList = [];
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
-  List<Map<String, dynamic>> todoImages = [];
+  List<dynamic> todoImages = [];
   List<Map<String, dynamic>> editSuppliesList = [];
   List<dynamic> attachmentImage = [];
   List<Map<String, dynamic>> vendorList = [];
@@ -255,6 +257,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   dynamic selectedLink;
   dynamic selectedVin;
   dynamic selectedDropDownData;
+  dynamic DropDownData;
   dynamic selectedSentiments;
 
   String? selectedPriority;
@@ -503,9 +506,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
       vehicleName.addAll(List<Map<String, dynamic>>.from(todoItem['vehicles']));
     }
 
-    if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
-      todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
-    }
+    // if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
+    //   todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
+    // }
+    var todoImage = (todoItem['todoimages'] as List<dynamic>?)
+        ?.map((e) => "${e['path']}".toAttachmentURL)
+        .toList() ?? [];
+    todoImages.addAll(todoImage);
+    log("${todoItem}", name: "edit_Todo");
 
     if (todoItem['users']?['id'] != null) {
       selectedIds=((todoItem['users']?['id']).toString()).split(',');
@@ -537,8 +545,21 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   bool isMaintenanceLoaded = false;
 
-
-
+  void updateSelectedDropDownData(List<Map<String, dynamic>> vehicleList, Map<String, dynamic> selectedDropDownData) {
+    print("Function called updateSelectedDropDownData");
+    var vehicle = vehicleList.firstWhere(
+          (v) => v['vehicle_name'] == selectedDropDownData['vehicle_name'],
+      orElse: () => {},
+    );
+    print("vehicle matched id ${vehicle}");
+    if (vehicle.isNotEmpty) {
+      setState(() {
+        DropDownData=vehicle;
+      });
+    } else {
+      print("No matched data");
+    }
+  }
 
   //UI
   @override
@@ -566,13 +587,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     .getMultiImage(ImageSource.gallery)
                     .then((selectedFiles) {
                   if (selectedFiles.isNotEmpty) {
-                    for (var filePath in selectedFiles) {
+                    todoImages.addAll(selectedFiles.map((e) => File(e)).toList());
+                    /*for (var filePath in selectedFiles) {
                       debugPrint('filePath: $filePath');
                       // Add each image to your todoImages list
                       todoImages.add({
                         'path': filePath,
                       });
-                    }
+                    }*/
                     setState(() {}); // Refresh the UI
                   } else {
                     debugPrint("No images selected.");
@@ -584,11 +606,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
               visible: todoImages.isNotEmpty,
               child: GestureDetector(
                 onTap: () {
-                  final imagePath = todoImages
-                      .map((attachment) => attachment['path'].toString())
-                      .toList();
-                  const int initialIndex = 0; // Or any index from your list
-                  _showImageDialog(imagePath, initialIndex);
+                  //final imagePath = todoImages;
+                  //const int initialIndex = 0; // Or any index from your list
+                  //_showImageDialog(imagePath, initialIndex);
+                  ShowAttachmentsDialog.of.show(context, attachments: todoImages, title: "");
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.0),
@@ -658,7 +679,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           id: widget.todoItem['expense_id']));
                     }
                   });
-                },);
+                }
+                ,);
               },
             ),
             GestureDetector(
@@ -704,10 +726,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
             listeners: [
               BlocListener<TodoViewBloc, TodoViewState>(
                 listener: (context, state) async {
-
                   if (state is VehicleDataLoaded) {
                     vehicleList.addAll(state.vehicleData ?? []);
-                    print("vehicleList loaded data ${vehicleList[0]}");
+                    for(var item in vehicleList)
+                      {
+                        print("vehicleList loaded data ${item['vehicle_name']}");
+                      }
                     editMultipleVehicleList.addAll(state.vehicleData ?? []);
                     if (vinToFind != null) {
                       vehicle = vehicleList.firstWhere(
@@ -1056,6 +1080,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 builder: (context, state) {
                   if (!isMaintenanceLoaded) isMaintenanceLoaded = state is MaintenanceCheckListLoaded;
                   if (isMaintenanceLoaded) showExpenseTab = 3;
+
                   //log("${state.runtimeType} $isMaintenanceLoaded", name: "STATE_TYPE");
                   return SafeArea(
                     child: Stack(
@@ -1118,8 +1143,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                         //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
                                         // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                         //   multipleLocationList: widget.multipleLocationList,)
+
                                         VehicleEditUI(vehicle:
-                                        selectedDropDownData ==null? setVehicleList : selectedDropDownData,showHeader: false, data: selectedDropDownData,
+                                        selectedDropDownData == null ? setVehicleList : DropDownData,showHeader: false, data: selectedDropDownData,
                                           todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
                                           categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                           multipleLocationList: widget.multipleLocationList,)
@@ -1232,7 +1258,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           size: 16,
                           color: AppC.appColor,
                         ),
-                      ))),
+                      )
+                  )
+              ),
               Visibility(
                 visible: !editAllDay,
                 child: Flexible(
@@ -1259,7 +1287,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         todoTimeController.text = formattedTime;
                       });
                     }
-                  }),
+                  }
+                  ),
                 ),
               )
             ]),
@@ -1374,6 +1403,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           if (value.isNotEmpty) {
                             List<dynamic> multipleVehicleList =
                                 editMultipleVehicleList;
+                            print("editMultipleVehicleList ${editMultipleVehicleList}");
                             editMultipleVehicleSuggestionList.addAll(
                                 Utils.searchObjectList(
                                     multipleVehicleList, value,
@@ -2344,7 +2374,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       (selectedValue) {
                         setState(() {
                           selectedVin = selectedValue;
-                          return selectedDropDownData= selectedVin;
+                          selectedDropDownData= selectedVin;
+                          showExpenseTab = 4;
+                          updateSelectedDropDownData(vehicleList, selectedDropDownData);
                         });
                         print("selected vehicle details ${selectedDropDownData}");
                       },
@@ -2362,7 +2394,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           resourceList: resourceList,
                           userGroupList: userGroupList,
                         ),
-                      ));
+                      )
+                      );
                     },
                     child: Utils.getText(
                       todoItem['vehicle_name'] != null
@@ -2836,7 +2869,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           ),
                                         );
                                       },
-                                    ),
+                                  ),
                             ),
                           );
                         },
@@ -2905,11 +2938,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-  Future<void> doCreateEditTodo({String? todoName, String? time}) async {
+  Future<void> doCreateEditTodo({String? todoName, String? time}) async
+  {
     if (editTodoNameController.text.isEmpty) {
       Utils.showMobileToast(Str.createTodoAlertText('Task Name'));
       return;
-    } else {
+    }
+    else {
       CreateTodoParams editCreateTodoParams = CreateTodoParams();
       if (todoName == null) {
         editCreateTodoParams.todoId = todoItem['id']!;
@@ -2946,7 +2981,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
         if (todoItem['user_group_id'] != null) {
           editCreateTodoParams.selectedUserGroupId =
-              List.from(todoItem['user_group_id'] ?? []);
+              List.from([todoItem['user_group_id'] ?? 0]);
           editCreateTodoParams.existingUserGroupId =
               todoItem['user_group_id'] ?? '';
         }
@@ -3025,6 +3060,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           editCreateTodoParams.personId = res['id']!.toString();
         }
       }
+      log("${selectedMultipleVehicleList.isEmpty}", name: "VEHICLE_IS_EMPTY");
       if (selectedMultipleVehicleList.isNotEmpty ||
           vehiclePersonController.text.isNotEmpty) {
         await getSelectedVehiclePerson(editCreateTodoParams);
@@ -3054,6 +3090,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           // 'vehicleGroupId: ${editCreateTodoParams.vehicleGroupId},'
           // 'endAfter: ${editCreateTodoParams.endAfter}'
           );
+      editCreateTodoParams.todoImage= todoImages.whereType<File>().toList();
       if ((editCreateTodoParams.selectedUserId == null ||
               editCreateTodoParams.selectedUserId == 0) &&
           (editCreateTodoParams.selectedUserGroupId == null ||
@@ -3062,7 +3099,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       } else {
         todoBloc!.add(CreateTodoEvent(
             createTodoParams: editCreateTodoParams,
-            exitTheScreen: todoName == null));
+            exitTheScreen: todoName == null)
+        );
       }
     }
   }
@@ -3152,17 +3190,20 @@ class _EditTodoUIState extends State<EditTodoUI> {
         editCreateTodoParams.personId = res['id']!.toString();
       }
     }
+
+    // log("$vehicleList", name: "ALL_VEHICLE");
+
     for (Map<String, dynamic> veh in selectedMultipleVehicleList) {
       var matchedGroup = vehicleList
-          .where((item) => item['vehicle_id'] == veh['vehicle_id'])
+          .where((item) => item['vin'] == veh['vin'])
           .toList();
       if (matchedGroup.isNotEmpty) {
         for (var res in matchedGroup) {
-          Map<String, dynamic> vehiclesData = {
+          Map<String, String> vehiclesData = {
             'vin': res['vin'] ?? '',
             'vehicle_name': res['vehicle_name'] ?? '',
-            'cohort_id': res['cohort_id'] ?? '',
-            'cohort_name': res['cohort']['cohort'] ?? '',
+            'cohort_id': "${res['cohort_id'] ?? ''}",
+            'cohort_name': res['cohort']?['cohort'] ?? '',
             'vehicle_image': res['images']?.isNotEmpty == true
                 ? res['images'][0]['path'] ?? ''
                 : '',
@@ -3174,6 +3215,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
+    log("${editCreateTodoParams.vehicleList} $selectedMultipleVehicleList", name: "VEHICLE_PARAM");
     return Future.value(editCreateTodoParams);
   }
 
