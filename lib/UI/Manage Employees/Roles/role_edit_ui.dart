@@ -23,7 +23,6 @@ class _RoleEditUIState extends State<RoleEditUI> {
   List<Map<String, dynamic>> permissions = [];
   List<int>permissionsId = [];
   Map<dynamic, bool> checked = {};
-  bool loading = false;
 
   @override
   void initState() {
@@ -103,27 +102,25 @@ class _RoleEditUIState extends State<RoleEditUI> {
                       itemBuilder: (context,  index) {
                         final permission = permissions[index];
 
-                        return Row(
-                          children: [
-                            Checkbox(
-                                value: checked[index] ?? false,
-                                activeColor: AppC.blue,
-                                onChanged: (value){
-                                  setState(() {
-                                    checked[index] = value ?? false;
-                                    if(value == true){
-                                      if(!permissionsId.contains(permission['id'])){
-                                        permissionsId.add(permission['id']);
-                                      }
-                                    }else{
-                                      permissionsId.remove(permission['id']);
-                                    }
-                                    print(permissionsId);
-                                  });
-                                }),
-                            Utils.getText(permission['name']),
-                          ],
-                        );
+                        return CheckboxListTile(
+                            value: checked[index] ?? false,
+                            activeColor: AppC.blue,
+                            contentPadding: 0.padding,
+                            dense: true,
+                            title: Text(permission['name'] ?? ''),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            onChanged: (value){
+                              setState(() {
+                                checked[index] = value ?? false;
+                                if(value == true){
+                                  if(!permissionsId.contains(permission['id'])){
+                                    permissionsId.add(permission['id']);
+                                  }
+                                }else{
+                                  permissionsId.remove(permission['id']);
+                                }
+                              });
+                            });
                       },
                     ),
                   ),

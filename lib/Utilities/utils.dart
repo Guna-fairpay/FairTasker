@@ -125,6 +125,7 @@ class Utils {
       Function(dynamic selectedValue) onSelected,
       {required String labelKey,
       dynamic initialSelection,
+        String? labelKey2,
         dynamic selectedKey,
         double topLRadius = 4,
         double topRRadius = 4,
@@ -144,6 +145,7 @@ class Utils {
             bottomRight: Radius.circular(bottomRRadius))
       ),
       child: DropdownMenu<dynamic>(
+
         key: ValueKey(selectedKey),
         initialSelection: initialSelection,
         hintText: hintText,
@@ -170,7 +172,7 @@ class Utils {
           (dynamic value){
             return  DropdownMenuEntry<Map<String, dynamic>>(
               value: value,
-              label: '${value[labelKey]??''}'.trim(),
+              label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
             ) ;
           },
         ).toList(),

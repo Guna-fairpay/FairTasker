@@ -94,24 +94,23 @@ class _RoleAddUIState extends State<RoleAddUI> {
                         itemCount: permissions.length,
                         itemBuilder: (context,  index) {
                           final permission = permissions[index];
-                          return Row(
-                            children: [
-                              Checkbox(
-                                  value: checked[index] ?? false,
-                                  activeColor: AppC.blue,
-                                  onChanged: (value){
-                                      setState(() {
-                                        checked[index] = value ?? false;
-                                        if(value == true){
-                                          permissionsId.add(permission['id']);
-                                        }else{
-                                          permissionsId.remove(permission['id']);
-                                        }
-                                      });
-                              }),
-                              Utils.getText(permission['name']),
-                            ],
-                          );
+                          return CheckboxListTile(
+                            dense: true,
+                              contentPadding: 0.padding,
+                              title: Text(permission['name'] ?? ''),
+                              value: checked[index] ?? false,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: AppC.blue,
+                              onChanged: (value){
+                                  setState(() {
+                                    checked[index] = value ?? false;
+                                    if(value == true){
+                                      permissionsId.add(permission['id']);
+                                    }else{
+                                      permissionsId.remove(permission['id']);
+                                    }
+                                  });
+                          });
                         },
                       ),
                     ),

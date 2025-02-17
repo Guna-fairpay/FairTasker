@@ -174,7 +174,6 @@ class _RoleViewUIState extends State<RoleViewUI> {
                                     Expanded(
                                       child: Utils.getText(
                                         role['name'] ?? '',
-                                        weight: FontWeight.bold,
                                       ),
                                     ),
                                     InkWell(
