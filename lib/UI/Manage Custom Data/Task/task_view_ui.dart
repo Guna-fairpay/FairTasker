@@ -251,7 +251,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
                               onTap: () => _navigateToTaskEditUI(index),
                               child: ListTile(
                                 dense: true,
-                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 title: Row(
                                   spacing: 10,
                                   children: [

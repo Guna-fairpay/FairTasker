@@ -97,7 +97,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
         ),
       ),
     );
-
     if (updatedEmployee != null) {
       employeeBloc.add(
         EditEmployeeData(
@@ -120,7 +119,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
       final delete = employees[index];
       employeeBloc.add(DeleteEmployeeData(id: delete['id'].toString()));
       employeeBloc.add(const GetEmployeeData());
-      Utils.showMobileToast('Deleted');
     }
   }
 
