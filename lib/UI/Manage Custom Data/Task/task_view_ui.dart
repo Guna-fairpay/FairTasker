@@ -1,7 +1,6 @@
 
 
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Event/todo_view_event.dart';
@@ -50,8 +49,8 @@ class _TaskViewUIState extends State<TaskViewUI> {
     setState(() {
       filteredTask = task.where((task) {
         final taskName = task['task']?.toLowerCase() ?? '';
-        final category = task['category_name'];  // Keep as nullable
-        final subcategory = task['subcategory_name'];  // Keep as nullable
+        final category = task['category_name'];
+        final subcategory = task['subcategory_name'];
         final searchQuery = query.toLowerCase();
         final matchesQuery = taskName.contains(searchQuery) ||
             (category?.toLowerCase().contains(searchQuery) ?? false) ||
@@ -59,8 +58,8 @@ class _TaskViewUIState extends State<TaskViewUI> {
         return matchesQuery;
       }).toList();
       filteredTask = filteredTask.where((task) {
-        final category = task['category_name'];  // Keep as nullable
-        final subcategory = task['subcategory_name'];  // Keep as nullable
+        final category = task['category_name'];
+        final subcategory = task['subcategory_name'];
         final matchesNoCategory = !noCategory || (category == null || subcategory == null);
         return matchesNoCategory;
       }).toList();
@@ -134,7 +133,6 @@ class _TaskViewUIState extends State<TaskViewUI> {
               Tab(text: 'Task', height: 30),
               Tab(text: 'Category Config', height: 30),
             ],
-
             dividerColor: AppC.trans,
             labelStyle: const TextStyle(fontSize: 16),
             labelColor: AppC.appColor,
@@ -189,15 +187,12 @@ class _TaskViewUIState extends State<TaskViewUI> {
                        spacing: 10,
                        children: [
                          Expanded(
-                           child: SizedBox(
-                             height: 40,
-                             child: Utils.getSearchBarUI(
-                                   onChange:
-                                   (value) {
-                                 _filterTasks();
-                               },
-                               searchController:searchController,
-                             ),
+                           child: Utils.getSearchBarUI(
+                                 onChange:
+                                 (value) {
+                               _filterTasks();
+                             },
+                             searchController:searchController,
                            ),
                          ),
                          Utils.getAddElevatedButton(
@@ -256,7 +251,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
                               onTap: () => _navigateToTaskEditUI(index),
                               child: ListTile(
                                 dense: true,
-                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                 title: Row(
                                   spacing: 10,
                                   children: [

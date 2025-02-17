@@ -74,9 +74,16 @@ class _EmployeesAddUIState extends State<EmployeesAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: const Text('Add Employee'),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: ()=>Navigator.pop(context))
+        ],
       ),
       body: MultiBlocProvider(
         providers: [
@@ -109,104 +116,78 @@ class _EmployeesAddUIState extends State<EmployeesAddUI> {
               },
             ),
           ],
-          child: Stack(
+          child: ListView(
             children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20.0, right: 20, bottom: 20, top: 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Icon(
-                                Icons.arrow_back,
-                                size: 16,
-                              )),
-                          const SizedBox(
-                            width: 10,
+              SafeArea(
+                minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Utils.getTextFormField(
+                        '', firstnameController,
+                        label: Utils.getText('First Name', color: AppC.grey)),
+                    const SizedBox(height: 10),
+                    Utils.getTextFormField(
+                        '', lastnameController,
+                        label: Utils.getText('Last Name', color: AppC.grey)),
+                    const SizedBox(height: 10),
+                    Utils.getTextFormField(
+                        '', mobileController,
+                        label: Utils.getText('Mobile No', color: AppC.grey),
+                        textType: TextInputType.phone),
+                    const SizedBox(height: 10),
+                    Utils.getTextFormField(
+                        '', emailController,
+                        label: Utils.getText('Email', color: AppC.grey),
+                        textType: TextInputType.emailAddress),
+                    const SizedBox(height: 10),
+                    Utils.getTextFormField(
+                      'Password',
+                      passwordController,
+                      hintTextColor: AppC.fieldBase,
+                      obscure: showPassword,
+                      suffixIcon: InkWell(
+                          child: Icon(
+                            showPassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.remove_red_eye_outlined,
                           ),
-                          Utils.getText('Add Employee',
-                              size: 16, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Utils.getTextFormField(
-                          '', firstnameController,
-                          label: Utils.getText('First Name', color: AppC.grey)),
-                      const SizedBox(height: 10),
-                      Utils.getTextFormField(
-                          '', lastnameController,
-                          label: Utils.getText('Last Name', color: AppC.grey)),
-                      const SizedBox(height: 10),
-                      Utils.getTextFormField(
-                          '', mobileController,
-                          label: Utils.getText('Mobile No', color: AppC.grey),
-                          textType: TextInputType.phone),
-                      const SizedBox(height: 10),
-                      Utils.getTextFormField(
-                          '', emailController,
-                          label: Utils.getText('Email', color: AppC.grey),
-                          textType: TextInputType.emailAddress),
-                      const SizedBox(height: 10),
-                      Utils.getTextFormField(
-                        '',
-                        passwordController,
-                        hintText: 'Enter Password',
-                        hintTextColor: AppC.fieldBase,
-                        obscure: showPassword,
-                        label: Utils.getText('Password', color: AppC.grey),
-                        suffixIcon: InkWell(
-                            child: Icon(
-                              showPassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.remove_red_eye_outlined,
-                              size: 14,
-                            ),
-                            onTap: () {
-                              showPassword = !showPassword;
-                              setState(() {});
-                            }),
-                      ),
-                      const SizedBox(height: 10),
-                      Utils.dropdownBox('Select Role', rolesDropdownList,
-                          (selectedValue) {
-                        setState(() {
-                          selectedRole = selectedValue;
-                        });
-                      }, labelKey: 'name'),
-                      const SizedBox(height: 10),
-                      Utils.dropdownBox(
-                          'Select Department', departmentDropdownList,
-                          (selectedValue) {
-                        setState(() {
-                          selectedDepartment = selectedValue;
-                        });
-                      }, labelKey: 'name'),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: 30,
-                            child: Utils.getAddFilledButton(
-                              'Save',
-                              () {
-                                _save();
-                              },
-                            ),
+                          onTap: () {
+                            showPassword = !showPassword;
+                            setState(() {});
+                          }),
+                    ),
+                    const SizedBox(height: 10),
+                    Utils.dropdownBox('Select Role', rolesDropdownList,
+                        (selectedValue) {
+                      setState(() {
+                        selectedRole = selectedValue;
+                      });
+                    }, labelKey: 'name'),
+                    const SizedBox(height: 10),
+                    Utils.dropdownBox(
+                        'Select Department', departmentDropdownList,
+                        (selectedValue) {
+                      setState(() {
+                        selectedDepartment = selectedValue;
+                      });
+                    }, labelKey: 'name'),
+                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          height: 30,
+                          child: Utils.getAddFilledButton(
+                            'Save',
+                            () {
+                              _save();
+                            },
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],

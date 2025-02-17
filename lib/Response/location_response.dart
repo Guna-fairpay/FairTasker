@@ -14,6 +14,6 @@ class LocationResponse {
     status = json['status'];
   }
   List<Map<String, dynamic>>? data;
-  int? status;
+  String? status;
   String? message;
 }

@@ -105,12 +105,11 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                         height: 5,
                       ),
                       Utils.getBorderedMultilineTextField(
-                          '', companyAddressController,
+                          'Company Address', companyAddressController,
                           fillColor: AppC.white,
                           minLines: 3,
                           autofocus: false,
-                          label: Utils.getText('Company Address',
-                              color: AppC.grey)),
+                          ),
                       const SizedBox(
                         height: 10,
                       ),
@@ -321,11 +320,11 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Utils.getBorderedMultilineTextField('', addressController,
+                      Utils.getBorderedMultilineTextField('Address', addressController,
                           fillColor: AppC.white,
                           minLines: 3,
                           autofocus: false,
-                          label: Utils.getText('Address', color: AppC.grey)),
+                          ),
                       const SizedBox(
                         height: 10,
                       ),
@@ -396,11 +395,11 @@ class _CreateInVoiceUIState extends State<CreateInVoiceUI> {
                         height: 10,
                       ),
                       Utils.getBorderedMultilineTextField(
-                          '', shippingAddressController,
+                          'Address', shippingAddressController,
                           fillColor: AppC.white,
                           minLines: 3,
                           autofocus: false,
-                          label: Utils.getText('Address', color: AppC.grey)),
+                          ),
                       const SizedBox(
                         height: 10,
                       ),
