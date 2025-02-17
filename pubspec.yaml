@@ -101,6 +101,8 @@ dependencies:
   google_fonts: ^6.2.1
   sticky_headers: ^0.3.0+2
   number_pagination: ^1.1.6
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:

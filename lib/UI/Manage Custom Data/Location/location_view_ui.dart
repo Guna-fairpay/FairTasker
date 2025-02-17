@@ -84,6 +84,7 @@ class _LocationViewUIState extends State<LocationViewUI> {
             .toList(),
         id: updatedLocation['id'],
       ));
+      locationDataBloc.add(const GetAddedLocationListData());
     }
   }
 
@@ -123,17 +124,14 @@ class _LocationViewUIState extends State<LocationViewUI> {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredLocation.clear();
             location.clear();
-            //filteredLocation.addAll(state.resource ?? []);
-            // addresses.addAll(filteredLocation.expand((e) => e['addresses'] ?? []));
-            List<Map<String, dynamic>> list = [];
-            list.addAll(state.resource ?? []);
-            list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+            location.addAll(state.resource ?? []);
+            location.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
-            location = list;
-            filteredLocation = List.from(location);
+            filteredLocation = location;
           }  else if (state is LocationDataLoaded) {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             Utils.showMobileToast(state.message ?? '');
+            locationDataBloc.add(const GetAddedLocationListData());
           }
           else {
             locationDataBloc.add(const GetAddedLocationListData());

@@ -11,19 +11,63 @@ import 'package:http/http.dart' as http;
 class LocationDataRepo {
   ApiClient apiClient = ApiClient();
 
-  Future<bool?> createLocation(
-      {int? id,  String? name, List<dynamic>? address}) async {
+  Future<bool?> createLocation({int? id, String? name, List<dynamic>? address}) async {
+    try {
+      String apiUrl = '';
+      Map<String, dynamic> body = {
+        "platform": 'TaskerApp',
+      };
+      log('$name',name: 'Location');
+      print('address\t$address');
+
+      if (id != null && address != null) {
+        apiUrl = "${Str.LIST_BASE_URL}location_address";
+        body["location_id"] = id;
+        body["address"] = address;
+      }
+      if (id != null && name != null) {
+        apiUrl = "${Str.LIST_BASE_URL}locations/$id";
+        body["name"] = name;
+        body["status"] = "1";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}locations";
+        body["name"] = name;
+        body["address"] = address ?? [];
+        body["status"] = "1";
+      }
+
+      final http.Response? response = await apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      }
+
+      return null;
+    } catch (error, stackTrace) {
+      log('createLocation.exception: ${error.toString()}');
+      log('StackTrace: $stackTrace');
+      return null;
+    }
+  }
+
+
+  /*Future<bool?> createLocation({int? id,  String? name, List<dynamic>? address}) async {
     try {
       String body = '';
       String apiUrl = '';
-      if(address != null) {
+      if(id != null && address != null) {
         apiUrl = "${Str.LIST_BASE_URL}location_address";
         body = jsonEncode({
           "location_id":id,
           "address":address,
           "platform":'TaskerApp',
         });
-      }else if(id != null) {
+      }if(id != null) {
         apiUrl = "${Str.LIST_BASE_URL}locations/$id";
         body = jsonEncode({
           "name":name,
@@ -54,7 +98,7 @@ class LocationDataRepo {
       log('createLocation.exception : ${error.toString()}');
       return null;
     }
-  }
+  }*/
 
 /*  Future<LocationResponse?> createLocation(
       int? id,

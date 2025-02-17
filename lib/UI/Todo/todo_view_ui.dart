@@ -958,7 +958,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       children: [
                                         InkWell(
                                           onTap: () async {
-                                            // Navigate to the CreateTodoUI page and wait for the result
                                             final newTodo = await Navigator.push(
                                               context,
                                               MaterialPageRoute(

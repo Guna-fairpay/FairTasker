@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../Bloc/location_data_bloc.dart';
@@ -34,12 +36,13 @@ class _LocationAddUIState extends State<LocationAddUI> {
   }
 
   void _deleteAddress(int index) {
-    if (addressesList[index]['id'] != null) {
+    /*if (addressesList[index]['id'] != null) {
       locationDataBloc.add(DeleteLocationEvent(
           id: addressesList[index]['id']));
-    }
+    }*/
     setState(() {
       addressesList.removeAt(index);
+      print("addressesList\t$addressesList");
     });
   }
 
@@ -63,7 +66,7 @@ class _LocationAddUIState extends State<LocationAddUI> {
         minimum: 15.padding,
         child: Form(
           key: formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: AutovalidateMode.onUnfocus,
           child: ListView(
             children: [
               Utils.getTextFormField(
@@ -76,6 +79,7 @@ class _LocationAddUIState extends State<LocationAddUI> {
               Utils.getTextFormField(
                 'Address',
                 addressController,
+                inputAction: TextInputAction.done,
                 suffixIcon: InkWell(
                   onTap: () {
                     if (addressController.text.isNotEmpty) {

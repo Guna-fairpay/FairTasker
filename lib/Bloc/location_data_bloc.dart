@@ -38,14 +38,14 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
     on<DeleteLocationEvent>((event, emit) async {
       emit(const LocationDataLoading());
       await locationDataRepo.deleteLocation(event.id).then((value) {
-        emit(LocationDataLoaded(message: value.toString()));
+        emit(LocationDataLoaded(message: 'Location Added Successfully'));
       });
     });
 
     on<DeleteLocation>((event, emit) async {
       emit(const LocationDataLoading());
       await locationDataRepo.delete(event.id).then((value) {
-        emit(LocationDataLoaded(message: value.toString()));
+        emit(LocationDataLoaded(message: 'test1 deleted successfully'));
       });
     });
 

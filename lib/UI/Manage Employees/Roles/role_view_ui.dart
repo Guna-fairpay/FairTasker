@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../Bloc/roles_bloc.dart';
 import '../../../Component/drawer_ui.dart';
@@ -23,7 +24,6 @@ class RoleViewUI extends StatefulWidget {
 class _RoleViewUIState extends State<RoleViewUI> {
   late RolesBloc rolesBloc;
   final TextEditingController searchController = TextEditingController();
-  final FocusNode searchFocusNode = FocusNode();
   bool loading = false;
   List<Map<String, dynamic>> roles = [];
   List<Map<String, dynamic>> filterRoles = [];
@@ -52,9 +52,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
 
     if (newRole != null) {
       setState(() {
-        //roles.add(newRole);
         roles.insert(0, newRole);
-       // _filterRoles(searchController.text); // Update filtered list
       });
     }
   }
@@ -78,7 +76,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
   }
 
   Future<void> _deleteRole(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context,'Role?');
     if (confirmed == true) {
       setState(() {
         roles.removeAt(index);
@@ -87,31 +85,6 @@ class _RoleViewUIState extends State<RoleViewUI> {
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure?'),
-        content: Utils.getText('Are you sure you want to delete this role?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -125,45 +98,22 @@ class _RoleViewUIState extends State<RoleViewUI> {
       length: 2,
       child: Scaffold(
         backgroundColor: AppC.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(100.0),
-          child: Column(
-            children: [
-              const HeaderView(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TabBar(
-                    tabs: const [
-                      Tab(text: 'Roles', height: 30),
-                      Tab(text: 'Users', height: 30),
-                    ],
-                    dividerColor: AppC.trans,
-                    labelStyle: const TextStyle(fontSize: 16),
-                    labelColor: AppC.white,
-                    unselectedLabelColor: AppC.appColor,
-                    indicator: BoxDecoration(
-                      color: AppC.appColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                ),
-              ),
+        appBar: AppBar(
+          title: TabBar(
+            tabs: const [
+              Tab(text: 'Roles', height: 30),
+              Tab(text: 'Users', height: 30),
             ],
+            dividerColor: AppC.trans,
+            labelStyle: const TextStyle(fontSize: 16),
+            labelColor: AppC.white,
+            unselectedLabelColor: AppC.appColor,
+            indicator: BoxDecoration(
+              color: AppC.appColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),
         body: BlocProvider(
@@ -171,124 +121,118 @@ class _RoleViewUIState extends State<RoleViewUI> {
           child: BlocConsumer<RolesBloc, RolesState>(
               listener: (context, state) async {
             if (state is DepartmentLoading) {
-              loading = true;
-            } else if (state is RolesListLoaded) {
-              setState(() {
-                loading = false;
-                roles.clear();
-                filterRoles.addAll(state.data ?? []);
-                roles.addAll(state.data ?? []);
-
-              });
-            } else if (state is RolesLoaded) {
-              setState(() {
-                loading = false;
-                roles.clear();
-                rolesBloc.add(const GetRolesData());
-              });
+              EasyLoading.show();
             } else {
-              rolesBloc.add(const GetRolesData());
-              loading = true;
+              if(EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is RolesListLoaded) {
+                setState(() {
+                  loading = false;
+                  roles.clear();
+                  filterRoles.addAll(state.data ?? []);
+                  roles.addAll(state.data ?? []);
+                });
+              } else if (state is RolesLoaded) {
+                setState(() {
+                  loading = false;
+                  roles.clear();
+                  rolesBloc.add(const GetRolesData());
+                });
+              } else {
+                rolesBloc.add(const GetRolesData());
+                loading = true;
+              }
             }
           }, builder: (context, state) {
-            return Stack(
+            return TabBarView(
               children: [
-                TabBarView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
+                SafeArea(
+                  minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10,),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 40,
-                                  child: Utils.getSearchBarUI(onChange: _filterRoles, searchController: searchController),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              SizedBox(
-                                height: 40,
-                                child: Utils.getAddFilledButton('Add', () {
-                                  // Implement add role functionality
-                                  _navigateToRoleAddUI();
-                                }),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
                           Expanded(
-                            child: ListView.builder(
-                              itemCount: filterRoles.length,
-                              itemBuilder: (context, index) {
-                                final role = filterRoles[index];
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 2.0),
-                                  child: Slidable(
-                                    endActionPane: ActionPane(
-                                      motion: const ScrollMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          onPressed: (context) =>
-                                              _deleteRole(index),
-                                          backgroundColor: AppC.white,
-                                          foregroundColor: AppC.red,
-                                          icon: Icons.delete_outline,
-                                          label: 'Delete',
-                                        ),
-                                      ],
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () => _navigateToEditRoleUI(index),
-                                      child: Card(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 4),
-                                        color: AppC.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Utils.getText(
-                                                  role['name'] ?? '',
-                                                  weight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
+                            child: SizedBox(
+                              height: 40,
+                              child: Utils.getSearchBarUI(onChange: _filterRoles, searchController: searchController),
                             ),
+                          ),
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            height: 40,
+                            child: Utils.getAddFilledButton('Add', () {
+                              // Implement add role functionality
+                              _navigateToRoleAddUI();
+                            }),
                           ),
                         ],
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: UserViewUI(),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filterRoles.length,
+                          itemBuilder: (context, index) {
+                            final role = filterRoles[index];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                              child: Slidable(
+                                endActionPane: ActionPane(
+                                  motion: const ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (context) =>
+                                          _deleteRole(index),
+                                      backgroundColor: AppC.white,
+                                      foregroundColor: AppC.red,
+                                      icon: Icons.delete_outline,
+                                      label: 'Delete',
+                                    ),
+                                  ],
+                                ),
+                                child: GestureDetector(
+                                  onTap: () => _navigateToEditRoleUI(index),
+                                  child: Card(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 4),
+                                    color: AppC.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(8.0),
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Utils.getText(
+                                              role['name'] ?? '',
+                                              weight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Visibility(
-                    visible: loading,
-                    child: Center(child: Utils.getProgressIndicator(context)))
+                const SafeArea(
+                  minimum: EdgeInsets.symmetric(horizontal: 10),
+                  child: UserViewUI(),
+                ),
               ],
             );
           }),
         ),
-        drawer: const DrawerView(),
       ),
     );
   }

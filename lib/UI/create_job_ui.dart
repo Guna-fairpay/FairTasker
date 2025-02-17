@@ -178,7 +178,7 @@ class _CreateJobUIState extends State<CreateJobUI> {
                           Utils.getBorderedMultilineTextField(
                               'Description', descriptionController,
                               fillColor: AppC.trans,
-                              label: Utils.getText('Description')),
+                          ),
                           const SizedBox(
                             height: 15,
                           ),

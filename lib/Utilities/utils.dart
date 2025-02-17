@@ -147,6 +147,7 @@ class Utils {
         key: ValueKey(selectedKey),
         initialSelection: initialSelection,
         hintText: hintText,
+        menuHeight: 250,
         textStyle: const TextStyle(
           color: AppC.text,
             overflow: TextOverflow.ellipsis,
@@ -673,11 +674,12 @@ class Utils {
       FontWeight fontWeight = FontWeight.normal,
       ValueChanged? onChangeCallback,
       Color borderColor = AppC.fieldBase,
-      Color hintTextColor = AppC.text,
+      Color hintTextColor = AppC.grey,
       Color? fillColor=AppC.white,
+        TextInputAction? inputAction,
       int minLines = 5,
       int? maxLines,
-      Widget? label,
+     // Widget? label,
       bool autofocus = false}) {
     return TextFormField(
       autofocus: autofocus,
@@ -689,17 +691,17 @@ class Utils {
       maxLines: maxLines,
       minLines: minLines,
       textCapitalization: TextCapitalization.sentences,
+      textInputAction: inputAction ?? TextInputAction.next,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12.0, vertical: 10),
-        label: label,
-        hintText: labelText,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+        label: Utils.getText(labelText,color: AppC.grey),
+        //hintText: labelText,
         hintStyle: TextStyle(color: hintTextColor),
         filled: true,
         fillColor: fillColor,
         focusedBorder: OutlineInputBorder(
           borderSide:
-              BorderSide(color: borderColor, width: Num.borderWidthField),
+              const BorderSide(color: AppC.appColor, width: Num.borderWidthField),
           borderRadius: BorderRadius.circular(Num.radiusButton),
         ),
         enabledBorder: OutlineInputBorder(

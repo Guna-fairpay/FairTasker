@@ -46,28 +46,23 @@ class _LocationEditUIState extends State<LocationEditUI> {
     setState(() {
       isTaskFieldEmpty = locationController.text.isEmpty;
     });
-
     if (locationController.text.isEmpty) {
       return Utils.showMobileToast('Please fill the required field');
     }
-
     final updatedLocation = {
       'id': widget.location['id'],
       'name': locationController.text,
       'addresses': addressesList,
     };
-
     Navigator.pop(context, updatedLocation);
   }
 
   void _deleteAddress(int index) {
     if (addressesList[index]['id'] != null) {
-      locationDataBloc.add(DeleteLocationEvent(
-          id: addressesList[index]['id']));
+      locationDataBloc.add(DeleteLocationEvent(id: addressesList[index]['id']));
     }
-    setState(() {
-      addressesList.removeAt(index);
-    });
+    addressesList.removeAt(index);
+    setState((){});
   }
 
   @override

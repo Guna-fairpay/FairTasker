@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'UI/Splash/splash_ui.dart';
 import 'package:intl/intl.dart';
 
+
 String accessTokenGlobal = '';
 String userIdGlobal = '';
 List<String>? userPermissionsGlobal;

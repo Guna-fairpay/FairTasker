@@ -186,7 +186,6 @@ class PrivateRentalRepository {
       if (streamedResponse.statusCode == 200 || streamedResponse.statusCode == 201) {
         final http.Response response =
         await http.Response.fromStream(streamedResponse);
-        log(response.body,name: 'Response1');
         return json.decode(response.body);
       } else {
         Utils.showSomethingWentWrong();
