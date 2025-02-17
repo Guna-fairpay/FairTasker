@@ -234,6 +234,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     });
 
     on<AddToDoVPersonEvent>((event, emit) {
+      log("${event.vPerson}", name: "AddToDoBloc-Person-before-check");
       if ((event.vPerson as List).isEmpty) {
         var oldIdentifier = state.selectedTaskIdentifier;
         oldIdentifier.remove(2);
@@ -249,6 +250,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
+      // existingVPersons.removeWhere((element) => !(event.vPerson.map((e) => e['id']).contains(element['id'])));
       if (oldIdentifier.containsKey(2)) {
         oldIdentifier.update(
             2, (value) => (event.vPerson[0] as Map<String, dynamic>));
@@ -257,6 +259,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         oldIdentifier.putIfAbsent(
             2, () => (event.vPerson[0] as Map<String, dynamic>));
       }
+      existingVPersons = existingVPersons.unique((element) => element['id']);
       existingVPersons.removeWhere((element) =>
           element['type'] ==
           ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));

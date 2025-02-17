@@ -55,3 +55,26 @@ class VehicleHistoryCompleteEvent extends VehicleHistoryEvent {
   @override
   List<Object?> get props => [todoId, status, Random().nextDouble()];
 }
+
+class VehicleHistoryDeleteEvent extends VehicleHistoryEvent {
+  final dynamic todoId;
+  final dynamic reason;
+  const VehicleHistoryDeleteEvent(this.todoId, this.reason);
+  @override
+  List<Object?> get props => [todoId, reason, Random().nextDouble()];
+}
+
+class VehicleHistorySameTaskEvent extends VehicleHistoryEvent {
+  final dynamic title;
+  final bool isChecked;
+  const VehicleHistorySameTaskEvent(this.title, this.isChecked);
+  @override
+  List<Object?> get props => [title, isChecked, Random().nextDouble()];
+}
+
+class VehicleHistoryViewEvent extends VehicleHistoryEvent {
+  final dynamic task;
+  const VehicleHistoryViewEvent(this.task);
+  @override
+  List<Object?> get props => [task, Random().nextDouble()];
+}

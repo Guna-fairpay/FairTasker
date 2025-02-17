@@ -20,4 +20,7 @@ class VehicleHistoryRepository {
 
   Future<GeneralResponse?> completeToDo(dynamic todoId, {bool status = true}) async =>
       await _aPiRepository.completeToDo(todoId, status: status);
+
+  Future<GeneralResponse?> deleteToDo(dynamic todoId, dynamic reason) async =>
+      await _aPiRepository.deleteToDo(todoId, reason);
 }
