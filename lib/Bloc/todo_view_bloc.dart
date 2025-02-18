@@ -1046,6 +1046,15 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       });
     });
 
+    on<AddSpareKeyTask>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.spareKeyTask(event.createSpareKeyTaskData!
+      ).then((value) {
+        emit(CreateTodoLoaded(
+          result: value,));
+      });
+    });
+
     on<GetTaskMiles>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo.getTaskMiles()

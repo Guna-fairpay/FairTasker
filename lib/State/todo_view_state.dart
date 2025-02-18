@@ -38,7 +38,7 @@ class VehicleDataLoaded extends TodoViewState {
 
 class TodoListLoading extends TodoViewState {
   @override
-  List<Object> get props => [];
+  List<Object> get props => [Random().nextDouble()];
 }
 
 class TodoListLoaded extends TodoViewState {

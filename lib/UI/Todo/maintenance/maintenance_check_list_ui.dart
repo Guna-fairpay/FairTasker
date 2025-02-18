@@ -1,11 +1,10 @@
 
+import 'dart:developer';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../Response/create_fix_task_data.dart';
-import '../../../Response/create_todo_params.dart';
-import '../../../Utilities/Str.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 
@@ -37,19 +36,38 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
   @override
   void initState() {
     super.initState();
+    isAllCheck = true;
+    data.clear();
     data = widget.maintenance;
     todoViewBloc=TodoViewBloc();
     for (var maintenanceItem in data) {
       int maintenanceId = maintenanceItem['id'];
       checkboxStates.putIfAbsent(maintenanceId, () => {});
-
       for (var item in maintenanceItem['children'] ?? []) {
         checkboxStates[maintenanceId]![item['id']] = true;
         selectedDropdownValues[item['id']] = "Good";
       }
     }
-    isAllCheck = true;
+    setState(() {});
+  }
+  @override
+  void didUpdateWidget(covariant MaintenanceCheckListUI oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.maintenance != widget.maintenance) {
+      data = widget.maintenance;
+      todoViewBloc=TodoViewBloc();
+      for (var maintenanceItem in data) {
+        int maintenanceId = maintenanceItem['id'];
+        checkboxStates.putIfAbsent(maintenanceId, () => {});
 
+        for (var item in maintenanceItem['children'] ?? []) {
+          checkboxStates[maintenanceId]![item['id']] = true;
+          selectedDropdownValues[item['id']] = "Good";
+        }
+      }
+      isAllCheck = true;
+      setState(() {});
+    }
   }
 
   Widget checkBoxWithSingleTextAndTexBox({
@@ -95,17 +113,19 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                       value: isAllCheck,
                       onChanged: (bool? newValue) {
                         setState(() {
-                          if (newValue == true) {
-                            isAllCheck = true;
-                            for (var maintenanceItem in data) {
-                              int maintenanceId = maintenanceItem['id'];
-                              checkboxStates.putIfAbsent(maintenanceId, () => {});
-                              for (var item in maintenanceItem['children'] ?? []) {
-                                checkboxStates[maintenanceId]![item['id']] = true;
+
+                          isAllCheck = newValue ?? false;
+                          for (var maintenanceItem in data) {
+                            int maintenanceId = maintenanceItem['id'];
+                            checkboxStates.putIfAbsent(maintenanceId, () => {});
+                            for (var item in maintenanceItem['children'] ?? []) {
+                              checkboxStates[maintenanceId]![item['id']] = isAllCheck;
+                              if (!isAllCheck) {
+                                selectedDropdownValues[item['id']] = "Bad";
+                              } else {
+                                selectedDropdownValues[item['id']] = "Good";
                               }
                             }
-                          } else {
-                            isAllCheck = false;
                           }
                         });
                       },
@@ -120,6 +140,7 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                 itemCount: data.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
+
                   final maintenanceCheckListData = data[index];
                   var checkList = (maintenanceCheckListData['children'] as List?) ?? [];
                   List<dynamic> dropDownValue = checkList.isNotEmpty
@@ -133,6 +154,7 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                     spacing: 5,
                     children: [
                       Utils.getText("${maintenanceCheckListData['name'] ?? ''}".trim(),weight: FontWeight.bold),
+
                       for (var item in checkList) ...[
                         Column(
                           children: [
@@ -197,37 +219,43 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                                       minLines: 2,
                                     ),
                                     Utils.getAddFilledButton(
-                                       'Create Task',
+                                      'Create Task',
                                           () async {
                                         setState(() {
                                           isLoading = true;
                                         });
-                                        await Future.delayed(Duration.zero);
-                                        try {
-                                          maintenanceTaskId = '${maintenanceCheckListData['id']}-${item['id']}-$selectedId';
-                                          notes = '${maintenanceCheckListData['name']}-${item['name']}-${selectedDropdownValues[item['id']]}';
-                                          CreateFixTaskData createFixTaskData = CreateFixTaskData();
-                                          createFixTaskData.userId=widget.todoItems['user_id'];
-                                          createFixTaskData.userGroupId=int.parse(widget.todoItems['user_group_id']);
-                                          createFixTaskData.title=item['id']==64?'Oil Change': 'Fix';
-                                          createFixTaskData.maintenanceTaskId=maintenanceTaskId;
-                                          createFixTaskData.notes=notes;
-                                          createFixTaskData.todoTime=widget.todoItems['todo_time'];
-                                          createFixTaskData.startAt=widget.todoItems['todo_date'];
-                                          createFixTaskData.identifierId=item['id'] == 64 ? 126 : null;
-                                          createFixTaskData.vehicleList=widget.todoItems['vehicles'];
-                                          createFixTaskData.location=widget.todoItems['location'];
-                                          createFixTaskData.locationId=widget.todoItems['location_id'];
-                                          createFixTaskData.vendorId=widget.todoItems['vendor_id'];
-                                          createFixTaskData.vendorName=widget.todoItems['vendor_name'];
 
-                                          todoViewBloc!.add(AddFixTask(
-                                            createFixTaskData: createFixTaskData,
-                                          ));
+                                        try {
+                                          if (selectedId == null) {
+                                            Utils.showMobileToast('Please select a valid option');
+                                            return;
+                                          }
+                                          maintenanceTaskId = '${maintenanceCheckListData['id']}-${item['id']}-$selectedId';
+                                          notes = '${maintenanceCheckListData['name']}-${item['name']}-${selectedDropdownValues[item['id']] ?? "Unknown"}';
+
+                                          CreateFixTaskData createFixTaskData = CreateFixTaskData()
+                                            ..userId = widget.todoItems['user_id']
+                                            ..userGroupId = int.tryParse(widget.todoItems['user_group_id']?.toString() ?? '0') ?? 0
+                                            ..title = item['id'] == 64 ? 'Oil Change' : 'Fix'
+                                            ..maintenanceTaskId = maintenanceTaskId
+                                            ..notes = notes
+                                            ..todoTime = widget.todoItems['todo_time']
+                                            ..startAt = widget.todoItems['todo_date']
+                                            ..identifierId = item['id'] == 64 ? 126 : null
+                                            ..vehicleList = widget.todoItems['vehicles']
+                                            ..location = widget.todoItems['location']
+                                            ..locationId = widget.todoItems['location_id']
+                                            ..vendorId = widget.todoItems['vendor_id']
+                                            ..vendorName = widget.todoItems['vendor_name'];
+
+                                          todoViewBloc!.add(AddFixTask(createFixTaskData: createFixTaskData));
+
                                           await Future.delayed(const Duration(seconds: 2));
                                           Utils.showMobileToast('Fix Task Created');
-                                        } catch (e) {
-                                          Utils.showMobileToast('Error creating task');
+
+                                        } catch (e, stackTrace) {
+                                          log("Error creating task: $e\n$stackTrace", name: "TASK ERROR");
+                                          Utils.showMobileToast('Error creating task: $e');
                                         } finally {
                                           setState(() {
                                             isLoading = false;

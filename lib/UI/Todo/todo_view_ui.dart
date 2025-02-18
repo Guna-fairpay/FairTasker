@@ -2649,7 +2649,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                     .addAll(selectedVehicleGroupList);
                               }
                               await getUserGroupList(todos);
-                              bool? result = await Navigator.push(
+                              dynamic result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => EditTodoUI(

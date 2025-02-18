@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Response/chat_message_response.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -58,6 +59,7 @@ import '../Response/vehicle_status_response.dart';
 import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
+import '../UI/Todo/create_sparekey_data.dart';
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -1115,31 +1117,31 @@ class TodoListRepo {
       } else {
         apiUrl = "${Str.BASE_URL}add-todo";
       }
-      String body = jsonEncode({
-        "title": createTodoParams.todoTitle,
+      Map<String, String> body = {
+        "title": createTodoParams.todoTitle.toString(),
         if (createTodoParams.todoId != null)
-          "todo_date": createTodoParams.todoDate
-        else "start_at": createTodoParams.todoDate,
+          "todo_date": createTodoParams.todoDate.toString()
+        else "start_at": createTodoParams.todoDate.toString(),
         if (createTodoParams.todoId != null)
           "type": "Inline",
         // if(createTodoParams.existingUserGroupId != null)
         //   "user_group_id": createTodoParams.existingUserGroupId!.toString(),
-        "todo_time": createTodoParams.todoTime,
-        "priority": createTodoParams.priority,
-        "assigned_to": createTodoParams.assignedTo,
-        "cohort_id": createTodoParams.cohortId,
-        "cohort_name": createTodoParams.cohortName,
-        "vin": createTodoParams.vin,
-        "vehicle_name": createTodoParams.vehicleName,
-        "vehicle_image": createTodoParams.vehicleImage,
-        "maintenance_task_id":createTodoParams.maintenanceTaskId,
+        "todo_time": createTodoParams.todoTime.toString(),
+        "priority": createTodoParams.priority.toString(),
+        "assigned_to": createTodoParams.assignedTo.toString(),
+        "cohort_id": createTodoParams.cohortId.toString(),
+        "cohort_name": createTodoParams.cohortName.toString(),
+        "vin": createTodoParams.vin.toString(),
+        "vehicle_name": createTodoParams.vehicleName.toString(),
+        "vehicle_image": createTodoParams.vehicleImage.toString(),
+        "maintenance_task_id":createTodoParams.maintenanceTaskId.toString(),
         "repeatPeriod":
         (createTodoParams.repeatPeriod ?? '').toString().toLowerCase(),
         "repeatDay":
         (createTodoParams.repeatDay ?? '').toString().toLowerCase(),
         "repeatWeek":
         (createTodoParams.repeatWeek ?? '').toString().toLowerCase(),
-        "weekDay": createTodoParams.weekDay,
+        "weekDay": createTodoParams.weekDay.toString(),
         "recur_monthly_type":
         (createTodoParams.recurMonthlyType ?? '').toString().toLowerCase(),
         "repeatDateMonth":
@@ -1157,17 +1159,17 @@ class TodoListRepo {
         "end_after": (createTodoParams.endAfter ?? '').toString().toLowerCase(),
         "reminder":
         (createTodoParams.todoReminder ?? '').toString().toLowerCase(),
-        "person": createTodoParams.person,
-        "person_id": createTodoParams.personId,
-        "time_sensitive":int.parse(createTodoParams.timeSensitive.toString()) ,
-        "vendor_id": createTodoParams.vendorId,
-        "vendor_name": createTodoParams.vendorName,
-        "location": createTodoParams.location,
-        "location_id": createTodoParams.locationId,
+        "person": createTodoParams.person.toString(),
+        "person_id": createTodoParams.personId.toString(),
+        "time_sensitive":createTodoParams.timeSensitive.toString() ,
+        "vendor_id": createTodoParams.vendorId.toString(),
+        "vendor_name": createTodoParams.vendorName.toString(),
+        "location": createTodoParams.location.toString(),
+        "location_id": createTodoParams.locationId.toString(),
         if (createTodoParams.multipleAddressList != null)
-          "address": createTodoParams.multipleAddressList,
-        "parts": createTodoParams.partList,
-        "supplies": createTodoParams.supplyList,
+          "address": createTodoParams.multipleAddressList.toString(),
+        "parts": createTodoParams.partList.toString(),
+        "supplies": createTodoParams.supplyList.toString(),
         "notes": createTodoParams.notes.toString(),
         "vehicle_group_id": createTodoParams.vehicleGroupId.toString(),
         if (createTodoParams.todoId != null)
@@ -1177,17 +1179,18 @@ class TodoListRepo {
         "user_id": createTodoParams.selectedUserId == null
             ? ''
             : (createTodoParams.selectedUserId!).toString(),
-        "vehicles":createTodoParams.vehicleList??[],
-        "custom_link_id":createTodoParams.customLinkId,
-        "custom_link":createTodoParams.customLink,
-        "reference_id":createTodoParams.referenceId,
-
-      });
+        "vehicles": "${createTodoParams.vehicleList ?? []}",
+        "custom_link_id":"${createTodoParams.customLinkId ?? ""}",
+        "custom_link":createTodoParams.customLink.toString(),
+        "reference_id":createTodoParams.referenceId.toString(),
+      };
+      // var todoImages = createTodoParams.todoImage.mapIndexed((index, element) => http.MultipartFile.fromString("images[$index]", element.path));
       debugPrint("createATodo apiUrl: $apiUrl");
-      log("$body", name: "POST_BODY");
+      log("${jsonEncode(body)}", name: "POST_BODY");
       final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
+      await apiClient.callPostMethodWithBody(apiUrl, body: body, files: createTodoParams.todoImage.map((e) => e.path).toList());
       if (response != null) {
+        log('createATodo api.response.body: ${response.body}');
         if (response.statusCode == 200 || response.statusCode == 201) {
 
         debugPrint('createATodo api.response.body: ${response.body}');
@@ -3138,6 +3141,45 @@ class TodoListRepo {
       }
     } catch (error) {
       debugPrint('delete Supply For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
+  Future<bool?> spareKeyTask(CreateSpareKeyData sparekeyData ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+
+      //title branch_id cohort_id identifier_id location location_id notes start_at time_sensitive(false) title todo_time todo_user_type user_group_id user_id
+      //vehicle_name vehicles vendor_id vendor_name vin
+      String body = jsonEncode({
+        "title": sparekeyData.title,
+        "branch_id":sparekeyData.branchId,
+        "cohort_id":sparekeyData.cohortId,
+        "identifier_id":sparekeyData.identifierId,
+        "location":sparekeyData.location,
+        "location_id":sparekeyData.locationId,
+        "notes": sparekeyData.notes ,
+        "start_at": sparekeyData.startAt,
+        'time_sensitive': sparekeyData.timeSensitive,
+        "todo_time": sparekeyData.todoTime,
+        "todo_user_type": sparekeyData.todoUserType,
+        "user_group_id": sparekeyData.userGroupId,
+        "user_id": sparekeyData.userId,
+        "vehicle_name": sparekeyData.vehicleName,
+        "vehicles": sparekeyData.vehicles,
+        "vendor_id": sparekeyData.vendorId,
+         "vendor_name": sparekeyData.vendorName,
+        "vin": sparekeyData.vin
+      });
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('spareKeyTask.exception : ${error.toString()}');
       return null;
     }
   }

@@ -2,16 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
-import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/Utilities/priority_data.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
@@ -21,7 +20,6 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart' as vdb;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,6 +36,7 @@ import '../Manage Custom Data/Vendor/vendor_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
+import '../dialog/show_attachments_dialog.dart';
 import 'todo_edti_expense/ui/Todo_edit_expense_ui.dart';
 import 'check_list_ui.dart';
 import 'maintenance/maintenance_check_list_ui.dart';
@@ -62,6 +61,7 @@ class EditTodoUI extends StatefulWidget {
 
   @override
   State<EditTodoUI> createState() => _EditTodoUIState();
+
 }
 
 class _EditTodoUIState extends State<EditTodoUI> {
@@ -115,7 +115,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<Map<String, dynamic>> selectedSuppliesList = [];
   List<Map<String, dynamic>> editMultipleAddressList = [];
   List<Map<String, dynamic>> selectedMultipleAddressList = [];
-  List<Map<String, dynamic>> todoImages = [];
+  List<dynamic> todoImages = [];
   List<Map<String, dynamic>> editSuppliesList = [];
   List<dynamic> attachmentImage = [];
   List<Map<String, dynamic>> vendorList = [];
@@ -188,6 +188,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     {'name': 'Negative'}
   ];
 
+  bool isDataLoaded = false;
   bool showMore = false;
   bool completeAllDay = false;
   bool allDay = false;
@@ -237,7 +238,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
   bool timeSensitive = false;
   bool isPartChecked = false;
   bool isSupplyChecked = false;
-
   Map<String, dynamic> vehicle = {};
   Map<String, dynamic> setVehicleList = {};
   Map<String, String> taskNameList = {};
@@ -253,6 +253,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   dynamic selectedLink;
   dynamic selectedVin;
   dynamic selectedDropDownData;
+  dynamic DropDownData;
   dynamic selectedSentiments;
 
   String? selectedPriority;
@@ -336,6 +337,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   @override
   void initState() {
     todoItem = widget.todoItem;
+
     todoBloc = TodoViewBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
     todoBloc!.add(const GetCohortsData());
@@ -439,8 +441,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         Utils.convertStringToDateTime(todoItem['todo_date'] ?? '');
     editTodoDateController.text = todoItem['todo_date'] ?? '';
     timeSensitive = (todoItem['time_sensitive'] == 1);
-    debugPrint(
-        'todoItem!.todoTime|allDay: ${todoItem['todo_time'] ?? 'allDay is true'}');
 
     if (todoItem['todo_time'] != null && todoItem['todo_time']!.isNotEmpty) {
       todoListRepo.chosenDateTime = DateTime.now().copyWith(
@@ -454,12 +454,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     } else {
       editAllDay = true;
     }
-
-    debugPrint('todoItem!.reminder: ${todoItem['reminder'] ?? ''}');
     editReminder = (todoItem['reminder'] ?? 'false') == 'true' ? true : false;
-
-    debugPrint('userName: $userGroupConcatenationName');
-    debugPrint('userName-1: $userShortName');
 
     if (todoItem['vin'] == null) {
       if (todoItem['vehicles'] is List && todoItem['vehicles'].isNotEmpty && todoItem['vehicles'].length==1) {
@@ -489,8 +484,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
       (item) => item['id'] == (todoItem['custom_link_id']?.toString() ?? '1'),
       orElse: () => {},
     );
-    //print("todoItem ${todoItem['custom_link_id']}");
-    //print("selectedLink----> $selectedLink");
     reservationController.text = todoItem['reference_id'] ?? "";
     reasonController.addListener(() {
 
@@ -500,9 +493,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
       vehicleName.addAll(List<Map<String, dynamic>>.from(todoItem['vehicles']));
     }
 
-    if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
-      todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
-    }
+    // if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
+    //   todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
+    // }
+    var todoImage = (todoItem['todoimages'] as List<dynamic>?)
+        ?.map((e) => "${e['path']}".toAttachmentURL)
+        .toList() ?? [];
+    todoImages.addAll(todoImage);
+    log("${todoItem}", name: "edit_Todo");
 
     if (todoItem['users']?['id'] != null) {
       selectedIds=((todoItem['users']?['id']).toString()).split(',');
@@ -531,9 +529,23 @@ class _EditTodoUIState extends State<EditTodoUI> {
     super.dispose();
   }
 
+  bool isMaintenanceLoaded = false;
 
+  void updateSelectedDropDownData(List<Map<String, dynamic>> vehicleList, Map<String, dynamic> selectedDropDownData) {
 
-  bool isDataLoaded = false;
+    var vehicle = vehicleList.firstWhere(
+          (v) => v['vehicle_name'] == selectedDropDownData['vehicle_name'],
+      orElse: () => {},
+    );
+    if (vehicle.isNotEmpty) {
+      setState(() {
+        DropDownData=vehicle;
+      });
+    } else {
+    }
+  }
+
+  //UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -559,13 +571,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     .getMultiImage(ImageSource.gallery)
                     .then((selectedFiles) {
                   if (selectedFiles.isNotEmpty) {
-                    for (var filePath in selectedFiles) {
-                      debugPrint('filePath: $filePath');
+                    todoImages.addAll(selectedFiles.map((e) => File(e)).toList());
+                    /*for (var filePath in selectedFiles) {
                       // Add each image to your todoImages list
                       todoImages.add({
                         'path': filePath,
                       });
-                    }
+                    }*/
                     setState(() {}); // Refresh the UI
                   } else {
                     debugPrint("No images selected.");
@@ -577,11 +589,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
               visible: todoImages.isNotEmpty,
               child: GestureDetector(
                 onTap: () {
-                  final imagePath = todoImages
-                      .map((attachment) => attachment['path'].toString())
-                      .toList();
-                  const int initialIndex = 0; // Or any index from your list
-                  _showImageDialog(imagePath, initialIndex);
+                  ShowAttachmentsDialog.of.show(context, attachments: todoImages, title: "");
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.0),
@@ -629,7 +637,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       const BottomNavigationForTaskView(
                                         selectedIndex: 0,
                                         message: '',
-                                      )));
+                                      )
+                              )
+                          );
                         }),
                   ),
                 ),
@@ -651,7 +661,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           id: widget.todoItem['expense_id']));
                     }
                   });
-                },);
+                }
+                ,);
               },
             ),
             GestureDetector(
@@ -696,7 +707,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
             listeners: [
               BlocListener<TodoViewBloc, TodoViewState>(
                 listener: (context, state) async {
-
                   if (state is VehicleDataLoaded) {
                     vehicleList.addAll(state.vehicleData ?? []);
                     editMultipleVehicleList.addAll(state.vehicleData ?? []);
@@ -872,6 +882,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               "[$expenseIds]",
                               null));
                         }
+                        setState(() {
+                          isDataLoaded = true;
+                        });
                       }
                     }
                     setState(() {
@@ -959,14 +972,22 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   }
                   else if (state is ExpenseTodoLoaded) {
                     expenseData = state.expenseSummaryData??{};
-                    print("expenseData: $expenseData");
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is TaskExpenseLoaded) {
                     taskExpenseList.addAll(state.resource ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                   else if (state is PaymentListLoaded) {
                     paymentList.clear();
                     paymentList.addAll(state.data ?? []);
+                    setState(() {
+                      isDataLoaded = true;
+                    });
                   }
                 },
               ),
@@ -1013,7 +1034,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       todoList.addAll(state.vehicleHistoryList!);
                       todoListRepo.vehicleHistoryTempSearchList
                           .addAll(/*todoList*/ state.vehicleHistoryList!);
-                      // debugPrint('cleancar.title: ${(todoListRepo.vehicleHistoryTempSearchList)[0].title ?? ''}');
 
                       /*if (todoList.isNotEmpty) {
                         if (todoList.first.title == 'clean car'){
@@ -1031,7 +1051,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
             ],
             child: BlocBuilder<TodoViewBloc, TodoViewState>(
                 builder: (context, state) {
+                  if (!isMaintenanceLoaded) isMaintenanceLoaded = state is MaintenanceCheckListLoaded;
+                  if (isMaintenanceLoaded) showExpenseTab = 3;
 
+                  //log("${state.runtimeType} $isMaintenanceLoaded", name: "STATE_TYPE");
                   return SafeArea(
                     child: Stack(
                       children: [
@@ -1066,6 +1089,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     ],
                                   ),
                                 ),
+                                if (isDataLoaded)
                                 if (showExpenseTab == 0)
                                   TodoEditExpenseUI(
                                     vehicle: vehicle,
@@ -1073,19 +1097,28 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     todoData: todoItem,
                                   )
                                 else if (showExpenseTab == 1)
-                                  const CreateTodoUI(showHeader: false)
+                                  const Placeholder()
+                                  // const CreateTodoUI(showHeader: false)
                                 else if (showExpenseTab == 2)
                                    CheckListUI(
                                        checkListData:checkListData,
                                      todoItems: todoItem,
                                    )
-                                  else if (showExpenseTab == 3)
+                                  else if ((showExpenseTab == 3) && isMaintenanceLoaded)
                                       MaintenanceCheckListUI(
                                         maintenance: maintenanceCheckListData,
                                         todoItems: todoItem,
                                       )
                                     else if (showExpenseTab == 4)
-                                        VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,)
+                                        // VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,
+                                        //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
+                                        // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
+                                        //   multipleLocationList: widget.multipleLocationList,)
+                                        VehicleEditUI(vehicle:
+                                        selectedDropDownData == null ? setVehicleList : DropDownData,showHeader: false, data: selectedDropDownData,
+                                          todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
+                                          categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
+                                          multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
                                           TotoExpense(expenseId: todoItem['expense_id'],)
                                       else
@@ -1099,7 +1132,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           ),
                         ),
                         Visibility(
-                            visible: state is TodoListLoading || state is vdb.VehicleDataLoading,
+                            visible: (state is TodoListLoading || state is vdb.VehicleDataLoading)
+                            && ((state is! TodoViewInitial)
+                            || (state is! TodoListLoading)
+                            || (state is! CohortsListLoaded)
+                            || (state is! DropdownDataLoaded)
+                            || (state is! CheckListLoaded)
+                            || (state is! VehicleGroupListLoaded)
+                            || (state is! SuppliesLoaded)
+                            || (state is! MaintenanceCheckListLoaded)
+                            || (state is! UserGroupListLoaded)),
                             child: Center(child: Utils.getProgressIndicator(context))
                         )
                       ],
@@ -1109,7 +1151,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           ),
         ));
   }
-
+//END UI
   Widget editTodoWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1182,7 +1224,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           size: 16,
                           color: AppC.appColor,
                         ),
-                      ))),
+                      )
+                  )
+              ),
               Visibility(
                 visible: !editAllDay,
                 child: Flexible(
@@ -1209,124 +1253,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         todoTimeController.text = formattedTime;
                       });
                     }
-                  }),
+                  }
+                  ),
                 ),
               )
             ]),
           ],
         ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.end,
-        //   crossAxisAlignment: CrossAxisAlignment.center,
-        //   children: [
-        //     Expanded(
-        //       flex: 2,
-        //       child: Stack(
-        //         alignment: Alignment.centerRight,
-        //         children: [
-        //           Utils.getTextFormField(
-        //             contentPadding:
-        //             const EdgeInsets.only(right: 21, left: 10),
-        //             '',
-        //             editTodoDateController,
-        //             readOnly: true,
-        //             onTapCallback: () {
-        //               Utils.todoDatePickerDialog(
-        //                 context,
-        //                 '',
-        //                 initial: DateTime.parse(editTodoDateController.text),
-        //               ).then((value) {
-        //                 editSelectedDate = value;
-        //                 editTodoDateController.text =
-        //                     Utils.convertDateTimeToTheFormats(value.toString());
-        //               });
-        //             },
-        //             suffixIcon: GestureDetector(
-        //                 onTap: (){},
-        //                 child: const Icon(
-        //                   Icons.calendar_month,
-        //                    size: 16,
-        //                   color: AppC.appColor,
-        //                 ),
-        //             )
-        //           ),
-        //         ],
-        //       ),
-        //     ),
-        //     Visibility(
-        //       visible: !editAllDay,
-        //       child: const SizedBox(width: 10),
-        //     ),
-        //     Flexible(
-        //     flex:4,
-        //         child:
-        //           Visibility(
-        //             visible: !editAllDay,
-        //             child: Expanded(
-        //               child: _buildTimeField('', todoTimeController, () async {
-        //                 TimeOfDay? pickedTime = await showTimePicker(
-        //                   context: context,
-        //                   initialTime: TimeOfDay(
-        //                     hour: int.parse(todoTimeController.text.split(":")[0]),
-        //                     minute: int.parse(todoTimeController.text.split(":")[1]),
-        //                   ),
-        //                   builder: (BuildContext context, Widget? child) {
-        //                     return MediaQuery(
-        //                       data: MediaQuery.of(context)
-        //                           .copyWith(alwaysUse24HourFormat: true),
-        //                       child: child!,
-        //                     );
-        //                   },
-        //                 );
-        //                 if (pickedTime != null) {
-        //                   final formattedTime =
-        //                       '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-        //                   setState(() {
-        //                     todoTimeController.text = formattedTime;
-        //                   });
-        //                 }
-        //               }),
-        //             ),
-        //           ),
-        //
-        //     ),
-        //     Transform.scale(
-        //       scale: 0.7,
-        //       child: SizedBox(
-        //         width: 20,
-        //         child: Checkbox(
-        //           value: timeSensitive,
-        //           checkColor: AppC.white,
-        //           fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-        //             if (states.contains(WidgetState.selected)) {
-        //               return AppC.blue;
-        //             }
-        //             return AppC.white;
-        //           }),
-        //           onChanged: (bool? value) {
-        //             setState(() {
-        //               timeSensitive = value ?? false;
-        //               todoItem['time_sensitive'] = timeSensitive ? 1 : 0;
-        //             });
-        //           },
-        //         ),
-        //       ),
-        //     ),
-        //     Column(
-        //       children: [
-        //         Utils.getText('Time \n Sensitive'),
-        //       ],
-        //     ),
-        //     const SizedBox(width: 5,),
-        //     InkWell(
-        //       onTapDown: (details) => resourceSelection(details, todoItem),
-        //       child: Visibility(
-        //         visible: todoItem['users'] != null || todoItem['user_group_id'] != null,
-        //         child: getUserGroupDataById(todoItem),
-        //       ),
-        //     ),
-        //   ],
-        // ),
         const SizedBox(
           height: 15,
         ),
@@ -1496,8 +1429,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               'Vendor / Location', editVendorLocationController,
                               readOnly: false, onChangeCallback: (value) {
                             if (value.isNotEmpty) {
-                              // String textCurrentlyEditing = getTextBeforeCursor();
-                              // debugPrint('textCurrentlyEditing: $textCurrentlyEditing');
                               vendorLocationSuggestionList.clear();
                               List vendorLocationList = vendorList
                                       .map((e) => e['name'] ?? '')
@@ -2329,7 +2260,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           .text.length)),
                                 );
                               }
-                            }, isVehicleData: true)),
+                            }, isVehicleData: true)
+                        ),
                       ],
                     ),
                   ],
@@ -2405,9 +2337,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       (selectedValue) {
                         setState(() {
                           selectedVin = selectedValue;
-
-                          return selectedDropDownData= selectedVin;
-                          print("selected vehicle details ${selectedVin}");
+                          selectedDropDownData= selectedVin;
+                          showExpenseTab = 4;
+                          updateSelectedDropDownData(vehicleList, selectedDropDownData);
                         });
                       },
                       labelKey: 'vehicle_name',
@@ -2422,7 +2354,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               selectedVin['vehicle_name'],
                           vin: vinToFind ?? selectedVin['vin'],
                         ),
-                      ));
+                      )
+                      );
                     },
                     child: Utils.getText(
                       todoItem['vehicle_name'] != null
@@ -2486,7 +2419,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         const SizedBox(
           height: 20,
         ),
-        // if (isDataLoaded) showBottomTabWidget(),
       ],
     );
   }
@@ -2539,48 +2471,58 @@ class _EditTodoUIState extends State<EditTodoUI> {
     showExpenseTab = tabs
         .where((element) => element['label'] == tabTitle)
         .firstOrNull?['index'] ?? 0;
-    //print("todoItem ${showExpenseTab}   tabs ------> $tabs");
     return
-      Container(
-        decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
-        ),
-        alignment: Alignment.centerLeft,
-        child:
-        SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: tabs.map((tab) {
-            return GestureDetector(
-              onTap: () => setState(() => tabTitle = tab['label']),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppC.trans,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: showExpenseTab == tab['index']
-                        ? tab['color']
-                        : AppC.trans,
-                    width: 1.0,
+      Visibility(
+        visible: isDataLoaded,
+          replacement: Visibility(
+              visible: isDataLoaded,
+              child: Center(child: Utils.getProgressIndicator(context))),
+        child: Container(
+          decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+          ),
+          alignment: Alignment.centerLeft,
+          child:
+          SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: tabs.map((tab) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    tabTitle = tab['label'];
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppC.trans,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: showExpenseTab == tab['index']
+                          ? tab['color']
+                          : AppC.trans,
+                      width: 1.0,
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.all(5),
-                child:
-                Utils.getText(
-                  tab['label'],
-                  weight: FontWeight.bold,
-                  color: tab['label'] == 'Set Vehicle'
-                      ? AppC.red
-                      : (showExpenseTab == tab['index']
-                      ? tab['color']
-                      : AppC.black),
-                ),
-              ),
-            );
-          }).toList(),
+                  padding: const EdgeInsets.all(5),
+                  child:
+                  Utils.getText(
+                    tab['label'],
+                    weight: FontWeight.bold,
+                    color: tab['label'] == 'Set Vehicle'
+                        ? AppC.red
+                        : (showExpenseTab == tab['index']
+                        ? tab['color']
+                        : AppC.black),
+
+                  ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
@@ -2774,192 +2716,194 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-  void _showImageDialog(List<String> imageUrls, int index) {
-    PageController pageController = PageController(initialPage: index);
-    TransformationController transformationController =
-        TransformationController();
-    AnimationController? animationController;
-    Animation<Matrix4>? animation;
+  // void _showImageDialog(List<String> imageUrls, int index) {
+  //   PageController pageController = PageController(initialPage: index);
+  //   TransformationController transformationController =
+  //       TransformationController();
+  //   AnimationController? animationController;
+  //   Animation<Matrix4>? animation;
+  //
+  //   void resetZoom() {
+  //     animation = Matrix4Tween(
+  //       begin: transformationController.value,
+  //       end: Matrix4.identity(),
+  //     ).animate(CurvedAnimation(
+  //       parent: animationController!,
+  //       curve: Curves.easeInOut,
+  //     ));
+  //
+  //     animationController!.forward(from: 0);
+  //   }
+  //
+  //   @override
+  //   void dispose() {
+  //     animationController?.dispose();
+  //     super.dispose();
+  //   }
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       animationController = AnimationController(
+  //         vsync: Navigator.of(context),
+  //         duration: const Duration(milliseconds: 300),
+  //       );
+  //
+  //       animationController!.addListener(() {
+  //         transformationController.value = animation!.value;
+  //       });
+  //
+  //       return Padding(
+  //         padding: const EdgeInsets.all(10.0),
+  //         child: Center(
+  //           child: Container(
+  //             decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(8),
+  //               color: AppC.white,
+  //             ),
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(8.0),
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   Expanded(
+  //                     child: PageView.builder(
+  //                       controller: pageController,
+  //                       itemCount: imageUrls.length,
+  //                       itemBuilder: (context, currentIndexValue) {
+  //                         final imagePath = imageUrls[currentIndexValue];
+  //                         return GestureDetector(
+  //                           onDoubleTap: () {
+  //                             if (transformationController.value !=
+  //                                 Matrix4.identity()) {
+  //                               resetZoom(); // Reset zoom on double-tap
+  //                             } else {
+  //                               transformationController.value =
+  //                                   Matrix4.identity()..scale(3.0);
+  //                             }
+  //                           },
+  //                           child: InteractiveViewer(
+  //                             maxScale: 8.0,
+  //                             minScale: 1.0,
+  //                             transformationController:
+  //                                 transformationController,
+  //                             child: File(imagePath).existsSync()
+  //                                 ? Image.file(
+  //                                     File(imagePath),
+  //                                     fit: BoxFit.contain,
+  //                                     errorBuilder:
+  //                                         (context, error, stackTrace) {
+  //                                       return const Center(
+  //                                         child: Icon(Icons.error,
+  //                                             color: Colors.red),
+  //                                       );
+  //                                     },
+  //                                   )
+  //                                 : CachedNetworkImage(
+  //                                     imageUrl: todoItem['todoimages'] != null
+  //                                         ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
+  //                                         : Str.errorImage,
+  //                                     imageBuilder: (context, imageProvider) {
+  //                                       return Padding(
+  //                                         padding: const EdgeInsets.fromLTRB(
+  //                                             20, 20, 20, 0),
+  //                                         child: Container(
+  //                                           decoration: BoxDecoration(
+  //                                             image: DecorationImage(
+  //                                               image: imageProvider,
+  //                                               fit: BoxFit.contain,
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     },
+  //                                     errorWidget: (context, url, error) {
+  //                                       return Container(
+  //                                         alignment: Alignment.center,
+  //                                         child: Utils.getText(
+  //                                           "CT",
+  //                                           size: 22,
+  //                                           color: AppC.red,
+  //                                           weight: FontWeight.bold,
+  //                                         ),
+  //                                       );
+  //                                     },
+  //                                 ),
+  //                           ),
+  //                         );
+  //                       },
+  //                     ),
+  //                   ),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.end,
+  //                     children: [
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           Navigator.of(context).pop();
+  //                         },
+  //                         child: const Icon(Icons.close),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   const SizedBox(height: 20),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       IconButton(
+  //                         onPressed: () {
+  //                           if (pageController.page! > 0) {
+  //                             pageController.previousPage(
+  //                               duration: const Duration(milliseconds: 300),
+  //                               curve: Curves.easeInOut,
+  //                             );
+  //                           }
+  //                         },
+  //                         icon: const Icon(Icons.arrow_back),
+  //                       ),
+  //                       SmoothPageIndicator(
+  //                         controller: pageController,
+  //                         count: imageUrls.length,
+  //                         effect: const JumpingDotEffect(
+  //                           spacing: 8.0,
+  //                           radius: 8.0,
+  //                           dotWidth: 10.0,
+  //                           dotHeight: 10.0,
+  //                           paintStyle: PaintingStyle.fill,
+  //                           strokeWidth: 1.5,
+  //                           dotColor: Colors.grey,
+  //                           activeDotColor: Colors.indigo,
+  //                         ),
+  //                       ),
+  //                       IconButton(
+  //                         onPressed: () {
+  //                           if (pageController.page! < imageUrls.length - 1) {
+  //                             pageController.nextPage(
+  //                               duration: const Duration(milliseconds: 300),
+  //                               curve: Curves.easeInOut,
+  //                             );
+  //                           }
+  //                         },
+  //                         icon: const Icon(Icons.arrow_forward),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
-    void resetZoom() {
-      animation = Matrix4Tween(
-        begin: transformationController.value,
-        end: Matrix4.identity(),
-      ).animate(CurvedAnimation(
-        parent: animationController!,
-        curve: Curves.easeInOut,
-      ));
-
-      animationController!.forward(from: 0);
-    }
-
-    @override
-    void dispose() {
-      animationController?.dispose();
-      super.dispose();
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        animationController = AnimationController(
-          vsync: Navigator.of(context),
-          duration: const Duration(milliseconds: 300),
-        );
-
-        animationController!.addListener(() {
-          transformationController.value = animation!.value;
-        });
-
-        return Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: AppC.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      child: PageView.builder(
-                        controller: pageController,
-                        itemCount: imageUrls.length,
-                        itemBuilder: (context, currentIndexValue) {
-                          final imagePath = imageUrls[currentIndexValue];
-                          return GestureDetector(
-                            onDoubleTap: () {
-                              if (transformationController.value !=
-                                  Matrix4.identity()) {
-                                resetZoom(); // Reset zoom on double-tap
-                              } else {
-                                transformationController.value =
-                                    Matrix4.identity()..scale(3.0);
-                              }
-                            },
-                            child: InteractiveViewer(
-                              maxScale: 8.0,
-                              minScale: 1.0,
-                              transformationController:
-                                  transformationController,
-                              child: File(imagePath).existsSync()
-                                  ? Image.file(
-                                      File(imagePath),
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return const Center(
-                                          child: Icon(Icons.error,
-                                              color: Colors.red),
-                                        );
-                                      },
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl: todoItem['todoimages'] != null
-                                          ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
-                                          : Str.errorImage,
-                                      imageBuilder: (context, imageProvider) {
-                                        return Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              20, 20, 20, 0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.contain,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      errorWidget: (context, url, error) {
-                                        return Container(
-                                          alignment: Alignment.center,
-                                          child: Utils.getText(
-                                            "CT",
-                                            size: 22,
-                                            color: AppC.red,
-                                            weight: FontWeight.bold,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            if (pageController.page! > 0) {
-                              pageController.previousPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                        ),
-                        SmoothPageIndicator(
-                          controller: pageController, // ✅ Now linked correctly
-                          count: imageUrls.length,
-                          effect: const JumpingDotEffect(
-                            spacing: 8.0,
-                            radius: 8.0,
-                            dotWidth: 10.0,
-                            dotHeight: 10.0,
-                            paintStyle: PaintingStyle.fill,
-                            strokeWidth: 1.5,
-                            dotColor: Colors.grey,
-                            activeDotColor: Colors.indigo,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            if (pageController.page! < imageUrls.length - 1) {
-                              pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.arrow_forward),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> doCreateEditTodo({String? todoName, String? time}) async {
+  Future<void> doCreateEditTodo({String? todoName, String? time}) async
+  {
     if (editTodoNameController.text.isEmpty) {
       Utils.showMobileToast(Str.createTodoAlertText('Task Name'));
       return;
-    } else {
+    }
+    else {
       CreateTodoParams editCreateTodoParams = CreateTodoParams();
       if (todoName == null) {
         editCreateTodoParams.todoId = todoItem['id']!;
@@ -2996,18 +2940,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
         if (todoItem['user_group_id'] != null) {
           editCreateTodoParams.selectedUserGroupId =
-              List.from(todoItem['user_group_id'] ?? []);
+              List.from([todoItem['user_group_id'] ?? 0]);
           editCreateTodoParams.existingUserGroupId =
               todoItem['user_group_id'] ?? '';
         }
       }
 
       editCreateTodoParams.timeSensitive = timeSensitive ? 1 : 0;
-      debugPrint(
-          'existingUserGroupId: ${editCreateTodoParams.existingUserGroupId}');
-      debugPrint('selectedUserId: ${editCreateTodoParams.selectedUserId}');
-      debugPrint(
-          'selectedUserGroupId: ${editCreateTodoParams.selectedUserGroupId}');
       if (isPartChecked) {
         for (var parts in selectedPartsList) {
           var matchedPart =
@@ -3075,6 +3014,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           editCreateTodoParams.personId = res['id']!.toString();
         }
       }
+      log("${selectedMultipleVehicleList.isEmpty}", name: "VEHICLE_IS_EMPTY");
       if (selectedMultipleVehicleList.isNotEmpty ||
           vehiclePersonController.text.isNotEmpty) {
         await getSelectedVehiclePerson(editCreateTodoParams);
@@ -3104,6 +3044,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           // 'vehicleGroupId: ${editCreateTodoParams.vehicleGroupId},'
           // 'endAfter: ${editCreateTodoParams.endAfter}'
           );
+      editCreateTodoParams.todoImage= todoImages.whereType<File>().toList();
       if ((editCreateTodoParams.selectedUserId == null ||
               editCreateTodoParams.selectedUserId == 0) &&
           (editCreateTodoParams.selectedUserGroupId == null ||
@@ -3112,7 +3053,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       } else {
         todoBloc!.add(CreateTodoEvent(
             createTodoParams: editCreateTodoParams,
-            exitTheScreen: todoName == null));
+            exitTheScreen: todoName == null)
+        );
       }
     }
   }
@@ -3202,17 +3144,20 @@ class _EditTodoUIState extends State<EditTodoUI> {
         editCreateTodoParams.personId = res['id']!.toString();
       }
     }
+
+    // log("$vehicleList", name: "ALL_VEHICLE");
+
     for (Map<String, dynamic> veh in selectedMultipleVehicleList) {
       var matchedGroup = vehicleList
-          .where((item) => item['vehicle_id'] == veh['vehicle_id'])
+          .where((item) => item['vin'] == veh['vin'])
           .toList();
       if (matchedGroup.isNotEmpty) {
         for (var res in matchedGroup) {
-          Map<String, dynamic> vehiclesData = {
+          Map<String, String> vehiclesData = {
             'vin': res['vin'] ?? '',
             'vehicle_name': res['vehicle_name'] ?? '',
-            'cohort_id': res['cohort_id'] ?? '',
-            'cohort_name': res['cohort']['cohort'] ?? '',
+            'cohort_id': "${res['cohort_id'] ?? ''}",
+            'cohort_name': res['cohort']?['cohort'] ?? '',
             'vehicle_image': res['images']?.isNotEmpty == true
                 ? res['images'][0]['path'] ?? ''
                 : '',
@@ -3224,6 +3169,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
+    log("${editCreateTodoParams.vehicleList} $selectedMultipleVehicleList", name: "VEHICLE_PARAM");
     return Future.value(editCreateTodoParams);
   }
 
@@ -3240,8 +3186,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         if (veh['name'] == editVendorLocationController.text.trim()) {
           createTodoParams.location = veh['name'];
           createTodoParams.locationId = veh['id']!.toString();
-          debugPrint(
-              'createTodoParams.locationId: ${createTodoParams.locationId}');
         }
       }
     }

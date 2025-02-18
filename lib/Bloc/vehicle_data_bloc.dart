@@ -65,16 +65,24 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     // });
 
     on<AddVehicleDataEvent>((event, emit) async {
-      if(event.createVehicleData != null) {
-        emit(const VehicleDataLoading());
-        await vehicleDataRepo
-            .createVehicle(event.createVehicleData!)
-            .then((value) {
-          emit(VehicleDataLoadedV(result: value?.data??[], vin: event.createVehicleData!.vin,
-              categoryId: event.createVehicleData!.categoryId));
-        });
+      if (event.createVehicleData != null) {
+        emit(const VehicleDataLoading()); // Start loading state
+
+        try {
+          final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+
+          emit(VehicleDataLoadedV(
+            result: response?.data ?? [],
+            vin: event.createVehicleData!.vin,
+            categoryId: event.createVehicleData!.categoryId,
+          ));
+        } catch (error) {
+          emit(const VehicleDataError( errorMessage: ''));
+        }
       }
     });
+
+
     //
 
     on<DeleteVehicleImage>((event, emit) async {
