@@ -28,7 +28,6 @@ class VehicleDataRepo {
       } else {
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
       }
-      print("${createVehicleData}");
       Map<String, String> reqMap = {
         "vehicle_id": createVehicleData.vehicleId,
         "vin": createVehicleData.vin,

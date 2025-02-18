@@ -606,10 +606,10 @@ class CategoryConfigListLoaded extends TodoViewState {
 }
 
 class CategoryConfigLoaded extends TodoViewState {
-  final String? message;
+  final String message;
   const CategoryConfigLoaded({required this.message,});
   @override
-  List<Object?> get props => [message];
+  List<Object> get props => [message];
 }
 
 

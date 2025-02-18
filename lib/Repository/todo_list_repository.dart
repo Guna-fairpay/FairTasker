@@ -28,6 +28,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/categories_response.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
+import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/main.dart';
@@ -590,6 +591,15 @@ class TodoListRepo {
       log('getVehicleCreateStatusTodo.exception : ${error.toString()}');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> cleanCar({required Map<String, dynamic> body}) async {
+    String apiUrl = "${Str.BASE_URL}add-todo";
+    final http.Response? response = await apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+    if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
+      return response.mapData;
+    }
+    return null;
   }
 
   Future<bool?> addVehicleCreateTodo(
@@ -2136,7 +2146,7 @@ class TodoListRepo {
         "expense_description": "$expenseDescription",
         "expense_date": expenseId != null
             ? "$expenseDate"
-            : Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
+            : Utils.convertDateToYearMonthDateFormat(DateTime.now().toString()),
         "cohort_id": cohortId??'',
         "vin": vin ?? '',
         "odometer": odometer ?? '',
@@ -2869,11 +2879,8 @@ class TodoListRepo {
     }
   }
 
-  Future<CategoryConfigResponse?> createCategoryConfig(
-      int? id,
-      String? name,
-      int? parentId,
-      int? userType) async {
+  Future<CategoryConfigMessageResponse?> createCategoryConfig(
+      {int? id, String? name, int? parentId, int? userType}) async {
     try {
       String body = jsonEncode({
         "name": name,
@@ -2894,17 +2901,12 @@ class TodoListRepo {
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
       log('getTaskCategoryGroup.exception : ${response?.body}');
-
       if (response != null) {
-
-        CategoryConfigResponse categoryConfigResponse =
-        CategoryConfigResponse.fromJson(json.decode(response.body));
-
+        CategoryConfigMessageResponse categoryConfigResponse =
+        CategoryConfigMessageResponse.fromJson(json.decode(response.body));
         if (response.statusCode == 200) {
-
           return categoryConfigResponse;
         } else {
-
           return categoryConfigResponse;
         }
       } else {
@@ -2916,27 +2918,14 @@ class TodoListRepo {
     }
   }
 
-  Future<CategoryConfigResponse?> deleteCategoryConfig(String? id) async {
+  Future<bool> deleteCategoryConfig(int? id) async {
     try {
       String apiUrl = "${Str.BASE_URL}deleteTaskCategory/$id";
-
       final http.Response? response = await apiClient.callDelete(apiUrl);
-
-      if (response != null) {
-        CategoryConfigResponse categoryConfigResponse =
-        CategoryConfigResponse.fromJson(json.decode(response.body));
-
-        if (response.statusCode == 200) {
-          return categoryConfigResponse;
-        } else {
-          return categoryConfigResponse;
-        }
-      } else {
-        return null;
-      }
+      return response.isSuccess;
     } catch (error) {
       log('categoryConfig.exception : ${error.toString()}');
-      return null;
+      return false;
     }
   }
 
@@ -2965,12 +2954,12 @@ class TodoListRepo {
   }
 
   Future<TaskResponse?> createTask(
-      int? id,
+      {int? id,
       int? categoryId,
       int? subCategoryId,
       String? task,
       String? timeTaken,
-      int? userType) async {
+      int? userType}) async {
     try {
       String body = jsonEncode({
         "category_id": categoryId,
@@ -3279,6 +3268,11 @@ class TodoListRepo {
       log('getPreviousOdometer.exception : ${error.toString()}');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> addTodo({required Map<String, dynamic> body, required List<File>? images}) async {
+    var response = await apiClient.callPostMethodWithBody("", fieldName: "images", autoIncrement: true, files: images?.map((e) => e.path).toList(), body: body);
+    return response.mapData;
   }
 
   ///---------

@@ -1,8 +1,9 @@
+
+import 'dart:developer';
+
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -12,28 +13,26 @@ class LocationEditUI extends StatefulWidget {
   const LocationEditUI({super.key, required this.location});
 
   @override
-  _LocationEditUIState createState() => _LocationEditUIState();
+  State<LocationEditUI> createState() => _LocationEditUIState();
 }
 
 class _LocationEditUIState extends State<LocationEditUI> {
-  late LocationDataBloc locationDataBloc;
+
+  LocationDataBloc locationDataBloc = LocationDataBloc();
   late final TextEditingController locationController;
-  late final TextEditingController addressController;
+  final TextEditingController addressController = TextEditingController();
   List<dynamic> addressesList = [];
+  dynamic selectedAddress;
   bool isTaskFieldEmpty = false;
   bool isSelected = false;
+  String _editAddress = '';
+
 
   @override
   void initState() {
     super.initState();
-    locationDataBloc = LocationDataBloc();
     locationController = TextEditingController(text: widget.location['name']);
-    addressController = TextEditingController(
-      text: widget.location['addresses']!.isNotEmpty
-          ? widget.location['addresses']!.first['address']
-          : '',
-    );
-    addressesList = widget.location['addresses'] ?? [];
+    addressesList.addAll(widget.location['addresses']??[]);
   }
 
   @override
@@ -47,11 +46,9 @@ class _LocationEditUIState extends State<LocationEditUI> {
     setState(() {
       isTaskFieldEmpty = locationController.text.isEmpty;
     });
-
     if (locationController.text.isEmpty) {
       return Utils.showMobileToast('Please fill the required field');
     }
-
     final updatedLocation = {
       'id': widget.location['id'],
       'name': locationController.text,
@@ -62,23 +59,12 @@ class _LocationEditUIState extends State<LocationEditUI> {
 
   void _deleteAddress(int index) {
     if (addressesList[index]['id'] != null) {
-      locationDataBloc.add(DeleteLocationEvent(
-          id: addressesList[index]['id'], isLocationAddress: true));
+      locationDataBloc.add(DeleteLocationEvent(id: addressesList[index]['id']));
     }
-    setState(() {
-      addressesList.removeAt(index);
-    });
+    addressesList.removeAt(index);
+    setState((){});
   }
 
-// Future<void> _deleteLocation(int index) async {
-//   final confirmed = await _confirmDelete(context);
-//   if (confirmed == true) {
-//     final location =filteredLocation[index];
-//     locationDataBloc.add(DeleteLocationEvent(id:location. id));
-//   }
-//   locationDataBloc.add(const GetAddedLocationListData());
-//   Utils.showMobileToast('deleted successfully');
-// }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,70 +84,71 @@ class _LocationEditUIState extends State<LocationEditUI> {
         minimum: 15.padding,
         child: ListView(
           children: [
-            Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                Utils.getTextFormField(
-                  '',
-                  locationController,
-                  label: Utils.getText('Location Name', color: AppC.grey),
-                  borderColor: isTaskFieldEmpty ? Colors.red : AppC.fieldBase,
-                ),
-                if (isTaskFieldEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: Icon(Icons.error_outline, color: Colors.red),
-                  ),
-              ],
-            ),
+            Utils.getTextFormField(
+              'Location Name',
+              locationController,
+              autoValidate: AutovalidateMode.onUserInteraction,
+              validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
+               ),
             const SizedBox(height: 10),
             Utils.getTextFormField(
-              '',
+              'Address',
               addressController,
-              label: Utils.getText('Address', color: AppC.grey),
+              inputAction: TextInputAction.done,
+              label: Utils.getText('', color: AppC.grey),
               readOnly: false,
               suffixIcon: InkWell(
                 onTap: () {
                   if (addressController.text.isNotEmpty) {
                     setState(() {
-                      addressesList.add({
+                      if(selectedAddress != null){
+                        _editAddress= addressController.text;
+                        var index = addressesList.indexOf(selectedAddress);
+                        addressesList[index]['address'] = _editAddress;
+                        selectedAddress = null;
+                      }
+                      else{
+                        addressesList.add({
                         'address': addressController.text,
                       });
-                      addressController
-                          .clear(); // Clear the text field after adding
+                      }
+                      addressController.clear();
                     });
                   }
                 },
-                child: const Icon(Icons.add),
+                child: Icon((selectedAddress != null) ? Icons.save : Icons.add),
               ),
             ),
             const SizedBox(height: 10),
             Wrap(
-              spacing: 8.0, // space between addresses
-              runSpacing: 4.0, // space between rows if wrapped
-              children: List.generate(addressesList.length, (address) {
-                return Chip(
-                  label: Utils.getText(addressesList[address]['address'] ?? ''),
-                  deleteIcon: const Icon(Icons.close),
-                  deleteIconColor: Colors.redAccent,
-                  backgroundColor: AppC.lowGreen,
-                  onDeleted: () => _deleteAddress(address),
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: List.generate(addressesList.length, (index) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {});
+                      addressController.text=addressesList[index]['address'] ?? '';
+                      selectedAddress = addressesList[index];
+                  },
+                  child: Chip(
+                    label: Utils.getText(addressesList[index]['address'] ?? ''),
+                    deleteIcon: const Icon(Icons.close),
+                    deleteIconColor: Colors.redAccent,
+                    backgroundColor: AppC.lowGreen,
+                    onDeleted: () => _deleteAddress(index),
+                  ),
                 );
               }),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Utils.getElevatedButton(
-                  text: 'Save',
-                      bgColor: AppC.green,
-                      (){
+                Utils.getElevatedButton((){
                   if (addressController.text.isNotEmpty) {
-                    setState(() {
-                      addressesList.add({
-                        'address': addressController.text,
-                      });
+                    addressesList.add({
+                      'address': addressController.text,
                     });
+                    setState(() {});
                   }
                   _save();
                 },),

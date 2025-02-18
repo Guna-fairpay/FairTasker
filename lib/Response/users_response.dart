@@ -18,6 +18,21 @@ class UsersListResponse {
   String? message;
 }
 
+class PermissionUsersListResponse {
+  PermissionUsersListResponse({
+    this.status,
+    this.data,
+  });
+
+  PermissionUsersListResponse.fromJson(Map<String, dynamic> json) {
+    data = List<int>.from(json['rolePermissions'] ?? []);
+    status = json['status'];
+  }
+
+  List<int>? data;
+  int? status;
+}
+
 class UsersResponse {
   UsersResponse({
     this.status,

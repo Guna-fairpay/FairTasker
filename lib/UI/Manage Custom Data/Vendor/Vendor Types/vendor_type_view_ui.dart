@@ -176,9 +176,7 @@ class _VendorTypeUIState extends State<VendorTypeUI> {
                           Expanded(
                             child: SizedBox(
                               height: 40,
-                              child: Utils.getSearchBarUI(() {}, (value) {
-                                _filterVendorType(value);
-                              }, searchController,),
+                              child: Utils.getSearchBarUI(onChange: _filterVendorType, searchController: searchController,),
                             ),
                           ),
                           const SizedBox(width: 8),

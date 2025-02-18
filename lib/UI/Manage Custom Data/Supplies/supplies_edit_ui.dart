@@ -1,3 +1,4 @@
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
@@ -34,11 +35,9 @@ class SuppliesEditUIState extends State<SuppliesEditUI> {
   }
 
   void _save() {
-    setState(() {
-      isSuppliesFieldEmpty = suppliesController.text.isEmpty;
-    });
+    setState(() {});
     if (suppliesController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill the required field');
+      return;
     }
 
     final updatedSupplies = {
@@ -71,36 +70,18 @@ class SuppliesEditUIState extends State<SuppliesEditUI> {
         ],
       ),
       body: SafeArea(
-        minimum: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
+        minimum: 15.padding,
         child: ListView(
           children: [
-            Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                Utils.getTextFormField(
-                  '',
-                  suppliesController,
-                  label: Utils.getText('Supplies Name', color: AppC.grey),
-                  borderColor:
-                      isSuppliesFieldEmpty ? Colors.red : AppC.fieldBase,
-                ),
-                if (isSuppliesFieldEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: Icon(Icons.error_outline, color: Colors.red),
-                  ),
-              ],
-            ),
+            Utils.getTextFormField(
+              'Supplies Name',
+              suppliesController,
+              autoValidate: AutovalidateMode.onUserInteraction,
+              validator: (val) => val!.isEmpty ? 'Please enter supplies name' : null,),
             const SizedBox(height: 10),
-            Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                Utils.getTextFormField(
-                  '',
-                  descriptionController,
-                  label: Utils.getText('Description', color: AppC.grey),
-                ),
-              ],
+            Utils.getTextFormField(
+              'Description',
+              descriptionController,
             ),
             const SizedBox(height: 10),
             Row(

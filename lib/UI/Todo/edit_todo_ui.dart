@@ -681,7 +681,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const TodoViewUI()));
               },
             ),
           ],
@@ -783,7 +782,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       isDataLoaded = true;
                     });
                   } else if (state is MaintenanceCheckListLoaded) {
-                    //log("${state.data}", name: "MaintenanceCheckListLoaded");
                     maintenanceCheckListData.clear();
                     childrenData.clear();
                     maintenanceCheckListData.addAll(state.data ?? []);
@@ -1093,11 +1091,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 ),
                                 if (isDataLoaded)
                                 if (showExpenseTab == 0)
-                                   TodoEditExpenseUI(
-                                    expenseData: expenseData ?? {},
+                                  TodoEditExpenseUI(
                                     vehicle: vehicle,
                                     vehicleName: vehicleName,
-                                    taskList: taskExpenseList,
                                     todoData: todoItem,
                                   )
                                 else if (showExpenseTab == 1)
@@ -1218,7 +1214,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 ).then((value) {
                   editSelectedDate = value;
                   editTodoDateController.text =
-                      Utils.convertDateTimeToTheFormats(value.toString());
+                      Utils.convertDateToYearMonthDateFormat(value.toString());
                 });
               },
                       suffixIcon: GestureDetector(
@@ -2357,8 +2353,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               vehicle['vehicle_name'] ??
                               selectedVin['vehicle_name'],
                           vin: vinToFind ?? selectedVin['vin'],
-                          resourceList: resourceList,
-                          userGroupList: userGroupList,
                         ),
                       )
                       );

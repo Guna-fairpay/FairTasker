@@ -1,6 +1,8 @@
 
 import 'package:fairpytasker/State/todo_view_state.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Bloc/todo_view_bloc.dart';
 import '../../../../Event/todo_view_event.dart';
 import '../../../../Utilities/appC.dart';
@@ -35,11 +37,9 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
     super.initState();
     todoViewBloc = TodoViewBloc();
     nameController.text = widget.config['name'] ?? '';
-   
     selectedUserType = (widget.config['todo_user_type'] ?? userType[1]) == 1
         ? userType[1]
         : userType[0];
-    print(widget.config);
   }
 
   void _save() {
@@ -79,7 +79,7 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
         child: BlocConsumer<TodoViewBloc, TodoViewState>(
             listener: (context, state) {
           if (state is TodoListLoading) {
-            loading = true;
+            EasyLoading.show();
           } else if (state is CategoryConfigListLoaded) {
             loading = false;
             category.clear();
@@ -92,71 +92,55 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
             );
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0,vertical: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 10,
-                    children: [
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getTextFormField(
-                            '',
-                            nameController,
-                            label: Utils.getText('Name', color: AppC.grey),
-                            borderColor: isFirstNameFieldEmpty
-                                ? Colors.red
-                                : AppC.fieldBase,
-                          ),
-                          if (isFirstNameFieldEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(Icons.error_outline,
-                                  color: Colors.red),
-                            ),
-                        ],
-                      ),
-                      Utils.dropdownBox(
-                          'Select Category',
-                          category,
-                              (value) {
-                            setState(() {
-                              selectedCategory = value;
-                            });
-                          },
-                          labelKey: 'name',
-                        initialSelection: selectedCategory,
-                        selectedKey: selectedCategory,
-                      ),
-                      Utils.dropdownBox(
-                          'Select',
-                          userType,
-                              (value) {
-                            setState(() {
-                              selectedUserType = value;
-                            });
-                          },
-                          labelKey: 'name',
-                        selectedKey: selectedUserType,
-                        initialSelection: selectedUserType,
-                      ),
-                      Utils.getElevatedButton(
-                              () => _save(),
-                          text: 'Save',
-                          bgColor: AppC.green
-                      ),
-                    ],
-                  ),
+          return SafeArea(
+            minimum: 15.padding,
+            child: ListView(
+              children: [
+                Utils.getTextFormField(
+                  'Name',
+                  nameController,
+                  autoValidate: AutovalidateMode.onUserInteraction,
+                  validator: (val) => val!.isEmpty ? 'Please enter Name' : null,
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                const SizedBox(height: 10,),
+                Utils.dropdownBox(
+                    'Select Category',
+                    category,
+                        (value) {
+                      setState(() {
+                        selectedCategory = value;
+                      });
+                    },
+                    labelKey: 'name',
+                  initialSelection: selectedCategory,
+                  selectedKey: selectedCategory,
+                ),
+                const SizedBox(height: 10,),
+                Utils.dropdownBox(
+                    'Select',
+                    userType,
+                        (value) {
+                      setState(() {
+                        selectedUserType = value;
+                      });
+                    },
+                    labelKey: 'name',
+                  selectedKey: selectedUserType,
+                  initialSelection: selectedUserType,
+                ),
+                const SizedBox(height: 10,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Utils.getElevatedButton(
+                            () => _save(),
+                        text: 'Save',
+                        bgColor: AppC.green
+                    ),
+                  ],
+                ),
+              ],
+            ),
           );
         }),
       ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
 abstract class VehicleHistoryEvent extends Equatable {
@@ -5,6 +7,14 @@ abstract class VehicleHistoryEvent extends Equatable {
 
   @override
   List<Object?> get props => [];
+}
+
+class VehicleInitialEvent extends VehicleHistoryEvent {
+  final dynamic vin;
+  final String? vehicleName;
+  const VehicleInitialEvent(this.vin, this.vehicleName);
+  @override
+  List<Object?> get props => [vin];
 }
 
 class LoadVehicleInitialEvent extends VehicleHistoryEvent {
@@ -24,36 +34,47 @@ class LoadVehicleInitialEvent extends VehicleHistoryEvent {
   List<Object?> get props => [vin, vehicleName, userGroupList, resourceList, title];
 }
 
-class LoadVehicleHistory extends VehicleHistoryEvent {
-  final String? pageNo;
-  final String? vin;
-  const LoadVehicleHistory(
-      this.pageNo,
-      this.vin,);
+class VehicleHistoryPageEvent extends VehicleHistoryEvent {
+  final int page;
+  const VehicleHistoryPageEvent(this.page);
   @override
-  List<Object?> get props => [pageNo,vin];
+  List<Object?> get props => [page, Random().nextDouble()];
 }
 
-class UpdateVehicleName extends VehicleHistoryEvent {
-  final String? vehicleName;
-
-  const UpdateVehicleName({required this.vehicleName});
-
+class VehicleHistorySearchEvent extends VehicleHistoryEvent {
+  final String searchText;
+  const VehicleHistorySearchEvent(this.searchText);
   @override
-  List<Object?> get props => [vehicleName];
+  List<Object?> get props => [searchText];
 }
 
-class SearchFleetQuery extends VehicleHistoryEvent {
-  final String query;
-
-  const SearchFleetQuery(this.query);
-
+class VehicleHistoryCompleteEvent extends VehicleHistoryEvent {
+  final dynamic todoId;
+  final bool status;
+  const VehicleHistoryCompleteEvent(this.todoId, this.status);
   @override
-  List<Object> get props => [query];
+  List<Object?> get props => [todoId, status, Random().nextDouble()];
 }
 
-class SameTask extends VehicleHistoryEvent {}
+class VehicleHistoryDeleteEvent extends VehicleHistoryEvent {
+  final dynamic todoId;
+  final dynamic reason;
+  const VehicleHistoryDeleteEvent(this.todoId, this.reason);
+  @override
+  List<Object?> get props => [todoId, reason, Random().nextDouble()];
+}
 
-class CompleteTask extends VehicleHistoryEvent {}
+class VehicleHistorySameTaskEvent extends VehicleHistoryEvent {
+  final dynamic title;
+  final bool isChecked;
+  const VehicleHistorySameTaskEvent(this.title, this.isChecked);
+  @override
+  List<Object?> get props => [title, isChecked, Random().nextDouble()];
+}
 
-class PopUp extends VehicleHistoryEvent {}
+class VehicleHistoryViewEvent extends VehicleHistoryEvent {
+  final dynamic task;
+  const VehicleHistoryViewEvent(this.task);
+  @override
+  List<Object?> get props => [task, Random().nextDouble()];
+}

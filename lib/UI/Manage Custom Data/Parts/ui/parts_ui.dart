@@ -1,11 +1,12 @@
+
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/bloc/parts_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/event/parts_event.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Component/drawer_ui.dart';
 import '../../../../Component/header.dart';
-import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../state/parts_state.dart';
 
@@ -23,11 +24,17 @@ class PartView extends StatelessWidget {
         child: BlocBuilder<PartsBloc, PartsState>(builder: (context, state) {
           return Scaffold(
             backgroundColor: AppC.white,
-            appBar: const PreferredSize(
-              preferredSize: Size.fromHeight(35.0),
-              child: HeaderView(),
+            appBar: AppBar(
+              title: const Text("Parts"),
+              backgroundColor: AppC.appColor,
+              automaticallyImplyLeading: false,
+              foregroundColor: Colors.white,
+              actions: [
+                IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: ()=>Navigator.pop(context))
+              ],
             ),
-            drawer: const DrawerView(),
             body: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15),
               child: Column(
@@ -36,14 +43,12 @@ class PartView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Utils.getSearchBarUI(
-                            () {},
-                            (value) =>
+                            onChange: (value) =>
                                 context.read<PartsBloc>().add(SearchPartsEvent(value)),
-                            state.searchController),
+                            searchController: state.searchController),
                       ),
-                      Utils.getAddFilledButton('Add', () => context.read<PartsBloc>().add(const AddPartsEvent(
-                        '','',8,
-                      ))),
+                      Utils.getAddFilledButton('Add', () =>
+                          context.read<PartsBloc>().add(const AddPartsEvent('','',8,))),
                     ],
                   ),
                   Expanded(

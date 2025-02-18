@@ -604,17 +604,12 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                           SizedBox(
                                                             height: 40,
                                                             child: Utils.getSearchBarUI(
-                                                                  () {},
-                                                              // onSubmitted: () {
-                                                              //       log("DISMISS");
-                                                              //   Utils.dismissKeyboard(context);
-                                                              // },
-                                                                  (value) {
+                                                                  onChange: (value) {
                                                                 setState(() {
                                                                   searchQuery = value.toLowerCase();
                                                                 });
                                                               },
-                                                              vehicleSearchController,
+                                                              searchController: vehicleSearchController,
                                                             ),
                                                           ),
                                                           if (filteredVehicle.isNotEmpty)
@@ -963,7 +958,6 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                       children: [
                                         InkWell(
                                           onTap: () async {
-                                            // Navigate to the CreateTodoUI page and wait for the result
                                             final newTodo = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -1001,14 +995,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                         Expanded(
                                           child: SizedBox(
                                             height: 35,
-                                            child: Utils.getSearchBarUI(() {},
-                                              // onSubmitted: () {
-                                              //   log("DISMISSa");
-                                              //   Utils.dismissKeyboard(context);
-                                              // },
-                                                  (value) {
-                                                _filterTodo(value);
-                                              }, searchController,),
+                                            child: Utils.getSearchBarUI(onChange: _filterTodo, searchController: searchController),
                                           ),
                                         ),
                                         const SizedBox(
@@ -2475,7 +2462,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   onTapCallback: () {
                                                     Utils.todoDatePickerDialog(context, '').then((value) {
                                                       editSelectedDate = value;
-                                                      editTodoDateController.text = Utils.convertDateTimeToTheFormats(
+                                                      editTodoDateController.text = Utils.convertDateToYearMonthDateFormat(
                                                         value.toString(),
                                                       );
                                                     });
@@ -3285,7 +3272,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   vehicleName: vehicle?['vehicle_name'] ?? '',
                                                   title: todos['title'],
                                                   showHeader: false,
-                                                  showSameTask: true, resourceList: resourceList, userGroupList: userGroupList,
+                                                  showSameTask: true,
                                                 ),
                                               ),
                                             ],

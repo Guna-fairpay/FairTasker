@@ -2,8 +2,10 @@
 
 
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:date_time/date_time.dart' as dt;
+import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -16,13 +18,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_date_range_picker/flutter_date_range_picker.dart'
-    as DateRangePicker;
 import 'package:url_launcher/url_launcher.dart';
 
 enum ImageUploadType {
@@ -38,8 +39,27 @@ enum ImageUploadType {
 class Utils {
   static final Connectivity _connectivity = Connectivity();
   final viewTransformationController = TransformationController();
+  static final ImagePicker _picker = ImagePicker();
+
 
   static String get returnBearerToken => Session.of.getString(Str.frBearerToken).toBearer;
+
+  static Future<List<File>> pickImages(ImageSource source) async {
+    List<File> images = [];
+
+    if (source == ImageSource.gallery) {
+      final List<XFile> selectedImages = await _picker.pickMultiImage();
+      if (selectedImages.isNotEmpty) {
+        images.addAll(selectedImages.map((image) => File(image.path)));
+      }
+    } else {
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image != null) {
+        images.add(File(image.path));
+      }
+    }
+    return images;
+  }
 
   static Future showCustomDeleteDialog(
       BuildContext context,
@@ -105,20 +125,14 @@ class Utils {
       Function(dynamic selectedValue) onSelected,
       {required String labelKey,
       dynamic initialSelection,
-        // bool enableSearch = false,
-        // bool requestFocusOnTap = false,
-        // bool enableFilter = false,
-         dynamic selectedKey,
-        double topLRadius=4,
-        double topRRadius=4,
-        double bottomLRadius=4,
-        double bottomRRadius=4,
-
-        // Color? arrowColor=AppC.appColor,
-        // TextEditingController? controller,
+        String? labelKey2,
+        dynamic selectedKey,
+        double topLRadius = 4,
+        double topRRadius = 4,
+        double bottomLRadius = 4,
+        double bottomRRadius = 4,
       }) {
     return Container(
-       //height: 35,
       decoration: BoxDecoration(
         border: Border.all(
           color: AppC.fieldBase,
@@ -129,83 +143,42 @@ class Utils {
             topRight: Radius.circular(topRRadius),
             bottomLeft: Radius.circular(bottomLRadius),
             bottomRight: Radius.circular(bottomRRadius))
-
       ),
-      child: Stack(
-        children: [
-          // Container(
-          //   alignment: Alignment.centerRight,
-          //   child: const Padding(
-          //     padding: EdgeInsets.only(right: 20.0),
-          //     child: Icon(
-          //       Icons.keyboard_arrow_down_sharp,
-          //       color:AppC.appColor,
-          //       size: 14,
-          //     ),
-          //   ),
-          // ),
-          DropdownMenu<dynamic>(
-            key: ValueKey(selectedKey),
-            initialSelection: initialSelection,
-           // controller: controller,
-            hintText: hintText,
-            menuHeight: 250,
+      child: DropdownMenu<dynamic>(
 
-            //enableSearch: enableSearch,
-          //  requestFocusOnTap:requestFocusOnTap ,
-           // enableFilter: enableFilter,
-            /*trailingIcon: const Icon(
-              Icons.keyboard_arrow_down_sharp,
-              size: 12,
-              // color: AppC.trans,
-            ),
-            selectedTrailingIcon: const Icon(
-              Icons.keyboard_arrow_down_sharp,
-              size: 12,
-              // color: AppC.trans,
-            ),*/
-            textStyle: const TextStyle(
-              color: AppC.text,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                overflow: TextOverflow.ellipsis),
-            inputDecorationTheme: const InputDecorationTheme(
-              contentPadding: EdgeInsets.all(10),
-              border: InputBorder.none,
-              // suffixIconColor: AppC.trans,
-              isCollapsed: true,
-              isDense: true,
-              constraints: BoxConstraints(maxHeight: 40)
-            ),
-            searchCallback: (entries, query) {
-              if (query.isEmpty) return null;
-              final int index = entries.indexWhere((entry) => entry.label == query);
-              return index != -1 ? index : null;
-            },
-            menuStyle: MenuStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
-            ),
-            expandedInsets: const EdgeInsets.only(top: 50),
-            dropdownMenuEntries:
-                listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-              (dynamic value){
-                return  DropdownMenuEntry<Map<String, dynamic>>(
-                  value: value,
-                  label: '${value[labelKey]??''}'.trim(),
-                  /*style: ButtonStyle(
-                    textStyle: WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.w500)),
-                    backgroundColor: WidgetStatePropertyAll(((selectedKey is Map<String, dynamic>) && (value[labelKey] == selectedKey?[labelKey])) ? AppC.text : AppC.trans),
-                     foregroundColor: WidgetStatePropertyAll(((selectedKey is Map<String, dynamic>) && (value[labelKey] == selectedKey?[labelKey])) ? AppC.white : AppC.text),
-                  )*/
-                ) ;
-              },
-            ).toList(),
-            onSelected: (selectedValue) {
-              onSelected(selectedValue); // Adjust this as per the expected key
-            },
-          ),
-        ],
+        key: ValueKey(selectedKey),
+        initialSelection: initialSelection,
+        hintText: hintText,
+        menuHeight: 250,
+        textStyle: const TextStyle(
+          color: AppC.text,
+            overflow: TextOverflow.ellipsis,
+        ),
+        inputDecorationTheme:  const InputDecorationTheme(
+          hintStyle: TextStyle(color: AppC.grey),
+          contentPadding: EdgeInsets.all(10),
+          border: InputBorder.none,
+          isCollapsed: true,
+          isDense: true,
+          constraints: BoxConstraints(maxHeight: 40)
+        ),
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+          visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+        ),
+        expandedInsets: const EdgeInsets.only(top: 50),
+        dropdownMenuEntries:
+            listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
+          (dynamic value){
+            return  DropdownMenuEntry<Map<String, dynamic>>(
+              value: value,
+              label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
+            ) ;
+          },
+        ).toList(),
+        onSelected: (selectedValue) {
+          onSelected(selectedValue);
+        },
       ),
     );
   }
@@ -429,8 +402,8 @@ class Utils {
 
   static Widget getElevatedButton(
       VoidCallback onPressedCallback, {
-        String text='Add',
-        Color? bgColor=AppC.appColor,
+        String text='Save',
+        Color? bgColor=AppC.green,
         Color textColor = AppC.white,
         double borderRadius = Num.subradiusButton,
         double textSize= 12,
@@ -555,13 +528,14 @@ class Utils {
   }
 
   static Widget getTextFormField(
-      String labelText, TextEditingController controller,
+      String? labelText,
+      TextEditingController controller,
       {Key? key,
       FocusNode? focusNode,
       Widget? label,
       double textSize = 12,
       Color textColor = AppC.text,
-      FontWeight fontWeight = FontWeight.w300,
+      FontWeight fontWeight = FontWeight.w400,
       bool readOnly = false,
       bool autoFocus = false,
       ValueChanged? onChangeCallback,
@@ -589,14 +563,14 @@ class Utils {
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
       double borderWidth = Num.borderWidthField}) {
-    hintText = hintText ?? labelText;
+    // hintText = hintText ?? labelText;
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, value, child) => TextFormField(
         key: key,
         validator: validator,
         autovalidateMode: autoValidate,
-        textInputAction: inputAction,
+        textInputAction: inputAction ?? TextInputAction.next,
         onTap: onTapCallback,
         focusNode: focusNode,
         autofocus: autoFocus,
@@ -702,11 +676,12 @@ class Utils {
       FontWeight fontWeight = FontWeight.normal,
       ValueChanged? onChangeCallback,
       Color borderColor = AppC.fieldBase,
-      Color hintTextColor = AppC.text,
+      Color hintTextColor = AppC.grey,
       Color? fillColor=AppC.white,
+        TextInputAction? inputAction,
       int minLines = 5,
       int? maxLines,
-      Widget? label,
+     // Widget? label,
       bool autofocus = false}) {
     return TextFormField(
       autofocus: autofocus,
@@ -718,17 +693,17 @@ class Utils {
       maxLines: maxLines,
       minLines: minLines,
       textCapitalization: TextCapitalization.sentences,
+      textInputAction: inputAction ?? TextInputAction.next,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12.0, vertical: 10),
-        label: label,
-        hintText: labelText,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+        label: Utils.getText(labelText,color: AppC.grey),
+        //hintText: labelText,
         hintStyle: TextStyle(color: hintTextColor),
         filled: true,
         fillColor: fillColor,
         focusedBorder: OutlineInputBorder(
           borderSide:
-              BorderSide(color: borderColor, width: Num.borderWidthField),
+              const BorderSide(color: AppC.appColor, width: Num.borderWidthField),
           borderRadius: BorderRadius.circular(Num.radiusButton),
         ),
         enabledBorder: OutlineInputBorder(
@@ -1124,7 +1099,7 @@ class Utils {
     }
   }
 
-  static String convertDateTimeToTheFormats(String? value,
+  static String convertDateToYearMonthDateFormat(String? value,
       {String formatToConvert = 'yyyy-MM-dd'}) {
     if (value != null && value.isNotEmpty) {
       DateTime dateValue = DateTime.parse(value);
@@ -1134,7 +1109,7 @@ class Utils {
     }
   }
 
-  static String convertDateFormats(String? value,
+  static String convertDateToMonthDateYearFormat(String? value,
       {String formatToConvert = 'MM-dd-yy'}) {
     if (value != null && value.isNotEmpty) {
       DateTime dateValue = DateTime.parse(value);
@@ -1144,14 +1119,16 @@ class Utils {
     }
   }
 
-  static String convertCurrentDateTimeToTheStringFormat(DateTime? value,
+  static String convertCurrentDateToDateMonthYearFormat(String? value,
       {String formatToConvert = 'dd-MM-yyyy'}) {
-    if (value != null) {
-      return DateFormat(formatToConvert).format(value);
+    if (value != null && value.isNotEmpty) {
+      DateTime dateValue = DateTime.parse(value);
+      return DateFormat(formatToConvert).format(dateValue);
     } else {
       return DateFormat(formatToConvert).format(DateTime.now());
     }
   }
+
   static String convertCurrentDateToStringFormat(DateTime? value,
       {String formatToConvert = 'yyyy-MM-dd'}) {
     if (value != null) {
@@ -2715,45 +2692,14 @@ class Utils {
     );
   }
 
-  static Widget getSearchBarUI(VoidCallback? onTap, Function(String) onChange,
-      TextEditingController searchController) {
-    return SearchBar(
-
-      backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-      textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
-      padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
-      shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(16))),
-      elevation: const WidgetStatePropertyAll(0),
-      side: const WidgetStatePropertyAll(BorderSide.none),
-
-        // padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
-        // shadowColor: WidgetStateProperty.all(Colors.white),
-        // backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-        controller: searchController,
-        onTap: onTap,
-        // shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-        //     borderRadius: BorderRadius.circular(16))),
-        onChanged: onChange,
-        leading: const Icon(Icons.search,color: AppC.text,),
-        // textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
-        // elevation: WidgetStateProperty.all(0),
-        hintText: 'Search...',
-      // side: const WidgetStatePropertyAll(BorderSide.none),
-      hintStyle: WidgetStateProperty.resolveWith<TextStyle?>(
-              (Set<WidgetState> states) {
-            // Define different styles for different states
-            if (states.contains(WidgetState.focused)) {
-              return Utils.getTextStyle();
-            } else {
-              return Utils.getTextStyle();
-            }
-          },
-        ),
-        /*shape: WidgetStateProperty.all(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: AppC.fieldBase),
-        ))*/);
+  static Widget getSearchBarUI({void Function(String)? onChange,
+    void Function(String value)? onSearch,
+    required TextEditingController searchController}) {
+    return CustomSearchBar(
+      controller: searchController,
+      onChanged: onChange,
+      onSearch: onSearch,
+    );
   }
 
 /*  static Widget getSearchBarUI(

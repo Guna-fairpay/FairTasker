@@ -2,6 +2,7 @@
 import 'package:fairpytasker/Bloc/private_rental_bloc.dart';
 import 'package:fairpytasker/State/private_rental_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Event/private_rental_event.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/utils.dart';
@@ -52,9 +53,6 @@ class _RentalViewUIState extends State<RentalViewUI> {
     });
   }
 
-
-
-
   void _navigateToRentalAddUI() async {
     final newRental = await Navigator.push<Map<String, dynamic>>(
       context,
@@ -77,16 +75,6 @@ class _RentalViewUIState extends State<RentalViewUI> {
   }
 
 
-  Future<void> _deleteVehicle(int index) async {
-    final confirmed = await _confirmDelete(context);
-    if (confirmed == true) {
-      setState(() {
-        privateRental.removeAt(index);
-        _filterRentals(searchController.text); // Update filtered list
-      });
-    }
-  }
-
   void _navigateToVehicleEditUI(int index) async {
     final updatedRental = await Navigator.push<Map<String, dynamic>>(
       context,
@@ -105,32 +93,6 @@ class _RentalViewUIState extends State<RentalViewUI> {
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content: Utils.getText('Are you sure you want to delete this rental?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Cancel the deletion
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Confirm the deletion
-            },
-            child: Utils.getText('No'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,117 +101,111 @@ class _RentalViewUIState extends State<RentalViewUI> {
         child: BlocConsumer<PrivateRentalBloc,PrivateRentalState>(
           listener: (context, state) async{
             if (state is PrivateRentalLoading) {
-              loading =true;
+             EasyLoading.show();
             }
-            else if(state is PrivateRentalLoaded){
-              loading=false;
+            else {
+              if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is PrivateRentalLoaded) {
               filterRental.clear();
-              filterRental.addAll((state.data??[]));
+              filterRental.addAll((state.data ?? []));
               List<Map<String, dynamic>> list = [];
-              list.addAll(state.data??[]);
-              list.sort((a, b) => DateTime.parse(b['created_at']??'').
-              compareTo(DateTime.parse(a['created_at']??'')));
+              list.addAll(state.data ?? []);
+              list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+                  .compareTo(DateTime.parse(a['created_at'] ?? '')));
               privateRental = list;
               filterRental = List.from(privateRental);
-            }
-            else{
+            } else {
               privateRentalBloc.add(const GetPrivateRentalData());
-              loading=true;
             }
-            },
+          }
+        },
         builder: (context, state) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10,),
-                child: Column(
+          return SafeArea(
+            minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+            child: Column(
+              children: [
+                Row(
                   children: [
-                    Row(
+                    Expanded(
+                      child: Utils.getSearchBarUI(
+                              onChange: (value) {
+                            _filterRentals(
+                                value); // Filter rentals based on search query
+                          },
+                          searchController: searchController),
+                    ),
+                    const SizedBox(width: 8),
+                    Utils.getAddElevatedButton(()=>_navigateToRentalAddUI()),
+                  ],
+                ),
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Container(
+                    color: AppC.blue50,
+                    padding: const EdgeInsets.symmetric(horizontal: 5,vertical: 4),
+                    child: Row(
                       children: [
                         Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: Utils.getSearchBarUI(
-                                    () {},
-                                    (value) {
-                                  _filterRentals(
-                                      value); // Filter rentals based on search query
-                                },
-                                searchController,),
-                          ),
+                            child: Utils.getText(
+                                'Vehicle Name',
+                                weight: FontWeight.bold)
                         ),
-                        const SizedBox(width: 8),
-                        SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Add', () {
-                              _navigateToRentalAddUI();
-                            })
+                        Expanded(child: Utils.getText(
+                            'Customer',
+                            weight: FontWeight.bold)
                         ),
                       ],
                     ),
-                    // const SizedBox(height: 10),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filterRental.length,
-                        itemBuilder: (context, index) {
-                          final rental = filterRental[index];
-                          return Slidable(
-                            endActionPane: ActionPane(
-                              motion: const ScrollMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) => _deleteVehicle(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                _navigateToVehicleEditUI(index);
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                color: AppC.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Utils.getText(
-                                          rental['vehicle_name']!,
-                                          weight: FontWeight.bold,
-                                        ),
-                                        if (rental['customer'] is Map<String, dynamic>)
-                                        Utils.getText(
-                                         " ${rental['customer']['first_name']} ${rental['customer']['last_name']}",
-                                          weight: FontWeight.bold,
-                                        ),
-                                      ],
+                  ),
+                ),
+                // const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.separated(
+                    separatorBuilder: (context, index)=>const Divider(height: 0.5,),
+                    itemCount: filterRental.length,
+                    itemBuilder: (context, index) {
+                      final rental = filterRental[index];
+                      return InkWell(
+                        onTap: () {
+                          _navigateToVehicleEditUI(index);
+                        },
+                        child: SafeArea(
+                          minimum: const EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Utils.getText(
+                                      rental['vehicle_name']??'',
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                              if (rental['customer'] is Map<String, dynamic>)
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Utils.getText(
+                                     "${rental['customer']['first_name']??'-'} ${rental['customer']['last_name']??'-'}",
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.add,color: AppC.green,),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+              ],
+            ),
           );
         }
         ),

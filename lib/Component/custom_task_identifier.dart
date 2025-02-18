@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -35,6 +37,8 @@ class TaskIdentifier extends StatelessWidget {
     initState();
   }
 
+  Timer? _debounce;
+
   String type = "task";
   int partNumber = 1;
   final FocusNode _focusNode = FocusNode();
@@ -45,6 +49,7 @@ class TaskIdentifier extends StatelessWidget {
   List<Map<String, dynamic>> vLocations = [];
   final ValueNotifier<bool> setState = ValueNotifier(false);
   int trigger = 0;
+  String _previousText = "";
 
   void initState() {
     updateCommonList();
@@ -85,18 +90,6 @@ class TaskIdentifier extends StatelessWidget {
     });
   }
 
-  /*@override
-  void didUpdateWidget(covariant TaskIdentifier oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if ((oldWidget.tasks != widget.tasks) ||
-        (oldWidget.vendors != widget.vendors) ||
-        (oldWidget.persons != widget.persons) ||
-        (oldWidget.vehicles != widget.vehicles) ||
-        (oldWidget.location != widget.location)) {
-      updateCommonList();
-    }
-  }*/
-
   void updateCommonList() {
     vTasks =  tasks
         .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
@@ -136,7 +129,7 @@ class TaskIdentifier extends StatelessWidget {
     }).toList();
     vLocations = [...vendor, ...locations];
     commonList = vTasks;
-    _setState;
+    // _setState;
   }
 
   void _setValue({bool emit = true}) {
@@ -164,10 +157,11 @@ class TaskIdentifier extends StatelessWidget {
       } on Exception catch (e) {
         log("Exception(b):	$e", name: "TaskIdentifier");
       }
+      _requestFocus();
     }
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
-     _requestFocus();
+     // _requestFocus();
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
@@ -192,7 +186,9 @@ class TaskIdentifier extends StatelessWidget {
     if (names.length == 3) return names.join("-");
     if (mapData.containsKey(2) && !mapData.containsKey(3)) {
       return '${mapData.containsKey(1) ? "" : "-"}$result-'; // Wrap with '-'
-    } else if (mapData.containsKey(3) && !mapData.containsKey(2)) {
+    } else if (mapData.containsKey(3) && !mapData.containsKey(2) && !mapData.containsKey(1)) {
+      return '-$result'; // Start with '-'
+    } else if (mapData.containsKey(2) && !mapData.containsKey(1) && mapData.containsKey(3)) {
       return '-$result'; // Start with '-'
     } else if (mapData.containsKey(1) && !mapData.containsKey(3)) {
       return '$result-';
@@ -245,8 +241,7 @@ class TaskIdentifier extends StatelessWidget {
   List<SearchFieldListItem<Map<String, dynamic>>>? onSearch(String val) {
     if (val.isEmpty) {
       selectedList.clear();
-      // _unRequestFocus();
-      // return null;
+      onSelected?.call({});
     }
     var inputValue = val.toLowerCase();
     if (!inputValue.contains("-")) {
@@ -326,9 +321,23 @@ class TaskIdentifier extends StatelessWidget {
         selectedList.remove(index+1);
       }
     });
+    log("$selectedList", name: "SELECTED_LIST");
+    _debounce?.cancel();
+    _debounce = Timer(Durations.extralong4, updateToFunction);
     return commonList.where((element) => isExist(element, typedPart) ).map((e) => SearchFieldListItem(
         (e.containsKey("subname") ? "${e['name']}${e['subname']}" : e['name'].toString()),
         item: e)).toList();
+  }
+
+  void updateToFunction() {
+    var currentText = taskIdentifierController.text;
+    var formattedText = formatMapData(selectedList);
+    log("${selected != selectedList} ${formattedText.length > taskIdentifierController.text.length}", name: "updateToFunction");
+    if (_previousText.isNotEmpty && currentText.length < _previousText.length) {
+      log("Removing chars",name: "updateToFunction");
+      onSelected?.call(selectedList);
+    }
+    _previousText = currentText;
   }
 
   bool isExist(Map<String, dynamic> data, String input) {

@@ -57,9 +57,8 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
     return Container(
       color: AppC.white,
       width: MediaQuery.sizeOf(context).width,
-      padding: const EdgeInsets.all(15),
       child: Column(
-        spacing: 20,
+        spacing: 10,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -79,12 +78,11 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
               children: [
                 Wrap(
                   children: List<Widget>.generate(
-                    selectedMultipleVehicleList.length,
-                        (int idx) {
+                    selectedMultipleVehicleList.length, (int idx) {
                       return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
                           child: Chip(
+                            padding: EdgeInsets.zero,
                             onDeleted: () {
                               for (var element
                               in editMultipleVehicleList) {
@@ -97,27 +95,23 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
                               selectedMultipleVehicleList.removeAt(idx);
                               setState(() {});
                             },
-                            side: const BorderSide(
-                                color: AppC.trans),
+                            labelPadding: const EdgeInsets.only(left: 4),
+                            side: const BorderSide(color: AppC.trans),
                             deleteIcon: const Icon(
                               Icons.close,
                               color: AppC.red,
                               size: 18,
                             ),
                             backgroundColor: const Color(0xffb5d2bb),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            // side: BorderSide(),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                             label: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Utils.getText(
-                                    selectedMultipleVehicleList[idx]['vehicle_name'] ?? '',
-                                    color: AppC.text
-                                ),
+                                Utils.getText(selectedMultipleVehicleList[idx]['vehicle_name'] ?? '', color: AppC.text),
                               ],
                             ),
-                          ));
+                          )
+                      );
                     },
                   ).toList(),
                 ),
@@ -147,7 +141,7 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
               ],
             ),
           ),
-          Utils.getAddFilledButton('Save', (){},bgColor: AppC.green),
+          Utils.getElevatedButton((){}),
           Flexible(
               child: ListView.separated(
                 padding: const EdgeInsets.only(
@@ -157,52 +151,46 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
               itemCount: widget.groupVehicleList.length,
               itemBuilder: (context, index){
                 final group=widget.groupVehicleList[index];
-                return Dismissible(
-                  key: UniqueKey(),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    minLeadingWidth: 20,
-                    dense: true,
-                    minVerticalPadding: 0,
-                    leading: Utils.getText("${index+1}",color: AppC.text),
-                    title: Utils.getText(group['name'],color: AppC.text),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 10,
+                return GestureDetector(
+                  onTap: (){
+                    selectedMultipleVehicleList.clear();
+                    setState(() {
+                      groupNameController.text=group['name'];
+                      if (group['vin'] is String) {
+                        try {
+                          vinList = List<String>.from(jsonDecode(group['vin']));
+                        } catch (e) {
+                          vinList = [];
+                        }
+                      } else if (group['vin'] is List) {
+                        vinList = group['vin'];
+                      } else {
+                        vinList = [];
+                      }
+                      for (var vin in vinList!) {
+                        final match = widget.vehicleList.firstWhere(
+                              (vehicle) => vehicle['vin'] == vin,
+                          orElse: () => {},
+                        );
+                        selectedMultipleVehicleList.add(match);
+                      }
+                    });},
+                  child: SafeArea(
+                    minimum: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 5),
+                    child: Row(
                       children: [
-                        GestureDetector(
-                          onTap: (){
-                            selectedMultipleVehicleList.clear();
-                            setState(() {
-                              groupNameController.text=group['name'];
-
-                              if (group['vin'] is String) {
-                                try {
-                                  vinList = List<String>.from(jsonDecode(group['vin']));
-                                } catch (e) {
-                                  vinList = [];
-                                }
-                              } else if (group['vin'] is List) {
-                                vinList = group['vin'];
-                              } else {
-                                vinList = [];
-                              }
-                              for (var vin in vinList!) {
-                                final match = widget.vehicleList.firstWhere(
-                                    (vehicle) => vehicle['vin'] == vin,
-                                orElse: () => {},
-                                );
-                                selectedMultipleVehicleList.add(match);
-                              }
-                            });},
-                            child: const Icon(Icons.mode_edit_outline_outlined,color: AppC.appColor,)),
+                        Utils.getText("${index+1}",color: AppC.text),
+                        const SizedBox(width: 20,),
+                        Utils.getText(group['name'],color: AppC.text),
+                        const Spacer(),
                         GestureDetector(
                             onTap: (){},
                             child: const Icon(Icons.delete_outline,color: AppC.redAccent,)),
-                      ],
+                      ]
+                      ),
                     ),
-                  ),
-                );
+                  );
               }
               )
           )

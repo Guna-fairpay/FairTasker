@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -502,7 +503,6 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           event.odometer,
         );
         final int? newExpenseId = (response?['data'] as List?)?.firstOrNull?['id'];
-        print('newExpenseId: ${newExpenseId}');
         if (event.expenseId == null && newExpenseId != null) {
           await todoListRepo.editExpenseTodo(
             newExpenseId,
@@ -930,7 +930,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           .then((value) {
         if (value != null) {
           emit(CategoryConfigListLoaded(
-            data: value.data ?? [],
+            data: (value.data ?? [])..sort((a, b) => DateTime.tryParse(b['created_at'])?.compareTo(DateTime.tryParse(a['created_at']) ?? DateTime.now()) ?? 0),
           ));
         }
       });
@@ -940,14 +940,14 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       emit(TodoListLoading());
 
       await todoListRepo.createCategoryConfig(
-          event.id,
-          event.name,
-          event.userType,
-          event.parentId
+          id: event.id,
+          name: event.name,
+          userType: event.userType,
+          parentId: event.parentId
       ).then((value) {
         if (value != null) {
           emit(CategoryConfigLoaded(
-            message: value.message ?? [].toString(),
+            message: event.id != null ? "Category Updated Successfully" : "Category Added Successfully",
           ));
         }
       });
@@ -958,9 +958,9 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
       await todoListRepo.deleteCategoryConfig(event.id)
           .then((value) {
-        if (value != null) {
-          emit(CategoryConfigLoaded(
-            message: value.message ?? [].toString(),
+        if (value) {
+          emit(const CategoryConfigLoaded(
+            message: "Category Deleted Successfully",
           ));
         }
       });
@@ -996,12 +996,12 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       emit(TodoListLoading());
 
       await todoListRepo.createTask(
-        event.id,
-        event.categoryId,
-        event.subCategoryId,
-        event.name,
-        event.timeTaken,
-        event.userType,
+        id:event.id,
+        categoryId: event.categoryId,
+        subCategoryId:  event.subCategoryId,
+        task: event.name,
+        timeTaken:  event.timeTaken,
+        userType:  event.userType,
       )
           .then((value) {
         if (value != null) {

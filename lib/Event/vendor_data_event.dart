@@ -12,24 +12,42 @@ abstract class VendorDataEvent extends Equatable {
 
 class AddVendorData extends VendorDataEvent {
   final String? name;
-  final String? vendor_typeId;
+  final String? vendorTypeId;
   final String? address;
   final String? phone;
   final String? expertise;
   final String? description;
-  final List<File> images;
+  final String? latitude;
+  final String? longitude;
+  final String? website;
+  final List<File>? images;
   final int? id;
   const AddVendorData({
     required this.name,
-    required this.vendor_typeId,
+    required this.vendorTypeId,
     required this.address,
     required this.phone,
     required this.expertise,
     required this.description,
+    required this.latitude,
+    required this.longitude,
+    required this.website,
     required this.images,
     required this.id});
   @override
-  List<Object?> get props => [name,vendor_typeId, address,phone,expertise,description,images, id];
+  List<Object?> get props => [
+    name,
+    vendorTypeId,
+    address,
+    phone,
+    expertise,
+    description,
+    latitude,
+    longitude,
+    website,
+    images,
+    id
+  ];
 }
 
 class GetVendorList extends VendorDataEvent {

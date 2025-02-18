@@ -18,3 +18,17 @@ class CategoryConfigResponse {
   String? message;
 
 }
+
+class CategoryConfigMessageResponse {
+  CategoryConfigMessageResponse({
+    this.status,
+    this.message,
+  });
+  CategoryConfigMessageResponse.fromJson(dynamic json) {
+    message = json['message'] ?? "";
+    status =json['status'];
+  }
+
+  bool? status;
+  String? message;
+}

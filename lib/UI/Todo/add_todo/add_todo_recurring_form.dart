@@ -45,7 +45,7 @@ class AddTodoRecurringForm extends StatelessWidget {
                           .read<AddToDoBloc>()
                           .add(AddToDoTimeChangeEvent(value)),
                     ),
-                    Flexible(
+                    Expanded(
                         child: CustomDropdown<dynamic>(
                             items: state.recurringTypes,
                             value: state.selectedRecurring,

@@ -1,16 +1,21 @@
 import 'dart:io';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
+import '../../../Component/close_badge.dart';
+import '../../../Component/image_viewer.dart';
 import '../../../Response/create_expense_field_data.dart';
 import '../../../Utilities/image_pick_helper.dart';
 import '../../../Utilities/num.dart';
 import '../../../Response/create_vehicle_data.dart';
 import '../../../Bloc/vehicle_data_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../dialog/show_attachments_dialog.dart';
 
 class VehicleAddUI extends StatefulWidget {
   const VehicleAddUI({super.key});
@@ -21,6 +26,9 @@ class VehicleAddUI extends StatefulWidget {
 
 class _VehicleAddUIState extends State<VehicleAddUI> {
   late VehicleDataBloc vehicleDataBloc;
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController yearController = TextEditingController();
   TextEditingController makeController = TextEditingController();
   TextEditingController modelController = TextEditingController();
@@ -41,14 +49,14 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
   dynamic selectedCategoriesData;
   dynamic selectedCohortsData;
 
-  List<String> vehicleStatusList = ['Active', 'InActive'];
-  String? selectedVehicleStatus;
+  List<Map<String, dynamic>> vehicleStatusList = [
+    {'id': 1, 'name': 'Active'},
+    {'id': 2, 'name': 'InActive'},
+  ];
+  dynamic selectedVehicleStatus;
   AnimationController? animationController;
   ImagePickHelper imagePickHelper = ImagePickHelper();
-  List<Map<String, dynamic>> vehicleImageFile = [];
 
-  // List<String> imagePath = [];
-  List<Map<String, dynamic>> receiptImageFile = [];
   CreateVehicleData? createVehicleData;
   bool showMore = false;
   bool isYearFieldEmpty = false;
@@ -58,13 +66,20 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
   bool isPurchaseDateFieldEmpty = false;
   bool isSelected = false;
 
+  List<dynamic> vehicleImageFile = [];
+  List<dynamic> receiptImageFile = [];
+  List<dynamic> tireImageFile = [];
+  List<dynamic> tollImage = [];
+  List<dynamic> uploadRegSticker = [];
+  List<dynamic> insuranceImage = [];
+
   TextEditingController addressController = TextEditingController();
   TextEditingController carNumberController = TextEditingController();
   TextEditingController oilGradeController = TextEditingController();
   TextEditingController frontTireController = TextEditingController();
   TextEditingController rearTireController = TextEditingController();
   TextEditingController renewalDateController = TextEditingController();
-  TextEditingController plateNumberController =TextEditingController();
+  TextEditingController plateNumberController = TextEditingController();
 
   bool bouncie = false;
   bool tollTags = false;
@@ -73,26 +88,24 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
   bool spareTire = false;
   bool spareKey = false;
   bool frontLicensePlate = false;
-  List<dynamic> tireImageFile = [];
   Map<String, dynamic> cohortInitialSelection = {};
-  List<dynamic> tollImage = [];
-  List<dynamic> uploadRegSticker = [];
-  List<dynamic> insuranceImage = [];
-  TextEditingController tollTagsController=TextEditingController();
-  TextEditingController spareTireController=TextEditingController();
-  TextEditingController insuranceCostController=TextEditingController();
-  TextEditingController insuranceAgentController=TextEditingController();
-  TextEditingController currentOdometerController=TextEditingController();
-  TextEditingController oilChangeOdometerController=TextEditingController();
-  TextEditingController maintenanceCheckController=TextEditingController();
 
+  TextEditingController tollTagsController = TextEditingController();
+  TextEditingController spareTireController = TextEditingController();
+  TextEditingController insuranceCostController = TextEditingController();
+  TextEditingController insuranceAgentController = TextEditingController();
+  TextEditingController currentOdometerController = TextEditingController();
+  TextEditingController oilChangeOdometerController = TextEditingController();
+  TextEditingController maintenanceCheckController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     vehicleDataBloc = VehicleDataBloc();
     vehicleDataBloc.add(const GetDropdownVehicleData());
     vehicleDataBloc.add(const VehicleStatusCategory());
+    selectedVehicleStatus = vehicleStatusList[0];
   }
 
   @override
@@ -141,37 +154,20 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
     createVehicleData.frontTire = frontTireController.text;
     createVehicleData.rearTire = rearTireController.text;
     createVehicleData.regStickerDate = renewalDateController.text;
-    // Handle image files
-    createVehicleData.chosenFiles = vehicleImageFile
-        .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
-        .where((element) => element != null)
-        .cast<File>()
-        .toList();
-    /*createVehicleData.chosenFiles = imageFile
-        .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
-        .where((element) => element != null)
-        .cast<File>()
-        .toList();*/
-    createVehicleData.chosenFiles = tireImageFile
-        .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
-        .where((element) => element != null)
-        .cast<File>()
-        .toList();
-    createVehicleData.chosenPurchaseReceipts = receiptImageFile
-        .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
-        .where((element) => element != null)
-        .cast<File>()
-        .toList();
+    createVehicleData.chosenFiles = vehicleImageFile.whereType<File>().map((e) => e).toList();
+    createVehicleData.chosenFiles = tireImageFile.whereType<File>().map((e) => e).toList();
+    createVehicleData.chosenPurchaseReceipts = receiptImageFile.whereType<File>().map((e) => e).toList();
+    createVehicleData.chosenFiles = tollImage.whereType<File>().map((e) => e).toList();
+    createVehicleData.chosenFiles = uploadRegSticker.whereType<File>().map((e) => e).toList();
+    createVehicleData.chosenFiles = insuranceImage.whereType<File>().map((e) => e).toList();
 
-    // Handle vehicle status and other selections
-    createVehicleData.isActive = selectedVehicleStatus == 'Active' ? 1 : 0;
+    createVehicleData.isActive = selectedVehicleStatus['id'] == 1 ? 1 : 0;
 
     if (selectedCategoriesData != null) {
       createVehicleData.selectedVehicleStatus = selectedCategoriesData!['id']!;
     }
     createVehicleData.selectedCohort = selectedCohortsData?['id'];
 
-    print("Vehicle Data Saved: $CreateVehicleData");
     final newVehicle = createVehicleData;
 
     Navigator.pop(context, newVehicle);
@@ -201,105 +197,136 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
     );
   }
 
+  void _pickReceiptImageFile(ImageSource source) async {
+    List<File> selectedImages = await Utils.pickImages(source);
+    if (selectedImages.isNotEmpty) {
+      setState(() {
+        receiptImageFile.addAll(selectedImages);
+      });
+    }
+  }
+
+  void _pickVehicleImageFile(ImageSource source) async {
+    List<File> selectedImages = await Utils.pickImages(source);
+    if (selectedImages.isNotEmpty) {
+      setState(() {
+        vehicleImageFile.addAll(selectedImages);
+      });
+    }
+  }
+
+  void _pickTollImage(ImageSource source) async {
+    List<File> selectedImages = await Utils.pickImages(source);
+    if (selectedImages.isNotEmpty) {
+      setState(() {
+        tollImage.addAll(selectedImages);
+      });
+    }
+  }
+
+  void _pickTireImageFile(ImageSource source) async {
+    List<File> selectedImages = await Utils.pickImages(source);
+    if (selectedImages.isNotEmpty) {
+      setState(() {
+        tireImageFile.addAll(selectedImages);
+      });
+    }
+  }
+
+  void _pickUploadRegSticker(ImageSource source) async {
+    List<File> selectedImages = await Utils.pickImages(source);
+    if (selectedImages.isNotEmpty) {
+      setState(() {
+        uploadRegSticker.addAll(selectedImages);
+      });
+    }
+  }
+
+  void _pickInsuranceImage(ImageSource source) async {
+    List<File> selectedImages = await Utils.pickImages(source);
+    if (selectedImages.isNotEmpty) {
+      setState(() {
+        insuranceImage.addAll(selectedImages);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(title: Utils.getText('Add Vehicles'),
+      appBar: AppBar(
+        title: const Text('Add Vehicles'),
+        backgroundColor: AppC.appColor,
+        foregroundColor: AppC.white,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+          ),
+        ],
       ),
       body: BlocProvider(
         create: (context) => vehicleDataBloc,
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) {
-          if (state is DropdownVehicleDataLoaded) {
-            createExpenseFieldData = state.createExpenseFieldData;
-            if (state.createExpenseFieldData != null) {
-              cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
-              for (Map<String, dynamic> c in cohortsData) {
-                if (c['cohort'] == 'Unassigned') {
-                  selectedCohortsData = c;
+          if (state is VehicleDataLoading) {
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is DropdownVehicleDataLoaded) {
+              createExpenseFieldData = state.createExpenseFieldData;
+              if (state.createExpenseFieldData != null) {
+                cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
+                for (Map<String, dynamic> c in cohortsData) {
+                  if (c['cohort'] == 'Unassigned') {
+                    selectedCohortsData = c;
+                  }
                 }
               }
+            } else if (state is VehicleStatusCategoryLoaded) {
+              categoriesData = state.vehicleStatusDataList ?? [];
+              isSelected = true;
+              selectedCategoriesData = categoriesData[0];
             }
-          } else if (state is VehicleStatusCategoryLoaded) {
-            categoriesData = state.vehicleStatusDataList ?? [];
-            isSelected = true;
-            selectedCategoriesData = categoriesData[0];
           }
         }, builder: (context, state) {
-          return Stack(
+          return ListView(
             children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: SingleChildScrollView(
+              Form(
+                key: _formKey,
+                child: SafeArea(
+                  minimum: 15.padding,
                   child: Column(
                     children: [
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getTextFormField(
-                            '',
-                            yearController,
-                            label: Utils.getText('Year', color: AppC.grey),
-                            borderColor: isYearFieldEmpty
-                                ? Colors.red
-                                : AppC.fieldBase,
-                          ),
-                          if (isYearFieldEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(Icons.error_outline,
-                                  color: Colors.red),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getTextFormField(
-                            '',
-                            makeController,
-                            label: Utils.getText('Make', color: AppC.grey),
-                            borderColor: isMakeFieldEmpty
-                                ? Colors.red
-                                : AppC.fieldBase,
-                          ),
-                          if (isMakeFieldEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(Icons.error_outline,
-                                  color: Colors.red),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getTextFormField(
-                            '',
-                            modelController,
-                            label: Utils.getText('Model', color: AppC.grey),
-                            borderColor: isModelFieldEmpty
-                                ? Colors.red
-                                : AppC.fieldBase,
-                          ),
-                          if (isModelFieldEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(Icons.error_outline,
-                                  color: Colors.red),
-                            ),
-                        ],
+                      Utils.getTextFormField(
+                        'Year',
+                        yearController,
+                        autoValidate: AutovalidateMode.onUserInteraction,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Please enter year' : null,
                       ),
                       const SizedBox(height: 10),
                       Utils.getTextFormField(
-                        '',
+                        'Make',
+                        makeController,
+                        autoValidate: AutovalidateMode.onUserInteraction,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Please enter make' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      Utils.getTextFormField(
+                        'Model',
+                        modelController,
+                        autoValidate: AutovalidateMode.onUserInteraction,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Please enter model' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      Utils.getTextFormField(
+                        'Vehicle Number',
                         vehicleNoController,
-                        label:
-                        Utils.getText('Vehicle Number', color: AppC.grey),
                       ),
                       const SizedBox(height: 10),
                       Utils.dropdownBox(
@@ -307,8 +334,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                         cohortsData,
                         (selectedValue) {
                           setState(() {
-                            selectedCohortsData =
-                                selectedValue; // Store the selected value
+                            selectedCohortsData = selectedValue;
                           });
                         },
                         labelKey: 'cohort',
@@ -316,80 +342,53 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                       ),
                       const SizedBox(height: 10),
                       Utils.getTextFormField(
-                        '',
+                        'Vin',
                         vinController,
-                        label: Utils.getText('Vin', color: AppC.grey),
                       ),
                       const SizedBox(height: 10),
                       Utils.getTextFormField(
-                        '',
+                        'Vehicle Id',
                         vehicleIdController,
-                        label: Utils.getText('Vehicle Id', color: AppC.grey),),
-                      const SizedBox(height: 10),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getTextFormField(
-                            '',
-                            purchaseDateController,
-                            suffixIcon: Padding(
-                              padding: isPurchaseDateFieldEmpty
-                                  ? const EdgeInsets.only(right: 35.0)
-                                  : const EdgeInsets.only(),
-                              child: const Icon(
-                                Icons.date_range,
-                                color: AppC.appColor,
-                              ),
-                            ),
-                            readOnly: true,
-                            onTapCallback: () {
-                              Utils.datePicker(context, '',
-                                      initial: DateTime.parse("1970-01-01"))
-                                  .then((value) {
-                                if (value != null) {
-                                  purchaseDateController.text =
-                                      Utils.convertDateTimeToTheFormats(
-                                          value.toString());
-                                }
-                              });
-                            },
-                            label: Utils.getText('Purchase Date',
-                                color: AppC.grey),
-                            borderColor: isPurchaseDateFieldEmpty
-                                ? Colors.red
-                                : AppC.fieldBase,
-                          ),
-                          if (isPurchaseDateFieldEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(Icons.error_outline,
-                                  color: Colors.red),
-                            ),
-                        ],
                       ),
                       const SizedBox(height: 10),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getTextFormField(
-                            '',
-                            purchasePriceController,
-                            label: Utils.getText('Purchase Price',
-                                color: AppC.grey),
-                            borderColor: isPurchaseFieldEmpty
-                                ? Colors.red
-                                : AppC.fieldBase,
+                      Utils.getTextFormField(
+                        'Purchase Date',
+                        purchaseDateController,
+                        suffixIcon: Padding(
+                          padding: isPurchaseDateFieldEmpty
+                              ? const EdgeInsets.only(right: 35.0)
+                              : const EdgeInsets.only(),
+                          child: const Icon(
+                            Icons.date_range,
+                            color: AppC.appColor,
                           ),
-                          if (isPurchaseFieldEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Icon(Icons.error_outline,
-                                  color: Colors.red),
-                            ),
-                        ],
+                        ),
+                        readOnly: true,
+                        onTapCallback: () {
+                          Utils.datePicker(context, '',
+                                  initial: DateTime.parse("1970-01-01"))
+                              .then((value) {
+                            if (value != null) {
+                              purchaseDateController.text =
+                                  Utils.convertDateToYearMonthDateFormat(
+                                      value.toString());
+                            }
+                          });
+                        },
+                        autoValidate: AutovalidateMode.onUserInteraction,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Please enter purchase date' : null,
                       ),
                       const SizedBox(height: 10),
-                      SizedBox(
+                      Utils.getTextFormField(
+                        'Purchase Price',
+                        purchasePriceController,
+                        autoValidate: AutovalidateMode.onUserInteraction,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Please enter purchase price' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      /*SizedBox(
                         height: 35,
                         child: Container(
                           decoration: BoxDecoration(
@@ -424,11 +423,84 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               borderColor: AppC.trans,
                               textColor: AppC.grey),
                         ),
+                      ),*/
+                      InkWell(
+                        onTap: () => _pickReceiptImageFile(ImageSource.gallery),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField,
+                            ),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(Num.subradiusButton),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.cloud_upload,
+                                color: AppC.blue,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Utils.getText('Upload Purchase Receipt',
+                                  color: AppC.blue),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Visibility(
+                      if (receiptImageFile.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: SizedBox(
+                            height: 100,
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              itemCount: receiptImageFile.length,
+                              scrollDirection: Axis.horizontal,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 1, mainAxisSpacing: 10),
+                              itemBuilder: (context, index) => CloseBadge(
+                                  onTapView: () {
+                                    ShowAttachmentsDialog.of.show(context,
+                                        attachments: receiptImageFile,
+                                        title: "",
+                                        currentAttachment:
+                                            receiptImageFile[index]);
+                                  },
+                                  onTapDelete: () {
+                                    receiptImageFile.removeAt(index);
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                      minHeight:
+                                          MediaQuery.sizeOf(context).height,
+                                      minWidth:
+                                          MediaQuery.sizeOf(context).width,
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color:
+                                            AppC.grey.withValues(alpha: 0.2)),
+                                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                                    child: ImageViewer(
+                                      fit: BoxFit.cover,
+                                      imageInput: receiptImageFile[index],
+                                      isNotImage:
+                                          !((receiptImageFile[index] as Object)
+                                              .isImage),
+                                    ),
+                                  )),
+                            ),
+                          ),
+                        ),
+                      /* Visibility(
                         visible: receiptImageFile.isNotEmpty,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 5.0),
@@ -445,30 +517,41 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                     alignment: Alignment.topRight,
                                     children: [
                                       (receiptImageFile[index]['path'] ?? '')
-                                          .isNotEmpty
-                                          ? Utils.getOvalCachedImageNetworkDisplay(
-                                          context,
-                                          receiptImageFile[index]['path'] ?? '')
+                                              .isNotEmpty
+                                          ? Utils
+                                              .getOvalCachedImageNetworkDisplay(
+                                                  context,
+                                                  receiptImageFile[index]
+                                                          ['path'] ??
+                                                      '')
                                           : ClipRRect(
-                                        borderRadius: BorderRadius.circular(6),
-                                        child: Image.file(
-                                          File(receiptImageFile[index]['file']?.path ?? ''),
-                                          width: 100.0,
-                                          height: 100.0,
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              child: Image.file(
+                                                File(receiptImageFile[index]
+                                                            ['file']
+                                                        ?.path ??
+                                                    ''),
+                                                width: 100.0,
+                                                height: 100.0,
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
                                       SizedBox(
                                         width: 18,
                                         height: 18,
                                         child: InkWell(
                                           onTap: () {
-                                            if ((receiptImageFile[index]['path'] ?? '').isEmpty) {
+                                            if ((receiptImageFile[index]
+                                                        ['path'] ??
+                                                    '')
+                                                .isEmpty) {
                                               receiptImageFile.removeAt(index);
                                             } else {
                                               vehicleDataBloc.add(
                                                 DeleteExpenseImage(
-                                                    id: receiptImageFile[index]['id']),
+                                                    id: receiptImageFile[index]
+                                                        ['id']),
                                               );
                                               receiptImageFile.removeAt(index);
                                             }
@@ -495,8 +578,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                             ),
                           ),
                         ),
-                      ),
-
+                      ),*/
+                      const SizedBox(height: 10),
                       Visibility(
                         visible: !showMore,
                         child: InkWell(
@@ -508,7 +591,6 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Utils.getText(' More ...',
-                                    size: 12,
                                     color: const Color(0xff0580b5),
                                     weight: FontWeight.w500),
                               ],
@@ -519,7 +601,91 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
+                            InkWell(
+                              onTap: () =>
+                                  _pickVehicleImageFile(ImageSource.gallery),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppC.fieldBase,
+                                    width: Num.borderWidthField,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(Num.subradiusButton),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.cloud_upload,
+                                      color: AppC.blue,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Utils.getText('Upload Vehicle Image',
+                                        color: AppC.blue),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            if (vehicleImageFile.isNotEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: SizedBox(
+                                  height: 100,
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: vehicleImageFile.length,
+                                    scrollDirection: Axis.horizontal,
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 1,
+                                            mainAxisSpacing: 10),
+                                    itemBuilder: (context, index) => CloseBadge(
+                                        onTapView: () {
+                                          ShowAttachmentsDialog.of.show(context,
+                                              attachments: vehicleImageFile,
+                                              title: "",
+                                              currentAttachment:
+                                                  vehicleImageFile[index]);
+                                        },
+                                        onTapDelete: () {
+                                          vehicleImageFile.removeAt(index);
+                                          setState(() {});
+                                        },
+                                        child: Container(
+                                          constraints: BoxConstraints(
+                                            minHeight:
+                                                MediaQuery.sizeOf(context)
+                                                    .height,
+                                            minWidth: MediaQuery.sizeOf(context)
+                                                .width,
+                                          ),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              color: AppC.grey
+                                                  .withValues(alpha: 0.2)),
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          child: ImageViewer(
+                                            fit: BoxFit.cover,
+                                            imageInput: vehicleImageFile[index],
+                                            isNotImage:
+                                                !((vehicleImageFile[index]
+                                                        as Object)
+                                                    .isImage),
+                                          ),
+                                        )),
+                                  ),
+                                ),
+                              ),
+                            /*SizedBox(
                               height: 35,
                               child: Container(
                                 decoration: BoxDecoration(
@@ -538,7 +704,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                       debugPrint('value.path: ${value.path}');
                                       // VehiclesImages ve = VehiclesImages(
                                       //     file: value, path: '');
-                                      vehicleImageFile.add({'file': value, 'path': ''});
+                                      vehicleImageFile
+                                          .add({'file': value, 'path': ''});
                                       setState(() {});
                                     } else {
                                       return;
@@ -568,17 +735,29 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                     itemCount: vehicleImageFile.length,
                                     itemBuilder: (context, index) {
                                       return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5.0),
                                         child: Stack(
                                           alignment: Alignment.topRight,
                                           children: [
-                                            (vehicleImageFile[index]['path'] ?? '').isNotEmpty
-                                                ? Utils.getOvalCachedImageNetworkDisplay(context,
-                                                vehicleImageFile[index]['path'] ?? '')
+                                            (vehicleImageFile[index]['path'] ??
+                                                        '')
+                                                    .isNotEmpty
+                                                ? Utils
+                                                    .getOvalCachedImageNetworkDisplay(
+                                                        context,
+                                                        vehicleImageFile[index]
+                                                                ['path'] ??
+                                                            '')
                                                 : ClipRRect(
-                                                    borderRadius: BorderRadius.circular(6),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6),
                                                     child: Image.file(
-                                                      File(vehicleImageFile[index]['file']?.path ?? ''),
+                                                      File(vehicleImageFile[
+                                                                  index]['file']
+                                                              ?.path ??
+                                                          ''),
                                                       width: 100.0,
                                                       height: 100.0,
                                                       fit: BoxFit.fill,
@@ -589,13 +768,19 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                               height: 18,
                                               child: InkWell(
                                                 onTap: () {
-                                                  if ((vehicleImageFile[index]['path'] ?? '').isEmpty) {
-                                                    vehicleImageFile.removeAt(index);
+                                                  if ((vehicleImageFile[index]
+                                                              ['path'] ??
+                                                          '')
+                                                      .isEmpty) {
+                                                    vehicleImageFile
+                                                        .removeAt(index);
                                                   } else {
                                                     vehicleDataBloc.add(
                                                         DeleteVehicleImage(
-                                                            id: vehicleImageFile[index]['id']));
-                                                    vehicleImageFile.removeAt(index);
+                                                            id: vehicleImageFile[
+                                                                index]['id']));
+                                                    vehicleImageFile
+                                                        .removeAt(index);
                                                   }
                                                   setState(() {});
                                                 },
@@ -620,43 +805,40 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                   ),
                                 ),
                               ),
-                            ),
+                            ),*/
+                            const SizedBox(height: 10),
                             Utils.getTextFormField(
-                              '',
+                              'Earnings',
                               earningsController,
-                              label: Utils.getText('Earnings', color: AppC.grey),
                             ),
                             const SizedBox(
                               height: 10,
                             ),
                             Utils.getTextFormField(
-                              '',
+                              'Utilization Rate',
                               utilizationRateController,
-                              label: Utils.getText('Utilization Rate', color: AppC.grey),
                             ),
                             const SizedBox(
                               height: 10,
                             ),
                             Utils.getTextFormField(
-                              '',
+                              'Platform',
                               platformController,
-                              label: Utils.getText('Platform', color: AppC.grey),
                             ),
                             const SizedBox(
                               height: 10,
                             ),
                             Utils.getTextFormField(
-                              '',
+                              'Mileage',
                               mileageController,
-                              label: Utils.getText('Mileage', color: AppC.grey),
                             ),
                             const SizedBox(
                               height: 10,
                             ),
                             Utils.getTextFormField(
-                              '',
+                              'Wholesale Amount',
                               wholeSaleAmountController,
-                              label: Utils.getText('Wholesale Amount', color: AppC.grey),
+                              label: Utils.getText('', color: AppC.grey),
                             ),
                             const SizedBox(
                               height: 10,
@@ -676,52 +858,14 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                             const SizedBox(
                               height: 10,
                             ),
-                            SizedBox(
-                              height: 35,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppC.fieldBase,
-                                      width: Num.borderWidthField,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(Num.subradiusButton))),
-                                child: DropdownButton<String>(
-                                  hint: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Utils.getText('Status',
-                                        color: AppC.grey),
-                                  ),
-                                  value: selectedVehicleStatus,
-                                  isExpanded: true,
-                                  icon: const Icon(Icons.arrow_drop_down),
-                                  elevation: 3,
-                                  dropdownColor: AppC.white,
-                                  underline: Container(
-                                    height: 0,
-                                    color: Colors.transparent,
-                                  ),
-                                  onChanged: (String? value) {
-                                    // This is called when the user selects an item.
-                                    selectedVehicleStatus = value;
-                                    setState(() {});
-                                  },
-                                  items: vehicleStatusList
-                                      .map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10.0),
-                                        child: Utils.getText(value),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
+                            Utils.dropdownBox('Status', vehicleStatusList,
+                                (selectedValue) {
+                              setState(() {
+                                selectedVehicleStatus = selectedValue;
+                              });
+                            },
+                                labelKey: 'name',
+                                initialSelection: selectedVehicleStatus),
                             const SizedBox(
                               height: 10,
                             ),
@@ -731,13 +875,16 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               minLines: 3,
                               fillColor: AppC.white,
                             ),
-                            const SizedBox(height: 10,),
+                            const SizedBox(
+                              height: 10,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       checkBoxWithSingleText(
                                         value: bouncie,
@@ -748,13 +895,14 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                         },
                                         label: 'Bouncie',
                                       ),
-                                      const SizedBox(height: 10,),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
                                       checkBoxWithSingleText(
                                         value: tollTags,
                                         onChanged: (bool? value) {
                                           setState(() {
                                             tollTags = value ?? false;
-
                                           });
                                         },
                                         label: 'Toll tags',
@@ -762,11 +910,12 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                     ],
                                   ),
                                 ),
-
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       checkBoxWithSingleText(
                                         value: airTag,
@@ -777,7 +926,9 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                         },
                                         label: 'AirTag',
                                       ),
-                                      const SizedBox(height: 10,),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
                                       checkBoxWithSingleText(
                                         value: spareTire,
                                         onChanged: (bool? value) {
@@ -792,62 +943,78 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 ),
                               ],
                             ),
-                            Row(crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: Column(
                                     children: [
                                       Visibility(
                                           visible: tollTags,
-                                          child:Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 5),
-                                            child: Utils.getTextFormField('Enter the toll tag id', tollTagsController),
-                                          ) ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10),
+                                            child: Utils.getTextFormField(
+                                                'Enter the toll tag id',
+                                                tollTagsController),
+                                          )),
                                       Visibility(
                                         visible: tollTags,
-                                        child: Container(height: 35,
-                                          decoration: BoxDecoration(
+                                        child: InkWell(
+                                          onTap: () => _pickTollImage(
+                                              ImageSource.gallery),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10),
+                                            decoration: BoxDecoration(
                                               border: Border.all(
                                                 color: AppC.fieldBase,
                                                 width: Num.borderWidthField,
                                               ),
-                                              borderRadius: const BorderRadius.all(
-                                                  Radius.circular(Num.subradiusButton))),
-                                          child: Utils.getOutlinedButton('Toll Image', () async {
-                                            await imagePickHelper
-                                                .getSingleImage(ImageSource.gallery)
-                                                .then((value) {
-                                              if (value != null) {
-                                                debugPrint('value.path: ${value.path}');
-                                                // Attachments ve = Attachments(
-                                                //     file: value, path: '');
-                                                tollImage.add({'file': value, 'path': ''});
-                                                setState(() {});
-                                              } else {
-                                                return;
-                                              }
-                                            });
-                                          },
-                                              iconData: const Icon(Icons.cloud_upload,
-                                                  color: AppC.blue, size: 12),
-                                              verticalPadding: 0,
-                                              radius: BorderRadius.zero,
-                                              bgColor: AppC.trans,
-                                              borderColor: AppC.trans,
-                                              textColor: AppC.grey),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                Radius.circular(
+                                                    Num.subradiusButton),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.cloud_upload,
+                                                  color: AppC.blue,
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Utils.getText(
+                                                    'Upload Toll Image',
+                                                    color: AppC.blue),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                      const SizedBox(height: 10,),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 10,),
+                                const SizedBox(
+                                  width: 10,
+                                ),
                                 Expanded(
-                                  child: Visibility(visible: spareTire,
-                                      child:Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 5),
-                                        child: Utils.getTextFormField('e.g.,T165/70D18', spareTireController),
-                                      ) ),
+                                  child: Visibility(
+                                      visible: spareTire,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        child: Utils.getTextFormField(
+                                            'e.g.,T165/70D18',
+                                            spareTireController),
+                                      )),
                                 ),
                               ],
                             ),
@@ -857,64 +1024,67 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 children: [
                                   Visibility(
                                     visible: tollImage.isNotEmpty && tollTags,
-                                    child: GridView.builder(
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4,
-                                        crossAxisSpacing: 10.0,
-                                        mainAxisSpacing: 10.0,
-                                        childAspectRatio: 1.0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      child: SizedBox(
+                                        height: 100,
+                                        child: GridView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: tollImage.length,
+                                          scrollDirection: Axis.horizontal,
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 1,
+                                                  mainAxisSpacing: 10),
+                                          itemBuilder: (context, index) =>
+                                              CloseBadge(
+                                                  onTapView: () {
+                                                    ShowAttachmentsDialog.of
+                                                        .show(context,
+                                                            attachments:
+                                                                tollImage,
+                                                            title: "",
+                                                            currentAttachment:
+                                                                tollImage[
+                                                                    index]);
+                                                  },
+                                                  onTapDelete: () {
+                                                    tollImage.removeAt(index);
+                                                    setState(() {});
+                                                  },
+                                                  child: Container(
+                                                    constraints: BoxConstraints(
+                                                      minHeight:
+                                                          MediaQuery.sizeOf(
+                                                                  context)
+                                                              .height,
+                                                      minWidth:
+                                                          MediaQuery.sizeOf(
+                                                                  context)
+                                                              .width,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(16),
+                                                        color: AppC.grey
+                                                            .withValues(
+                                                                alpha: 0.2)),
+                                                    clipBehavior: Clip
+                                                        .antiAliasWithSaveLayer,
+                                                    child: ImageViewer(
+                                                      fit: BoxFit.cover,
+                                                      imageInput:
+                                                          tollImage[index],
+                                                      isNotImage:
+                                                          !((tollImage[index]
+                                                                  as Object)
+                                                              .isImage),
+                                                    ),
+                                                  )),
+                                        ),
                                       ),
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: tollImage.length,
-                                      itemBuilder: (context, index) {
-                                        return Stack(
-                                          alignment: Alignment.topRight,
-                                          children: [
-                                            (tollImage[index]['path'] ?? '').isNotEmpty
-                                                ? Utils.getOvalCachedImageNetworkDisplay(
-                                                context, tollImage[index]['path'] ?? '')
-                                                : ClipRRect(
-                                              borderRadius: BorderRadius.circular(6),
-                                              child: Image.file(
-                                                File(tollImage[index]['file']?.path ?? ''),
-                                                width: 100,
-                                                height: 100,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: InkWell(
-                                                onTap: () {
-                                                  if ((tollImage[index]['path'] ?? '').isEmpty) {
-                                                    tollImage.removeAt(index);
-                                                  } else {
-                                                    // vehicleDataBloc.add(
-                                                    //   DeleteExpenseImage(id: images[index]['id']),
-                                                    //);
-                                                    tollImage.removeAt(index);
-                                                  }
-                                                  setState(() {});
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: AppC.red.shade400,
-                                                  ),
-                                                  alignment: Alignment.center,
-                                                  child: const Icon(
-                                                    Icons.delete_outline_outlined,
-                                                    color: AppC.white,
-                                                    size: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
                                     ),
                                   ),
                                 ],
@@ -933,7 +1103,9 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10,),
+                            const SizedBox(
+                              height: 10,
+                            ),
                             Row(
                               children: [
                                 Expanded(
@@ -948,8 +1120,9 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Visibility(visible: permanentPlate,
-                                    child:checkBoxWithSingleText(
+                                  child: Visibility(
+                                    visible: permanentPlate,
+                                    child: checkBoxWithSingleText(
                                       value: frontLicensePlate,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -962,51 +1135,57 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10,),
+                            const SizedBox(
+                              height: 10,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child:
-                                  Container(height: 35,
-                                    decoration: BoxDecoration(
+                                  child: InkWell(
+                                    onTap: () => _pickTireImageFile(
+                                        ImageSource.gallery),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      decoration: BoxDecoration(
                                         border: Border.all(
                                           color: AppC.fieldBase,
                                           width: Num.borderWidthField,
                                         ),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(Num.subradiusButton)
-                                        )
+                                        borderRadius:
+                                        const BorderRadius.all(
+                                          Radius.circular(
+                                              Num.subradiusButton),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.cloud_upload,
+                                            color: AppC.blue,
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Utils.getText(
+                                              'Upload Tire Image',
+                                              color: AppC.blue),
+                                        ],
+                                      ),
                                     ),
-                                    child: Utils.getOutlinedButton('Tire Image Upload', () async {
-                                      await imagePickHelper
-                                          .getSingleImage(ImageSource.gallery)
-                                          .then((value) {
-                                        if (value != null) {
-                                          debugPrint('value.path: ${value.path}');
-                                          // Attachments ve = Attachments(
-                                          //     file: value, path: '');
-                                          tireImageFile.add({'file': value, 'path': ''});
-                                          setState(() {});
-                                        } else {
-                                          return;
-                                        }
-                                      });
-                                    },
-                                        iconData: const Icon(Icons.cloud_upload,
-                                            color: AppC.blue, size: 12),
-                                        verticalPadding: 0,
-                                        radius: BorderRadius.zero,
-                                        bgColor: AppC.trans,
-                                        borderColor: AppC.trans,
-                                        textColor: AppC.grey),
                                   ),
                                 ),
-                                const SizedBox(width: 10,),
+                                const SizedBox(
+                                  width: 10,
+                                ),
                                 Expanded(
                                   child: Utils.getTextFormField(
-                                      'Number Plate', plateNumberController,
-                                      hintTextColor: AppC.grey),
+                                    'Number Plate',
+                                    plateNumberController,
+                                     ),
                                 ),
                               ],
                             ),
@@ -1015,81 +1194,66 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                Visibility(
-                                  visible: tireImageFile.isNotEmpty,
-                                  child: GridView.builder(
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      crossAxisSpacing: 10.0,
-                                      mainAxisSpacing: 10.0,
-                                      childAspectRatio: 1.0,
-                                    ),
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: tireImageFile.length,
-                                    itemBuilder: (context, index) {
-                                      return Stack(
-                                        alignment: Alignment.topRight,
-                                        children: [
-                                          (tireImageFile[index]['path'] ?? '')
-                                              .isNotEmpty
-                                              ? Utils
-                                              .getOvalCachedImageNetworkDisplay(
-                                              context,
-                                              tireImageFile[index]
-                                              ['path'] ?? '')
-                                              : ClipRRect(
-                                            borderRadius: BorderRadius.circular(6),
-                                            child: Image.file(
-                                              File(tireImageFile[index]
-                                              ['file']?.path ?? ''),
-                                              width: 100.0,
-                                              height: 100.0,
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: InkWell(
-                                              onTap: () {
-                                                if ((tireImageFile[index]
-                                                ['path'] ?? '').isEmpty) {
-                                                  tireImageFile.removeAt(index);
-                                                } else {
-                                                  vehicleDataBloc.add(
-                                                      DeleteVehicleImage(
-                                                          id: tireImageFile[
-                                                          index]['id']));
-                                                  tireImageFile.removeAt(index);
-                                                }
+                                  Visibility(
+                                    visible: tireImageFile.isNotEmpty,
+                                    child: GridView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: tireImageFile.length,
+                                      scrollDirection: Axis.horizontal,
+                                      gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 1,
+                                          mainAxisSpacing: 10),
+                                      itemBuilder: (context, index) =>
+                                          CloseBadge(
+                                              onTapView: () {
+                                                ShowAttachmentsDialog.of
+                                                    .show(context,
+                                                    attachments:
+                                                    tireImageFile,
+                                                    title: "",
+                                                    currentAttachment:
+                                                    tireImageFile[
+                                                    index]);
+                                              },
+                                              onTapDelete: () {
+                                                tireImageFile.removeAt(index);
                                                 setState(() {});
                                               },
                                               child: Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(12)),
-                                                  color: AppC.red.shade400,
+                                                constraints: BoxConstraints(
+                                                  minHeight:
+                                                  MediaQuery.sizeOf(
+                                                      context)
+                                                      .height,
+                                                  minWidth:
+                                                  MediaQuery.sizeOf(
+                                                      context)
+                                                      .width,
                                                 ),
-                                                padding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 0,
-                                                    vertical: 0),
-                                                alignment: Alignment.center,
-                                                child: const Icon(
-                                                    Icons.delete_outline_sharp,
-                                                    color: AppC.white,
-                                                    size: 15),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                    BorderRadius
+                                                        .circular(16),
+                                                    color: AppC.grey
+                                                        .withValues(
+                                                        alpha: 0.2)),
+                                                clipBehavior: Clip
+                                                    .antiAliasWithSaveLayer,
+                                                child: ImageViewer(
+                                                  fit: BoxFit.cover,
+                                                  imageInput:
+                                                  tireImageFile[index],
+                                                  isNotImage:
+                                                  !((tireImageFile[index]
+                                                  as Object)
+                                                      .isImage),
+                                                ),
+                                              )),
+                                    ),
                                   ),
-                                ),
-                              ],),
+                                ],
+                              ),
                             ),
                             Row(
                               children: [
@@ -1115,7 +1279,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               children: [
                                 Expanded(
                                   child: Utils.getTextFormField(
-                                      'Front tire e.g., 215/55R17', frontTireController,
+                                      'Front tire e.g., 215/55R17',
+                                      frontTireController,
                                       hintTextColor: AppC.grey),
                                 ),
                                 const SizedBox(
@@ -1123,7 +1288,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 ),
                                 Expanded(
                                   child: Utils.getTextFormField(
-                                      'Rear tire e.g., 215/55R17', rearTireController,
+                                      'Rear tire e.g., 215/55R17',
+                                      rearTireController,
                                       hintTextColor: AppC.grey),
                                 ),
                               ],
@@ -1131,7 +1297,8 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                             const SizedBox(
                               height: 10,
                             ),
-                            Utils.getText('Reg Stick date',weight: FontWeight.bold),
+                            Utils.getText('Reg Stick date',
+                                weight: FontWeight.bold),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -1154,15 +1321,17 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                             readOnly: true,
                                             onTapCallback: () {
                                               Utils.datePicker(context, '',
-                                                  initial: DateTime.tryParse(renewalDateController.text))
+                                                      initial: DateTime.tryParse(
+                                                          renewalDateController
+                                                              .text))
                                                   .then((value) {
                                                 if (value != null) {
-                                                  renewalDateController.text =
-                                                      Utils.convertDateTimeToTheFormat(value.toString());
+                                                  renewalDateController.text = Utils
+                                                      .convertDateTimeToTheFormat(
+                                                          value.toString());
                                                 }
                                               });
                                             },
-
                                           ),
                                         ],
                                       ),
@@ -1175,38 +1344,40 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 Expanded(
                                   child: Column(
                                     children: [
-                                      Container(height: 35,
-                                        decoration: BoxDecoration(
+                                      InkWell(
+                                        onTap: () => _pickUploadRegSticker(
+                                            ImageSource.gallery),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          decoration: BoxDecoration(
                                             border: Border.all(
                                               color: AppC.fieldBase,
                                               width: Num.borderWidthField,
                                             ),
-                                            borderRadius: const BorderRadius.all(
-                                                Radius.circular(Num.subradiusButton))),
-                                        child: Utils.getOutlinedButton('Upload Reg Sticker', () async {
-                                          await imagePickHelper
-                                              .getSingleImage(ImageSource.gallery)
-                                              .then((value) {
-                                            if (value != null) {
-                                              debugPrint('value.path: ${value.path}');
-                                              // Attachments ve = Attachments(
-                                              //     file: value, path: '');
-                                              uploadRegSticker.add({ 'file': value,
-                                                'path': '',});
-                                              debugPrint('uploadRegSticker: ${uploadRegSticker}');
-                                              setState(() {});
-                                            } else {
-                                              return;
-                                            }
-                                          });
-                                        },
-                                            iconData: const Icon(Icons.cloud_upload,
-                                                color: AppC.blue, size: 12),
-                                            verticalPadding: 0,
-                                            radius: BorderRadius.zero,
-                                            bgColor: AppC.trans,
-                                            borderColor: AppC.trans,
-                                            textColor: AppC.grey),
+                                            borderRadius:
+                                            const BorderRadius.all(
+                                              Radius.circular(
+                                                  Num.subradiusButton),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(
+                                                Icons.cloud_upload,
+                                                color: AppC.blue,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Utils.getText(
+                                                  'Upload Reg Sticker',
+                                                  color: AppC.blue),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -1214,71 +1385,67 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               ],
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Visibility(
                                     visible: uploadRegSticker.isNotEmpty,
                                     child: GridView.builder(
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4,
-                                        crossAxisSpacing: 10.0,
-                                        mainAxisSpacing: 10.0,
-                                        childAspectRatio: 1.0,
-                                      ),
-                                      physics: const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount: uploadRegSticker.length,
-                                      itemBuilder: (context, index) {
-                                        return Stack(
-                                          alignment: Alignment.topRight,
-                                          children: [
-                                            (uploadRegSticker[index]['path'] ?? '').isNotEmpty
-                                                ? Utils.getOvalCachedImageNetworkDisplay(
-                                                context, uploadRegSticker[index]['path'] ?? '')
-                                                : ClipRRect(
-                                              borderRadius: BorderRadius.circular(6),
-                                              child: Image.file(
-                                                File(uploadRegSticker[index]['file']
-                                                    ?.path ?? ''),
-                                                width: 100.0,
-                                                height: 100.0,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 18,
-                                              height: 18,
-                                              child: InkWell(
-                                                onTap: () {
-                                                  if ((uploadRegSticker[index]['path'] ?? '').isEmpty) {
-                                                    uploadRegSticker.removeAt(index);
-                                                  } else {
-                                                    // vehicleDataBloc.add(
-                                                    //   DeleteExpenseImage(id: images[index]['id']),
-                                                    //);
-                                                    uploadRegSticker.removeAt(index);
-                                                  }
-                                                  setState(() {});
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: AppC.red.shade400,
-                                                  ),
-                                                  alignment: Alignment.center,
-                                                  child: const Icon(
-                                                    Icons.delete_outline_outlined,
-                                                    color: AppC.white,
-                                                    size: 16,
-                                                  ),
+                                      scrollDirection: Axis.horizontal,
+                                      gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 1,
+                                          mainAxisSpacing: 10),
+                                      itemBuilder: (context, index) =>
+                                          CloseBadge(
+                                              onTapView: () {
+                                                ShowAttachmentsDialog.of
+                                                    .show(context,
+                                                    attachments:
+                                                    uploadRegSticker,
+                                                    title: "",
+                                                    currentAttachment:
+                                                    uploadRegSticker[
+                                                    index]);
+                                              },
+                                              onTapDelete: () {
+                                                uploadRegSticker.removeAt(index);
+                                                setState(() {});
+                                              },
+                                              child: Container(
+                                                constraints: BoxConstraints(
+                                                  minHeight:
+                                                  MediaQuery.sizeOf(
+                                                      context)
+                                                      .height,
+                                                  minWidth:
+                                                  MediaQuery.sizeOf(
+                                                      context)
+                                                      .width,
                                                 ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                    BorderRadius
+                                                        .circular(16),
+                                                    color: AppC.grey
+                                                        .withValues(
+                                                        alpha: 0.2)),
+                                                clipBehavior: Clip
+                                                    .antiAliasWithSaveLayer,
+                                                child: ImageViewer(
+                                                  fit: BoxFit.cover,
+                                                  imageInput:
+                                                  uploadRegSticker[index],
+                                                  isNotImage:
+                                                  !((uploadRegSticker[index]
+                                                  as Object)
+                                                      .isImage),
+                                                ),
+                                              )),
                                     ),
                                   ),
                                 ],
@@ -1289,130 +1456,141 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                 Expanded(
                                   child: Utils.getTextFormField(
                                       'Current Odometer',
-                                      insuranceAgentController
-                                  ),
+                                      insuranceAgentController),
                                 ),
-                                const SizedBox(width: 10,),
-                                Expanded(child: Utils.getTextFormField(
-                                    'Oil Change Odometer',
-                                    insuranceCostController
+                                const SizedBox(
+                                  width: 10,
                                 ),
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Oil Change Odometer',
+                                      insuranceCostController),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10,),
-                            Utils.getTextFormField('Maintenance Check(day from today)', maintenanceCheckController),
-                            const SizedBox(height: 10,),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Utils.getTextFormField(
+                                'Maintenance Check(day from today)',
+                                maintenanceCheckController),
+                            const SizedBox(
+                              height: 10,
+                            ),
                             Row(
                               children: [
                                 Expanded(
                                   child: Utils.getTextFormField(
                                       'Insurance Agent',
-                                      insuranceAgentController
-                                  ),
+                                      insuranceAgentController),
                                 ),
-                                const SizedBox(width: 10,),
-                                Expanded(child: Utils.getTextFormField(
-                                    'Insurance Cost',
-                                    insuranceCostController
+                                const SizedBox(
+                                  width: 10,
                                 ),
+                                Expanded(
+                                  child: Utils.getTextFormField(
+                                      'Insurance Cost',
+                                      insuranceCostController),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10,),
-                            Container(height: 35,
-                              decoration: BoxDecoration(
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            InkWell(
+                              onTap: () => _pickInsuranceImage(
+                                  ImageSource.gallery),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10),
+                                decoration: BoxDecoration(
                                   border: Border.all(
                                     color: AppC.fieldBase,
                                     width: Num.borderWidthField,
                                   ),
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(Num.subradiusButton))),
-                              child: Utils.getOutlinedButton('Insurance Image', () async {
-                                await imagePickHelper
-                                    .getSingleImage(ImageSource.gallery)
-                                    .then((value) {
-                                  if (value != null) {
-                                    debugPrint('value.path: ${value.path}');
-                                    // Attachments ve = Attachments(
-                                    //     file: value, path: '');
-                                    insuranceImage.add({'file': value, 'path': ''});
-                                    setState(() {});
-                                  } else {
-                                    return;
-                                  }
-                                });
-                              },
-                                  iconData: const Icon(Icons.cloud_upload,
-                                      color: AppC.blue, size: 12),
-                                  verticalPadding: 0,
-                                  radius: BorderRadius.zero,
-                                  bgColor: AppC.trans,
-                                  borderColor: AppC.trans,
-                                  textColor: AppC.grey),
+                                  borderRadius:
+                                  const BorderRadius.all(
+                                    Radius.circular(
+                                        Num.subradiusButton),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.cloud_upload,
+                                      color: AppC.blue,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Utils.getText(
+                                        'Upload Insurance Sticker',
+                                        color: AppC.blue),
+                                  ],
+                                ),
+                              ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
                               child: Visibility(
                                 visible: insuranceImage.isNotEmpty,
                                 child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 10.0,
-                                    mainAxisSpacing: 10.0,
-                                    childAspectRatio: 1.0,
-                                  ),
-                                  physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   itemCount: insuranceImage.length,
-                                  itemBuilder: (context, index) {
-                                    return Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        (insuranceImage[index]['path'] ?? '').isNotEmpty
-                                            ? Utils.getOvalCachedImageNetworkDisplay(
-                                            context, insuranceImage[index]['path'] ?? '')
-                                            : ClipRRect(
-                                          borderRadius: BorderRadius.circular(6),
-                                          child: Image.file(
-                                            File(insuranceImage[index]['file']?.path ?? ''),
-                                            width: 100.0,
-                                            height: 100.0,
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: InkWell(
-                                            onTap: () {
-                                              if ((insuranceImage[index]['path'] ?? '').isEmpty) {
-                                                insuranceImage.removeAt(index);
-                                              } else {
-                                                // vehicleDataBloc.add(
-                                                //   DeleteExpenseImage(id: images[index]['id']),
-                                                //);
-                                                insuranceImage.removeAt(index);
-                                              }
-                                              setState(() {});
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: AppC.red.shade400,
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: const Icon(
-                                                Icons.delete_outline_outlined,
-                                                color: AppC.white,
-                                                size: 16,
-                                              ),
+                                  scrollDirection: Axis.horizontal,
+                                  gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 1,
+                                      mainAxisSpacing: 10),
+                                  itemBuilder: (context, index) =>
+                                      CloseBadge(
+                                          onTapView: () {
+                                            ShowAttachmentsDialog.of
+                                                .show(context,
+                                                attachments:
+                                                insuranceImage,
+                                                title: "",
+                                                currentAttachment:
+                                                insuranceImage[
+                                                index]);
+                                          },
+                                          onTapDelete: () {
+                                            insuranceImage.removeAt(index);
+                                            setState(() {});
+                                          },
+                                          child: Container(
+                                            constraints: BoxConstraints(
+                                              minHeight:
+                                              MediaQuery.sizeOf(
+                                                  context)
+                                                  .height,
+                                              minWidth:
+                                              MediaQuery.sizeOf(
+                                                  context)
+                                                  .width,
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius
+                                                    .circular(16),
+                                                color: AppC.grey
+                                                    .withValues(
+                                                    alpha: 0.2)),
+                                            clipBehavior: Clip
+                                                .antiAliasWithSaveLayer,
+                                            child: ImageViewer(
+                                              fit: BoxFit.cover,
+                                              imageInput:
+                                              insuranceImage[index],
+                                              isNotImage:
+                                              !((insuranceImage[index]
+                                              as Object)
+                                                  .isImage),
+                                            ),
+                                          )),
                                 ),
                               ),
                             ),
@@ -1425,7 +1603,6 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                                       setState(() {});
                                     },
                                     child: Utils.getText(' Less ...',
-                                        size: 12,
                                         color: AppC.blue,
                                         weight: FontWeight.w500)),
                               ],
@@ -1437,7 +1614,9 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Utils.getAddFilledButton('Save', () {_save();},bgColor: AppC.green),
+                          Utils.getAddFilledButton('Save', () {
+                            _save();
+                          }, bgColor: AppC.green),
                         ],
                       ),
                     ],

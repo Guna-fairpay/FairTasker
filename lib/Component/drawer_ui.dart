@@ -8,6 +8,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
 import '../UI/authentication_ui.dart';
 import '../UI/Import Task/text_upload.dart';
@@ -104,6 +105,12 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                   icon: Icons.build,
                   title: "Manage Custom Data's",
                   onTap: () => navigateToPage(const ManageCustomDataMenuUI()),
+                ),
+                _buildDivider(),
+                _buildListTile(
+                  icon: Icons.file_copy,
+                  title: "Reports",
+                  onTap: () => navigateToPage(const ReportsView()),
                 ),
                 _buildDivider(),
                 _buildListTile(

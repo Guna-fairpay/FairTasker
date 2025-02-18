@@ -1,58 +1,34 @@
-import 'dart:async';
-import 'dart:developer';
-import 'dart:io';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
-import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
-import 'package:fairpytasker/Component/custom_task_identifier.dart';
-import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
-import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_main_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:fairpytasker/Bloc/location_data_bloc.dart';
-import 'package:fairpytasker/Response/create_todo_params.dart';
-import 'package:fairpytasker/Repository/todo_list_repository.dart';
-import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
-import 'package:fairpytasker/Event/todo_view_event.dart';
-import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
-import 'package:fairpytasker/main.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import '../../Response/todo_list_response.dart';
-import '../../Utilities/image_pick_helper.dart';
-import '../../widget/time_picker_only.dart';
-import '../Manage Custom Data/Parts/part_view_ui.dart';
-import '../Manage Custom Data/Supplies/supplies_view_ui.dart';
-import '../Vehicle/vehicle_history_module_ui.dart';
 
-class AddToDoUi extends StatelessWidget {
-  const AddToDoUi({super.key});
+class CreateTodoUI extends StatelessWidget {
+  final bool showHeader;
+  final List<Map<String, dynamic>?>? selectedAssignedTo;
+  const CreateTodoUI({super.key, this.showHeader = true, this.selectedAssignedTo});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(true)),
+      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
             if (state.isLoading) {
               EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
+            }
+            if (state.redirect){
+              context.pop();
             }
           },
           child: BlocBuilder<AddToDoBloc, AddToDoState>(
@@ -89,9 +65,6 @@ class AddToDoUi extends StatelessWidget {
                         ),
                       ),
                     GestureDetector(
-                      // borderRadius: BorderRadius.circular(10),
-                      // radius: 2,
-                      // splashFactory: InkSplash.splashFactory,
                       onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -120,7 +93,7 @@ class AddToDoUi extends StatelessWidget {
                       width: 10,
                     ),
                     IconButton(
-                      onPressed: (){},
+                      onPressed: () => context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
                       icon: const Icon(Icons.save),
                       padding: EdgeInsets.zero,
                       style: const ButtonStyle(
@@ -149,7 +122,7 @@ class AddToDoUi extends StatelessWidget {
   }
 }
 
-class CreateTodoUI extends StatefulWidget {
+/*class CreateTodoUI extends StatefulWidget {
   final List<Map<String, dynamic>?>? selectedAssignedTo;
   final bool showHeader;
 
@@ -1946,4 +1919,4 @@ class _CreateTodoUIState extends State<CreateTodoUI> {
   void doSetState() {
     setState(() {});
   }
-}
+}*/

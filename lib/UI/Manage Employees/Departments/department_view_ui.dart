@@ -195,11 +195,7 @@ class _DepartmentViewUIState extends State<DepartmentViewUI> {
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {
-                              // onTap action for search bar if needed
-                            }, (value) {
-                              _filterhead(value);
-                            }, searchController,),
+                            child: Utils.getSearchBarUI(onChange: _filterhead, searchController: searchController,),
                           ),
                         ),
                         const SizedBox(width: 8),

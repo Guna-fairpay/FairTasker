@@ -14,6 +14,7 @@ import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
 import 'Task/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
+import 'Vehicles/vehicle_tab_bar.dart';
 import 'Vehicles/vehicle_view_ui.dart';
 import 'Vendor/vendor_view_ui.dart';
 
@@ -54,12 +55,12 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            _buildCard(
+            /*_buildCard(
               icon: Icons.file_copy_rounded,
               title: 'Reports',
               onTap: () async => await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const ReportsView())),
-            ),
+            ),*/
             _buildCard(
               icon: Icons.calendar_month_rounded,
               title: 'Attendance',
@@ -80,7 +81,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vehicle',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VehicleViewUI(),
+                  builder: (context) => const VehicleTabBar(),
                 ));
               },
             ),
@@ -107,7 +108,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Parts',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const PartViewUI(),
+                  builder: (context) => const PartViewUI(),///PartView() ?? PartViewUI()
                 ));
               },
             ),
@@ -134,7 +135,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'SubCategory',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SubcategoryViewui(),
+                  builder: (context) => const SubcategoryViewUI(),
                 ));
               },
             ),
@@ -156,7 +157,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                 ));
               },
             ),
-            _buildCard(
+           /* _buildCard(
               icon: Icons.telegram,
               title: 'Customers',
               onTap: () async {
@@ -164,7 +165,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                   builder: (context) => const PartView(),
                 ));
               },
-            ),
+            ),*/
           ],
         ),
       ),

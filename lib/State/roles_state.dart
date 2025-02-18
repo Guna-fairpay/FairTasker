@@ -15,9 +15,29 @@ class RolesInitial extends RolesState {
 class RolesLoading extends RolesState {}
 
 class RolesListLoaded extends RolesState {
-  final List<Map<String, dynamic>>? data; // Define DashboardData as a list
+  final List<Map<String, dynamic>>? data;
   const RolesListLoaded(
-      {required this.data}); // Define named parameter in constructor
+      {required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class EditRolesLoaded extends RolesState {
+  final List<int>? rolePermission;
+
+  const EditRolesLoaded({
+        required this.rolePermission,
+      });
+  @override
+  List<Object?> get props => [rolePermission];
+}
+
+class PermissionDataForRoleLoaded extends RolesState {
+  final List<Map<String, dynamic>>? data;
+
+  const PermissionDataForRoleLoaded(
+      {required this.data});
+
   @override
   List<Object?> get props => [data];
 }

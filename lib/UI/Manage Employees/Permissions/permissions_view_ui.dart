@@ -179,9 +179,7 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
                         Expanded(
                           child: SizedBox(
                             height: 40,
-                            child: Utils.getSearchBarUI(() {}, (value) {
-                              _filterPermissions(value);
-                            }, searchController,),
+                            child: Utils.getSearchBarUI(onChange: _filterPermissions, searchController: searchController),
                           ),
                         ),
                         const SizedBox(width: 8),

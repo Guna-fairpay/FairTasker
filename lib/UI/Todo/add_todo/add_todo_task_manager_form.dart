@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,7 +28,9 @@ class AddTodoTaskManagerForm extends StatelessWidget {
             ),
             if (state.selectedTaskPersons.isEmpty)
             Utils.getText('Please select task manager',
-                color: const Color(0xffd01601))
+                align: TextAlign.start,
+                style: context.textTheme.labelSmall
+                    ?.copyWith(color: context.theme.colorScheme.error))
           ],
         );
       }
