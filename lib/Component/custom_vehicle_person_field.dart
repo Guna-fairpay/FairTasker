@@ -141,8 +141,11 @@ class CustomVehiclePersonField extends StatelessWidget {
   }
 
   void _onDelete(Map<String, dynamic> val) {
+    var value = selectedList.value;
+    value.remove(val);
     selectedVPersons?.value.remove(val);
-    selectedList.value = (selectedVPersons?.value ?? []);
+    selectedVPersons?.value = value;
+    selectedList.value = value;
     selectedList.notifyListeners();
     selectedVPersons?.notifyListeners();
     onSelected?.call(selectedList.value);

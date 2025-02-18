@@ -14,6 +14,7 @@ class CustomSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         isDense: true,
         constraints: const BoxConstraints(),

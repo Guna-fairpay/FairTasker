@@ -1,10 +1,7 @@
-import 'package:fairpytasker/UI/authentication_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/Utilities/str.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 
 class AskPermissionDialog {
@@ -15,6 +12,8 @@ class AskPermissionDialog {
       String? description,
       String? negativeText,
       String? positiveText,
+      bool? isReasonRequired,
+      void Function(String reason)? onReasonSubmitted,
       VoidCallback? onPositivePressed}) async {
     await showDialog(
       context: context,
@@ -25,6 +24,8 @@ class AskPermissionDialog {
         negativeText: negativeText,
         positiveText: positiveText,
         onPositivePressed: onPositivePressed,
+        isReasonRequired: isReasonRequired,
+        onReasonSubmitted: onReasonSubmitted,
       ),
     );
   }
@@ -36,23 +37,56 @@ class _AskPermissionDialogView extends StatelessWidget {
   final String? negativeText;
   final String? positiveText;
   final VoidCallback? onPositivePressed;
+  final bool? isReasonRequired;
+  final void Function(String reason)? onReasonSubmitted;
+  final TextEditingController _reasonController = TextEditingController();
 
-  const _AskPermissionDialogView(
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  _AskPermissionDialogView(
       {super.key,
       this.title,
       this.description,
       this.negativeText,
       this.positiveText,
-      this.onPositivePressed});
+      this.onPositivePressed,
+      this.isReasonRequired,
+      this.onReasonSubmitted});
 
   @override
   Widget build(BuildContext context) {
+    var border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
+    );
     return AlertDialog(
       title: Text("$title"),
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
       backgroundColor: AppC.white,
-      content: Text("$description"),
+      content: (isReasonRequired ?? false)
+          ? Form(
+        key: _formKey,
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 10,
+                children: [
+                  Text("$description",
+                      style: context.textTheme.labelLarge
+                          ?.copyWith(fontWeight: FontWeight.normal)),
+                  TextFormField(
+                    validator: (value) => (value?.isEmpty ?? false) ? "Reason is required" : null,
+                      controller: _reasonController,
+                      decoration: InputDecoration(
+                        hintText: "Enter reason",
+                        border: border,
+                        enabledBorder: border,
+                      )),
+                ],
+              ),
+          )
+          : Text("$description",
+              style: context.textTheme.labelLarge
+                  ?.copyWith(fontWeight: FontWeight.normal)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       titleTextStyle:
           context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
@@ -76,20 +110,28 @@ class _AskPermissionDialogView extends StatelessWidget {
             ),
             ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  onPositivePressed?.call();
+                  if (isReasonRequired ?? false) {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      onReasonSubmitted?.call(_reasonController.text);
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    onPositivePressed?.call();
+                    Navigator.pop(context);
+                  }
                 },
                 style: ButtonStyle(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    backgroundColor: const WidgetStatePropertyAll(AppC.appColor),
+                    backgroundColor:
+                        const WidgetStatePropertyAll(AppC.appColor),
                     shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(Num.borderRadiusLarge))),
                     padding: const WidgetStatePropertyAll(
                         EdgeInsets.symmetric(horizontal: 30, vertical: 10)),
-                    foregroundColor: WidgetStatePropertyAll(AppC.blue50),
+                    foregroundColor: WidgetStatePropertyAll(AppC.white),
                     textStyle:
-                        WidgetStatePropertyAll(context.textTheme.labelLarge)),
+                        WidgetStatePropertyAll(context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700))),
                 child: Text("$positiveText")),
           ],
         ),

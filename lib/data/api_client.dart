@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -33,11 +34,12 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callGetMethod(String url) async {
+  Future<http.Response?> callGetMethod(String url, {Map<String, dynamic>? params}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_getCompute, {
         "url": url,
         "token": Utils.getHeadersWithToken(url: url),
+        "params" : params
       });
       // http.Response response = await client.get(Utils.getUri(url),
       //     headers: Utils.getHeadersWithToken());
@@ -83,7 +85,7 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callDelete(String url) async {
+  Future<http.Response?> callDelete(String url, {Map<String, dynamic>? params, Map<String, dynamic>? body}) async {
     if (await Utils.connection()) {
       //   http.Response response = await client.delete(Utils.getUri(url),
       //       headers: Utils.getHeadersWithToken(),
@@ -91,6 +93,8 @@ class ApiClient {
       http.Response response = await compute(_deleteCompute, {
         "url": url,
         "token": Utils.getHeadersWithToken(url: url),
+        "params" : params,
+        "body" : jsonEncode(body),
       });
       return response;
     } else {
@@ -152,7 +156,7 @@ class ApiClient {
 
   Future<http.Response> _deleteCompute(dynamic message) async {
     return await client.delete(Utils.getUri(message['url']),
-        headers: message['token'], params: message['params']);
+        headers: message['token'], params: message['params'], body: message['body']);
   }
 
   Future<http.Response> _postMultiPartCompute(dynamic message) async {

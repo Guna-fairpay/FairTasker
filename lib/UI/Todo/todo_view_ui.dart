@@ -2649,7 +2649,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                     .addAll(selectedVehicleGroupList);
                               }
                               await getUserGroupList(todos);
-                              bool? result = await Navigator.push(
+                              dynamic result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => EditTodoUI(
@@ -3272,7 +3272,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                   vehicleName: vehicle?['vehicle_name'] ?? '',
                                                   title: todos['title'],
                                                   showHeader: false,
-                                                  showSameTask: true, resourceList: resourceList, userGroupList: userGroupList,
+                                                  showSameTask: true,
                                                 ),
                                               ),
                                             ],

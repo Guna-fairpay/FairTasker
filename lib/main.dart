@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/color_extension.dart';
@@ -80,6 +81,11 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(16))),
           elevation: const WidgetStatePropertyAll(0),
           side: const WidgetStatePropertyAll(BorderSide.none),
+        ),
+        switchTheme: SwitchThemeData(
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.trans),
+          thumbColor: const WidgetStatePropertyAll(AppC.white),
         ),
         primarySwatch: AppC.appColor.toMaterialColor,
         textTheme: GoogleFonts.sairaTextTheme(

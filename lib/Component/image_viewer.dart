@@ -42,7 +42,7 @@ class ImageViewer extends StatelessWidget {
             : Image.memory(imageData ?? Uint8List(0),
                 fit: fit,
                 errorBuilder: (context, error, stackTrace) =>
-                    Image.asset(Assets.noImages),
+                    Image.asset(Assets.noImages, fit: fit,),
                 gaplessPlayback: true),
       );
     }
@@ -60,7 +60,7 @@ class ImageViewer extends StatelessWidget {
             ? Image.file(imageInput,
                 fit: fit,
                 errorBuilder: (context, error, stackTrace) =>
-                    Image.asset(Assets.noImages),
+                    Image.asset(Assets.noImages, fit: fit,),
                 gaplessPlayback: true)
             : const SizedBox.shrink();
   }
