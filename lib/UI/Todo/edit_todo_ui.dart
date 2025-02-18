@@ -2757,186 +2757,186 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-  void _showImageDialog(List<String> imageUrls, int index) {
-    PageController pageController = PageController(initialPage: index);
-    TransformationController transformationController =
-        TransformationController();
-    AnimationController? animationController;
-    Animation<Matrix4>? animation;
-
-    void resetZoom() {
-      animation = Matrix4Tween(
-        begin: transformationController.value,
-        end: Matrix4.identity(),
-      ).animate(CurvedAnimation(
-        parent: animationController!,
-        curve: Curves.easeInOut,
-      ));
-
-      animationController!.forward(from: 0);
-    }
-
-    @override
-    void dispose() {
-      animationController?.dispose();
-      super.dispose();
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        animationController = AnimationController(
-          vsync: Navigator.of(context),
-          duration: const Duration(milliseconds: 300),
-        );
-
-        animationController!.addListener(() {
-          transformationController.value = animation!.value;
-        });
-
-        return Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: AppC.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      child: PageView.builder(
-                        controller: pageController,
-                        itemCount: imageUrls.length,
-                        itemBuilder: (context, currentIndexValue) {
-                          final imagePath = imageUrls[currentIndexValue];
-                          return GestureDetector(
-                            onDoubleTap: () {
-                              if (transformationController.value !=
-                                  Matrix4.identity()) {
-                                resetZoom(); // Reset zoom on double-tap
-                              } else {
-                                transformationController.value =
-                                    Matrix4.identity()..scale(3.0);
-                              }
-                            },
-                            child: InteractiveViewer(
-                              maxScale: 8.0,
-                              minScale: 1.0,
-                              transformationController:
-                                  transformationController,
-                              child: File(imagePath).existsSync()
-                                  ? Image.file(
-                                      File(imagePath),
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return const Center(
-                                          child: Icon(Icons.error,
-                                              color: Colors.red),
-                                        );
-                                      },
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl: todoItem['todoimages'] != null
-                                          ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
-                                          : Str.errorImage,
-                                      imageBuilder: (context, imageProvider) {
-                                        return Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              20, 20, 20, 0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.contain,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      errorWidget: (context, url, error) {
-                                        return Container(
-                                          alignment: Alignment.center,
-                                          child: Utils.getText(
-                                            "CT",
-                                            size: 22,
-                                            color: AppC.red,
-                                            weight: FontWeight.bold,
-                                          ),
-                                        );
-                                      },
-                                  ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            if (pageController.page! > 0) {
-                              pageController.previousPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                        ),
-                        SmoothPageIndicator(
-                          controller: pageController,
-                          count: imageUrls.length,
-                          effect: const JumpingDotEffect(
-                            spacing: 8.0,
-                            radius: 8.0,
-                            dotWidth: 10.0,
-                            dotHeight: 10.0,
-                            paintStyle: PaintingStyle.fill,
-                            strokeWidth: 1.5,
-                            dotColor: Colors.grey,
-                            activeDotColor: Colors.indigo,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            if (pageController.page! < imageUrls.length - 1) {
-                              pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.arrow_forward),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void _showImageDialog(List<String> imageUrls, int index) {
+  //   PageController pageController = PageController(initialPage: index);
+  //   TransformationController transformationController =
+  //       TransformationController();
+  //   AnimationController? animationController;
+  //   Animation<Matrix4>? animation;
+  //
+  //   void resetZoom() {
+  //     animation = Matrix4Tween(
+  //       begin: transformationController.value,
+  //       end: Matrix4.identity(),
+  //     ).animate(CurvedAnimation(
+  //       parent: animationController!,
+  //       curve: Curves.easeInOut,
+  //     ));
+  //
+  //     animationController!.forward(from: 0);
+  //   }
+  //
+  //   @override
+  //   void dispose() {
+  //     animationController?.dispose();
+  //     super.dispose();
+  //   }
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       animationController = AnimationController(
+  //         vsync: Navigator.of(context),
+  //         duration: const Duration(milliseconds: 300),
+  //       );
+  //
+  //       animationController!.addListener(() {
+  //         transformationController.value = animation!.value;
+  //       });
+  //
+  //       return Padding(
+  //         padding: const EdgeInsets.all(10.0),
+  //         child: Center(
+  //           child: Container(
+  //             decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(8),
+  //               color: AppC.white,
+  //             ),
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(8.0),
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   Expanded(
+  //                     child: PageView.builder(
+  //                       controller: pageController,
+  //                       itemCount: imageUrls.length,
+  //                       itemBuilder: (context, currentIndexValue) {
+  //                         final imagePath = imageUrls[currentIndexValue];
+  //                         return GestureDetector(
+  //                           onDoubleTap: () {
+  //                             if (transformationController.value !=
+  //                                 Matrix4.identity()) {
+  //                               resetZoom(); // Reset zoom on double-tap
+  //                             } else {
+  //                               transformationController.value =
+  //                                   Matrix4.identity()..scale(3.0);
+  //                             }
+  //                           },
+  //                           child: InteractiveViewer(
+  //                             maxScale: 8.0,
+  //                             minScale: 1.0,
+  //                             transformationController:
+  //                                 transformationController,
+  //                             child: File(imagePath).existsSync()
+  //                                 ? Image.file(
+  //                                     File(imagePath),
+  //                                     fit: BoxFit.contain,
+  //                                     errorBuilder:
+  //                                         (context, error, stackTrace) {
+  //                                       return const Center(
+  //                                         child: Icon(Icons.error,
+  //                                             color: Colors.red),
+  //                                       );
+  //                                     },
+  //                                   )
+  //                                 : CachedNetworkImage(
+  //                                     imageUrl: todoItem['todoimages'] != null
+  //                                         ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
+  //                                         : Str.errorImage,
+  //                                     imageBuilder: (context, imageProvider) {
+  //                                       return Padding(
+  //                                         padding: const EdgeInsets.fromLTRB(
+  //                                             20, 20, 20, 0),
+  //                                         child: Container(
+  //                                           decoration: BoxDecoration(
+  //                                             image: DecorationImage(
+  //                                               image: imageProvider,
+  //                                               fit: BoxFit.contain,
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     },
+  //                                     errorWidget: (context, url, error) {
+  //                                       return Container(
+  //                                         alignment: Alignment.center,
+  //                                         child: Utils.getText(
+  //                                           "CT",
+  //                                           size: 22,
+  //                                           color: AppC.red,
+  //                                           weight: FontWeight.bold,
+  //                                         ),
+  //                                       );
+  //                                     },
+  //                                 ),
+  //                           ),
+  //                         );
+  //                       },
+  //                     ),
+  //                   ),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.end,
+  //                     children: [
+  //                       GestureDetector(
+  //                         onTap: () {
+  //                           Navigator.of(context).pop();
+  //                         },
+  //                         child: const Icon(Icons.close),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   const SizedBox(height: 20),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       IconButton(
+  //                         onPressed: () {
+  //                           if (pageController.page! > 0) {
+  //                             pageController.previousPage(
+  //                               duration: const Duration(milliseconds: 300),
+  //                               curve: Curves.easeInOut,
+  //                             );
+  //                           }
+  //                         },
+  //                         icon: const Icon(Icons.arrow_back),
+  //                       ),
+  //                       SmoothPageIndicator(
+  //                         controller: pageController,
+  //                         count: imageUrls.length,
+  //                         effect: const JumpingDotEffect(
+  //                           spacing: 8.0,
+  //                           radius: 8.0,
+  //                           dotWidth: 10.0,
+  //                           dotHeight: 10.0,
+  //                           paintStyle: PaintingStyle.fill,
+  //                           strokeWidth: 1.5,
+  //                           dotColor: Colors.grey,
+  //                           activeDotColor: Colors.indigo,
+  //                         ),
+  //                       ),
+  //                       IconButton(
+  //                         onPressed: () {
+  //                           if (pageController.page! < imageUrls.length - 1) {
+  //                             pageController.nextPage(
+  //                               duration: const Duration(milliseconds: 300),
+  //                               curve: Curves.easeInOut,
+  //                             );
+  //                           }
+  //                         },
+  //                         icon: const Icon(Icons.arrow_forward),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> doCreateEditTodo({String? todoName, String? time}) async
   {
