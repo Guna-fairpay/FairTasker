@@ -68,8 +68,9 @@ class _RoleViewUIState extends State<RoleViewUI> {
          name: updatedRole['name'],
          id: updatedRole['id'],
          permissions: updatedRole['permissions']));
+     rolesBloc.add(const GetRolesData());
     }
-    rolesBloc.add(const GetRolesData());
+
   }
 
   Future<void> _deleteRole(int index) async {

@@ -40,6 +40,7 @@ class RolesBloc extends Bloc<RolesEvent, RolesState> {
         if (value != null) {
           emit(EditRolesLoaded(
             rolePermission: value.rolePermission ?? [],
+            data: value.data ?? [],
           ));
         }
       });

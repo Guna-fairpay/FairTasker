@@ -20,13 +20,16 @@ class RolesListResponse {
 class EditRoleResponse {
   EditRoleResponse({
     this.rolePermission,
+    this.data,
     this.status,
   });
   EditRoleResponse.fromJson(Map<String, dynamic> json) {
+    data = List<Map<String, dynamic>>.from(json['permission'] ?? []);
     rolePermission = List<int>.from(json['rolePermissions'] ?? []);
     status = json['status'];
   }
   List<int>? rolePermission;
+  List<Map<String, dynamic>>? data;
   int? status;
 }
 
