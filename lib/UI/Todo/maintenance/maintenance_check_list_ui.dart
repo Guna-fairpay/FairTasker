@@ -1,13 +1,10 @@
 
 import 'dart:developer';
-
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../Response/create_fix_task_data.dart';
-import '../../../Response/create_todo_params.dart';
-import '../../../Utilities/Str.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 
@@ -40,7 +37,6 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
   void initState() {
     super.initState();
     isAllCheck = true;
-    // log("${widget.todoItems} ${widget.maintenance}", name: "MAINTENANCE_CHECK");
     data.clear();
     data = widget.maintenance;
     todoViewBloc=TodoViewBloc();
@@ -153,7 +149,6 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                   if (!dropDownValue.any((element) => element['name'] == "Other") && maintenanceCheckListData['name'] != "Lights") {
                     dropDownValue.add({"id":99,"name": "Other",});
                   }
-                  // print("checkList $checkList");
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 5,
@@ -227,7 +222,7 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                                       'Create Task',
                                           () async {
                                         setState(() {
-                                          isLoading = true; // ✅ Show loading before starting
+                                          isLoading = true;
                                         });
 
                                         try {
@@ -235,14 +230,9 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                                             Utils.showMobileToast('Please select a valid option');
                                             return;
                                           }
-                                          // log("🔹 Maintenance CheckList Data: ${maintenanceCheckListData.toString()}", name: "DEBUG");
-                                          // log("🔹 Item Data: ${item.toString()}", name: "DEBUG");
-                                          // log("🔹 Selected Dropdown Value: ${selectedDropdownValues[item['id']]}", name: "DEBUG");
-                                          // log("🔹 Selected ID: $selectedId", name: "DEBUG");
                                           maintenanceTaskId = '${maintenanceCheckListData['id']}-${item['id']}-$selectedId';
                                           notes = '${maintenanceCheckListData['name']}-${item['name']}-${selectedDropdownValues[item['id']] ?? "Unknown"}';
-                                          // log("🔹 Final Maintenance Task ID: $maintenanceTaskId", name: "DEBUG");
-                                          // log("🔹 Final Notes: $notes", name: "DEBUG");
+
                                           CreateFixTaskData createFixTaskData = CreateFixTaskData()
                                             ..userId = widget.todoItems['user_id']
                                             ..userGroupId = int.tryParse(widget.todoItems['user_group_id']?.toString() ?? '0') ?? 0
@@ -258,19 +248,17 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                                             ..vendorId = widget.todoItems['vendor_id']
                                             ..vendorName = widget.todoItems['vendor_name'];
 
-                                          // log("🔹 CreateFixTaskData: ${createFixTaskData.toString()}", name: "DEBUG");
-
                                           todoViewBloc!.add(AddFixTask(createFixTaskData: createFixTaskData));
 
                                           await Future.delayed(const Duration(seconds: 2));
                                           Utils.showMobileToast('Fix Task Created');
 
                                         } catch (e, stackTrace) {
-                                          log("❌ Error creating task: $e\n$stackTrace", name: "TASK ERROR");
+                                          log("Error creating task: $e\n$stackTrace", name: "TASK ERROR");
                                           Utils.showMobileToast('Error creating task: $e');
                                         } finally {
                                           setState(() {
-                                            isLoading = false; // ✅ Hide loading after task creation
+                                            isLoading = false;
                                           });
                                         }
                                       },
