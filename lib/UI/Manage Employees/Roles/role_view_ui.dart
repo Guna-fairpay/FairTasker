@@ -52,8 +52,9 @@ class _RoleViewUIState extends State<RoleViewUI> {
           name: newRole['name'],
           id: newRole['id'],
           permissions: newRole['permissions']));
+      rolesBloc.add(const GetRolesData());
     }
-    rolesBloc.add(const GetRolesData());
+
   }
 
   void _navigateToEditRoleUI(int index) async {

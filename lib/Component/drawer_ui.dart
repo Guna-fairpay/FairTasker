@@ -108,15 +108,15 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 ),
                 _buildDivider(),
                 _buildListTile(
-                  icon: Icons.file_copy,
-                  title: "Reports",
-                  onTap: () => navigateToPage(const ReportsView()),
-                ),
-                _buildDivider(),
-                _buildListTile(
                   icon: Icons.manage_accounts,
                   title: "Manage Employees",
                   onTap: () => navigateToPage(const ManageEmployees()),
+                ),
+                _buildDivider(),
+                _buildListTile(
+                  icon: Icons.file_copy,
+                  title: "Reports",
+                  onTap: () => navigateToPage(const ReportsView()),
                 ),
                 _buildDivider(),
                 _buildListTile(
@@ -179,7 +179,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Utils.getText(
-            "Version: 1.0",
+            "Version: 1.0.3",
             color: Colors.grey.withOpacity(0.99),
           ),
         ]),

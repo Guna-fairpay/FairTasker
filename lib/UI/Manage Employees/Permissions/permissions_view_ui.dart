@@ -1,7 +1,9 @@
 import 'package:fairpytasker/Bloc/permission_bloc.dart';
 import 'package:fairpytasker/Event/permission_event.dart';
 import 'package:fairpytasker/State/permission_state.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
@@ -19,9 +21,9 @@ class PermissionsViewUI extends StatefulWidget {
 }
 
 class _PermissionsViewUIState extends State<PermissionsViewUI> {
-  late PermissionBloc permissionBloc;
+
+  final PermissionBloc permissionBloc = PermissionBloc();
   final TextEditingController searchController = TextEditingController();
-  final FocusNode searchFocusNode = FocusNode();
   List<Map<String, dynamic>> permissions = [];
   List<Map<String, dynamic>> filterPermissions = [];
   bool loading = false;
@@ -29,7 +31,6 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
   @override
   void initState() {
     super.initState();
-    permissionBloc = PermissionBloc();
   }
 
   void _filterPermissions(String query) {
@@ -45,7 +46,7 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
   Future<void> _navigateToPermissionAddUI() async {
     final newPermission = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) => const PermissionsAddUI()),
+      MaterialPageRoute(builder: (context) => const PermissionsAddUI(),allowSnapshotting: false),
     );
 
     if (newPermission != null) {
@@ -54,7 +55,6 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
         id: newPermission['id'],
       ));
       permissionBloc.add(const GetPermissionData());
-      Utils.showMobileToast('Permission Added Successfully');
     }
   }
 
@@ -63,55 +63,25 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            PermissionsEditUI(permissions: permissions[index]),
+            PermissionsEditUI(permissions: filterPermissions[index]),
       ),
     );
-
     if (updatedPermission != null) {
       permissionBloc.add(AddPermissionData(
         name: updatedPermission['name'],
         id: updatedPermission['id'],
       ));
       permissionBloc.add(const GetPermissionData());
-      Utils.showMobileToast('Permission Updated Successfully');
     }
   }
 
   Future<void> _deletePermission(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context ,'Permission?');
     if (confirmed == true) {
       final delete = permissions[index];
       permissionBloc.add(DeletePermissionData(id: delete['id'].toString()));
       permissionBloc.add(const GetPermissionData());
-      Utils.showMobileToast('Department Deleted Successfully');
     }
-  }
-
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content:
-            Utils.getText('Are you sure you want to delete this permission?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -124,140 +94,99 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar:AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: const Text('Permissions'),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+          )
+          ],
       ),
       body: BlocProvider(
         create: (context) => permissionBloc..add(const GetPermissionData()),
         child: BlocConsumer<PermissionBloc, PermissionState>(
             listener: (context, state) {
           if (state is PermissionLoading) {
-            loading = true;
-          } else if (state is PermissionListLoaded) {
-            loading = false;
-            permissions.clear();
-            permissions.addAll(state.data ?? []);
-            filterPermissions.addAll(state.data ?? []);
-            filterPermissions = List.from(state.data ?? []);
-          } else if (state is PermissionLoaded) {
-            loading = false;
-            permissions.clear();
-            permissionBloc.add(const GetPermissionData());
+            EasyLoading.show();
           } else {
-            permissionBloc.add(const GetPermissionData());
-            loading = true;
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is PermissionListLoaded) {
+              permissions.clear();
+              filterPermissions.clear();
+              permissions.addAll(state.data ?? []);
+              permissions.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+                  .compareTo(DateTime.parse(a['created_at'] ?? '')));
+              filterPermissions.addAll(permissions);
+            } else if (state is PermissionLoaded) {
+              Utils.showMobileToast(state.message);
+              permissionBloc.add(const GetPermissionData());
+            } else {
+              permissionBloc.add(const GetPermissionData());
+            }
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 20.0, right: 20, bottom: 20, top: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          return SafeArea(
+            minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Row(
+                  spacing: 10,
                   children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back)),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Utils.getText('Permissions List',
-                            weight: FontWeight.bold, size: 20),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: Utils.getSearchBarUI(onChange: _filterPermissions, searchController: searchController),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          height: 40,
-                          child: Utils.getAddFilledButton(
-                              'Add', _navigateToPermissionAddUI),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: filterPermissions.length,
-                        itemBuilder: (_, index) {
-                          return Slidable(
-                            key: ValueKey(filterPermissions[index]),
-                            endActionPane: ActionPane(
-                              motion: const DrawerMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) =>
-                                      _deletePermission(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                              ],
-                            ),
-                            child: GestureDetector(
-                              onTap: () => _navigateToEditPermissionUI(index),
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                color: AppC.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Utils.getText(
-                                              '${filterPermissions[index]['name'] ?? ''} ',
-                                              weight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                      child: Utils.getSearchBarUI(onChange: _filterPermissions, searchController: searchController),
                     ),
+                    Utils.getAddElevatedButton(_navigateToPermissionAddUI),
                   ],
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                Expanded(
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) =>const Divider(height: 0.5,),
+                    itemCount: filterPermissions.length,
+                    itemBuilder: (_, index) {
+                      final name = filterPermissions[index];
+                      return InkWell(
+                        onTap: () => _navigateToEditPermissionUI(index),
+                        child: SafeArea(
+                          minimum: 10.padding,
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Utils.getText(
+                                      name['name'] ?? '',
+                                      weight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap:()=> _deletePermission(index),
+                                      child: const Icon(
+                                          Icons.delete_outline,
+                                        color: AppC.redAccent,
+                                      )
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }
