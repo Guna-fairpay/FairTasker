@@ -33,6 +33,28 @@ class EmployeeRepository {
     }
   }
 
+  Future<EditEmployeeResponse?> getEditEmployee({int? id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}editUser/$id";
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          EditEmployeeResponse employeeResponse =
+          EditEmployeeResponse.fromJson(json.decode(response.body));
+          return employeeResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('userList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
   Future<EmployeeResponse?> createEmployee(
     int? id,
     String? department,

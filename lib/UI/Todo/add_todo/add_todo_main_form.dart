@@ -20,7 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTodoMainForm extends StatelessWidget {
   final bool showHeader;
-  const AddTodoMainForm({super.key, this.showHeader = false});
+  const AddTodoMainForm({super.key, this.showHeader = true});
 
   @override
   Widget build(BuildContext context) {

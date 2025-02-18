@@ -118,8 +118,6 @@ class _PermissionsViewUIState extends State<PermissionsViewUI> {
               permissions.clear();
               filterPermissions.clear();
               permissions.addAll(state.data ?? []);
-              permissions.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
-                  .compareTo(DateTime.parse(a['created_at'] ?? '')));
               filterPermissions.addAll(permissions);
             } else if (state is PermissionLoaded) {
               Utils.showMobileToast(state.message);
