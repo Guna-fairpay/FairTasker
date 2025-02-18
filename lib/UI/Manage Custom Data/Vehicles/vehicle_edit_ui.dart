@@ -33,10 +33,6 @@ class VehicleEditUI extends StatefulWidget {
   VehicleEditUI(
       {super.key, required this.vehicle, this.showHeader = true, this.data,required this.todoItems, this.userGroupList, this.resourceList, this.categoriesListData, this.addressesList, this.multipleLocationList})
   {
-    print("vehicle on vehicleEdit ${vehicle}");
-    d.log("vehicle" ,name: vehicle.toString());
-    d.log("vehicle" ,name: data.toString());
-    d.log("todoItems--->" ,name: todoItems.toString());
   }
   @override
   State<VehicleEditUI> createState() => _VehicleEditUIState();
@@ -221,244 +217,10 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     if (widget.showHeader == false) {
       showMore = true;
     }
-    print("tollImage $tollImage");
-    d.log("$tollImage", name: "vehicle_edit");
-    d.log("${widget.showHeader}", name: "showHeader");
   }
 
-  //  @override
-  // void didUpdateWidget(covariant VehicleEditUI oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   if (oldWidget.vehicle != widget.vehicle) {
-  //     setState(() {
-  //       yearController =
-  //           TextEditingController(text: widget.vehicle['year'] ?? '');
-  //       makeController =
-  //           TextEditingController(text: widget.vehicle['make'] ?? '');
-  //       modelController =
-  //           TextEditingController(text: widget.vehicle['model'] ?? '');
-  //       numberPlateController =
-  //           TextEditingController(text: widget.vehicle['vehicle_number'] ?? '');
-  //       vinController =
-  //           TextEditingController(text: widget.vehicle['vin'] ?? '');
-  //       purchaseDateController =
-  //           TextEditingController(text: widget.vehicle['purchase_date'] ?? '');
-  //       vehicleIdController = TextEditingController(
-  //           text: (widget.vehicle['vehicle_id'] ?? '').toString());
-  //       purchasePriceController = TextEditingController(
-  //           text: (widget.vehicle['purchase_price'] ?? '').toString());
-  //       earningsController = TextEditingController(
-  //           text: (widget.vehicle['earnings'] ?? '').toString());
-  //       utilizationRateController = TextEditingController(
-  //           text: (widget.vehicle['utilization_rate'] ?? '').toString());
-  //       platformController = TextEditingController(
-  //           text: (widget.vehicle['platform'] ?? '').toString());
-  //       mileageController = TextEditingController(
-  //           text: (widget.vehicle['mileage'] ?? '').toString());
-  //       wholeSaleAmountController = TextEditingController(
-  //           text: (widget.vehicle['wholesale_amount'] ?? '').toString());
-  //       addressController =
-  //           TextEditingController(text: widget.vehicle['address'] ?? '');
-  //       carNumberController = TextEditingController(
-  //           text: (widget.vehicle['car_number'] ?? '').toString());
-  //       oilGradeController =
-  //           TextEditingController(text: widget.vehicle['oil_grade'] ?? '');
-  //       frontTireController =
-  //           TextEditingController(text: widget.vehicle['front_tire'] ?? '');
-  //       rearTireController =
-  //           TextEditingController(text: widget.vehicle['rear_tire'] ?? '');
-  //       renewalDateController = TextEditingController(
-  //           text: widget.vehicle['registration_renewal_date'] ?? '');
-  //       currentOdometerController =
-  //           TextEditingController(
-  //               text: widget.vehicle['current_odometer'] ?? '');
-  //       oilChangeOdometerController = TextEditingController(
-  //           text: widget.vehicle['oil_change_odometer'] ?? '');
-  //       maintenanceCheckController =
-  //           TextEditingController(
-  //               text: widget.vehicle['maintenance_check'] ?? '');
-  //       tollTagsIdController =
-  //           TextEditingController(text: widget.vehicle['toll_tags_id'] ?? '');
-  //       spareTireController =
-  //           TextEditingController(text: widget.vehicle['tire_size'] ?? '');
-  //       insuranceCostController =
-  //           TextEditingController(text: widget.vehicle['insurance_cost'] ?? '');
-  //       insuranceAgentController =
-  //           TextEditingController(
-  //               text: widget.vehicle['insurance_agent'] ?? '');
-  //       for (Map<String, dynamic> c in cohortsData) {
-  //         if (c['id'] == widget.vehicle['cohort_id']) {
-  //           selectedCohortsData = c;
-  //         }
-  //       }
-  //       for (Map<String, dynamic> c in categoriesData) {
-  //         if (c['id'] == widget.vehicle['vehicle_status']) {
-  //           selectedCategoriesData = c;
-  //         }
-  //       }
-  //       selectedVehicleStatus =
-  //       (widget.vehicle['active'] ?? vehicleStatusList[1]) == 1
-  //           ? vehicleStatusList[0]
-  //           : vehicleStatusList[1];
-  //       vehicleImageFile = (widget.vehicle['images'] as List<dynamic>?)
-  //           ?.where((image) => image['vehicle_image_type'] == 1)
-  //           .toList() ??
-  //           [];
-  //
-  //       var tireImages = (widget.vehicle['images'] as List<dynamic>?)
-  //           ?.where((image) => image['vehicle_image_type'] == 2)
-  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-  //           .toList() ??
-  //           [];
-  //       tireImageFile.addAll(tireImages);
-  //
-  //       var tollImages = (widget.vehicle['images'] as List<dynamic>?)
-  //           ?.where((image) => image['vehicle_image_type'] == 5)
-  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-  //           .toList() ??
-  //           [];
-  //       tollImage.addAll(tollImages);
-  //
-  //       var uploadRegStickers = (widget.vehicle['images'] as List<dynamic>?)
-  //           ?.where((image) => image['vehicle_image_type'] == 3)
-  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-  //           .toList() ??
-  //           [];
-  //       uploadRegSticker.addAll(uploadRegStickers);
-  //
-  //       var insuranceImages = (widget.vehicle['images'] as List<dynamic>?)
-  //           ?.where((image) => image['vehicle_image_type'] == 4)
-  //           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
-  //           .toList() ??
-  //           [];
-  //       insuranceImage.addAll(insuranceImages);
-  //       receiptImageFile.addAll(
-  //           widget.vehicle['expenses']?['attachments'] ?? []);
-  //       bouncie = (widget.vehicle['bouncie'] == 1);
-  //       airTag = (widget.vehicle['air_tag'] == 1);
-  //       permanentPlate = (widget.vehicle['permanent_plate'] == 1);
-  //       spareTire = (widget.vehicle['spare_tire'] == 1);
-  //       spareKey = (widget.vehicle['spare_key'] == 1);
-  //       permanentPlate = (widget.vehicle['permanent_plate'] == 1);
-  //       frontLicensePlate = (widget.vehicle['front_license_plate'] == 1);
-  //       tollTags = (widget.vehicle['toll_tags'] == 1);
-  //     });
-  //   }
-  // }
-  // //
-  // void _load(Map<String, dynamic> data) {
-  //   setState(() {
-  //     createVehicleData = CreateVehicleData()
-  //       ..id = data["id"]
-  //       ..year = data["year"]
-  //       ..make = data["make"]
-  //       ..model = data["model"]
-  //       ..vehicleNumber = data["vehicleNumber"]
-  //       ..insuranceImage = (data["insuranceImage"] as List<dynamic>)
-  //           .map((path) => File(path))
-  //           .toList() // ✅ Convert paths back to File objects
-  //       ..tollImage = (data["tollImage"] as List<dynamic>)
-  //           .map((path) => File(path))
-  //           .toList()
-  //       ..tireImage = (data["tireImage"] as List<dynamic>)
-  //           .map((path) => File(path))
-  //           .toList();
-  //   });
-  // }
-  // Helper function to convert int to bool
-  // bool intToBool(int value) {
-  //   return value == 1;
-  // }
-
-  // void printVehicleDetails(Map<String, dynamic> vehicle) {
-  //   TextEditingController yearController = TextEditingController(text: vehicle['year'] ?? '');
-  //   TextEditingController makeController = TextEditingController(text: vehicle['make'] ?? '');
-  //   TextEditingController modelController = TextEditingController(text: vehicle['model'] ?? '');
-  //   TextEditingController numberPlateController = TextEditingController(text: vehicle['vehicle_number'] ?? '');
-  //   TextEditingController vinController = TextEditingController(text: vehicle['vin'] ?? '');
-  //   TextEditingController purchaseDateController = TextEditingController(text: vehicle['purchase_date'] ?? '');
-  //   TextEditingController vehicleIdController = TextEditingController(text: (vehicle['vehicle_id'] ?? '').toString());
-  //   TextEditingController purchasePriceController = TextEditingController(text: (vehicle['purchase_price'] ?? '').toString());
-  //   TextEditingController earningsController = TextEditingController(text: (vehicle['earnings'] ?? '').toString());
-  //   TextEditingController utilizationRateController = TextEditingController(text: (vehicle['utilization_rate'] ?? '').toString());
-  //   TextEditingController platformController = TextEditingController(text: (vehicle['platform'] ?? '').toString());
-  //   TextEditingController mileageController = TextEditingController(text: (vehicle['mileage'] ?? '').toString());
-  //   TextEditingController wholeSaleAmountController = TextEditingController(text: (vehicle['wholesale_amount'] ?? '').toString());
-  //   TextEditingController addressController = TextEditingController(text: vehicle['address'] ?? '');
-  //   TextEditingController carNumberController = TextEditingController(text: (vehicle['car_number'] ?? '').toString());
-  //   TextEditingController oilGradeController = TextEditingController(text: vehicle['oil_grade'] ?? '');
-  //   TextEditingController frontTireController = TextEditingController(text: vehicle['front_tire'] ?? '');
-  //   TextEditingController rearTireController = TextEditingController(text: vehicle['rear_tire'] ?? '');
-  //   TextEditingController renewalDateController = TextEditingController(text: vehicle['registration_renewal_date'] ?? '');
-  //   TextEditingController currentOdometerController = TextEditingController(text: vehicle['current_odometer'] ?? '');
-  //   TextEditingController oilChangeOdometerController = TextEditingController(text: vehicle['oil_change_odometer'] ?? '');
-  //   TextEditingController maintenanceCheckController = TextEditingController(text: vehicle['maintenance_check'] ?? '');
-  //   TextEditingController tollTagsIdController = TextEditingController(text: vehicle['toll_tags_id'] ?? '');
-  //   TextEditingController spareTireController = TextEditingController(text: vehicle['tire_size'] ?? '');
-  //   TextEditingController insuranceCostController = TextEditingController(text: (vehicle['insurance_cost'] ?? '').toString());
-  //   TextEditingController insuranceAgentController = TextEditingController(text: vehicle['insurance_agent'] ?? '');
-  //
-  //
-  //   // Print the values -  Use debugPrint for console output in Flutter
-  //   debugPrint('Year: ${yearController.text}');
-  //   debugPrint('Make: ${makeController.text}');
-  //   debugPrint('Model: ${modelController.text}');
-  //   debugPrint('Number Plate: ${numberPlateController.text}');
-  //   debugPrint('VIN: ${vinController.text}');
-  //   debugPrint('Purchase Date: ${purchaseDateController.text}');
-  //   debugPrint('Vehicle ID: ${vehicleIdController.text}');
-  //   debugPrint('Purchase Price: ${purchasePriceController.text}');
-  //   debugPrint('Earnings: ${earningsController.text}');
-  //   debugPrint('Utilization Rate: ${utilizationRateController.text}');
-  //   debugPrint('Platform: ${platformController.text}');
-  //   debugPrint('Mileage: ${mileageController.text}');
-  //   debugPrint('Wholesale Amount: ${wholeSaleAmountController.text}');
-  //   debugPrint('Address: ${addressController.text}');
-  //   debugPrint('Car Number: ${carNumberController.text}');
-  //   debugPrint('Oil Grade: ${oilGradeController.text}');
-  //   debugPrint('Front Tire: ${frontTireController.text}');
-  //   debugPrint('Rear Tire: ${rearTireController.text}');
-  //   debugPrint('Renewal Date: ${renewalDateController.text}');
-  //   debugPrint('Current Odometer: ${currentOdometerController.text}');
-  //   debugPrint('Oil Change Odometer: ${oilChangeOdometerController.text}');
-  //   debugPrint('Maintenance Check: ${maintenanceCheckController.text}');
-  //   debugPrint('Toll Tags ID: ${tollTagsIdController.text}');
-  //   debugPrint('Spare Tire: ${spareTireController.text}');
-  //   debugPrint('Insurance Cost: ${insuranceCostController.text}');
-  //   debugPrint('Insurance Agent: ${insuranceAgentController.text}');
-  //
-  //   // Dispose of the controllers when they are no longer needed to prevent memory leaks.  VERY IMPORTANT!
-  //   yearController.dispose();
-  //   makeController.dispose();
-  //   modelController.dispose();
-  //   numberPlateController.dispose();
-  //   vinController.dispose();
-  //   purchaseDateController.dispose();
-  //   vehicleIdController.dispose();
-  //   purchasePriceController.dispose();
-  //   earningsController.dispose();
-  //   utilizationRateController.dispose();
-  //   platformController.dispose();
-  //   mileageController.dispose();
-  //   wholeSaleAmountController.dispose();
-  //   addressController.dispose();
-  //   carNumberController.dispose();
-  //   oilGradeController.dispose();
-  //   frontTireController.dispose();
-  //   rearTireController.dispose();
-  //   renewalDateController.dispose();
-  //   currentOdometerController.dispose();
-  //   oilChangeOdometerController.dispose();
-  //   maintenanceCheckController.dispose();
-  //   tollTagsIdController.dispose();
-  //   spareTireController.dispose();
-  //   insuranceCostController.dispose();
-  //   insuranceAgentController.dispose();
-  // }
 
   void _save() async {
-    print("----> Save function triggered");
-
     // Validate required fields
     setState(() {
       isYearFieldEmpty = yearController.text.isEmpty;
@@ -718,9 +480,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           }
           else if (state is DropdownVehicleDataLoaded)
           {
-            print("vehicle data ${widget.vehicle['vehicle_name']}");
-            print("dropDownData ${widget.data}");
-
             createExpenseFieldData = state.createExpenseFieldData;
 
             if (state.createExpenseFieldData != null) {
@@ -752,8 +511,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             });
           }
           else if (state is VehicleDataUpdatedState) {
-            print("VehicleDataUpdatedState");
-            print("widget.vehicle (before): ${widget.vehicle}");
             setState(() {
               widget.vehicle = state.updatedVehicle;
               loading = false;
@@ -1015,9 +772,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       .getSingleImage(ImageSource.gallery)
                                       .then((value) {
                                     if (value != null) {
-                                      //debugPrint('value.path: ${value.path}');
-                                      // Attachments ve = Attachments(
-                                      //     file: value, path: '');
                                       receiptImageFile
                                           .add({'file': value, 'path': ''});
                                       setState(() {});
@@ -1172,9 +926,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             .getSingleImage(ImageSource.gallery)
                                             .then((value) {
                                           if (value != null) {
-                                            //debugPrint('value.path: ${value.path}');
-                                            // VehiclesImages ve = VehiclesImages(
-                                            //     file: value, path: '');
                                             vehicleImageFile.add(
                                                 {'file': value, 'path': ''});
                                             setState(() {});
@@ -1590,7 +1341,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                                       tollImage[index].split('/').last == image['path'].split('/').last,
                                                       orElse: () => null)
                                                   ?['id'];
-                                                  print("tollImageId: $tollImageId");
                                                   if (tollImageId != null) {
                                                     context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: tollImageId));
                                                     tollImage.removeAt(index);
@@ -1640,7 +1390,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       widget.vehicle['spare_key'] =
                                       spareKey ? 1 : 0;
                                     });
-                                    print("spareKey: $spareKey");
                                   },
                                   label: 'Spare Key',
                                 ),

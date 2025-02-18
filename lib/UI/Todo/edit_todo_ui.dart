@@ -2,18 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
-import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
-import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/Utilities/priority_data.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
@@ -23,7 +20,6 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart' as vdb;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -445,8 +441,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         Utils.convertStringToDateTime(todoItem['todo_date'] ?? '');
     editTodoDateController.text = todoItem['todo_date'] ?? '';
     timeSensitive = (todoItem['time_sensitive'] == 1);
-    debugPrint(
-        'todoItem!.todoTime|allDay: ${todoItem['todo_time'] ?? 'allDay is true'}');
 
     if (todoItem['todo_time'] != null && todoItem['todo_time']!.isNotEmpty) {
       todoListRepo.chosenDateTime = DateTime.now().copyWith(
@@ -460,12 +454,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     } else {
       editAllDay = true;
     }
-
-    debugPrint('todoItem!.reminder: ${todoItem['reminder'] ?? ''}');
     editReminder = (todoItem['reminder'] ?? 'false') == 'true' ? true : false;
-
-    debugPrint('userName: $userGroupConcatenationName');
-    debugPrint('userName-1: $userShortName');
 
     if (todoItem['vin'] == null) {
       if (todoItem['vehicles'] is List && todoItem['vehicles'].isNotEmpty && todoItem['vehicles'].length==1) {
@@ -495,8 +484,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
       (item) => item['id'] == (todoItem['custom_link_id']?.toString() ?? '1'),
       orElse: () => {},
     );
-    //print("todoItem ${todoItem['custom_link_id']}");
-    //print("selectedLink----> $selectedLink");
     reservationController.text = todoItem['reference_id'] ?? "";
     reasonController.addListener(() {
 
@@ -531,7 +518,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
-    //print("widget.todoItem ${widget.todoItem}");
 
     super.initState();
   }
@@ -546,18 +532,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
   bool isMaintenanceLoaded = false;
 
   void updateSelectedDropDownData(List<Map<String, dynamic>> vehicleList, Map<String, dynamic> selectedDropDownData) {
-    print("Function called updateSelectedDropDownData");
+
     var vehicle = vehicleList.firstWhere(
           (v) => v['vehicle_name'] == selectedDropDownData['vehicle_name'],
       orElse: () => {},
     );
-    print("vehicle matched id ${vehicle}");
     if (vehicle.isNotEmpty) {
       setState(() {
         DropDownData=vehicle;
       });
     } else {
-      print("No matched data");
     }
   }
 
@@ -589,7 +573,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   if (selectedFiles.isNotEmpty) {
                     todoImages.addAll(selectedFiles.map((e) => File(e)).toList());
                     /*for (var filePath in selectedFiles) {
-                      debugPrint('filePath: $filePath');
                       // Add each image to your todoImages list
                       todoImages.add({
                         'path': filePath,
@@ -606,9 +589,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
               visible: todoImages.isNotEmpty,
               child: GestureDetector(
                 onTap: () {
-                  //final imagePath = todoImages;
-                  //const int initialIndex = 0; // Or any index from your list
-                  //_showImageDialog(imagePath, initialIndex);
                   ShowAttachmentsDialog.of.show(context, attachments: todoImages, title: "");
                 },
                 child: const Padding(
@@ -657,7 +637,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       const BottomNavigationForTaskView(
                                         selectedIndex: 0,
                                         message: '',
-                                      )));
+                                      )
+                              )
+                          );
                         }),
                   ),
                 ),
@@ -728,10 +710,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 listener: (context, state) async {
                   if (state is VehicleDataLoaded) {
                     vehicleList.addAll(state.vehicleData ?? []);
-                    for(var item in vehicleList)
-                      {
-                        print("vehicleList loaded data ${item['vehicle_name']}");
-                      }
                     editMultipleVehicleList.addAll(state.vehicleData ?? []);
                     if (vinToFind != null) {
                       vehicle = vehicleList.firstWhere(
@@ -809,7 +787,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     maintenanceCheckListData.clear();
                     childrenData.clear();
                     maintenanceCheckListData.addAll(state.data ?? []);
-                    //print("maintenanceCheckListData ${maintenanceCheckListData}");
                     setState(() {
                       isDataLoaded = true;
                     });
@@ -997,7 +974,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   }
                   else if (state is ExpenseTodoLoaded) {
                     expenseData = state.expenseSummaryData??{};
-                    // print("expenseData: $expenseData");
                     setState(() {
                       isDataLoaded = true;
                     });
@@ -1060,7 +1036,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       todoList.addAll(state.vehicleHistoryList!);
                       todoListRepo.vehicleHistoryTempSearchList
                           .addAll(/*todoList*/ state.vehicleHistoryList!);
-                      // debugPrint('cleancar.title: ${(todoListRepo.vehicleHistoryTempSearchList)[0].title ?? ''}');
 
                       /*if (todoList.isNotEmpty) {
                         if (todoList.first.title == 'clean car'){
@@ -1143,7 +1118,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                         //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
                                         // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                         //   multipleLocationList: widget.multipleLocationList,)
-
                                         VehicleEditUI(vehicle:
                                         selectedDropDownData == null ? setVehicleList : DropDownData,showHeader: false, data: selectedDropDownData,
                                           todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
@@ -1174,10 +1148,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             || (state is! UserGroupListLoaded)),
                             child: Center(child: Utils.getProgressIndicator(context))
                         )
-                        // Visibility(
-                        //     visible: isDataLoaded,
-                        //     child: Center(child: Utils.getProgressIndicator(context))
-                        // )
                       ],
                     ),
                   );
@@ -1403,7 +1373,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           if (value.isNotEmpty) {
                             List<dynamic> multipleVehicleList =
                                 editMultipleVehicleList;
-                            print("editMultipleVehicleList ${editMultipleVehicleList}");
                             editMultipleVehicleSuggestionList.addAll(
                                 Utils.searchObjectList(
                                     multipleVehicleList, value,
@@ -1464,8 +1433,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               'Vendor / Location', editVendorLocationController,
                               readOnly: false, onChangeCallback: (value) {
                             if (value.isNotEmpty) {
-                              // String textCurrentlyEditing = getTextBeforeCursor();
-                              // debugPrint('textCurrentlyEditing: $textCurrentlyEditing');
                               vendorLocationSuggestionList.clear();
                               List vendorLocationList = vendorList
                                       .map((e) => e['name'] ?? '')
@@ -2378,7 +2345,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           showExpenseTab = 4;
                           updateSelectedDropDownData(vehicleList, selectedDropDownData);
                         });
-                        print("selected vehicle details ${selectedDropDownData}");
                       },
                       labelKey: 'vehicle_name',
                       initialSelection: selectedVin,
@@ -2511,7 +2477,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     showExpenseTab = tabs
         .where((element) => element['label'] == tabTitle)
         .firstOrNull?['index'] ?? 0;
-    print("todoItem ${showExpenseTab}");
     return
       Visibility(
         visible: isDataLoaded,
@@ -2988,11 +2953,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
       }
 
       editCreateTodoParams.timeSensitive = timeSensitive ? 1 : 0;
-      debugPrint(
-          'existingUserGroupId: ${editCreateTodoParams.existingUserGroupId}');
-      debugPrint('selectedUserId: ${editCreateTodoParams.selectedUserId}');
-      debugPrint(
-          'selectedUserGroupId: ${editCreateTodoParams.selectedUserGroupId}');
       if (isPartChecked) {
         for (var parts in selectedPartsList) {
           var matchedPart =
@@ -3232,8 +3192,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         if (veh['name'] == editVendorLocationController.text.trim()) {
           createTodoParams.location = veh['name'];
           createTodoParams.locationId = veh['id']!.toString();
-          debugPrint(
-              'createTodoParams.locationId: ${createTodoParams.locationId}');
         }
       }
     }
