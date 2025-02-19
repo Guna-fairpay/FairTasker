@@ -145,7 +145,6 @@ class Utils {
             bottomRight: Radius.circular(bottomRRadius))
       ),
       child: DropdownMenu<dynamic>(
-
         key: ValueKey(selectedKey),
         initialSelection: initialSelection,
         hintText: hintText,
@@ -158,9 +157,9 @@ class Utils {
           hintStyle: TextStyle(color: AppC.grey),
           contentPadding: EdgeInsets.all(10),
           border: InputBorder.none,
-          isCollapsed: true,
+          isCollapsed: false,
           isDense: true,
-          constraints: BoxConstraints(maxHeight: 40)
+          constraints: BoxConstraints(minHeight: 40)
         ),
         menuStyle: MenuStyle(
           backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
@@ -173,7 +172,7 @@ class Utils {
             return  DropdownMenuEntry<Map<String, dynamic>>(
               value: value,
               label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
-            ) ;
+            );
           },
         ).toList(),
         onSelected: (selectedValue) {
@@ -2824,9 +2823,9 @@ class Utils {
     }
   }
 
-  static void openURL(String url) async {
-    if (!url.isNetworkURL) return;
-    final Uri uri = Uri.parse(url);
+  static void openURL(String url, {bool isFile = false}) async {
+    // if ((!url.isNetworkURL) && (isFile)) return;
+    final Uri uri = isFile ? Uri.file(url) : Uri.parse(url);
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(

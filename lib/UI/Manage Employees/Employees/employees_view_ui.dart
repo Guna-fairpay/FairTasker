@@ -61,7 +61,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
       context,
       MaterialPageRoute(builder: (context) => const EmployeesAddUI()),
     );
-
     if (newEmployees != null) {
       employeeBloc.add(
         AddEmployeeData(
@@ -75,7 +74,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
             role: newEmployees['role']),
       );
       employeeBloc.add(const GetEmployeeData());
-      Utils.showMobileToast('Employee Added Successfully!');
     }
   }
 
@@ -97,10 +95,9 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
             email: updatedEmployee['email'],
             phone: updatedEmployee['phone'],
             department: updatedEmployee['departments'],
-            role: int.parse(updatedEmployee['role'])),
+            role:updatedEmployee['role']),
       );
       employeeBloc.add(const GetEmployeeData());
-      Utils.showMobileToast('Employee Updated Successfully');
     }
   }
 

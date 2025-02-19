@@ -2,6 +2,7 @@ import 'package:fairpytasker/Bloc/leave_management_bloc.dart';
 import 'package:fairpytasker/Event/leave_management_event.dart';
 import 'package:fairpytasker/State/leave_management_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../Component/drawer_ui.dart';
 import '../../Component/header.dart';
@@ -23,6 +24,7 @@ class LeaveManagementViewUI extends StatefulWidget {
 }
 
 class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
+
   late LeaveManagementBloc leaveManagementBloc;
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
@@ -85,14 +87,6 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      searchFocusNode.unfocus();
-    });
-  }
-
   void _onFilterChanged(dynamic value) {
     setState(() {
       selectedName = value;
@@ -112,8 +106,19 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
       context,
       MaterialPageRoute(builder: (context) => const LeaveManagementAddUI()),
     );
-
-    if (newLeave != null) {}
+    if (newLeave != null) {
+      leaveManagementBloc.add(AddLeaveManagementData(
+          leaveTypeId:newLeave['leave_type_id'],
+          startDate: newLeave['start_date'],
+          endDate: newLeave['end_date'],
+          reason: newLeave['reason'],
+          startTime: newLeave['start_time'],
+          endTime: newLeave['end_time'],
+          status: newLeave['status']??'',
+          userId: int.parse(userId!),
+          id: newLeave['id']));
+      leaveManagementBloc.add(const GetLeaveManagementEmployeeListData());
+    }
   }
 
   void _navigateToLeaveManagementEditUI(int index) async {
@@ -153,9 +158,16 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text('Leave Management'),
+        foregroundColor: Colors.white,
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+              onPressed: ()=> Navigator.pop(context),
+              icon: const Icon(Icons.close))
+        ],
       ),
       body: BlocProvider(
         create: (context) =>
@@ -163,18 +175,20 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
         child: BlocConsumer<LeaveManagementBloc, LeaveManagementState>(
             listener: (context, state) async {
           if (state is LeaveManagementLoading) {
-            loading = true;
-          } else if (state is LeaveManagementListLoaded) {
-            loading = false;
-            leaveManagementList.clear();
-            leaveManagementList.addAll(state.data ?? []);
-            filteredLeaveList.addAll(state.data ?? []);
-            filteredLeaveList = List.from(state.data ?? []);
-          } else if (state is LeaveManagementEmployeeListLoaded) {
-            employeesList.clear();
-            employeesList.addAll(state.data ?? []);
-            employeesList.insert(0, {'id': -1, 'first_name': 'All'});
-            selectedName = employeesList[0];
+            EasyLoading.show();
+          } else {
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is LeaveManagementListLoaded) {
+              leaveManagementList.clear();
+              leaveManagementList.addAll(state.data ?? []);
+              filteredLeaveList.addAll(state.data ?? []);
+              filteredLeaveList = List.from(state.data ?? []);
+            } else if (state is LeaveManagementEmployeeListLoaded) {
+              employeesList.clear();
+              employeesList.addAll(state.data ?? []);
+              employeesList.insert(0, {'id': -1, 'first_name': 'All'});
+              selectedName = employeesList[0];
+            }
           }
         }, builder: (context, state) {
           return Stack(
@@ -184,105 +198,19 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(
-                              Icons.arrow_back,
-                              size: 16,
-                            )),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Utils.getText('Leave Management',
-                            size: 16, weight: FontWeight.bold),
-                      ],
-                    ),
                     if (userRole == 'Admin' || userId == '3')
                       const SizedBox(
                         height: 5,
                       ),
                     if (userRole == 'Admin' || userId == '3')
-                      Container(
-                        height: 30,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton))),
-                        child: Stack(
-                          children: [
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: const Padding(
-                                padding: EdgeInsets.only(right: 20.0),
-                                child: Icon(
-                                  Icons.keyboard_arrow_down_sharp,
-                                  color: AppC.appColor,
-                                  size: 14,
-                                ),
-                              ),
-                            ),
-                            DropdownMenu<Map<String, dynamic>>(
-                              menuHeight: 250,
-                              initialSelection: selectedName,
-                              trailingIcon: const Icon(
-                                Icons.add,
-                                size: 12,
-                                color: AppC.trans,
-                              ),
-                              selectedTrailingIcon: const Icon(
-                                Icons.add,
-                                size: 12,
-                                color: AppC.trans,
-                              ),
-                              textStyle: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
-                              inputDecorationTheme: const InputDecorationTheme(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10),
-                                border: InputBorder.none,
-                                isDense: true,
-                                iconColor: AppC.trans,
-                              ),
-                              menuStyle: MenuStyle(
-                                backgroundColor: WidgetStateProperty.all<Color>(
-                                    Colors.white),
-                                shadowColor:
-                                    WidgetStateProperty.all<Color>(Colors.blue),
-                                surfaceTintColor:
-                                    WidgetStateProperty.all<Color>(Colors.blue),
-                                visualDensity: const VisualDensity(
-                                    vertical: VisualDensity.minimumDensity),
-                              ),
-                              expandedInsets:
-                                  const EdgeInsets.symmetric(horizontal: 0.0),
-                              dropdownMenuEntries: employeesList
-                                  .map<DropdownMenuEntry<Map<String, dynamic>>>(
-                                (Map<String, dynamic> value) {
-                                  final employeeName =
-                                      '${value['first_name'] ?? ''} ${value['last_name'] ?? ''}';
-                                  return DropdownMenuEntry<
-                                      Map<String, dynamic>>(
-                                    value: value,
-                                    label:
-                                        employeeName, // Replace with your widget
-                                  );
-                                },
-                              ).toList(),
-                              onSelected: (selectedValue) {
-                                setState(() {
-                                  _onFilterChanged(selectedValue);
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                      Utils.dropdownBox('All',
+                          employeesList, (value){
+                            setState(() {
+                              _onFilterChanged(value);
+                            });
+                          }, labelKey: 'first_name',
+                        labelKey2: 'last_name',
+                        initialSelection: selectedName,
                       ),
                     const SizedBox(
                       height: 10,

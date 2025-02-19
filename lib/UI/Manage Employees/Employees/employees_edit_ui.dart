@@ -61,8 +61,8 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
       'last_name': lastnameController.text,
       'email': emailController.text,
       'phone': mobileController.text,
-      'role': selectedRole ?? '',
-      'departments': selectedDepartment ?? '',
+      'role': selectedRole['id'],
+      'departments': selectedDepartment['id'].toString(),
     };
     Navigator.pop(context, updatedEmployees);
   }
