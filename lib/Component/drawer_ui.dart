@@ -179,7 +179,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Utils.getText(
-            "Version: 1.0.3",
+            "Version: 1.0.4",
             color: Colors.grey.withOpacity(0.99),
           ),
         ]),
