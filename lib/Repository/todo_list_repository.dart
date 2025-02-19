@@ -3205,6 +3205,7 @@ class TodoListRepo {
         "custom_link": createFixTaskData.customLink,
         "custom_link_id": createFixTaskData.customLinkId,
         "reference_id": createFixTaskData.referenceId,
+        "vehicle_number": createFixTaskData.vehicleNumber,
         "platform": "TaskerApp",
       });
       log("$body", name: "POST_BODY");

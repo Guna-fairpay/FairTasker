@@ -15,5 +15,6 @@ class CreateFixTaskData{
   String? customLink = '';
   String? referenceId = '';
   String? maintenanceTaskId = '';
+  String? vehicleNumber = '';
   List<dynamic>? vehicleList = [];
 }

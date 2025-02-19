@@ -11,8 +11,13 @@ import '../../../Utilities/appC.dart';
 class MaintenanceCheckListUI extends StatefulWidget {
   final List<Map<String, dynamic>> maintenance;
   final Map<String, dynamic> todoItems;
+  final Map<String, dynamic> vehicle;
 
-  const MaintenanceCheckListUI({super.key, required this.maintenance, required this.todoItems});
+  MaintenanceCheckListUI({super.key, required this.maintenance, required this.todoItems, required this.vehicle})
+  {
+    //log("${maintenance}", name: "MAINTENANCE_LIST");
+    log("${vehicle['vehicle_number']}", name: "vehicle");
+  }
 
   @override
   State<MaintenanceCheckListUI> createState() => _MaintenanceCheckListUIState();
@@ -232,7 +237,6 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                                           }
                                           maintenanceTaskId = '${maintenanceCheckListData['id']}-${item['id']}-$selectedId';
                                           notes = '${maintenanceCheckListData['name']}-${item['name']}-${selectedDropdownValues[item['id']] ?? "Unknown"}';
-
                                           CreateFixTaskData createFixTaskData = CreateFixTaskData()
                                             ..userId = widget.todoItems['user_id']
                                             ..userGroupId = int.tryParse(widget.todoItems['user_group_id']?.toString() ?? '0') ?? 0
@@ -246,10 +250,10 @@ class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
                                             ..location = widget.todoItems['location']
                                             ..locationId = widget.todoItems['location_id']
                                             ..vendorId = widget.todoItems['vendor_id']
-                                            ..vendorName = widget.todoItems['vendor_name'];
+                                            ..vendorName = widget.todoItems['vendor_name']
+                                            ..vehicleNumber = widget.vehicle['vehicle_number'];
 
                                           todoViewBloc!.add(AddFixTask(createFixTaskData: createFixTaskData));
-
                                           await Future.delayed(const Duration(seconds: 2));
                                           Utils.showMobileToast('Fix Task Created');
 

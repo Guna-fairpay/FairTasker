@@ -93,6 +93,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
   final GlobalKey _key = GlobalKey();
   final GlobalKey key = GlobalKey();
 
+  final FocusNode linkFocusNode = FocusNode();
+  final FocusNode reservationFocusNode = FocusNode();
+
   List<dynamic> todoSelectedItem = [];
   List<dynamic> imagePath = [];
   List<dynamic> editSuppliesSuggestionList = [];
@@ -500,7 +503,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         ?.map((e) => "${e['path']}".toAttachmentURL)
         .toList() ?? [];
     todoImages.addAll(todoImage);
-    log("${todoItem}", name: "edit_Todo");
+    //log("${todoItem}", name: "edit_Todo");
 
     if (todoItem['users']?['id'] != null) {
       selectedIds=((todoItem['users']?['id']).toString()).split(',');
@@ -544,6 +547,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
     } else {
     }
   }
+
+
+
+  final FocusNode _textFieldFocusNode = FocusNode();
 
   //UI
   @override
@@ -1108,6 +1115,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       MaintenanceCheckListUI(
                                         maintenance: maintenanceCheckListData,
                                         todoItems: todoItem,
+                                        vehicle: setVehicleList,
                                       )
                                     else if (showExpenseTab == 4)
                                         // VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,
@@ -1151,6 +1159,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
           ),
         ));
   }
+  FocusNode partsFocusNode = FocusNode();
+
 //END UI
   Widget editTodoWidget() {
     return Column(
@@ -1276,7 +1286,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
             editShowList = false;
           }
           setState(() {});
-        },
+          },
             suffixIcon: Visibility(
               visible: !editShowList && editTodoNameController.text.isNotEmpty,
               child: InkWell(
@@ -1286,7 +1296,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     ));
                   },
                   child: Icon(Icons.add, color: AppC().base, size: 20)),
-            )),
+            ),
+
+        ),
         Stack(
           children: [
             Column(
@@ -1444,8 +1456,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             } else {
                               editShowVendorLocationList = false;
                             }
-                            setState(() {});
-                          },
+                            setState(() {}
+                            );
+                            },
                               suffixIcon: Visibility(
                                 visible: !editShowVendorLocationList &&
                                     editVendorLocationController
@@ -1474,7 +1487,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                   child: Icon(Icons.add,
                                       color: AppC().base, size: 20),
                                 ),
-                              )),
+                              )
+                          ),
                         Stack(
                           children: [
                             Column(
@@ -1487,6 +1501,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                   'Notes',
                                   notesController,
                                   readOnly: false,
+                                  focusNode: partsFocusNode,
                                 ),
                                 const SizedBox(
                                   height: 10,
@@ -1497,6 +1512,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     visible: !showMore,
                                     child: InkWell(
                                         onTap: () {
+                                          FocusScope.of(context)
+                                              .requestFocus(FocusNode());
                                           showMore = !showMore;
                                           setState(() {});
                                         },
@@ -1511,22 +1528,20 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               width: 20,
                                             ),
                                             Expanded(
-                                              child: SizedBox(
-                                                height: 30,
-                                                child: Utils.dropdownBox(
-                                                  '',
-                                                  selectedKey: selectedLink,
-                                                  customTaskOptions,
-                                                  (selectedValue) {
-                                                    setState(() {
-                                                      selectedLink =
-                                                          selectedValue;
-                                                    });
-                                                  },
-                                                  initialSelection:
-                                                      selectedLink,
-                                                  labelKey: 'label',
-                                                ),
+                                              child: Utils.dropdownBox(
+                                                '',
+                                                selectedKey: selectedLink,
+                                                customTaskOptions,
+                                                (selectedValue) {
+                                                  FocusScope.of(context).unfocus();
+                                                  setState(() {
+                                                    selectedLink =
+                                                        selectedValue;
+                                                  });
+                                                },
+                                                initialSelection:
+                                                    selectedLink,
+                                                labelKey: 'label',
                                               ),
                                             ),
                                             const SizedBox(
@@ -1535,71 +1550,54 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                             InkWell(
                                               key: _key,
                                               onTap: () async {
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                                final RenderBox renderBox = _key
-                                                        .currentContext!
-                                                        .findRenderObject()
-                                                    as RenderBox;
-                                                final Offset offset = renderBox
-                                                    .localToGlobal(Offset.zero);
-                                                final Size size =
-                                                    renderBox.size;
+                                                FocusScope.of(context).requestFocus(FocusNode());
+                                                FocusScope.of(context).unfocus();
+                                                final RenderBox renderBox = _key.currentContext!.findRenderObject() as RenderBox;
+                                                final Offset offset = renderBox.localToGlobal(Offset.zero);
+                                                final Size size = renderBox.size;
+
                                                 await showMenu(
                                                   elevation: 5,
                                                   color: AppC.white,
                                                   context: context,
-                                                  constraints:
-                                                      BoxConstraints.tightFor(
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.8,
-                                                          height: 50),
-                                                  position:
-                                                      RelativeRect.fromLTRB(
+                                                  constraints: BoxConstraints.tightFor(
+                                                    width: MediaQuery.of(context).size.width * 0.8,
+                                                    height: 50,
+                                                  ),
+                                                  position: RelativeRect.fromLTRB(
                                                     offset.dx,
                                                     offset.dy + size.height,
                                                     offset.dx + size.width,
                                                     offset.dy,
                                                   ),
-                                                  // Adjust as needed
                                                   items: [
                                                     PopupMenuItem(
                                                       height: 35,
                                                       child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
                                                         children: [
                                                           Expanded(
-                                                            child: SizedBox(
-                                                              height: 30,
-                                                              child: selectedLink[
-                                                                          'id'] ==
-                                                                      '1'
-                                                                  ? Utils.getTextFormField(
-                                                                      'Link',
-                                                                      linkController)
-                                                                  : Utils
-                                                                      .getTextFormField(
-                                                                      'Reservation',
-                                                                      reservationController,
-                                                                    ),
+                                                            child: GestureDetector(
+                                                              onTap: () {
+                                                                FocusScope.of(context).unfocus();
+                                                              },
+                                                              child: SizedBox(
+                                                                height: 30,
+                                                                child: selectedLink['id'] == '1'
+                                                                    ? Utils.getTextFormField('Link', linkController,focusNode: linkFocusNode,
+                                                                  autoFocus: false,)
+                                                                    : Utils.getTextFormField('Reservation', reservationController,focusNode: reservationFocusNode,
+                                                                  autoFocus: false,),
+                                                              ),
                                                             ),
                                                           ),
                                                           InkWell(
                                                             onTap: () {
-                                                              Navigator.pop(
-                                                                  context); // Close the popup menu
+                                                              FocusScope.of(context).unfocus();
+                                                              Navigator.pop(context);
                                                             },
-                                                            child:
-                                                                const Padding(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      horizontal:
-                                                                          8.0),
+                                                            child: const Padding(
+                                                              padding: EdgeInsets.symmetric(horizontal: 8.0),
                                                               child: Icon(
                                                                 Icons.close,
                                                                 color: AppC.red,
@@ -1610,35 +1608,31 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                       ),
                                                     ),
                                                   ],
-                                                );
+                                                ).then((_) {
+                                                  FocusScope.of(context).requestFocus(FocusNode());
+                                                });
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
+                                                  borderRadius: BorderRadius.circular(4),
                                                   color: AppC.appColor,
                                                 ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8.0,
-                                                        vertical: 3.0),
+                                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
                                                 child: Utils.getText(
-                                                  selectedLink['id'] == '1'
-                                                      ? '+ Link'
-                                                      : '+ Reservation',
+                                                  selectedLink['id'] == '1' ? '+ Link' : '+ Reservation',
                                                   color: AppC.white,
                                                   size: 12,
-                                                  overFlow:
-                                                      TextOverflow.ellipsis,
+                                                  overFlow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ),
                                           ],
-                                        )),
+                                        )
+                                    ),
                                   ),
-                                Visibility(
-                                    visible: showMore,
-                                    child: Column(
+                                    Visibility(
+                                      visible: showMore,
+                                      child: Column(
                                       children: [
                                         getPartSupplyCheckBoxRow(),
                                         if (todoItem['identifier_id'] == 212 ||
@@ -1671,11 +1665,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               ],
                                             ),
                                           ),
+
                                       ],
-                                    )),
-                                Visibility(
+                                    )
+                                  ),
+                                  Visibility(
                                   visible: isPartChecked && showMore,
-                                  child: Column(
+                                  child:
+                                  Column(
                                     children: [
                                       const SizedBox(
                                         height: 15,
@@ -1766,11 +1763,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                   editPartsSuggestionList
                                                       .isNotEmpty;
                                               setState(() {});
-                                            },
+                                              },
                                                 suffixIcon: Visibility(
                                                   visible: !editShowPartsList,
                                                   child: InkWell(
                                                       onTap: () async {
+                                                        FocusScope.of(context).requestFocus(FocusNode());
                                                         await Navigator.of(
                                                                 context)
                                                             .push(
@@ -1778,16 +1776,20 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                           builder: (context) =>
                                                               const PartViewUI(),
                                                         ));
+                                                          FocusScope.of(context).requestFocus(FocusNode());
                                                       },
                                                       child: Icon(Icons.add,
                                                           color: AppC().base,
                                                           size: 20)),
-                                                )),
+                                                )
+                                            ),
                                           ],
                                         ),
                                       ),
+                                      //SizedBox(height: 30,),
                                     ],
                                   ),
+
                                 ),
                                 Stack(
                                   children: [
@@ -1919,7 +1921,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                           editSuppliesSuggestionList
                                                               .isNotEmpty;
                                                       setState(() {});
-                                                    },
+                                                      },
                                                         suffixIcon: Visibility(
                                                           visible:
                                                               !editShowSuppliesList,
@@ -1939,7 +1941,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                                   color: AppC()
                                                                       .base,
                                                                   size: 20)),
-                                                        )),
+                                                        )
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -2008,12 +2011,15 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                   visible: showMore,
                                   child: InkWell(
                                     onTap: () {
+                                      FocusScope.of(context)
+                                          .requestFocus(FocusNode());
                                       showMore = !showMore;
                                       setState(() {});
                                     },
                                     child: Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
-                                      child: Row(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child:
+                                      Row(
                                         children: [
                                           Utils.getText('Less...',
                                               color: Colors.lightBlue.shade800),
@@ -2021,21 +2027,19 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                             width: 20,
                                           ),
                                           Expanded(
-                                            child: SizedBox(
-                                              height: 30,
-                                              child: Utils.dropdownBox(
-                                                '',
-                                                customTaskOptions,
-                                                (selectedValue) {
-                                                  setState(() {
-                                                    selectedLink =
-                                                        selectedValue;
-                                                  });
-                                                },
-                                                labelKey: 'label',
-                                                selectedKey: selectedLink,
-                                                initialSelection: selectedLink,
-                                              ),
+                                            child: Utils.dropdownBox(
+                                              '',
+                                              customTaskOptions,
+                                              (selectedValue) {
+                                                FocusScope.of(context).unfocus();
+                                                setState(() {
+                                                  selectedLink =
+                                                      selectedValue;
+                                                });
+                                              },
+                                              labelKey: 'label',
+                                              selectedKey: selectedLink,
+                                              initialSelection: selectedLink,
                                             ),
                                           ),
                                           const SizedBox(
@@ -2044,6 +2048,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           InkWell(
                                             key: _key,
                                             onTap: () async {
+                                              FocusScope.of(context).requestFocus(FocusNode());
+                                              FocusScope.of(context).unfocus();
                                               final RenderBox renderBox = _key
                                                       .currentContext!
                                                       .findRenderObject()
@@ -2108,7 +2114,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                     }),
                                                   ),
                                                 ],
-                                              );
+                                              ).then((_) {
+                                                FocusScope.of(context).requestFocus(FocusNode());
+                                              });
                                             },
                                             child: Container(
                                               decoration: BoxDecoration(
@@ -3014,36 +3022,35 @@ class _EditTodoUIState extends State<EditTodoUI> {
           editCreateTodoParams.personId = res['id']!.toString();
         }
       }
-      log("${selectedMultipleVehicleList.isEmpty}", name: "VEHICLE_IS_EMPTY");
       if (selectedMultipleVehicleList.isNotEmpty ||
           vehiclePersonController.text.isNotEmpty) {
         await getSelectedVehiclePerson(editCreateTodoParams);
       }
-      log('editCreateTodoParams.parameters: '
-          // 'id : ${editCreateTodoParams.userId},'
-          // 'todoTitle: ${editCreateTodoParams.todoTitle},'
-          // 'todoDate: ${editCreateTodoParams.todoDate},'
-          // 'todoTime: ${editCreateTodoParams.todoTime},'
-          // 'priority: ${editCreateTodoParams.priority},'
-          // // 'resource: ${editCreateTodoParams.resource},'
-          // 'selectedUserId: ${editCreateTodoParams.selectedUserId},'
-          // 'selectedUserGroupId: ${editCreateTodoParams.selectedUserGroupId},'
-          // 'assignedTo: ${editCreateTodoParams.assignedTo},'
-          // 'cohortId: ${editCreateTodoParams.cohortId},'
-          // 'cohortName: ${editCreateTodoParams.cohortName},'
-          // 'vehicleName: ${editCreateTodoParams.vehicleName},'
-          // 'vehicleImage: ${editCreateTodoParams.vehicleImage},'
-          // 'vin: ${editCreateTodoParams.vin},'
-          // 'person: ${editCreateTodoParams.person},'
-          // 'personId: ${editCreateTodoParams.personId},'
-          // 'vendorId: ${editCreateTodoParams.vendorId},'
-          // 'vendorName: ${editCreateTodoParams.vendorName},'
-          // 'locationId: ${editCreateTodoParams.locationId},'
-          // 'location: ${editCreateTodoParams.location},'
-          // 'todoReminder: ${editCreateTodoParams.todoReminder},'
-          // 'vehicleGroupId: ${editCreateTodoParams.vehicleGroupId},'
-          // 'endAfter: ${editCreateTodoParams.endAfter}'
-          );
+      // log('editCreateTodoParams.parameters: '
+      //     'id : ${editCreateTodoParams.userId},'
+      //     'todoTitle: ${editCreateTodoParams.todoTitle},'
+      //     'todoDate: ${editCreateTodoParams.todoDate},'
+      //     'todoTime: ${editCreateTodoParams.todoTime},'
+      //     'priority: ${editCreateTodoParams.priority},'
+      //     // 'resource: ${editCreateTodoParams.resource},'
+      //     'selectedUserId: ${editCreateTodoParams.selectedUserId},'
+      //     'selectedUserGroupId: ${editCreateTodoParams.selectedUserGroupId},'
+      //     'assignedTo: ${editCreateTodoParams.assignedTo},'
+      //     'cohortId: ${editCreateTodoParams.cohortId},'
+      //     'cohortName: ${editCreateTodoParams.cohortName},'
+      //     'vehicleName: ${editCreateTodoParams.vehicleName},'
+      //     'vehicleImage: ${editCreateTodoParams.vehicleImage},'
+      //     'vin: ${editCreateTodoParams.vin},'
+      //     'person: ${editCreateTodoParams.person},'
+      //     'personId: ${editCreateTodoParams.personId},'
+      //     'vendorId: ${editCreateTodoParams.vendorId},'
+      //     'vendorName: ${editCreateTodoParams.vendorName},'
+      //     'locationId: ${editCreateTodoParams.locationId},'
+      //     'location: ${editCreateTodoParams.location},'
+      //     'todoReminder: ${editCreateTodoParams.todoReminder},'
+      //     'vehicleGroupId: ${editCreateTodoParams.vehicleGroupId},'
+      //     'endAfter: ${editCreateTodoParams.endAfter}'
+      //     );
       editCreateTodoParams.todoImage= todoImages.whereType<File>().toList();
       if ((editCreateTodoParams.selectedUserId == null ||
               editCreateTodoParams.selectedUserId == 0) &&
@@ -3144,8 +3151,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         editCreateTodoParams.personId = res['id']!.toString();
       }
     }
-
-    // log("$vehicleList", name: "ALL_VEHICLE");
 
     for (Map<String, dynamic> veh in selectedMultipleVehicleList) {
       var matchedGroup = vehicleList
@@ -3266,6 +3271,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
               isSupplyChecked = !isSupplyChecked;
               setState(() {});
             }, isSupplyChecked, 'Supplies'),
+            //SizedBox(height: 30,)
           ],
         ),
       ],
@@ -3486,7 +3492,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             child: Utils.getText('P',
                                 size: 15,
                                 weight: FontWeight.bold,
-                                color: textColors!)),
+                                color: textColors!)
+                        ),
                       ),
                       const SizedBox(
                         width: 12,
