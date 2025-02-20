@@ -104,6 +104,7 @@ dependencies:
   geolocator: ^13.0.2
   geocoding: ^3.0.0
   open_file: ^3.5.10
+  timelines_plus: ^1.0.6
 
 dev_dependencies:
   flutter_test:

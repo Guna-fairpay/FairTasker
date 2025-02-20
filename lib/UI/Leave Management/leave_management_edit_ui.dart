@@ -1,5 +1,6 @@
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../Bloc/leave_management_bloc.dart';
 import '../../Component/drawer_ui.dart';
 import '../../Component/header.dart';
@@ -26,18 +27,17 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
   TextEditingController reasonController = TextEditingController();
   TextEditingController startTimeController = TextEditingController();
   TextEditingController endTimeController = TextEditingController();
-  TextEditingController unStartTimeController = TextEditingController();
-  TextEditingController unEndTimeController = TextEditingController();
   List<Map<String, dynamic>> leaveType = [];
   dynamic selectedLeaveType;
-  bool loading = false;
+  bool isSelected = false;
   List<String> options = ['First Half', 'Second Half'];
   String? currentOption;
+  String? leaveDuration;
 
   @override
   void initState() {
     super.initState();
-
+    print('leave--${widget.leave}');
     leaveManagementBloc = LeaveManagementBloc();
     startDateController.text = widget.leave['start_date'] ?? '';
     endDateController.text = widget.leave['end_date'] ?? '';
@@ -45,13 +45,9 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
     if (widget.leave['start_time'] != null) {
       startTimeController.text =
           Utils.convertToHourMinutes(widget.leave['start_time'] ?? '');
-      unStartTimeController.text =
-          Utils.convertToHourMinutes(widget.leave['start_time'] ?? '');
     }
     if (widget.leave['end_time'] != null) {
       endTimeController.text =
-          Utils.convertToHourMinutes(widget.leave['end_time'] ?? '');
-      unEndTimeController.text =
           Utils.convertToHourMinutes(widget.leave['end_time'] ?? '');
     }
 
@@ -81,26 +77,30 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
     if (time.isEmpty) return '';
     final parts = time.split(":");
     if (parts.length >= 2) {
-      return '${parts[0]}:${parts[1]}'; // Return only hours and minutes
+      return '${parts[0]}:${parts[1]}';
     }
-    return time; // Return as-is if format is unexpected
+    return time;
   }
 
   void _save() {
-    setState(() {
-      // isVehicleFieldEmpty=vehicleController.text.isEmpty;
-      // isCustomerFieldEmpty=customerController.text.isEmpty;
-    });
+    setState(() {});
     if (startDateController.text.isEmpty || startDateController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill in all required fields');
+      return ;
     }
-    final updatelaves = {
+    leaveDuration = startDateController.text == endDateController.text
+        ? 'Single'
+        : 'Multi';
+    final updateLeave = {
       'start_date': startDateController.text,
-      'end_time': endDateController.text,
+      'end_date': endDateController.text,
+      'start_time':isSelected ? '${startTimeController.text}:00':'',
+      'end_time':isSelected ? '${endTimeController.text}:00' : '',
       'reason': reasonController.text,
-      'leave_type': selectedLeaveType ?? '',
+      'leave_type_id': selectedLeaveType['id'].toString(),
+      'leave_duration': leaveDuration.toString(),
+      'id': widget.leave['id'].toString(),
     };
-    Navigator.pop(context, updatelaves);
+    Navigator.pop(context, updateLeave);
   }
 
   Widget _buildDateField(
@@ -180,15 +180,19 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
         child: BlocConsumer<LeaveManagementBloc, LeaveManagementState>(
             listener: (context, state) async {
           if (state is LeaveManagementLoading) {
-            loading = true;
-          } else if (state is LeaveTypeListLoaded) {
-            loading = false;
-            leaveType.clear();
-            leaveType.addAll(state.data ?? []);
-            selectedLeaveType = leaveType.firstWhere(
-              (item) => item['name'] == widget.leave['leave_type']['name'],
-              orElse: () => {},
-            );
+            EasyLoading.show();
+          } else {
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is LeaveTypeListLoaded) {
+              leaveType.clear();
+              leaveType.addAll(state.data ?? []);
+              selectedLeaveType = leaveType.firstWhere(
+                (item) => item['name'] == widget.leave['leave_type']['name'],
+                orElse: () => {},
+              );
+              isSelected=(selectedLeaveType['name'] == 'Permission'
+                  ||selectedLeaveType['name'] == 'Unavailable');
+            }
           }
         }, builder: (context, state) {
           return SafeArea(
@@ -200,8 +204,16 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
                 Utils.dropdownBox('Select', leaveType, (selectedValue) {
                   setState(() {
                     selectedLeaveType = selectedValue;
+                    startTimeController.clear();
+                    endTimeController.clear();
+                    currentOption = options[0];
+                    startTimeController.text = '08:00';
+                    endTimeController.text = '13:00';
+                    isSelected=(selectedLeaveType['name'] == 'Permission'
+                        ||selectedLeaveType['name'] == 'Unavailable');
                   });
-                }, labelKey: 'name', initialSelection: selectedLeaveType),
+                }, labelKey: 'name',
+                initialSelection: selectedLeaveType),
                 const SizedBox(height: 05),
                 Row(
                   children: [
@@ -209,7 +221,7 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
                       child: _buildDateField(
                           'Start Date', startDateController, () {
                         Utils.datePicker(context, '',
-                                initial: DateTime.parse("2019-01-01"))
+                            initial: DateTime.tryParse(startDateController.text)?? DateTime.now())
                             .then((value) {
                           if (value != null) {
                             startDateController.text =
@@ -224,7 +236,7 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
                       child: _buildDateField(
                           'End Date', endDateController, () {
                         Utils.datePicker(context, '',
-                                initial: DateTime.parse("2019-01-01"))
+                            initial: DateTime.tryParse(endDateController.text)?? DateTime.now())
                             .then((value) {
                           if (value != null) {
                             endDateController.text =
@@ -237,10 +249,10 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
                   ],
                 ),
                 const SizedBox(height: 05),
-                if (selectedLeaveType != null &&
-                    selectedLeaveType['name'] == 'Permission')
-                  Column(
-                    children: [
+                Column(
+                  children: [
+                    if (selectedLeaveType != null &&
+                        selectedLeaveType['name'] == 'Permission')
                       Row(
                         children: [
                           Radio(
@@ -272,47 +284,50 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
                               weight: FontWeight.bold),
                         ],
                       ),
+                    if (selectedLeaveType != null &&
+                        (selectedLeaveType['name'] == 'Permission'
+                            ||selectedLeaveType['name'] == 'Unavailable'))
                       Row(
                         children: [
                           Expanded(
                             child: _buildTimeField(
                                 'Start Time', startTimeController,
-                                () async {
-                              TimeOfDay? pickedTime =
+                                    () async {
+                                  TimeOfDay? pickedTime =
                                   await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay(
-                                  hour: int.parse(startTimeController.text
-                                      .split(":")[0]),
-                                  minute: int.parse(startTimeController
-                                      .text
-                                      .split(":")[1]),
-                                ),
-                                builder: (BuildContext context,
-                                    Widget? child) {
-                                  return MediaQuery(
-                                    data: MediaQuery.of(context).copyWith(
-                                        alwaysUse24HourFormat: true),
-                                    child: child!,
+                                    context: context,
+                                    initialTime: TimeOfDay(
+                                      hour: int.parse(startTimeController.text
+                                          .split(":")[0]),
+                                      minute: int.parse(startTimeController
+                                          .text
+                                          .split(":")[1]),
+                                    ),
+                                    builder: (BuildContext context,
+                                        Widget? child) {
+                                      return MediaQuery(
+                                        data: MediaQuery.of(context).copyWith(
+                                            alwaysUse24HourFormat: true),
+                                        child: child!,
+                                      );
+                                    },
                                   );
-                                },
-                              );
-                              if (pickedTime != null) {
-                                final formattedTime =
-                                    '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                                setState(() {
-                                  startTimeController.text =
-                                      formattedTime;
-                                });
-                              }
-                            }),
+                                  if (pickedTime != null) {
+                                    final formattedTime =
+                                        '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
+                                    setState(() {
+                                      startTimeController.text =
+                                          formattedTime;
+                                    });
+                                  }
+                                }),
                           ),
                           const SizedBox(width: 30),
                           Expanded(
                             child: _buildTimeField(
                                 'End Time', endTimeController, () async {
                               TimeOfDay? pickedTime =
-                                  await showTimePicker(
+                              await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay(
                                   hour: int.parse(endTimeController.text
@@ -335,94 +350,36 @@ class _LeaveManagementEditUIState extends State<LeaveManagementEditUI> {
                                 setState(() {
                                   endTimeController.text = formattedTime;
                                 });
-                                print(endTimeController.text);
                               }
                             }),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                const SizedBox(height: 05),
-                if (selectedLeaveType != null &&
-                    selectedLeaveType['name'] == 'Unavailable')
-                  Row(
-                    children: [
-                      Expanded(
-                          child: _buildTimeField(
-                              'Start Time', unStartTimeController,
-                              () async {
-                        TimeOfDay? pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime:
-                              const TimeOfDay(hour: 8, minute: 0),
-                          builder: (BuildContext context, Widget? child) {
-                            return MediaQuery(
-                              data: MediaQuery.of(context)
-                                  .copyWith(alwaysUse24HourFormat: true),
-                              child: child!,
-                            );
-                          },
-                        );
-                        if (pickedTime != null) {
-                          final formattedTime =
-                              '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                          unStartTimeController.text = formattedTime;
-                        }
-                      })),
-                      const SizedBox(width: 30),
-                      Expanded(
-                          child: _buildTimeField(
-                              'End Time', unEndTimeController, () async {
-                        TimeOfDay? pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime:
-                              const TimeOfDay(hour: 13, minute: 0),
-                          builder: (BuildContext context, Widget? child) {
-                            return MediaQuery(
-                              data: MediaQuery.of(context)
-                                  .copyWith(alwaysUse24HourFormat: true),
-                              child: child!,
-                            );
-                          },
-                        );
-                        if (pickedTime != null) {
-                          final formattedTime =
-                              '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                          unEndTimeController.text = formattedTime;
-                        }
-                      })),
-                    ],
-                  ),
+                  ],
+                ),
                 const SizedBox(height: 05),
                 Utils.getText('Reason', weight: FontWeight.bold),
                 const SizedBox(height: 5),
                 Utils.getBorderedMultilineTextField(
                     minLines: 3,
-                  maxLines: 5,
-                    'Reason',
+                    maxLines: 5,
+                    'Type here...',
                     reasonController,
                     fillColor: AppC.white,
-                  ),
+                    autoValidate: AutovalidateMode.onUserInteraction,
+                    validator: (val)=>val!.isEmpty?'Please enter reason':null,
+                    inputAction: TextInputAction.done
+                ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 40,
-                      child: Utils.getAddFilledButton(
-                        'Submit',
-                        bgColor: AppC.green,
-                        () {
-                          _save();
-                        },
-                      ),
+                    Utils.getElevatedButton(
+                      text:  'Submit',
+                      bgColor: AppC.green,
+                      _save,
                     ),
                   ],
-                ),
-                Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)),
                 ),
               ],
             ),

@@ -155,11 +155,11 @@ class Utils {
         ),
         inputDecorationTheme:  const InputDecorationTheme(
           hintStyle: TextStyle(color: AppC.grey),
-          contentPadding: EdgeInsets.all(10),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10),
           border: InputBorder.none,
           isCollapsed: false,
           isDense: true,
-          constraints: BoxConstraints(minHeight: 40)
+          constraints: BoxConstraints(maxHeight: 40)
         ),
         menuStyle: MenuStyle(
           backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
@@ -547,13 +547,13 @@ class Utils {
       String? hintText,
       Widget? suffixIcon,
       bool obscure = false,
-        bool isDense = false,
+        bool isDense = true,
       double? height,
       TextStyle? hintTextStyle,
       TextStyle? labelStyle,
       Color fillColor = AppC.trans,
       EdgeInsets contentPadding =
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          const EdgeInsets.all(9),
       // VoidCallback? suffixIconCallback,
       VoidCallback? onTapCallback,
       String? Function(String?)? validator,
@@ -588,8 +588,8 @@ class Utils {
             labelText: labelText,
             hintText: hintText,
             counterText: '',
-            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey),
+            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey,),
+            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey,fontSize: 13),
             filled: true,
             fillColor: fillColor,
             border: OutlineInputBorder(
@@ -676,47 +676,70 @@ class Utils {
       ValueChanged? onChangeCallback,
       Color borderColor = AppC.fieldBase,
       Color hintTextColor = AppC.grey,
+      AutovalidateMode autoValidate = AutovalidateMode.disabled,
+      String? Function(String?)? validator,
+      String? hintText,
       Color? fillColor=AppC.white,
-        TextInputAction? inputAction,
+      TextInputAction? inputAction,
       int minLines = 5,
       int? maxLines,
+        double borderRadius = Num.subradiusButton,
+        double borderWidth = Num.borderWidthField,
      // Widget? label,
       bool autofocus = false}) {
-    return TextFormField(
-      autofocus: autofocus,
-      focusNode: focusNode,
-      readOnly: readOnly,
-      controller: controller,
-      keyboardType: TextInputType.text,
-      maxLength: null,
-      maxLines: maxLines,
-      minLines: minLines,
-      textCapitalization: TextCapitalization.sentences,
-      textInputAction: inputAction ?? TextInputAction.next,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
-        label: Utils.getText(labelText,color: AppC.grey),
-        //hintText: labelText,
-        hintStyle: TextStyle(color: hintTextColor),
-        filled: true,
-        fillColor: fillColor,
-        focusedBorder: OutlineInputBorder(
-          borderSide:
-              const BorderSide(color: AppC.appColor, width: Num.borderWidthField),
-          borderRadius: BorderRadius.circular(Num.radiusButton),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: borderColor, width: Num.borderWidthField),
-          borderRadius: BorderRadius.circular(Num.radiusButton),
-        ),
-      ),
-      style: TextStyle(
-        fontSize: textSize,
-        color: textColor,
-        fontWeight: fontWeight,
-      ),
-      onChanged: onChangeCallback,
+    return ValueListenableBuilder(
+        valueListenable: controller,
+      builder: (context, value, child) {
+        return TextFormField(
+          autofocus: autofocus,
+          focusNode: focusNode,
+          readOnly: readOnly,
+          controller: controller,
+
+          keyboardType: TextInputType.text,
+          validator: validator,
+          autovalidateMode: autoValidate,
+          maxLength: null,
+          maxLines: maxLines,
+          minLines: minLines,
+          textCapitalization: TextCapitalization.sentences,
+          textInputAction: inputAction ?? TextInputAction.next,
+          decoration: InputDecoration(
+            constraints: BoxConstraints(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+            //label: Utils.getText(labelText,color: AppC.grey),
+            hintText: labelText,
+            hintStyle: TextStyle(color: hintTextColor),
+            filled: true,
+            fillColor: fillColor,
+            focusedBorder: OutlineInputBorder(
+              borderSide:
+                  BorderSide(color: borderColor, width: Num.borderWidthField),
+              borderRadius: BorderRadius.circular(Num.radiusButton),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+          ),
+          style: TextStyle(
+            fontSize: textSize,
+            color: textColor,
+            fontWeight: fontWeight,
+          ),
+          onChanged: onChangeCallback,
+        );
+      }
     );
   }
 

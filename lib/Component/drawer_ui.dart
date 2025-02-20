@@ -114,15 +114,15 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 ),
                 _buildDivider(),
                 _buildListTile(
-                  icon: Icons.file_copy,
-                  title: "Reports",
-                  onTap: () => navigateToPage(const ReportsView()),
-                ),
-                _buildDivider(),
-                _buildListTile(
                     icon:  Icons.work_history,
                     title: "Leave Management",
                     onTap: () => navigateToPage(const LeaveManagementViewUI()),
+                ),
+                _buildDivider(),
+                _buildListTile(
+                  icon: Icons.file_copy,
+                  title: "Reports",
+                  onTap: () => navigateToPage(const ReportsView()),
                 ),
                 _buildDivider(),
                 _buildListTile(
@@ -138,12 +138,12 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                     // =>navigateToPage(const UploadText())
                   },
                 ),
-                _buildDivider(),
+                /*_buildDivider(),
                 _buildListTile(
                   icon:  Icons.sync,
                   title: "Recurrence Task",
                   onTap: () => navigateToPage(const RecurrenceTask()),
-                ),
+                ),*/
                 _buildDivider(),
                 _buildListTile(
                   icon:  Icons.queue_music,

@@ -15,13 +15,7 @@ class LeaveVerificationUI extends StatefulWidget {
 
 class _LeaveVerificationUIState extends State<LeaveVerificationUI> {
 
-  TextEditingController startDateController=TextEditingController();
-  TextEditingController endDateController=TextEditingController();
-  TextEditingController nameController=TextEditingController();
   TextEditingController reasonController=TextEditingController();
-  TextEditingController approvalReasonController=TextEditingController();
-  TextEditingController typeController=TextEditingController();
-  TextEditingController statusController=TextEditingController();
   List<Map<String,dynamic>> status = [
     {'status':'Approved'},
     {'status':'Pending'},
@@ -32,12 +26,7 @@ class _LeaveVerificationUIState extends State<LeaveVerificationUI> {
   @override
   void initState() {
     super.initState();
-    startDateController.text=widget.leave['start_date']??'';
-    endDateController.text =widget.leave['end_date']??'';
-    reasonController.text=widget.leave['reason']??'';
-    nameController.text=widget.leave['user']['name']??'';
-    typeController.text=widget.leave['leave_type']['name']??'';
-    statusController.text=widget.leave['status']??'';
+    reasonController.text = widget.leave['reason']??'';
     selectedStatusNew = status.firstWhere(
           (item) => item['status'] == widget.leave['status'],
       orElse: () => {},
@@ -45,21 +34,15 @@ class _LeaveVerificationUIState extends State<LeaveVerificationUI> {
   }
 
   void _save() {
-    setState(() {
-      // isVehicleFieldEmpty=vehicleController.text.isEmpty;
-      // isCustomerFieldEmpty=customerController.text.isEmpty;
-    });
+
     if (selectedStatusNew==null)
     {
       return Utils.showMobileToast('Please fill in all required fields');
     }
     final updateLaves = {
-      'start_date': startDateController.text,
-      'end_date': endDateController.text,
+      'id': widget.leave['id'],
       'reason': reasonController.text,
-      'type': typeController.text,
-      'name':nameController.text,
-      'status':selectedStatusNew?? '',
+      'status':selectedStatusNew['status'],
     };
     Navigator.pop(context, updateLaves);
   }
@@ -109,7 +92,7 @@ class _LeaveVerificationUIState extends State<LeaveVerificationUI> {
               const SizedBox(height: 20,),
               Utils.getBorderedMultilineTextField(
                   'Reason',
-                  approvalReasonController,
+                  reasonController,
                   fillColor: AppC.white,),
               const SizedBox(height: 20,),
               Row(
@@ -145,17 +128,17 @@ class _LeaveVerificationUIState extends State<LeaveVerificationUI> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow('Name', nameController.text, icon: Icons.person),
-                Divider(thickness: 1, color: Colors.grey[300]), // Divider between rows
-                _buildInfoRow('Leave Type', typeController.text, icon: Icons.event_note),
+                _buildInfoRow('Name',widget.leave['user']['name']??'', icon: Icons.person),
                 Divider(thickness: 1, color: Colors.grey[300]),
-                _buildInfoRow('Start Date', startDateController.text, icon: Icons.date_range),
+                _buildInfoRow('Leave Type', widget.leave['leave_type']['name']??'', icon: Icons.event_note),
                 Divider(thickness: 1, color: Colors.grey[300]),
-                _buildInfoRow('End Date', endDateController.text, icon: Icons.date_range),
+                _buildInfoRow('Start Date', widget.leave['start_date']??"", icon: Icons.date_range),
                 Divider(thickness: 1, color: Colors.grey[300]),
-                _buildInfoRow('Reason', reasonController.text, icon: Icons.description),
+                _buildInfoRow('End Date', widget.leave['end_date']??'', icon: Icons.date_range),
                 Divider(thickness: 1, color: Colors.grey[300]),
-                _buildInfoRow('Status', statusController.text, icon: Icons.verified),
+                _buildInfoRow('Reason', widget.leave['reason']??'', icon: Icons.description),
+                Divider(thickness: 1, color: Colors.grey[300]),
+                _buildInfoRow('Status', widget.leave['status']??'', icon: Icons.verified),
               ],
             ),
           ),
