@@ -3,12 +3,12 @@ import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import '../Bloc/todo_view_bloc.dart';
-import '../Utilities/utils.dart';
-import '../Component/drawer_ui.dart';
-import '../Component/header.dart';
-import '../Utilities/appC.dart';
-import '../Utilities/num.dart';
+import '../../Bloc/todo_view_bloc.dart';
+import '../../Utilities/utils.dart';
+import '../../Component/drawer_ui.dart';
+import '../../Component/header.dart';
+import '../../Utilities/appC.dart';
+import '../../Utilities/num.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 

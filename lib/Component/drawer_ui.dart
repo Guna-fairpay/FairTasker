@@ -14,7 +14,7 @@ import '../UI/authentication_ui.dart';
 import '../UI/Import Task/text_upload.dart';
 import '../UI/Manage Custom Data/manage_custom_data_menu_ui.dart';
 import '../UI/recurrence_Task.dart';
-import '../UI/voice_to_text_ui.dart';
+import '../UI/Voice To Text/voice_to_text_ui.dart';
 import '../Utilities/str.dart';
 import '../Utilities/utils.dart';
 import 'bottom_nav_for_task.dart';
