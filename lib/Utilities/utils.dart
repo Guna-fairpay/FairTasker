@@ -612,7 +612,11 @@ class Utils {
             //       width: borderWidth,
             //     ),
             //     borderRadius: BorderRadius.circular(borderRadius)),
-            suffixIcon: suffixIcon),
+            suffixIconConstraints: BoxConstraints(),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: suffixIcon,
+            )),
         style: style ?? TextStyle(
           // fontSize: textSize,
           color: textColor,
@@ -993,7 +997,7 @@ class Utils {
           data: ThemeData.light().copyWith(
             primaryColor: AppC().base,
             colorScheme: ColorScheme.light(primary: AppC().base),
-            dialogBackgroundColor: Colors.white,
+            dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           ),
           child: dialog,
         );

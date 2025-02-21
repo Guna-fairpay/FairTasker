@@ -85,6 +85,16 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
 
     //
 
+    on<MoveRentalData>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo
+          .moveRental(
+         rentalData: event.rentalData)
+          .then((value) {
+        emit(MoveRentalDataLoaded(result: value));
+      });
+    });
+
     on<DeleteVehicleImage>((event, emit) async {
         emit(const VehicleDataLoading());
         await vehicleDataRepo
@@ -140,12 +150,12 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
-    // on<DeleteVehicleGroupEvent>((event, emit) async {
-    //   emit(const VehicleDataLoading());
-    //   await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {
-    //     emit(VehicleDataLoadedV(result: value.));
-    //   });
-    // });
+    on<DeleteVehicleGroupEvent>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {
+        emit(VehicleGroupLoaded(result: value));
+      });
+    });
 
     on<GetVehicleHistoryEvent>((event, emit) async {
       emit(const VehicleDataLoading());

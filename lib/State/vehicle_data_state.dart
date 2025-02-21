@@ -31,6 +31,13 @@ class VehicleListLoaded extends VehicleDataState {
   @override
   List<Object?> get props => [vehicleDataList];
 }
+
+class MoveRentalDataLoaded extends VehicleDataState {
+  final bool? result;
+  const MoveRentalDataLoaded({required this.result});
+  @override
+  List<Object?> get props => [result];
+}
 //
 
 class VehicleGroupListLoadedV extends VehicleDataState {
@@ -60,6 +67,13 @@ class VehicleDataLoadedV extends VehicleDataState {
 class AddVehicleGroupDataLoaded extends VehicleDataState {
   final bool? result;
   const AddVehicleGroupDataLoaded({required this.result});
+  @override
+  List<Object?> get props => [result];
+}
+
+class VehicleGroupLoaded extends VehicleDataState {
+  final bool? result;
+  const VehicleGroupLoaded({required this.result});
   @override
   List<Object?> get props => [result];
 }

@@ -151,68 +151,45 @@ class VehicleDataRepo {
     }
   }
 
-/*
-  Future<bool?> createVehicle(CreateVehicleData createVehicleData) async {
+  Future<bool?> moveRental({
+    dynamic rentalData
+  }
+ ) async {
     try {
-      String apiUrl = '';
-      if(createVehicleData.id != null) {
-        apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${createVehicleData.id}";
-      }else{
-        apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
-      }
-
       String body = jsonEncode({
-      "vehicle_id": createVehicleData.vehicleId,
-      "vin": createVehicleData.vin,
-      "make": createVehicleData.make,
-      "model": createVehicleData.model,
-      "year": createVehicleData.year,
-      "cohort_id": createVehicleData.selectedCohort,
-      "earnings": createVehicleData.earnings,
-      "utilization_rate": createVehicleData.utilizationRate,
-      "platform": createVehicleData.platform,
-      "mileage": createVehicleData.mileage,
-      "wholesale_amount": createVehicleData.wholesaleAmount,
-      "vehicle_status": createVehicleData.selectedSourceType,
-      "active": createVehicleData.isActive,
-      "platform_from": 'TaskerApp',
+        "branch_code":rentalData['branch_code'],
+        "cohort_id":rentalData['cohort_id'],
+        "purchase_date":rentalData['purchase_date'],
+        "purchase_price":rentalData['purchase_price'],
+        "vehicle_status":rentalData['vehicle_status'],
+        "rental_status": rentalData['rental_status'],
+        "vehicle_number": rentalData['vehicle_number'],
+        "vehicle_id": rentalData['vehicle_id'],
+        "vin": rentalData['vin'],
+        "make": rentalData['make'],
+        "model": rentalData['model'],
+        "year": rentalData['year'],
+        "platform_from": "TaskerApp"
       });
-      debugPrint("createVendor apiUrl: $apiUrl");
-      debugPrint("createVendor body: $body");
-      final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
+      String apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${rentalData['id']}";
+      http.Response? response= await apiClient.callPostMethod(apiUrl, body: body);
+      debugPrint("vehiclesApi apiUrl: $apiUrl");
       if (response != null) {
-        debugPrint('createVendor api.response.statusCode: ${response.statusCode}');
-        debugPrint('createVendor api.response: ${response!.body}');
-        if (response.statusCode == 200 || response.statusCode == 201) {
-
-          debugPrint('createVendor api.response.body: ${response.body}');
-          debugPrint('createVendor api.statusCode: ${response.statusCode}');
-
-          GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          Utils.showMobileToast(generalResponse.message!);
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+          Utils.showMobileToast(generalResponse.message.toString());
           return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          // Utils.showSomethingWentWrong();
-          // return false;
-          // }
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
       } else {
+        Utils.showMobileToast('Response Null');
         return null;
       }
     } catch (error) {
-      log('createVendor.exception : ${error.toString()}');
+      log('deleteVehicleImages.exception : ${error.toString()}');
       return null;
     }
   }
-*/
 
-  Future<bool?> createVehicleGroup(String? name, List<String>? list,
-      int? id) async {
+  Future<bool?> createVehicleGroup(String? name,List<String>? list,int? id) async {
     try {
       String body = jsonEncode({"name": name, "vin": list});
       String apiUrl = '';
@@ -224,26 +201,13 @@ class VehicleDataRepo {
         apiUrl = "${Str.BASE_URL}group-vehicle";
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
-
-      debugPrint("createVehicleGroup apiUrl: $apiUrl");
-      debugPrint("createVehicleGroup id: $id");
-      debugPrint("createVehicleGroup body: $body");
       if (response != null) {
-        debugPrint('createVehicleGroup api.response.body: ${response.body}');
         if (response.statusCode == 200 || response.statusCode == 201) {
-          debugPrint(
-              'createVehicleGroup api.statusCode: ${response.statusCode}');
-
           GeneralResponse generalResponse =
           GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
           Utils.showMobileToast(generalResponse.message!);
           return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          // Utils.showSomethingWentWrong();
-          // return false;
-          // }
+
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -389,19 +353,10 @@ class VehicleDataRepo {
       final http.Response? response = await apiClient.callDelete(apiUrl);
       if (response != null) {
         if (response.statusCode == 200) {
-          debugPrint('deleteVehicleGroup api.response.body: ${response.body}');
-          debugPrint(
-              'deleteVehicleGroup api.statusCode: ${response.statusCode}');
-
           GeneralResponse generalResponse =
           GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          // Utils.showNoResultFound();
+           Utils.showMobileToast(generalResponse.message??'');
           return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          return false;
-          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -866,7 +821,6 @@ class VehicleDataRepo {
       });
       String apiUrl = '';
       http.Response? response;
-      print('========================================================,$body');
       if (id != null) {
         apiUrl = "${Str.LIST_BASE_URL}vehicle_status_checklist_store/$id";
         response = await apiClient.callPutMethod(apiUrl, body: body);
@@ -944,8 +898,6 @@ class VehicleDataRepo {
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          debugPrint('VehicleGroupData api.response.body: ${response.body}');
-          debugPrint('VehicleGroupData api.statusCode: ${response.statusCode}');
           VehicleGroupingResponse vehicleGroupingResponse =
           VehicleGroupingResponse.fromJson(json.decode(response.body));
           return vehicleGroupingResponse;
@@ -961,5 +913,6 @@ class VehicleDataRepo {
       return null;
     }
   }
+
 
 }
