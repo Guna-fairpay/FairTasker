@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -28,6 +29,7 @@ import 'package:intl/intl.dart';
 import 'package:fairpytasker/Utilities/image_pick_helper.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../Component/bottom_nav_for_task.dart';
+import '../../Component/custom_search_field.dart';
 import '../../Response/todo_list_response.dart';
 import '../Manage Custom Data/Location/location_view_ui.dart';
 import '../Manage Custom Data/Parts/part_view_ui.dart';
@@ -49,19 +51,32 @@ class EditTodoUI extends StatefulWidget {
   final List<Map<String, dynamic>>? addressesList;
   final List<Map<String, dynamic>>? multipleLocationList;
 
-  const EditTodoUI(
-      {Key? key,
-      required this.todoItem,
-      this.userGroupList,
-      this.resourceList,
-      this.categoriesListData,
-      this.addressesList,
-      this.multipleLocationList})
-      : super(key: key);
+  const EditTodoUI({
+    Key? key,
+    required this.todoItem,
+    this.userGroupList,
+    this.resourceList,
+    this.categoriesListData,
+    this.addressesList,
+    this.multipleLocationList,
+  }) : super(key: key);
 
   @override
   State<EditTodoUI> createState() => _EditTodoUIState();
+}
 
+class CustomTextSelectionControls extends MaterialTextSelectionControls {
+  @override
+  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) {
+    switch (type) {
+      case TextSelectionHandleType.left:
+        return const Offset(0.0, -8.0); // Adjust as needed
+      case TextSelectionHandleType.right:
+        return const Offset(0.0, -8.0); // Adjust as needed
+      case TextSelectionHandleType.collapsed:
+        return const Offset(0.0, -8.0); // Adjust as needed
+    }
+  }
 }
 
 class _EditTodoUIState extends State<EditTodoUI> {
@@ -80,6 +95,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   Color appBarColor = AppC.lowP;
   Color? textColors;
   OverlayEntry? overlay;
+  OverlayEntry? suggestionOverlay;
 
   List<DaysPojo> daysPojoList = [];
   List<MonthsPojo> monthsPojoList = [];
@@ -91,7 +107,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
   DateTime? modifiedDateTime;
 
   final GlobalKey _key = GlobalKey();
-  final GlobalKey key = GlobalKey();
+  final GlobalKey vehiclePersonKey = GlobalKey();
+  final GlobalKey vendorLocationKey = GlobalKey();
+  final GlobalKey partsKey = GlobalKey();
+  final GlobalKey suppliesKey = GlobalKey();
 
   final FocusNode linkFocusNode = FocusNode();
   final FocusNode reservationFocusNode = FocusNode();
@@ -243,6 +262,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
   bool isSupplyChecked = false;
   Map<String, dynamic> vehicle = {};
   Map<String, dynamic> setVehicleList = {};
+  Map<String, dynamic> setVehicleListCopy = {};
   Map<String, String> taskNameList = {};
   Map<String, dynamic>? carName;
   Map<String, dynamic>? selectedResource;
@@ -340,7 +360,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
   @override
   void initState() {
     todoItem = widget.todoItem;
-
+    print("todoItem of data ${todoItem['vin']}");
+    print("todoItem of data ${todoItem['vehicles']}");
     todoBloc = TodoViewBloc();
     vehicleDataBloc = vdb.VehicleDataBloc();
     todoBloc!.add(const GetCohortsData());
@@ -375,38 +396,26 @@ class _EditTodoUIState extends State<EditTodoUI> {
         widget.todoItem['title'] == 'Check Out') {
       showExpenseTab = 1;
     }
-
     for (String s in monthsList) {
       MonthsPojo monthsPojo = MonthsPojo(monthName: s, selected: false);
       monthsPojoList.add(monthsPojo);
     }
-
     for (String s in daysList) {
       DaysPojo daysPojo = DaysPojo(dayName: s, selected: false);
       daysPojoList.add(daysPojo);
     }
-
     selectedMonth = MonthsPojo(monthName: "Select Month", selected: false);
-
     editMultipleAddressList = widget.addressesList ?? [];
-
     if (addresses != null && todoItem['address'] != null) {
-      // isShowMultipleAddressField = true;
       selectedMultipleAddressList = [];
       editMultipleAddressList = [];
-      List<dynamic> jsonList = json.decode(todoItem['address'] ?? '');
+      List<dynamic> jsonList = json.decode(todoItem['address'] ?? '[]');
       List<dynamic> resultList = jsonList.cast<dynamic>();
       editMultipleAddressList.addAll(addresses ?? []);
       for (Map<String, dynamic> element in addresses ?? []) {
         for (dynamic userId in resultList) {
           if (userId.toString() == element['id'].toString()) {
             isSelected = true;
-            // Map<String, dynamic> suppliesData = Addresses(
-            //     address: element['address'],
-            //     deleteId: element['id'],
-            //     id: element['id'],
-            //     isSelected: isSelected,
-            //     locationId: element['location_id']);
             selectedMultipleAddressList.add({
               'address': element['address'],
               'id': element['id'],
@@ -416,7 +425,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
-
     todoTimeController.text =
         Utils.convertToHourMinutes(todoItem['todo_time'] ?? '');
 
@@ -428,7 +436,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         appBarColor = p.color!;
       }
     }
-
     appBarTitle = todoItem['title']!;
     editTodoNameController.text = todoItem['title']!;
     notesController.text = todoItem['notes'] ?? '';
@@ -459,20 +466,21 @@ class _EditTodoUIState extends State<EditTodoUI> {
     }
     editReminder = (todoItem['reminder'] ?? 'false') == 'true' ? true : false;
 
-    if (todoItem['vin'] == null) {
-      if (todoItem['vehicles'] is List && todoItem['vehicles'].isNotEmpty && todoItem['vehicles'].length==1) {
+    if (todoItem['vin'] == null || todoItem['vin'] == "null") {
+      print("vin1${todoItem['vehicles']}");
+      if (todoItem['vehicles'] is List &&
+          todoItem['vehicles'].isNotEmpty &&
+          todoItem['vehicles'].length == 1) {
         vinToFind = todoItem['vehicles'][0]['vin'];
-      }
-      else if(todoItem['vehicles'].length > 1){
-        for(int i=0;i<todoItem['vehicles'].length;i++){
+      } else if (todoItem['vehicles'].length > 1) {
+        for (int i = 0; i < todoItem['vehicles'].length; i++) {
           vinList.add(todoItem['vehicles'][i]['vin']);
         }
       }
     } else {
+      print("else part ${todoItem['vin']}");
       vinToFind = todoItem['vin'];
     }
-
-
     if (vehicleLists != null && vehicleLists!.isNotEmpty) {
       isVehiclePresented = true;
       editVehiclePersonController.text = todoItem['vehicle_name'] ?? '';
@@ -484,31 +492,25 @@ class _EditTodoUIState extends State<EditTodoUI> {
         todoItem['vehicles'] ?? editVehiclePersonController.text;
 
     selectedLink = customTaskOptions.firstWhere(
-      (item) => item['id'] == (todoItem['custom_link_id']?.toString() ?? '1'),
+          (item) =>
+      item['id'] == (todoItem['custom_link_id']?.toString() ?? '1'),
       orElse: () => {},
     );
     reservationController.text = todoItem['reference_id'] ?? "";
     reasonController.addListener(() {
-
       setState(() {});
     });
     if (todoItem['vehicles'] is List) {
       vehicleName.addAll(List<Map<String, dynamic>>.from(todoItem['vehicles']));
     }
-
-    // if (todoItem['todoimages'] != null && todoItem['todoimages'] is List) {
-    //   todoImages.addAll((todoItem['todoimages'] as List).cast<Map<String, dynamic>>());
-    // }
     var todoImage = (todoItem['todoimages'] as List<dynamic>?)
         ?.map((e) => "${e['path']}".toAttachmentURL)
-        .toList() ?? [];
+        .toList() ??
+        [];
     todoImages.addAll(todoImage);
-    //log("${todoItem}", name: "edit_Todo");
-
     if (todoItem['users']?['id'] != null) {
-      selectedIds=((todoItem['users']?['id']).toString()).split(',');
+      selectedIds = ((todoItem['users']?['id']).toString()).split(',');
     }
-
     if (todoItem['user_group_id'] != null) {
       for (var group in widget.userGroupList ?? []) {
         if (group['id'] == todoItem['user_group_id']) {
@@ -521,7 +523,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
-
     super.initState();
   }
 
@@ -529,173 +530,212 @@ class _EditTodoUIState extends State<EditTodoUI> {
   void dispose() {
     reasonController.removeListener(() {});
     reasonController.dispose();
+    suggestionOverlay?.remove();
     super.dispose();
   }
 
   bool isMaintenanceLoaded = false;
+  bool isCheckListLoaded = false;
 
-  void updateSelectedDropDownData(List<Map<String, dynamic>> vehicleList, Map<String, dynamic> selectedDropDownData) {
-
+  void updateSelectedDropDownData(List<Map<String, dynamic>> vehicleList,
+      Map<String, dynamic> selectedDropDownData) {
     var vehicle = vehicleList.firstWhere(
           (v) => v['vehicle_name'] == selectedDropDownData['vehicle_name'],
       orElse: () => {},
     );
     if (vehicle.isNotEmpty) {
       setState(() {
-        DropDownData=vehicle;
+        DropDownData = vehicle;
       });
-    } else {
     }
   }
 
+  //final FocusNode _textFieldFocusNode = FocusNode();
+  FocusNode partsFocusNode = FocusNode();
 
+  void showSuggestionList(BuildContext context, List<dynamic> suggestions, GlobalKey key, Function(dynamic) onSelect)
+  {
+    suggestionOverlay?.remove();
+    final RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+    final double appBarHeight = (Scaffold.of(context).widget.appBar as AppBar?)?.preferredSize.height ?? kToolbarHeight;
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double totalTopPadding = appBarHeight + statusBarHeight;
+    suggestionOverlay =
+        OverlayEntry(
+      builder: (context) => Positioned(
+        top: offset.dy + renderBox.size.height + totalTopPadding,
+        left: offset.dx,
+        width: renderBox.size.width,
+        child: Material(
+          elevation: 4,
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: suggestions.length,
+              itemBuilder: (context, index) => ListTile(
+                title: Text(suggestions[index]['vehicle_name'] ??
+                    suggestions[index]['name'] ??
+                    ''),
+                onTap: () {
+                  onSelect(suggestions[index]);
+                  suggestionOverlay?.remove();
+                  suggestionOverlay = null;
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    Overlay.of(context).insert(suggestionOverlay!);
+  }
 
-  final FocusNode _textFieldFocusNode = FocusNode();
-
-  //UI
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: AppC.white,
+    //    final padding = MediaQuery.of(context).padding;
+    return
+      Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          titleTextStyle: const TextStyle(color: AppC.white),
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          backgroundColor: completeAllDay ? Colors.green.shade900 : appBarColor,
-          titleSpacing: 12,
-          title: Utils.getText(appBarTitle,
-              size: 18, color: AppC.white, weight: FontWeight.w700),
-          actions: [
-            GestureDetector(
+        titleTextStyle: const TextStyle(color: AppC.white),
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        backgroundColor: completeAllDay ? Colors.green.shade900 : appBarColor,
+        titleSpacing: 12,
+        title: Utils.getText(appBarTitle, size: 18, color: AppC.white, weight: FontWeight.w700),
+        actions: [
+          GestureDetector(
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(Icons.upload_outlined, color: AppC.green),
+            ),
+            onTap: () async {
+              MultiImagePickHelper imageHelper = MultiImagePickHelper();
+              await imageHelper.getMultiImage(ImageSource.gallery).then((
+                  selectedFiles) {
+                if (selectedFiles.isNotEmpty) {
+                  todoImages.addAll(selectedFiles.map((e) => File(e)).toList());
+                  setState(() {});
+                } else {
+                  debugPrint("No images selected.");
+                }
+              });
+            },
+          ),
+          Visibility(
+            visible: todoImages.isNotEmpty,
+            child: GestureDetector(
+              onTap: () {
+                ShowAttachmentsDialog.of.show(
+                    context, attachments: todoImages, title: "");
+              },
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4.0),
-                child: Icon(Icons.upload_outlined, color: AppC.green),
+                child: Icon(
+                  Icons.remove_red_eye_outlined,
+                  color: AppC.green,
+                ),
               ),
-              onTap: () async {
-                MultiImagePickHelper imageHelper = MultiImagePickHelper();
-                await imageHelper
-                    .getMultiImage(ImageSource.gallery)
-                    .then((selectedFiles) {
-                  if (selectedFiles.isNotEmpty) {
-                    todoImages.addAll(selectedFiles.map((e) => File(e)).toList());
-                    /*for (var filePath in selectedFiles) {
-                      // Add each image to your todoImages list
-                      todoImages.add({
-                        'path': filePath,
-                      });
-                    }*/
-                    setState(() {}); // Refresh the UI
-                  } else {
-                    debugPrint("No images selected.");
+            ),
+          ),
+          GestureDetector(
+            child:
+            Transform.scale(
+              scale: 0.6,
+              child: SizedBox(
+                width: 40,
+                child:
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child:
+                  Switch(
+                      trackOutlineColor: WidgetStateColor.resolveWith((states) {
+                        if (states.contains(WidgetState.selected)) {
+                          return AppC.green;
+                        } else {
+                          return AppC.grey;
+                        }
+                      }),
+                      inactiveThumbColor: AppC.white,
+                      inactiveTrackColor: AppC.appColor,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      activeColor: AppC.white,
+                      activeTrackColor: AppC.green,
+                      value: completeAllDay,
+                      onChanged: (value) {
+                        completeAllDay = value;
+                        setState(() {});
+                        todoBloc!.add(CompleteTodoItem(
+                            todoId: todoItem['id'].toString(),
+                            status: completeAllDay
+                                ? 'Completed'
+                                : 'In Progress'));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                const BottomNavigationForTaskView(
+                                  selectedIndex: 0,
+                                  message: '',
+                                )
+                            )
+                        );
+                      }
+                      ),
+                ),
+              ),
+            ),
+            onTap: () {},
+          ),
+          GestureDetector(
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(Icons.delete_outline, color: Colors.red),
+            ),
+            onTap: () {
+              DeletePermissionDialog.of.show(context, (val) {
+                setState(() {
+                  if (val.isNotEmpty) {
+                    todoBloc?.add(DeleteTodoEvent(todoId: todoItem['id']
+                        .toString()));
+                    vehicleDataBloc?.add(vdb.DeleteExpense(id: widget
+                        .todoItem['expense_id']));
                   }
                 });
-              },
+              });
+            },
+          ),
+          GestureDetector(
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.0),
+              child: Icon(Icons.save, color: AppC.green),
             ),
-            Visibility(
-              visible: todoImages.isNotEmpty,
-              child: GestureDetector(
-                onTap: () {
-                  ShowAttachmentsDialog.of.show(context, attachments: todoImages, title: "");
-                },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Icon(
-                    Icons.remove_red_eye_outlined,
-                    color: AppC.green,
-                  ),
-                ),
-              ),
+            onTap: () {
+              doCreateEditTodo(todoName: null, time: null);
+            },
+          ),
+          GestureDetector(
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Icon(Icons.close_sharp, color: AppC.grey),
             ),
-            GestureDetector(
-              child: Transform.scale(
-                scale: 0.6,
-                child: SizedBox(width: 40,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Switch(
-                        trackOutlineColor: WidgetStateColor.resolveWith(
-                              (states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return AppC.green;
-                            } else {
-                              return AppC.grey;
-                            }
-                          },
-                        ),
-                        inactiveThumbColor: AppC.white,
-                        inactiveTrackColor: AppC.appColor,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        activeColor: AppC.white,
-                        activeTrackColor: AppC.green,
-                        value: completeAllDay,
-                        onChanged: (value) {
-                          completeAllDay = value;
-                          setState(() {});
-                          todoBloc!.add(CompleteTodoItem(
-                              todoId: todoItem['id'].toString(),
-                              status: completeAllDay
-                                  ? 'Completed'
-                                  : 'In Progress'));
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const BottomNavigationForTaskView(
-                                        selectedIndex: 0,
-                                        message: '',
-                                      )
-                              )
-                          );
-                        }),
-                  ),
-                ),
-              ),
-              onTap: () {},
-            ),
-            GestureDetector(
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0),
-                child: Icon(Icons.delete_outline, color: Colors.red),
-              ),
-              onTap: () {
-                DeletePermissionDialog.of.show(context, (val) {
-                  setState(() {
-                    if(val.isNotEmpty){
-                      todoBloc?.add(DeleteTodoEvent(
-                          todoId: todoItem['id'].toString()));
-                      vehicleDataBloc?.add(vdb.DeleteExpense(
-                          id: widget.todoItem['expense_id']));
-                    }
-                  });
-                }
-                ,);
-              },
-            ),
-            GestureDetector(
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0),
-                child: Icon(Icons.save, color: AppC.green),
-              ),
-              onTap: () {
-                doCreateEditTodo(todoName: null, time: null);
-              },
-            ),
-            GestureDetector(
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.close_sharp, color: AppC.grey),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-        body: MultiBlocProvider(
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+      body:
+      SafeArea(
+        child:
+        MultiBlocProvider(
           providers: [
             BlocProvider(
-                create: (context) => todoBloc!
+                create: (context) =>
+                todoBloc!
                   ..add(widget.todoItem['expense_id'] != null &&
                       widget.todoItem['expense_id']!.isNotEmpty
                       ? GetExpenseToData(
@@ -704,103 +744,90 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       : const TodoViewInitialEvent())),
             BlocProvider(
               create: (context) =>
-              vehicleDataBloc!..add(const vdb.VehicleInitial()),
+              vehicleDataBloc!
+                ..add(const vdb.VehicleInitial()),
             ),
-            /*BlocProvider(
-              create: (context) => locationDataBloc!..add(const AddedLocationInitial()),
-            ),*/
           ],
-          child: MultiBlocListener(
+          child:
+          MultiBlocListener(
             listeners: [
               BlocListener<TodoViewBloc, TodoViewState>(
                 listener: (context, state) async {
-                  if (state is VehicleDataLoaded) {
+                  if (state is vdb.VehicleDataLoading) {
+                    EasyLoading.show();
+                  }
+                  else if (state is VehicleDataLoaded) {
+                    if(EasyLoading.isShow)EasyLoading.dismiss();
                     vehicleList.addAll(state.vehicleData ?? []);
                     editMultipleVehicleList.addAll(state.vehicleData ?? []);
                     if (vinToFind != null) {
                       vehicle = vehicleList.firstWhere(
-                        (emp) => emp['vin'] == vinToFind,
+                            (emp) => emp['vin'] == vinToFind,
                         orElse: () => {},
                       );
                       setVehicleList = vehicleList.firstWhere(
-                        (emp) => emp['vin'] == vinToFind,
+                            (emp) => emp['vin'] == vinToFind,
                         orElse: () => {},
                       );
                     }
                     if (vinList.isNotEmpty) {
                       selectedVin = vehicleName.firstWhere(
-                        (emp) => emp['vin'] == vinList[0],
+                            (emp) => emp['vin'] == vinList[0],
                         orElse: () => {},
                       );
                       setVehicleList = vehicleList.firstWhere(
-                        (emp) => emp['vin'] == vinToFind,
+                            (emp) => emp['vin'] == vinToFind,
                         orElse: () => {},
                       );
                     }
-
+                    setState(() {
+                      setVehicleListCopy.addAll(setVehicleList);
+                    });
                     if (todoItem['vin'] == null) {
                       if (selectedVin != null && selectedVin['vin'] != null) {
                         vin = selectedVin['vin'];
-                      } else if (todoItem['vehicles'] is List && todoItem['vehicles'].isNotEmpty) {
+                      } else if (todoItem['vehicles'] is List &&
+                          todoItem['vehicles'].isNotEmpty) {
                         vin = todoItem['vehicles'][0]?['vin'];
                       }
                     } else {
                       vin = todoItem['vin'];
                     }
                     vin ??= '';
-
                     setVehicleList = vehicleList.firstWhere(
-                      (emp) => emp['vin'] == vin,
+                          (emp) => emp['vin'] == vin,
                       orElse: () => {},
                     );
-
+                    setVehicleListCopy.addAll(setVehicleList);
                     if (editVehiclePersonController.text.isNotEmpty) {
                       CreateTodoParams createTodoParams =
-                          getSelectedVehiclePersonEdit(
-                              createTodoParamForVHistory);
-                      // .then((value) {
+                      getSelectedVehiclePersonEdit(createTodoParamForVHistory);
                       if ((createTodoParams.vin != null &&
-                              createTodoParams.vin!.isNotEmpty) ||
+                          createTodoParams.vin!.isNotEmpty) ||
                           (createTodoParams.vehicleGroupId != null &&
                               createTodoParams.vehicleGroupId!.isNotEmpty)) {
-                        // isShowVehicleHistoryList = true;
-                        // vehicleDataBloc = VehicleDataBloc();
                         vehicleDataBloc!.add(vdb.GetVehicleHistoryEvent(
                             vin: createTodoParams.vin,
-                            vehicleGroupId: /*value.vehicleGroupId != null ?*/
-                                /*int.parse(value.vehicleGroupId??'0') :*/ null,
+                            vehicleGroupId: null,
                             needUI: false));
-                        setState(() {});
                       }
-                      // else {
-                      // isShowVehicleHistoryList = false;
-                      // setState(() {});
-                      // }
-
                       setState(() {
                         isDataLoaded = true;
                       });
-                      // });
                     }
                   } else if (state is CheckListLoaded) {
                     checkListData.clear();
                     checkListData.addAll(state.data ?? []);
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is MaintenanceCheckListLoaded) {
                     maintenanceCheckListData.clear();
                     childrenData.clear();
                     maintenanceCheckListData.addAll(state.data ?? []);
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is UserGroupListLoaded) {
                     userGroupList.clear();
                     userGroupList.addAll(state.userGroupDataList ?? []);
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is DropdownDataLoaded) {
                     createExpenseFieldData = state.createExpenseFieldData;
                     if (state.createExpenseFieldData != null) {
@@ -808,12 +835,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           state.createExpenseFieldData!.cohortsData ?? [];
                       if (categoriesData.isEmpty) {
                         categoriesData =
-                            state.createExpenseFieldData!.expenseCategories ??  [];
+                            state.createExpenseFieldData!.expenseCategories ??
+                                [];
                       }
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is AssignedToLoaded) {
                     resourceList = [];
                     resourceList = state.resource ?? [];
@@ -821,61 +847,45 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     isSelected = true;
                     selectedAssignedTo.add(resourceList[0]);
                     resourceListForCombination = state.resource ?? [];
-                    // for (Map<String, dynamic> resource in resourceList) {
-                    //   if (resource['id'].toString().trim() ==
-                    //       (todoItem['users']?['id'] ?? 0).toString()) {
-                    //     selectedResource = resource;
-                    //   }
-                    // }
-                    for (Map<String, dynamic> res in resourceListForCombination) {
+                    for (Map<
+                        String,
+                        dynamic> res in resourceListForCombination) {
                       Map<String, dynamic> vehiclesData = {
                         'id': res['id'],
-                        'vehicle_name':
-                        '${res['first_name']}${res['last_name']}',
-                        //'isSelected': false
+                        'vehicle_name': '${res['first_name']}${res['last_name']}',
                       };
                       editMultipleVehicleList.add(vehiclesData);
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is TaskExpenseLoaded) {
                     taskExpenseList = state.resource ?? [];
-                    setState(() {
-                      isDataLoaded = true;
-                    });
-                  }
-                  else if (state is CohortsListLoaded) {
+                    isDataLoaded = true;
+                  } else if (state is CohortsListLoaded) {
                     categoryList.clear();
                     categoryList.addAll(state.expenseData ?? []);
                   } else if (state is VendorLoaded) {
                     vendorList = state.resource ?? [];
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is LocationLoaded) {
                     locationList = state.resource ?? [];
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is CreateTodoLoaded) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
-                      //Navigator.push(context,MaterialPageRoute(builder: (context)=>const TodoViewUI()));
-                      setState(() {
-                        isDataLoaded = true;
-                      });
+                      isDataLoaded = true;
                     }
-                  } else if (state is CreateExpenseLoaded) {
-                    if (state.expenseSummaryResponse != null &&
-                        state.isVehicleGroup!) {
+                  }
+                  else if (state is CreateExpenseLoaded) {
+                    if (state.expenseSummaryResponse != null && state
+                        .isVehicleGroup!) {
                       expenseIdsCount++;
                       if (expenseIds.isEmpty) {
                         expenseIds =
                         '${state.expenseSummaryResponse!.expense![0]['id']}';
                       } else {
                         expenseIds =
-                        '$expenseIds,${state.expenseSummaryResponse!.expense![0]['id']}';
+                        '$expenseIds,${state.expenseSummaryResponse!
+                            .expense![0]['id']}';
                         if (expenseIdsCount ==
                             vehicleGroupVinNumbersList!.length) {
                           todoBloc!.add(EditTodoDate(
@@ -889,21 +899,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               "[$expenseIds]",
                               null));
                         }
-                        setState(() {
-                          isDataLoaded = true;
-                        });
+                        isDataLoaded = true;
                       }
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
                   } else if (state is TodoItemCompletedV) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is PartsLoaded) {
                     if (state.partsList != null) {
                       editPartsList.addAll(state.partsList!);
@@ -911,10 +914,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           widget.todoItem['parts']!.isNotEmpty) {
                         isPartChecked = true;
                         selectedPartsList.clear();
-                        for (Map<String, dynamic> parts
-                        in widget.todoItem['parts']!) {
-                          for (Map<String, dynamic> partsData
-                          in editPartsList) {
+                        for (Map<String, dynamic> parts in widget
+                            .todoItem['parts']!) {
+                          for (Map<String,
+                              dynamic> partsData in editPartsList) {
                             if (parts['parts_id'] ==
                                 partsData['id'].toString()) {
                               partIsSelected = true;
@@ -925,26 +928,23 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is DeleteTodoLoaded) {
                     if (state.result != null && state.result!) {
                       Navigator.of(context).pop(true);
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
-                  } else if (state is SuppliesLoaded) {
+                    isDataLoaded = true;
+                  }
+                  else if (state is SuppliesLoaded) {
                     if (state.suppliesList != null) {
                       editSuppliesList.addAll(state.suppliesList!);
                       if (widget.todoItem['supplies'] != null &&
                           widget.todoItem['supplies']!.isNotEmpty) {
                         isSupplyChecked = true;
-                        for (Map<String, dynamic> supply
-                        in widget.todoItem['supplies']!) {
-                          for (Map<String, dynamic> supplyData
-                          in editSuppliesList) {
+                        for (Map<String, dynamic> supply in widget
+                            .todoItem['supplies']!) {
+                          for (Map<String,
+                              dynamic> supplyData in editSuppliesList) {
                             if (supply['supplies_id'] ==
                                 supplyData['id'].toString()) {
                               suppliesIsSelected = true;
@@ -955,15 +955,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   } else if (state is VehicleGroupListLoaded) {
                     vehicleGroupList.clear();
                     vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
                     if (editVehiclePersonController.text.isEmpty) {
-                      for (Map<String, dynamic> vehicleGroupData
-                      in vehicleGroupList) {
+                      for (Map<String,
+                          dynamic> vehicleGroupData in vehicleGroupList) {
                         if (vehicleGroupData['id'] ==
                             todoItem['vehicle_group_id']) {
                           vehicleGroupName = vehicleGroupData['name'] ?? '';
@@ -973,28 +971,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         }
                       }
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
-                  }
-                  else if (state is ExpenseTodoLoaded) {
-                    expenseData = state.expenseSummaryData??{};
-                    setState(() {
-                      isDataLoaded = true;
-                    });
-                  }
-                  else if (state is TaskExpenseLoaded) {
+                    isDataLoaded = true;
+                  } else if (state is ExpenseTodoLoaded) {
+                    expenseData = state.expenseSummaryData ?? {};
+                    isDataLoaded = true;
+                  } else if (state is TaskExpenseLoaded) {
                     taskExpenseList.addAll(state.resource ?? []);
-                    setState(() {
-                      isDataLoaded = true;
-                    });
-                  }
-                  else if (state is PaymentListLoaded) {
+                    isDataLoaded = true;
+                  } else if (state is PaymentListLoaded) {
                     paymentList.clear();
                     paymentList.addAll(state.data ?? []);
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   }
                 },
               ),
@@ -1013,10 +1000,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       vehicleDataBloc!.add(vdb.GetVehicleHistoryEvent(
                           vin: createTodoParamForVHistory.vin,
                           vehicleGroupId: createTodoParamForVHistory
-                              .vehicleGroupId !=
-                              null
-                              ? int.parse(
-                              createTodoParamForVHistory.vehicleGroupId!)
+                              .vehicleGroupId != null
+                              ? int.parse(createTodoParamForVHistory
+                              .vehicleGroupId!)
                               : null,
                           needUI: true));
                     }
@@ -1024,48 +1010,41 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     if (state.vehicleHistoryList != null) {
                       todoList.clear();
                       todoListRepo.vehicleHistoryTempSearchList.clear();
-                      for (Map<String, dynamic> todos
-                      in state.vehicleHistoryList!) {
+                      for (Map<String, dynamic> todos in state
+                          .vehicleHistoryList!) {
                         if (todos['status'] == 'Completed') {
                           textColors = AppC().base;
                         } else {
                           textColors = AppC.text;
                         }
                       }
-                      /*List<Todos> list = [];
-                      list.addAll(state.vehicleHistoryList ?? []);
-                      list.sort((a, b) =>
-                          DateTime.parse(a.createdAt ?? '').compareTo(
-                              DateTime.parse(b.createdAt ?? '')));
-                     */
                       todoList.addAll(state.vehicleHistoryList!);
                       todoListRepo.vehicleHistoryTempSearchList
-                          .addAll(/*todoList*/ state.vehicleHistoryList!);
-
-                      /*if (todoList.isNotEmpty) {
-                        if (todoList.first.title == 'clean car'){
-
-                        }
-                      }*/
+                          .addAll(state.vehicleHistoryList!);
                       setState(() {});
                     }
-                    setState(() {
-                      isDataLoaded = true;
-                    });
+                    isDataLoaded = true;
                   }
                 },
               ),
             ],
             child: BlocBuilder<TodoViewBloc, TodoViewState>(
                 builder: (context, state) {
-                  if (!isMaintenanceLoaded) isMaintenanceLoaded = state is MaintenanceCheckListLoaded;
+                  if (!isMaintenanceLoaded) {
+                    isMaintenanceLoaded = state is MaintenanceCheckListLoaded;
+                  }
+                  if (!isCheckListLoaded) {
+                    isCheckListLoaded = state is CheckListLoaded;
+                  }
                   if (isMaintenanceLoaded) showExpenseTab = 3;
-
-                  //log("${state.runtimeType} $isMaintenanceLoaded", name: "STATE_TYPE");
-                  return SafeArea(
-                    child: Stack(
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: MediaQuery
+                        .of(context)
+                        .viewInsets
+                        .bottom),
+                    child: Column(
                       children: [
-                        SingleChildScrollView(
+                        Expanded(
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
@@ -1078,90 +1057,102 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               editShowPartsList = false;
                               editShowSuppliesList = false;
                               editShowMultipleAddressList = false;
+                              suggestionOverlay?.remove();
+                              suggestionOverlay = null;
                               setState(() {});
                             },
-                            child: Column(
+                            child: ListView(
                               children: [
                                 Padding(
-                                  padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
                                   child: editTodoWidget(),
                                 ),
                                 Padding(
-                                  padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
                                   child: Column(
                                     children: [
                                       showBottomTabWidget(),
                                     ],
                                   ),
                                 ),
-                                if (isDataLoaded)
-                                if (showExpenseTab == 0)
-                                  TodoEditExpenseUI(
-                                    vehicle: vehicle,
-                                    vehicleName: vehicleName,
-                                    todoData: todoItem,
-                                  )
-                                else if (showExpenseTab == 1)
-                                  const Placeholder()
-                                  // const CreateTodoUI(showHeader: false)
-                                else if (showExpenseTab == 2)
-                                   CheckListUI(
-                                       checkListData:checkListData,
-                                     todoItems: todoItem,
-                                   )
-                                  else if ((showExpenseTab == 3) && isMaintenanceLoaded)
-                                      MaintenanceCheckListUI(
-                                        maintenance: maintenanceCheckListData,
-                                        todoItems: todoItem,
-                                        vehicle: setVehicleList,
-                                      )
-                                    else if (showExpenseTab == 4)
-                                        // VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,
-                                        //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
-                                        // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
-                                        //   multipleLocationList: widget.multipleLocationList,)
-                                        VehicleEditUI(vehicle:
-                                        selectedDropDownData == null ? setVehicleList : DropDownData,showHeader: false, data: selectedDropDownData,
-                                          todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
-                                          categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
-                                          multipleLocationList: widget.multipleLocationList,)
-                                      else if (showExpenseTab == 5)
-                                          TotoExpense(expenseId: todoItem['expense_id'],)
+                                //if (isDataLoaded)
+                                  if (showExpenseTab == 0)
+                                    TodoEditExpenseUI(
+                                      vehicle: vehicle,
+                                      vehicleName: vehicleName,
+                                      todoData: todoItem,
+                                    )
+                                  else
+                                    if (showExpenseTab == 1)
+                                      const Placeholder()
+                                    else
+                                      if ((showExpenseTab == 2) &&
+                                          isCheckListLoaded)
+                                        CheckListUI(
+                                          checkListData: checkListData,
+                                          todoItems: todoItem,
+                                          vehicle: setVehicleListCopy,
+                                        )
                                       else
-                                        Container(
-                                          margin: const EdgeInsets.only(top: 30),
-                                          child:
-                                          Utils.getText('No Vehicle Exist', size: 16),
-                                        ),
+                                        if ((showExpenseTab == 3) &&
+                                            isMaintenanceLoaded)
+                                          MaintenanceCheckListUI(
+                                            maintenance: maintenanceCheckListData,
+                                            todoItems: todoItem,
+                                            vehicle: setVehicleListCopy,
+                                          )
+                                        else
+                                          if (showExpenseTab == 4)
+                                            VehicleEditUI(
+                                              vehicle: selectedDropDownData ==
+                                                  null
+                                                  ? setVehicleList
+                                                  : DropDownData,
+                                              showHeader: false,
+                                              data: selectedDropDownData,
+                                              todoItems: widget.todoItem,
+                                            )
+                                          else
+                                            if (showExpenseTab == 5)
+                                              TotoExpense(
+                                                expenseId: todoItem['expense_id'],
+                                              )
+                                            else
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                    top: 30),
+                                                child: const SizedBox(),
+                                              ),
                               ],
                             ),
                           ),
                         ),
                         Visibility(
-                            visible: (state is TodoListLoading || state is vdb.VehicleDataLoading)
-                            && ((state is! TodoViewInitial)
-                            || (state is! TodoListLoading)
-                            || (state is! CohortsListLoaded)
-                            || (state is! DropdownDataLoaded)
-                            || (state is! CheckListLoaded)
-                            || (state is! VehicleGroupListLoaded)
-                            || (state is! SuppliesLoaded)
-                            || (state is! MaintenanceCheckListLoaded)
-                            || (state is! UserGroupListLoaded)),
-                            child: Center(child: Utils.getProgressIndicator(context))
+                            visible: (state is TodoListLoading || state is vdb
+                                .VehicleDataLoading) &&
+                                ((state is! TodoViewInitial) ||
+                                    (state is! TodoListLoading) ||
+                                    (state is! CohortsListLoaded) ||
+                                    (state is! DropdownDataLoaded) ||
+                                    (state is! CheckListLoaded) ||
+                                    (state is! VehicleGroupListLoaded) ||
+                                    (state is! SuppliesLoaded) ||
+                                    (state is! MaintenanceCheckListLoaded) ||
+                                    (state is! UserGroupListLoaded)),
+                            child: SizedBox()
                         )
                       ],
                     ),
                   );
                 }),
           ),
-        ));
+        ),
+      ),
+    );
   }
-  FocusNode partsFocusNode = FocusNode();
 
-//END UI
   Widget editTodoWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1182,7 +1173,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         value: timeSensitive,
                         checkColor: AppC.white,
                         fillColor:
-                            WidgetStateProperty.resolveWith<Color>((states) {
+                        WidgetStateProperty.resolveWith<Color>((states) {
                           if (states.contains(WidgetState.selected)) {
                             return AppC.blue;
                           }
@@ -1213,20 +1204,20 @@ class _EditTodoUIState extends State<EditTodoUI> {
               Expanded(
                   child: Utils.getTextFormField(
                       contentPadding:
-                          const EdgeInsets.only(right: 21, left: 10),
+                      const EdgeInsets.only(right: 21, left: 10),
                       '',
                       editTodoDateController,
                       readOnly: true, onTapCallback: () {
-                Utils.todoDatePickerDialog(
-                  context,
-                  '',
-                  initial: DateTime.parse(editTodoDateController.text),
-                ).then((value) {
-                  editSelectedDate = value;
-                  editTodoDateController.text =
-                      Utils.convertDateToYearMonthDateFormat(value.toString());
-                });
-              },
+                    Utils.todoDatePickerDialog(
+                      context,
+                      '',
+                      initial: DateTime.parse(editTodoDateController.text),
+                    ).then((value) {
+                      editSelectedDate = value;
+                      editTodoDateController.text =
+                          Utils.convertDateToYearMonthDateFormat(value.toString());
+                    });
+                  },
                       suffixIcon: GestureDetector(
                         onTap: () {},
                         child: const Icon(
@@ -1246,7 +1237,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       initialTime: TimeOfDay(
                         hour: int.parse(todoTimeController.text.split(":")[0]),
                         minute:
-                            int.parse(todoTimeController.text.split(":")[1]),
+                        int.parse(todoTimeController.text.split(":")[1]),
                       ),
                       builder: (BuildContext context, Widget? child) {
                         return MediaQuery(
@@ -1274,29 +1265,29 @@ class _EditTodoUIState extends State<EditTodoUI> {
           height: 15,
         ),
         Utils.getTextFormField('Task Name', editTodoNameController,
-            readOnly: false, onChangeCallback: (value) {
-          if (value.isNotEmpty) {
-            taskIdentifierSuggestionList.clear();
-            List vehiclePersonList =
-                taskExpenseList.map((e) => e['task'] ?? '').toList();
-            taskIdentifierSuggestionList
-                .addAll(Utils.searchList(vehiclePersonList, value));
-            editShowList = taskIdentifierSuggestionList.isNotEmpty;
-          } else {
-            editShowList = false;
-          }
-          setState(() {});
+          readOnly: false, onChangeCallback: (value) {
+            if (value.isNotEmpty) {
+              taskIdentifierSuggestionList.clear();
+              List vehiclePersonList =
+              taskExpenseList.map((e) => e['task'] ?? '').toList();
+              taskIdentifierSuggestionList
+                  .addAll(Utils.searchList(vehiclePersonList, value));
+              editShowList = taskIdentifierSuggestionList.isNotEmpty;
+            } else {
+              editShowList = false;
+            }
+            setState(() {});
           },
-            suffixIcon: Visibility(
-              visible: !editShowList && editTodoNameController.text.isNotEmpty,
-              child: InkWell(
-                  onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const TaskViewUI(),
-                    ));
-                  },
-                  child: Icon(Icons.add, color: AppC().base, size: 20)),
-            ),
+          suffixIcon: Visibility(
+            visible: !editShowList && editTodoNameController.text.isNotEmpty,
+            child: InkWell(
+                onTap: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const TaskViewUI(),
+                  ));
+                },
+                child: Icon(Icons.add, color: AppC().base, size: 20)),
+          ),
 
         ),
         Stack(
@@ -1314,7 +1305,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     todoItem['title'] != 'Check Out')
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
                     decoration: BoxDecoration(
                         border: Border.all(
                           color: AppC.fieldBase,
@@ -1329,17 +1320,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         Wrap(
                           children: List<Widget>.generate(
                             selectedMultipleVehicleList.length,
-                            (int idx) {
+                                (int idx) {
                               return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 5.0),
                                   child: Chip(
                                     onDeleted: () {
                                       for (var element
-                                          in editMultipleVehicleList) {
+                                      in editMultipleVehicleList) {
                                         if (element['vehicle_name'] ==
                                             selectedMultipleVehicleList[idx]
-                                                ['vehicle_name']) {
+                                            ['vehicle_name']) {
                                           isVehicleSelected = false;
                                         }
                                       }
@@ -1359,12 +1350,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         if (selectedMultipleVehicleList
-                                                .isNotEmpty &&
+                                            .isNotEmpty &&
                                             selectedMultipleVehicleList[idx]
-                                                is Map<String, dynamic>)
+                                            is Map<String, dynamic>)
                                           Utils.getText(
                                             selectedMultipleVehicleList[idx]
-                                                    ['vehicle_name'] ??
+                                            ['vehicle_name'] ??
                                                 '',
                                             color: AppC.text,
                                           ),
@@ -1391,7 +1382,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             editShowMultipleVehicleList = false;
                           }
                           setState(() {});
-                        },
+                          },
                             suffixIcon: Visibility(
                               visible: !editShowMultipleVehicleList &&
                                   editVehiclePersonController.text.isNotEmpty,
@@ -1405,13 +1396,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                         await Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>
-                                              const VehicleViewUI(),
+                                          const VehicleViewUI(),
                                         ));
                                       } else {
                                         await Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>
-                                              const EmployeesViewUI(),
+                                          const EmployeesViewUI(),
                                         ));
                                       }
                                     });
@@ -1421,7 +1412,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     color: AppC().base,
                                     size: 20,
                                   )),
-                            )),
+                            )
+                        ),
                       ],
                     ),
                   ),
@@ -1443,8 +1435,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             if (value.isNotEmpty) {
                               vendorLocationSuggestionList.clear();
                               List vendorLocationList = vendorList
-                                      .map((e) => e['name'] ?? '')
-                                      .toList() +
+                                  .map((e) => e['name'] ?? '')
+                                  .toList() +
                                   locationList
                                       .map((e) => e['name'] ?? '')
                                       .toList();
@@ -1458,7 +1450,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             }
                             setState(() {}
                             );
-                            },
+                          },
                               suffixIcon: Visibility(
                                 visible: !editShowVendorLocationList &&
                                     editVendorLocationController
@@ -1473,13 +1465,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                         await Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>
-                                              const VendorViewUI(),
+                                          const VendorViewUI(),
                                         ));
                                       } else {
                                         await Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>
-                                              const LocationViewUI(),
+                                          const LocationViewUI(),
                                         ));
                                       }
                                     });
@@ -1519,11 +1511,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                         },
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                           children: [
                                             Utils.getText('More...',
                                                 color:
-                                                    Colors.lightBlue.shade800),
+                                                Colors.lightBlue.shade800),
                                             const SizedBox(
                                               width: 20,
                                             ),
@@ -1532,7 +1524,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                 '',
                                                 selectedKey: selectedLink,
                                                 customTaskOptions,
-                                                (selectedValue) {
+                                                    (selectedValue) {
                                                   FocusScope.of(context).unfocus();
                                                   setState(() {
                                                     selectedLink =
@@ -1540,7 +1532,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                   });
                                                 },
                                                 initialSelection:
-                                                    selectedLink,
+                                                selectedLink,
                                                 labelKey: 'label',
                                               ),
                                             ),
@@ -1630,9 +1622,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                         )
                                     ),
                                   ),
-                                    Visibility(
-                                      visible: showMore,
-                                      child: Column(
+                                Visibility(
+                                    visible: showMore,
+                                    child: Column(
                                       children: [
                                         getPartSupplyCheckBoxRow(),
                                         if (todoItem['identifier_id'] == 212 ||
@@ -1655,12 +1647,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                   child: Utils.dropdownBox(
                                                       'Select Sentiments',
                                                       sentiments,
-                                                      (selectedValue) {
-                                                    setState(() {
-                                                      selectedSentiments =
-                                                          selectedValue;
-                                                    });
-                                                  }, labelKey: 'name'),
+                                                          (selectedValue) {
+                                                        setState(() {
+                                                          selectedSentiments =
+                                                              selectedValue;
+                                                        });
+                                                      }, labelKey: 'name'),
                                                 ),
                                               ],
                                             ),
@@ -1668,8 +1660,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
                                       ],
                                     )
-                                  ),
-                                  Visibility(
+                                ),
+                                Visibility(
                                   visible: isPartChecked && showMore,
                                   child:
                                   Column(
@@ -1689,17 +1681,19 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           ),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(
-                                                  Num.subradiusButton)),
+                                                  Num.subradiusButton
+                                              )
+                                          ),
                                         ),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             Wrap(
                                               children: List<Widget>.generate(
                                                 selectedPartsList.length,
-                                                (int idx) {
+                                                    (int idx) {
                                                   return Padding(
                                                       padding: const EdgeInsets
                                                           .symmetric(
@@ -1708,13 +1702,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                         // deleteIconColor: AppC.red,
                                                         onDeleted: () {
                                                           for (var element
-                                                              in editPartsList) {
+                                                          in editPartsList) {
                                                             if (element['id'] ==
                                                                 selectedPartsList[
-                                                                        idx]
-                                                                    ['id']) {
+                                                                idx]
+                                                                ['id']) {
                                                               partIsSelected =
-                                                                  false;
+                                                              false;
                                                             }
                                                           }
                                                           if (partId != 0) {
@@ -1744,7 +1738,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                                 color: AppC.text),
                                                           ],
                                                         ),
-                                                      ));
+                                                      )
+                                                  );
                                                 },
                                               ).toList(),
                                             ),
@@ -1753,30 +1748,30 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                 editPartsController,
                                                 readOnly: false,
                                                 onChangeCallback: (value) {
-                                              editPartsSuggestionList.clear();
-                                              List<dynamic> partsList =
-                                                  editPartsList /*.map((e) =>'${e.name}').toList()*/;
-                                              editPartsSuggestionList.addAll(
-                                                  Utils.searchObjectList(
-                                                      partsList, value));
-                                              editShowPartsList =
-                                                  editPartsSuggestionList
-                                                      .isNotEmpty;
-                                              setState(() {});
-                                              },
+                                                  editPartsSuggestionList.clear();
+                                                  List<dynamic> partsList =
+                                                      editPartsList /*.map((e) =>'${e.name}').toList()*/;
+                                                  editPartsSuggestionList.addAll(
+                                                      Utils.searchObjectList(
+                                                          partsList, value));
+                                                  editShowPartsList =
+                                                      editPartsSuggestionList
+                                                          .isNotEmpty;
+                                                  setState(() {});
+                                                },
                                                 suffixIcon: Visibility(
                                                   visible: !editShowPartsList,
                                                   child: InkWell(
                                                       onTap: () async {
                                                         FocusScope.of(context).requestFocus(FocusNode());
                                                         await Navigator.of(
-                                                                context)
+                                                            context)
                                                             .push(
-                                                                MaterialPageRoute(
-                                                          builder: (context) =>
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
                                                               const PartViewUI(),
-                                                        ));
-                                                          FocusScope.of(context).requestFocus(FocusNode());
+                                                            ));
+                                                        FocusScope.of(context).requestFocus(FocusNode());
                                                       },
                                                       child: Icon(Icons.add,
                                                           color: AppC().base,
@@ -1795,7 +1790,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                   children: [
                                     Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Visibility(
                                           visible: isSupplyChecked && showMore,
@@ -1806,7 +1801,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               ),
                                               Container(
                                                 padding:
-                                                    const EdgeInsets.symmetric(
+                                                const EdgeInsets.symmetric(
                                                   horizontal: 5,
                                                   vertical: 8,
                                                 ),
@@ -1816,80 +1811,80 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                     width: Num.borderWidthField,
                                                   ),
                                                   borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(Num
-                                                              .subradiusButton)),
+                                                  const BorderRadius.all(
+                                                      Radius.circular(Num
+                                                          .subradiusButton)),
                                                 ),
                                                 child: Column(
                                                   mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  MainAxisSize.min,
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                                   children: [
                                                     Wrap(
                                                       children:
-                                                          List<Widget>.generate(
+                                                      List<Widget>.generate(
                                                         selectedSuppliesList
                                                             .length,
-                                                        (int idx) {
+                                                            (int idx) {
                                                           return Padding(
                                                               padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      horizontal:
-                                                                          5.0),
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                  5.0),
                                                               child: Chip(
                                                                 // deleteIconColor: AppC.red,
                                                                 onDeleted: () {
                                                                   for (var element
-                                                                      in editSuppliesList) {
+                                                                  in editSuppliesList) {
                                                                     if (element[
-                                                                            'id'] ==
+                                                                    'id'] ==
                                                                         selectedSuppliesList[idx]
-                                                                            [
-                                                                            'id']) {
+                                                                        [
+                                                                        'id']) {
                                                                       suppliesIsSelected =
-                                                                          false;
+                                                                      false;
                                                                     }
                                                                   }
                                                                   if (suppliesId !=
-                                                                          null &&
+                                                                      null &&
                                                                       suppliesId !=
                                                                           0) {
                                                                     todoBloc!.add(
                                                                         DeleteSupplysEvent(
-                                                                      suppliesId:
+                                                                          suppliesId:
                                                                           suppliesId,
-                                                                    ));
+                                                                        ));
                                                                   }
                                                                   selectedSuppliesList
                                                                       .removeAt(
-                                                                          idx);
+                                                                      idx);
                                                                   setState(
-                                                                      () {});
+                                                                          () {});
                                                                 },
                                                                 side: const BorderSide(
                                                                     color: AppC
                                                                         .trans),
                                                                 deleteIcon:
-                                                                    const Icon(
+                                                                const Icon(
                                                                   Icons.close,
                                                                   color:
-                                                                      AppC.red,
+                                                                  AppC.red,
                                                                   size: 18,
                                                                 ),
                                                                 backgroundColor:
-                                                                    const Color(
-                                                                        0xffb5d2bb),
+                                                                const Color(
+                                                                    0xffb5d2bb),
                                                                 shape: RoundedRectangleBorder(
                                                                     borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            5)),
+                                                                    BorderRadius.circular(
+                                                                        5)),
                                                                 // side: BorderSide(),
                                                                 label: Row(
                                                                   mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
+                                                                  MainAxisSize
+                                                                      .min,
                                                                   children: [
                                                                     Utils.getText(
                                                                         selectedSuppliesList[idx]['name'] ??
@@ -1908,33 +1903,33 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                         readOnly: false,
                                                         onChangeCallback:
                                                             (value) {
-                                                      editSuppliesSuggestionList
-                                                          .clear();
-                                                      List<dynamic> supplyList =
-                                                          editSuppliesList /*.map((e) =>'${e.name}').toList()*/;
-                                                      editSuppliesSuggestionList
-                                                          .addAll(Utils
-                                                              .searchObjectList(
-                                                                  supplyList,
-                                                                  value));
-                                                      editShowSuppliesList =
                                                           editSuppliesSuggestionList
-                                                              .isNotEmpty;
-                                                      setState(() {});
-                                                      },
+                                                              .clear();
+                                                          List<dynamic> supplyList =
+                                                              editSuppliesList /*.map((e) =>'${e.name}').toList()*/;
+                                                          editSuppliesSuggestionList
+                                                              .addAll(Utils
+                                                              .searchObjectList(
+                                                              supplyList,
+                                                              value));
+                                                          editShowSuppliesList =
+                                                              editSuppliesSuggestionList
+                                                                  .isNotEmpty;
+                                                          setState(() {});
+                                                        },
                                                         suffixIcon: Visibility(
                                                           visible:
-                                                              !editShowSuppliesList,
+                                                          !editShowSuppliesList,
                                                           child: InkWell(
                                                               onTap: () async {
                                                                 await Navigator.of(
-                                                                        context)
+                                                                    context)
                                                                     .push(
-                                                                        MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          const SuppliesViewUI(),
-                                                                ));
+                                                                    MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                      const SuppliesViewUI(),
+                                                                    ));
                                                               },
                                                               child: Icon(
                                                                   Icons.add,
@@ -1953,58 +1948,58 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                             visible: editShowSuppliesList,
                                             child: Utils
                                                 .customAutoCompleteWithUnSelectedOption(
-                                                    editSuppliesSuggestionList,
+                                                editSuppliesSuggestionList,
                                                     (index) {
-                                              editShowSuppliesList = false;
-                                              countHyphens('');
-                                              selectedSuppliesList.add(
-                                                  editSuppliesSuggestionList[
+                                                  editShowSuppliesList = false;
+                                                  countHyphens('');
+                                                  selectedSuppliesList.add(
+                                                      editSuppliesSuggestionList[
                                                       index]);
-                                              isSelected = true;
-                                              editSuppliesController.selection =
-                                                  TextSelection.fromPosition(
-                                                TextPosition(
-                                                    offset:
-                                                        (editSuppliesController
-                                                            .text.length)),
-                                              );
-                                              setState(() {});
-                                              editSuppliesController.selection =
-                                                  TextSelection.fromPosition(
-                                                TextPosition(
-                                                    offset:
-                                                        (editSuppliesController
-                                                            .text.length)),
-                                              );
-                                            })),
+                                                  isSelected = true;
+                                                  editSuppliesController.selection =
+                                                      TextSelection.fromPosition(
+                                                        TextPosition(
+                                                            offset:
+                                                            (editSuppliesController
+                                                                .text.length)),
+                                                      );
+                                                  setState(() {});
+                                                  editSuppliesController.selection =
+                                                      TextSelection.fromPosition(
+                                                        TextPosition(
+                                                            offset:
+                                                            (editSuppliesController
+                                                                .text.length)),
+                                                      );
+                                                })),
                                       ],
                                     ),
                                     Visibility(
                                         visible: editShowPartsList,
                                         child: Utils
                                             .customAutoCompleteWithUnSelectedOption(
-                                                editPartsSuggestionList,
+                                            editPartsSuggestionList,
                                                 (index) {
-                                          editShowPartsList = false;
-                                          countHyphens('');
-                                          // editPartsController.text = editPartsSuggestionList[index] ?? '';
-                                          selectedPartsList.add(
-                                              editPartsSuggestionList[index]);
-                                          partIsSelected = true;
-                                          editPartsController.selection =
-                                              TextSelection.fromPosition(
-                                            TextPosition(
-                                                offset: (editPartsController
-                                                    .text.length)),
-                                          );
-                                          setState(() {});
-                                          editPartsController.selection =
-                                              TextSelection.fromPosition(
-                                            TextPosition(
-                                                offset: (editPartsController
-                                                    .text.length)),
-                                          );
-                                        })),
+                                              editShowPartsList = false;
+                                              countHyphens('');
+                                              // editPartsController.text = editPartsSuggestionList[index] ?? '';
+                                              selectedPartsList.add(
+                                                  editPartsSuggestionList[index]);
+                                              partIsSelected = true;
+                                              editPartsController.selection =
+                                                  TextSelection.fromPosition(
+                                                    TextPosition(
+                                                        offset: (editPartsController
+                                                            .text.length)),
+                                                  );
+                                              setState(() {});
+                                              editPartsController.selection =
+                                                  TextSelection.fromPosition(
+                                                    TextPosition(
+                                                        offset: (editPartsController
+                                                            .text.length)),
+                                                  );
+                                            })),
                                   ],
                                 ),
                                 Visibility(
@@ -2030,7 +2025,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                             child: Utils.dropdownBox(
                                               '',
                                               customTaskOptions,
-                                              (selectedValue) {
+                                                  (selectedValue) {
                                                 FocusScope.of(context).unfocus();
                                                 setState(() {
                                                   selectedLink =
@@ -2051,9 +2046,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               FocusScope.of(context).requestFocus(FocusNode());
                                               FocusScope.of(context).unfocus();
                                               final RenderBox renderBox = _key
-                                                      .currentContext!
-                                                      .findRenderObject()
-                                                  as RenderBox;
+                                                  .currentContext!
+                                                  .findRenderObject()
+                                              as RenderBox;
                                               final Offset offset = renderBox
                                                   .localToGlobal(Offset.zero);
                                               final Size size = renderBox.size;
@@ -2062,13 +2057,13 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                 color: AppC.white,
                                                 context: context,
                                                 constraints:
-                                                    BoxConstraints.tightFor(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.8,
-                                                        height: 45),
+                                                BoxConstraints.tightFor(
+                                                    width: MediaQuery.of(
+                                                        context)
+                                                        .size
+                                                        .width *
+                                                        0.8,
+                                                    height: 45),
                                                 position: RelativeRect.fromLTRB(
                                                   offset.dx,
                                                   offset.dy + size.height,
@@ -2102,16 +2097,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                                   padding: EdgeInsets
                                                                       .symmetric(
                                                                       horizontal:
-                                                                          8.0),
-                                                              child: Icon(
-                                                                Icons.close,
-                                                                color: AppC.red,
+                                                                      8.0),
+                                                                  child: Icon(
+                                                                    Icons.close,
+                                                                    color: AppC.red,
+                                                                  ),
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }),
+                                                            ],
+                                                          );
+                                                        }),
                                                   ),
                                                 ],
                                               ).then((_) {
@@ -2121,7 +2116,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    BorderRadius.circular(4),
+                                                BorderRadius.circular(4),
                                                 color: AppC.appColor,
                                               ),
                                               padding: const EdgeInsets.symmetric(
@@ -2159,62 +2154,62 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 visible: editShowVendorLocationList,
                                 child: Utils.customAutoCompleteList(
                                     vendorLocationSuggestionList,
-                                    (index) async {
-                                  editShowVendorLocationList = false;
-                                  countHyphens('');
-                                  editVendorLocationController.text =
+                                        (index) async {
+                                      editShowVendorLocationList = false;
+                                      countHyphens('');
+                                      editVendorLocationController.text =
                                       vendorLocationSuggestionList[index];
-                                  editVendorLocationController.selection =
-                                      TextSelection.fromPosition(
-                                    TextPosition(
-                                        offset: (editVendorLocationController
-                                            .text.length)),
-                                  );
-                                  setState(() {});
-                                  editVendorLocationController.selection =
-                                      TextSelection.fromPosition(
-                                    TextPosition(
-                                        offset: (editVendorLocationController
-                                            .text.length)),
-                                  );
-                                  if (editVendorLocationController
-                                      .text.isNotEmpty) {
-                                    await getSelectedVendorLocation(
+                                      editVendorLocationController.selection =
+                                          TextSelection.fromPosition(
+                                            TextPosition(
+                                                offset: (editVendorLocationController
+                                                    .text.length)),
+                                          );
+                                      setState(() {});
+                                      editVendorLocationController.selection =
+                                          TextSelection.fromPosition(
+                                            TextPosition(
+                                                offset: (editVendorLocationController
+                                                    .text.length)),
+                                          );
+                                      if (editVendorLocationController
+                                          .text.isNotEmpty) {
+                                        await getSelectedVendorLocation(
                                             createTodoParamForVHistory)
-                                        .then((value) {
-                                      if (value.locationId != null &&
-                                          value.locationId!.isNotEmpty) {
-                                        selectedMultipleAddressId =
+                                            .then((value) {
+                                          if (value.locationId != null &&
+                                              value.locationId!.isNotEmpty) {
+                                            selectedMultipleAddressId =
                                             value.locationId!;
-                                        for (int i = 0;
+                                            for (int i = 0;
                                             i <
                                                 widget.multipleLocationList!
                                                     .length;
                                             i++) {
-                                          if (selectedMultipleAddressId !=
+                                              if (selectedMultipleAddressId !=
                                                   null &&
-                                              widget.multipleLocationList![i]
-                                                      ['id'] ==
-                                                  int.parse(
-                                                      selectedMultipleAddressId!)) {
-                                            addresses = [];
-                                            editMultipleAddressList = [];
-                                            addresses!.addAll(
-                                                widget.multipleLocationList![i]
-                                                        ['addresses'] ??
-                                                    []);
-                                            editMultipleAddressList.addAll(
-                                                widget.multipleLocationList![i]
-                                                        ['addresses'] ??
-                                                    []);
+                                                  widget.multipleLocationList![i]
+                                                  ['id'] ==
+                                                      int.parse(
+                                                          selectedMultipleAddressId!)) {
+                                                addresses = [];
+                                                editMultipleAddressList = [];
+                                                addresses!.addAll(
+                                                    widget.multipleLocationList![i]
+                                                    ['addresses'] ??
+                                                        []);
+                                                editMultipleAddressList.addAll(
+                                                    widget.multipleLocationList![i]
+                                                    ['addresses'] ??
+                                                        []);
+                                              }
+                                            }
+                                            setState(() {});
                                           }
-                                        }
-                                        setState(() {});
+                                          setState(() {});
+                                        });
                                       }
-                                      setState(() {});
-                                    });
-                                  }
-                                })),
+                                    })),
                           ],
                         ),
                       ],
@@ -2235,17 +2230,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 isSelected = true;
                                 vehiclePersonController.selection =
                                     TextSelection.fromPosition(
-                                  TextPosition(
-                                      offset: (vehiclePersonController
-                                          .text.length)),
-                                );
+                                      TextPosition(
+                                          offset: (vehiclePersonController
+                                              .text.length)),
+                                    );
                                 setState(() {});
                                 vehiclePersonController.selection =
                                     TextSelection.fromPosition(
-                                  TextPosition(
-                                      offset: (vehiclePersonController
-                                          .text.length)),
-                                );
+                                      TextPosition(
+                                          offset: (vehiclePersonController
+                                              .text.length)),
+                                    );
                               } else {
                                 if (lastSelectedIsPerson) {
                                   selectedMultipleVehicleList.clear();
@@ -2256,17 +2251,17 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 isSelected = true;
                                 vehiclePersonController.selection =
                                     TextSelection.fromPosition(
-                                  TextPosition(
-                                      offset: (vehiclePersonController
-                                          .text.length)),
-                                );
+                                      TextPosition(
+                                          offset: (vehiclePersonController
+                                              .text.length)),
+                                    );
                                 setState(() {});
                                 vehiclePersonController.selection =
                                     TextSelection.fromPosition(
-                                  TextPosition(
-                                      offset: (vehiclePersonController
-                                          .text.length)),
-                                );
+                                      TextPosition(
+                                          offset: (vehiclePersonController
+                                              .text.length)),
+                                    );
                               }
                             }, isVehicleData: true)
                         ),
@@ -2282,14 +2277,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     taskIdentifierSuggestionList, (index) async {
                   editShowList = false;
                   editTodoNameController.text =
-                      taskIdentifierSuggestionList[index];
+                  taskIdentifierSuggestionList[index];
                   // (taskNameList[taskIdentifierSuggestionList[index]] ?? '');
                   editTodoNameController.selection = TextSelection.fromPosition(
                     TextPosition(offset: (editTodoNameController.text.length)),
                   );
                   if (editVehiclePersonController.text.isNotEmpty) {
                     await getSelectedVehiclePersonEditF(
-                            createTodoParamForVHistory)
+                        createTodoParamForVHistory)
                         .then((value) {
                       if ((value.vin != null && value.vin!.isNotEmpty) ||
                           (value.vehicleGroupId != null &&
@@ -2299,7 +2294,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         vehicleDataBloc!.add(vdb.GetVehicleHistoryEvent(
                             vin: value.vin,
                             vehicleGroupId: /*value.vehicleGroupId != null ?*/
-                                /*int.parse(value.vehicleGroupId??'0') :*/ null,
+                            /*int.parse(value.vehicleGroupId??'0') :*/ null,
                             needUI: false));
                         setState(() {});
                       }
@@ -2328,7 +2323,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           children: [
             Utils.getAddFilledButton(
               'Update',
-              () {
+                  () {
                 doCreateEditTodo(todoName: null, time: null);
               },
               bgColor: AppC.green,
@@ -2342,7 +2337,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     Utils.dropdownBox(
                       'Select Vehicle',
                       vehicleName,
-                      (selectedValue) {
+                          (selectedValue) {
                         setState(() {
                           selectedVin = selectedValue;
                           selectedDropDownData= selectedVin;
@@ -2369,10 +2364,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       todoItem['vehicle_name'] != null
                           ? 'Task History - ${todoItem['vehicle_name']}'
                           : vehicle['vehicle_name'] != null
-                              ? 'Task History - ${vehicle['vehicle_name']}'
-                              : selectedVin is Map && selectedVin['vin'] != null
-                                  ? 'Task History - ${selectedVin['vin']}'
-                                  : '',
+                          ? 'Task History - ${vehicle['vehicle_name']}'
+                          : selectedVin is Map && selectedVin['vin'] != null
+                          ? 'Task History - ${selectedVin['vin']}'
+                          : '',
                       size: 12,
                       color: AppC().base,
                       align: TextAlign.end,
@@ -2390,10 +2385,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             String url = '';
                             if (selectedLink['id'] == '2') {
                               url =
-                                  'https://turo.com/us/en/reservation/${todoItem['reference_id']}';
+                              'https://turo.com/us/en/reservation/${todoItem['reference_id']}';
                             } else if (selectedLink['id'] == '3') {
                               url =
-                                  'https://getaround.com/dashboard/rentals/${todoItem['reference_id']}';
+                              'https://getaround.com/dashboard/rentals/${todoItem['reference_id']}';
                             } else if (selectedLink['id'] == '1') {
                               url = linkController.text;
                             }
@@ -2403,8 +2398,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           },
                           child: Utils.getText(
                             (selectedLink['id'] == '2' ||
-                                        selectedLink['id'] == '3') &&
-                                    reservationController.text.isNotEmpty
+                                selectedLink['id'] == '3') &&
+                                reservationController.text.isNotEmpty
                                 ? 'Reservation No - ${reservationController.text}'
                                 : linkController.text,
                             color: AppC.appColor,
@@ -2420,7 +2415,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 ],
               ),
             ),
-
           ],
         ),
         getRecurringDetails(),
@@ -2431,9 +2425,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-
-  Widget showBottomTabWidget()
-  {
+  Widget showBottomTabWidget() {
     final List<Map<String, dynamic>> tabs = [
       if ((todoItem['title'] != 'Check In' &&
           todoItem['title'] != 'Check Out') ||
@@ -2471,66 +2463,52 @@ class _EditTodoUIState extends State<EditTodoUI> {
         case "Maintenance Check":
           tabTitle = "Maintenance";
           break;
-      // default:
-      //   tabTitle = "Set Vehicle";
-      //   break;
       }
     }
     showExpenseTab = tabs
         .where((element) => element['label'] == tabTitle)
         .firstOrNull?['index'] ?? 0;
-    return
-      Visibility(
-        visible: isDataLoaded,
-          replacement: Visibility(
-              visible: isDataLoaded,
-              child: Center(child: Utils.getProgressIndicator(context))),
-        child: Container(
-          decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
-          ),
-          alignment: Alignment.centerLeft,
-          child:
-          SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: tabs.map((tab) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    tabTitle = tab['label'];
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppC.trans,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: showExpenseTab == tab['index']
-                          ? tab['color']
-                          : AppC.trans,
-                      width: 1.0,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(5),
-                  child:
-                  Utils.getText(
-                    tab['label'],
-                    weight: FontWeight.bold,
-                    color: tab['label'] == 'Set Vehicle'
-                        ? AppC.red
-                        : (showExpenseTab == tab['index']
-                        ? tab['color']
-                        : AppC.black),
-
-                  ),
-                  ),
-                );
-              }).toList(),
+    return Container(
+    decoration: const BoxDecoration(
+      border: Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+    ),
+    alignment: Alignment.centerLeft,
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: tabs.map((tab) {
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                tabTitle = tab['label'];
+              });
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppC.trans,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: showExpenseTab == tab['index']
+                      ? tab['color']
+                      : AppC.trans,
+                  width: 1.0,
+                ),
+              ),
+              padding: const EdgeInsets.all(5),
+              child: Utils.getText(
+                tab['label'],
+                weight: FontWeight.bold,
+                color: tab['label'] == 'Set Vehicle'
+                    ? AppC.red
+                    : (showExpenseTab == tab['index'] ? tab['color'] : AppC
+                    .black),
+              ),
             ),
-          ),
-        ),
-      );
+          );
+        }).toList(),
+      ),
+    ),
+          );
   }
 
   bool findIsPersonOrVehicle(Map<String, dynamic> vehiclesData) {
@@ -2550,8 +2528,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
   }
 
   String getEditedExpenseId(String expenseId) {
-    List<String> idList =
-        expenseId.replaceAll('[', '').replaceAll(']', '').split(',');
+    List<String> idList = expenseId.replaceAll('[', '')
+        .replaceAll(']', '')
+        .split(',');
     if (idList.isNotEmpty) {
       editedExpenseIdsLength = idList.length;
       return idList[0];
@@ -2561,7 +2540,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   Widget getUserGroupDataById(Map<String, dynamic> todos) {
     String getInitials(String? firstName, String? lastName) {
-      return '${firstName?[0].toUpperCase() ?? ''}${lastName?[0].toUpperCase() ?? ''}';
+      return '${firstName?[0].toUpperCase() ?? ''}${lastName?[0]
+          .toUpperCase() ?? ''}';
     }
 
     String userGroupConcatenationName = '';
@@ -2586,8 +2566,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-  void resourceSelection(
-      TapDownDetails? details, Map<String, dynamic> todoItem) async {
+  void resourceSelection(TapDownDetails? details, Map<String, dynamic> todoItem) async {
     if (details != null) {
       await showMenu(
         elevation: 5,
@@ -2620,7 +2599,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               Navigator.of(context).pop();
                             },
                             child: const Padding(
-                              padding: EdgeInsets.only(bottom: 5.0),
+                              padding: EdgeInsets.only(top: 5.0),
                               child: Icon(
                                 Icons.close_sharp,
                                 color: Colors.red,
@@ -2636,13 +2615,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             itemBuilder: (context, index) {
                               final user = resourceList[index];
                               final resourceId =
-                                  resourceList[index]['id'].toString();
-                              final isSelected =
-                                  selectedIds.contains(resourceId);
+                              resourceList[index]['id'].toString();
+                              final isSelected = selectedIds.contains(resourceId);
 
                               return GestureDetector(
                                 onTap: () {
-                                  // Update the UI instantly
                                   setState(() {
                                     if (!selectedIds.contains(resourceId)) {
                                       selectedIds.add(resourceId);
@@ -2650,12 +2627,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       selectedIds.remove(resourceId);
                                     }
                                   });
-
-                                  // Update the UI inside the menu
                                   setStateInside(() {});
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 2.0),
+                                  padding: const EdgeInsets.only(top: 2.0),
                                   child: Container(
                                     color: isSelected
                                         ? AppC.appColor
@@ -2668,9 +2643,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                       '${user['first_name'][0] ?? ''}${user['last_name'][0] ?? ''}',
                                       size: 12,
                                       weight: FontWeight.bold,
-                                      color: isSelected
-                                          ? AppC.white
-                                          : AppC.appColor,
+                                      color: isSelected ? AppC.white : AppC.appColor,
                                     ),
                                   ),
                                 ),
@@ -2706,8 +2679,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
     }
   }
 
-  Widget _buildTimeField(
-      String label, TextEditingController controller, Function onTapCallback) {
+  Widget _buildTimeField(String label, TextEditingController controller,
+      Function onTapCallback) {
     return Utils.getTextFormField(
       '',
       controller,
@@ -2724,189 +2697,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-  // void _showImageDialog(List<String> imageUrls, int index) {
-  //   PageController pageController = PageController(initialPage: index);
-  //   TransformationController transformationController =
-  //       TransformationController();
-  //   AnimationController? animationController;
-  //   Animation<Matrix4>? animation;
-  //
-  //   void resetZoom() {
-  //     animation = Matrix4Tween(
-  //       begin: transformationController.value,
-  //       end: Matrix4.identity(),
-  //     ).animate(CurvedAnimation(
-  //       parent: animationController!,
-  //       curve: Curves.easeInOut,
-  //     ));
-  //
-  //     animationController!.forward(from: 0);
-  //   }
-  //
-  //   @override
-  //   void dispose() {
-  //     animationController?.dispose();
-  //     super.dispose();
-  //   }
-  //
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       animationController = AnimationController(
-  //         vsync: Navigator.of(context),
-  //         duration: const Duration(milliseconds: 300),
-  //       );
-  //
-  //       animationController!.addListener(() {
-  //         transformationController.value = animation!.value;
-  //       });
-  //
-  //       return Padding(
-  //         padding: const EdgeInsets.all(10.0),
-  //         child: Center(
-  //           child: Container(
-  //             decoration: BoxDecoration(
-  //               borderRadius: BorderRadius.circular(8),
-  //               color: AppC.white,
-  //             ),
-  //             child: Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   Expanded(
-  //                     child: PageView.builder(
-  //                       controller: pageController,
-  //                       itemCount: imageUrls.length,
-  //                       itemBuilder: (context, currentIndexValue) {
-  //                         final imagePath = imageUrls[currentIndexValue];
-  //                         return GestureDetector(
-  //                           onDoubleTap: () {
-  //                             if (transformationController.value !=
-  //                                 Matrix4.identity()) {
-  //                               resetZoom(); // Reset zoom on double-tap
-  //                             } else {
-  //                               transformationController.value =
-  //                                   Matrix4.identity()..scale(3.0);
-  //                             }
-  //                           },
-  //                           child: InteractiveViewer(
-  //                             maxScale: 8.0,
-  //                             minScale: 1.0,
-  //                             transformationController:
-  //                                 transformationController,
-  //                             child: File(imagePath).existsSync()
-  //                                 ? Image.file(
-  //                                     File(imagePath),
-  //                                     fit: BoxFit.contain,
-  //                                     errorBuilder:
-  //                                         (context, error, stackTrace) {
-  //                                       return const Center(
-  //                                         child: Icon(Icons.error,
-  //                                             color: Colors.red),
-  //                                       );
-  //                                     },
-  //                                   )
-  //                                 : CachedNetworkImage(
-  //                                     imageUrl: todoItem['todoimages'] != null
-  //                                         ? '${Str.TODO_ATTACHMENTS_URL}$imagePath'
-  //                                         : Str.errorImage,
-  //                                     imageBuilder: (context, imageProvider) {
-  //                                       return Padding(
-  //                                         padding: const EdgeInsets.fromLTRB(
-  //                                             20, 20, 20, 0),
-  //                                         child: Container(
-  //                                           decoration: BoxDecoration(
-  //                                             image: DecorationImage(
-  //                                               image: imageProvider,
-  //                                               fit: BoxFit.contain,
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       );
-  //                                     },
-  //                                     errorWidget: (context, url, error) {
-  //                                       return Container(
-  //                                         alignment: Alignment.center,
-  //                                         child: Utils.getText(
-  //                                           "CT",
-  //                                           size: 22,
-  //                                           color: AppC.red,
-  //                                           weight: FontWeight.bold,
-  //                                         ),
-  //                                       );
-  //                                     },
-  //                                 ),
-  //                           ),
-  //                         );
-  //                       },
-  //                     ),
-  //                   ),
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.end,
-  //                     children: [
-  //                       GestureDetector(
-  //                         onTap: () {
-  //                           Navigator.of(context).pop();
-  //                         },
-  //                         child: const Icon(Icons.close),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   const SizedBox(height: 20),
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       IconButton(
-  //                         onPressed: () {
-  //                           if (pageController.page! > 0) {
-  //                             pageController.previousPage(
-  //                               duration: const Duration(milliseconds: 300),
-  //                               curve: Curves.easeInOut,
-  //                             );
-  //                           }
-  //                         },
-  //                         icon: const Icon(Icons.arrow_back),
-  //                       ),
-  //                       SmoothPageIndicator(
-  //                         controller: pageController,
-  //                         count: imageUrls.length,
-  //                         effect: const JumpingDotEffect(
-  //                           spacing: 8.0,
-  //                           radius: 8.0,
-  //                           dotWidth: 10.0,
-  //                           dotHeight: 10.0,
-  //                           paintStyle: PaintingStyle.fill,
-  //                           strokeWidth: 1.5,
-  //                           dotColor: Colors.grey,
-  //                           activeDotColor: Colors.indigo,
-  //                         ),
-  //                       ),
-  //                       IconButton(
-  //                         onPressed: () {
-  //                           if (pageController.page! < imageUrls.length - 1) {
-  //                             pageController.nextPage(
-  //                               duration: const Duration(milliseconds: 300),
-  //                               curve: Curves.easeInOut,
-  //                             );
-  //                           }
-  //                         },
-  //                         icon: const Icon(Icons.arrow_forward),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-  Future<void> doCreateEditTodo({String? todoName, String? time}) async
-  {
+  Future<void> doCreateEditTodo({String? todoName, String? time}) async {
     if (editTodoNameController.text.isEmpty) {
       Utils.showMobileToast(Str.createTodoAlertText('Task Name'));
       return;
@@ -2916,6 +2707,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (todoName == null) {
         editCreateTodoParams.todoId = todoItem['id']!;
       }
+      // editCreateTodoParams.vehicleNumber =
+      //     setVehicleListCopy['vehicle_number'] ?? '';
       editCreateTodoParams.todoTitle = todoName ?? editTodoNameController.text;
       editCreateTodoParams.todoDate = editTodoDateController.text;
       editCreateTodoParams.todoTime = todoTimeController.text;
@@ -2932,7 +2725,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (selectedIds.isNotEmpty) {
         if (selectedIds.length == 1) {
           editCreateTodoParams.selectedUserId = int.parse(selectedIds.first);
-          editCreateTodoParams.assignedTo = [editCreateTodoParams.selectedUserId];
+          editCreateTodoParams.assignedTo =
+          [editCreateTodoParams.selectedUserId];
         } else {
           editCreateTodoParams.selectedUserGroupId =
               selectedIds.map(int.tryParse).whereType<int>().toList();
@@ -2942,9 +2736,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       } else {
         if (todoItem['user_id'] != null) {
           editCreateTodoParams.selectedUserId = int.parse(todoItem['user_id']);
-          editCreateTodoParams.assignedTo = [
-            editCreateTodoParams.selectedUserId
-          ];
+          editCreateTodoParams.assignedTo =
+          [editCreateTodoParams.selectedUserId];
         }
         if (todoItem['user_group_id'] != null) {
           editCreateTodoParams.selectedUserGroupId =
@@ -2958,7 +2751,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
       if (isPartChecked) {
         for (var parts in selectedPartsList) {
           var matchedPart =
-              editPartsList.where((item) => item['id'] == parts['id']).toList();
+          editPartsList.where((item) => item['id'] == parts['id']).toList();
           if (matchedPart.isNotEmpty) {
             for (var res in matchedPart) {
               Map<String, dynamic> partsData = {
@@ -2974,9 +2767,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
       }
       if (isSupplyChecked) {
         for (var parts in selectedSuppliesList) {
-          var matchedSupplies = editSuppliesList
-              .where((item) => item['id'] == parts['id'])
-              .toList();
+          var matchedSupplies =
+          editSuppliesList.where((item) => item['id'] == parts['id']).toList();
           if (matchedSupplies.isNotEmpty) {
             for (var res in matchedSupplies) {
               Map<String, dynamic> suppliesData = {
@@ -3018,7 +2810,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
         if ('${res['first_name']} ${res['last_name']}' ==
             editVehiclePersonController.text.trim()) {
           editCreateTodoParams.person =
-              '${res['first_name']} ${res['last_name']}';
+          '${res['first_name']} ${res['last_name']}';
           editCreateTodoParams.personId = res['id']!.toString();
         }
       }
@@ -3026,42 +2818,16 @@ class _EditTodoUIState extends State<EditTodoUI> {
           vehiclePersonController.text.isNotEmpty) {
         await getSelectedVehiclePerson(editCreateTodoParams);
       }
-      // log('editCreateTodoParams.parameters: '
-      //     'id : ${editCreateTodoParams.userId},'
-      //     'todoTitle: ${editCreateTodoParams.todoTitle},'
-      //     'todoDate: ${editCreateTodoParams.todoDate},'
-      //     'todoTime: ${editCreateTodoParams.todoTime},'
-      //     'priority: ${editCreateTodoParams.priority},'
-      //     // 'resource: ${editCreateTodoParams.resource},'
-      //     'selectedUserId: ${editCreateTodoParams.selectedUserId},'
-      //     'selectedUserGroupId: ${editCreateTodoParams.selectedUserGroupId},'
-      //     'assignedTo: ${editCreateTodoParams.assignedTo},'
-      //     'cohortId: ${editCreateTodoParams.cohortId},'
-      //     'cohortName: ${editCreateTodoParams.cohortName},'
-      //     'vehicleName: ${editCreateTodoParams.vehicleName},'
-      //     'vehicleImage: ${editCreateTodoParams.vehicleImage},'
-      //     'vin: ${editCreateTodoParams.vin},'
-      //     'person: ${editCreateTodoParams.person},'
-      //     'personId: ${editCreateTodoParams.personId},'
-      //     'vendorId: ${editCreateTodoParams.vendorId},'
-      //     'vendorName: ${editCreateTodoParams.vendorName},'
-      //     'locationId: ${editCreateTodoParams.locationId},'
-      //     'location: ${editCreateTodoParams.location},'
-      //     'todoReminder: ${editCreateTodoParams.todoReminder},'
-      //     'vehicleGroupId: ${editCreateTodoParams.vehicleGroupId},'
-      //     'endAfter: ${editCreateTodoParams.endAfter}'
-      //     );
-      editCreateTodoParams.todoImage= todoImages.whereType<File>().toList();
+      editCreateTodoParams.todoImage = todoImages.whereType<File>().toList();
       if ((editCreateTodoParams.selectedUserId == null ||
-              editCreateTodoParams.selectedUserId == 0) &&
+          editCreateTodoParams.selectedUserId == 0) &&
           (editCreateTodoParams.selectedUserGroupId == null ||
               editCreateTodoParams.selectedUserGroupId!.isEmpty)) {
         Utils.showMobileToast(Str.createTodoAlertText('Selecting Resource'));
       } else {
         todoBloc!.add(CreateTodoEvent(
             createTodoParams: editCreateTodoParams,
-            exitTheScreen: todoName == null)
-        );
+            exitTheScreen: todoName == null));
       }
     }
   }
@@ -3096,10 +2862,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
-    /*vehicleName: createTodoParamForVHistory.vehicleName,
-     vehicleGroupId: int.parse(createTodoParamForVHistory.vehicleGroupId??'0'),
-     vin: createTodoParamForVHistory.vin,
-     vehicleImage: createTodoParamForVHistory.vehicleImage*/
     return createTodoParams;
   }
 
@@ -3126,8 +2888,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
           createTodoParams.vehicleName = veh['vehicle_name']!;
           createTodoParams.cohortId = veh['cohort_id'].toString();
           createTodoParams.vin = veh['vin'];
-          createTodoParams.vehicleImage = veh['images']?[0].path ?? '';
-          createTodoParams.cohortName = veh['cohort']?.cohort ?? '';
+          createTodoParams.vehicleImage = veh['images']?[0]['path'] ?? '';
+          createTodoParams.cohortName = veh['cohort']?['cohort'] ?? '';
         }
       }
     }
@@ -3135,30 +2897,31 @@ class _EditTodoUIState extends State<EditTodoUI> {
   }
 
   Future<CreateTodoParams> getSelectedVehiclePerson(
-      CreateTodoParams editCreateTodoParams) {
+      CreateTodoParams editCreateTodoParams)
+  {
     List<dynamic> vehiclesNameData = [];
     for (Map<String, dynamic> res in resourceList) {
       if (selectedMultipleVehicleList.isNotEmpty &&
           '${res['first_name']}${res['last_name']}' ==
               selectedMultipleVehicleList[0]['vehicle_name']) {
         editCreateTodoParams.person =
-            '${res['first_name']} ${res['last_name']}';
+        '${res['first_name']} ${res['last_name']}';
         editCreateTodoParams.personId = res['id']!.toString();
       } else if ('${res['first_name']} ${res['last_name']}' ==
           vehiclePersonController.text.trim()) {
         editCreateTodoParams.person =
-            '${res['first_name']} ${res['last_name']}';
+        '${res['first_name']} ${res['last_name']}';
         editCreateTodoParams.personId = res['id']!.toString();
       }
     }
 
-    for (Map<String, dynamic> veh in selectedMultipleVehicleList) {
-      var matchedGroup = vehicleList
-          .where((item) => item['vin'] == veh['vin'])
-          .toList();
+    for (Map<String, dynamic> veh in selectedMultipleVehicleList)
+    {
+      var matchedGroup =
+      vehicleList.where((item) => item['vin'] == veh['vin']).toList();
       if (matchedGroup.isNotEmpty) {
         for (var res in matchedGroup) {
-          Map<String, String> vehiclesData = {
+          Map<String, dynamic> vehiclesData = {
             'vin': res['vin'] ?? '',
             'vehicle_name': res['vehicle_name'] ?? '',
             'cohort_id': "${res['cohort_id'] ?? ''}",
@@ -3166,6 +2929,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
             'vehicle_image': res['images']?.isNotEmpty == true
                 ? res['images'][0]['path'] ?? ''
                 : '',
+            'vehicle_number': res['vehicle_number'] ?? '',
           };
           if (vehiclesData.isNotEmpty &&
               !vehiclesNameData.contains(vehiclesData)) {
@@ -3174,7 +2938,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
-    log("${editCreateTodoParams.vehicleList} $selectedMultipleVehicleList", name: "VEHICLE_PARAM");
     return Future.value(editCreateTodoParams);
   }
 
@@ -3234,15 +2997,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
     );
   }
 
-//CheckIn Car Rental Email Notofication Form Refuel Car
-
-
   String getTextBeforeCursor() {
     TextSelection selection = taskIdentifierController.selection;
     int cursorPosition = selection.baseOffset;
     String text = taskIdentifierController.text;
     if (cursorPosition > 0 && cursorPosition <= text.length) {
-      // Retrieve the text before the cursor position
       return text.substring(0, cursorPosition);
     } else {
       return '';
@@ -3271,7 +3030,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
               isSupplyChecked = !isSupplyChecked;
               setState(() {});
             }, isSupplyChecked, 'Supplies'),
-            //SizedBox(height: 30,)
           ],
         ),
       ],
@@ -3289,8 +3047,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
             color: AppC.fieldBase,
             width: Num.borderWidthField,
           ),
-          borderRadius:
-              const BorderRadius.all(Radius.circular(Num.radiusButton))),
+          borderRadius: const BorderRadius.all(
+              Radius.circular(Num.radiusButton))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3302,7 +3060,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           Wrap(
             children: List<Widget>.generate(
               list.length,
-              (int idx) {
+                  (int idx) {
                 return Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 0.0, vertical: 2),
@@ -3313,8 +3071,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       backgroundColor: AppC().bottomIconColor.withOpacity(0.1),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
-                      label:
-                          Utils.getText(list[idx], color: AppC.text, size: 13),
+                      label: Utils.getText(
+                          list[idx], color: AppC.text, size: 13),
                     ));
               },
             ).toList(),
@@ -3329,10 +3087,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
     userGroupConcatenationName = '';
     return resourceList
         .where((element) =>
-            (isSelected ?? false) &&
-            (element['id'] != null) &&
-            (element['id'] != -1) &&
-            (element['id'] != 0))
+    (isSelected ?? false) &&
+        (element['id'] != null) &&
+        (element['id'] != -1) &&
+        (element['id'] != 0))
         .map((e) {
       userGroupConcatenationName = '${userGroupConcatenationName ?? ''},'
           ' ${e['first_name'][0].toUpperCase()}'
@@ -3380,16 +3138,15 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   top: const BorderSide(color: AppC.white, width: 1),
                   left: const BorderSide(color: AppC.white, width: 1),
                   right: const BorderSide(color: AppC.white, width: 1),
-                  bottom:
-                      BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+                  bottom: BorderSide(
+                      color: Colors.grey.withOpacity(0.1), width: 1),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.1),
                     spreadRadius: 1,
                     blurRadius: 1,
-                    offset: const Offset(0,
-                        5), // Adjust the offset for the side you want the shadow
+                    offset: const Offset(0, 5),
                   ),
                 ],
                 color: AppC.white,
@@ -3405,7 +3162,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       ),
                       Utils.getText(
                           Utils.convertString24HTo12H(todos['todo_time']),
-                          color: textColors!)
+                          color: textColors!),
                     ],
                   ),
                   const SizedBox(
@@ -3417,7 +3174,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                       Flexible(
                         child: Visibility(
                           visible: (todos['vehicle_name'] != null &&
-                                  todos['vehicle_name'] != 'null') ||
+                              todos['vehicle_name'] != 'null') ||
                               (todos['person'] != null &&
                                   todos['person'] != 'null') ||
                               (isPartsEdit != null && isPartsEdit!) ||
@@ -3427,33 +3184,28 @@ class _EditTodoUIState extends State<EditTodoUI> {
                               onTap: () {},
                               child: isPartsEdit!
                                   ? getDetailsInWraps(
-                                      (todos['parts'] ?? [])
-                                          .map((e) => (e['parts_name'] ?? ''))
-                                          .toList(),
-                                      '')
+                                  (todos['parts'] ?? [])
+                                      .map((e) => (e['parts_name'] ?? ''))
+                                      .toList(),
+                                  '')
                                   : isSupplyEdit!
-                                      ? getDetailsInWraps(
-                                          (todos['supplies'] ?? [])
-                                              .map((e) =>
-                                                  (e['supply_name'] ?? ''))
-                                              .toList(),
-                                          '')
-                                      : isVehicleGroupEdit!
-                                          ? getDetailsInWraps(
-                                              (vehicleGroupLists ?? [])
-                                                  .map((e) =>
-                                                      (e['vehicle_name'] ?? '')
-                                                          as String)
-                                                  .toList(),
-                                              vehicleGroupName ?? '')
-                                          : Utils.getText('')
-                              // : Utils.getText(''),
-                              ),
+                                  ? getDetailsInWraps(
+                                  (todos['supplies'] ?? [])
+                                      .map((e) => (e['supply_name'] ?? ''))
+                                      .toList(),
+                                  '')
+                                  : isVehicleGroupEdit!
+                                  ? getDetailsInWraps(
+                                  (vehicleGroupLists ?? [])
+                                      .map((e) =>
+                                  (e['vehicle_name'] ?? '') as String)
+                                      .toList(),
+                                  vehicleGroupName ?? '')
+                                  : Utils.getText('')),
                         ),
                       ),
                       Visibility(
-                        visible: isPartsEdit! ||
-                            isSupplyEdit! ||
+                        visible: isPartsEdit! || isSupplyEdit! ||
                             isVehicleGroupEdit!,
                         child: InkWell(
                           onTap: () {
@@ -3466,10 +3218,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 14, horizontal: 10),
                             decoration: BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(0)),
-                                border: Border.all(
-                                    color: AppC.fieldBase /*, width: 0.2*/)),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(0)),
+                                border: Border.all(color: AppC.fieldBase)),
                             child: const Icon(
                               Icons.clear_rounded,
                               color: AppC.red,
@@ -3478,7 +3229,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           ),
                         ),
                       ),
-                      // TODO: show parts and supply
                       const SizedBox(
                         width: 12,
                       ),
@@ -3492,8 +3242,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             child: Utils.getText('P',
                                 size: 15,
                                 weight: FontWeight.bold,
-                                color: textColors!)
-                        ),
+                                color: textColors!)),
                       ),
                       const SizedBox(
                         width: 12,
@@ -3525,7 +3274,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 size: 15,
                                 weight: FontWeight.bold,
                                 color: textColors!)),
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(
@@ -3540,20 +3289,21 @@ class _EditTodoUIState extends State<EditTodoUI> {
                             Expanded(
                               child: Utils.getText(
                                   todos['vendor_name'] != null &&
-                                          todos['vendor_name'] != 'null'
+                                      todos['vendor_name'] != 'null'
                                       ? '${todos['vendor_name']}'
                                       : todos['location'] != null &&
-                                              todos['location'] != 'null'
-                                          ? '${todos['location']}'
-                                          : '',
+                                      todos['location'] != 'null'
+                                      ? '${todos['location']}'
+                                      : '',
                                   color: textColors!),
                             ),
                             Visibility(
-                              visible: todos['notes'] != null &&
+                              visible:
+                              todos['notes'] != null &&
                                   todos['notes'] != 'null',
                               child: Utils.getText(
                                   todos['notes'] != null &&
-                                          todos['notes'] != 'null'
+                                      todos['notes'] != 'null'
                                       ? ' (${todos['notes'] ?? ''}) '
                                       : '',
                                   overFlow: TextOverflow.ellipsis,
@@ -3563,18 +3313,21 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         ),
                       ),
                       Visibility(
-                        visible: todos['users'] != null ||
+                        visible:
+                        todos['users'] != null ||
                             todos['user_group_id'] != null,
                         child: todos['users'] != null
                             ? Utils.getText(
-                                '${todos['users']?['first_name']?.characters.first.toUpperCase()}'
-                                '${todos['users']?['last_name']?.characters.first.toUpperCase()}',
-                                weight: FontWeight.bold,
-                                color: textColors!)
+                            '${todos['users']?['first_name']?.characters.first
+                                .toUpperCase()}'
+                                '${todos['users']?['last_name']?.characters
+                                .first.toUpperCase()}',
+                            weight: FontWeight.bold,
+                            color: textColors!)
                             : getUserGroupDataById(todos),
-                      )
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -3586,17 +3339,22 @@ class _EditTodoUIState extends State<EditTodoUI> {
 
   void show(BuildContext context, String message, String status) {
     overlay = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 16.0,
-        left: MediaQuery.of(context).size.width * 0.1,
-        child: ToastWidget(message, () {
-          if (overlay != null) {
-            overlay?.remove();
-          }
-          vehicleDataBloc!.add(
-              vdb.CompleteTodoItemVeh(todoId: lastEditedId, status: status));
-        }),
-      ),
+      builder: (context) =>
+          Positioned(
+            bottom: 16.0,
+            left: MediaQuery
+                .of(context)
+                .size
+                .width * 0.1,
+            child: ToastWidget(message, () {
+              if (overlay != null) {
+                overlay?.remove();
+              }
+              vehicleDataBloc!
+                  .add(vdb.CompleteTodoItemVeh(
+                  todoId: lastEditedId, status: status));
+            }),
+          ),
     );
     Overlay.of(context).insert(overlay!);
     Timer(const Duration(seconds: 3), () {

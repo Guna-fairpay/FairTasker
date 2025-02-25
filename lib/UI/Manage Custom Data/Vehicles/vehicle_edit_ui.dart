@@ -4,11 +4,13 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../Bloc/todo_view_bloc.dart';
 import '../../../Component/close_badge.dart';
 import '../../../Component/header.dart';
 import '../../../Component/image_viewer.dart';
+import '../../../Event/todo_view_event.dart';
 import '../../../Response/create_expense_field_data.dart';
 import '../../../Utilities/Str.dart';
 import '../../../Utilities/image_pick_helper.dart';
@@ -16,6 +18,7 @@ import '../../../Utilities/num.dart';
 import '../../../Response/create_vehicle_data.dart';
 import '../../../Bloc/vehicle_data_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../Todo/create_sparekey_data.dart';
 import '../../Todo/edit_todo_ui.dart';
 import '../../dialog/show_attachments_dialog.dart';
 
@@ -24,23 +27,17 @@ class VehicleEditUI extends StatefulWidget {
   late final Map<String, dynamic> vehicle;
   final Map<String, dynamic>? data;
   final Map<String, dynamic> todoItems;
-  final List<Map<String, dynamic>>? userGroupList;
-  final List<Map<String, dynamic>>? resourceList;
-  final List<Map<String, dynamic>>? categoriesListData;
-  final List<Map<String, dynamic>>? addressesList;
-  final List<Map<String, dynamic>>? multipleLocationList;
 
   VehicleEditUI(
       {super.key,
       required this.vehicle,
       this.showHeader = true,
       this.data,
-      required this.todoItems,
-      this.userGroupList,
-      this.resourceList,
-      this.categoriesListData,
-      this.addressesList,
-      this.multipleLocationList}) {}
+      required this.todoItems,}) {
+    d.log("${vehicle}", name: "VEHICLE_DATA");
+    d.log("${todoItems}", name: "TODO_DATA");
+    d.log("${data}", name: "DATA");
+  }
 
   @override
   State<VehicleEditUI> createState() => _VehicleEditUIState();
@@ -251,14 +248,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       isPurchaseDateFieldEmpty = purchaseDateController.text.isEmpty;
     });
 
-    // if (isYearFieldEmpty ||
-    //     isMakeFieldEmpty ||
-    //     isModelFieldEmpty ||
-    //     isPurchaseFieldEmpty ||
-    //     isPurchaseDateFieldEmpty) {
-    //   Utils.showMobileToast('Please fill the required fields');
-    //   return;
-    // }
 
     final createVehicleData = CreateVehicleData()
       ..id = widget.vehicle['id']
@@ -315,25 +304,10 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     setState(() {
       loading = false;
     });
-    final updatedVehicle = createVehicleData.toJson();
-    Navigator.pop(context, updatedVehicle);
-    //await Future.delayed(const Duration(milliseconds: 100));
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => EditTodoUI(
-                todoItem: widget.todoItems,
-                userGroupList: widget.userGroupList,
-                resourceList: widget.resourceList,
-                categoriesListData: widget.categoriesListData,
-                addressesList: widget.addressesList,
-                multipleLocationList: widget.multipleLocationList,
-              )),
-    );
   }
 
   Future<void> _fetchUpdatedImages() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     setState(() {
       vehicleImageFile = widget.vehicle['images'] ?? [];
     });
@@ -427,12 +401,37 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Utils.getAddFilledButton('Save', () {
+                          FocusScope.of(context).unfocus();
                           _save();
                           Navigator.pop(context);
                         }),
                         // const SizedBox(width: 16,),
                         Utils.getAddFilledButton(
-                            'Save With Spare Key Task', () {},
+                            'Save With Spare Key Task', ()
+                        {
+                          CreateSpareKeyData sparekeyData = CreateSpareKeyData()
+                            ..title = "Spare Key"
+                            ..branchId = widget.todoItems['branch_id'] != null ? int.tryParse(widget.todoItems['branch_id'].toString()) : null
+                            ..cohortId = widget.todoItems['cohort_id'] != null ? int.tryParse(widget.todoItems['cohort_id'].toString()) : null
+                            ..identifierId = widget.todoItems['identifier_id'] != null ? int.tryParse(widget.todoItems['identifier_id'].toString()) : null
+                            ..location = widget.todoItems['location'] ?? ''
+                            ..locationId = widget.todoItems['location_id'] ?? ''
+                            ..notes = widget.todoItems['notes'] ?? ''
+                            ..startAt = widget.todoItems['todo_date'] ?? ''
+                            ..timeSensitive = '0'
+                            ..todoTime = widget.todoItems['todo_time'] ?? ''
+                            ..todoUserType = widget.todoItems['todo_user_type'] != null ? int.tryParse(widget.todoItems['todo_user_type'].toString()) : null
+                            ..userGroupId = widget.todoItems['user_group_id'] != null ? int.tryParse(widget.todoItems['user_group_id'].toString()) : null
+                            ..userId = widget.todoItems['user_id'] ?? ''
+                            ..vehicleName = widget.vehicle['vehicle_name'] ?? ''
+                            ..vehicles = widget.todoItems['vehicles'] ?? []
+                            ..vendorId = widget.todoItems['vendor_id'] != null ? int.tryParse(widget.todoItems['vendor_id'].toString()) : null
+                            ..vendorName = widget.todoItems['vendor_name'] ?? ''
+                            ..vehicleNumber = widget.vehicle['vehicle_number']
+                            ..vin = widget.vehicle['vin'] ?? '';
+                          todoViewBloc!.add(AddSpareKeyTask(createSpareKeyTaskData: sparekeyData));
+                          Navigator.pop(context);
+                        },
                             bgColor: AppC.green),
                         // const SizedBox(width: 16,),
                         Utils.getAddFilledButton('Cancel', () {
@@ -497,60 +496,49 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) {
           if (state is VehicleDataLoading) {
-            setState(() {
-              loading = true;
-            });
-          } else if (state is DropdownVehicleDataLoaded) {
-            createExpenseFieldData = state.createExpenseFieldData;
-
-            if (state.createExpenseFieldData != null) {
-              setState(() {
-                loading = false;
-              });
-              cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
-              for (Map<String, dynamic> c in cohortsData) {
-                if (c['id'] == widget.vehicle['cohort_id']) {
-                  selectedCohortsData = c;
-                }
-              }
-              for (Map<String, dynamic> c in categoriesData) {
-                if (c['id'] == widget.vehicle['vehicle_status']) {
-                  selectedCategoriesData = c;
-                }
-              }
-            }
-            setState(() {
-              loading = false;
-            });
-          } else if (state is VehicleStatusCategoryLoaded) {
-            setState(() {
-              categoriesData = state.vehicleStatusDataList ?? [];
-              categoriesDataIsSelected = true;
-              selectedCategoriesData =
-                  categoriesData.isNotEmpty ? categoriesData[0] : null;
-              loading = false;
-            });
-          } else if (state is VehicleDataUpdatedState) {
-            setState(() {
-              widget.vehicle = state.updatedVehicle;
-              loading = false;
-            });
-            Utils.showMobileToast('Vehicle updated successfully!');
+            EasyLoading.show();
           } else {
-            setState(() {
-              loading = false;
-            });
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is DropdownVehicleDataLoaded) {
+              createExpenseFieldData = state.createExpenseFieldData;
+              if (state.createExpenseFieldData != null) {
+                cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
+                for (Map<String, dynamic> c in cohortsData) {
+                  if (c['id'] == widget.vehicle['cohort_id']) {
+                    selectedCohortsData = c;
+                  }
+                }
+                for (Map<String, dynamic> c in categoriesData) {
+                  if (c['id'] == widget.vehicle['vehicle_status']) {
+                    selectedCategoriesData = c;
+                  }
+                }
+              }
+            } else if (state is VehicleStatusCategoryLoaded) {
+              setState(() {
+                categoriesData = state.vehicleStatusDataList ?? [];
+                categoriesDataIsSelected = true;
+                selectedCategoriesData =
+                    categoriesData.isNotEmpty ? categoriesData[0] : null;
+              });
+            } else if (state is VehicleDataUpdatedState) {
+              setState(() {
+                widget.vehicle = state.updatedVehicle;
+
+              });
+              Utils.showMobileToast('Vehicle updated successfully!');
+            }
           }
         }, builder: (context, state) {
           return Stack(
             children: [
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: SingleChildScrollView(
                   physics: (widget.showHeader)
                       ? const AlwaysScrollableScrollPhysics()
-                      : ScrollPhysics(),
+                      : const ScrollPhysics(),
                   child: Column(
                     children: [
                       if (widget.showHeader)
@@ -2060,6 +2048,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Utils.getAddFilledButton('Save', () {
+                            FocusScope.of(context)
+                                .requestFocus(FocusNode());
                             if (spareKey == false) {
                               savePopUpMenu();
                             } else if (spareKey == true) {
@@ -2072,9 +2062,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                   ),
                 ),
               ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
             ],
           );
         }),

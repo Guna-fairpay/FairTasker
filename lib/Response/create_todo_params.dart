@@ -72,6 +72,7 @@ String? notes = '';
 String? vehicleGroupId = '';
 String? vehicleGroupVinNumbers = '';
 String? vehicleGroupName = '';
+String? vehicleNumber= '';
 List<dynamic>? vehicleList = [];
 List<VehicleTodoParam>? vehicleTodoParamList = [];
 List<File> todoImage = [];

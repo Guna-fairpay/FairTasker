@@ -1,4 +1,5 @@
 
+import 'dart:developer';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:flutter/material.dart';
 import '../../Event/todo_view_event.dart';
@@ -10,9 +11,14 @@ import '../../Utilities/appC.dart';
 class CheckListUI extends StatefulWidget {
   final List<Map<String, dynamic>> checkListData;
   final Map<String, dynamic> todoItems;
+  late final Map<String, dynamic> vehicle;
 
-
-  const CheckListUI({super.key, required this.checkListData,required this.todoItems,});
+  CheckListUI({super.key, required this.checkListData,required this.todoItems, required this.vehicle,})
+  {
+    print("vehicle data ${vehicle}");
+    print("vehicle data ${todoItems}");
+    print("vehicle data is${checkListData}");
+  }
 
   @override
   State<CheckListUI> createState() => _CheckListUIState();
@@ -36,9 +42,22 @@ class _CheckListUIState extends State<CheckListUI> {
     data = widget.checkListData;
     todoViewBloc = TodoViewBloc();
     todoItems=widget.todoItems;
-
     for (var item in data) {
       checkBoxStates[item['id']] = true;
+    }
+  }
+
+
+  @override
+  void didUpdateWidget(covariant CheckListUI oldWidget){
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.checkListData != widget.checkListData) {
+      data = widget.checkListData;
+      todoViewBloc = TodoViewBloc();
+      for (var item in data) {
+        checkBoxStates[item['id']] = true;
+      }
+      setState(() {});
     }
   }
 
@@ -131,9 +150,7 @@ class _CheckListUIState extends State<CheckListUI> {
                         8 => 'Refuel Car',
                         _ => 'Fix',
                       };
-
                       CreateFixTaskData createFixTaskData = CreateFixTaskData();
-
                       createFixTaskData.userId=widget.todoItems['user_id'];
                       createFixTaskData.userGroupId=widget.todoItems['user_group_id'];
                       createFixTaskData.title=title;
@@ -145,7 +162,7 @@ class _CheckListUIState extends State<CheckListUI> {
                       createFixTaskData.locationId=widget.todoItems['location_id'];
                       createFixTaskData.vendorId=widget.todoItems['vendor_id'];
                       createFixTaskData.vendorName=widget.todoItems['vendor_name'];
-
+                      createFixTaskData.vehicleNumber=widget.vehicle['vehicle_number'];
                       todoViewBloc!.add(AddFixTask(
                         createFixTaskData: createFixTaskData,
                       ));
@@ -161,7 +178,11 @@ class _CheckListUIState extends State<CheckListUI> {
                   },
                   bgColor: AppC.green)
             ],
-          ),)
+          ),
+          ),
+        Visibility(
+            visible: isLoading,
+            child: Center(child: Utils.getProgressIndicator(context)))
       ],
     );
   }
