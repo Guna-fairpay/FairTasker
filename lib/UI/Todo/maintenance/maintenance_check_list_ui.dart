@@ -11,12 +11,12 @@ import '../../../Utilities/appC.dart';
 class MaintenanceCheckListUI extends StatefulWidget {
   final List<Map<String, dynamic>> maintenance;
   final Map<String, dynamic> todoItems;
-  final Map<String, dynamic> vehicle;
+  late final Map<String, dynamic> vehicle;
 
   MaintenanceCheckListUI({super.key, required this.maintenance, required this.todoItems, required this.vehicle})
   {
     //log("${maintenance}", name: "MAINTENANCE_LIST");
-    log("${vehicle['vehicle_number']}", name: "vehicle");
+    log("${vehicle['vehicle_number']}", name: "vehicle data is");
   }
 
   @override
