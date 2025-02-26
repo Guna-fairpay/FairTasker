@@ -1124,7 +1124,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                           multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
-                                          TotoExpense(expenseId: todoItem['expense_id'],)
+                                          TodoExpense(expenseId: todoItem['expense_id'],)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),
@@ -2312,7 +2312,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   editTodoNameController.selection = TextSelection.fromPosition(
                     TextPosition(offset: (editTodoNameController.text.length)),
                   );
-                })),
+                }
+                )
+            ),
           ],
         ),
         const SizedBox(
@@ -2449,6 +2451,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           todoItem['vehicle_name'] != null ||
           todoItem['vehicles'].isNotEmpty)
         {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
+      {'label': 'Test Expense', 'index': 5, 'color': AppC.red},
     ];
     if (tabTitle.isEmpty) {
       switch (todoItem["title"]) {

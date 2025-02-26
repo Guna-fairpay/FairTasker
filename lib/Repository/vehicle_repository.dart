@@ -88,7 +88,18 @@ class VehicleDataRepo {
       //   request.files.add(multipartFile);
       // }
 
-
+      request.files.addAll(
+          createVehicleData.vehicleImage.whereType<File>().map((e) =>
+              http.MultipartFile.fromBytes(
+                  "images[]", e.readAsBytesSync(), filename: e.path
+                  .split('/')
+                  .last)).toList());
+      request.files.addAll(
+          createVehicleData.purchaseReceiptsImage.whereType<File>().map((e) =>
+              http.MultipartFile.fromBytes(
+                  "files[]", e.readAsBytesSync(), filename: e.path
+                  .split('/')
+                  .last)).toList());
 
       request.files.addAll(
           createVehicleData.tollImage.whereType<File>().map((e) =>

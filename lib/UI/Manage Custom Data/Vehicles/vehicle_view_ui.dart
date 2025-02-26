@@ -1,5 +1,6 @@
 
 import 'dart:developer';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/Vehicle_edit_tab_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_grouping_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -86,6 +87,24 @@ class _VehicleUIState extends State<VehicleViewUI> {
     }
   }
 
+  Future<void> _navigateVehicleEditTabBar(index) async {
+
+    final updatedVehicle = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VehicleEditTabBar(vehicle: index,),
+      ),
+    );
+    if (updatedVehicle != null) {
+      setState(() {filteredVehicle[index] = updatedVehicle;});
+      vehicleDataBloc.add(
+        AddVehicleDataEvent(createVehicleData: CreateVehicleData.fromJson(updatedVehicle)),
+      );
+      vehicleDataBloc.add(const GetAddedVehicleListData());
+      Utils.showMobileToast('Vehicle updated successfully');
+    }
+  }
+
   Future<void> _navigateToVehicleEditUI(int index) async {
 
     final Map<String, dynamic> selectedVehicle = Map<String, dynamic>.from(filteredVehicle[index]);
@@ -104,7 +123,6 @@ class _VehicleUIState extends State<VehicleViewUI> {
       Utils.showMobileToast('Vehicle updated successfully');
     }
   }
-
 
   Future<void> _deleteVehicle(int index) async {
     final confirmed = await Utils.showCustomDeleteDialog(context, 'Vehicle?');
@@ -141,14 +159,12 @@ class _VehicleUIState extends State<VehicleViewUI> {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             if (state is VehicleListLoaded) {
               filteredVehicle.clear();
-              List<Map<String, dynamic>> list = [];
-              list.addAll(state.vehicleDataList ?? []);
-              list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+              vehicleName.clear();
+              vehicleName.addAll(state.vehicleDataList ?? []);
+              vehicleName.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                   .compareTo(DateTime.parse(a['created_at'] ?? '')));
-              vehicleName = list;
               filteredVehicle = List.from(vehicleName);
             }else {
-              if (EasyLoading.isShow) EasyLoading.dismiss();
               vehicleDataBloc.add(const GetActiveVehicleData());
             }
           }
@@ -169,7 +185,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
                     ),
                     const SizedBox(width: 8),
                     Utils.getAddElevatedButton(
-                      () => Navigator.push(context, MaterialPageRoute(builder: (context)=>const VehicleAddUI())),
+                      () => _navigateToVehicleAddUI(),
                     ),
                   ],
                 ),
@@ -185,7 +201,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
                       final vehicleId = vehicle['id'];
                       return InkWell(
                         onTap: () {
-                          _navigateToVehicleEditUI(index);
+                          _navigateVehicleEditTabBar(vehicle);
                         },
                         child: SafeArea(
                           minimum: const EdgeInsets.symmetric(

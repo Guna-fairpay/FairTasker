@@ -67,7 +67,6 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     on<AddVehicleDataEvent>((event, emit) async {
       if (event.createVehicleData != null) {
         emit(const VehicleDataLoading()); // Start loading state
-
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
 

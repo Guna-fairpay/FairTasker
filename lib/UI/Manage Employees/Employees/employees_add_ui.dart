@@ -135,10 +135,13 @@ class _EmployeesAddUIState extends State<EmployeesAddUI> {
                     validator: (val)=>val!.isEmpty? 'Enter Password':null,
                     inputAction: TextInputAction.done,
                     suffixIcon: InkWell(
-                        child: Icon(
-                          showPassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.remove_red_eye_outlined,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Icon(
+                            showPassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.remove_red_eye_outlined,
+                          ),
                         ),
                         onTap: () {
                           showPassword = !showPassword;

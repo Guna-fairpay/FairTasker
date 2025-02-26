@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -7,7 +8,6 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:timeagoago/timeagoago.dart';
 import '../../../Component/close_badge.dart';
 import '../../../Component/image_viewer.dart';
 import '../../../Response/create_expense_field_data.dart';
@@ -48,14 +48,14 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
   CreateExpenseFieldData? createExpenseFieldData;
   List<Map<String, dynamic>> cohortsData = [];
   List<Map<String, dynamic>> categoriesData = [];
-  dynamic selectedCategoriesData;
+  dynamic selectedVehicleStatus;
   dynamic selectedCohortsData;
 
   List<Map<String, dynamic>> vehicleStatusList = [
     {'id': 1, 'name': 'Active'},
     {'id': 2, 'name': 'InActive'},
   ];
-  dynamic selectedVehicleStatus;
+  dynamic selectedStatus;
   AnimationController? animationController;
   ImagePickHelper imagePickHelper = ImagePickHelper();
 
@@ -107,7 +107,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
     vehicleDataBloc = VehicleDataBloc();
     vehicleDataBloc.add(const GetDropdownVehicleData());
     vehicleDataBloc.add(const VehicleStatusCategory());
-    selectedVehicleStatus = vehicleStatusList[0];
+    selectedStatus = vehicleStatusList[0];
   }
 
   @override
@@ -142,38 +142,45 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
     createVehicleData.make = makeController.text;
     createVehicleData.model = modelController.text;
     createVehicleData.vehicleNumber = vehicleNoController.text;
+    createVehicleData.selectedCohort = selectedCohortsData?['id'];
     createVehicleData.vin = vinController.text;
     createVehicleData.vehicleId = vehicleIdController.text;
+    createVehicleData.purchaseDate = purchaseDateController.text;
+    createVehicleData.purchasePrice = purchasePriceController.text;
+    createVehicleData.purchaseReceiptsImage = receiptImageFile.whereType<File>().map((e) => e).toList();
+    createVehicleData.vehicleImage = vehicleImageFile.whereType<File>().map((e) => e).toList();
     createVehicleData.earnings = earningsController.text;
     createVehicleData.utilizationRate = utilizationRateController.text;
     createVehicleData.platform = platformController.text;
     createVehicleData.mileage = mileageController.text;
     createVehicleData.wholesaleAmount = wholeSaleAmountController.text;
-    createVehicleData.purchaseDate = purchaseDateController.text;
-    createVehicleData.purchasePrice = purchasePriceController.text;
+    createVehicleData.selectedVehicleStatus = selectedVehicleStatus?['id'];
+    createVehicleData.isActive = selectedStatus['id'] == 1 ? 1 : 0;
     createVehicleData.address = addressController.text;
     createVehicleData.bouncie = bouncie ? 1 : 0;
     createVehicleData.airTag = airTag ? 1 : 0;
-    createVehicleData.permanentPlate = permanentPlate ? 1 : 0;
+    createVehicleData.tollTag = tollTags ? 1 : 0;
     createVehicleData.spareTire = spareTire ? 1 : 0;
+    createVehicleData.tollTagsId=tollTagsController.text;
+    createVehicleData.tollImage = tollImage.whereType<File>().map((e) => e).toList();
+    createVehicleData.tireSize=spareTireController.text;
+    createVehicleData.spareKey=spareKey?1:0;
+    createVehicleData.permanentPlate = permanentPlate ? 1 : 0;
+    createVehicleData.frontLicensePlate = frontLicensePlate ? 1 : 0;
+    createVehicleData.tireImage = tireImageFile.whereType<File>().map((e) => e).toList();
+    createVehicleData.numberPlate=plateNumberController.text;
     createVehicleData.carNumber = carNumberController.text;
     createVehicleData.oilGrade = oilGradeController.text;
     createVehicleData.frontTire = frontTireController.text;
     createVehicleData.rearTire = rearTireController.text;
     createVehicleData.regStickerDate = renewalDateController.text;
-    createVehicleData.chosenFiles = vehicleImageFile.whereType<File>().map((e) => e).toList();
-    createVehicleData.chosenFiles = tireImageFile.whereType<File>().map((e) => e).toList();
-    createVehicleData.chosenPurchaseReceipts = receiptImageFile.whereType<File>().map((e) => e).toList();
-    createVehicleData.chosenFiles = tollImage.whereType<File>().map((e) => e).toList();
-    createVehicleData.chosenFiles = uploadRegSticker.whereType<File>().map((e) => e).toList();
-    createVehicleData.chosenFiles = insuranceImage.whereType<File>().map((e) => e).toList();
-
-    createVehicleData.isActive = selectedVehicleStatus['id'] == 1 ? 1 : 0;
-
-    if (selectedCategoriesData != null) {
-      createVehicleData.selectedVehicleStatus = selectedCategoriesData!['id']!;
-    }
-    createVehicleData.selectedCohort = selectedCohortsData?['id'];
+    createVehicleData.uploadRegSticker = uploadRegSticker.whereType<File>().map((e) => e).toList();
+    createVehicleData.currentOdometer=currentOdometerController.text;
+    createVehicleData.oilChangeOdometer=oilChangeOdometerController.text;
+    createVehicleData.maintenanceCheck=maintenanceCheckController.text;
+    createVehicleData.insuranceAgent=insuranceAgentController.text;
+    createVehicleData.insuranceCost=insuranceCostController.text;
+    createVehicleData.insuranceImage = insuranceImage.whereType<File>().map((e) => e).toList();
 
     final newVehicle = createVehicleData;
 
@@ -184,7 +191,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
     required bool value,
     required ValueChanged<bool?> onChanged,
     required String label,
-    double scale = 1.0, // Add a scale parameter to control the size
+    double scale = 1.0,
   }) {
     return Row(
       children: [
@@ -295,7 +302,7 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
             } else if (state is VehicleStatusCategoryLoaded) {
               categoriesData = state.vehicleStatusDataList ?? [];
               isSelected = true;
-              selectedCategoriesData = categoriesData[0];
+              selectedVehicleStatus = categoriesData[0];
             }
           }
         }, builder: (context, state) {
@@ -618,12 +625,12 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                           categoriesData,
                           (selectedValue) {
                             setState(() {
-                              selectedCategoriesData =
+                              selectedVehicleStatus =
                                   selectedValue; // Store the selected value
                             });
                           },
                           labelKey: 'category_name',
-                          initialSelection: selectedCategoriesData,
+                          initialSelection: selectedVehicleStatus,
                         ),
                         const SizedBox(
                           height: 10,
@@ -631,11 +638,11 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                         Utils.dropdownBox('Status', vehicleStatusList,
                             (selectedValue) {
                           setState(() {
-                            selectedVehicleStatus = selectedValue;
+                            selectedStatus = selectedValue;
                           });
                         },
                             labelKey: 'name',
-                            initialSelection: selectedVehicleStatus),
+                            initialSelection: selectedStatus),
                         const SizedBox(
                           height: 10,
                         ),
@@ -965,60 +972,63 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                             children: [
                               Visibility(
                                 visible: tireImageFile.isNotEmpty,
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: tireImageFile.length,
-                                  scrollDirection: Axis.horizontal,
-                                  gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 1,
-                                      mainAxisSpacing: 10),
-                                  itemBuilder: (context, index) =>
-                                      CloseBadge(
-                                          onTapView: () {
-                                            ShowAttachmentsDialog.of
-                                                .show(context,
-                                                attachments:
-                                                tireImageFile,
-                                                title: "",
-                                                currentAttachment:
-                                                tireImageFile[
-                                                index]);
-                                          },
-                                          onTapDelete: () {
-                                            tireImageFile.removeAt(index);
-                                            setState(() {});
-                                          },
-                                          child: Container(
-                                            constraints: BoxConstraints(
-                                              minHeight:
-                                              MediaQuery.sizeOf(
-                                                  context)
-                                                  .height,
-                                              minWidth:
-                                              MediaQuery.sizeOf(
-                                                  context)
-                                                  .width,
-                                            ),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius
-                                                    .circular(16),
-                                                color: AppC.grey
-                                                    .withValues(
-                                                    alpha: 0.2)),
-                                            clipBehavior: Clip
-                                                .antiAliasWithSaveLayer,
-                                            child: ImageViewer(
-                                              fit: BoxFit.cover,
-                                              imageInput:
-                                              tireImageFile[index],
-                                              isNotImage:
-                                              !((tireImageFile[index]
-                                              as Object)
-                                                  .isImage),
-                                            ),
-                                          )),
+                                child: SizedBox(
+                                  height: 100,
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: tireImageFile.length,
+                                    scrollDirection: Axis.horizontal,
+                                    gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 1,
+                                        mainAxisSpacing: 10),
+                                    itemBuilder: (context, index) =>
+                                        CloseBadge(
+                                            onTapView: () {
+                                              ShowAttachmentsDialog.of
+                                                  .show(context,
+                                                  attachments:
+                                                  tireImageFile,
+                                                  title: "",
+                                                  currentAttachment:
+                                                  tireImageFile[
+                                                  index]);
+                                            },
+                                            onTapDelete: () {
+                                              tireImageFile.removeAt(index);
+                                              setState(() {});
+                                            },
+                                            child: Container(
+                                              constraints: BoxConstraints(
+                                                minHeight:
+                                                MediaQuery.sizeOf(
+                                                    context)
+                                                    .height,
+                                                minWidth:
+                                                MediaQuery.sizeOf(
+                                                    context)
+                                                    .width,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                  BorderRadius
+                                                      .circular(16),
+                                                  color: AppC.grey
+                                                      .withValues(
+                                                      alpha: 0.2)),
+                                              clipBehavior: Clip
+                                                  .antiAliasWithSaveLayer,
+                                              child: ImageViewer(
+                                                fit: BoxFit.cover,
+                                                imageInput:
+                                                tireImageFile[index],
+                                                isNotImage:
+                                                !((tireImageFile[index]
+                                                as Object)
+                                                    .isImage),
+                                              ),
+                                            )),
+                                  ),
                                 ),
                               ),
                             ],
@@ -1155,60 +1165,63 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                             children: [
                               Visibility(
                                 visible: uploadRegSticker.isNotEmpty,
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: uploadRegSticker.length,
-                                  scrollDirection: Axis.horizontal,
-                                  gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 1,
-                                      mainAxisSpacing: 10),
-                                  itemBuilder: (context, index) =>
-                                      CloseBadge(
-                                          onTapView: () {
-                                            ShowAttachmentsDialog.of
-                                                .show(context,
-                                                attachments:
-                                                uploadRegSticker,
-                                                title: "",
-                                                currentAttachment:
-                                                uploadRegSticker[
-                                                index]);
-                                          },
-                                          onTapDelete: () {
-                                            uploadRegSticker.removeAt(index);
-                                            setState(() {});
-                                          },
-                                          child: Container(
-                                            constraints: BoxConstraints(
-                                              minHeight:
-                                              MediaQuery.sizeOf(
-                                                  context)
-                                                  .height,
-                                              minWidth:
-                                              MediaQuery.sizeOf(
-                                                  context)
-                                                  .width,
-                                            ),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius
-                                                    .circular(16),
-                                                color: AppC.grey
-                                                    .withValues(
-                                                    alpha: 0.2)),
-                                            clipBehavior: Clip
-                                                .antiAliasWithSaveLayer,
-                                            child: ImageViewer(
-                                              fit: BoxFit.cover,
-                                              imageInput:
-                                              uploadRegSticker[index],
-                                              isNotImage:
-                                              !((uploadRegSticker[index]
-                                              as Object)
-                                                  .isImage),
-                                            ),
-                                          )),
+                                child: SizedBox(
+                                  height: 100,
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: uploadRegSticker.length,
+                                    scrollDirection: Axis.horizontal,
+                                    gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 1,
+                                        mainAxisSpacing: 10),
+                                    itemBuilder: (context, index) =>
+                                        CloseBadge(
+                                            onTapView: () {
+                                              ShowAttachmentsDialog.of
+                                                  .show(context,
+                                                  attachments:
+                                                  uploadRegSticker,
+                                                  title: "",
+                                                  currentAttachment:
+                                                  uploadRegSticker[
+                                                  index]);
+                                            },
+                                            onTapDelete: () {
+                                              uploadRegSticker.removeAt(index);
+                                              setState(() {});
+                                            },
+                                            child: Container(
+                                              constraints: BoxConstraints(
+                                                minHeight:
+                                                MediaQuery.sizeOf(
+                                                    context)
+                                                    .height,
+                                                minWidth:
+                                                MediaQuery.sizeOf(
+                                                    context)
+                                                    .width,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                  BorderRadius
+                                                      .circular(16),
+                                                  color: AppC.grey
+                                                      .withValues(
+                                                      alpha: 0.2)),
+                                              clipBehavior: Clip
+                                                  .antiAliasWithSaveLayer,
+                                              child: ImageViewer(
+                                                fit: BoxFit.cover,
+                                                imageInput:
+                                                uploadRegSticker[index],
+                                                isNotImage:
+                                                !((uploadRegSticker[index]
+                                                as Object)
+                                                    .isImage),
+                                              ),
+                                            )),
+                                  ),
                                 ),
                               ),
                             ],
@@ -1302,60 +1315,63 @@ class _VehicleAddUIState extends State<VehicleAddUI> {
                               const EdgeInsets.symmetric(vertical: 5.0),
                           child: Visibility(
                             visible: insuranceImage.isNotEmpty,
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              itemCount: insuranceImage.length,
-                              scrollDirection: Axis.horizontal,
-                              gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1,
-                                  mainAxisSpacing: 10),
-                              itemBuilder: (context, index) =>
-                                  CloseBadge(
-                                      onTapView: () {
-                                        ShowAttachmentsDialog.of
-                                            .show(context,
-                                            attachments:
-                                            insuranceImage,
-                                            title: "",
-                                            currentAttachment:
-                                            insuranceImage[
-                                            index]);
-                                      },
-                                      onTapDelete: () {
-                                        insuranceImage.removeAt(index);
-                                        setState(() {});
-                                      },
-                                      child: Container(
-                                        constraints: BoxConstraints(
-                                          minHeight:
-                                          MediaQuery.sizeOf(
-                                              context)
-                                              .height,
-                                          minWidth:
-                                          MediaQuery.sizeOf(
-                                              context)
-                                              .width,
-                                        ),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius
-                                                .circular(16),
-                                            color: AppC.grey
-                                                .withValues(
-                                                alpha: 0.2)),
-                                        clipBehavior: Clip
-                                            .antiAliasWithSaveLayer,
-                                        child: ImageViewer(
-                                          fit: BoxFit.cover,
-                                          imageInput:
-                                          insuranceImage[index],
-                                          isNotImage:
-                                          !((insuranceImage[index]
-                                          as Object)
-                                              .isImage),
-                                        ),
-                                      )),
+                            child: SizedBox(
+                              height: 100,
+                              child: GridView.builder(
+                                shrinkWrap: true,
+                                itemCount: insuranceImage.length,
+                                scrollDirection: Axis.horizontal,
+                                gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 1,
+                                    mainAxisSpacing: 10),
+                                itemBuilder: (context, index) =>
+                                    CloseBadge(
+                                        onTapView: () {
+                                          ShowAttachmentsDialog.of
+                                              .show(context,
+                                              attachments:
+                                              insuranceImage,
+                                              title: "",
+                                              currentAttachment:
+                                              insuranceImage[
+                                              index]);
+                                        },
+                                        onTapDelete: () {
+                                          insuranceImage.removeAt(index);
+                                          setState(() {});
+                                        },
+                                        child: Container(
+                                          constraints: BoxConstraints(
+                                            minHeight:
+                                            MediaQuery.sizeOf(
+                                                context)
+                                                .height,
+                                            minWidth:
+                                            MediaQuery.sizeOf(
+                                                context)
+                                                .width,
+                                          ),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                              BorderRadius
+                                                  .circular(16),
+                                              color: AppC.grey
+                                                  .withValues(
+                                                  alpha: 0.2)),
+                                          clipBehavior: Clip
+                                              .antiAliasWithSaveLayer,
+                                          child: ImageViewer(
+                                            fit: BoxFit.cover,
+                                            imageInput:
+                                            insuranceImage[index],
+                                            isNotImage:
+                                            !((insuranceImage[index]
+                                            as Object)
+                                                .isImage),
+                                          ),
+                                        )),
+                              ),
                             ),
                           ),
                         ),

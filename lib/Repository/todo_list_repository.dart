@@ -104,6 +104,31 @@ class TodoListRepo {
     }
   }
 
+  Future<TodoListResponse?> editTodoData({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}edit-todo/$id';
+      debugPrint("edit-todo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          TodoListResponse todoListResponse =
+          TodoListResponse.fromJson(json.decode(response.body));
+
+          return todoListResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('edit-todo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
   Future<CreateExpenseFieldData?> fetchDropdownValues() async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}getCohortsData';

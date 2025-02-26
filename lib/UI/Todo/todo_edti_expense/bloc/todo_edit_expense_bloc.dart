@@ -1,6 +1,6 @@
+
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/cohorts_response.dart';
@@ -22,13 +22,21 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       TodoEditExpenseRepository();
   dynamic expenseId = "";
   List<Map<String, dynamic>>? categories = [];
-  List<dynamic>? ogAttachments = [];
+  List<dynamic>? ogAttachments = [ ];
   List<dynamic>? attachments = [];
   final TodoListRepo todoListRepo = TodoListRepo();
-  final TextEditingController amountTextController = TextEditingController();
-  final TextEditingController descriptionTextController =
-      TextEditingController();
-  final TextEditingController odometerTextController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController partsCostController = TextEditingController();
+  final TextEditingController labourCostController = TextEditingController();
+  final TextEditingController subTotalController = TextEditingController();
+  final TextEditingController saleTaxController = TextEditingController();
+  final TextEditingController shippingController = TextEditingController();
+  final TextEditingController totalAmountController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController odometerController = TextEditingController();
+  final TextEditingController percentageOrAmountController = TextEditingController();
+  bool taxIsTapped = false;
+  Map<String,dynamic>? invoiceData;
 
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
@@ -42,6 +50,15 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             selectedPayment: {},
             selectedMainCategory: {},
             selectedSubCategory: {})) {
+
+    partsCostController.addListener(_updateExpenseTotal);
+    labourCostController.addListener(_updateExpenseTotal);
+    saleTaxController.addListener(_updateExpenseTotal);
+    shippingController.addListener(_updateExpenseTotal);
+    percentageOrAmountController.addListener(_updateExpenseTotal);
+    totalAmountController.addListener(_updateExpenseTotal);
+
+    
     on<GetTodoExpenseInitialEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
@@ -57,12 +74,14 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             ?(response[0] as TaskExpenseResponse)
             :null;
         PaymentResponse? paymentResponse = (response[1] is PaymentResponse)
-            ? (response[0] as PaymentResponse)
+            ? (response[1] as PaymentResponse)
             : null;
         CohortsResponse? cohortsResponse = (response[2] is CohortsResponse)
-            ? (response[1] as CohortsResponse)
+            ? (response[2] as CohortsResponse)
             : null;
         ogAttachments = expenseDetailResponse?.expense?['attachments'];
+        saleTaxController.text = ((double.tryParse(partsCostController.text) ?? 0) +
+            (double.tryParse(labourCostController.text) ?? 0)).toString();
         categories = cohortsResponse?.expenseData;
         attachments = ogAttachments
                 ?.map((e) => e['path'].toString().toStorageURL)
@@ -80,6 +99,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         emit(state.copyWith(isLoading: false));
       }
     });
+
 
     on<PickImageEvent>((event, emit) async {
       var result = await _pickFiles();
@@ -109,6 +129,28 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         attachments?.remove(event.data);
       }
       emit(state.copyWith(expenseAttachments: attachments));
+     }
+    );
+
+    on<TaxIconEvent>((event, emit) {
+      taxIsTapped = !taxIsTapped;
+      emit(state.copyWith());
+      _updateExpenseTotal();
+    });
+
+    on<InvoiceEvent>((event, emit)async{
+      invoiceData={
+        'description':descriptionController.text,
+        'part_name':partsCostController.text,
+        'amount':totalAmountController.text,
+        'odometer':odometerController.text,
+        'tax':saleTaxController.text,
+        'total':totalAmountController.text,
+        'sub_total': subTotalController.text,
+        'shipping':shippingController.text,
+
+      };
+      emit(state.copyWith());
     });
 
     on<CaptureImageEvent>((event, emit) async {
@@ -135,7 +177,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             selectedSubCategory: null));
       }
     });
-
     on<SubCategoryListEvent>((event, emit) =>
         emit(state.copyWith(selectedSubCategory: event.subCategory)));
   }
@@ -149,8 +190,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     return result?.paths
             .where((element) => (element?.isNotEmpty ?? false))
             .map((e) => File(e!))
-            .toList() ??
-        [];
+            .toList() ?? [];
   }
 
   Future<File?> _pickImages() async {
@@ -159,15 +199,14 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     return (pickedFiles != null) ? File(pickedFiles.path) : null;
   }
 
-
+  Future<TaskExpenseResponse?> _getTaskLists() async {
+    return await todoListRepo.getTaskExpense();
+  }
 
   Future<PaymentResponse?> _getPaymentMethods() async {
     return await todoListRepo.getPayment();
   }
 
-  Future<TaskExpenseResponse?> _getTaskLists() async {
-    return await todoListRepo.getTaskExpense();
-  }
 
   Future<ExpenseSummaryResponse?> _getExpenseDetails(dynamic expenseId) async {
     return await todoEditExpenseRepository.getEditExpenseTodo(expenseId);
@@ -176,4 +215,40 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   Future<CohortsResponse?> _getExpenseCategories() async {
     return await todoListRepo.getCohorts();
   }
+
+
+
+  void _updateExpenseTotal() {
+    double partsCost = double.tryParse(partsCostController.text) ?? 0;
+    double labourCost = double.tryParse(labourCostController.text) ?? 0;
+    double saleTax = double.tryParse(saleTaxController.text) ?? 0;
+    double shippingCost = double.tryParse(shippingController.text) ?? 0;
+    double percentageOrAmount = double.tryParse(percentageOrAmountController.text) ?? 0;
+    double subTotal = partsCost + labourCost;
+    subTotalController.text = subTotal.toStringAsFixed(2);
+
+    if(taxIsTapped){
+      saleTaxController.text = (subTotal + percentageOrAmount).toStringAsFixed(2);
+    }
+    else{
+      saleTaxController.text = (subTotal * (percentageOrAmount / 100)).toStringAsFixed(2);
+    }
+    double totalAmount = subTotal + saleTax + shippingCost;
+    totalAmountController.text = totalAmount.toStringAsFixed(2);
+  }
+
+  /*@override
+  Future<void> close() {
+    partsCostController.dispose();
+    labourCostController.dispose();
+    subTotalController.dispose();
+    saleTaxController.dispose();
+    shippingController.dispose();
+    totalAmountController.dispose();
+    descriptionController.dispose();
+    odometerController.dispose();
+    percentageOrAmountController.dispose();
+    return super.close();
+  }*/
+
 }

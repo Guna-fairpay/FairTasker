@@ -561,6 +561,7 @@ class Utils {
       AutovalidateMode autoValidate = AutovalidateMode.disabled,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
+        TextAlign textAlign = TextAlign.start,
       double borderWidth = Num.borderWidthField}) {
     // hintText = hintText ?? labelText;
     return ValueListenableBuilder(
@@ -580,6 +581,7 @@ class Utils {
         obscureText: obscure,
         textCapitalization: TextCapitalization.sentences,
         inputFormatters: textInputFormatter,
+        textAlign: textAlign,
         decoration: InputDecoration(
             contentPadding: contentPadding,
             constraints: BoxConstraints(),
@@ -613,10 +615,7 @@ class Utils {
             //     ),
             //     borderRadius: BorderRadius.circular(borderRadius)),
             suffixIconConstraints: BoxConstraints(),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: suffixIcon,
-            )),
+            suffixIcon: suffixIcon),
         style: style ?? TextStyle(
           // fontSize: textSize,
           color: textColor,
