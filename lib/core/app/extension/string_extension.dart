@@ -1,6 +1,8 @@
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart' show OpenFile;
 
 extension StringExtension on String? {
   DateTime? get toDate {
@@ -67,5 +69,18 @@ extension StringExtension on String? {
     if ((input == null) || (input.isEmpty) ) return null;
     var dateFormat = DateFormat(inputFormat);
     return dateFormat.parse(input);
+  }
+
+  get open async {
+    if(this?.isEmpty ?? false) return;
+    await OpenFile.open((this as String));
+  }
+
+  String toTitleCase() {
+    if (this?.isEmpty ?? false) return this ?? "";
+    return this?.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ') ?? "";
   }
 }

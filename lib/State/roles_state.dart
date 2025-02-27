@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
 abstract class RolesState extends Equatable {
@@ -12,24 +14,29 @@ class RolesInitial extends RolesState {
   List<Object> get props => [];
 }
 
-class RolesLoading extends RolesState {}
+class RolesLoading extends RolesState {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [Random().nextDouble()];
+}
 
 class RolesListLoaded extends RolesState {
   final List<Map<String, dynamic>>? data;
   const RolesListLoaded(
       {required this.data});
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, Random().nextDouble()];
 }
 
 class EditRolesLoaded extends RolesState {
   final List<int>? rolePermission;
-
+  final List<Map<String, dynamic>>? data;
   const EditRolesLoaded({
-        required this.rolePermission,
+    required this.rolePermission,
+    required this.data,
       });
   @override
-  List<Object?> get props => [rolePermission];
+  List<Object?> get props => [rolePermission,data];
 }
 
 class PermissionDataForRoleLoaded extends RolesState {

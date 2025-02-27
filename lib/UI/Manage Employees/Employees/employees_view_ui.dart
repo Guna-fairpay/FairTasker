@@ -1,16 +1,14 @@
+
 import 'package:fairpytasker/Bloc/employee_bloc.dart';
 import 'package:fairpytasker/Event/employee_event.dart';
 import 'package:fairpytasker/State/employee_state.dart';
-
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fairpytasker/Component/header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../Utilities/str.dart';
 import 'employees_add_ui.dart';
 import 'employees_edit_ui.dart';
-import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 
@@ -22,7 +20,8 @@ class EmployeesViewUI extends StatefulWidget {
 }
 
 class _EmployeesViewUIState extends State<EmployeesViewUI> {
-  late EmployeeBloc employeeBloc;
+
+  final EmployeeBloc employeeBloc=EmployeeBloc();
   TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   List<Map<String, dynamic>> employees = [];
@@ -34,17 +33,9 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
   @override
   void initState() {
     super.initState();
-    employeeBloc = EmployeeBloc();
-    Utils.getStringListPreference(Str.rolePrefText).then((role) {
-      setState(() {
-        userRole = role.first;
-      });
-    });
-    Utils.getStringPreference(Str.userIdPrefText).then((id) {
-      setState(() {
-        userId = id;
-      });
-      });
+    Utils.getStringListPreference(Str.rolePrefText).then((role) {userRole = role.first;});
+    Utils.getStringPreference(Str.userIdPrefText).then((id) {userId = id;});
+
   }
 
   void _filterEmployees(String query) {
@@ -70,7 +61,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
       context,
       MaterialPageRoute(builder: (context) => const EmployeesAddUI()),
     );
-
     if (newEmployees != null) {
       employeeBloc.add(
         AddEmployeeData(
@@ -84,7 +74,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
             role: newEmployees['role']),
       );
       employeeBloc.add(const GetEmployeeData());
-      Utils.showMobileToast('Employee Added Successfully!');
     }
   }
 
@@ -106,10 +95,9 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
             email: updatedEmployee['email'],
             phone: updatedEmployee['phone'],
             department: updatedEmployee['departments'],
-            role: int.parse(updatedEmployee['role'])),
+            role:updatedEmployee['role']),
       );
       employeeBloc.add(const GetEmployeeData());
-      Utils.showMobileToast('Employee Updated Successfully');
     }
   }
 
@@ -151,7 +139,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                 filteredEmployees.addAll(state.data ?? []);
                 filteredEmployees = List.from(state.data ?? []);
               } else if (state is EmployeeLoaded) {
-                employees.clear();
+                Utils.showMobileToast(state.message);
                 employeeBloc.add(const GetEmployeeData());
               } else {
                 employeeBloc.add(const GetEmployeeData());
@@ -174,87 +162,64 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                     ],
                   ),
                   Expanded(
-                    child: ListView.builder(
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) =>const Divider(height: 0.5,),
                       itemCount: filteredEmployees.length,
                       itemBuilder: (_, index) {
                         final employee = filteredEmployees[index];
-                        return Slidable(
-                          endActionPane: ActionPane(
-                            motion: const DrawerMotion(),
-                            children: [
-                              if (userRole == 'Admin' || userId == '3')
-                                SlidableAction(
-                                  onPressed: (context) =>
-                                      _deleteEmployee(index),
-                                  backgroundColor: AppC.white,
-                                  foregroundColor: AppC.red,
-                                  icon: Icons.delete_outline,
-                                  label: 'Delete',
-                                ),
-                            ],
-                          ),
-                          child: GestureDetector(
-                            onTap: () {
-                              if (userRole == 'Admin' || userId == '3') {
-                                _navigateToEmployeeEditUI(index);
-                              }
-                            },
-                            child: Card(
-                              margin:
-                                  const EdgeInsets.symmetric(vertical: 4),
-                              color: AppC.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
+                        return InkWell(
+                          onTap: () {
+                            if (userRole == 'Admin' || userId == '3') {
+                              _navigateToEmployeeEditUI(index);
+                            }
+                          },
+                          child: SafeArea(
+                            minimum:10.padding,
+                            child:ListTile(
+                              titleAlignment: ListTileTitleAlignment.top,
+                              minVerticalPadding: 0,
+                              contentPadding: 0.padding,
+                              // horizontalTitleGap: 0,
+                              minTileHeight: 0,
+                              dense: true,
+                              leading:  Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Utils.getText((index+1).toString(),color: AppC.appColor),],
+                            ),
+                              title:Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  Utils.getText(
+                                    '${employee['first_name'] ?? ''}'
+                                        ' ${employee['last_name'] ?? ''}',
+                                    weight: FontWeight.bold,
+                                  ),
+                                  Utils.getText(
+                                      '${employee['email'] ?? ''}',
+                                      weight: FontWeight.bold,
+                                      color: AppC.blue),
+                                  Utils.getText(
+                                    '${employee['phone'] ?? ''}',
+                                    weight: FontWeight.bold,
+                                  ),
+                                  Utils.getText(
+                                    '${employee['departments']['name'] ?? ''}',
+                                    weight: FontWeight.bold,
+                                    color: AppC.subText,
+                                  ),
+                                ],
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Utils.getText(
-                                              '${employee['first_name'] ?? ''}'
-                                              ' ${employee['last_name'] ?? ''}',
-                                              weight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Utils.getText(
-                                                '${employee['departments']['name'] ?? ''}',
-                                                weight: FontWeight.bold,
-                                                color: AppC.subText,
-                                              ),
-                                            ],
-                                          ),
-                                        ]),
-                                    // SizedBox(height: 10,),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Utils.getText(
-                                              '${employee['email'] ?? ''}',
-                                              weight: FontWeight.bold,
-                                              color: AppC.appColor),
-                                        ),
-                                        Utils.getText(
-                                          '${employee['phone'] ?? ''}',
-                                          weight: FontWeight.bold,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              trailing: Column(
+                                children: [
+                                  InkWell(
+                                    onTap: ()=>_deleteEmployee(index),
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: AppC.redAccent,),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -268,7 +233,6 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
           },
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

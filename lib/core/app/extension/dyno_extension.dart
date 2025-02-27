@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_file/open_file.dart';
 
 extension DynoExtension on Object? {
 
@@ -13,4 +14,9 @@ extension DynoExtension on Object? {
     if (input is XFile) return input.mimeType.isImageFile;
     return false;
   }
+
+  Future<void> get open async{
+    if (this is! String) return;
+    await OpenFile.open((this as String));
+}
 }

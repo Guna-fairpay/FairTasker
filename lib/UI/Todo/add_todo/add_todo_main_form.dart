@@ -19,13 +19,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTodoMainForm extends StatelessWidget {
-  const AddTodoMainForm({super.key});
+  final bool showHeader;
+  const AddTodoMainForm({super.key, this.showHeader = true});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AddToDoBloc, AddToDoState>(
         builder: (context, state) => Form(
                 child: ListView(
+                  physics: (showHeader) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
               children: [
                 TaskIdentifier(
                   taskIdentifierController:

@@ -1,4 +1,4 @@
-import 'package:date_time/date_time.dart';
+
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -15,6 +15,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final Widget? prefixIcon;
   final void Function(T value)? onChanged;
   final TextEditingController? controller;
+  final bool use24HourFormat;
 
   const CustomDateTimePicker(
       {super.key,
@@ -26,7 +27,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       this.suffixIcon,
       this.textStyle,
       this.textAlign,
-      this.onChanged});
+      this.onChanged,
+      this.use24HourFormat = false});
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +37,11 @@ class CustomDateTimePicker<T> extends StatelessWidget {
         dynamic result;
         if (runtimeType == CustomDateTimePicker<DateTime>) {
           result = await _pickDatePicker(context);
-        } else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
-          result = await _pickTimePicker(context);
+        }
+        else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
+          result = use24HourFormat
+              ? await _pick24hTimePicker(context)
+              : await _pickTimePicker(context);
         }
         if (result != null) onChanged?.call(result);
         controller?.text = Utils.formatDateTime(format: format, input: result);
@@ -90,4 +95,22 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     );
     return result;
   }
+
+  Future<TimeOfDay?> _pick24hTimePicker(BuildContext context) async {
+    if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
+    var result = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+      initialEntryMode: TimePickerEntryMode.dialOnly,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: true,
+          ),
+          child: child!);
+      }
+    );
+    return result;
+  }
+
 }

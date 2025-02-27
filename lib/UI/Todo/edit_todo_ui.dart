@@ -4,8 +4,10 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -1097,8 +1099,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     todoData: todoItem,
                                   )
                                 else if (showExpenseTab == 1)
-                                  const Placeholder()
-                                  // const CreateTodoUI(showHeader: false)
+                                  // const Placeholder()
+                                  Container(constraints: BoxConstraints(
+                                    maxHeight: context.height * 2.5,
+                                  ), child: const CreateTodoUI(showHeader: false),)
                                 else if (showExpenseTab == 2)
                                    CheckListUI(
                                        checkListData:checkListData,
@@ -1120,7 +1124,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                           multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
-                                          TotoExpense(expenseId: todoItem['expense_id'],)
+                                          TodoExpense(expenseId: todoItem['expense_id'],)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),
@@ -2308,7 +2312,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   editTodoNameController.selection = TextSelection.fromPosition(
                     TextPosition(offset: (editTodoNameController.text.length)),
                   );
-                })),
+                }
+                )
+            ),
           ],
         ),
         const SizedBox(
@@ -2445,6 +2451,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
           todoItem['vehicle_name'] != null ||
           todoItem['vehicles'].isNotEmpty)
         {'label': 'Set Vehicle', 'index': 4, 'color': AppC.red},
+      {'label': 'Test Expense', 'index': 5, 'color': AppC.red},
     ];
     if (tabTitle.isEmpty) {
       switch (todoItem["title"]) {

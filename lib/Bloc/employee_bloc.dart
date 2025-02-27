@@ -1,22 +1,63 @@
 
 import 'package:bloc/bloc.dart';
 import '../Event/employee_event.dart';
+import '../Repository/department_repository.dart';
 import '../Repository/employee_repository.dart';
+import '../Repository/roles_repository.dart';
 import '../State/employee_state.dart';
 
 
 class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
   EmployeeBloc() : super(EmployeeInitial()) {
     EmployeeRepository employeeRepository = EmployeeRepository();
+    DepartmentRepository departmentRepository = DepartmentRepository();
+    RolesRepository roleRepository = RolesRepository();
+
+    on<GetEmployeeRoleData>((event, emit) async {
+      emit(EmployeeLoading());
+      await roleRepository.getRoles()
+          .then((value) {
+        if (value != null) {
+          emit(EmployeeRoleLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<GetEmployeeDepartmentData>((event, emit) async {
+      emit(EmployeeLoading());
+      await departmentRepository.getDepartment()
+          .then((value) {
+        if (value != null) {
+          emit(EmployeeDepartmentLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
 
     on<GetEmployeeData>((event, emit) async {
       emit(EmployeeLoading());
-
       await employeeRepository.getEmployee()
           .then((value) {
         if (value != null) {
           emit(EmployeeListLoaded(
             data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<GetEditEmployeeData>((event, emit) async {
+      emit(EmployeeLoading());
+      await employeeRepository.getEditEmployee(id: event.id)
+          .then((value) {
+        if (value != null) {
+          emit(EditEmployeeListLoaded(
+            user: value.user,
+            role: value.role,
+            userRole: value.userRole,
           ));
         }
       });

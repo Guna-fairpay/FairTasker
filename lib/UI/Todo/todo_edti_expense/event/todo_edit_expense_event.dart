@@ -52,6 +52,7 @@ class PickImageEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
 class CaptureImageEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
@@ -63,4 +64,15 @@ class RemoveImageEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [data];
 }
+
+class InvoiceEvent extends TodoEditExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class TaxIconEvent extends TodoEditExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
 

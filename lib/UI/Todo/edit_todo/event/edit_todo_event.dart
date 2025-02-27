@@ -1,0 +1,178 @@
+
+
+import 'dart:math';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+
+abstract class EditToDoEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
+
+class GetEditTodoInitialEvent extends EditToDoEvent {
+  final String? todoId;
+   GetEditTodoInitialEvent({required this.todoId});
+  @override
+  List<Object?> get props => [todoId];
+}
+
+class EditToDoShowMoreEvent extends EditToDoEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class EditToDoShowPartsEvent extends EditToDoEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class EditToDoShowSuppliesEvent extends EditToDoEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+// class EditToDoSelectedTaskIdentifierEvent extends EditToDoEvent {
+//   final Map<int, dynamic> selectedTaskIdentifier;
+//   EditToDoSelectedTaskIdentifierEvent(this.selectedTaskIdentifier);
+//   @override
+//   List<Object?> get props => [selectedTaskIdentifier];
+// }
+
+class EditToDoVPersonEvent extends EditToDoEvent {
+  final dynamic vPerson;
+  EditToDoVPersonEvent(this.vPerson);
+  @override
+  List<Object?> get props => [vPerson];
+}
+
+class EditToDoVLocationEvent extends EditToDoEvent {
+  final dynamic vLocation;
+  EditToDoVLocationEvent(this.vLocation);
+  @override
+  List<Object?> get props => [vLocation];
+}
+
+class EditToDoPersonTapEvent extends EditToDoEvent {
+  final dynamic person;
+  final bool isSelected;
+  EditToDoPersonTapEvent(this.person, this.isSelected);
+  @override
+  List<Object?> get props => [person, isSelected, Random().nextDouble()];
+}
+
+class EditToDoTaskManagerEvent extends EditToDoEvent {
+  final dynamic taskManager;
+  EditToDoTaskManagerEvent(this.taskManager);
+  @override
+  List<Object?> get props => [taskManager];
+}
+
+class EditToDoCleanCarDuration extends EditToDoEvent {
+  final dynamic cleanCarDuration;
+  EditToDoCleanCarDuration(this.cleanCarDuration);
+  @override
+  List<Object?> get props => [cleanCarDuration];
+}
+
+class EditToDoPlatformCheckEvent extends EditToDoEvent {}
+
+class EditToDoPartSelectionEvent extends EditToDoEvent {
+  final dynamic part;
+  final bool isChecked;
+  EditToDoPartSelectionEvent(this.isChecked, this.part);
+  @override
+  List<Object?> get props => [isChecked, part];
+}
+
+class EditToDoSupplySelectionEvent extends EditToDoEvent {
+  final dynamic data;
+  final bool isChecked;
+  EditToDoSupplySelectionEvent(this.isChecked, this.data);
+  @override
+  List<Object?> get props => [isChecked, data];
+}
+
+class EditToDoCleanCarEvent extends EditToDoEvent {}
+
+class EditToDoRecurringTypeEvent extends EditToDoEvent {
+  final dynamic recurringType;
+  EditToDoRecurringTypeEvent(this.recurringType);
+  @override
+  List<Object?> get props => [recurringType];
+}
+
+class EditToDoDateChangeEvent extends EditToDoEvent {
+  final DateTime selectedDate;
+  EditToDoDateChangeEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
+
+class EditToDoTimeChangeEvent extends EditToDoEvent {
+  final TimeOfDay selectedTime;
+
+  EditToDoTimeChangeEvent(this.selectedTime);
+
+  @override
+  List<Object?> get props => [selectedTime];
+}
+
+class EditToDoTimeSensitiveEvent extends EditToDoEvent {}
+
+class EditToDoEditAttachmentEvent extends EditToDoEvent {}
+
+class EditToDoSelectLinkOptionEvent extends EditToDoEvent {
+  final dynamic linkOption;
+  EditToDoSelectLinkOptionEvent(this.linkOption);
+  @override
+  List<Object?> get props => [linkOption];
+}
+
+class EditToDoEditressSelectionEvent extends EditToDoEvent {
+  final dynamic data;
+  final bool isChecked;
+  EditToDoEditressSelectionEvent(this.data, this.isChecked);
+  @override
+  List<Object?> get props => [data, isChecked];
+}
+
+class EditToDoRecurringWeekDaysEvent extends EditToDoEvent {
+  final dynamic selectedRecurringDay;
+  EditToDoRecurringWeekDaysEvent(this.selectedRecurringDay);
+  @override
+  List<Object?> get props => [selectedRecurringDay];
+}
+
+class EditToDoRecurringMonthOccurrenceEvent extends EditToDoEvent {
+  final bool isRecurringMonthOccurrence;
+  EditToDoRecurringMonthOccurrenceEvent(this.isRecurringMonthOccurrence);
+  @override
+  List<Object?> get props => [isRecurringMonthOccurrence];
+}
+
+class EditToDoRecurringEndDateEvent extends EditToDoEvent {
+  final bool isRecurringEndDate;
+
+  EditToDoRecurringEndDateEvent(this.isRecurringEndDate);
+
+  @override
+  List<Object?> get props => [isRecurringEndDate];
+}
+
+class EditToDoRecurringYearlySelectedMonthEvent extends EditToDoEvent {
+  final dynamic selectedMonth;
+  EditToDoRecurringYearlySelectedMonthEvent(this.selectedMonth);
+  @override
+  List<Object?> get props => [selectedMonth];
+}
+
+class EditToDoRecurringEndDateSelectionEvent extends EditToDoEvent {
+  final DateTime dateTime;
+  EditToDoRecurringEndDateSelectionEvent(this.dateTime);
+  @override
+  List<Object?> get props => [dateTime];
+}
+
+class EditToDoOpenCustomLinkEvent extends EditToDoEvent {}
+
+class EditToDoSaveEvent extends EditToDoEvent {}

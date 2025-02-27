@@ -36,11 +36,12 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
 
     on<GetEditUsers>((event, emit) async {
       emit(UsersLoading());
-      await usersRepository.getEditPermissionListForUsers(id: event.id).then(
+      await usersRepository.getEditUsers(id: event.id).then(
         (value) {
         if (value != null) {
           emit(EditUsersLoaded(
             data: value.data ?? [],
+            permission: value.permission ?? [],
           ));
         }
       });

@@ -14,7 +14,7 @@ import '../UI/authentication_ui.dart';
 import '../UI/Import Task/text_upload.dart';
 import '../UI/Manage Custom Data/manage_custom_data_menu_ui.dart';
 import '../UI/recurrence_Task.dart';
-import '../UI/voice_to_text_ui.dart';
+import '../UI/Voice To Text/voice_to_text_ui.dart';
 import '../Utilities/str.dart';
 import '../Utilities/utils.dart';
 import 'bottom_nav_for_task.dart';
@@ -108,12 +108,6 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 ),
                 _buildDivider(),
                 _buildListTile(
-                  icon: Icons.file_copy,
-                  title: "Reports",
-                  onTap: () => navigateToPage(const ReportsView()),
-                ),
-                _buildDivider(),
-                _buildListTile(
                   icon: Icons.manage_accounts,
                   title: "Manage Employees",
                   onTap: () => navigateToPage(const ManageEmployees()),
@@ -123,6 +117,12 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                     icon:  Icons.work_history,
                     title: "Leave Management",
                     onTap: () => navigateToPage(const LeaveManagementViewUI()),
+                ),
+                _buildDivider(),
+                _buildListTile(
+                  icon: Icons.file_copy,
+                  title: "Reports",
+                  onTap: () => navigateToPage(const ReportsView()),
                 ),
                 _buildDivider(),
                 _buildListTile(
@@ -138,12 +138,12 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                     // =>navigateToPage(const UploadText())
                   },
                 ),
-                _buildDivider(),
+                /*_buildDivider(),
                 _buildListTile(
                   icon:  Icons.sync,
                   title: "Recurrence Task",
                   onTap: () => navigateToPage(const RecurrenceTask()),
-                ),
+                ),*/
                 _buildDivider(),
                 _buildListTile(
                   icon:  Icons.queue_music,
@@ -179,7 +179,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Utils.getText(
-            "Version: 1.0",
+            "Version: 1.0.4",
             color: Colors.grey.withOpacity(0.99),
           ),
         ]),

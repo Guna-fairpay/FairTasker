@@ -35,7 +35,7 @@ class UsersRepository {
     }
   }
 
-  Future<PermissionUsersListResponse?> getEditPermissionListForUsers({int? id}) async {
+  Future<PermissionUsersListResponse?> getEditUsers({int? id}) async {
     try {
       String apiUrl = "${Str.BASE_URL}editUserRole/$id";
       debugPrint("editUserRole apiUrl: $apiUrl");

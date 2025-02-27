@@ -75,6 +75,11 @@ class Str{
 
     static const List<int> getAroundIds = [268, 177];
 
+    static const List<String> odometer = ['Maintenance Check','Getaround Prechecks','CheckOut Car Rental','Pickup Car Rental'];
+
+    static const List<String> todoEditExpense = ['Check In','Check Out','CheckOut Car Rental','Pickup Car Rental','Email Notofication Form','Refuel Car'];
+
+
     static const String noMatchFound = 'No data found. Please check your input and try again.';
 
 

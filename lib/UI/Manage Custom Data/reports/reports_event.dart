@@ -9,3 +9,4 @@ abstract class ReportDownloadEvent extends Equatable {
 class ReportMaintenanceEvent extends ReportDownloadEvent {}
 class ReportVehicleEvent extends ReportDownloadEvent {}
 class ReportEarningEvent extends ReportDownloadEvent {}
+class ReportVehicleInventoryEvent extends ReportDownloadEvent {}

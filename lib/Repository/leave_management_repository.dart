@@ -40,33 +40,32 @@ class LeaveManagementRepository {
     }
   }
 
-  Future<LeaveManagementResponse?> createLeaveList(
-      int? id,
-      int? userId,
-      String? leaveTypeId,
-      String? startDate,
-      String? endDate,
-      String? reason,
-      String? startTime,
-      String? endTime,
-      String? status,
-      ) async {
+  Future<LeaveManagementResponse?> createLeaveList({
+    int? id,
+    int? userId,
+    String? leaveTypeId,
+    String? leaveDuration,
+    String? startDate,
+    String? endDate,
+    String? reason,
+    String? startTime,
+    String? endTime,
+    String? status,
+  }) async {
     try {
       String body = jsonEncode({
         "leave_type_id": leaveTypeId,
+        "leave_duration": leaveDuration,
         "start_date": startDate,
         "end_date": endDate,
         "reason": reason,
         "start_time": startTime,
         "end_time": endTime,
-        "user_id": userId,
-        "status": status,
-        "platform":  "TaskerApp",
       });
-
       String apiUrl = '';
       http.Response? response;
       if(id != null) {
+        print(body);
         apiUrl = "${Str.GOPORTAL_BASE_URL}updateLeave/$id";
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
@@ -75,8 +74,10 @@ class LeaveManagementRepository {
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
+
       if (response != null) {
 
+        log(response.body,name:'BODY');
         LeaveManagementResponse leaveManagementResponse =
         LeaveManagementResponse.fromJson(json.decode(response.body));
 
@@ -96,32 +97,11 @@ class LeaveManagementRepository {
     }
   }
 
-  Future<DepartmentResponse?> deleteDepartment(String? id) async {
-    try {
-      String apiUrl = "${Str.BASE_URL}deleteDepartment/$id";
-
-      final http.Response? response = await apiClient.callDelete(apiUrl);
-
-      if (response != null) {
-        DepartmentResponse feedbackResponse =
-        DepartmentResponse.fromJson(json.decode(response.body));
-
-        if (response.statusCode == 200) {
-          return feedbackResponse;
-        } else {
-          return feedbackResponse;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('feedback.exception : ${error.toString()}');
-      return null;
-    }
-  }
 
   Future<LeaveManagementEmployeeListResponse?> getEmployeeList() async {
     try {
+
+
       String apiUrl = "${Str.GOPORTAL_BASE_URL}employeeList";
       debugPrint("getAssignedTo apiUrl: $apiUrl");
 
@@ -157,6 +137,36 @@ class LeaveManagementRepository {
           LeaveTypeListResponse.fromJson(json.decode(response.body));
 
           return leaveTypeListResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('leaveTypeList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<LeaveTypeListResponse?> leaveApprove({int? id, String? status, String? reason}) async {
+    try {
+      String body = jsonEncode({
+        "id": id,
+        "reason": reason,
+        "status": status,
+        "platform":  "TaskerApp",
+      });
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}leaveApprove";
+      debugPrint("leaveApprove apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        LeaveTypeListResponse leaveTypeListResponse =
+        LeaveTypeListResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200) {
+          return leaveTypeListResponse;
         } else {
           Utils.showNoResultFound();
           return null;
