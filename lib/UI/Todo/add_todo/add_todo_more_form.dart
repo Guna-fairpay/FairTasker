@@ -89,6 +89,7 @@ class AddTodoMoreForm extends StatelessWidget {
                 itemAsString: (item) => item['name'].toString(),
                 onEmptyTap: () => context.push(const SuppliesViewUI(),
                     fullscreenDialog: true)),
+          10.height,
           Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
@@ -107,6 +108,7 @@ class AddTodoMoreForm extends StatelessWidget {
                 child: CustomDropdown<dynamic>(
                   items: state.linkOptions,
                   value: state.selectedLinkOption,
+                  contentPadding: 5.padding,
                   onChanged: (val) => context
                       .read<AddToDoBloc>()
                       .add(AddToDoSelectLinkOptionEvent(val)),

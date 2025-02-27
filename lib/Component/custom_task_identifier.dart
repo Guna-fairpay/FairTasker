@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -17,9 +18,6 @@ class TaskIdentifier extends StatelessWidget {
   final Map<int, dynamic>? selected;
   final void Function(Map<int, dynamic> val)? onSelected;
   final TextEditingController taskIdentifierController;
-  final ValueNotifier<Map<String, dynamic>>? selectedTask;
-  final ValueNotifier<List<Map<String, dynamic>>>? selectedVPersons;
-  final ValueNotifier<Map<String, dynamic>>? selectedVLocations;
 
   TaskIdentifier(
       {super.key,
@@ -30,10 +28,7 @@ class TaskIdentifier extends StatelessWidget {
       required this.vehicles,
       required this.vendors,
       this.onSelected,
-      this.selected,
-      this.selectedTask,
-      this.selectedVPersons,
-      this.selectedVLocations}) {
+      this.selected}) {
     initState();
   }
 
@@ -47,13 +42,18 @@ class TaskIdentifier extends StatelessWidget {
   List<Map<String, dynamic>> vTasks = [];
   List<Map<String, dynamic>> vPersons = [];
   List<Map<String, dynamic>> vLocations = [];
-  final ValueNotifier<bool> setState = ValueNotifier(false);
   int trigger = 0;
   String _previousText = "";
 
   void initState() {
     updateCommonList();
+    taskIdentifierController.addListener(_listenField);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _listenNotifiers());
+  }
+
+  void _listenField() {
+    var text = taskIdentifierController.text;
+    if (text.isEmpty) _requestFocus();
   }
 
   void _listenNotifiers() {
@@ -65,29 +65,10 @@ class TaskIdentifier extends StatelessWidget {
       if (selected?.containsKey(2) == false) selectedList.remove(2);
       if (selected?.containsKey(3) == false) selectedList.remove(3);
       _setValue(emit: false);
+    } else {
+      taskIdentifierController.clear();
+      _requestFocus();
     }
-    selectedTask?.addListener(() {
-      if (selectedTask?.value != null) {
-        selectedList[1] = selectedTask?.value;
-        _setValue(emit: false);
-      }
-    });
-     selectedVPersons?.addListener(() {
-      if (( selectedVPersons?.value != null)) {
-        var value =  selectedVPersons?.value.lastOrNull;
-        if (value == null) selectedList.remove(2); _setValue(emit: false);
-        if ((selectedList[2] == null) || (selectedList[2] != value)) {
-          selectedList[2] = value;
-          _setValue(emit: false);
-        }
-      }
-    });
-     selectedVLocations?.addListener(() {
-      if ( selectedVLocations?.value != null) {
-        selectedList[3] =  selectedVLocations?.value;
-        _setValue(emit: false);
-      }
-    });
   }
 
   void updateCommonList() {
@@ -106,7 +87,7 @@ class TaskIdentifier extends StatelessWidget {
     {
       "id": element['id'],
       "name": element['vehicle_name'],
-      "subname" : "\t(${element['vehicle_number']})",
+      "subname" : element['vehicle_number'].toString().isNullOrEmpty ? "" : "\t(${element['vehicle_number']})",
       "type": "vehicles",
       "partNumber" : 2,
       "value" : element
@@ -129,39 +110,24 @@ class TaskIdentifier extends StatelessWidget {
     }).toList();
     vLocations = [...vendor, ...locations];
     commonList = vTasks;
-    // _setState;
   }
 
   void _setValue({bool emit = true}) {
-    log("setValue:\t$selectedList", name: "TaskIdentifier");
+    log("setValue:\t$emit", name: "TaskIdentifier");
     if (emit) {
-      try {
-        selectedList.forEach((key, value) {
-          if (key == 1) {
-             selectedTask?.value = value;
-          } else if (key == 2) {
-            try {
-              if (value['type'] == "person")  selectedVPersons?.value = [value];
-              if (value['type'] == "vehicles") {
-                 selectedVPersons?.value.removeWhere((
-                    element) => element.containsKey('type') && (element['type'] == "person"));
-                if ( selectedVPersons?.value.contains(value) == false)  selectedVPersons?.value = [...( selectedVPersons?.value ?? []), ...[value] ];
-              }
-               selectedVPersons?.notifyListeners();
-            } on Exception catch (e) { log("Exception:	$e", name: "TaskIdentifier"); }
-          } else if (key == 3) {
-             selectedVLocations?.value = value;
-          }
-        });
-        onSelected?.call(selectedList);
-      } on Exception catch (e) {
-        log("Exception(b):	$e", name: "TaskIdentifier");
-      }
+      onSelected?.call(selectedList);
       _requestFocus();
     }
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
-     // _requestFocus();
+     log("${_isHavingHypen()} ${taskIdentifierController.text.split("-").length}", name: "TaskIdentifier");
+     if (_isHavingHypen() || taskIdentifierController.text.isNullOrEmpty) _requestFocus();
+  }
+
+  bool _isHavingHypen() {
+    var value = taskIdentifierController.text.split("-");
+    value.removeWhere((element) => element.isEmpty);
+    return value.length < 3;
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
@@ -197,11 +163,6 @@ class TaskIdentifier extends StatelessWidget {
     return result; // Default case
   }
 
-  get _setState {
-    setState.value = true;
-    setState.notifyListeners();
-  }
-
   void _requestFocus() {
     _focusNode.requestFocus();
   }
@@ -212,30 +173,26 @@ class TaskIdentifier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: setState,
-      builder: (context, value, child) => child ?? Container(),
-      child: CustomSearchField<Map<String, dynamic>>(
-          key: UniqueKey(),
-          suggestions: commonList,
-          focusNode: _focusNode,
-          itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
-          onTap: _requestFocus,
-          onTapOutSide: _unRequestFocus,
-          onSuggestionTap: (val) {
-            selectedList[val['partNumber']] = val;
-            _setValue();
-            _requestFocus();
-          },
-          isDense: true,
-          style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
-          onSearchTextChanged: onSearch,
-          controller:  taskIdentifierController,
-          suggestionState: Suggestion.hidden,
-          labelText: "Task Identifier",
-          onEmptyTap: () =>
-              context.push(const TaskAddUI(), fullscreenDialog: true)),
-    );
+    return CustomSearchField<Map<String, dynamic>>(
+        key: UniqueKey(),
+        suggestions: commonList,
+        focusNode: _focusNode,
+        itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
+        onTap: _requestFocus,
+        onTapOutSide: _unRequestFocus,
+        onSuggestionTap: (val) {
+          selectedList[val['partNumber']] = val;
+          _setValue();
+          _requestFocus();
+        },
+        isDense: true,
+        style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+        onSearchTextChanged: onSearch,
+        controller:  taskIdentifierController,
+        suggestionState: Suggestion.hidden,
+        labelText: "Task Identifier",
+        onEmptyTap: () =>
+            context.push(const TaskAddUI(), fullscreenDialog: true));
   }
 
   List<SearchFieldListItem<Map<String, dynamic>>>? onSearch(String val) {

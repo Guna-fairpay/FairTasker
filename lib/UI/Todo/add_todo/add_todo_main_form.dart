@@ -15,6 +15,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,6 +28,7 @@ class AddTodoMainForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(
         builder: (context, state) => Form(
                 child: ListView(
+                  padding: 10.topPadding,
                   physics: (showHeader) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
               children: [
                 TaskIdentifier(
@@ -67,6 +69,30 @@ class AddTodoMainForm extends StatelessWidget {
                       context.read<AddToDoBloc>().add(AddToDoVPersonEvent(val)),
                   controller: context.read<AddToDoBloc>().vPersonController,
                 ),
+                if (state.selectedVPerson
+                    .where((element) => element['type'] == "vehicles")
+                    .lastOrNull !=
+                    null)
+                  ...[
+                    10.height,
+                    Text.rich(TextSpan(
+                        text: "View: Vehicle History",
+                        recognizer: TapGestureRecognizer()..onTap = () => context.push(VehicleHistoryViewUI(
+                            showSameTask: (state.selectedTaskIdentifier.containsKey(1)),
+                            title: (state.selectedTaskIdentifier.containsKey(1)) ? state.selectedTaskIdentifier[1]['name'] : null,
+                            vin: state.selectedVPerson
+                                .where((element) => element['type'] == "vehicles")
+                                .lastOrNull?['value']?['vin'],
+                            vehicleName: state.selectedVPerson
+                                .where((element) => element['type'] == "vehicles")
+                                .lastOrNull?['name']), fullscreenDialog: true)),
+                      textAlign: TextAlign.end,
+                      style: context.textTheme.labelSmall?.copyWith(
+                          color: AppC.appColor,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppC.appColor
+                      ),)
+                  ],
                 10.height,
                 CustomVendorLocationField(
                   vendorsList: state.vendors,
@@ -132,24 +158,6 @@ class AddTodoMainForm extends StatelessWidget {
                     onPressed: () =>
                         context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
                     child: const Text("Save")),
-                if (state.selectedVPerson
-                        .where((element) => element['type'] == "vehicles")
-                        .lastOrNull !=
-                    null) ...[
-                  Container(
-                      constraints:
-                          BoxConstraints(maxHeight: context.height * 0.5),
-                      child: VehicleHistoryViewUI(
-                        showSameTask: (state.selectedTaskIdentifier.containsKey(1)),
-                          title: (state.selectedTaskIdentifier.containsKey(1)) ? state.selectedTaskIdentifier[1]['name'] : null,
-                          vin: state.selectedVPerson
-                              .where((element) => element['type'] == "vehicles")
-                              .lastOrNull?['value']?['vin'],
-                          vehicleName: state.selectedVPerson
-                              .where((element) => element['type'] == "vehicles")
-                              .lastOrNull?['name'],
-                          showHeader: false)),
-                ]
               ],
             )));
   }

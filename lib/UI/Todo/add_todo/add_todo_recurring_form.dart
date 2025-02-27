@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -49,6 +50,7 @@ class AddTodoRecurringForm extends StatelessWidget {
                         child: CustomDropdown<dynamic>(
                             items: state.recurringTypes,
                             value: state.selectedRecurring,
+                            contentPadding: 5.padding,
                             itemAsString: (item) => item['label'].toString(),
                             onChanged: (val) => context
                                 .read<AddToDoBloc>()
