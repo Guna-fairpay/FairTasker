@@ -59,7 +59,7 @@ class EditTodoReworkUI extends StatelessWidget {
                             .shrinkWrap, // the '2023' part
                       ),
                     ),
-                  GestureDetector(
+                  InkWell(
                     child: Transform.scale(
                       scale: 0.6,
                       child: SizedBox(width: 40,
@@ -81,30 +81,18 @@ class EditTodoReworkUI extends StatelessWidget {
                               activeColor: AppC.white,
                               activeTrackColor: AppC.green,
                              // value: completeAllDay,
-                              value: true,
+                              value: state.todoStatus,
                               onChanged: (value) {
-                                // completeAllDay = value;
-                                // setState(() {});
-                                // todoBloc!.add(CompleteTodoItem(
-                                //     todoId: todoItem['id'].toString(),
-                                //     status: completeAllDay
-                                //         ? 'Completed'
-                                //         : 'In Progress'));
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) =>
-                                //         const BottomNavigationForTaskView(
-                                //           selectedIndex: 0,
-                                //           message: '',
-                                //         )
-                                //     )
-                                // );
+                                context.read<EditToDoBloc>().add(
+                                    TaskStatusChangeEvent(
+                                        todoStatus: value,
+                                        todoId: state.apiResponse['id'].toString(),
+                                        status: state.apiResponse['status'])
+                                );
                               }),
                         ),
                       ),
                     ),
-                    onTap: () {},
                   ),
                   IconButton(onPressed: (){
                     Navigator.pop(context);

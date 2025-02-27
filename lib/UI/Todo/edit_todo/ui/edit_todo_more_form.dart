@@ -87,7 +87,9 @@ class EditTodoMoreForm extends StatelessWidget {
                         (val) => context
                     .read<EditToDoBloc>()
                     .add(EditToDoSelectLinkOptionEvent(val)),
-                    labelKey: 'label')
+                    labelKey: 'label',
+                  initialSelection: state.selectedLinkOption
+                )
               )
             ],
           ),

@@ -1,9 +1,10 @@
 
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:fairpytasker/Response/task_response.dart';
 import 'package:fairpytasker/Response/todo_list_response.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import '../../../../Response/assigned_to_response.dart';
 import '../../../../Response/location_response.dart';
 import '../../../../Response/parts_response.dart';
 import '../../../../Response/supplies_response.dart';
+import '../../../../Response/user_group_response.dart';
 import '../../../../Response/vehicle_list_response.dart';
 import '../../../../Response/vendor_response.dart';
 import '../../../../Utilities/Str.dart';
@@ -31,31 +33,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController vLocationController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
   final TextEditingController customLinkController = TextEditingController();
-
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController odometerController = TextEditingController();
-
-  final TextEditingController recurringEveryDayWeekController =
-  TextEditingController();
-  final TextEditingController recurringMonthDateController =
-  TextEditingController();
-  final TextEditingController recurringMonthMonthController =
-  TextEditingController();
-  final TextEditingController recurringYearDateController =
-  TextEditingController();
-  final TextEditingController recurringNoOccurrenceController =
-  TextEditingController();
-  final TextEditingController recurringEndDateController =
-  TextEditingController();
-
-  final TextEditingController reasonController = TextEditingController();
 
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
 
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? departmentId; // LoggedIn User department ID
+  List<String>selectedIds=[];
 
   EditToDoBloc()
       : super(EditTodoState(
@@ -78,6 +65,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       attachments: const [],
       selectedTask: const[],
       linkOptions: AddToDoConfig.customOptions,
+      bottomTapData:const [],
+      selectedBottomTap: AddToDoConfig.editTodoBottomTaps.first,
       isSelectedPlatformCheck: false,
       showPlatformCheck: false,
       isMoreEnable: false,
@@ -86,9 +75,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       selectedLinkOption: AddToDoConfig.customOptions.first,
       selectedDate: DateTime.now(),
       selectedTime: TimeOfDay.now(),
-      apiResponse: const{}, )) {
+      apiResponse: const{},
+      todoStatus: false,
+      selectedResource: const [],
+      userGroup: const [],
+      selectedTaskIdentifier: const {},
+      resourceName: const [],
+
+
+  )) {
+    var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
     on<GetEditTodoInitialEvent>((event, emit) async {
-      log("${event.todoId}",name: 'findId');
       emit(state.copyWith());
       todoId=event.todoId;
       // PROCEED API CALL
@@ -102,6 +99,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           _getParts(),
           _getSupplies(),
           _getResources(),
+          _getUserGroup(),
         ]);
         TodoListResponse? todoResponse = await _editTodoData(todoId);
         TaskExpenseResponse? taskResponse =
@@ -125,6 +123,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         AssignedToResponse? assignedToResponse =
         ((response[6] is AssignedToResponse) ? response[6] : null)
         as AssignedToResponse?;
+        UserGroupResponse? userGroupResponse = ((response[7] is UserGroupResponse)
+            ? response[7]
+            : null) as UserGroupResponse?;
         var resources = assignedToResponse?.resource ?? [];
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
@@ -136,9 +137,31 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             .where((element) => element['id'].toString() == currentUserId)
             .toList();
         departmentId = selectedUser.firstOrNull?['department'].toString();
+        if (todoResponse!.editTodos?['user_id'] != null) {
+          selectedIds=((todoResponse.editTodos?['user_id']).toString()).split(',');
+        }
+        if (todoResponse.editTodos?['user_group_id'] != null) {
+          for (var group in userGroupResponse?.data ?? []) {
+            if (group['id'] == todoResponse.editTodos?['user_group_id']) {
+              var decodedList = json.decode(group['userId'] ?? '[]');
+              if (decodedList is List) {
+                selectedIds = decodedList.map((e) => e.toString()).toList();
+              } else {
+                selectedIds = [];
+              }
+            }
+          }
+        }
+
+        var list=(assignedToResponse?.resource ?? []).where((element) => selectedIds.contains(element['id'].toString())).map((e) => [e['first_name'].toString(), e['last_name'].toString()].toInitial).toList();
+
         emit(state.copyWith(
             isLoading: false,
-            apiResponse: todoResponse?.editTodos,
+            bottomTapData: tabs,
+            resourceName: list,
+            apiResponse: todoResponse.editTodos,
+            todoStatus: todoResponse.editTodos?['status'] == 'In Progress'?false:true,
+            // selectedBottomTap: tabs.firstWhere((element) => element['id'] == 4),
             tasks: taskResponse?.data ?? [],
             vehicles: vehicleResponse?.data ?? [],
             persons: resources,
@@ -148,7 +171,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             supplies: suppliesResponse?.data ?? [],
             selectedTaskPersons: selectedUser,
             resources: resources,
-            selectedLinkOption: AddToDoConfig.customOptions.first));
+            selectedLinkOption: AddToDoConfig.customOptions.first,
+            selectedResource:selectedIds,
+        )
+        );
+
       } catch (e) {
         emit(state.copyWith(isLoading: false));
       }
@@ -158,6 +185,43 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var currentStatus = state.isMoreEnable;
       emit(state.copyWith(isMoreEnable: !currentStatus));
     });
+
+    on<EditToDoVPersonEvent>((event, emit) {
+      log("${event.vPerson}", name: "AddToDoBloc-Person-before-check");
+      if ((event.vPerson as List).isEmpty) {
+        var oldIdentifier = state.selectedTaskIdentifier;
+        oldIdentifier.remove(2);
+        emit(state.copyWith(
+            selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
+        return;
+      }
+      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
+      var existingVPersons = List<Map<String, dynamic>>.from(state.selectedVPerson);
+      log("$existingVPersons", name: "AddToDoBloc-Person-before");
+      log("${event.vPerson}", name: "AddToDoBloc-Person-before-Add");
+      if (existingVPersons.where((element) => element['type'] == 'person').isNotEmpty && event.vPerson.first['type'] == 'person') {
+        existingVPersons.clear();
+      }
+      existingVPersons.addAll(event.vPerson);
+      // existingVPersons.removeWhere((element) => !(event.vPerson.map((e) => e['id']).contains(element['id'])));
+      if (oldIdentifier.containsKey(2)) {
+        oldIdentifier.update(
+            2, (value) => (event.vPerson[0] as Map<String, dynamic>));
+      }
+      if (!oldIdentifier.containsKey(2)) {
+        oldIdentifier.putIfAbsent(
+            2, () => (event.vPerson[0] as Map<String, dynamic>));
+      }
+      existingVPersons = existingVPersons.unique((element) => element['id']);
+      existingVPersons.removeWhere((element) =>
+      element['type'] ==
+          ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
+      emit(state.copyWith(
+          selectedVPerson: existingVPersons,
+          selectedTaskIdentifier: oldIdentifier));
+      log("$existingVPersons", name: "AddToDoBloc-Person");
+    });
+
 
     on<EditToDoShowPartsEvent>((event, emit) {
       var currentStatus = state.isPartServiceEnable;
@@ -169,7 +233,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isSuppliesEnable: !currentStatus));
     });
 
+    on<TaskStatusChangeEvent>((event, emit) {
+      emit(state.copyWith(todoStatus: !state.todoStatus));
 
+    });
 
     on<EditToDoPersonTapEvent>((event, emit) {
       var existing = List.from(state.selectedTaskPersons);
@@ -261,6 +328,24 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       Utils.openURL(url);
     });
 
+    on<EditToDoBottomTapEvent>((event, emit) {
+      emit(state.copyWith(selectedBottomTap: event.selectedBottomTap));
+    });
+
+    on<UserSelectionEvent>((event, emit) {
+      var existing = List<String>.from(state.selectedResource);
+      existing = event.selectedResource ?? [];
+      // if (event.selectedResource != null) {
+      //   if (!existing.contains(event.selectedResource)) {
+      //     existing.add(event.selectedResource ?? "");
+      //   } else {
+      //     if (existing.contains(event.selectedResource)) existing.remove(event.selectedResource);
+      //   }
+      // }
+      emit(state.copyWith(selectedResource: existing));
+
+    });
+
   }
 
 
@@ -273,31 +358,37 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
   Future<TodoListResponse?> _editTodoData(dynamic todoId) async =>
       await todoListRepo.editTodoData(id: todoId);
-  // API CALL: TASKS
+  /// API CALL: TASKS
   Future<TaskExpenseResponse?> _getTasks() async => await todoListRepo.getTaskExpense();
 
-  // API CALL: VENDORS
+  /// API CALL: VENDORS
   Future<VendorResponse?> _getVendors() async => await todoListRepo.getVendor();
 
-  // API CALL: LOCATIONS
+  /// API CALL: LOCATIONS
   Future<LocationResponse?> _getLocations() async =>
       await todoListRepo.getLocation();
 
-  // API CALL: ACTIVE-VEHICLES
+  /// API CALL: ACTIVE-VEHICLES
   Future<VehicleListResponse?> _getVehicles() async =>
       await todoListRepo.fetchVehicleList();
 
-  // API CALL: GET-RESOURCES
+  /// API CALL: GET-RESOURCES
   Future<AssignedToResponse?> _getResources() async =>
       await todoListRepo.getAssignedTo();
 
-  // API CALL: GET-PARTS
+  /// API CALL: GET-PARTS
   Future<PartsResponse?> _getParts() async => await todoListRepo.getParts();
 
-  // API CALL: GET-PARTS
+  /// API CALL: GET-SUPPLIES
   Future<SuppliesResponse?> _getSupplies() async =>
       await todoListRepo.getSupplies();
+
+  /// API CALL: GET-USER-GROUP
+  Future<UserGroupResponse?> _getUserGroup() async =>
+      await todoListRepo.fetchUserGroupingList();
+
 }
+
 
 class EditToDoInitialEvent {
 }
