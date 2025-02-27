@@ -83,4 +83,6 @@ extension StringExtension on String? {
       return word[0].toUpperCase() + word.substring(1);
     }).join(' ') ?? "";
   }
+
+  bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
 }

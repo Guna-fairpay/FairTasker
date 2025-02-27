@@ -574,14 +574,14 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       "vehicles": "${state.selectedVPerson
           .where((element) => element['type'] == "vehicles")
           .map((e) => e['value'])
-          .map((e) => {
+          .map((e) => jsonEncode({
         "cohort_id": "${e['cohort']?['id'] ?? ""}",
         "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
         "vin": e['vin'],
         "vehicle_name": e['vehicle_name'],
         "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
         "vehicle_number": e['vehicle_number']
-      })
+      }))
           .toList()}",
       "start_at": "${date.toFormat(format: "yyyy-MM-dd")}",
       "person": "${person?['name'] ?? ""}",
