@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -6,6 +5,7 @@ import 'package:fairpytasker/Response/task_response.dart';
 import 'package:fairpytasker/Response/todo_list_response.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +27,7 @@ import '../state/edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
-  dynamic todoId='';
+  dynamic todoId = '';
   final TextEditingController taskNameController = TextEditingController();
   final TextEditingController vPersonController = TextEditingController();
   final TextEditingController vLocationController = TextEditingController();
@@ -42,55 +42,63 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? departmentId; // LoggedIn User department ID
-  List<String>selectedIds=[];
+  List<String> selectedIds = [];
+  List<Map<String, dynamic>> vehicleList = [];
+  List<Map<String, dynamic>> partList = [];
+  List<Map<String, dynamic>> suppliesList = [];
+  List<dynamic> vinList = [];
+  List<dynamic> linkSelection = [];
 
   EditToDoBloc()
       : super(EditTodoState(
-      //showAppBar: true,
-      isLoading: false,
-      isTimeSensitive: false,
-      tasks: const [],
-      vehicles: const [],
-      persons: const [],
-      vendors: const [],
-      locations: const [],
-      partServices: const [],
-      supplies: const [],
-      resources: const [],
-      selectedTaskPersons: const [],
-      selectedVPerson: const [],
-      selectedVendor: const {},
-      selectedParts: const [],
-      selectedSupplies: const [],
-      attachments: const [],
-      selectedTask: const[],
-      linkOptions: AddToDoConfig.customOptions,
-      bottomTapData:const [],
-      selectedBottomTap: AddToDoConfig.editTodoBottomTaps.first,
-      isSelectedPlatformCheck: false,
-      showPlatformCheck: false,
-      isMoreEnable: false,
-      isPartServiceEnable: false,
-      isSuppliesEnable: false,
-      selectedLinkOption: AddToDoConfig.customOptions.first,
-      selectedDate: DateTime.now(),
-      selectedTime: TimeOfDay.now(),
-      apiResponse: const{},
-      todoStatus: false,
-      selectedResource: const [],
-      userGroup: const [],
-      selectedTaskIdentifier: const {},
-      resourceName: const [],
-
-  )) {
+          isLoading: false,
+          isTimeSensitive: false,
+          tasks: const [],
+          vehicles: const [],
+          persons: const [],
+          vendors: const [],
+          locations: const [],
+          partServices: const [],
+          supplies: const [],
+          resources: const [],
+          selectedTaskPersons: const [],
+          selectedVPerson: const [],
+          selectedVLocations: const {},
+          selectedParts: const [],
+          selectedSupplies: const [],
+          attachments: const [],
+          selectedTask: const [],
+          linkOptions: AddToDoConfig.customOptions,
+          bottomTapData: const [],
+          selectedBottomTap: AddToDoConfig.editTodoBottomTaps.first,
+          isSelectedPlatformCheck: false,
+          showPlatformCheck: false,
+          isMoreEnable: false,
+          isPartServiceEnable: false,
+          isSuppliesEnable: false,
+          selectedLinkOption: AddToDoConfig.customOptions[1],
+          selectedDate: DateTime.now(),
+          selectedTime: TimeOfDay.now(),
+          apiResponse: const {},
+          todoStatus: false,
+          selectedResource: const [],
+          userGroup: const [],
+          selectedTaskIdentifier: const {},
+          resourceName: const [],
+          addresses: const [],
+          title: '',
+          taskHistory: const [],
+          selectedVehicle: const{},
+        )) {
     var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
     on<GetEditTodoInitialEvent>((event, emit) async {
       emit(state.copyWith());
-      todoId=event.todoId;
+      todoId = event.todoId;
       // PROCEED API CALL
       try {
         emit(state.copyWith(isLoading: true));
         var response = await Future.wait([
+          _editTodoData(todoId),
           _getTasks(),
           _getVehicles(),
           _getVendors(),
@@ -100,49 +108,102 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           _getResources(),
           _getUserGroup(),
         ]);
-        TodoListResponse? todoResponse = await _editTodoData(todoId);
+        TodoListResponse? todoResponse = ((response[0] is TodoListResponse)
+            ? response[0]
+            : null) as TodoListResponse?;
         TaskExpenseResponse? taskResponse =
-        ((response[0] is TaskExpenseResponse) ? response[0] : null)
-        as TaskExpenseResponse?;
+            ((response[1] is TaskExpenseResponse) ? response[1] : null)
+                as TaskExpenseResponse?;
         VehicleListResponse? vehicleResponse =
-        ((response[1] is VehicleListResponse) ? response[1] : null)
-        as VehicleListResponse?;
-        VendorResponse? vendorResponse = ((response[2] is VendorResponse)
-            ? response[2]
-            : null) as VendorResponse?;
-        LocationResponse? locationResponse = ((response[3] is LocationResponse)
+            ((response[2] is VehicleListResponse) ? response[2] : null)
+                as VehicleListResponse?;
+        VendorResponse? vendorResponse = ((response[3] is VendorResponse)
             ? response[3]
-            : null) as LocationResponse?;
-        PartsResponse? partsResponse = ((response[4] is PartsResponse)
+            : null) as VendorResponse?;
+        LocationResponse? locationResponse = ((response[4] is LocationResponse)
             ? response[4]
-            : null) as PartsResponse?;
-        SuppliesResponse? suppliesResponse = ((response[5] is SuppliesResponse)
+            : null) as LocationResponse?;
+        PartsResponse? partsResponse = ((response[5] is PartsResponse)
             ? response[5]
+            : null) as PartsResponse?;
+        SuppliesResponse? suppliesResponse = ((response[6] is SuppliesResponse)
+            ? response[6]
             : null) as SuppliesResponse?;
         AssignedToResponse? assignedToResponse =
-        ((response[6] is AssignedToResponse) ? response[6] : null)
-        as AssignedToResponse?;
-        UserGroupResponse? userGroupResponse = ((response[7] is UserGroupResponse)
-            ? response[7]
-            : null) as UserGroupResponse?;
+            ((response[7] is AssignedToResponse) ? response[7] : null)
+                as AssignedToResponse?;
+        UserGroupResponse? userGroupResponse =
+            ((response[8] is UserGroupResponse) ? response[8] : null)
+                as UserGroupResponse?;
         var resources = assignedToResponse?.resource ?? [];
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
-        ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
-            (resource['branch_id'] !=
-                Session.of.getInt(Str.branchIdPrefText))) ||
+            ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+                (resource['branch_id'] !=
+                    Session.of.getInt(Str.branchIdPrefText))) ||
             (resource['deleted_at'] != null));
         var selectedUser = resources
             .where((element) => element['id'].toString() == currentUserId)
             .toList();
-        notesController.text = todoResponse!.editTodos?['notes'] ?? '';
+        taskNameController.text = todoResponse?.editTodos?['title'] ?? '';
+        timeController.text = todoResponse?.editTodos?['todo_time'] ?? '';
+        dateController.text = todoResponse?.editTodos?['todo_date'] ?? '';
+        odometerController.text = todoResponse?.editTodos?['odometer'] ?? '';
+        notesController.text = todoResponse?.editTodos?['notes'] ?? '';
         departmentId = selectedUser.firstOrNull?['department'].toString();
-        if (todoResponse!.editTodos?['user_id'] != null) {
-          selectedIds=((todoResponse.editTodos?['user_id']).toString()).split(',');
+        customLinkController.text =
+            todoResponse?.editTodos?['reference_id'] ?? '';
+
+        linkSelection = AddToDoConfig.customOptions
+            .where((element) =>
+        element['id']?.toString() == todoResponse?.editTodos?['custom_link_id']?.toString())
+            .toList();
+
+        if (linkSelection.isEmpty) {
+          linkSelection = [AddToDoConfig.customOptions[1]];
         }
-        if (todoResponse.editTodos?['user_group_id'] != null) {
+
+        if (todoResponse?.editTodos?['vin'] != null) {
+          vinList = [todoResponse?.editTodos?['vin']];
+        } else {
+          List<dynamic>? vehicles = todoResponse?.editTodos?['vehicles'];
+          if (vehicles is List && vehicles.isNotEmpty) {
+            vinList = vehicles
+                .map((v) => v['vin'])
+                .where((vin) => vin != null)
+                .toList();
+          }
+        }
+        if (vinList.isNotEmpty) {
+          vehicleList = vehicleResponse!.data!
+              .where((element) => vinList.contains(element['vin'].toString()))
+              .toList();
+        }
+
+        List<dynamic> vendors = [];
+        List<dynamic> locations = [];
+        if (todoResponse?.editTodos?['location_id'] != null) {
+          locations = locationResponse!.data!
+              .where((element) =>
+                  element['id'].toString() ==
+                  todoResponse?.editTodos?['location_id'])
+              .toList();
+        }
+        if (todoResponse?.editTodos?['vendor_id'] != null) {
+          vendors = vendorResponse!.data!
+              .where((element) =>
+                  element['id'].toString() ==
+                  todoResponse?.editTodos?['vendor_id'])
+              .toList();
+        }
+
+        if (todoResponse?.editTodos?['user_id'] != null) {
+          selectedIds =
+              ((todoResponse?.editTodos?['user_id']).toString()).split(',');
+        }
+        if (todoResponse?.editTodos?['user_group_id'] != null) {
           for (var group in userGroupResponse?.data ?? []) {
-            if (group['id'] == todoResponse.editTodos?['user_group_id']) {
+            if (group['id'] == todoResponse?.editTodos?['user_group_id']) {
               var decodedList = json.decode(group['userId'] ?? '[]');
               if (decodedList is List) {
                 selectedIds = decodedList.map((e) => e.toString()).toList();
@@ -152,31 +213,85 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             }
           }
         }
+        var list = (assignedToResponse?.resource ?? [])
+            .where((element) => selectedIds.contains(element['id'].toString()))
+            .map((e) => [e['first_name'].toString(), e['last_name'].toString()]
+                .toInitial)
+            .toList();
 
-        var list=(assignedToResponse?.resource ?? []).where((element) => selectedIds.contains(element['id'].toString())).map((e) => [e['first_name'].toString(), e['last_name'].toString()].toInitial).toList();
+        List<dynamic> partsId = [];
+        if ((todoResponse?.editTodos?['parts'] as List).isNotEmpty) {
+          partsId = todoResponse?.editTodos?['parts']
+              .map((e) => e['parts_id'])
+              .where((element) => element != null)
+              .toList();
+        }
+
+        if (partsId.isNotEmpty) {
+          partList = partsResponse!.data!
+              .where((element) => partsId.contains(element['id'].toString()))
+              .toList();
+        }
+
+        List<dynamic> suppliesId = [];
+        if ((todoResponse?.editTodos?['supplies'] as List).isNotEmpty) {
+          suppliesId = todoResponse?.editTodos?['supplies']
+              .map((e) => e['supplies_id'])
+              .where((element) => element != null)
+              .toList();
+        }
+
+        if (suppliesId.isNotEmpty) {
+          suppliesList = (suppliesResponse!.data)!
+              .where((element) => suppliesId.contains(element['id'].toString()))
+              .toList();
+        }
 
         emit(state.copyWith(
-            isLoading: false,
-            bottomTapData: tabs,
-            resourceName: list,
-            apiResponse: todoResponse.editTodos,
-            todoStatus: todoResponse.editTodos?['status'] == 'In Progress'?false:true,
-            // selectedBottomTap: tabs.firstWhere((element) => element['id'] == 4),
-            tasks: taskResponse?.data ?? [],
-            vehicles: vehicleResponse?.data ?? [],
-            persons: resources,
-            locations: locationResponse?.data ?? [],
-            vendors: vendorResponse?.data ?? [],
-            partServices: partsResponse?.data ?? [],
-            supplies: suppliesResponse?.data ?? [],
-            selectedTaskPersons: selectedUser,
-            resources: resources,
-            selectedLinkOption: AddToDoConfig.customOptions.first,
-            selectedResource:selectedIds,
-        )
-        );
-
+          isLoading: false,
+          bottomTapData: tabs,
+          resourceName: list,
+          apiResponse: todoResponse?.editTodos,
+          todoStatus: todoResponse?.editTodos?['status'] == 'In Progress'
+              ? false
+              : true,
+          // selectedBottomTap: tabs.firstWhere((element) => element['id'] == 4),
+          tasks: taskResponse?.data ?? [],
+          selectedVPerson:
+              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
+          selectedVLocations: {
+            3: CustomSearchDataConverter.convertVLocation(
+                    vendors: vendors, locations: locations)
+                .firstOrNull
+          },
+          selectedDate: todoResponse?.editTodos?['todo_date']
+              .toString()
+              .toDateTime(inputFormat: 'yyyy-MM-dd'),
+          selectedTime: todoResponse?.editTodos?['todo_time']
+              .toString()
+              .toTimeOfDay(inputFormat: 'HH:mm'),
+          vehicles: vehicleResponse?.data ?? [],
+          persons: resources,
+          locations: locationResponse?.data ?? [],
+          vendors: vendorResponse?.data ?? [],
+          partServices: partsResponse?.data ?? [],
+          supplies: suppliesResponse?.data ?? [],
+          selectedTaskPersons: selectedUser,
+          resources: resources,
+          selectedLinkOption:linkSelection.first,
+          selectedResource: selectedIds,
+          isPartServiceEnable:
+              (todoResponse?.editTodos?['parts'] as List).isNotEmpty,
+          isSuppliesEnable:
+              (todoResponse?.editTodos?['supplies'] as List).isNotEmpty,
+          selectedParts: partList,
+          selectedSupplies: suppliesList,
+          title: todoResponse?.editTodos?['title'] ?? '',
+          selectedVehicle: vehicleList.firstOrNull,
+            taskHistory: vehicleList,
+        ));
       } catch (e) {
+        log("$e", name: "Error");
         emit(state.copyWith(isLoading: false));
       }
     });
@@ -187,7 +302,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoVPersonEvent>((event, emit) {
-      log("${event.vPerson}", name: "AddToDoBloc-Person-before-check");
       if ((event.vPerson as List).isEmpty) {
         var oldIdentifier = state.selectedTaskIdentifier;
         oldIdentifier.remove(2);
@@ -196,10 +310,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         return;
       }
       var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-      var existingVPersons = List<Map<String, dynamic>>.from(state.selectedVPerson);
-      log("$existingVPersons", name: "AddToDoBloc-Person-before");
-      log("${event.vPerson}", name: "AddToDoBloc-Person-before-Add");
-      if (existingVPersons.where((element) => element['type'] == 'person').isNotEmpty && event.vPerson.first['type'] == 'person') {
+      var existingVPersons =
+          List<Map<String, dynamic>>.from(state.selectedVPerson);
+      if (existingVPersons
+              .where((element) => element['type'] == 'person')
+              .isNotEmpty &&
+          event.vPerson.first['type'] == 'person') {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
@@ -214,12 +330,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       existingVPersons = existingVPersons.unique((element) => element['id']);
       existingVPersons.removeWhere((element) =>
-      element['type'] ==
+          element['type'] ==
           ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier));
-      log("$existingVPersons", name: "AddToDoBloc-Person");
     });
 
     on<EditToDoShowPartsEvent>((event, emit) {
@@ -234,12 +349,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<TaskStatusChangeEvent>((event, emit) {
       emit(state.copyWith(todoStatus: !state.todoStatus));
-
     });
 
     on<EditToDoPersonTapEvent>((event, emit) {
       var existing = List.from(state.selectedTaskPersons);
-      log("${event.isSelected} ${event.person}", name: "EditToDoBloc-Person");
       if (event.isSelected) {
         existing.add(event.person);
       } else {
@@ -304,8 +417,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoSelectLinkOptionEvent>((event, emit) =>
         emit(state.copyWith(selectedLinkOption: event.linkOption)));
 
-
-
     on<EditToDoRecurringMonthOccurrenceEvent>((event, emit) => emit(
         state.copyWith(
             isRecurringMonthOccurrence: event.isRecurringMonthOccurrence)));
@@ -318,12 +429,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<EditToDoOpenCustomLinkEvent>((event, emit) {
       var url = (state.selectedLinkOption?['label'].toString().isCustomLink ??
-          false)
+              false)
           ? customLinkController.text
           : (state.selectedLinkOption?['label'].toString().isTuroReservation ??
-          false)
-          ? customLinkController.text.toTuroReserveUrl
-          : customLinkController.text.toGetAroundReserveUrl;
+                  false)
+              ? customLinkController.text.toTuroReserveUrl
+              : customLinkController.text.toGetAroundReserveUrl;
       Utils.openURL(url);
     });
 
@@ -337,10 +448,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var existingName = List.from(state.resources);
       var list = existingName
           .where((element) => existing.contains(element['id'].toString()))
-          .map((e) => [e['first_name'].toString(), e['last_name'].toString()].toInitial)
+          .map((e) =>
+              [e['first_name'].toString(), e['last_name'].toString()].toInitial)
           .toList();
-      emit(state.copyWith(selectedResource: existing,resourceName: list));
-
+      emit(state.copyWith(selectedResource: existing, resourceName: list));
     });
 
     on<SelectedUsersNameEvent>((event, emit) {
@@ -349,9 +460,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(resourceName: existing));
     });
 
+    on<EditToDoAddressSelectionEvent>((event, emit) {
+      var existing = List.from(state.addresses);
+      if (event.isChecked) {
+        if (!existing.contains(event.data)) existing.add(event.data);
+      } else {
+        if (existing.contains(event.data)) existing.remove(event.data);
+      }
+      emit(state.copyWith(addresses: existing));
+    });
+
+    on<EditToDoSelectTaskHistoryEvent>((event, emit) =>
+        emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
+
   }
-
-
 
   // PICK MULTI IMAGES / FILES
   Future<List<File>?> _pickFiles() async {
@@ -359,10 +481,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     return result.map((e) => File(e.path)).toList();
   }
 
+  ///API CALL: EDIT TODO DATA
   Future<TodoListResponse?> _editTodoData(dynamic todoId) async =>
       await todoListRepo.editTodoData(id: todoId);
+
   /// API CALL: TASKS
-  Future<TaskExpenseResponse?> _getTasks() async => await todoListRepo.getTaskExpense();
+  Future<TaskExpenseResponse?> _getTasks() async =>
+      await todoListRepo.getTaskExpense();
 
   /// API CALL: VENDORS
   Future<VendorResponse?> _getVendors() async => await todoListRepo.getVendor();
@@ -389,9 +514,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   /// API CALL: GET-USER-GROUP
   Future<UserGroupResponse?> _getUserGroup() async =>
       await todoListRepo.fetchUserGroupingList();
-
 }
 
-
-class EditToDoInitialEvent {
-}
+class EditToDoInitialEvent {}

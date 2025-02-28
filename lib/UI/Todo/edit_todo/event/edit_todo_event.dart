@@ -209,3 +209,17 @@ class SelectedUsersNameEvent extends EditToDoEvent {
   List<Object?> get props => [selectedName];
 }
 
+class EditToDoAddressSelectionEvent extends EditToDoEvent {
+  final dynamic data;
+  final bool isChecked;
+  EditToDoAddressSelectionEvent(this.data, this.isChecked);
+  @override
+  List<Object?> get props => [data, isChecked];
+}
+
+class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
+  final dynamic selectTaskHistory;
+  EditToDoSelectTaskHistoryEvent(this.selectTaskHistory);
+  @override
+  List<Object?> get props => [selectTaskHistory];
+}

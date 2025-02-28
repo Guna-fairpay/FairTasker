@@ -9,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Component/custom_date_time_picker.dart';
+import '../../../../Component/custom_multi_selection_chips_field.dart';
 import '../bloc/edit_todo_bloc.dart';
 import '../event/edit_todo_event.dart';
 import '../state/edit_todo_state.dart';
@@ -147,12 +148,25 @@ class EditTodoBody extends StatelessWidget {
                 CustomVendorLocationField(
                   vendorsList: state.vendors,
                   locationsList: state.locations,
-                  selected: state.selectedVendor,
+                  selected: state.selectedVLocations,
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVLocationEvent(val)),
                   controller: context.read<EditToDoBloc>().vLocationController,
                 ),
+                10.height,
+                if (state.selectedTaskIdentifier.containsKey(3) &&
+                    state.selectedTaskIdentifier[3]['type'] == 'location')
+                  CustomMultiSelectionChipsField<dynamic>(
+                      selectedPartsList: state.addresses,
+                      suggestionsList: state.selectedTaskIdentifier[3]['value']
+                      ['addresses'],
+                      controller: TextEditingController(),
+                      labelText: "Address",
+                      onChanged: (isChecked, value) => context
+                          .read<EditToDoBloc>()
+                          .add(EditToDoAddressSelectionEvent(value, isChecked)),
+                      itemAsString: (item) => item['address'].toString()),
                 10.height,
                 Utils.getTextFormField(
                     'Notes', context.read<EditToDoBloc>().notesController,

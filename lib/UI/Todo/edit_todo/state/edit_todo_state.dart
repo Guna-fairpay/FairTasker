@@ -22,7 +22,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> selectedSupplies;
   final List<dynamic> attachments;
   final List<Map<String, dynamic>> selectedVPerson;
-  final Map<int, dynamic> selectedVendor;
+  final Map<int, dynamic> selectedVLocations;
   final List<Map<String, dynamic>> selectedTask;
   final Map<String, dynamic> apiResponse;
   final dynamic selectedLinkOption;
@@ -38,7 +38,10 @@ class EditTodoState extends Equatable {
   final List<dynamic> userGroup;
   final Map<int, dynamic> selectedTaskIdentifier;
   final List<dynamic> resourceName;
-
+  final List<dynamic> addresses;
+  final String title;
+  final List<dynamic>taskHistory;
+  final dynamic selectedVehicle;
 
   const EditTodoState({
     required this.isLoading,
@@ -54,7 +57,7 @@ class EditTodoState extends Equatable {
     required this.resources,
     required this.linkOptions,
     required this.selectedVPerson,
-    required this.selectedVendor,
+    required this.selectedVLocations,
     required this.selectedTaskPersons,
     required this.selectedBottomTap,
     required this.selectedTask,
@@ -75,7 +78,10 @@ class EditTodoState extends Equatable {
     required this.userGroup,
     required this.selectedTaskIdentifier,
     required this.resourceName,
-
+    required this.addresses,
+    required this.title,
+    required this.taskHistory,
+    required this.selectedVehicle,
 
   });
 
@@ -96,7 +102,7 @@ class EditTodoState extends Equatable {
     dynamic selectedLinkOption,
     List<Map<String, dynamic>>? selectedTask,
     List<Map<String, dynamic>>? selectedVPerson,
-    Map<int, dynamic>? selectedVendor,
+    Map<int, dynamic>? selectedVLocations,
     List<dynamic>? tasks,
     List<dynamic>? vehicles,
     List<dynamic>? persons,
@@ -127,13 +133,17 @@ class EditTodoState extends Equatable {
     List<dynamic>? userGroup,
     Map<int, dynamic>? selectedTaskIdentifier,
     List<dynamic>? resourceName,
+    List<dynamic>? address,
+    String? title,
+    List<dynamic>? taskHistory,
+    dynamic selectedVehicle,
 
   }) =>
       EditTodoState(
         isLoading: isLoading ?? this.isLoading,
         isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
         selectedVPerson: selectedVPerson ?? this.selectedVPerson,
-        selectedVendor: selectedVendor ?? this.selectedVendor,
+        selectedVLocations: selectedVLocations ?? this.selectedVLocations,
         isSelectedPlatformCheck:
         isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
         showPlatformCheck: showPlatformCheck ?? this.showPlatformCheck,
@@ -165,6 +175,10 @@ class EditTodoState extends Equatable {
         userGroup: userGroup ?? this.userGroup,
         selectedTaskIdentifier: selectedTaskIdentifier ?? this.selectedTaskIdentifier,
         resourceName: resourceName ?? this.resourceName,
+        addresses: addresses ?? this.addresses,
+        title: title ?? this.title,
+        taskHistory: taskHistory ?? this.taskHistory,
+        selectedVehicle: selectedVehicle ?? this.selectedVehicle,
 
       );
 
@@ -172,7 +186,7 @@ class EditTodoState extends Equatable {
   List<Object?> get props => [
     // showAppBar,
     selectedVPerson,
-    selectedVendor,
+    selectedVLocations,
     isLoading,
     isTimeSensitive,
     tasks,
@@ -205,6 +219,10 @@ class EditTodoState extends Equatable {
     userGroup,
     selectedTaskIdentifier,
     resourceName,
+    addresses,
+    title,
+    taskHistory,
+    selectedVehicle,
 
     Random().nextDouble()
   ];
