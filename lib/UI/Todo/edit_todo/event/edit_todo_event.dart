@@ -196,8 +196,16 @@ class TaskStatusChangeEvent extends EditToDoEvent {
 
 class UserSelectionEvent extends EditToDoEvent {
   final List<String>? selectedResource;
-  UserSelectionEvent({required this.selectedResource,});
+  final List<dynamic>? resourceName;
+  UserSelectionEvent({required this.selectedResource,required this.resourceName,});
   @override
   List<Object?> get props => [selectedResource];
+}
+
+class SelectedUsersNameEvent extends EditToDoEvent {
+  final List<String>? selectedName;
+  SelectedUsersNameEvent({required this.selectedName,});
+  @override
+  List<Object?> get props => [selectedName];
 }
 

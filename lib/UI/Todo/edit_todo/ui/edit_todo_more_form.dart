@@ -126,6 +126,12 @@ class EditTodoMoreForm extends StatelessWidget {
                 Utils.getTextFormField('Odometer', context.read<EditToDoBloc>().odometerController,),
               ],
             ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Utils.getElevatedButton((){},text: 'Update'),
+            ],
+          )
 
         ],
       ),

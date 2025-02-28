@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:flutter/material.dart';
 import '../../../../utilities/appC.dart';
@@ -9,7 +11,7 @@ class ResourceSelection {
       TapDownDetails? details,
       List<dynamic> resourceList,
       List<String> selectedValues,
-      Function(List<String> val) onSelectionChanged,
+      Function(List<String> val, List<dynamic> name) onSelectionChanged,
       ) async {
 
     ValueNotifier<List<String>> selectedIdsNotifier = ValueNotifier(selectedValues);
@@ -64,16 +66,22 @@ class ResourceSelection {
                               final resourceId =
                               resourceList[index]['id'].toString();
                               final isSelected = value.contains(resourceId);
-
+                              List<dynamic> name = resourceList
+                                  .where((element) => selectedValues.contains(element['id'].toString()))
+                                  .toList();
                               return GestureDetector(
                                 onTap: () {
                                   if (isSelected) {
                                     selectedIdsNotifier.value.remove(resourceId);
+                                    name.remove(resourceList[index]);
+
                                   } else {
                                     selectedIdsNotifier.value.add(resourceId);
+                                    name.add(resourceList[index]);
                                   }
                                   selectedIdsNotifier.notifyListeners();
-                                  onSelectionChanged(selectedIdsNotifier.value);
+                                  onSelectionChanged(selectedIdsNotifier.value,name);
+                                  log({name}.toString(),name: 'NAME');
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 2.0),

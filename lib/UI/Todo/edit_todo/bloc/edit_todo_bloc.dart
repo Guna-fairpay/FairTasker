@@ -82,7 +82,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       selectedTaskIdentifier: const {},
       resourceName: const [],
 
-
   )) {
     var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -136,6 +135,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var selectedUser = resources
             .where((element) => element['id'].toString() == currentUserId)
             .toList();
+        notesController.text = todoResponse!.editTodos?['notes'] ?? '';
         departmentId = selectedUser.firstOrNull?['department'].toString();
         if (todoResponse!.editTodos?['user_id'] != null) {
           selectedIds=((todoResponse.editTodos?['user_id']).toString()).split(',');
@@ -221,7 +221,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedTaskIdentifier: oldIdentifier));
       log("$existingVPersons", name: "AddToDoBloc-Person");
     });
-
 
     on<EditToDoShowPartsEvent>((event, emit) {
       var currentStatus = state.isPartServiceEnable;
@@ -335,15 +334,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<UserSelectionEvent>((event, emit) {
       var existing = List<String>.from(state.selectedResource);
       existing = event.selectedResource ?? [];
-      // if (event.selectedResource != null) {
-      //   if (!existing.contains(event.selectedResource)) {
-      //     existing.add(event.selectedResource ?? "");
-      //   } else {
-      //     if (existing.contains(event.selectedResource)) existing.remove(event.selectedResource);
-      //   }
-      // }
-      emit(state.copyWith(selectedResource: existing));
+      var existingName = List.from(state.resources);
+      var list = existingName
+          .where((element) => existing.contains(element['id'].toString()))
+          .map((e) => [e['first_name'].toString(), e['last_name'].toString()].toInitial)
+          .toList();
+      emit(state.copyWith(selectedResource: existing,resourceName: list));
 
+    });
+
+    on<SelectedUsersNameEvent>((event, emit) {
+      var existing = List<String>.from(state.resourceName);
+
+      emit(state.copyWith(resourceName: existing));
     });
 
   }

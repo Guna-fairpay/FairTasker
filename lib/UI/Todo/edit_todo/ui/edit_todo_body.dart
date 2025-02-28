@@ -48,7 +48,6 @@ class EditTodoBody extends StatelessWidget {
                       onChanged: (value) => context
                           .read<EditToDoBloc>()
                           .add(EditToDoTimeChangeEvent(value)),
-
                     ),
                     GestureDetector(
                       onTap: () => context
@@ -97,9 +96,11 @@ class EditTodoBody extends StatelessWidget {
                             details,
                             state.resources,
                             state.selectedResource,
-                            (value) => context.read<EditToDoBloc>().add(
-                                UserSelectionEvent(selectedResource: value)),
-
+                            (value, name) => context.read<EditToDoBloc>().add(
+                                  UserSelectionEvent(
+                                      selectedResource: value,
+                                      resourceName: name),
+                                ),
                           );
                         },
                         child: Column(
@@ -108,7 +109,8 @@ class EditTodoBody extends StatelessWidget {
                                 state.resourceName.length > 1
                                     ? "${state.resourceName.first}..."
                                     : state.resourceName.join(', '),
-                                weight: FontWeight.bold),
+                                weight: FontWeight.bold,
+                                color: AppC.appColor),
                           ],
                         ),
                       ),
@@ -140,7 +142,6 @@ class EditTodoBody extends StatelessWidget {
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
                   controller: context.read<EditToDoBloc>().vPersonController,
-
                 ),
                 10.height,
                 CustomVendorLocationField(
