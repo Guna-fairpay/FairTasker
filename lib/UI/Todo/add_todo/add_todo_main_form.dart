@@ -109,8 +109,8 @@ class AddTodoMainForm extends StatelessWidget {
                     state.selectedTaskIdentifier[3]['type'] == 'location')
                   CustomMultiSelectionChipsField<Map<String, dynamic>>(
                       selectedPartsList: List.from(state.addresses),
-                      suggestionsList: state.selectedTaskIdentifier[3]['value']
-                          ['addresses'],
+                      suggestionsList: List.from(state.selectedTaskIdentifier[3]['value']
+                      ['addresses']),
                       controller: TextEditingController(),
                       labelText: "Address",
                       onChanged: (isChecked, value) => context
