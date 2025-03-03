@@ -143,64 +143,65 @@ class _ExpenseAddUIState extends State<TodoEditExpenseUI> {
       listener: (context, state) {
         log("${state.runtimeType}", name: "TODO_EDIT_EXPENSE_STATE");
         if (state is TodoListLoading) {
-         // EasyLoading.show();
+          EasyLoading.show();
         }
-        else if (state is TaskExpenseLoaded) {
-         // if (EasyLoading.isShow) EasyLoading.dismiss();
-          taskList.addAll(state.resource ?? []);
-          if (todoData['category_id'] != null) {
-            categoryId = todoData['category_id'].toString();
-            subcategoryId = todoData['subcategory_id'].toString();
-          } else {
-            final Map<String, dynamic> task = taskList.firstWhere(
-                  (element) => element['id'] == todoData['identifier_id'] || element['task'] == todoData['title'],
+        else {
+          if (EasyLoading.isShow) EasyLoading.dismiss();
+          if (state is TaskExpenseLoaded) {
+            taskList.addAll(state.resource ?? []);
+            if (todoData['category_id'] != null) {
+              categoryId = todoData['category_id'].toString();
+              subcategoryId = todoData['subcategory_id'].toString();
+            } else {
+              final Map<String, dynamic> task = taskList.firstWhere(
+                (element) =>
+                    element['id'] == todoData['identifier_id'] ||
+                    element['task'] == todoData['title'],
+                orElse: () => {},
+              );
+              categoryId = task['category_id']?.toString() ?? '';
+              subcategoryId = task['subcategory_id']?.toString() ?? '';
+            }
+          } else if (state is CohortsListLoaded) {
+            categoryDropdownList.addAll(state.expenseData ?? []);
+            subCategoryDropdownList = state.expenseData!
+                .where((category) => category['id'].toString() == categoryId)
+                .map((category) => category['sub_categories'] ?? [])
+                .expand((subcategoryList) => subcategoryList)
+                .toList();
+            selectedCategory = categoryDropdownList.firstWhere(
+              (e) => e['id'].toString() == categoryId,
               orElse: () => {},
             );
-            categoryId = task['category_id']?.toString() ?? '';
-            subcategoryId = task['subcategory_id']?.toString() ?? '';
-          }
-        } else if (state is CohortsListLoaded) {
-         // if (EasyLoading.isShow) EasyLoading.dismiss();
-          categoryDropdownList.addAll(state.expenseData ?? []);
-          subCategoryDropdownList = state.expenseData!
-              .where((category) =>
-          category['id'].toString() == categoryId)
-              .map((category) => category['sub_categories'] ?? [])
-              .expand((subcategoryList) => subcategoryList)
-              .toList();
-          selectedCategory = categoryDropdownList.firstWhere(
-                (e) => e['id'].toString() == categoryId,
-            orElse: () => {},
-          );
-          selectedSubCategory= subCategoryDropdownList.firstWhere(
-                (e) => e['id'].toString() == subcategoryId,
-            orElse: () => {},
-          );
-        }
-        else if (state is ExpenseTodoLoaded) {
-         // if (EasyLoading.isShow) EasyLoading.dismiss();
-          expenseData = state.expenseSummaryData??{};
-          _images.clear();
-          // _images.addAll(expenseData['attachments']);
-          _images.addAll(expenseData['attachments']?.map((e) => e['path'].toString().toStorageURL).toList());
-          amountController.text=expenseData['expense_amount'].toString();
-          descriptionController.text=expenseData['expense_description']??'';
-        }
-        else if (state is PaymentListLoaded) {
-          paymentDropdownList.clear();
-          paymentDropdownList.addAll(state.data ?? []);
-          if(expenseData['payment_method_id'] != null){
-            selectedPayment = paymentDropdownList.firstWhere(
-                  (e) =>
-              e['id'].toString() ==
-                  expenseData['payment_method_id']?.toString(),
+            selectedSubCategory = subCategoryDropdownList.firstWhere(
+              (e) => e['id'].toString() == subcategoryId,
               orElse: () => {},
             );
-          }
-          else{
-            selectedPayment = paymentDropdownList.firstWhere(
-                  (e) => e['id'].toString() == '1',
-              orElse: () => {},);
+          } else if (state is ExpenseTodoLoaded) {
+            expenseData = state.expenseSummaryData ?? {};
+            _images.clear();
+            _images.addAll(expenseData['attachments']
+                ?.map((e) => e['path'].toString().toStorageURL)
+                .toList());
+            amountController.text = expenseData['expense_amount'].toString();
+            descriptionController.text =
+                expenseData['expense_description'] ?? '';
+          } else if (state is PaymentListLoaded) {
+            paymentDropdownList.clear();
+            paymentDropdownList.addAll(state.data ?? []);
+            if (expenseData['payment_method_id'] != null) {
+              selectedPayment = paymentDropdownList.firstWhere(
+                (e) =>
+                    e['id'].toString() ==
+                    expenseData['payment_method_id']?.toString(),
+                orElse: () => {},
+              );
+            } else {
+              selectedPayment = paymentDropdownList.firstWhere(
+                (e) => e['id'].toString() == '1',
+                orElse: () => {},
+              );
+            }
           }
         }
       },

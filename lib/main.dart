@@ -88,7 +88,7 @@ class MyApp extends StatelessWidget {
           thumbColor: const WidgetStatePropertyAll(AppC.white),
         ),
         primarySwatch: AppC.appColor.toMaterialColor,
-        textTheme: GoogleFonts.sairaTextTheme(
+        textTheme: GoogleFonts.poppinsTextTheme(
           Typography.blackCupertino.copyWith()
         ),
       ),

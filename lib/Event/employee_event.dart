@@ -15,6 +15,25 @@ class GetEmployeeData extends EmployeeEvent {
   List<Object> get props => [];
 }
 
+class GetEmployeeDepartmentData extends EmployeeEvent {
+  const GetEmployeeDepartmentData();
+  @override
+  List<Object> get props => [];
+}
+
+class GetEmployeeRoleData extends EmployeeEvent {
+  const GetEmployeeRoleData();
+  @override
+  List<Object> get props => [];
+}
+
+class GetEditEmployeeData extends EmployeeEvent {
+  final int? id;
+  const GetEditEmployeeData({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+
 class AddEmployeeData extends EmployeeEvent {
   final String firstname;
   final String lastname;

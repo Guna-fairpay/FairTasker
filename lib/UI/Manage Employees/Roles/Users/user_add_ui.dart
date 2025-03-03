@@ -107,7 +107,6 @@ class _UserAddUIState extends State<UserAddUI> {
                                   }else{
                                     permissionsId.remove(permission['id']);
                                   }
-                                  print(permissionsId);
                                 });
                               }
                               );

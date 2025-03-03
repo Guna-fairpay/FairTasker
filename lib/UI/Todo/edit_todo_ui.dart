@@ -4,8 +4,10 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -510,6 +512,10 @@ class _EditTodoUIState extends State<EditTodoUI> {
     todoImages.addAll(todoImage);
     if (todoItem['users']?['id'] != null) {
       selectedIds = ((todoItem['users']?['id']).toString()).split(',');
+    log("${todoItem}", name: "edit_Todo");
+
+    if (todoItem['user_id'] != null) {
+      selectedIds=((todoItem['user_id']).toString()).split(',');
     }
     if (todoItem['user_group_id'] != null) {
       for (var group in widget.userGroupList ?? []) {
@@ -1077,6 +1083,47 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                     ],
                                   ),
                                 ),
+                                if (isDataLoaded)
+                                if (showExpenseTab == 0)
+                                  TodoEditExpenseUI(
+                                    vehicle: vehicle,
+                                    vehicleName: vehicleName,
+                                    todoData: todoItem,
+                                  )
+                                else if (showExpenseTab == 1)
+                                  // const Placeholder()
+                                  Container(constraints: BoxConstraints(
+                                    maxHeight: context.height * 2.5,
+                                  ), child: const CreateTodoUI(showHeader: false),)
+                                else if (showExpenseTab == 2)
+                                   CheckListUI(
+                                       checkListData:checkListData,
+                                     todoItems: todoItem,
+                                     vehicle: setVehicleListCopy,
+                                   )
+                                  else if ((showExpenseTab == 3) && isMaintenanceLoaded)
+                                      MaintenanceCheckListUI(
+                                        todoItems: todoItem,
+                                        vehicle: setVehicleListCopy,
+                                      )
+                                    else if (showExpenseTab == 4)
+                                        // VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,
+                                        //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
+                                        // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
+                                        //   multipleLocationList: widget.multipleLocationList,)
+                                        VehicleEditUI(vehicle:
+                                        selectedDropDownData == null ? setVehicleList : DropDownData,showHeader: false, data: selectedDropDownData,
+                                          todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
+                                          categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
+                                          multipleLocationList: widget.multipleLocationList,)
+                                      else if (showExpenseTab == 5)
+                                          TodoExpense(expenseId: todoItem['expense_id'],)
+                                      else
+                                        Container(
+                                          margin: const EdgeInsets.only(top: 30),
+                                          child:
+                                          Utils.getText('No Vehicle Exist', size: 16),
+                                        ),
                                 //if (isDataLoaded)
                                   if (showExpenseTab == 0)
                                     TodoEditExpenseUI(
@@ -1114,11 +1161,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                               data: selectedDropDownData,
                                               todoItems: widget.todoItem,
                                             )
-                                          else
-                                            if (showExpenseTab == 5)
-                                              TotoExpense(
-                                                expenseId: todoItem['expense_id'],
-                                              )
                                             else
                                               Container(
                                                 margin: const EdgeInsets.only(
@@ -2311,7 +2353,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                   editTodoNameController.selection = TextSelection.fromPosition(
                     TextPosition(offset: (editTodoNameController.text.length)),
                   );
-                })),
+                }
+                )
+            ),
           ],
         ),
         const SizedBox(
@@ -2543,7 +2587,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
       return '${firstName?[0].toUpperCase() ?? ''}${lastName?[0]
           .toUpperCase() ?? ''}';
     }
-
     String userGroupConcatenationName = '';
     List<String> userInitials = [];
     for (var res in widget.resourceList ?? []) {

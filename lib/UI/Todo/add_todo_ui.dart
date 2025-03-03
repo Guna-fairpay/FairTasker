@@ -18,6 +18,10 @@ class CreateTodoUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return showHeader ? withBody(context) : withOutBody(context);
+  }
+
+  Widget withBody(BuildContext context) {
     return BlocProvider(
       create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
@@ -32,91 +36,114 @@ class CreateTodoUI extends StatelessWidget {
             }
           },
           child: BlocBuilder<AddToDoBloc, AddToDoState>(
-            builder: (context, state) {
-              return Scaffold(
-                backgroundColor: AppC.white,
-                appBar: state.showAppBar
-                    ? AppBar(
-                  elevation: 0,
-                  backgroundColor: AppC.appColor,
-                  foregroundColor: Colors.white,
-                  automaticallyImplyLeading: false,
-                  title: Utils.getText('Add Todo',
-                      size: 18, weight: FontWeight.w700, color: AppC.white),
-                  actions: [
-                    IconButton(
-                      onPressed: () => context.read<AddToDoBloc>().add(AddToDoAddAttachmentEvent()),
-                      icon: const Icon(Icons.upload_rounded),
-                      padding: EdgeInsets.zero,
-                      constraints: state.attachments.isNotEmpty ? const BoxConstraints() : null,
-                      style: const ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize
-                            .shrinkWrap, // the '2023' part
-                      ),
-                    ),
-                    if (state.attachments.isNotEmpty)
+              builder: (context, state) {
+                return Scaffold(
+                  backgroundColor: AppC.white,
+                  appBar: state.showAppBar
+                      ? AppBar(
+                    elevation: 0,
+                    backgroundColor: AppC.appColor,
+                    foregroundColor: Colors.white,
+                    automaticallyImplyLeading: false,
+                    title: Utils.getText('Add Todo',
+                        size: 18, weight: FontWeight.w700, color: AppC.white),
+                    actions: [
                       IconButton(
-                        onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo"),
-                        icon: const Icon(Icons.remove_red_eye_outlined),
+                        onPressed: () => context.read<AddToDoBloc>().add(AddToDoAddAttachmentEvent()),
+                        icon: const Icon(Icons.upload_rounded),
+                        padding: EdgeInsets.zero,
+                        constraints: state.attachments.isNotEmpty ? const BoxConstraints() : null,
+                        style: const ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize
+                              .shrinkWrap, // the '2023' part
+                        ),
+                      ),
+                      if (state.attachments.isNotEmpty)
+                        IconButton(
+                          onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo"),
+                          icon: const Icon(Icons.remove_red_eye_outlined),
+                          padding: EdgeInsets.zero,
+                          style: const ButtonStyle(
+                            tapTargetSize: MaterialTapTargetSize
+                                .shrinkWrap, // the '2023' part
+                          ),
+                        ),
+                      GestureDetector(
+                        onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 10,
+                          children: [
+                            SizedBox(
+                              width: 10,
+                              child: Checkbox(
+                                value: state.isTimeSensitive,
+                                checkColor: AppC.white,
+                                // The color of the check mark
+                                shape: ContinuousRectangleBorder(
+                                    side: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(10)),
+                                side: BorderSide.none,
+                                fillColor: WidgetStateProperty.resolveWith<Color>((states) => (states.contains(WidgetState.selected)) ? AppC.blue : AppC.white),
+                                onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
+                              ),
+                            ),
+                            Utils.getText('Time Sensitive',
+                                color: AppC.white, weight: FontWeight.bold)
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      IconButton(
+                        onPressed: () => context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
+                        icon: const Icon(Icons.save),
                         padding: EdgeInsets.zero,
                         style: const ButtonStyle(
                           tapTargetSize: MaterialTapTargetSize
                               .shrinkWrap, // the '2023' part
                         ),
                       ),
-                    GestureDetector(
-                      onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 10,
-                        children: [
-                          SizedBox(
-                            width: 10,
-                            child: Checkbox(
-                              value: state.isTimeSensitive,
-                              checkColor: AppC.white,
-                              // The color of the check mark
-                              shape: ContinuousRectangleBorder(
-                                  side: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(10)),
-                              side: BorderSide.none,
-                              fillColor: WidgetStateProperty.resolveWith<Color>((states) => (states.contains(WidgetState.selected)) ? AppC.blue : AppC.white),
-                              onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
-                            ),
-                          ),
-                          Utils.getText('Time Sensitive',
-                              color: AppC.white, weight: FontWeight.bold)
-                        ],
+                      const CloseButton(
+                        color: Colors.white,
+                        style: ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize
+                              .shrinkWrap, // the '2023' part
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    IconButton(
-                      onPressed: () => context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
-                      icon: const Icon(Icons.save),
-                      padding: EdgeInsets.zero,
-                      style: const ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize
-                            .shrinkWrap, // the '2023' part
-                      ),
-                    ),
-                    const CloseButton(
-                      color: Colors.white,
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize
-                            .shrinkWrap, // the '2023' part
-                      ),
-                    ),
-                  ],
-                )
-                    : null,
-                body: SafeArea(
-                  minimum: 20.padding,
-                  child: const AddTodoMainForm(),
-                ),
-              );
+                    ],
+                  )
+                      : null,
+                  body: SafeArea(
+                    minimum: 20.padding,
+                    child: const AddTodoMainForm(),
+                  ),
+                );
+              }
+          )),
+    );
+  }
+
+  Widget withOutBody(BuildContext context) {
+    return BlocProvider(
+      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader)),
+      child: BlocListener<AddToDoBloc, AddToDoState>(
+          listener: (context, state) {
+            if (state.isLoading) {
+              EasyLoading.show();
+            } else {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
             }
+            if (state.redirect){
+              context.pop();
+            }
+          },
+          child: BlocBuilder<AddToDoBloc, AddToDoState>(
+              builder: (context, state) => SafeArea(
+                minimum: 20.padding,
+                child: AddTodoMainForm(showHeader: showHeader),
+              )
           )),
     );
   }

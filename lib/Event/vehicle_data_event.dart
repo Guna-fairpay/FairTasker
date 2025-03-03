@@ -69,6 +69,15 @@ class AddVehicleDataEvent extends VehicleDataEvent {
   @override
   List<Object?> get props => [createVehicleData];
 }
+
+class MoveRentalData extends VehicleDataEvent {
+  final dynamic rentalData;
+  const MoveRentalData({
+    required this.rentalData});
+  @override
+  List<Object?> get props => [rentalData];
+}
+
 //
 class AddVehicleGroupingData extends VehicleDataEvent {
   final int? id;

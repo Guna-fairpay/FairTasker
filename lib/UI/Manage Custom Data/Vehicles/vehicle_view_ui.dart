@@ -1,6 +1,8 @@
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/show_vehicle_grouping_dialog.dart';
+import 'dart:developer';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/Vehicle_edit_tab_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_grouping_ui.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
@@ -42,6 +44,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
   bool isSelected = false;
   Map<int, bool> selectedVehicles = {};
   String svgString = '';
+  bool isShow = EasyLoading.isShow;
 
   @override
   void initState() {
@@ -84,42 +87,62 @@ class _VehicleUIState extends State<VehicleViewUI> {
     }
   }
 
-  Future<void> _navigateToVehicleEditUI(int index) async {
-    // ✅ Create a deep copy to avoid modifying the original data prematurely
-    final Map<String, dynamic> selectedVehicle = Map<String, dynamic>.from(filteredVehicle[index]);
+  Future<void> _navigateVehicleEditTabBar(index) async {
 
+    final updatedVehicle = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VehicleEditTabBar(vehicle: index,),
+      ),
+    );
+    if (updatedVehicle != null) {
+      setState(() {filteredVehicle[index] = updatedVehicle;});
+      vehicleDataBloc.add(
+        AddVehicleDataEvent(createVehicleData: CreateVehicleData.fromJson(updatedVehicle)),
+      );
+      vehicleDataBloc.add(const GetAddedVehicleListData());
+      Utils.showMobileToast('Vehicle updated successfully');
+    }
+  }
+
+  Future<void> _navigateToVehicleEditUI(int index) async {
+
+    final Map<String, dynamic> selectedVehicle = Map<String, dynamic>.from(filteredVehicle[index]);
     final updatedVehicle = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
         builder: (context) => VehicleEditUI(vehicle: selectedVehicle, todoItems: {}),
       ),
     );
-
     if (updatedVehicle != null) {
-      print("✅ DEBUG: Updated vehicle received: $updatedVehicle");
-
-      setState(() {
-        // ✅ Update the existing vehicle in the list
-        filteredVehicle[index] = updatedVehicle;
-      });
-
+      setState(() {filteredVehicle[index] = updatedVehicle;});
       vehicleDataBloc.add(
         AddVehicleDataEvent(createVehicleData: CreateVehicleData.fromJson(updatedVehicle)),
       );
-
       vehicleDataBloc.add(const GetAddedVehicleListData());
       Utils.showMobileToast('Vehicle updated successfully');
     }
   }
-
 
   Future<void> _deleteVehicle(int index) async {
     final confirmed = await Utils.showCustomDeleteDialog(context, 'Vehicle?');
     if (confirmed == true) {
       final vehicle = filteredVehicle[index];
       vehicleDataBloc.add(DeleteVehicleEvent(id: vehicle['id']));
-      Utils.showMobileToast('vehicle deleted');
     }
+  }
+
+  Future<void> _rentalVehicle(index) async {
+    AskPermissionDialog.show(context, onPositivePressed: () {
+      index['rental_status'] = 3;
+      vehicleDataBloc.add(MoveRentalData(
+        rentalData: index
+      ));
+      log("$index", name: "index");
+    },
+        title: "Are you sure?",
+        description: "Do you want to change rental status?",
+        negativeText: "Cancel", positiveText: "Yes");
   }
 
   @override
@@ -127,8 +150,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
     return Scaffold(
       backgroundColor: AppC.white,
       body: BlocProvider(
-        create: (context) =>
-            vehicleDataBloc..add(const GetActiveVehicleData()),
+        create: (context) => vehicleDataBloc..add(const GetActiveVehicleData()),
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) async {
           if (state is VehicleDataLoading) {
@@ -137,17 +159,12 @@ class _VehicleUIState extends State<VehicleViewUI> {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             if (state is VehicleListLoaded) {
               filteredVehicle.clear();
-              filteredVehicle.addAll(state.vehicleDataList ?? []);
-              List<Map<String, dynamic>> list = [];
-              list.addAll(state.vehicleDataList ?? []);
-              list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+              vehicleName.clear();
+              vehicleName.addAll(state.vehicleDataList ?? []);
+              vehicleName.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                   .compareTo(DateTime.parse(a['created_at'] ?? '')));
-              vehicleName = list;
               filteredVehicle = List.from(vehicleName);
-            } else if (state is VehicleGroupDataLoaded) {
-              vehicleData.addAll(state.vehicleGroupDataList ?? []);
-            } else {
-              if (EasyLoading.isShow) EasyLoading.dismiss();
+            }else {
               vehicleDataBloc.add(const GetActiveVehicleData());
             }
           }
@@ -168,14 +185,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
                     ),
                     const SizedBox(width: 8),
                     Utils.getAddElevatedButton(
-                      () {
-                        showVehicleGroupingDialog(
-                          context: context,
-                          vehicleName: vehicleName,
-                          vehicleData: vehicleData,
-                          selectedVehicleIds: selectedVehicleIds,
-                        );
-                      }
+                      () => _navigateToVehicleAddUI(),
                     ),
                   ],
                 ),
@@ -191,7 +201,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
                       final vehicleId = vehicle['id'];
                       return InkWell(
                         onTap: () {
-                          _navigateToVehicleEditUI(index);
+                          _navigateVehicleEditTabBar(vehicle);
                         },
                         child: SafeArea(
                           minimum: const EdgeInsets.symmetric(
@@ -220,7 +230,7 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                               if (!selectedVehicleIds
                                                   .contains(vehicleId)) {
                                                 selectedVehicleIds.add(
-                                                    vehicleId); // Add ID if checked
+                                                    vehicleId);
                                               }
                                             } else {
                                               selectedVehicleIds
@@ -240,8 +250,9 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                       ),
                                     ),
                                   ),
+                                  if(vehicle['rental_status']==0)
                                   InkWell(
-                                    onTap: () {},
+                                    onTap: () => _rentalVehicle(vehicle),
                                     child: SvgPicture.asset(
                                       Assets.rentalCar,
                                       height: 24,
@@ -252,10 +263,10 @@ class _VehicleUIState extends State<VehicleViewUI> {
                                       child: const Icon(
                                         Icons.delete_outline,
                                         color: AppC.redAccent,
-                                      )),
+                                      ),
+                                  ),
                                 ],
                               ),
-
                             ],
                           ),
                         ),
@@ -268,14 +279,17 @@ class _VehicleUIState extends State<VehicleViewUI> {
           );
         }),
       ),
+
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _navigateToVehicleAddUI();
-          },
+        onPressed: () => Navigator.push(context,MaterialPageRoute(builder: (context)=>VehicleGroupingUI(
+          selectedVehicleIds: selectedVehicleIds,
+          vehicleList: vehicleName,
+        ),),),
+
         extendedPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         elevation: 8,
         backgroundColor: AppC.appColor,
-        label: Utils.getText('Add New Vehicle',
+        label: Utils.getText('Vehicle Grouping',
             color: AppC.white, weight: FontWeight.bold, size: 16),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

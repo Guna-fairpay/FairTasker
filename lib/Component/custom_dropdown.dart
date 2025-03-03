@@ -23,7 +23,7 @@ class CustomDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     var border = OutlineInputBorder(
         borderSide:
-            BorderSide(color: AppC.borderColor, width: Num.borderWidthField),
+            const BorderSide(color: AppC.borderColor, width: Num.borderWidthField),
         borderRadius: BorderRadius.circular(Num.borderRadius));
     return DropdownButtonFormField<T>(
         decoration: InputDecoration(
@@ -35,7 +35,7 @@ class CustomDropdown<T> extends StatelessWidget {
             enabledBorder: border,
             labelText: "Select"),
         borderRadius: BorderRadius.circular(Num.borderRadius),
-        padding: const EdgeInsets.all(5),
+        padding: contentPadding ?? const EdgeInsets.all(5),
         isDense: true,
         style: context.textTheme.labelLarge,
         value: value,

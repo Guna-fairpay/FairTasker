@@ -22,14 +22,17 @@ class PermissionUsersListResponse {
   PermissionUsersListResponse({
     this.status,
     this.data,
+    this.permission,
   });
 
   PermissionUsersListResponse.fromJson(Map<String, dynamic> json) {
     data = List<int>.from(json['rolePermissions'] ?? []);
+    permission = List<Map<String, dynamic>>.from(json['permission'] ?? []);
     status = json['status'];
   }
 
   List<int>? data;
+  List<Map<String, dynamic>>? permission;
   int? status;
 }
 

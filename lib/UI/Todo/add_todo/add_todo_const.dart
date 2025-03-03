@@ -53,4 +53,12 @@ class AddToDoConfig {
     {"id" : 3, "value" : 30},
     {"id" : 4, "value" : 15},
   ];
+
+  static const List<Map<String, dynamic>> editTodoBottomTaps = [
+    {"id" : 1, "title" : "Expense"},
+    {"id" : 2, "title" : "Next Task"},
+    {"id" : 3, "title" : "Check List"},
+    {"id" : 4, "title" : "Maintenance Check"},
+    {"id" : 5, "title" : "Set Vehicle"},
+  ];
 }

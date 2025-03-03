@@ -27,7 +27,7 @@ class _RoleEditUIState extends State<RoleEditUI> {
   @override
   void initState() {
     rolesBloc.add(const GetPermissionDataForRole());
-    rolesBloc.add(GetEditRoleData(id: widget.roles['id']));
+
     roleController.text = widget.roles['name'] ?? '';
 
     super.initState();
@@ -60,20 +60,18 @@ class _RoleEditUIState extends State<RoleEditUI> {
       ],
     ),
       body: BlocProvider(
-        create: (context) => rolesBloc,
+        create: (context) => rolesBloc..add(GetEditRoleData(id: widget.roles['id'])),
         child: BlocConsumer<RolesBloc, RolesState>(
           listener: (context, state) {
             if(state is RolesLoading){
               EasyLoading.show();
             }else{
               if(EasyLoading.isShow) EasyLoading.dismiss();
-              if (state is PermissionDataForRoleLoaded){
-                permissions.clear();
-                permissions.addAll(state.data ?? []);
-              }
-              else if (state is EditRolesLoaded){
+              if (state is EditRolesLoaded){
                 permissionsId.clear();
+                permissions.clear();
                 permissionsId.addAll(state.rolePermission ?? []);
+                permissions.addAll(state.data ?? []);
                 checked.clear();
                 for (int i = 0; i < permissions.length; i++) {
                   checked[i] = permissionsId.contains(permissions[i]['id']);

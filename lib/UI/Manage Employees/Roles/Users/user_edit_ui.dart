@@ -28,8 +28,6 @@ class _UserEditUIState extends State<UserEditUI> {
   @override
   void initState() {
     super.initState();
-    usersBloc.add(const GetPermissionForUsers());
-    usersBloc.add(GetEditUsers(id: widget.users['id']));
     userController.text = '${widget.users['first_name'] ?? ''} ${widget.users['last_name'] ?? ''}';
   }
 
@@ -61,21 +59,18 @@ class _UserEditUIState extends State<UserEditUI> {
         ],
       ),
       body: BlocProvider(
-        create: (context) => usersBloc,
+        create: (context) => usersBloc..add(GetEditUsers(id: widget.users['id'])),
         child: BlocConsumer<UsersBloc, UsersState>(
             listener: (context, state) {
           if (state is UsersLoading) {
             EasyLoading.show();
           } else {
             if(EasyLoading.isShow)EasyLoading.dismiss();
-            if (state is PermissionForUsersLoaded) {
-              permissions.clear();
-              permissions.addAll(state.data ?? []);
-              filterPermissions = List.from(state.data ?? []);
-            }
-            else if (state is EditUsersLoaded){
+            if (state is EditUsersLoaded){
               permissionsId.clear();
+              permissions.clear();
               permissionsId.addAll(state.data ?? []);
+              permissions.addAll(state.permission ?? []);
               checked.clear();
               for (int i = 0; i < permissions.length; i++) {
                 checked[i] = permissionsId.contains(permissions[i]['id']);
@@ -111,9 +106,9 @@ class _UserEditUIState extends State<UserEditUI> {
                 const SizedBox(height: 10),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: filterPermissions.length,
+                    itemCount: permissions.length,
                     itemBuilder: (context, index) {
-                      final permission = filterPermissions[index];
+                      final permission = permissions[index];
                       return CheckboxListTile(
                         value: checked[index] ?? false,
                         title: Text(permission['name'] ?? ''),

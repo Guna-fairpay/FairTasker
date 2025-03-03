@@ -16,9 +16,10 @@ class CreateVehicleData {
   String mileage = '';
   String wholesaleAmount = '';
   int? selectedVehicleStatus;
-  List<File> chosenFiles = [];
-  List<File> chosenPurchaseReceipts = [];
+  List<File> vehicleImage = [];
+  List<File> purchaseReceiptsImage = [];
   int isActive = 0;
+  String rentalStatus = '';
   String purchasePrice = '';
   String purchaseDate = '0';
   String address = '';
@@ -38,6 +39,7 @@ class CreateVehicleData {
   String oilGrade = '';
   String frontTire = '';
   String rearTire = '';
+
   String regStickerDate = '0';
   List<File> uploadRegSticker = [];
   String insuranceAgent = '';

@@ -504,36 +504,40 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     });
   }
 
-  Map<String, dynamic> _addTodoBody() {
+  Map<String, String> _addTodoBody() {
     var baseBody = _cleanCarBody();
     baseBody['title'] = taskNameController.text;
-    baseBody['identifier_id'] = ((taskNameController.text.isNotEmpty) && (state.selectedTaskIdentifier[1]?['name'] == taskNameController.text)) ? (state.selectedTaskIdentifier[1]?['id']) : "";
-    baseBody['repeatPeriod'] = (state.selectedRecurring?['label'].toString().isDoesNotRepeat ?? false) ? (state.selectedRecurring?['label'].toString().toLowerCase()) : "" ;
+    baseBody['identifier_id'] = ((taskNameController.text.isNotEmpty)
+        && (state.selectedTaskIdentifier[1]?['name'] == taskNameController.text))
+        ? "${state.selectedTaskIdentifier[1]?['id'] ?? ""}"
+        : "";
+    baseBody['repeatPeriod'] = ((state.selectedRecurring?['label'].toString().isDoesNotRepeat == false) ? (state.selectedRecurring?['label'].toString().toLowerCase()) : "")??'';
     baseBody['repeatDay'] = (state.selectedRecurring?['label'].toString().isDaily ?? false) ? recurringEveryDayWeekController.text : "";
     baseBody['repeatWeek'] = (state.selectedRecurring?['label'].toString().isWeekly ?? false) ? recurringEveryDayWeekController.text : "";
-    baseBody['weekDay'] = (state.selectedRecurring?['label'].toString().isWeekly ?? false) ? state.selectedRecurringDays : "";
-    baseBody['recur_monthly_type'] = state.isRecurringMonthOccurrence;
+    baseBody['weekDay'] = (state.selectedRecurring?['label'].toString().isWeekly ?? false) ? (state.selectedRecurringDays).toString() : "";
+    baseBody['recur_monthly_type'] = "${state.isRecurringMonthOccurrence}";
     baseBody['repeatDateMonth'] = state.isRecurringMonthOccurrence ? recurringMonthDateController.text : "";
     baseBody['repeatMonth'] = !state.isRecurringMonthOccurrence ? recurringMonthDateController.text : "";
     baseBody['repeatDayMonth'] = !state.isRecurringMonthOccurrence ? recurringMonthMonthController.text : "";
     baseBody['repeatDateYear'] = (state.selectedRecurring?['label'].toString().isYearly ?? false) ? recurringYearDateController.text : "";
     baseBody['repeatMonthYear'] = state.recurringYearlySelectedMonth?['month'].toString() ?? "";
-    baseBody['end_type'] = state.isRecurringEndDate;
-    baseBody['end_after'] = (!state.isRecurringEndDate) ? recurringEndDateController.text : "";
-    baseBody['end_at'] = state.selectedRecurringEndDate.toFormat();
-    baseBody['todo_time'] = state.selectedTime.toHMS();
-    baseBody['platform_check'] = state.isSelectedPlatformCheck ? 1 : 0;
-    baseBody['todo_user_type'] = 0;
+    baseBody['end_type'] = "${state.isRecurringEndDate}";
+    baseBody['end_after'] = (!state.isRecurringEndDate) ? (recurringEndDateController.text ?? "") : "";
+    baseBody['end_at'] = state.selectedRecurringEndDate.toFormat() ?? "";
+    baseBody['todo_time'] = state.selectedTime.toHMS().toString();
+    baseBody['platform_check'] = "${state.isSelectedPlatformCheck ? 1 : 0}";
+    baseBody['todo_user_type'] = "0";
     baseBody['comments'] = "";
     baseBody['mileage'] = "";
     baseBody['resolution_notes'] = "";
-    baseBody['custom_link_id'] = state.selectedLinkOption?['id'];
+    baseBody['custom_link_id'] = "${state.selectedLinkOption?['id']}";
     baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] = (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    log("${jsonEncode(baseBody)}", name: "ADD_TODO_BODY");
     return baseBody;
   }
 
-  Map<String, dynamic> _cleanCarBody() {
+  Map<String, String> _cleanCarBody() {
     var location = (state.selectedTaskIdentifier[3]?['type'] == "location")
         ? state.selectedTaskIdentifier[3]
         : null;
@@ -557,57 +561,60 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       timeDay = TimeOfDay.fromDateTime(timeAt);
     }
-    var jsonBody = {
+    Map<String, String> jsonBody = {
       "title": "Clean Car",
-      "identifier_id": 30,
+      "identifier_id": "30",
       "location": location?['name'] ?? "",
-      "location_id": location?['id'] ?? "",
+      "location_id": "${location?['id'] ?? ""}",
       "cohort_id": "",
       "cohort_name": "",
       "vin": "",
       "vehicle_name": "",
       "vehicle_image": "",
-      "vehicles": (state.selectedVPerson
+      "vehicles": "${state.selectedVPerson
           .where((element) => element['type'] == "vehicles")
           .map((e) => e['value'])
-          .map((e) => {
-                "cohort_id": e['cohort']?['id'],
-                "cohort_name": e['cohort']?['cohort'],
-                "vin": e['vin'],
-                "vehicle_name": e['vehicle_name'],
-                "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
-                "vehicle_number": e['vehicle_number']
-              })
-          .toList()),
-      "start_at": date.toFormat(format: "yyyy-MM-dd"),
-      "person": person?['name'],
-      "person_id": person?['id'],
-      "vendor_id": vendor?['id'] ?? "",
-      "vendor_name": vendor?['name'] ?? "",
+          .map((e) => jsonEncode({
+        "cohort_id": "${e['cohort']?['id'] ?? ""}",
+        "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+        "vin": e['vin'],
+        "vehicle_name": e['vehicle_name'],
+        "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
+        "vehicle_number": e['vehicle_number']
+      }))
+          .toList()}",
+      "start_at": "${date.toFormat(format: "yyyy-MM-dd")}",
+      "person": "${person?['name'] ?? ""}",
+      "person_id": "${person?['id'] ?? ""}",
+      "vendor_id": "${vendor?['id'] ?? " "}",
+      "vendor_name": "${vendor?['name'] ?? ""}",
       "notes": notesController.text,
-      "parts": state.selectedParts.isEmpty
+      "parts": "${state.selectedParts.isEmpty
           ? null
           : state.selectedParts
-              .map((e) => {
-                    "parts_id": e['id'],
-                    "parts_name": e['name'],
-                  })
-              .toList(),
-      "supplies": state.selectedSupplies.isEmpty
-          ? null
-          : state.selectedSupplies
-              .map((e) => {
-                    "supplies_id": e['id'],
-                    "supplies_name": e['name'],
-                  })
-              .toList(),
+          .map((e) =>
+      {
+        "parts_id": e['id'],
+        "parts_name": e['name'],
+      })
+          .toList()}",
+      "supplies": "${
+        state.selectedSupplies.isEmpty
+            ? null
+            : state.selectedSupplies
+                .map((e) => {
+                      "supplies_id": e['id'],
+                      "supplies_name": e['name'],
+                    })
+                .toList()
+      }",
       "vehicle_group_id": "",
-      "address": state.addresses.map((e) => e['id']).toList(),
-      "assigned_to": state.selectedTaskPersons.map((e) => e['id']).toList(),
-      "todo_time": timeDay.toHMS(),
+      "address": "${state.addresses.map((e) => e['id']).toList()}",
+      "assigned_to": "${state.selectedTaskPersons.map((e) => e['id']).toList()}",
+      "todo_time": "${timeDay.toHMS()}",
       "reason": reasonController.text,
-      "time_sensitive": state.isTimeSensitive,
-      "branch_id": branchId,
+      "time_sensitive": "${state.isTimeSensitive}",
+      "branch_id": "$branchId",
     };
     log("${jsonEncode(jsonBody)}", name: "CLEAN_CAR_JSON_BODY");
     return jsonBody;

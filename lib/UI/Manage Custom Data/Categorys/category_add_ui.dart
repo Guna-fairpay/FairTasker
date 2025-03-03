@@ -66,6 +66,8 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                 'Category', categoryController,
                 autoValidate: AutovalidateMode.onUserInteraction,
                 validator: (val) => val!.isEmpty ? 'Please enter category' : null,
+                contentPadding: 10.padding,
+                isDense: true
               ),
               Utils.getElevatedButton( () => _save()),
             ],

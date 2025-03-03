@@ -105,6 +105,31 @@ class TodoListRepo {
     }
   }
 
+  Future<TodoListResponse?> editTodoData({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}edit-todo/$id';
+      debugPrint("edit-todo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          TodoListResponse todoListResponse =
+          TodoListResponse.fromJson(json.decode(response.body));
+
+          return todoListResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('edit-todo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
   Future<CreateExpenseFieldData?> fetchDropdownValues() async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}getCohortsData';
@@ -253,6 +278,8 @@ class TodoListRepo {
         apiUrl =
         "${Str.BASE_URL}todo-data?resource=&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
         //$resourceId
+        "${Str.BASE_URL}todo-data?resource=&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
+       /// "${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
       } else {
         apiUrl =
         "${Str.BASE_URL}todo-data?date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
@@ -1322,113 +1349,7 @@ class TodoListRepo {
     }
   }*/
 
-  // Future<bool?> createATodo(CreateTodoParams createTodoParams) async {
-  //   try {
-  //     String apiUrl = '';
-  //     if (createTodoParams.todoId != null) {
-  //       apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.todoId}";
-  //     } else {
-  //       apiUrl = "${Str.BASE_URL}add-todo";
-  //     }
-  //     String body = jsonEncode({
-  //       "title": createTodoParams.todoTitle,
-  //       if (createTodoParams.todoId != null)
-  //         "todo_date": createTodoParams.todoDate
-  //       else "start_at": createTodoParams.todoDate,
-  //       if (createTodoParams.todoId != null)
-  //         "type": "Inline",
-  //       // if(createTodoParams.existingUserGroupId != null)
-  //       //   "user_group_id": createTodoParams.existingUserGroupId!.toString(),
-  //       "todo_time": createTodoParams.todoTime,
-  //       "priority": createTodoParams.priority,
-  //       "assigned_to": createTodoParams.assignedTo,
-  //       "cohort_id": createTodoParams.cohortId,
-  //       "cohort_name": createTodoParams.cohortName,
-  //       "vin": createTodoParams.vin,
-  //       "vehicle_name": createTodoParams.vehicleName,
-  //       "vehicle_image": createTodoParams.vehicleImage,
-  //       "maintenance_task_id":createTodoParams.maintenanceTaskId,
-  //       "repeatPeriod":
-  //       (createTodoParams.repeatPeriod ?? '').toString().toLowerCase(),
-  //       "repeatDay":
-  //       (createTodoParams.repeatDay ?? '').toString().toLowerCase(),
-  //       "repeatWeek":
-  //       (createTodoParams.repeatWeek ?? '').toString().toLowerCase(),
-  //       "weekDay": createTodoParams.weekDay,
-  //       "recur_monthly_type":
-  //       (createTodoParams.recurMonthlyType ?? '').toString().toLowerCase(),
-  //       "repeatDateMonth":
-  //       (createTodoParams.repeatDateMonth ?? '').toString().toLowerCase(),
-  //       "repeatMonth":
-  //       (createTodoParams.repeatMonth ?? '').toString().toLowerCase(),
-  //       "repeatDayMonth":
-  //       (createTodoParams.repeatDayMonth ?? '').toString().toLowerCase(),
-  //       "repeatDateYear":
-  //       (createTodoParams.repeatDateYear ?? '').toString().toLowerCase(),
-  //       "repeatMonthYear":
-  //       (createTodoParams.repeatMonthYear ?? '').toString().toLowerCase(),
-  //       "end_type": (createTodoParams.endType ?? '').toString().toLowerCase(),
-  //       "end_at": (createTodoParams.endAt ?? '').toString().toLowerCase(),
-  //       "end_after": (createTodoParams.endAfter ?? '').toString().toLowerCase(),
-  //       "reminder":
-  //       (createTodoParams.todoReminder ?? '').toString().toLowerCase(),
-  //       "person": createTodoParams.person,
-  //       "person_id": createTodoParams.personId,
-  //       "time_sensitive":int.parse(createTodoParams.timeSensitive.toString()) ,
-  //       "vendor_id": createTodoParams.vendorId,
-  //       "vendor_name": createTodoParams.vendorName,
-  //       "location": createTodoParams.location,
-  //       "location_id": createTodoParams.locationId,
-  //       if (createTodoParams.multipleAddressList != null)
-  //         "address": createTodoParams.multipleAddressList,
-  //       "parts": createTodoParams.partList,
-  //       "supplies": createTodoParams.supplyList,
-  //       "notes": createTodoParams.notes.toString(),
-  //       "vehicle_group_id": createTodoParams.vehicleGroupId.toString(),
-  //       if (createTodoParams.todoId != null)
-  //         "user_group_data": createTodoParams.selectedUserGroupId == null
-  //             ? ''
-  //             : (createTodoParams.selectedUserGroupId ?? []).toString(),
-  //       "user_id": createTodoParams.selectedUserId == null
-  //           ? ''
-  //           : (createTodoParams.selectedUserId!).toString(),
-  //       "vehicles":createTodoParams.vehicleList??[],
-  //       "custom_link_id":createTodoParams.customLinkId,
-  //       "custom_link":createTodoParams.customLink,
-  //       "reference_id":createTodoParams.referenceId,
-  //
-  //     });
-  //     debugPrint("createATodo apiUrl: $apiUrl");
-  //     log("$body", name: "POST_BODY");
-  //     final http.Response? response =
-  //     await apiClient.callPostMethod(apiUrl, body: body);
-  //     if (response != null) {
-  //       if (response.statusCode == 200 || response.statusCode == 201) {
-  //
-  //         debugPrint('createATodo api.response.body: ${response.body}');
-  //         debugPrint('createATodo api.statusCode: ${response.statusCode}');
-  //
-  //         GeneralResponse generalResponse =
-  //         GeneralResponse.fromJson(json.decode(response.body));
-  //         if (generalResponse.status == 200 || generalResponse.status == 201) {
-  //           Utils.showMobileToast(generalResponse.message!);
-  //           return true;
-  //         } else {
-  //           Utils.showSomethingWentWrong();
-  //           return false;
-  //         }
-  //       } else {
-  //         Utils.showSomethingWentWrong();
-  //         return null;
-  //       }
-  //     } else {
-  //       return null;
-  //     }
-  //   } catch (error) {
-  //     log('callLoginAPI.exception2 : ${error.toString()}');
-  //     return null;
-  //   }
-  // }
+
 
   Future<ExpenseSummaryResponse?> getAExpenseTodo(String? expenseId) async {
     try {
@@ -3406,7 +3327,8 @@ class TodoListRepo {
   }
 
   Future<Map<String, dynamic>?> addTodo({required Map<String, dynamic> body, required List<File>? images}) async {
-    var response = await apiClient.callPostMethodWithBody("", fieldName: "images", autoIncrement: true, files: images?.map((e) => e.path).toList(), body: body);
+    var url = "${Str.BASE_URL}add-todo";
+    var response = await apiClient.callPostMethodWithBody(url, fieldName: "images", autoIncrement: true, files: images?.map((e) => e.path).toList(), body: body);
     return response.mapData;
   }
 

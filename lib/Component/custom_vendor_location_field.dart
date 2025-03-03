@@ -54,6 +54,7 @@ class CustomVendorLocationField extends StatelessWidget {
   void _checkSelectedVData() {
     if ((selected != null) && (selected![3] != null)) {
       selectedList.value = selected![3];
+      controller?.text = "${selectedList.value['name']}";
       selectedList.notifyListeners();
     }
     selectedVLocations?.addListener(() {

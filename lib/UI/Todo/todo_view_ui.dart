@@ -21,6 +21,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -32,6 +33,8 @@ import '../Manage Custom Data/Vehicles/vehicle_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'edit_todo/ui/edit_todo_rework_ui.dart';
 
 
 List<Map<String, dynamic>?>? selectedResourceMain;
@@ -232,220 +235,213 @@ class _TodoViewUIState extends State<TodoViewUI> {
               listeners: [
                 BlocListener<TodoViewBloc, TodoViewState>(
                   listener: (context, state) async {
-                    if (state is TaskExpenseLoaded) {
-                      taskExpenseList = state.resource ?? [];
+                    if(state is TodoListLoading){
+                      EasyLoading.show();
                     }
-                    else if (state is VendorLoaded) {
-                      vendorList = state.resource ?? [];
-                    }
-                    else if (state is PartsLoaded) {
-                      if (state.partsList != null) {
-                        editPartsList.addAll(state.partsList!);
-                      }
-                    }
-                    else if(state is TaskCategoryGroupLoaded){
-                      taskCategoryGroupData.clear();
-                      taskCategoryGroupData.addAll(state.data??[]);
+                    else{
+                      if(EasyLoading.isShow)EasyLoading.dismiss();
+                      if (state is TaskExpenseLoaded) {
+                        taskExpenseList = state.resource ?? [];
+                      } else if (state is VendorLoaded) {
+                        vendorList = state.resource ?? [];
+                      } else if (state is PartsLoaded) {
+                        if (state.partsList != null) {
+                          editPartsList.addAll(state.partsList!);
+                        }
+                      } else if (state is TaskCategoryGroupLoaded) {
+                        taskCategoryGroupData.clear();
+                        taskCategoryGroupData.addAll(state.data ?? []);
 
-                      for (Map<String, dynamic> res in taskCategoryGroupData) {
-                        Map<String, dynamic> vehiclesData = {
-                          'id': res['id'],
-                          'name': res['name'],
-                        };
-                        titleList.add(vehiclesData);
-                        if (res.containsKey('subcategories') && res['subcategories'] is List) {
-                          for (Map<String, dynamic> subcategory in res['subcategories']) {
-                            Map<String, dynamic> subcategoryData = {
-                              'id': subcategory['id'],
-                              'name': subcategory['name'],
-                              'parent_id': res['id'],
-                            };
-                            subCategoryList.add(subcategoryData);
+                        for (Map<String, dynamic> res
+                            in taskCategoryGroupData) {
+                          Map<String, dynamic> vehiclesData = {
+                            'id': res['id'],
+                            'name': res['name'],
+                          };
+                          titleList.add(vehiclesData);
+                          if (res.containsKey('subcategories') &&
+                              res['subcategories'] is List) {
+                            for (Map<String, dynamic> subcategory
+                                in res['subcategories']) {
+                              Map<String, dynamic> subcategoryData = {
+                                'id': subcategory['id'],
+                                'name': subcategory['name'],
+                                'parent_id': res['id'],
+                              };
+                              subCategoryList.add(subcategoryData);
+                            }
                           }
                         }
-                      }
-                      titleList.insert(0, {'id': -1, 'name': 'Other'});
+                        titleList.insert(0, {'id': -1, 'name': 'Other'});
+                      } else if (state is SuppliesLoaded) {
+                        if (state.suppliesList != null) {
+                          editSuppliesList.addAll(state.suppliesList!);
+                        }
+                      } else if (state is LocationLoaded) {
+                        locationList = state.resource ?? [];
+                      } else if (branchNO != branchNO) {
+                        todoBloc!.add(GetTodoList(
+                          selectedDate: filterDate,
+                          status: statusFilter ? "Completed" : "In Progress",
+                          resourceId: Utils.getStringFromObjectList(
+                              selectedResourceMain ?? []),
+                          branchId: branchNO.toString(),
+                        ));
+                      } else if (state is VehicleDataLoaded) {
+                        todoBloc!.add(GetTodoList(
+                          selectedDate: filterDate,
+                          status: statusFilter ? "Completed" : "In Progress",
+                          resourceId: Utils.getStringFromObjectList(
+                              selectedResourceMain ?? []),
+                          branchId: branchNO.toString(),
+                        ));
 
-                    }
-                    else if (state is SuppliesLoaded) {
-                      if (state.suppliesList != null) {
-                        editSuppliesList.addAll(state.suppliesList!);
-                      }
-                    }
-                    else if (state is LocationLoaded) {
-                      locationList = state.resource ?? [];
-                    }
-                    else if (branchNO != branchNO) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                    }
-                    else if (state is VehicleDataLoaded) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-
-                      if (state.vehicleData != null) {
-                        vehicleList.addAll(state.vehicleData ?? []);
-                        editMultipleVehicleList.addAll(state.vehicleData ?? []);
-                      }
-                    }
-                    else if (state is TodoListLoaded) {
-                      todoList = [];
-                      todoListTemp = [];
-                      var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
-                      var list1 = state.todoList
-                          ?.where((todo) =>
-                      todo['user_id'] == userId &&
-                          (todo['title'] == "Check In" ||
-                              todo['title'] == "Check Out"))
-                          .toList() ??
-                          [];
-                      var list2 = state.todoList
-                          ?.where((todo) =>
-                      todo['title'] != "Check In" &&
-                          todo['title'] != "Check Out")
-                          .toList() ??
-                          [];
-                      var combinedList = [...list1, ...list2];
-                      combinedList.sort(
-                              (a, b) => a['todo_time']!.compareTo(b['todo_time']!));
-                      todoListTemp.addAll(combinedList);
-                      todoList.addAll(combinedList);
-                      for (dynamic tdl in combinedList) {
-                        for (Map<String, dynamic> vd in vehicleList) {
-                          if (tdl['vin'].toString() == vd['vin'].toString()) {
-                            tdl['vehicle_number'] = vd['vehicle_number'];
+                        if (state.vehicleData != null) {
+                          vehicleList.addAll(state.vehicleData ?? []);
+                          editMultipleVehicleList
+                              .addAll(state.vehicleData ?? []);
+                        }
+                      } else if (state is TodoListLoaded) {
+                        todoList = [];
+                        todoListTemp = [];
+                        var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
+                        var list1 = state.todoList
+                                ?.where((todo) =>
+                                    todo['user_id'] == userId &&
+                                    (todo['title'] == "Check In" ||
+                                        todo['title'] == "Check Out"))
+                                .toList() ??
+                            [];
+                        var list2 = state.todoList
+                                ?.where((todo) =>
+                                    todo['title'] != "Check In" &&
+                                    todo['title'] != "Check Out")
+                                .toList() ??
+                            [];
+                        var combinedList = [...list1, ...list2];
+                        combinedList.sort((a, b) =>
+                            a['todo_time']!.compareTo(b['todo_time']!));
+                        todoListTemp.addAll(combinedList);
+                        todoList.addAll(combinedList);
+                        for (dynamic tdl in combinedList) {
+                          for (Map<String, dynamic> vd in vehicleList) {
+                            if (tdl['vin'].toString() == vd['vin'].toString()) {
+                              tdl['vehicle_number'] = vd['vehicle_number'];
+                            }
                           }
                         }
-                      }
-                    }
-                    else if (state is AssignedToLoaded) {
-                      resourceListForCombination.clear();
-                      resourceList.clear();
-                      resourceListForPersonField.clear();
-                      resourceList.addAll(state.resource ?? []);
-                      resourceListForPersonField.addAll(state.resource ?? []);
-                      resourceList.removeWhere((resource) => resource['id'] == 2);
-                      resourceListForCombination.addAll(resourceList);
-                      selectedResourceMain = [];
-                      selectedResourceMain!.addAll(resourceList);
-                      for (Map<String, dynamic> res
-                      in resourceListForCombination) {
-                        Map<String, dynamic> vehiclesData = {
-                          'id': res['id'],
-                          'vehicle_name': '${res['first_name']} ${res['last_name']}',
-                        };
-                        editMultipleVehicleList.add(vehiclesData);
-                      }
-                    }
-                    else if (state is DeleteTodoLoaded) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                    }
-                    else if (state is TodoItemCompletedV) {
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                      if (state.taskName?.toLowerCase() == 'check in') {
-                        // getWorkingHourByUser
-                        Utils.getIntPreference(Str.hrmIdPrefText).then((value) {
-                          todoBloc!.add(GetWorkingHourByUserEvent(id: value));
-                        });
-                      }
-                      show(
-                          context,
-                          (state.status) == 'In Progress'
-                              ? 'Todo moved to In Progress'
-                              : 'Todo Completed',
-                          (state.status) == 'In Progress'
-                              ? 'Completed'
-                              : 'In Progress',
-                          (state.todoId ?? ''), '');
-                    }
-                    else if (state is EditTodoLoaded) {
-                      todoBloc!.add(const GetUserGroupingList());
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                      if (state.isDate != null && state.isDate!) {
-                        /*if(overlay != null) {
+                      } else if (state is AssignedToLoaded) {
+                        resourceListForCombination.clear();
+                        resourceList.clear();
+                        resourceListForPersonField.clear();
+                        resourceList.addAll(state.resource ?? []);
+                        resourceListForPersonField.addAll(state.resource ?? []);
+                        resourceList
+                            .removeWhere((resource) => resource['id'] == 2);
+                        resourceListForCombination.addAll(resourceList);
+                        selectedResourceMain = [];
+                        selectedResourceMain!.addAll(resourceList);
+                        for (Map<String, dynamic> res
+                            in resourceListForCombination) {
+                          Map<String, dynamic> vehiclesData = {
+                            'id': res['id'],
+                            'vehicle_name':
+                                '${res['first_name']} ${res['last_name']}',
+                          };
+                          editMultipleVehicleList.add(vehiclesData);
+                        }
+                      } else if (state is DeleteTodoLoaded) {
+                        todoBloc!.add(GetTodoList(
+                          selectedDate: filterDate,
+                          status: statusFilter ? "Completed" : "In Progress",
+                          resourceId: Utils.getStringFromObjectList(
+                              selectedResourceMain ?? []),
+                          branchId: branchNO.toString(),
+                        ));
+                      } else if (state is TodoItemCompletedV) {
+                        todoBloc!.add(GetTodoList(
+                          selectedDate: filterDate,
+                          status: statusFilter ? "Completed" : "In Progress",
+                          resourceId: Utils.getStringFromObjectList(
+                              selectedResourceMain ?? []),
+                          branchId: branchNO.toString(),
+                        ));
+                        if (state.taskName?.toLowerCase() == 'check in') {
+                          // getWorkingHourByUser
+                          Utils.getIntPreference(Str.hrmIdPrefText)
+                              .then((value) {
+                            todoBloc!.add(GetWorkingHourByUserEvent(id: value));
+                          });
+                        }
+                        show(
+                            context,
+                            (state.status) == 'In Progress'
+                                ? 'Todo moved to In Progress'
+                                : 'Todo Completed',
+                            (state.status) == 'In Progress'
+                                ? 'Completed'
+                                : 'In Progress',
+                            (state.todoId ?? ''),
+                            '');
+                      } else if (state is EditTodoLoaded) {
+                        todoBloc!.add(const GetUserGroupingList());
+                        todoBloc!.add(GetTodoList(
+                          selectedDate: filterDate,
+                          status: statusFilter ? "Completed" : "In Progress",
+                          resourceId: Utils.getStringFromObjectList(
+                              selectedResourceMain ?? []),
+                          branchId: branchNO.toString(),
+                        ));
+                        if (state.isDate != null && state.isDate!) {
+                          /*if(overlay != null) {
                     overlay?.remove();
                   }*/
-                        show(context, 'Task moved Successfully', '',
-                            (state.todoId ?? ''), (state.date ?? ''));
+                          show(context, 'Task moved Successfully', '',
+                              (state.todoId ?? ''), (state.date ?? ''));
+                        }
+                      } else if (state is VehicleGroupListLoaded) {
+                        vehicleGroupList.clear();
+                        vehicleGroupList
+                            .addAll(state.vehicleGroupDataList ?? []);
+                      } else if (state is VehicleGroupLoaded) {
+                        todoBloc!.add(const GetVehicleGroupingList());
+                        todoBloc!.add(GetTodoList(
+                          selectedDate: filterDate,
+                          status: statusFilter ? "Completed" : "In Progress",
+                          resourceId: Utils.getStringFromObjectList(
+                              selectedResourceMain ?? []),
+                          branchId: branchNO.toString(),
+                        ));
+                      } else if (state is UserGroupListLoaded) {
+                        userGroupList.clear();
+                        userGroupList.addAll(state.userGroupDataList ?? []);
+                      } else if (state is DropdownDataLoaded) {
+                        categoriesListData.clear();
+                        categoriesListData.addAll(
+                            state.createExpenseFieldData?.expenseCategories ??
+                                []);
+                      } else if (state is VehicleStatusListLoaded) {
+                        vehicleStatus.clear();
+                        vehicleStatus.addAll(state.vehiclesCount ?? []);
+                      } else if (state is TaskMilesLoaded) {
+                        taskMiles.clear();
+                        taskMiles.addAll(state.data ?? []);
+                      } else if (state is PreviousOdometerLoaded) {
+                        previousOdometer = (state.data ?? 0).toString();
+                        showOilCheckPopup(
+                          context,
+                          oilChangeOdometerController,
+                          nextMilesCheckController,
+                          nextOdometerController,
+                          taskMiles,
+                          (state.todoData ?? {}),
+                          previousOdometer,
+                        );
+                        // setState(() {
+                        //   previousOdometer=(state.data!).toString();
+                        //   print("PREVIOUS ODOMETER----$previousOdometer");
+                        // });
                       }
-                    }
-                    else if (state is VehicleGroupListLoaded) {
-                      vehicleGroupList.clear();
-                      vehicleGroupList.addAll(state.vehicleGroupDataList ?? []);
-
-                    }
-                    else if (state is VehicleGroupLoaded) {
-                      todoBloc!.add(const GetVehicleGroupingList());
-                      todoBloc!.add(GetTodoList(
-                        selectedDate: filterDate,
-                        status: statusFilter ? "Completed" : "In Progress",
-                        resourceId: Utils.getStringFromObjectList(
-                            selectedResourceMain ?? []),
-                        branchId: branchNO.toString(),
-                      ));
-                    }
-                    else if (state is UserGroupListLoaded) {
-                      userGroupList.clear();
-                      userGroupList.addAll(state.userGroupDataList ?? []);
-                    }
-                    else if (state is DropdownDataLoaded) {
-                      categoriesListData.clear();
-                      categoriesListData.addAll(
-                          state.createExpenseFieldData?.expenseCategories ??
-                              []);
-                    }
-                    else if (state is VehicleStatusListLoaded) {
-                      vehicleStatus.clear();
-                      vehicleStatus.addAll(state.vehiclesCount ?? []);
-                    }
-                    else if (state is TaskMilesLoaded) {
-                      taskMiles.clear();
-                      taskMiles.addAll(state.data ?? []);
-                    }
-                    else if (state is PreviousOdometerLoaded) {
-                      previousOdometer= (state.data ?? 0).toString();
-                      showOilCheckPopup(
-                        context,
-                        oilChangeOdometerController,
-                        nextMilesCheckController,
-                        nextOdometerController,
-                        taskMiles,
-                        (state.todoData ?? {}),
-                        previousOdometer,
-                      );
-                      // setState(() {
-                      //   previousOdometer=(state.data!).toString();
-                      //   print("PREVIOUS ODOMETER----$previousOdometer");
-                      // });
-
                     }
                   },
                 ),
@@ -776,7 +772,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                             )),
                                       ]),
                                       Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             const SizedBox(width: 5,),
                                             InkWell(
@@ -1048,10 +1044,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                             ),
                           ),
                         ),
-                        Visibility(
-                            visible: state is TodoListLoading,
-                            child: Center(
-                                child: Utils.getProgressIndicator(context)))
+
                       ],
                     ),
                   );
@@ -2652,14 +2645,16 @@ class _TodoViewUIState extends State<TodoViewUI> {
                               dynamic result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EditTodoUI(
+                                  builder: (context) =>EditTodoReworkUI(
+                                    todoId: todos['id'].toString(),
+                                  ), /*EditTodoUI(
                                       todoItem: todos,
                                       userGroupList: userGroupList,
                                       resourceList: resourceList,
                                       categoriesListData: categoriesListData,
                                       addressesList: addresses,
                                       multipleLocationList:
-                                          multipleLocationAddressList),
+                                          multipleLocationAddressList),*/
                                 ),
                               );
                            //   if (result != null && result) {

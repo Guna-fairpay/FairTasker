@@ -52,8 +52,9 @@ class _RoleViewUIState extends State<RoleViewUI> {
           name: newRole['name'],
           id: newRole['id'],
           permissions: newRole['permissions']));
+      rolesBloc.add(const GetRolesData());
     }
-    rolesBloc.add(const GetRolesData());
+
   }
 
   void _navigateToEditRoleUI(int index) async {
@@ -68,8 +69,9 @@ class _RoleViewUIState extends State<RoleViewUI> {
          name: updatedRole['name'],
          id: updatedRole['id'],
          permissions: updatedRole['permissions']));
+     rolesBloc.add(const GetRolesData());
     }
-    rolesBloc.add(const GetRolesData());
+
   }
 
   Future<void> _deleteRole(int index) async {

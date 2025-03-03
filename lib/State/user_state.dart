@@ -38,7 +38,8 @@ class PermissionForUsersLoaded extends UsersState {
 
 class EditUsersLoaded extends UsersState {
   final List<int>? data;
-  const EditUsersLoaded({required this.data});
+  final List<Map<String, dynamic>>? permission;
+  const EditUsersLoaded({required this.data,required this.permission});
   @override
   List<Object?> get props => [data];
 }

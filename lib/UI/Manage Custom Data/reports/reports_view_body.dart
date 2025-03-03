@@ -69,6 +69,17 @@ class ReportsViewBody extends StatelessWidget {
                           color: AppC.white.withValues(alpha: 0.2),
                           height: 1,
                         ),
+                        ListTile(
+                          title: const Text("Vehicle Inventory Data"),
+                          trailing: (state.isVehicleInventoryLoading) ? const CircularProgressIndicator() :  GestureDetector(
+                            onTap: () => context.read<ReportsBloc>().add(ReportVehicleInventoryEvent()),
+                            child: Icon((state.vehicleInventoryFile != null) ? Icons.file_open : Icons.download_rounded),
+                          ),
+                        ),
+                        Container(
+                          color: AppC.white.withValues(alpha: 0.2),
+                          height: 1,
+                        ),
                       ],
                     ),
                   ),
