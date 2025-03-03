@@ -68,8 +68,6 @@ class DummyView extends StatelessWidget {
                           ),
                         ],
                       ),
-
-
                     ],
                   )),
                   Expanded(child: Column(
