@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
@@ -31,6 +32,7 @@ class AddTodoMainForm extends StatelessWidget {
                   padding: 10.topPadding,
                   physics: (showHeader) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
               children: [
+                10.height,
                 TaskIdentifier(
                   taskIdentifierController:
                       context.read<AddToDoBloc>().taskIdentifierController,
@@ -105,8 +107,8 @@ class AddTodoMainForm extends StatelessWidget {
                 ),
                 if (state.selectedTaskIdentifier.containsKey(3) &&
                     state.selectedTaskIdentifier[3]['type'] == 'location')
-                  CustomMultiSelectionChipsField<dynamic>(
-                      selectedPartsList: state.addresses,
+                  CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                      selectedPartsList: List.from(state.addresses),
                       suggestionsList: state.selectedTaskIdentifier[3]['value']
                           ['addresses'],
                       controller: TextEditingController(),

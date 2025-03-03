@@ -1,3 +1,5 @@
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+
 class CustomSearchDataConverter {
 
   CustomSearchDataConverter._();
@@ -17,7 +19,7 @@ class CustomSearchDataConverter {
       "id": element['id'],
       "name": element['vehicle_name'],
       "type": "vehicles",
-      "subname": "\t(${element['vehicle_number']})",
+      "subname": element['vehicle_number'].toString().isNullOrEmpty ? "" : "\t(${element['vehicle_number']})",
       "partNumber": 2,
       "value": element
     })

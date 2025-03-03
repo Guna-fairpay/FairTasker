@@ -58,9 +58,9 @@ class AddTodoRecurringSubForm extends StatelessWidget {
                   ),
                 if (state.selectedRecurring?['label'].toString().isWeekly ??
                     false)
-                  CustomWeekdaysGridview<dynamic>(
+                  CustomWeekdaysGridview<String>(
                       items: AddToDoConfig.days,
-                      selectedItems: state.selectedRecurringDays,
+                      selectedItems: List.from(state.selectedRecurringDays),
                       onChanged: (value) => context
                           .read<AddToDoBloc>()
                           .add(AddToDoRecurringWeekDaysEvent(value))),

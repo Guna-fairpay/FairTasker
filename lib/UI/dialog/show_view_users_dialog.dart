@@ -7,20 +7,20 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 
-class ShowChipDialog<T> {
+class ShowChipDialog<T extends Object> {
   ShowChipDialog._();
 
-  static void show<T>(BuildContext context, {required String title, List<dynamic>? data, ItemAsString<T>? itemAsString, Widget? avatarIcon}) async {
+  static void show<T extends Object>(BuildContext context, {required String title, List<dynamic>? data, ItemAsString<T>? itemAsString, Widget? avatarIcon}) async {
     log("$data", name: "ShowChipDialog");
     await showDialog(
         context: context,
         barrierDismissible: false,
         useSafeArea: true,
-        builder: (context) => _ShowViewUsersDialog(title: title, data: data, itemAsString: itemAsString, avatarIcon: avatarIcon));
+        builder: (context) => _ShowViewUsersDialog<T>(title: title, data: data, itemAsString: itemAsString, avatarIcon: avatarIcon));
   }
 }
 
-class _ShowViewUsersDialog<T> extends StatelessWidget {
+class _ShowViewUsersDialog<T extends Object> extends StatelessWidget {
   final List<dynamic>? data;
   final String title;
   final ItemAsString<T>? itemAsString;

@@ -233,7 +233,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                               );
                                             },
                                             onParts: () {
-                                              ShowChipDialog.show<dynamic>(
+                                              ShowChipDialog.show<Map<String, dynamic>>(
                                                   context, data: model['parts'] ?? [],
                                                   title: "Parts",
                                                   avatarIcon: const Icon(Icons.repartition_sharp),
@@ -241,7 +241,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                                       item) => "${item['parts_name'] ?? ""}");
                                             },
                                             onSupplies: () {
-                                              ShowChipDialog.show<dynamic>(
+                                              ShowChipDialog.show<Map<String, dynamic>>(
                                                   context, data: model['supplies'] ?? [],
                                                   title: "Supplies",
                                                   avatarIcon: const Icon(Icons.support_rounded),
@@ -249,7 +249,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                                       item) => "${item['supplies_name'] ?? ""}");
                                             },
                                             onUserTap: () {
-                                              ShowChipDialog.show<dynamic>(
+                                              ShowChipDialog.show<Map<String, dynamic>>(
                                                   context, data: users,
                                                   title: "Users",
                                                   avatarIcon: const Icon(Icons.person),

@@ -4,7 +4,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 
-class CustomDropdown<T> extends StatelessWidget {
+class CustomDropdown<T extends Object> extends StatelessWidget {
   final List<T> items;
   final T? value;
   final ItemAsString<T>? itemAsString;

@@ -69,7 +69,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fair Returns',
       theme: ThemeData(
-        dialogBackgroundColor: Colors.white,
         cardColor: Colors.white,
         appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
         dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
@@ -83,11 +82,12 @@ class MyApp extends StatelessWidget {
           side: const WidgetStatePropertyAll(BorderSide.none),
         ),
         switchTheme: SwitchThemeData(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.trans),
-          thumbColor: const WidgetStatePropertyAll(AppC.white),
+          // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.grey),
+          thumbColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.white : AppC.lightGrey),
         ),
         primarySwatch: AppC.appColor.toMaterialColor,
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: AppC.appColor.toMaterialColor),
         textTheme: GoogleFonts.poppinsTextTheme(
           Typography.blackCupertino.copyWith()
         ),
