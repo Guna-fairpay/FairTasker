@@ -13,6 +13,12 @@ class TodoExpenseState extends Equatable {
   final dynamic selectedMainCategory;
   final dynamic selectedSubCategory;
   final bool isLoading;
+  final String vehicleName;
+  final List<dynamic> vehicleList;
+  final dynamic selectedVehicle;
+  final List<dynamic> partsList;
+  final List<dynamic> suppliesList;
+  final dynamic vendorList;
 
   const TodoExpenseState({
     required this.taskList,
@@ -25,6 +31,13 @@ class TodoExpenseState extends Equatable {
     required this.selectedMainCategory,
     required this.selectedSubCategory,
     required this.isLoading,
+    required this.vehicleName,
+    required this.vehicleList,
+    required this.selectedVehicle,
+    required this.partsList,
+    required this.suppliesList,
+    required this.vendorList,
+
   });
 
   TodoExpenseState copyWith({
@@ -38,23 +51,35 @@ class TodoExpenseState extends Equatable {
     dynamic selectedMainCategory,
     dynamic selectedSubCategory,
     bool? isLoading,
-  }) {
-    return TodoExpenseState(
-        taskList: taskList ?? this.taskList,
-        paymentMethods: paymentMethods ?? this.paymentMethods,
-        mainCategories: mainCategories ?? this.mainCategories,
-        subCategories: subCategories ?? this.subCategories,
+    String? vehicleName,
+    List<dynamic>? vehicleList,
+    dynamic selectedVehicle,
+    List<dynamic>? partsList,
+    List<dynamic>? suppliesList,
+    dynamic vendorList,
+
+  }) => TodoExpenseState(
+    taskList: taskList ?? this.taskList,
+    paymentMethods: paymentMethods ?? this.paymentMethods,
+    mainCategories: mainCategories ?? this.mainCategories,
+    subCategories: subCategories ?? this.subCategories,
         expenseAttachments: expenseAttachments ?? this.expenseAttachments,
         apiResponse: apiResponse ?? this.apiResponse,
         selectedPayment: selectedPayment ?? this.selectedPayment,
         selectedMainCategory: selectedMainCategory ?? this.selectedMainCategory,
         selectedSubCategory: selectedSubCategory ?? this.selectedSubCategory,
-        isLoading: isLoading ?? this.isLoading);
-  }
-
+        isLoading: isLoading ?? this.isLoading,
+        vehicleName: vehicleName ?? this.vehicleName,
+        vehicleList: vehicleList ?? this.vehicleList,
+        selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+        partsList: partsList ?? this.partsList,
+        suppliesList: suppliesList ?? this.suppliesList,
+        vendorList: vendorList ?? this.vendorList,
+  );
   @override
   List<Object?> get props =>
-      [ taskList,
+      [
+        taskList,
         paymentMethods,
         isLoading,
         apiResponse,
@@ -64,5 +89,9 @@ class TodoExpenseState extends Equatable {
         selectedPayment,
         selectedMainCategory,
         selectedSubCategory,
-        Random().nextDouble()];
+        vehicleName,
+        vehicleList,
+        selectedVehicle,
+        Random().nextDouble(),
+      ];
 }

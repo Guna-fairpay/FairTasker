@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
-import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/Test.dart';
+import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/edit_todo_expense.dart';
 import 'package:fairpytasker/UI/dialog/delete_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -1124,7 +1124,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                           multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
-                                          TodoExpense(expenseId: todoItem['expense_id'],)
+                                          TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),

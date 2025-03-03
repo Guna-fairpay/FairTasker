@@ -1,6 +1,8 @@
 
+import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -13,32 +15,41 @@ import '../bloc/todo_edit_expense_bloc.dart';
 import '../event/todo_edit_expense_event.dart';
 import '../state/todo_edit_expense_state.dart';
 import 'invoice_preview_dialog.dart';
-import 'package:provider/provider.dart';
 
 class TodoExpense extends StatelessWidget {
   final dynamic expenseId;
-  const TodoExpense({super.key, required this.expenseId});
+  final dynamic todoItem;
+  const TodoExpense({super.key, required this.expenseId,required this.todoItem});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TodoEditExpenseBloc>(
-      create: (context) => TodoEditExpenseBloc()..add(GetTodoExpenseInitialEvent(expenseId: expenseId)),
+      create: (context) => TodoEditExpenseBloc()
+        ..add(GetTodoExpenseInitialEvent(expenseId: expenseId, todoItem: todoItem)),
       child: BlocListener<TodoEditExpenseBloc, TodoExpenseState>(
           listener: (context, state) {
         state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
       }, child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
               builder: (context, state) {
-        return ListView(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          // spacing: 10,
-          // crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            10.height,
+            if(state.vehicleList.length <= 1)
             Utils.getText(
-              'Expense Summary',
-              size: 12,
+              'Expense Summary - ${state.vehicleName}',
               color: AppC().base,
               align: TextAlign.end,
+            ),
+            if(state.vehicleList.length > 1)
+            Utils.dropdownBox(
+              'Select Vehicle',
+              state.vehicleList,
+              (selectedValue) {
+                context.read<TodoEditExpenseBloc>().add(SelectedVehicleEvent( vehicleName: selectedValue));
+              },
+              labelKey: 'vehicle_name',
             ),
             Row(
               spacing: 10,
@@ -46,7 +57,9 @@ class TodoExpense extends StatelessWidget {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => context.read<TodoEditExpenseBloc>().add(PickImageEvent()),
+                    onTap: () => context
+                        .read<TodoEditExpenseBloc>()
+                        .add(PickImageEvent()),
                     child: Container(
                       height: 40,
                       decoration: BoxDecoration(
@@ -68,7 +81,8 @@ class TodoExpense extends StatelessWidget {
                           const SizedBox(
                             width: 5,
                           ),
-                          Utils.getText('Upload', color: AppC.blue,weight: FontWeight.bold),
+                          Utils.getText('Upload',
+                              color: AppC.blue, weight: FontWeight.bold),
                         ],
                       ),
                     ),
@@ -76,7 +90,9 @@ class TodoExpense extends StatelessWidget {
                 ),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => context.read<TodoEditExpenseBloc>().add(CaptureImageEvent()),
+                    onTap: () => context
+                        .read<TodoEditExpenseBloc>()
+                        .add(CaptureImageEvent()),
                     child: Container(
                       height: 40,
                       decoration: BoxDecoration(
@@ -98,12 +114,14 @@ class TodoExpense extends StatelessWidget {
                           const SizedBox(
                             width: 5,
                           ),
-                          Utils.getText('Capture', color: AppC.redAccent,weight: FontWeight.bold),
+                          Utils.getText('Capture',
+                              color: AppC.redAccent, weight: FontWeight.bold),
                         ],
                       ),
                     ),
                   ),
                 ),
+                if(state.vendorList.isNotEmpty)
                 Expanded(
                   child: InkWell(
                     onTap: () {
@@ -130,7 +148,8 @@ class TodoExpense extends StatelessWidget {
                         children: [
                           const Icon(Icons.receipt_long, color: AppC.blue),
                           const SizedBox(width: 5),
-                          Utils.getText('Invoice', color: AppC.blue, weight: FontWeight.bold),
+                          Utils.getText('Invoice',
+                              color: AppC.blue, weight: FontWeight.bold),
                         ],
                       ),
                     ),
@@ -138,25 +157,27 @@ class TodoExpense extends StatelessWidget {
                 ),
               ],
             ),
-              if (state.expenseAttachments.isNotEmpty)
+            if (state.expenseAttachments.isNotEmpty)
               SizedBox(
                 height: 100,
                 child: GridView.builder(
                   shrinkWrap: true,
                   itemCount: state.expenseAttachments.length,
                   scrollDirection: Axis.horizontal,
-                  gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 1, mainAxisSpacing: 10),
                   itemBuilder: (context, index) => CloseBadge(
                       onTapView: () {
                         ShowAttachmentsDialog.of.show(context,
                             attachments: state.expenseAttachments,
                             title: "",
-                            currentAttachment:state.expenseAttachments[index]);
+                            currentAttachment: state.expenseAttachments[index]);
                       },
                       onTapDelete: () {
-                        state.expenseAttachments.remove(index);},
+                        context.read<TodoEditExpenseBloc>().add(
+                            RemoveImageEvent(
+                                data: state.expenseAttachments[index]));
+                      },
                       child: Container(
                         constraints: BoxConstraints(
                           minHeight: MediaQuery.sizeOf(context).height,
@@ -166,11 +187,12 @@ class TodoExpense extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             color: AppC.grey.withValues(alpha: 0.2)),
                         clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child:  ImageViewer(
+                        child: ImageViewer(
                           fit: BoxFit.cover,
                           imageInput: state.expenseAttachments[index],
                           isNotImage:
-                          !((state.expenseAttachments[index] as Object).isImage),
+                              !((state.expenseAttachments[index] as Object)
+                                  .isImage),
                         ),
                       )),
                 ),
@@ -178,23 +200,24 @@ class TodoExpense extends StatelessWidget {
             Row(
               spacing: 10,
               children: [
-                Expanded(
+                if(state. partsList.isEmpty && state.suppliesList.isEmpty)
+                  Expanded(
                   child: Utils.getTextFormField(
                     'Amount in dollars',
                     textType: TextInputType.number,
-                    context.read<TodoEditExpenseBloc>().amountController ,
+                    context.read<TodoEditExpenseBloc>().amountController,
                   ),
                 ),
                 Expanded(
                   child: Utils.dropdownBox(
                       'Select Payment Method',
                       state.paymentMethods,
-                          (selectedValue) {
-                          //state.selectedPayment = selectedValue;
-                      },
-                      selectedKey:  state.selectedPayment,
-                      initialSelection:  state.selectedPayment,
-                      labelKey: 'name'),
+                      (value) => context
+                          .read<TodoEditExpenseBloc>()
+                          .add(SelectedPaymentEvent(paymentType: value)),
+                      labelKey: 'name',
+                    initialSelection: state.selectedPayment,
+                  ),
                 ),
               ],
             ),
@@ -203,158 +226,21 @@ class TodoExpense extends StatelessWidget {
               context.read<TodoEditExpenseBloc>().descriptionController,
               inputAction: TextInputAction.done,
             ),
-            Row(
-              children: [
-                Expanded(child: Utils.getText('-Part name-')),
-                const Icon(Icons.attach_money),
-                Expanded(
-                  child: Utils.getTextFormField(
-                    '',
-                    hintText: 'enter a amount',
-                    context.read<TodoEditExpenseBloc>().partsCostController,
-                    textType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(child: Utils.getText('Labour')),
-                const Icon(Icons.attach_money),
-                Expanded(
-                  child: Utils.getTextFormField(
-                    '',
-                    hintText: 'enter a amount',
-                    context.read<TodoEditExpenseBloc>().labourCostController,
-                    textType: TextInputType.number,
-                    inputAction: TextInputAction.done,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(child: Utils.getText('Sub Total')),
-                const Icon(Icons.attach_money),
-                Expanded(
-                  child: Utils.getTextFormField(
-                    '',
-                    context.watch<TodoEditExpenseBloc>().subTotalController,
-                    textType: TextInputType.number,
-                    readOnly: true,
-                      fillColor: Colors.grey.shade200,
-                      borderWidth: 0.4
-                  ),
-                ),
-              ],
-            ),
-            Row(crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Utils.getText('Sales Tax'),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              context.read<TodoEditExpenseBloc>().add(TaxIconEvent());
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(1),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: AppC.grey,
-                                  width: 0.5
-                                ),
-                              ),
-                              child: context.watch<TodoEditExpenseBloc>().taxIsTapped
-                                  ? const Icon(Icons.monetization_on_outlined, color: AppC.grey,size: 20,)
-                                  : const Icon(Icons.percent,color: AppC.grey,size: 20,),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: Utils.getTextFormField('',
-                              maxLength: 20,
-                              context.watch<TodoEditExpenseBloc>().percentageOrAmountController,
-                              inputAction: TextInputAction.done,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 1),
-                              textType: TextInputType.number,
-                                textAlign: TextAlign.center
-                            ),
-                          ),
-                          Spacer(flex: 1,),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.attach_money),
-                Expanded(
-                  child: Utils.getTextFormField(
-                    '',
-                    readOnly: true,
-                    context.watch<TodoEditExpenseBloc>().saleTaxController,
-                      fillColor: Colors.grey.shade200,
-                      borderWidth: 0.4
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(child: Utils.getText('Shipping & Handling')),
-                const Icon(Icons.attach_money),
-                Expanded(
-                  child: Utils.getTextFormField(
-                    '',
-                    hintText: 'enter a amount',
-                    context.read<TodoEditExpenseBloc>().shippingController,
-                    textType: TextInputType.number,
-                    inputAction: TextInputAction.done,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(child: Utils.getText('Total')),
-                const Icon(Icons.attach_money),
-                Expanded(
-                  child: Utils.getTextFormField(
-                    '',
-                    context.watch<TodoEditExpenseBloc>().totalAmountController,
-                    readOnly: true,
-                      fillColor: Colors.grey.shade200,
-                    borderWidth: 0.4
-                  ),
-                ),
-              ],
-            ),
+            if(state. partsList.isNotEmpty || state.suppliesList.isNotEmpty)
+              const SplitExpenseUI(),
             Utils.dropdownBox(
                 'Select Category',
                 state.mainCategories,
-                    (selectedValue) {
-                 // state.selectedPayment = selectedValue;
-                },
-                selectedKey:  state.selectedMainCategory,
-                initialSelection:  state.selectedMainCategory,
+                (selectedValue) {},
+                selectedKey: state.selectedMainCategory,
+                initialSelection: state.selectedMainCategory,
                 labelKey: 'name'),
             Utils.dropdownBox(
                 'Select SubCategory',
                 state.subCategories,
-                    (selectedValue) {
-                  //state.selectedPayment = selectedValue;
-                },
-                selectedKey:  state.selectedSubCategory,
-                initialSelection:  state.selectedSubCategory,
+                (selectedValue) {},
+                selectedKey: state.selectedSubCategory,
+                initialSelection: state.selectedSubCategory,
                 labelKey: 'name'),
             Utils.getTextFormField(
               'Odometer',
@@ -374,12 +260,12 @@ class TodoExpense extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Utils.getElevatedButton(
-                      () {
-                   // _saveExpense();
+                  () {
+                    // _saveExpense();
                   },
                 ),
                 Utils.getElevatedButton(
-                      () {
+                  () {
                     // _save();
                   },
                   text: 'Save Category',

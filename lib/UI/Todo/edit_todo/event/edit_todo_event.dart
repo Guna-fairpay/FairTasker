@@ -223,3 +223,4 @@ class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
   @override
   List<Object?> get props => [selectTaskHistory];
 }
+

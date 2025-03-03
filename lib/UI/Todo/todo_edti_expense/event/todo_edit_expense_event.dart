@@ -9,16 +9,10 @@ abstract class TodoEditExpenseEvent extends Equatable{
 
 class GetTodoExpenseInitialEvent extends TodoEditExpenseEvent {
   final String? expenseId;
-  const GetTodoExpenseInitialEvent({required this.expenseId});
+  final dynamic todoItem;
+  const GetTodoExpenseInitialEvent({required this.expenseId, this.todoItem});
   @override
-  List<Object?> get props => [expenseId];
-}
-
-class PaymentListEvent extends TodoEditExpenseEvent {
-  final dynamic paymentType;
-  const PaymentListEvent({required this.paymentType});
-  @override
-  List<Object?> get props => [paymentType, Random().nextDouble()];
+  List<Object?> get props => [expenseId, todoItem, Random().nextDouble()];
 }
 
 class TaskListEvent extends TodoEditExpenseEvent {
@@ -73,6 +67,20 @@ class InvoiceEvent extends TodoEditExpenseEvent {
 class TaxIconEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
+}
+
+class SelectedPaymentEvent extends TodoEditExpenseEvent {
+  final dynamic paymentType;
+  const SelectedPaymentEvent({required this.paymentType});
+  @override
+  List<Object?> get props => [paymentType, Random().nextDouble()];
+}
+
+class SelectedVehicleEvent extends TodoEditExpenseEvent {
+  final dynamic vehicleName;
+  const SelectedVehicleEvent({required this.vehicleName});
+  @override
+  List<Object?> get props => [vehicleName, Random().nextDouble()];
 }
 
 

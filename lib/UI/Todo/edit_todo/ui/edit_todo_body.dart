@@ -22,6 +22,7 @@ class EditTodoBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EditToDoBloc, EditTodoState>(
+        buildWhen: (previous, current) => previous.apiResponse != current.apiResponse,
         builder: (context, state) => Form(
                 child: ListView(
               children: [
@@ -148,19 +149,17 @@ class EditTodoBody extends StatelessWidget {
                 CustomVendorLocationField(
                   vendorsList: state.vendors,
                   locationsList: state.locations,
-                  selected: state.selectedVLocations,
+                  selected: {3: state.selectedVLocations  ?? {}},
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVLocationEvent(val)),
                   controller: context.read<EditToDoBloc>().vLocationController,
                 ),
                 10.height,
-                if (state.selectedTaskIdentifier.containsKey(3) &&
-                    state.selectedTaskIdentifier[3]['type'] == 'location')
+                if (state.selectedVLocations['type'] == 'location')
                   CustomMultiSelectionChipsField<dynamic>(
                       selectedPartsList: state.addresses,
-                      suggestionsList: state.selectedTaskIdentifier[3]['value']
-                      ['addresses'],
+                      suggestionsList: state.selectedVLocations['addresses'] ?? [],
                       controller: TextEditingController(),
                       labelText: "Address",
                       onChanged: (isChecked, value) => context
@@ -189,7 +188,8 @@ class EditTodoBody extends StatelessWidget {
                 10.height,
                 const EditTodoMoreForm(),
                 10.height,
-                const EditTodoBottomTabs(),
+                 if (state.apiResponse.isNotEmpty)
+                  const EditTodoBottomTabs(),
               ],
             )));
   }
