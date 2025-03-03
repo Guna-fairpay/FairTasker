@@ -77,12 +77,15 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
       optionsViewOpenDirection: OptionsViewOpenDirection.down,
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
+        if ((textEditingController.text.contains("id:") && !controller.text.contains("id:"))
+        || ( (controller.text.isNotEmpty) && (textEditingController.text.isEmpty) )) {
+          textEditingController.value = controller.value;
+        }
         controller.value = textEditingController.value;
         controller.value.copyWith(
             selection:
                 TextSelection.collapsed(offset: controller.text.length - 1));
         if (controller.text.contains("id:")) controller.clear();
-        d.log("Selected Value ${controller.text.contains("id:")}", name: "CustomAutoSearchField");
         return TextField(
           controller: controller,
           focusNode: focusNode,
