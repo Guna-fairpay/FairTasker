@@ -85,4 +85,9 @@ extension StringExtension on String? {
   }
 
   bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
+
+  TimeOfDay? toTimeOfDay({String inputFormat = "HH:mm"}) {
+    var date = toDateTime(inputFormat: inputFormat);
+    return (date != null) ? TimeOfDay.fromDateTime(date) : null;
+  }
 }

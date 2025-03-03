@@ -24,6 +24,7 @@ class CustomTabButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var width = 0.5;
     return InkWell(
       borderRadius: tapBorderRaius ?? const BorderRadius.only(
               topRight: Radius.circular(5), topLeft: Radius.circular(5)),
@@ -34,13 +35,13 @@ class CustomTabButton<T> extends StatelessWidget {
         decoration: (selectedValue != value)
             ? null
             : decoration ??
-                const BoxDecoration(
+                BoxDecoration(
                     border: BorderDirectional(
-                      top: BorderSide(width: 0.2),
-                      start: BorderSide(width: 0.2),
-                      end: BorderSide(width: 0.2),
+                      top: BorderSide(width: width),
+                      start: BorderSide(width: width),
+                      end: BorderSide(width: width),
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(5),
                         topLeft: Radius.circular(5))),
         child: Text(buttonText,

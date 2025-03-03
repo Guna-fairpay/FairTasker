@@ -1,5 +1,4 @@
 
-
 import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +116,15 @@ class EditToDoTimeChangeEvent extends EditToDoEvent {
   List<Object?> get props => [selectedTime];
 }
 
+class EditToDoBottomTapEvent extends EditToDoEvent {
+  final dynamic selectedBottomTap;
+  EditToDoBottomTapEvent(this.selectedBottomTap);
+  @override
+  List<Object?> get props => [selectedBottomTap];
+}
+
+
+
 class EditToDoTimeSensitiveEvent extends EditToDoEvent {}
 
 class EditToDoEditAttachmentEvent extends EditToDoEvent {}
@@ -128,10 +136,10 @@ class EditToDoSelectLinkOptionEvent extends EditToDoEvent {
   List<Object?> get props => [linkOption];
 }
 
-class EditToDoEditressSelectionEvent extends EditToDoEvent {
+class EditToDoEditAddressSelectionEvent extends EditToDoEvent {
   final dynamic data;
   final bool isChecked;
-  EditToDoEditressSelectionEvent(this.data, this.isChecked);
+  EditToDoEditAddressSelectionEvent(this.data, this.isChecked);
   @override
   List<Object?> get props => [data, isChecked];
 }
@@ -176,3 +184,42 @@ class EditToDoRecurringEndDateSelectionEvent extends EditToDoEvent {
 class EditToDoOpenCustomLinkEvent extends EditToDoEvent {}
 
 class EditToDoSaveEvent extends EditToDoEvent {}
+
+class TaskStatusChangeEvent extends EditToDoEvent {
+  final bool? todoStatus;
+  final String? todoId;
+  final String? status;
+   TaskStatusChangeEvent({required this.todoStatus,required this.todoId,required this.status});
+  @override
+  List<Object?> get props => [todoStatus,todoId,status,];
+}
+
+class UserSelectionEvent extends EditToDoEvent {
+  final List<String>? selectedResource;
+  final List<dynamic>? resourceName;
+  UserSelectionEvent({required this.selectedResource,required this.resourceName,});
+  @override
+  List<Object?> get props => [selectedResource];
+}
+
+class SelectedUsersNameEvent extends EditToDoEvent {
+  final List<String>? selectedName;
+  SelectedUsersNameEvent({required this.selectedName,});
+  @override
+  List<Object?> get props => [selectedName];
+}
+
+class EditToDoAddressSelectionEvent extends EditToDoEvent {
+  final dynamic data;
+  final bool isChecked;
+  EditToDoAddressSelectionEvent(this.data, this.isChecked);
+  @override
+  List<Object?> get props => [data, isChecked];
+}
+
+class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
+  final dynamic selectTaskHistory;
+  EditToDoSelectTaskHistoryEvent(this.selectTaskHistory);
+  @override
+  List<Object?> get props => [selectTaskHistory];
+}

@@ -15,12 +15,14 @@ class EditTodoState extends Equatable {
   final List<dynamic> supplies;
   final List<dynamic> resources;
   final List<dynamic> linkOptions;
+  final List<dynamic> bottomTapData;
+  final Map<String, dynamic> selectedBottomTap;
   final List<dynamic> selectedTaskPersons;
   final List<dynamic> selectedParts;
   final List<dynamic> selectedSupplies;
   final List<dynamic> attachments;
   final List<Map<String, dynamic>> selectedVPerson;
-  final Map<int, dynamic> selectedVendor;
+  final Map<int, dynamic> selectedVLocations;
   final List<Map<String, dynamic>> selectedTask;
   final Map<String, dynamic> apiResponse;
   final dynamic selectedLinkOption;
@@ -31,6 +33,15 @@ class EditTodoState extends Equatable {
   final bool isSuppliesEnable;
   final DateTime? selectedDate;
   final TimeOfDay? selectedTime;
+  final bool todoStatus;
+  final List<String> selectedResource;
+  final List<dynamic> userGroup;
+  final Map<int, dynamic> selectedTaskIdentifier;
+  final List<dynamic> resourceName;
+  final List<dynamic> addresses;
+  final String title;
+  final List<dynamic>taskHistory;
+  final dynamic selectedVehicle;
 
   const EditTodoState({
     required this.isLoading,
@@ -41,12 +52,14 @@ class EditTodoState extends Equatable {
     required this.vehicles,
     required this.locations,
     required this.partServices,
+    required this.bottomTapData,
     required this.supplies,
     required this.resources,
     required this.linkOptions,
     required this.selectedVPerson,
-    required this.selectedVendor,
+    required this.selectedVLocations,
     required this.selectedTaskPersons,
+    required this.selectedBottomTap,
     required this.selectedTask,
     this.selectedLinkOption,
     required this.selectedSupplies,
@@ -60,6 +73,15 @@ class EditTodoState extends Equatable {
     required this.selectedTime,
     required this.attachments,
     required this.apiResponse,
+    required this.todoStatus,
+    required this.selectedResource,
+    required this.userGroup,
+    required this.selectedTaskIdentifier,
+    required this.resourceName,
+    required this.addresses,
+    required this.title,
+    required this.taskHistory,
+    required this.selectedVehicle,
 
   });
 
@@ -80,11 +102,13 @@ class EditTodoState extends Equatable {
     dynamic selectedLinkOption,
     List<Map<String, dynamic>>? selectedTask,
     List<Map<String, dynamic>>? selectedVPerson,
-    Map<int, dynamic>? selectedVendor,
+    Map<int, dynamic>? selectedVLocations,
     List<dynamic>? tasks,
     List<dynamic>? vehicles,
     List<dynamic>? persons,
     List<dynamic>? vendors,
+    List<dynamic>? bottomTapData,
+    Map<String, dynamic>? selectedBottomTap,
     List<dynamic>? locations,
     List<dynamic>? partServices,
     List<dynamic>? supplies,
@@ -104,12 +128,22 @@ class EditTodoState extends Equatable {
     bool? isRecurringMonthOccurrence,
     bool? isRecurringEndDate,
     DateTime? selectedRecurringEndDate,
+    bool? todoStatus,
+    List<String>? selectedResource,
+    List<dynamic>? userGroup,
+    Map<int, dynamic>? selectedTaskIdentifier,
+    List<dynamic>? resourceName,
+    List<dynamic>? address,
+    String? title,
+    List<dynamic>? taskHistory,
+    dynamic selectedVehicle,
+
   }) =>
       EditTodoState(
         isLoading: isLoading ?? this.isLoading,
         isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
         selectedVPerson: selectedVPerson ?? this.selectedVPerson,
-        selectedVendor: selectedVendor ?? this.selectedVendor,
+        selectedVLocations: selectedVLocations ?? this.selectedVLocations,
         isSelectedPlatformCheck:
         isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
         showPlatformCheck: showPlatformCheck ?? this.showPlatformCheck,
@@ -121,6 +155,8 @@ class EditTodoState extends Equatable {
         vehicles: vehicles ?? this.vehicles,
         persons: persons ?? this.persons,
         vendors: vendors ?? this.vendors,
+        bottomTapData: bottomTapData ?? this.bottomTapData,
+        selectedBottomTap: selectedBottomTap ?? this.selectedBottomTap,
         locations: locations ?? this.locations,
         linkOptions: linkOptions ?? this.linkOptions,
         partServices: partServices ?? this.partServices,
@@ -134,13 +170,23 @@ class EditTodoState extends Equatable {
         selectedSupplies: selectedSupplies ?? this.selectedSupplies,
         selectedParts: selectedParts ?? this.selectedParts,
         attachments: attachments ?? this.attachments,
+        todoStatus: todoStatus ?? this.todoStatus,
+        selectedResource: selectedResource ?? this.selectedResource,
+        userGroup: userGroup ?? this.userGroup,
+        selectedTaskIdentifier: selectedTaskIdentifier ?? this.selectedTaskIdentifier,
+        resourceName: resourceName ?? this.resourceName,
+        addresses: addresses ?? this.addresses,
+        title: title ?? this.title,
+        taskHistory: taskHistory ?? this.taskHistory,
+        selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+
       );
 
   @override
   List<Object?> get props => [
     // showAppBar,
     selectedVPerson,
-    selectedVendor,
+    selectedVLocations,
     isLoading,
     isTimeSensitive,
     tasks,
@@ -153,11 +199,13 @@ class EditTodoState extends Equatable {
     resources,
     linkOptions,
     selectedLinkOption,
+    selectedBottomTap,
     isSelectedPlatformCheck,
     showPlatformCheck,
     isMoreEnable,
     isPartServiceEnable,
     isSuppliesEnable,
+    bottomTapData,
     selectedTask,
     selectedDate,
     selectedTime,
@@ -166,6 +214,15 @@ class EditTodoState extends Equatable {
     selectedTaskPersons,
     attachments,
     apiResponse,
+    todoStatus,
+    selectedResource,
+    userGroup,
+    selectedTaskIdentifier,
+    resourceName,
+    addresses,
+    title,
+    taskHistory,
+    selectedVehicle,
 
     Random().nextDouble()
   ];

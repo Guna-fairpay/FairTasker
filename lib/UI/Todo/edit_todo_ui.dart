@@ -504,8 +504,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
     todoImages.addAll(todoImage);
     log("${todoItem}", name: "edit_Todo");
 
-    if (todoItem['users']?['id'] != null) {
-      selectedIds=((todoItem['users']?['id']).toString()).split(',');
+    if (todoItem['user_id'] != null) {
+      selectedIds=((todoItem['user_id']).toString()).split(',');
     }
 
     if (todoItem['user_group_id'] != null) {
@@ -2562,7 +2562,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
     String getInitials(String? firstName, String? lastName) {
       return '${firstName?[0].toUpperCase() ?? ''}${lastName?[0].toUpperCase() ?? ''}';
     }
-
     String userGroupConcatenationName = '';
     List<String> userInitials = [];
     for (var res in widget.resourceList ?? []) {
