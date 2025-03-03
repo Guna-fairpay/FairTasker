@@ -3,7 +3,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 
-class CustomWrapChoice<T> extends StatelessWidget {
+class CustomWrapChoice<T extends Object> extends StatelessWidget {
   final List<T> items;
   final List<T>? selectedItems;
   final ItemAsString<T>? itemAsString;

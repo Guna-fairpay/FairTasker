@@ -46,9 +46,9 @@ class EditTodoMoreForm extends StatelessWidget {
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)
-            CustomMultiSelectionChipsField<dynamic>(
-                selectedPartsList: state.selectedParts,
-                suggestionsList: state.partServices,
+            CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                selectedPartsList: List.from(state.selectedParts),
+                suggestionsList: List.from(state.partServices),
                 controller: TextEditingController(),
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
@@ -58,9 +58,9 @@ class EditTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () =>
                     context.push(const PartViewUI(), fullscreenDialog: true)),
           if (state.isMoreEnable && state.isSuppliesEnable)
-            CustomMultiSelectionChipsField<dynamic>(
-                selectedPartsList: state.selectedSupplies,
-                suggestionsList: state.supplies,
+            CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                selectedPartsList: List.from(state.selectedSupplies),
+                suggestionsList: List.from(state.supplies),
                 controller: TextEditingController(),
                 labelText: "Supplies",
                 onChanged: (isChecked, value) => context

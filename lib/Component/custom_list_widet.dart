@@ -1,7 +1,7 @@
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:flutter/material.dart';
 
-class ListWidget<T> extends StatelessWidget {
+class ListWidget<T extends Object> extends StatelessWidget {
   final T item;
   final IconData? leadingIcon;
   final ItemAsString<T>? itemAsString;

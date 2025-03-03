@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -7,7 +10,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 
-class CustomMultiSelectionChipsField<T> extends StatelessWidget {
+class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
   final List<T> selectedPartsList;
   final List<T> suggestionsList;
   final ItemAsString<T>? itemAsString;
@@ -34,6 +37,8 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
 
   final FocusNode _focusNode = FocusNode();
 
+  final ValueNotifier<bool> _isShowEmptyNotifier = ValueNotifier<bool>(false);
+
   void requestFocus() {
     _focusNode.requestFocus();
   }
@@ -44,18 +49,20 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var commonBorderSide =
-        const BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField);
+    var commonBorderSide = const BorderSide(
+        color: AppC.borderColor, width: Num.borderWidthThinField);
     return Container(
       padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(top: 10),
-      decoration: selectedPartsList.isEmpty ? null : BoxDecoration(
-          border: Border(
-            top: commonBorderSide,
-            right: commonBorderSide,
-            left: commonBorderSide,
-          ),
-          borderRadius: BorderRadius.circular(Num.borderRadius)),
+      decoration: selectedPartsList.isEmpty
+          ? null
+          : BoxDecoration(
+              border: Border(
+                top: commonBorderSide,
+                right: commonBorderSide,
+                left: commonBorderSide,
+              ),
+              borderRadius: BorderRadius.circular(Num.borderRadius)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +95,25 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
               },
             ).toList(),
           ),
-          CustomSearchField<T>(
+          if (controller != null)
+            ValueListenableBuilder(
+              valueListenable: _isShowEmptyNotifier,
+              builder: (context, value, child) => CustomAutoSearchField<T>(
+                controller: controller!,
+                optionsBuilder: (textEditingValue) =>
+                    _onSearch(textEditingValue),
+                autoClear: true,
+                showEmptyWidget: value,
+                onSelected: (val) {
+                  onChanged?.call(true, val);
+                },
+                itemAsString: itemAsString,
+                labelText: labelText,
+                hintText: hintText,
+                onEmptyWidgetTap: onEmptyTap,
+              ),
+            ),
+          /*CustomSearchField<T>(
               focusNode: _focusNode,
               suggestions: suggestionsList,
               itemAsString: itemAsString,
@@ -104,9 +129,20 @@ class CustomMultiSelectionChipsField<T> extends StatelessWidget {
               suggestionState: suggestionState,
               labelText: labelText,
               hintText: hintText,
-              onEmptyTap: onEmptyTap),
+              onEmptyTap: onEmptyTap),*/
         ],
       ),
     );
+  }
+
+  Future<Iterable<T>> _onSearch(TextEditingValue editValue) async {
+    var val = editValue.text.toLowerCase();
+    if (val.trim().isEmpty) {
+      return [];
+    }
+    var data = suggestionsList.where((element) =>
+        itemAsString?.call(element).toLowerCase().contains(val) ?? false);
+    _isShowEmptyNotifier.value = data.isEmpty;
+    return data;
   }
 }

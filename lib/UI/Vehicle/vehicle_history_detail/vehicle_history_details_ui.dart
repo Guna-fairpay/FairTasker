@@ -60,12 +60,12 @@ class VehicleHistoryDetailsUi extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              ListWidget(
+              ListWidget<Map<String, dynamic>>(
                   item: mapData,
                   itemAsString: (item) =>
                   "${mapData['todo_date'].toString().toDateTime(inputFormat: "yyyy-MM-dd").toFormat(format: "MM-dd-yyyy")} ${mapData['todo_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")}",
                   leadingIcon: Icons.calendar_month_rounded),
-              ListWidget(
+              ListWidget<Map<String, dynamic>>(
                   item: mapData,
                   itemAsString: (item) => ((mapData?['users'])
                       .map((e) =>
@@ -96,13 +96,13 @@ class VehicleHistoryDetailsUi extends StatelessWidget {
                     "Resolution Notes - ${mapData['resolution_notes'] ?? ""}",
                     leadingIcon: Icons.sticky_note_2_outlined),
               if ((mapData['parts'] as List?)?.isNotEmpty ?? false)
-                ChoiceBoxWidget<dynamic>(
-                    items: (mapData['parts'] as List<dynamic>)
+                ChoiceBoxWidget<Map<String, dynamic>>(
+                    items: (mapData['parts'] as List<Map<String, dynamic>>)
                         .distinct((e) => e?['parts_id']),
                     itemAsString: (item) => item['parts_name'] ?? ""),
               if ((mapData['supplies'] as List?)?.isNotEmpty ?? false)
-                ChoiceBoxWidget<dynamic>(
-                    items: (mapData['supplies'] as List<dynamic>)
+                ChoiceBoxWidget<Map<String, dynamic>>(
+                    items: (mapData['supplies'] as List<Map<String, dynamic>>)
                         .distinct((e) => e?['supplies_id']),
                     itemAsString: (item) => item['supplies_name'] ?? ""),
               ListWidget(
