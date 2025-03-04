@@ -18,20 +18,22 @@ class SplitExpenseUI extends StatelessWidget {
       builder: (context, state) {
         return Column(
             children: [
-              Row(
+              ...state.partsList.map((e) => Row(
                 children: [
-                  Expanded(child: Utils.getText('-Part name-')),
+                  Expanded(
+                      child: Utils.getText(
+                          e['name'])),
                   const Icon(Icons.attach_money),
                   Expanded(
                     child: Utils.getTextFormField(
                       '',
                       hintText: 'enter a amount',
-                      context.read<TodoEditExpenseBloc>().partsCostController,
+                      context.read<TodoEditExpenseBloc>().partsCostControllers[e['id'].toString()] ?? TextEditingController(text: "000"),
                       textType: TextInputType.number,
                     ),
                   ),
                 ],
-              ),
+              )).toList(),
               Row(
                 children: [
                   Expanded(child: Utils.getText('Labour')),
@@ -117,9 +119,7 @@ class SplitExpenseUI extends StatelessWidget {
                                   textType: TextInputType.number,
                                   textAlign: TextAlign.center),
                             ),
-                            Spacer(
-                              flex: 1,
-                            ),
+                            const Spacer(flex: 1,),
                           ],
                         ),
                       ],

@@ -481,7 +481,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoAddressSelectionEvent>((event, emit) {
-      var existing = List.from(state.addresses);
+      List<Map<String, dynamic>>? existing = List.from(state.addresses);
       if (event.isChecked) {
         if (!existing.contains(event.data)) existing.add(event.data);
       } else {

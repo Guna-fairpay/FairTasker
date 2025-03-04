@@ -157,7 +157,7 @@ class EditTodoBody extends StatelessWidget {
                 ),
                 10.height,
                 if (state.selectedVLocations['type'] == 'location')
-                  CustomMultiSelectionChipsField<dynamic>(
+                  CustomMultiSelectionChipsField<Map<String, dynamic>>(
                       selectedPartsList: state.addresses,
                       suggestionsList: state.selectedVLocations['addresses'] ?? [],
                       controller: TextEditingController(),

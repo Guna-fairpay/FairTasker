@@ -45,9 +45,10 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic>? selectedSubCategory;
   List<dynamic>? subCategories = [];
   dynamic todoItem;
-  List<dynamic>? partsList;
-  List<dynamic>? suppliesList;
+  List<dynamic>? partsList = [];
+  List<dynamic>? suppliesList = [];
   dynamic vendor;
+  Map<String, TextEditingController> partsCostControllers = {};
 
   TodoEditExpenseBloc()
       : super(
@@ -71,8 +72,20 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
         )) {
     FBroadcast.instance().register("Parts", (value, callback) {
-      partsList?.add(value);
-      state.copyWith(partsList: partsList);
+      if (value is List) {
+        partsList = value;
+      } else {
+        partsList?.add(value);
+      }
+      partsList?.forEach((element) {
+        if (!partsCostControllers.containsKey(element['id'].toString())) {
+
+          // log("$element", name: "Parts03");
+          partsCostControllers[element['id'].toString()] = TextEditingController();
+        }
+      });
+      emit(state.copyWith(partsList: partsList));
+      log("$partsList", name: "Parts02");
     });
     FBroadcast.instance().register("Supplies", (value, callback) {
       suppliesList = value;

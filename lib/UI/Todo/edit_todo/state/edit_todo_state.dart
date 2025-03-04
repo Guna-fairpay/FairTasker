@@ -38,7 +38,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> userGroup;
   final Map<int, dynamic> selectedTaskIdentifier;
   final List<dynamic> resourceName;
-  final List<dynamic> addresses;
+  final List<Map<String, dynamic>> addresses;
   final String title;
   final List<dynamic>taskHistory;
   final dynamic selectedVehicle;
@@ -120,7 +120,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
     List<dynamic>? attachments,
-    List<dynamic>? addresses,
+    List<Map<String, dynamic>>? addresses,
     List<dynamic>? selectedRecurringDays,
     Map<String, dynamic>? apiResponse,
     dynamic selectedRecurring,
