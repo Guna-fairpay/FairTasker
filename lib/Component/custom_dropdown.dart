@@ -37,6 +37,7 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
         borderRadius: BorderRadius.circular(Num.borderRadius),
         padding: contentPadding ?? const EdgeInsets.all(5),
         isDense: true,
+        isExpanded: true,
         style: context.textTheme.labelLarge,
         value: value,
         items: items
