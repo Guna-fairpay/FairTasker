@@ -54,8 +54,8 @@ class AddTodoMoreForm extends StatelessWidget {
                   ),
                 if (state.showCleanCar)
                   Flexible(
-                    child: CustomDropdown<dynamic>(
-                      items: state.clearDurations,
+                    child: CustomDropdown<Map<String, dynamic>>(
+                      items: List.from(state.clearDurations),
                       value: state.selectedClearDuration,
                       itemAsString: (item) => item['value'].toString(),
                       onChanged: (value) => context
@@ -66,9 +66,9 @@ class AddTodoMoreForm extends StatelessWidget {
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)
-            CustomMultiSelectionChipsField<dynamic>(
-                selectedPartsList: state.selectedParts,
-                suggestionsList: state.partServices,
+            CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                selectedPartsList: List.from(state.selectedParts),
+                suggestionsList: List.from(state.partServices),
                 controller: TextEditingController(),
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
@@ -78,9 +78,9 @@ class AddTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () =>
                     context.push(const PartViewUI(), fullscreenDialog: true)),
           if (state.isMoreEnable && state.isSuppliesEnable)
-            CustomMultiSelectionChipsField<dynamic>(
-                selectedPartsList: state.selectedSupplies,
-                suggestionsList: state.supplies,
+            CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                selectedPartsList: List.from(state.selectedSupplies),
+                suggestionsList: List.from(state.supplies),
                 controller: TextEditingController(),
                 labelText: "Supplies",
                 onChanged: (isChecked, value) => context
@@ -105,8 +105,8 @@ class AddTodoMoreForm extends StatelessWidget {
                         .shade800),
               ),
               Flexible(
-                child: CustomDropdown<dynamic>(
-                  items: state.linkOptions,
+                child: CustomDropdown<Map<String, dynamic>>(
+                  items: List.from(state.linkOptions),
                   value: state.selectedLinkOption,
                   contentPadding: 5.padding,
                   onChanged: (val) => context

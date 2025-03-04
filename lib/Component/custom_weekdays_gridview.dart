@@ -5,7 +5,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 
-class CustomWeekdaysGridview<T> extends StatelessWidget {
+class CustomWeekdaysGridview<T  extends Object> extends StatelessWidget {
   final List<T> items;
   final List<T>? selectedItems;
   final ItemAsString<T>? itemAsString;

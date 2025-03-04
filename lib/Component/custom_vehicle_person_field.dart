@@ -1,8 +1,14 @@
+import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Component/simple_popup_menu.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_add_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
 
@@ -31,31 +37,18 @@ class CustomVehiclePersonField extends StatelessWidget {
   final ValueNotifier<List<Map<String, dynamic>>> selectedList =
       ValueNotifier([]);
 
+  ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
+
+  List<Map<String, dynamic>> unfilteredList = [];
+
   void _prepareData() {
-    var persons = personsList
-        .map((element) => {
-              "id": element['id'],
-              "name": [element['first_name'], element['last_name']].join(" "),
-              "type": "person",
-              "partNumber": 2,
-              "value": element
-            })
-        .toList();
-    var vehicles = vehiclesList
-        .map((element) => {
-              "id": element['id'],
-              "name": element['vehicle_name'],
-              "type": "vehicles",
-              "subname": "\t(${element['vehicle_number']})",
-              "partNumber": 2,
-              "value": element
-            })
-        .toList();
-    commonList.value = [...vehicles, ...persons];
+    unfilteredList = CustomSearchDataConverter.convertVPerson(
+        vehicles: vehiclesList, persons: personsList);
+    commonList.value = unfilteredList;
   }
 
   void _checkSelectedVData() {
-    if ((selected != null) ) {
+    if ((selected != null)) {
       selectedList.value = (selected as List<Map<String, dynamic>>?) ?? [];
       selectedList.notifyListeners();
     }
@@ -73,15 +66,18 @@ class CustomVehiclePersonField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.zero,
-      decoration: selectedList.value.isEmpty ? null : const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField),
-            right:
-                BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField),
-            left:
-                BorderSide(color: AppC.borderColor, width: Num.borderWidthThinField),
-          ),
-          borderRadius: BorderRadius.all(Radius.circular(6))),
+      decoration: selectedList.value.isEmpty
+          ? null
+          : const BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                    color: AppC.borderColor, width: Num.borderWidthThinField),
+                right: BorderSide(
+                    color: AppC.borderColor, width: Num.borderWidthThinField),
+                left: BorderSide(
+                    color: AppC.borderColor, width: Num.borderWidthThinField),
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(6))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +117,24 @@ class CustomVehiclePersonField extends StatelessWidget {
                   ).toList(),
                 );
               }),
-          ValueListenableBuilder(
+          if (controller != null)
+            ValueListenableBuilder(
+              valueListenable: showEmptyNotifier,
+              builder: (context, value, child) => CustomAutoSearchField(
+                  controller: controller!,
+                  labelText: "Vehicle/Person",
+                  onSelected: _onSuggested,
+                  showEmptyWidget: value,
+                  autoClear: true,
+                  itemAsString: (item) => formatMapData(item),
+                  onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vehicle", "Person"], onTap: (item) {
+                    item == "Vehicle" ? context.push(const VehicleAddUI()) : context.push(const EmployeesAddUI());
+                  },),
+                  // onEmptyWidgetTap: () => context.push(const EmployeesAddUI()),
+                  optionsBuilder: (textEditingValue) =>
+                      onSearch(textEditingValue)),
+            ),
+          /*ValueListenableBuilder(
               valueListenable: commonList,
               builder: (context, value, child) =>
                   CustomSearchField<Map<String, dynamic>>(
@@ -129,15 +142,28 @@ class CustomVehiclePersonField extends StatelessWidget {
                     suggestions: value,
                     autoControllerClear: true,
                     isDense: true,
-                    style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                    style: context.textTheme.labelLarge
+                        ?.copyWith(fontFamily: "Lato"),
                     labelText: "Vehicle/Person",
                     itemAsString: (item) => formatMapData(item),
                     suggestionState: Suggestion.hidden,
                     onSuggestionTap: _onSuggested,
-                  )),
+                  )),*/
         ],
       ),
     );
+  }
+
+  Future<Iterable<Map<String, dynamic>>> onSearch(
+      TextEditingValue textEditingValue) async {
+    var val = textEditingValue.text.toLowerCase();
+    if (val.trim().isEmpty) {
+      return [];
+    }
+    var list =
+        unfilteredList.where((element) => isExist(element, val)).toList();
+    showEmptyNotifier.value = list.isEmpty;
+    return list;
   }
 
   void _onDelete(Map<String, dynamic> val) {
@@ -168,11 +194,12 @@ class CustomVehiclePersonField extends StatelessWidget {
     selectedVPersons?.value = selectedList;
     selectedList.notifyListeners();
     selectedVPersons?.notifyListeners();
+    controller?.clear();
   }
 
   String formatMapData(Map<String, dynamic> e) {
     return (e.containsKey("subname")
-        ? "${e['name']}${e['subname']}"
+        ? "${e['name']}${e['subname'] ?? ""}"
         : e['name'].toString());
   }
 

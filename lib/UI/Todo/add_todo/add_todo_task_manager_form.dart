@@ -21,9 +21,9 @@ class AddTodoTaskManagerForm extends StatelessWidget {
           spacing: 10,
           children: [
             Utils.getText('Task Manager', weight: FontWeight.bold),
-            CustomWrapChoice<dynamic>(items: state.persons,
+            CustomWrapChoice<Map<String, dynamic>>(items: List.from(state.persons),
               itemAsString: (item) => item['first_name']+"\t${item['last_name']}",
-              selectedItems: state.selectedTaskPersons,
+              selectedItems: List.from(state.selectedTaskPersons),
               onChanged: (isChecked, value) => context.read<AddToDoBloc>().add(AddToDoPersonTapEvent(value, isChecked)),
             ),
             if (state.selectedTaskPersons.isEmpty)

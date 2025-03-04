@@ -272,7 +272,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoVLocationEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       existing[3] = event.vLocation;
-      emit(state.copyWith(selectedTaskIdentifier: existing));
+      log("${event.vLocation['name']}", name: "AddToDoBloc-Location");
+      vLocationController.text = event.vLocation['name'] ?? "";
+      emit(state.copyWith(selectedTaskIdentifier: existing, ));
     });
 
     on<AddToDoPersonTapEvent>((event, emit) {

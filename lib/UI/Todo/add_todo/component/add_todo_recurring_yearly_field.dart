@@ -57,7 +57,7 @@ class AddTodoRecurringYearlyField extends StatelessWidget {
                 leading: Text("Month",
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontWeight: FontWeight.bold)),
-                title: CustomDropdown<dynamic>(items: AddToDoConfig.months,
+                title: CustomDropdown<Map<String, dynamic>>(items: AddToDoConfig.months,
                   itemAsString: (item) => item['month'].toString(),
                   value: selectedMonth,
                   onChanged: onChanged,

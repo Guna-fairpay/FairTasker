@@ -103,7 +103,7 @@ class _VehicleGroupingUIState extends State<VehicleGroupingUI> {
                   height: 10,
                 ),
                 Utils.getTextFormField('Group Name', groupNameController),
-                CustomMultiSelectionChipsField<dynamic>(
+                CustomMultiSelectionChipsField<Map<String, dynamic>>(
                   selectedPartsList: selectedMultipleVehicleList,
                   suggestionsList: editMultipleVehicleList,
                   itemAsString: (item) => item['vehicle_name'].toString(),
