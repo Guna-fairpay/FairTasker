@@ -18,6 +18,7 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
   final FutureOr<Iterable<T>> Function(TextEditingValue textEditingValue)
       optionsBuilder;
   final VoidCallback? onEmptyWidgetTap;
+  final GestureTapDownCallback? onEmptyWidgetTapDown;
   final bool autoClear;
 
   const CustomAutoSearchField(
@@ -31,7 +32,9 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
       this.showEmptyWidget = false,
       this.autoClear = false,
       required this.optionsBuilder,
-      this.onEmptyWidgetTap});
+      this.onEmptyWidgetTap,
+      this.onEmptyWidgetTapDown,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +118,9 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
                           value.text.isNotEmpty)
                       ? GestureDetector(
                           onTap: onEmptyWidgetTap,
+                          onTapDown: onEmptyWidgetTapDown,
                           child: Container(
-                            margin: 2.rightPadding,
+                            margin: 2.padding,
                             padding: 10.padding,
                             clipBehavior: Clip.antiAliasWithSaveLayer,
                             decoration: BoxDecoration(

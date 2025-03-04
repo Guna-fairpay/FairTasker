@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_add_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -7,6 +8,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
 
@@ -125,7 +127,9 @@ class CustomVehiclePersonField extends StatelessWidget {
                   showEmptyWidget: value,
                   autoClear: true,
                   itemAsString: (item) => formatMapData(item),
-                  onEmptyWidgetTap: () => context.push(const VehicleAddUI()),
+                  onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vehicle", "Person"], onTap: (item) {
+                    item == "Vehicle" ? context.push(const VehicleAddUI()) : context.push(const EmployeesAddUI());
+                  },),
                   // onEmptyWidgetTap: () => context.push(const EmployeesAddUI()),
                   optionsBuilder: (textEditingValue) =>
                       onSearch(textEditingValue)),
