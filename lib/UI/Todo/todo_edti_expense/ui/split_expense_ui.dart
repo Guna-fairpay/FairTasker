@@ -17,8 +17,10 @@ class SplitExpenseUI extends StatelessWidget {
     return BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
       builder: (context, state) {
         return Column(
+          spacing: 10,
             children: [
-              ...state.partsList.map((e) => Row(
+              if(state.partsList.isNotEmpty)
+                ...state.partsList.map((e) => Row(
                 children: [
                   Expanded(
                       child: Utils.getText(
@@ -29,6 +31,24 @@ class SplitExpenseUI extends StatelessWidget {
                       '',
                       hintText: 'enter a amount',
                       context.read<TodoEditExpenseBloc>().partsCostControllers[e['id'].toString()] ?? TextEditingController(text: "000"),
+                      textType: TextInputType.number,
+                      onChangeCallback: (value) => context.read<TodoEditExpenseBloc>().calculateTotal(),
+                    ),
+                  ),
+                ],
+              )).toList(),
+              if(state.suppliesList.isNotEmpty)
+              ...state.suppliesList.map((e) => Row(
+                children: [
+                  Expanded(
+                      child: Utils.getText(
+                          e['name'])),
+                  const Icon(Icons.attach_money),
+                  Expanded(
+                    child: Utils.getTextFormField(
+                      '',
+                      hintText: 'enter a amount',
+                      context.read<TodoEditExpenseBloc>().suppliesCostControllers[e['id'].toString()] ?? TextEditingController(text: "000"),
                       textType: TextInputType.number,
                     ),
                   ),

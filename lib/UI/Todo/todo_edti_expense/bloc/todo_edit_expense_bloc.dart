@@ -49,6 +49,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic>? suppliesList = [];
   dynamic vendor;
   Map<String, TextEditingController> partsCostControllers = {};
+  Map<String, TextEditingController> suppliesCostControllers = {};
 
   TodoEditExpenseBloc()
       : super(
@@ -79,16 +80,29 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       }
       partsList?.forEach((element) {
         if (!partsCostControllers.containsKey(element['id'].toString())) {
-
-          // log("$element", name: "Parts03");
           partsCostControllers[element['id'].toString()] = TextEditingController();
         }
       });
+      var partIds = partsList?.map((e) => e['id'].toString());
+      partsCostControllers.removeWhere((key, value) => (partIds?.contains(key) == false));
+      if (partsList?.isEmpty ?? true) partsCostControllers.clear();
+      _updateExpenseTotal();
       emit(state.copyWith(partsList: partsList));
-      log("$partsList", name: "Parts02");
     });
     FBroadcast.instance().register("Supplies", (value, callback) {
-      suppliesList = value;
+
+     if (value is List) {
+       suppliesList = value;
+     }
+     else {
+       suppliesList?.add(value);
+     }
+     suppliesList?.forEach((element) {
+       if (!suppliesCostControllers.containsKey(element['id'].toString())) {
+         suppliesCostControllers[element['id'].toString()] = TextEditingController();
+       }
+     });
+     emit(state.copyWith(suppliesList: suppliesList));
     });
     FBroadcast.instance().register("Vendor", (value, callback) {
       vendor = value;
@@ -135,8 +149,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
         attachments = ogAttachments
                 ?.map((e) => e['path'].toString().toStorageURL)
-                .toList() ??
-            [];
+                .toList() ?? [];
         amountController.text =
             expenseDetailResponse?.expense?['expense_amount'].toString() ?? '';
         descriptionController.text =
@@ -187,9 +200,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
         dynamic vehicleList = todoItem['vehicles']??[];
 
-         log("${vendor}", name: 'vendor');
-         log("$partsList", name: 'partList');
-         log("$suppliesList", name: 'suppliesList');
+         // log("${vendor}", name: 'vendor');
+         // log("$partsList", name: 'partList');
+         // log("$suppliesList", name: 'suppliesList');
 
         // log("${categoryId}", name: 'CategoryId');
         // log("${taskExpenseResponse?.data}", name: 'TaskExpenseResponse');
@@ -310,7 +323,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
     on<SubCategoryListEvent>((event, emit) =>
         emit(state.copyWith(selectedSubCategory: event.subCategory)));
-  }
+    }
 
   Future<List<File>> _pickFiles() async {
     var result = await FilePicker.platform.pickFiles(
@@ -347,14 +360,31 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     return await todoListRepo.getCohorts();
   }
 
+  void calculateTotal() {
+    _updateExpenseTotal();
+  }
+
   void _updateExpenseTotal() {
-    double partsCost = double.tryParse(partsCostController.text) ?? 0;
+
+    double totalParts = 0;
+    partsCostControllers.forEach((key, value) {
+      if (partsList?.map((e) => e['id'].toString()).contains(key) ?? false) {
+        totalParts+= double.tryParse(value.text) ?? 0;
+      }
+    });
+
+    double totalSuppliesCost = 0;
+    suppliesCostControllers.forEach((key, value) {
+      if (suppliesList?.map((e) => e['id'].toString()).contains(key) ?? false) {
+        totalSuppliesCost += double.tryParse(value.text) ?? 0;
+      }
+    });
+
     double labourCost = double.tryParse(labourCostController.text) ?? 0;
     double saleTax = double.tryParse(saleTaxController.text) ?? 0;
     double shippingCost = double.tryParse(shippingController.text) ?? 0;
-    double percentageOrAmount =
-        double.tryParse(percentageOrAmountController.text) ?? 0;
-    double subTotal = partsCost + labourCost;
+    double percentageOrAmount = double.tryParse(percentageOrAmountController.text) ?? 0;
+    double subTotal = totalParts + totalSuppliesCost + labourCost;
     subTotalController.text = subTotal.toStringAsFixed(2);
 
     if (taxIsTapped) {
@@ -367,17 +397,4 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     totalAmountController.text = totalAmount.toStringAsFixed(2);
   }
 
-  /*@override
-  Future<void> close() {
-    partsCostController.dispose();
-    labourCostController.dispose();
-    subTotalController.dispose();
-    saleTaxController.dispose();
-    shippingController.dispose();
-    totalAmountController.dispose();
-    descriptionController.dispose();
-    odometerController.dispose();
-    percentageOrAmountController.dispose();
-    return super.close();
-  }*/
 }
