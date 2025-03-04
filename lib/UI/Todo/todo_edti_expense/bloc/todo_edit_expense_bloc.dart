@@ -71,9 +71,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
         )) {
     FBroadcast.instance().register("Parts", (value, callback) {
-      partsList = value;
+      partsList?.add(value);
       state.copyWith(partsList: partsList);
-      log("${partsList}", name: 'Parts0022');
     });
     FBroadcast.instance().register("Supplies", (value, callback) {
       suppliesList = value;
@@ -135,7 +134,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
                 e['id'] == expenseDetailResponse?.expense?['payment_method_id'])
             .toList();
         if (selectedPaymentId!.isEmpty) {
-          selectedPaymentId = [paymentResponse?.data?[0]];
+          selectedPaymentId = [paymentResponse?.data?.firstOrNull];
         }
 
         categoryId =
@@ -171,7 +170,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               .toList();
         }
 
-        dynamic vehicle = todoItem['vehicle_name']??todoItem['vehicles'][0]['vehicle_name']??'';
+        dynamic vehicle = todoItem['vehicle_name']?? ((List.from(todoItem['vehicles'])).firstOrNull?['vehicle_name']??'');
 
         dynamic vehicleList = todoItem['vehicles']??[];
 
@@ -200,7 +199,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           vehicleList: vehicleList,
           partsList:partsList ?? [],
           suppliesList:suppliesList ?? [],
-          vendorList: vendor??'',
+          vendorList: vendor ?? {},
         ));
       } catch (e) {
         Utils.showMobileToast(e.toString());
@@ -287,11 +286,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<CategoryListEvent>((event, emit) {
       if (event.mainCategory != null) {
         var subCategories = event.mainCategory?['sub_categories'];
-        var id = event.mainCategory?['id'];
         emit(state.copyWith(
             selectedMainCategory: event.mainCategory,
             subCategories: subCategories,
-            selectedSubCategory: null));
+            selectedSubCategory: {}
+        )
+        );
       }
     });
 

@@ -1,4 +1,5 @@
-import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
+
+ import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -22,7 +23,6 @@ class EditTodoBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EditToDoBloc, EditTodoState>(
-        buildWhen: (previous, current) => previous.apiResponse != current.apiResponse,
         builder: (context, state) => Form(
                 child: ListView(
               children: [

@@ -188,7 +188,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
-
+        // log(vehicleList.toString(), name: "Vehicle List");
         List<dynamic> vendors = [];
         List<dynamic> locations = [];
         if (todoResponse?.editTodos?['location_id'] != null) {
@@ -303,7 +303,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedSupplies: suppliesList,
           title: todoResponse?.editTodos?['title'] ?? '',
           selectedVehicle: vehicleList.firstOrNull,
-            taskHistory: vehicleList,
+          taskHistory: vehicleList,
           showPlatformCheck: showPlatformCheck,
           isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
@@ -563,29 +563,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
     }
-    if(state.selectedParts.isNotEmpty){
-      List<Map<String, dynamic>> partsList = [];
-      for (var part in state.selectedParts) {
-        Map<String, dynamic> partData = {
-          'parts_id': part['id'] ?? '',
-          'parts_name': part['name'] ?? '',
-        };
-        partsList.add(partData);
-      }
-      baseBody['parts']= "$partsList";
-    }
 
-    if(state.selectedSupplies.isNotEmpty){
-      List<Map<String, dynamic>> suppliesList = [];
-      for (var supply in state.selectedSupplies) {
-        Map<String, dynamic> supplyData = {
-          'supplies_id': supply['id'] ?? '',
-          'supplies_name': supply['name'] ?? '',
-        };
-        suppliesList.add(supplyData);
-      }
-      baseBody['supplies']= "$suppliesList";
-    }
+      baseBody['parts']= "${state.selectedParts.isEmpty
+          ? null
+          : state.selectedParts.map((e)=>jsonEncode({
+        "parts_id": "${e['id']}",
+        "parts_name": "${e['name']}",
+      }) ).toList()}";
+
+    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
+          ? null
+          : state.selectedSupplies.map((e)=>jsonEncode({
+      "supplies_id": "${e['id']}",
+      "supplies_name": "${e['name']}",
+    }) ).toList()}";
 
     if(state.selectedVLocations.isNotEmpty) {
       if (state.selectedVLocations['type'] == "location") {
