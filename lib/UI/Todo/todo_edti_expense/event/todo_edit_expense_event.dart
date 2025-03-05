@@ -77,10 +77,15 @@ class SelectedPaymentEvent extends TodoEditExpenseEvent {
 }
 
 class SelectedVehicleEvent extends TodoEditExpenseEvent {
-  final dynamic vehicleName;
-  const SelectedVehicleEvent({required this.vehicleName});
+  final dynamic selectedVehicle;
+  const SelectedVehicleEvent({required this.selectedVehicle});
   @override
-  List<Object?> get props => [vehicleName, Random().nextDouble()];
+  List<Object?> get props => [selectedVehicle, Random().nextDouble()];
+}
+
+class GenerateInvoiceEvent extends TodoEditExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
 }
 
 

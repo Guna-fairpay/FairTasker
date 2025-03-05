@@ -6,6 +6,7 @@ import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
+import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +30,8 @@ class APiRepository {
   String get _completeToDoApi => "complete-todo";
 
   String get _deleteToDoApi => "delete-todo";
+
+  String get _generateInvoiceApi => "generate-invoice";
 
   Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
       {int? currentPage, int itemsPerPage = 5, String? search}) async {
@@ -148,5 +151,29 @@ class APiRepository {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> generateInvoice({Map<String, String>? body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_generateInvoiceApi";
+      final http.Response? response =
+      await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+      if (response != null) {
+        if (response.isSuccess) {
+          var path = await FileSaver.instance.saveFile(response);
+          Toaster.showSuccess( "Invoice Generated Successfully $path");
+          return {'message' : path};
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callInvoiceAPI.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
 
 }

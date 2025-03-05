@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -19,16 +20,26 @@ import 'invoice_preview_dialog.dart';
 class TodoExpense extends StatelessWidget {
   final dynamic expenseId;
   final dynamic todoItem;
-  const TodoExpense({super.key, required this.expenseId,required this.todoItem});
+  final dynamic selectedParts;
+  final dynamic selectedSupplies;
+
+  const TodoExpense(
+      {super.key,
+      required this.expenseId,
+      required this.todoItem,
+      required this.selectedParts,
+      required this.selectedSupplies});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TodoEditExpenseBloc>(
       create: (context) => TodoEditExpenseBloc()
-        ..add(GetTodoExpenseInitialEvent(expenseId: expenseId, todoItem: todoItem)),
+        ..add(GetTodoExpenseInitialEvent(
+            expenseId: expenseId, todoItem: todoItem)),
       child: BlocListener<TodoEditExpenseBloc, TodoExpenseState>(
           listener: (context, state) {
         state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+        log("${state.vendorList}", name: "VENDOR LIST");
       }, child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
               builder: (context, state) {
         return Column(
@@ -36,21 +47,22 @@ class TodoExpense extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             10.height,
-            if(state.vehicleList.length <= 1)
-            Utils.getText(
-              'Expense Summary - ${state.vehicleName}',
-              color: AppC().base,
-              align: TextAlign.end,
-            ),
-            if(state.vehicleList.length > 1)
-            Utils.dropdownBox(
-              'Select Vehicle',
-              state.vehicleList,
-              (selectedValue) {
-                context.read<TodoEditExpenseBloc>().add(SelectedVehicleEvent( vehicleName: selectedValue));
-              },
-              labelKey: 'vehicle_name',
-            ),
+            if (state.vehicleList.length == 1)
+              Utils.getText(
+                'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                color: AppC().base,
+                align: TextAlign.end,
+              ),
+            if (state.vehicleList.length > 1)
+              Utils.dropdownBox(
+                'Select Vehicle',
+                state.vehicleList,
+                (selectedValue) {
+                  context.read<TodoEditExpenseBloc>().add(
+                      SelectedVehicleEvent(selectedVehicle: selectedValue));
+                },
+                labelKey: 'vehicle_name',
+              ),
             Row(
               spacing: 10,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,40 +133,40 @@ class TodoExpense extends StatelessWidget {
                     ),
                   ),
                 ),
-                if(state.vendorList.isNotEmpty)
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      context.read<TodoEditExpenseBloc>().add(InvoiceEvent());
-                      var blo = context.read<TodoEditExpenseBloc>();
-                      showDialog(
-                        context: context,
-                        builder: (context) => InvoiceDialog(bloc: blo),
-                      );
-                    },
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppC.blue,
-                          width: Num.borderWidthField,
+                if (state.vendorList.isNotEmpty)
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        context.read<TodoEditExpenseBloc>().add(InvoiceEvent());
+                        await Future.delayed(const Duration(seconds: 1));
+                        var blo = context.read<TodoEditExpenseBloc>();
+                        InvoiceDialog.show(context, invoiceData: blo.invoiceData,
+                            onGenerate: () => blo
+                                .add(GenerateInvoiceEvent()),);
+                      },
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppC.blue,
+                            width: Num.borderWidthField,
+                          ),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(Num.subradiusButton),
+                          ),
                         ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(Num.subradiusButton),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.receipt_long, color: AppC.blue),
+                            const SizedBox(width: 5),
+                            Utils.getText('Invoice',
+                                color: AppC.blue, weight: FontWeight.bold),
+                          ],
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.receipt_long, color: AppC.blue),
-                          const SizedBox(width: 5),
-                          Utils.getText('Invoice',
-                              color: AppC.blue, weight: FontWeight.bold),
-                        ],
                       ),
                     ),
                   ),
-                ),
               ],
             ),
             if (state.expenseAttachments.isNotEmpty)
@@ -200,22 +212,22 @@ class TodoExpense extends StatelessWidget {
             Row(
               spacing: 10,
               children: [
-                if(state. partsList.isEmpty && state.suppliesList.isEmpty)
+                if (state.partsList.isEmpty && state.suppliesList.isEmpty)
                   Expanded(
-                  child: Utils.getTextFormField(
-                    'Amount in dollars',
-                    textType: TextInputType.number,
-                    context.read<TodoEditExpenseBloc>().amountController,
+                    child: Utils.getTextFormField(
+                      'Amount in dollars',
+                      textType: TextInputType.number,
+                      context.read<TodoEditExpenseBloc>().amountController,
+                    ),
                   ),
-                ),
                 Expanded(
                   child: Utils.dropdownBox(
-                      'Select Payment Method',
-                      state.paymentMethods,
-                      (value) => context
-                          .read<TodoEditExpenseBloc>()
-                          .add(SelectedPaymentEvent(paymentType: value)),
-                      labelKey: 'name',
+                    'Select Payment Method',
+                    state.paymentMethods,
+                    (value) => context
+                        .read<TodoEditExpenseBloc>()
+                        .add(SelectedPaymentEvent(paymentType: value)),
+                    labelKey: 'name',
                     initialSelection: state.selectedPayment,
                   ),
                 ),
@@ -226,25 +238,23 @@ class TodoExpense extends StatelessWidget {
               context.read<TodoEditExpenseBloc>().descriptionController,
               inputAction: TextInputAction.done,
             ),
-            if(state. partsList.isNotEmpty || state.suppliesList.isNotEmpty)
+            if (state.partsList.isNotEmpty || state.suppliesList.isNotEmpty)
               const SplitExpenseUI(),
-            Utils.dropdownBox(
-                'Select Category',
-                state.mainCategories,
+            Utils.dropdownBox('Select Category', state.mainCategories,
                 (selectedValue) {
-                  context.read<TodoEditExpenseBloc>().add(
-                      CategoryListEvent(mainCategory: selectedValue));
-                },
+              context
+                  .read<TodoEditExpenseBloc>()
+                  .add(CategoryListEvent(mainCategory: selectedValue));
+            },
                 selectedKey: state.selectedMainCategory,
                 initialSelection: state.selectedMainCategory,
                 labelKey: 'name'),
-            Utils.dropdownBox(
-                'Select SubCategory',
-                state.subCategories,
+            Utils.dropdownBox('Select SubCategory', state.subCategories,
                 (selectedValue) {
-                  context.read<TodoEditExpenseBloc>().add(
-                      SubCategoryListEvent(subCategory: selectedValue));
-                },
+              context
+                  .read<TodoEditExpenseBloc>()
+                  .add(SubCategoryListEvent(subCategory: selectedValue));
+            },
                 selectedKey: state.selectedSubCategory,
                 initialSelection: state.selectedSubCategory,
                 labelKey: 'name'),

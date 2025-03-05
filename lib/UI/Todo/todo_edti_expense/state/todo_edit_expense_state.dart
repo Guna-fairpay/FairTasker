@@ -13,7 +13,6 @@ class TodoExpenseState extends Equatable {
   final dynamic selectedMainCategory;
   final dynamic selectedSubCategory;
   final bool isLoading;
-  final String vehicleName;
   final List<dynamic> vehicleList;
   final dynamic selectedVehicle;
   final List<dynamic> partsList;
@@ -31,7 +30,6 @@ class TodoExpenseState extends Equatable {
     required this.selectedMainCategory,
     required this.selectedSubCategory,
     required this.isLoading,
-    required this.vehicleName,
     required this.vehicleList,
     required this.selectedVehicle,
     required this.partsList,
@@ -51,7 +49,6 @@ class TodoExpenseState extends Equatable {
     dynamic selectedMainCategory,
     dynamic selectedSubCategory,
     bool? isLoading,
-    String? vehicleName,
     List<dynamic>? vehicleList,
     dynamic selectedVehicle,
     List<dynamic>? partsList,
@@ -69,7 +66,6 @@ class TodoExpenseState extends Equatable {
         selectedMainCategory: selectedMainCategory ?? this.selectedMainCategory,
         selectedSubCategory: selectedSubCategory ?? this.selectedSubCategory,
         isLoading: isLoading ?? this.isLoading,
-        vehicleName: vehicleName ?? this.vehicleName,
         vehicleList: vehicleList ?? this.vehicleList,
         selectedVehicle: selectedVehicle ?? this.selectedVehicle,
         partsList: partsList ?? this.partsList,
@@ -89,7 +85,6 @@ class TodoExpenseState extends Equatable {
         selectedPayment,
         selectedMainCategory,
         selectedSubCategory,
-        vehicleName,
         vehicleList,
         selectedVehicle,
         Random().nextDouble(),

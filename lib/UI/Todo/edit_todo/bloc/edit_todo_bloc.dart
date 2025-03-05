@@ -241,6 +241,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               .where((element) => partsId.contains(element['id'].toString()))
               .toList();
         }
+       // log(partList.toString(), name: "Parts List");
+
 
         List<dynamic> suppliesId = [];
         if ((todoResponse?.editTodos?['supplies'] as List).isNotEmpty) {
@@ -255,6 +257,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               .where((element) => suppliesId.contains(element['id'].toString()))
               .toList();
         }
+        suppliesBroadcastEvent(suppliesList);
 
         var showPlatformCheck = false;
 
@@ -309,6 +312,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
           attachments: todoImages,
         ));
+        await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
+        await Future.delayed(Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
         emit(state.copyWith(isLoading: false));
@@ -318,7 +323,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoVLocationEvent>((event, emit) {
        var existing = event.vLocation;
       emit(state.copyWith(selectedVLocations: existing));
-      FBroadcast.instance().broadcast("Vendor",value:existing);
+       vendorBroadcastEvent(existing);
+      // FBroadcast.instance().broadcast("Vendor",value:existing);
     });
 
     on<EditToDoShowMoreEvent>((event, emit) {
@@ -399,8 +405,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       } else {
         if (existing.contains(event.part)) existing.remove(event.part);
       }
-      FBroadcast.instance().broadcast("Parts",value: existing, persistence: true);
-      log("$existing", name: "Parts01");
+      partsBroadcastEvent(existing);
+      // FBroadcast.instance().broadcast("Parts",value: existing, persistence: true);
       emit(state.copyWith(selectedParts: existing));
 
     });
@@ -413,7 +419,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         if (existing.contains(event.data)) existing.remove(event.data);
       }
       emit(state.copyWith(selectedSupplies: existing));
-      FBroadcast.instance().broadcast("Supplies",value:existing);
+      suppliesBroadcastEvent(existing);
+     // FBroadcast.instance().broadcast("Supplies",value:existing);
 
     });
 
@@ -511,7 +518,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("Platform check is required");
         return;
       }
-
 
       // API CALL
       try {
@@ -612,6 +618,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
   }
+
+  void partsBroadcastEvent( dynamic value, ) {
+   // log(value.toString(), name: "Parts Broadcast");
+    FBroadcast.instance().broadcast("Parts", value: value, persistence: true);
+  }
+
+  void suppliesBroadcastEvent( dynamic value, ) {
+    FBroadcast.instance().broadcast("Supplies", value: value, persistence: true);
+  }
+
+  void vendorBroadcastEvent( dynamic value,) {
+    FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
+  }
+
 
 
   // PICK MULTI IMAGES / FILES

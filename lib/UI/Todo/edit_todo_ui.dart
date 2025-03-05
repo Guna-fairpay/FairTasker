@@ -1124,7 +1124,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                           multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
-                                          TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,)
+                                          TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,selectedParts: {},selectedSupplies:{},)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),
