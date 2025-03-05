@@ -157,7 +157,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   Future<Iterable<Map<String, dynamic>>> onSearch(
       TextEditingValue textEditingValue) async {
     var val = textEditingValue.text.toLowerCase();
-    if (val.trim().isEmpty) {
+    if (val.isEmpty) {
       return [];
     }
     var list =

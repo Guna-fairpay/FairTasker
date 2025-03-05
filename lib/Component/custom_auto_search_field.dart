@@ -92,12 +92,13 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
         return TextField(
           controller: controller,
           focusNode: focusNode,
-          onEditingComplete: onFieldSubmitted,
+          onSubmitted: (value) => onFieldSubmitted,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           onChanged: (value) {
             textEditingController.value = controller.value;
             onChanged?.call(value);
           },
+          textInputAction: TextInputAction.done,
           style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
           decoration: InputDecoration(
               border: border,
