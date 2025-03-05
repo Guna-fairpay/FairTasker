@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as d;
 
 class CustomVendorLocationField extends StatelessWidget {
   final List<dynamic> vendorsList, locationsList;
@@ -33,9 +34,11 @@ class CustomVendorLocationField extends StatelessWidget {
     unfilteredList = CustomSearchDataConverter.convertVLocation(vendors: vendorsList, locations: locationsList);
   }
 
-  void _checkSelectedVData() {
+  void _checkSelectedVData() async {
     if ((selected != null) && (selected![3] != null)) {
       selectedData = selected![3];
+      controller?.clear();
+      await Future.delayed(Durations.medium3);
       controller?.text = "${selectedData['name']}";
     }
   }

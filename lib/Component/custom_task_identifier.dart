@@ -122,7 +122,7 @@ class TaskIdentifier extends StatelessWidget {
     }
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
-     log("${_isHavingHypen()} ${taskIdentifierController.text.split("-").length}", name: "TaskIdentifier");
+     log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
      if (_isHavingHypen() || taskIdentifierController.text.isNullOrEmpty) _requestFocus();
   }
 
@@ -175,16 +175,22 @@ class TaskIdentifier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomAutoSearchField<Map<String, dynamic>>(
-      controller: taskIdentifierController,
-      labelText: "Task Identifier",
-      onEmptyWidgetTap: () => context.push(const TaskAddUI(), fullscreenDialog: true),
-      onSelected: (value) {
-        selectedList[value['partNumber']] = value;
-        onSelected?.call(selectedList);
-      },
-      itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
-      optionsBuilder: (textEditingValue) => onSearch(textEditingValue),
+    return ValueListenableBuilder(
+      builder: (context, value, child) {
+        return CustomAutoSearchField<Map<String, dynamic>>(
+          controller: taskIdentifierController,
+          labelText: "Task Identifier",
+          onEmptyWidgetTap: () => context.push(const TaskAddUI(), fullscreenDialog: true),
+          onSelected: (value) {
+            selectedList[value['partNumber']] = value;
+            log("onSelected:	$value", name: "TaskIdentifier");
+            onSelected?.call(selectedList);
+          },
+          showEmptyWidget: value,
+          itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
+          optionsBuilder: (textEditingValue) => onSearch(textEditingValue),
+        );
+      }, valueListenable: showEmptyNotifier,
     );
     /*return CustomSearchField<Map<String, dynamic>>(
         key: UniqueKey(),
@@ -217,7 +223,9 @@ class TaskIdentifier extends StatelessWidget {
     var inputValue = val.toLowerCase();
     if (!inputValue.contains("-")) {
       commonList = vTasks;
-      return commonList.where((element) => isExist(element, val));
+      var list = commonList.where((element) => isExist(element, val));
+      showEmptyNotifier.value = list.isEmpty;
+      return list;
     }
     var inputParts = inputValue.split("-");
     var cursorPosition =  taskIdentifierController.selection.start;
@@ -293,9 +301,20 @@ class TaskIdentifier extends StatelessWidget {
     log("$selectedList", name: "SELECTED_LIST");
     _debounce?.cancel();
     _debounce = Timer(Durations.extralong4, updateToFunction);
-    var list = commonList.where((element) => isExist(element, typedPart) ).toList();
-    showEmptyNotifier.value = list.isEmpty;
-    return list;
+    var inputted = (taskIdentifierController.text.split("-"));
+    List<String> omitted = (inputted).length <= 3 ? inputted : [];
+    omitted.removeWhere((element) => element.isNullOrEmpty);
+    if (omitted.length == 3) {
+      omitted.removeWhere((element) => ![
+        ...(vTasks.map((e) => e['name'])),
+        ...(vPersons.map((e) => e['name'])),
+        ...(vLocations.map((e) => e['name']))
+      ].contains(element));
+    }
+    log("$omitted ${omitted.length}", name: "OMITTED");
+    var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
+    // showEmptyNotifier.value = list.isEmpty;
+    return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
 
 
