@@ -61,6 +61,7 @@ import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
 import '../UI/Todo/create_sparekey_data.dart';
+import '../UI/Todo/maintenance/get_todolist_Response.dart';
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -2321,6 +2322,25 @@ class TodoListRepo {
       return null;
     }
   }
+  Future<GetTodoListResponse?> getTodoList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}todo";
+      debugPrint("getTodoList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        GetTodoListResponse getTodoListResponse =
+        GetTodoListResponse.fromJson(json.decode(response.body));
+        return getTodoListResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTodoList.exception : ${error.toString()}');
+      return null;
+    }
+  }
 
   Future<BranchResponse?> getBranchList() async {
     try {
@@ -3186,6 +3206,22 @@ class TodoListRepo {
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
 
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('fixTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> completeTodo(int todoId) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}complete-todo/$todoId';
+      debugPrint("completeTodo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callPostMethod(apiUrl);
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         return true;
       } else {

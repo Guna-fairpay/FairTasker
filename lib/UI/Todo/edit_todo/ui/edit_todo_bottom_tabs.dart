@@ -49,11 +49,11 @@ class EditTodoBottomTabs extends StatelessWidget {
                   :state.selectedBottomTap['id'] == 2
                   ?const Placeholder()
                   :state.selectedBottomTap['id'] == 3
-                  ?CheckListUI(checkListData: state.selectedTask, todoItems: {})
+                  ?CheckListUI(checkListData: state.selectedTask, todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 4
-                  ?MaintenanceCheckListUI(maintenance: [], todoItems: {})
+                  ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 5
-                  ?VehicleEditUI(vehicle: {}, todoItems: {},)
+                  ?VehicleEditUI(vehicle: state.taskHistory.first, todoItems: state.apiResponse,)
                   :const SizedBox(),
 
             ),

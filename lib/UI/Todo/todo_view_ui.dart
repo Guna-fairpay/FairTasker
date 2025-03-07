@@ -2554,14 +2554,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => EditTodoUI(
-                                todoItem: todos,
-                                userGroupList: userGroupList,
-                                resourceList: resourceList,
-                                categoriesListData: categoriesListData,
-                                addressesList: addresses,
-                                multipleLocationList:
-                                multipleLocationAddressList
+                            builder: (context) => EditTodoReworkUI(
+                                 todoId: todos['id'],
                             ),
                         ),
                     );

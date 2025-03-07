@@ -2,49 +2,46 @@ import 'package:equatable/equatable.dart';
 
 abstract class MaintenanceEvent extends Equatable {
   const MaintenanceEvent();
-
   @override
   List<Object?> get props => [];
+}
+
+class CompleteTodoItemEvent  extends MaintenanceEvent {
+  CompleteTodoItemEvent();
 }
 
 class FetchTodoListEvent extends MaintenanceEvent {
   final String? selectedDate;
   final String? status;
   final String? resourceId;
-
   FetchTodoListEvent({this.selectedDate, this.status, this.resourceId});
 }
 
 class MaintenanceInitialEvent extends MaintenanceEvent {
   final Map<String, dynamic> todoItem;
   final Map<String, dynamic> vehicle;
-
   const MaintenanceInitialEvent({
     required this.todoItem,
     required this.vehicle
   });
-
   @override
   List<Object?> get props => [todoItem, vehicle];
 }
 
 class IsAllMaintenanceCheckEvent extends MaintenanceEvent {
   final bool status;
-
   const IsAllMaintenanceCheckEvent(this.status);
-
   @override
   List<Object?> get props => [status];
 }
 
 class IndividualCheckEvent extends MaintenanceEvent {
-  final String itemName; // Name or ID of the item
+  final String itemId;
   final bool status;
-
-  const IndividualCheckEvent(this.itemName, this.status);
-
+  final Map<String, dynamic>? item;
+  const IndividualCheckEvent(this.itemId, this.status, {this.item});
   @override
-  List<Object?> get props => [itemName, status];
+  List<Object?> get props => [itemId, status, item];
 }
 
 class DropDownOptionEvent extends MaintenanceEvent {
@@ -72,4 +69,5 @@ class createFixTaskEvent extends MaintenanceEvent {
   @override
   List<Object?> get props => [maintenanceTaskId, notes, comments];
 }
+
 

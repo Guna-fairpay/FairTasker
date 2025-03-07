@@ -17,7 +17,9 @@ class MaintenanceState extends Equatable {
   final dynamic createFixTaskData;
   final Map<int,TextEditingController> notesControllers;
   final List<int>? idList;
-  final String? initialDropDown;
+  final List<Map<String, dynamic>>? initialDropDown;
+  final List<Map<String, dynamic>>? matchingTodos;
+  final int? matchingTodoId;
 
   const MaintenanceState({
     this.maintenance,
@@ -36,6 +38,8 @@ class MaintenanceState extends Equatable {
     this.createFixTaskData,
     this.notesControllers=const {},
     this.initialDropDown,
+    this.matchingTodos = const [],
+    this.matchingTodoId,
   });
 
   MaintenanceState copyWith({
@@ -54,8 +58,10 @@ class MaintenanceState extends Equatable {
     bool? isLoading,
     dynamic createFixTaskData,
     Map<int,TextEditingController>? notesControllers,
-    String? initialDropDown,
+    List<Map<String, dynamic>>? initialDropDown,
     List<int>? idList,
+    List<Map<String, dynamic>>? matchingTodos,
+    int? matchingTodoId,
   }) =>
     MaintenanceState(
       maintenance: maintenance ?? this.maintenance,
@@ -74,6 +80,8 @@ class MaintenanceState extends Equatable {
       createFixTaskData: createFixTaskData ?? this.createFixTaskData,
       notesControllers: notesControllers ?? this.notesControllers,
       initialDropDown: initialDropDown ?? this.initialDropDown,
+      matchingTodos: matchingTodos ?? this.matchingTodos,
+      matchingTodoId: matchingTodoId ?? this.matchingTodoId,
     );
 
 
@@ -95,5 +103,7 @@ class MaintenanceState extends Equatable {
     notesControllers,
     initialDropDown,
     idList,
+    matchingTodos,
+    matchingTodoId,
   ];
 }
