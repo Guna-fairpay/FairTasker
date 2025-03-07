@@ -1093,11 +1093,8 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 ),
                                 if (isDataLoaded)
                                 if (showExpenseTab == 0)
-                                  TodoEditExpenseUI(
-                                    vehicle: vehicle,
-                                    vehicleName: vehicleName,
-                                    todoData: todoItem,
-                                  )
+                                  TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,selectedParts:[],selectedSupplies:[], selectedVendor: null,)
+
                                 else if (showExpenseTab == 1)
                                   // const Placeholder()
                                   Container(constraints: BoxConstraints(
@@ -1124,7 +1121,7 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                           categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                           multipleLocationList: widget.multipleLocationList,)
                                       else if (showExpenseTab == 5)
-                                          TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,selectedParts: {},selectedSupplies:{},)
+                                          TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,selectedParts:[],selectedSupplies:[], selectedVendor: null,)
                                       else
                                         Container(
                                           margin: const EdgeInsets.only(top: 30),

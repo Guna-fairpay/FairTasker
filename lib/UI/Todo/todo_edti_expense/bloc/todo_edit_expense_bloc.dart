@@ -52,14 +52,17 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic>? selectedSubCategory;
   List<dynamic>? subCategories = [];
   dynamic todoItem;
-  List<dynamic>? partsList = [];
-  List<dynamic>? suppliesList = [];
-  dynamic vendor;
-  Map<String, TextEditingController> partsCostControllers = {};
-  Map<String, TextEditingController> suppliesCostControllers = {};
+  List<dynamic> partsList = [];
+  List<dynamic> suppliesList = [];
+  List<dynamic> vendor=[];
   List<dynamic> vinList = [];
   List<dynamic> vehicleList = [];
   List<dynamic> itemList = [];
+  List<dynamic> splitSupplies = [];
+  List<dynamic> splitParts = [];
+  List<dynamic> selectedPart = [];
+  List<dynamic> selectedSupplies = [];
+  dynamic selectedVendor={};
 
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
@@ -81,49 +84,63 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         )) {
     FBroadcast.instance().register("Parts", (value, callback) {
       if (value is List) {
-        partsList = value;
-      } else {
-        partsList?.add(value);
-      }
-      partsList?.forEach((element) {
-        if (!partsCostControllers.containsKey(element['id'].toString())) {
-          partsCostControllers[element['id'].toString()] =
-              TextEditingController();
+        if (partsList.isEmpty) {
+          partsList = List<Map<String, dynamic>>.from(value)
+              .map((e) => e..["controller"] = TextEditingController())
+              .toList();
+        } else {
+          List<Map<String, dynamic>>.from(value).forEach((element) {
+            if (partsList.map((e) => e['id']).contains(element['id']) ==
+                false) {
+              partsList.add(element..["controller"] = TextEditingController());
+            }
+          });
         }
-      });
-      var partIds = partsList?.map((e) => e['id'].toString());
-      partsCostControllers
-          .removeWhere((key, value) => (partIds?.contains(key) == false));
-      if (partsList?.isEmpty ?? true) partsCostControllers.clear();
+        var currentIds =
+            List<Map<String, dynamic>>.from(value).map((e) => e['id']);
+        partsList.removeWhere((element) => !currentIds.contains(element['id']));
+      }
       _updateExpenseTotal();
       emit(state.copyWith(partsList: partsList));
     });
+
     FBroadcast.instance().register("Supplies", (value, callback) {
       if (value is List) {
-        suppliesList = value;
-      } else {
-        suppliesList?.add(value);
-      }
-      suppliesList?.forEach((element) {
-        if (!suppliesCostControllers.containsKey(element['id'].toString())) {
-          suppliesCostControllers[element['id'].toString()] =
-              TextEditingController();
+        if (suppliesList.isEmpty) {
+          suppliesList = List<Map<String, dynamic>>.from(value)
+              .map((e) => e..["controller"] = TextEditingController()).toList();
+        } else {
+          List<Map<String, dynamic>>.from(value).forEach((element) {
+            if (suppliesList.map((e) => e['id']).contains(element['id']) ==
+                false) {
+              suppliesList.add(
+                  element..["controller"] = TextEditingController());
+            }
+          });
         }
-      });
-      var suppliesIds = suppliesList?.map((e) => e['id'].toString());
-      suppliesCostControllers
-          .removeWhere((key, value) => (suppliesIds?.contains(key) == false));
-      if (suppliesList?.isEmpty ?? true) suppliesCostControllers.clear();
+        var suppliesIds = List<Map<String, dynamic>>.from(value).map((e) =>
+            e['id']);
+        suppliesList.removeWhere((element) =>
+        !suppliesIds.contains(element['id']));
+      }
       _updateExpenseTotal();
       emit(state.copyWith(suppliesList: suppliesList));
     });
+
     FBroadcast.instance().register("Vendor", (value, callback) {
-      vendor = value;
-      // log("${vendor}", name: 'Vendor');
+      if (!vendor.contains(value['id'])) {
+        vendor.clear();
+        vendor.add(value);
+      }
+      emit(state.copyWith(vendorList: vendor.firstOrNull?['value']??[]));
+       log("$vendor", name: 'Vendor1');
     });
 
     on<GetTodoExpenseInitialEvent>((event, emit) async {
       todoItem = event.todoItem;
+      selectedPart = event.selectedParts;
+      selectedSupplies = event.selectedSupplies;
+      selectedVendor = event.selectedVendor;
       try {
         emit(state.copyWith(isLoading: true));
         expenseId = event.expenseId;
@@ -132,7 +149,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           _getPaymentMethods(),
           _getExpenseCategories(),
           _getExpenseDetails(expenseId),
-          _getVendor(),
           _getVehicles(),
         ]);
         TaskExpenseResponse? taskExpenseResponse =
@@ -149,11 +165,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             (response[3] is ExpenseSummaryResponse)
                 ? (response[3] as ExpenseSummaryResponse)
                 : null;
-        VendorResponse? vendorResponse = (response[4] is VendorResponse)
-            ? (response[4] as VendorResponse)
-            : null;
         VehicleListResponse? vehicleResponse =
-            ((response[5] is VehicleListResponse) ? response[5] : null)
+            ((response[4] is VehicleListResponse) ? response[4] : null)
                 as VehicleListResponse?;
 
         partsCostController.addListener(_updateExpenseTotal);
@@ -236,41 +249,89 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               .toList();
         }
 
-        List<dynamic>? vendorList = [];
+        String laborAmount =
+            (expenseDetailResponse?.expense?['split_expenses'] ?? [])
+                    .firstWhere((element) => element['labour'] == 1,
+                      orElse: () => null,)?['amount']
+                    ?.toString() ?? "0";
 
-        if (todoItem['vendor_id'] != null) {
-          vendorList = vendorResponse?.data
-              ?.where(
-                (element) =>
-                    element['id'].toString() ==
-                    todoItem['vendor_id'].toString(),
-              )
-              .toList();
-          // log("${vendorList}", name: 'Vendor1');
-        } else if (vendor != null) {
-          vendorList = vendorResponse?.data
-              ?.where(
-                (element) => element['id'].toString() == vendor['id'],
-              )
-              .toList();
-          //  log("${vendorList}", name: 'Vendor2');
-        } else {
-          vendorList = [];
+        labourCostController.text = laborAmount;
+
+        taxIsTapped = expenseDetailResponse?.expense?['sales_tax_type'] == "\$"
+            ? true
+            : false;
+
+        percentageOrAmountController.text = taxIsTapped
+            ? "${expenseDetailResponse?.expense?['sales_tax']??''}"
+            : "${expenseDetailResponse?.expense?['sales_tax_percentage'] ?? ''}";
+
+        shippingController.text = "${expenseDetailResponse?.expense?['shipping_and_handling'] ?? ''}";
+
+            if (partsList.isEmpty) {
+              partsList = selectedPart
+                  .map((e) => e..["controller"] = TextEditingController())
+                  .toList();
+              _updateExpenseTotal();
+            } else {
+              selectedPart.forEach((element) {
+                if (partsList.map((e) => e['id']).contains(element['id']) ==
+                    false) {
+                  partsList.add(element..["controller"] = TextEditingController());
+                }
+              });
+            }
+            var currentIds =
+            selectedPart.map((e) => e['id']);
+            partsList.removeWhere((element) => !currentIds.contains(element['id']));
+
+            if (suppliesList.isEmpty) {
+              suppliesList = selectedSupplies
+                  .map((e) => e..["controller"] = TextEditingController())
+                  .toList();
+            }else{
+              selectedSupplies.forEach((element) {
+                if (suppliesList.map((e) => e['id']).contains(element['id']) ==
+                    false) {
+                  suppliesList.add(
+                      element..["controller"] = TextEditingController());
+                }
+              });
+            }
+            var suppliesIds = selectedSupplies.map((e) => e['id']);
+            suppliesList.removeWhere((element) =>
+            !suppliesIds.contains(element['id']));
+
+            if(expenseDetailResponse?.expense?['split_expenses'] != null){
+              var splitExpenses = expenseDetailResponse?.expense?['split_expenses'];
+              if (splitExpenses is List) {
+                for (var expense in splitExpenses) {
+                  if (expense['parts_id'] != null) {
+                    partsList.forEach((element) {
+                      if (element['id'] == expense['parts_id']) {
+                        element['controller'].text = expense['amount'].toString();
+                      }
+                    });
+                    _updateExpenseTotal();
+                  }
+                  if (expense['supplies_id'] != null) {
+                    suppliesList.forEach((element) {
+                      if (element['id'] == expense['supplies_id']) {
+                        element['controller'].text = expense['amount'].toString();
+                      }
+                      _updateExpenseTotal();
+                    });
+                  }
+                }
+              }
+            }
+        if(vendor.isEmpty){
+          if (selectedVendor != null && selectedVendor["type"]=="vendor") {
+            if (!vendor.contains(selectedVendor['id'])) {
+              vendor.clear();
+              vendor.add(selectedVendor);
+            }
+          }
         }
-
-        List<dynamic>? partsData = [];
-
-        partsData.addAll(partsList ?? []);
-
-        // log("${partsData}", name: 'partsData');
-        // log("$partsList", name: 'partList');
-        // log("$suppliesList", name: 'suppliesList');
-
-        // log("${categoryId}", name: 'CategoryId');
-        // log("${taskExpenseResponse?.data}", name: 'TaskExpenseResponse');
-        // log("${subcategoryId}", name: 'SubcategoryId');
-        // log("${subCategories}", name: 'SubCategories');
-        // log("${selectedSubCategory}", name: 'SelectedSubCategory');
 
         emit(state.copyWith(
           isLoading: false,
@@ -284,13 +345,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           selectedSubCategory: selectedSubCategory?.firstOrNull,
           subCategories: subCategories ?? [],
           vehicleList: vehicleList,
-          partsList: partsList ?? [],
-          suppliesList: suppliesList ?? [],
-          vendorList: vendorList?.firstOrNull ?? [],
+          partsList: partsList,
+          suppliesList: suppliesList,
+          vendorList: vendor.firstOrNull?['value'] ?? [],
         ));
       } catch (e) {
         Utils.showMobileToast(e.toString());
-        log("${e}", name: 'Error');
+        log("$e", name: 'Error');
         emit(state.copyWith(isLoading: false));
       }
     });
@@ -346,18 +407,23 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         'total': totalAmountController.text,
         'sub_total': subTotalController.text,
         'shipping': shippingController.text,
-        'title': state.vendorList['name'],
-        'phone': state.vendorList['phone'],
-        'address': state.vendorList['address'],
-        'invoiceId': "INV${todoItem['id']}",
+        'title': state.vendorList['name']??'',
+        'phone': state.vendorList['phone']??'',
+        'address': state.vendorList['address']??'',
+        'invoiceId': "INV${todoItem['id']??''}",
         'date': DateTime.now().format('MM-dd-yyyy').toString(),
-        'plateNo': state.vehicleList.firstOrNull['vehicle_number'],
-        'vehicleName': state.vehicleList.firstOrNull['vehicle_name'],
+        'plateNo': state.vehicleList.firstOrNull ? ['vehicle_number'] ??'',
+        'vehicleName': state.vehicleList.firstOrNull ? ['vehicle_name'] ??'',
         'sales_tax_percentage': percentageOrAmountController.text,
         'itemList': [
-          ...?partsList
-            ?..forEach((e) => (e as Map<String, dynamic>).putIfAbsent(
-                "rate", () => partsCostControllers[e['id'].toString()]?.text)),
+          ...partsList
+            ..forEach(
+              (e) => (e as Map<String, dynamic>)..putIfAbsent("rate",
+                  () => (e['controller'] as TextEditingController).text),
+            ),
+          ...suppliesList
+            ..forEach((e) => (e as Map<String, dynamic>)..putIfAbsent(
+                "rate", () => (e['controller'] as TextEditingController).text),),
         ],
       };
       emit(state.copyWith());
@@ -404,18 +470,105 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             await apiRepository.generateInvoice(body: _invoiceData());
 
         // if (response?.isNotEmpty ?? false)
-          // Toaster.showSuccess(response?['message'] ?? "Success");
+        // Toaster.showSuccess(response?['message'] ?? "Success");
         emit(state.copyWith(
-            isLoading: false,
-            expenseAttachments: state.expenseAttachments..add(File(response?['message'] ?? '')),
+          isLoading: false,
+          expenseAttachments: state.expenseAttachments
+            ..add(File(response?['message'] ?? '')),
         ));
-
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
         emit(state.copyWith(isLoading: false));
       }
     });
+
+    on<SaveExpenseEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        var response = await apiRepository.updateTodoExpense(
+            expenseId: todoItem['expense_id'],
+            images: state.expenseAttachments.whereType<File>().toList(),
+            body: _expenseData());
+        final int? newExpenseId =
+            (response?['data'] as List?)?.firstOrNull?['id'];
+        if (todoItem['expense_id'] == null && newExpenseId != null) {
+          await apiRepository.updateToDoApi(
+              images: [],
+              body: _expenseData()
+                ..putIfAbsent("expense_id", () => (newExpenseId.toString())),
+              todoId: "${todoItem['id']}");
+        }
+        if (response?.isNotEmpty ?? false)
+          Toaster.showSuccess(response?['message'] ?? "Success");
+        emit(state.copyWith(isLoading: false));
+        if (response?['status'] == 200) emit(state.copyWith());
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+  }
+
+  Map<String, String> _expenseData() {
+    dynamic splitLabor = {
+      "labour": 1,
+      "amount": labourCostController.text,
+    };
+    splitParts = (partsList)
+        .map((e) => {
+              "parts_id": "${e['id']}",
+              "amount": (e['controller'] as TextEditingController).text
+            })
+        .toList();
+    splitSupplies = (suppliesList)
+        .map((e) => {
+              "supplies_id": "${e['id']}",
+              "amount": (e['controller'] as TextEditingController).text
+            })
+        .toList();
+
+    List<Map<String, dynamic>> splits = [
+      ...splitParts,
+      ...splitSupplies,
+      ...[splitLabor]
+    ];
+
+    final expenseAmount = amountController.text.isNotEmpty
+        ? amountController.text
+        : totalAmountController.text;
+    Map<String, String> baseBody = {};
+    baseBody['category_name'] = "${state.selectedMainCategory?['name'] ?? ''}";
+    baseBody['category_id'] = "${state.selectedMainCategory?['id'] ?? ''}";
+    baseBody['subcategory_name'] =
+        "${state.selectedSubCategory?['name'] ?? ''}";
+    baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
+    baseBody['payment_method_id'] = "${state.selectedPayment?['id'] ?? ''}";
+    baseBody['expense_to'] =
+        "${state.selectedSubCategory?['expense_to'] ?? ''}";
+    baseBody['expense_amount'] = expenseAmount;
+    baseBody['expense_description'] = descriptionController.text;
+    baseBody['expense_date'] = DateTime.now().format('yyyy-MM-dd').toString();
+    baseBody['cohort_id'] = "${todoItem["cohort_id"] ?? ''}";
+    baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
+    baseBody['odometer'] = odometerController.text;
+    baseBody['type'] = "inline";
+    baseBody['platform'] = "TaskerApp";
+    baseBody['sales_tax_percentage'] =
+        taxIsTapped ? '' : percentageOrAmountController.text;
+    baseBody['sales_tax'] = saleTaxController.text;
+    baseBody['shipping_and_handling'] = shippingController.text;
+    baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
+
+    splits.forEachIndexed((index, element) {
+      baseBody['split[$index][${element.keys.first}]'] =
+          element[element.keys.first].toString();
+      baseBody['split[$index][${element.keys.last}]'] =
+          element[element.keys.last].toString();
+    });
+    log(jsonEncode(baseBody), name: "Expense_Body");
+    return baseBody;
   }
 
   Map<String, String> _invoiceData() {
@@ -437,13 +590,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['to_phone'] = "5025921994";
     baseBody['items'] = invoiceData?['itemList']?.isEmpty ?? true
         ? ""
-        : "${invoiceData?['itemList']
-            ?.map((e) => {
+        : "${invoiceData?['itemList']?.map((e) => {
               "quantity": "1",
               "description": e['name'] ?? "",
               "rate": e['rate'] ?? "0",
-              "total": e['rate'] ?? "0",}).toList()}";
-    log(jsonEncode(baseBody), name: "INVOICE_BODY");
+              "total": e['rate'] ?? "0",
+            }).toList()}";
+    log(jsonEncode(baseBody), name: "Invoice_body");
     return baseBody;
   }
 
@@ -486,11 +639,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     return await todoListRepo.getCohorts();
   }
 
-  /// API CALL: VENDOR
-  Future<VendorResponse?> _getVendor() async {
-    return await todoListRepo.getVendor();
-  }
-
   /// API CALL: ACTIVE-VEHICLES
   Future<VehicleListResponse?> _getVehicles() async =>
       await todoListRepo.fetchVehicleList();
@@ -502,17 +650,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   void _updateExpenseTotal() {
     double totalSuppliesCost = 0;
     double totalParts = 0;
-    partsCostControllers.forEach((key, value) {
-      if (partsList?.map((e) => e['id'].toString()).contains(key) ?? false) {
-        totalParts += double.tryParse(value.text) ?? 0;
-      }
-    });
+    totalParts = partsList.map((e) =>
+    double.tryParse((e['controller'] as TextEditingController)
+        .text.toString()) ?? 0.0).sum;
 
-    suppliesCostControllers.forEach((key, value) {
-      if (suppliesList?.map((e) => e['id'].toString()).contains(key) ?? false) {
-        totalSuppliesCost += double.tryParse(value.text) ?? 0;
-      }
-    });
+    totalSuppliesCost = suppliesList.map((e) =>
+    double.tryParse((e['controller'] as TextEditingController)
+        .text.toString()) ?? 0.0).sum;
 
     double labourCost = double.tryParse(labourCostController.text) ?? 0;
     double saleTax = double.tryParse(saleTaxController.text) ?? 0;

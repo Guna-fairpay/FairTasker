@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:equatable/equatable.dart';
 
-abstract class TodoEditExpenseEvent extends Equatable{
+abstract class TodoEditExpenseEvent extends Equatable {
   const TodoEditExpenseEvent();
   @override
   List<Object?> get props => [];
@@ -10,7 +10,16 @@ abstract class TodoEditExpenseEvent extends Equatable{
 class GetTodoExpenseInitialEvent extends TodoEditExpenseEvent {
   final String? expenseId;
   final dynamic todoItem;
-  const GetTodoExpenseInitialEvent({required this.expenseId, this.todoItem});
+  final List<dynamic> selectedParts;
+  final List<dynamic> selectedSupplies;
+  final dynamic selectedVendor;
+
+  const GetTodoExpenseInitialEvent(
+      {required this.expenseId,
+      this.todoItem,
+      required this.selectedParts,
+      required this.selectedSupplies,
+      required this.selectedVendor});
   @override
   List<Object?> get props => [expenseId, todoItem, Random().nextDouble()];
 }
@@ -33,7 +42,7 @@ class SubCategoryListEvent extends TodoEditExpenseEvent {
   final dynamic subCategory;
   const SubCategoryListEvent({required this.subCategory});
   @override
-    List<Object?> get props => [subCategory, Random().nextDouble()];
+  List<Object?> get props => [subCategory, Random().nextDouble()];
 }
 
 class SaveExpenseEvent extends TodoEditExpenseEvent {
@@ -87,5 +96,3 @@ class GenerateInvoiceEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
-
-

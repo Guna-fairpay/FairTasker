@@ -111,6 +111,7 @@ class EditTodoReworkUI extends StatelessWidget {
                                                 .toString(),
                                             status:
                                                 state.apiResponse['status']));
+                                    Navigator.pop(context);
                                   }),
                             ),
                           ),
@@ -123,9 +124,11 @@ class EditTodoReworkUI extends StatelessWidget {
                           icon: const Icon(Icons.delete)),
                       IconButton(
                           onPressed: () {
+                            context.read<EditToDoBloc>().add(EditToDoSaveEvent());
                             Navigator.pop(context);
                           },
                           icon: const Icon(Icons.save)),
+
                       IconButton(
                           onPressed: () {
                             Navigator.pop(context);

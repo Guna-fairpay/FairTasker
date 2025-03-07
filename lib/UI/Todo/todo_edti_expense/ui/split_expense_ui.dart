@@ -33,10 +33,7 @@ class SplitExpenseUI extends StatelessWidget {
                           child: Utils.getTextFormField(
                             '',
                             hintText: 'enter a amount',
-                            context
-                                    .read<TodoEditExpenseBloc>()
-                                    .partsCostControllers[e['id'].toString()] ??
-                                TextEditingController(text: "000"),
+                            e['controller'],
                             textType: TextInputType.number,
                             prefixIcon: const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5.0),
@@ -71,9 +68,7 @@ class SplitExpenseUI extends StatelessWidget {
                           child: Utils.getTextFormField(
                             '',
                             hintText: 'enter a amount',
-                            context.read<TodoEditExpenseBloc>()
-                                .suppliesCostControllers[e['id'].toString()] ??
-                                TextEditingController(text: "000"),
+                            e['controller'],
                             textType: TextInputType.number,
                             prefixIcon: const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5.0),

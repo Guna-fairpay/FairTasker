@@ -17,6 +17,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   final List<dynamic> vehiclesList, personsList;
   final List<Map<String, dynamic>>? selected;
   final void Function(dynamic val)? onSelected;
+  final void Function(dynamic val)? onDeleted;
   final TextEditingController? controller;
 
   CustomVehiclePersonField(
@@ -25,6 +26,7 @@ class CustomVehiclePersonField extends StatelessWidget {
       required this.vehiclesList,
       this.selected,
       this.onSelected,
+      this.onDeleted,
       required this.personsList,
       this.controller}) {
     _prepareData();
@@ -169,6 +171,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   void _onDelete(Map<String, dynamic> val) {
     var value = selectedList.value;
     value.remove(val);
+    onDeleted?.call(val);
     selectedVPersons?.value.remove(val);
     selectedVPersons?.value = value;
     selectedList.value = value;

@@ -48,6 +48,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                       todoItem: state.apiResponse,
                       selectedParts: state.selectedParts,
                 selectedSupplies: state.selectedSupplies,
+                selectedVendor: state.selectedVLocations,
                     )
                   : state.selectedBottomTap['id'] == 2
                       ? const Placeholder()

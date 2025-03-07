@@ -11,6 +11,7 @@ import '../../../../Component/close_badge.dart';
 import '../../../../Component/image_viewer.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/num.dart';
+import '../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import '../../../dialog/show_attachments_dialog.dart';
 import '../bloc/todo_edit_expense_bloc.dart';
 import '../event/todo_edit_expense_event.dart';
@@ -20,26 +21,31 @@ import 'invoice_preview_dialog.dart';
 class TodoExpense extends StatelessWidget {
   final dynamic expenseId;
   final dynamic todoItem;
-  final dynamic selectedParts;
-  final dynamic selectedSupplies;
+  final List<dynamic> selectedParts;
+  final List<dynamic> selectedSupplies;
+  final dynamic selectedVendor;
 
   const TodoExpense(
       {super.key,
       required this.expenseId,
       required this.todoItem,
       required this.selectedParts,
-      required this.selectedSupplies});
+      required this.selectedSupplies,
+      required this.selectedVendor});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TodoEditExpenseBloc>(
       create: (context) => TodoEditExpenseBloc()
         ..add(GetTodoExpenseInitialEvent(
-            expenseId: expenseId, todoItem: todoItem)),
+            expenseId: expenseId,
+            todoItem: todoItem,
+            selectedParts: selectedParts,
+            selectedSupplies: selectedSupplies,
+            selectedVendor: selectedVendor)),
       child: BlocListener<TodoEditExpenseBloc, TodoExpenseState>(
           listener: (context, state) {
         state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-        log("${state.vendorList}", name: "VENDOR LIST");
       }, child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
               builder: (context, state) {
         return Column(
@@ -48,10 +54,22 @@ class TodoExpense extends StatelessWidget {
           children: [
             10.height,
             if (state.vehicleList.length == 1)
-              Utils.getText(
-                'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
-                color: AppC().base,
-                align: TextAlign.end,
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => VehicleExpenseHistoryUI(
+                                vin: state.vehicleList.firstOrNull['vin'],
+                                vehicleName: state
+                                    .vehicleList.firstOrNull['vehicle_name'],
+                              )));
+                },
+                child: Utils.getText(
+                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                  color: AppC().base,
+                  align: TextAlign.end,
+                ),
               ),
             if (state.vehicleList.length > 1)
               Utils.dropdownBox(
@@ -140,9 +158,11 @@ class TodoExpense extends StatelessWidget {
                         context.read<TodoEditExpenseBloc>().add(InvoiceEvent());
                         await Future.delayed(const Duration(seconds: 1));
                         var blo = context.read<TodoEditExpenseBloc>();
-                        InvoiceDialog.show(context, invoiceData: blo.invoiceData,
-                            onGenerate: () => blo
-                                .add(GenerateInvoiceEvent()),);
+                        InvoiceDialog.show(
+                          context,
+                          invoiceData: blo.invoiceData,
+                          onGenerate: () => blo.add(GenerateInvoiceEvent()),
+                        );
                       },
                       child: Container(
                         height: 40,
@@ -276,9 +296,9 @@ class TodoExpense extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Utils.getElevatedButton(
-                  () {
-                    // _saveExpense();
-                  },
+                  () => context
+                      .read<TodoEditExpenseBloc>()
+                      .add(const SaveExpenseEvent()),
                 ),
                 Utils.getElevatedButton(
                   () {

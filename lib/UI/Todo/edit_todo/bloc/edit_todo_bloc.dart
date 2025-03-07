@@ -333,6 +333,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoVPersonEvent>((event, emit) {
+      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       if ((event.vPerson as List).isEmpty) {
         var oldIdentifier = state.selectedTaskIdentifier;
         oldIdentifier.remove(2);
@@ -340,28 +341,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
         return;
       }
-      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
+      var newData = List<Map<String, dynamic>>.from(event.vPerson);
       var existingVPersons =
-          List<Map<String, dynamic>>.from(state.selectedVPerson);
+      List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existingVPersons
-              .where((element) => element['type'] == 'person')
-              .isNotEmpty &&
+          .where((element) => element['type'] == 'person')
+          .isNotEmpty &&
           event.vPerson.first['type'] == 'person') {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
-      // existingVPersons.removeWhere((element) => !(event.vPerson.map((e) => e['id']).contains(element['id'])));
-      if (oldIdentifier.containsKey(2)) {
-        oldIdentifier.update(
-            2, (value) => (event.vPerson[0] as Map<String, dynamic>));
-      }
-      if (!oldIdentifier.containsKey(2)) {
-        oldIdentifier.putIfAbsent(
-            2, () => (event.vPerson[0] as Map<String, dynamic>));
-      }
+      oldIdentifier[2] = newData;
       existingVPersons = existingVPersons.unique((element) => element['id']);
       existingVPersons.removeWhere((element) =>
-          element['type'] ==
+      element['type'] ==
           ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
@@ -378,8 +371,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isSuppliesEnable: !currentStatus));
     });
 
-    on<TaskStatusChangeEvent>((event, emit) {
-      emit(state.copyWith(todoStatus: !state.todoStatus));
+    on<TaskStatusChangeEvent>((event, emit) async {
+      bool? status =  event.todoStatus;
+      log(status.toString(),name: 'STATUS');
+      emit(state.copyWith(isLoading: true));
+      try {
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.completeToDo(todoId, status: status! );
+
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+      emit(state.copyWith(todoStatus: !state.todoStatus,isLoading: false));
     });
 
     on<EditToDoPersonTapEvent>((event, emit) {
@@ -499,6 +504,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<EditToDoSelectTaskHistoryEvent>((event, emit) =>
         emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
+
+    /*on<EditToDoDeleteVehicleEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        await apiRepository.deleteTodoVehicle(event.todoVehicleId);
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+    }
+    });*/
 
     on<EditToDoSaveEvent>((event, emit) async {
       // VALIDATIONS MANDATORY
@@ -629,6 +645,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
 
   void vendorBroadcastEvent( dynamic value,) {
+    log(value.toString(), name: "Parts Broadcast");
     FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
   }
 

@@ -1,7 +1,4 @@
 
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../../Utilities/Utils.dart';
@@ -27,7 +24,6 @@ class _InvoiceDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("Invoice Data : ${jsonEncode(invoiceData)}", name: "InvoiceDialog");
     return Dialog(
       backgroundColor: AppC.white,
       insetPadding: const EdgeInsets.all(10),
@@ -183,7 +179,7 @@ class _InvoiceDialog extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.all(10),
                     child: Utils.getText('Make all checks payable to '
-                        'If you have any questions concerning this invoice, contact ',
+                        'If you have any questions concerning this invoice, contact ${invoiceData?['title']??''} ',
                     color: AppC.blue),
                   ),
                   Row(
