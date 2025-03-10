@@ -219,6 +219,8 @@ class TaskIdentifier extends StatelessWidget {
     if (val.isEmpty) {
       selectedList.clear();
       onSelected?.call({});
+      showEmptyNotifier.value = false;
+      return [];
     }
     var inputValue = val.toLowerCase();
     if (!inputValue.contains("-")) {
