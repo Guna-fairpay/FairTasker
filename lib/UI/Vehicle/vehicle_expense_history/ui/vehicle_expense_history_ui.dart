@@ -1,10 +1,10 @@
-import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_ui.dart';
+
+import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_view_ui.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../dialog/show_attachments_dialog.dart';
@@ -69,22 +69,27 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                           itemCount: state.filteredResponse.length,
                           itemBuilder: (context, index) {
                             var data = state.filteredResponse[index];
-                            List<dynamic> images= data?['attachments'];
+                            List<dynamic> images = data?['attachments'];
 
-                            List<dynamic> todoImages=images.map((e) => e['path'].toString().toStorageURL).toList();
+                            List<dynamic> todoImages = images
+                                .map((e) => e['path'].toString().toStorageURL)
+                                .toList();
                             return InkWell(
                               onTap: () {
                                 Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => VehicleExpenseHistoryEditUI(id: "${data['id']}",)));
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            VehicleExpenseHistoryEditViewUI(
+                                              id: "${data['id']}",
+                                            )));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      flex:5,
+                                      flex: 5,
                                       child: Column(
                                         spacing: 5,
                                         crossAxisAlignment:
@@ -100,7 +105,7 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                               const Spacer(),
                                               Utils.getText(
                                                   "\$ ${data['expense_amount'] ?? ''}",
-                                              color: AppC.green),
+                                                  color: AppC.green),
                                             ],
                                           ),
                                           Utils.getText(
@@ -110,20 +115,22 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
                                         children: [
-                                          if(images.isNotEmpty)
-                                          IconButton(
-                                            onPressed: () =>ShowAttachmentsDialog.of.show(
-                                                context,
-                                                attachments: todoImages,
-                                                title: 'Expense Image'),
-                                            icon: const Icon(
-                                              Icons.remove_red_eye_outlined,
-                                              color: AppC.blue,
-                                              size: 20,
+                                          if (images.isNotEmpty)
+                                            IconButton(
+                                              onPressed: () =>
+                                                  ShowAttachmentsDialog.of.show(
+                                                      context,
+                                                      attachments: todoImages,
+                                                      title: 'Expense Image'),
+                                              icon: const Icon(
+                                                Icons.remove_red_eye_outlined,
+                                                color: AppC.blue,
+                                                size: 20,
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),

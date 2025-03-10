@@ -184,8 +184,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
         attachments = ogAttachments
                 ?.map((e) => e['path'].toString().toStorageURL)
-                .toList() ??
-            [];
+                .toList() ?? [];
         amountController.text =
             expenseDetailResponse?.expense?['expense_amount'].toString() ?? '';
         descriptionController.text =
@@ -605,7 +604,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov']);
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
     return result?.paths
             .where((element) => (element?.isNotEmpty ?? false))
             .map((e) => File(e!))

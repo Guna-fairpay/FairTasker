@@ -11,7 +11,7 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import '../Response/vehicle_expense_history_response.dart';
+import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
 import '../Utilities/str.dart' show Str;
 
@@ -43,6 +43,12 @@ class APiRepository {
   String get _getVehicleExpense => "getVehicleExpenses";
 
   String get _getEditVehicleExpense => "expenses";
+
+  String get _deleteVehicleExpenseImage => "expense_attachment";
+
+  String get _deleteExpense => "expenses";
+
+  String get _deleteExpenseTodo => "delete-expense-todo";
 
   Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
       {int? currentPage, int itemsPerPage = 5, String? search}) async {
@@ -255,4 +261,46 @@ class APiRepository {
     }
   }
 
+  Future<GeneralResponse?> deleteVehicleExpenseImage(
+    dynamic todoVehicleId,
+  ) async {
+    try {
+      String apiUrl =
+          "${Str.LIST_BASE_URL}$_deleteVehicleExpenseImage/$todoVehicleId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<GeneralResponse?> deleteVehicleExpense(
+    dynamic vehicleExpenseId,
+  ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_deleteExpense/$vehicleExpenseId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<GeneralResponse?> deleteExpenseTodo(
+    dynamic todoVehicleId,
+  ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({
+            'todo_id': '$todoVehicleId',
+          }));
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
 }
