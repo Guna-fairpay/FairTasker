@@ -61,4 +61,10 @@ class AddToDoConfig {
     {"id" : 4, "title" : "Maintenance Check"},
     {"id" : 5, "title" : "Set Vehicle"},
   ];
+
+  static const List<Map<String, dynamic>> expenseTo = [
+    {"id" : 1, "name" : "Cohort"},
+    {"id" : 2, "name" : "FairPy"},
+  ];
+
 }

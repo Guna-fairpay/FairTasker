@@ -123,8 +123,6 @@ class EditToDoBottomTapEvent extends EditToDoEvent {
   List<Object?> get props => [selectedBottomTap];
 }
 
-
-
 class EditToDoTimeSensitiveEvent extends EditToDoEvent {}
 
 class EditToDoEditAttachmentEvent extends EditToDoEvent {}
@@ -223,3 +221,21 @@ class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
   @override
   List<Object?> get props => [selectTaskHistory];
 }
+
+class DeleteTodoEvent extends EditToDoEvent {}
+
+class EditToDoDeleteVehicleEvent extends EditToDoEvent {
+  final dynamic vehicleId;
+  EditToDoDeleteVehicleEvent({
+   required this.vehicleId,
+  });
+  @override
+  List<Object?> get props => [vehicleId];
+}
+
+class EditToDoStatesChangeEvent extends EditToDoEvent {
+
+}
+
+class EditToDoDeletePartsAndSuppliesEvent extends EditToDoEvent {}
+

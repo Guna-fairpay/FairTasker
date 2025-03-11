@@ -1,3 +1,4 @@
+
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
@@ -150,18 +151,16 @@ class EditTodoMoreForm extends StatelessWidget {
           InkWell(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VehicleHistoryViewUI(
-                      vin: state.selectedVehicle['vin'],
-                      vehicleName: state.selectedVehicle['vehicle_name'],
-                  )));
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => VehicleHistoryViewUI(
+                            vin: state.selectedVehicle['vin'],
+                            vehicleName: state.selectedVehicle['vehicle_name'],
+                          )));
             },
             child: state.selectedVehicle.isNotEmpty
                 ? Utils.getText(
-                    'Task History - ${state.taskHistory.length == 1
-                        ? state.selectedVehicle['vehicle_name'] ?? ''
-                        : state.selectedVehicle['vin'] ?? ''}',
+                    'Task History - ${state.taskHistory.length == 1 ? state.selectedVehicle['vehicle_name'] ?? '' : state.selectedVehicle['vin'] ?? ''}',
                     color: AppC.appColor,
                     weight: FontWeight.w500,
                   )
@@ -170,7 +169,11 @@ class EditTodoMoreForm extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Utils.getElevatedButton(() {}, text: 'Update'),
+              Utils.getElevatedButton(() {
+                    context.read<EditToDoBloc>().add(EditToDoSaveEvent());
+                    Navigator.pop(context);
+              },
+                  text: 'Update'),
             ],
           ),
           if (state.apiResponse['recurring'] != null)

@@ -22,7 +22,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> selectedSupplies;
   final List<dynamic> attachments;
   final List<Map<String, dynamic>> selectedVPerson;
-  final Map<int, dynamic> selectedVLocations;
+  final Map<String, dynamic> selectedVLocations;
   final List<Map<String, dynamic>> selectedTask;
   final Map<String, dynamic> apiResponse;
   final dynamic selectedLinkOption;
@@ -38,7 +38,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> userGroup;
   final Map<int, dynamic> selectedTaskIdentifier;
   final List<dynamic> resourceName;
-  final List<dynamic> addresses;
+  final List<Map<String, dynamic>> addresses;
   final String title;
   final List<dynamic>taskHistory;
   final dynamic selectedVehicle;
@@ -102,7 +102,7 @@ class EditTodoState extends Equatable {
     dynamic selectedLinkOption,
     List<Map<String, dynamic>>? selectedTask,
     List<Map<String, dynamic>>? selectedVPerson,
-    Map<int, dynamic>? selectedVLocations,
+    Map<String, dynamic>? selectedVLocations,
     List<dynamic>? tasks,
     List<dynamic>? vehicles,
     List<dynamic>? persons,
@@ -120,7 +120,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
     List<dynamic>? attachments,
-    List<dynamic>? addresses,
+    List<Map<String, dynamic>>? addresses,
     List<dynamic>? selectedRecurringDays,
     Map<String, dynamic>? apiResponse,
     dynamic selectedRecurring,
