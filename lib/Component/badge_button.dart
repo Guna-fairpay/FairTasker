@@ -8,7 +8,10 @@ class BadgeButton extends StatelessWidget {
   final dynamic value;
   final dynamic selectedValue;
   final int? count;
-  const BadgeButton({super.key, required this.value, required this.label, this.showBadge = true, this.onPressed, this.count, this.selectedValue});
+  final TextStyle? textStyle;
+  final EdgeInsetsGeometry? padding;
+  final WidgetStatePropertyAll<OutlinedBorder?>? shape;
+  const BadgeButton({super.key, required this.value, required this.label, this.showBadge = true, this.onPressed, this.count, this.selectedValue, this.textStyle, this.padding, this.shape});
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +24,16 @@ class BadgeButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: () => onPressed?.call(value),
         style: ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             backgroundColor: WidgetStatePropertyAll((value == selectedValue) ? AppC.appColor : Colors.transparent),
             side: WidgetStatePropertyAll((value == selectedValue) ? BorderSide.none : const BorderSide(color: AppC.text)),
             foregroundColor: WidgetStatePropertyAll((value == selectedValue) ? Colors.white : AppC.appColor),
-            textStyle: WidgetStatePropertyAll(Theme.of(context)
+            padding: WidgetStatePropertyAll(padding),
+            elevation: const WidgetStatePropertyAll(0),
+            shape: shape,
+            textStyle: WidgetStatePropertyAll( textStyle ?? Theme.of(context)
                 .textTheme
-                .titleMedium
+                .labelMedium
                 ?.copyWith(fontWeight: FontWeight.bold))),
         child: Text(label),
       ),

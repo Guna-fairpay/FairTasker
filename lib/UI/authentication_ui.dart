@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,10 +120,13 @@ class _AuthenticationUIState extends State<AuthenticationUI> {
                             obscure: showPassword,
                             label: Utils.getText('Password'),
                             suffixIcon: InkWell(
-                                child: Icon(showPassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons
-                                    .remove_red_eye_outlined,size: 16,),
+                                child: Padding(
+                                  padding: 10.padding,
+                                  child: Icon(showPassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons
+                                      .remove_red_eye_outlined,size: 16,),
+                                ),
                                 onTap: () {
                                   showPassword = !showPassword;
                                   setState(() {});

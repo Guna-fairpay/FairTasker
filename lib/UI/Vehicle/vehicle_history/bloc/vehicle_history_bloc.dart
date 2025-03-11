@@ -69,6 +69,8 @@ class VehicleHistoryBloc
         ));
       } catch (e) {
         log('${vinNumber} Exception: $e', name: "VEHICLE_HISTORY_BLOC");
+        Toaster.showError("Something went wrong");
+        emit(state.copyWith(isLoading: false));
       }
     });
 

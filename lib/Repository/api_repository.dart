@@ -5,6 +5,7 @@ import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
@@ -32,6 +33,15 @@ class APiRepository {
 
   String get _deleteToDoApi => "delete-todo";
 
+  String get _vehicleCategoriesApi => "vehicle_status/categories";
+
+  String get _vehicleStatusApi => "vehicleStatusApi";
+
+  String get _getCohortsApi => "getCohortsData";
+
+  String get _turoVehiclesList => "getTuroVehiclesList";
+
+  Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin, {int? currentPage, int itemsPerPage = 5, String? search}) async {
   String get _generateInvoiceApi => "generate-invoice";
 
   String get _updateTodoExpense => "expenses_update";
@@ -129,6 +139,53 @@ class APiRepository {
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVehicleCategories() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleCategoriesApi";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVehicleStatus(dynamic statusId) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusApi";
+      Map<String, dynamic> params = {};
+      if (statusId != null && statusId != 0 && statusId != "0") params['vehicle_status'] = statusId;
+      params['branch_code'] = Session.of.getInt(Str.branchIdPrefText);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCohorts() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_getCohortsApi";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTuroVehiclesList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_turoVehiclesList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
       rethrow;
     }
   }

@@ -1,4 +1,5 @@
 import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -22,18 +23,13 @@ class CustomLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Center(
-          child: Image.asset(
-            Assets.loaderGif,
-            width: 80,
-            height: 80,
-            fit: BoxFit.fitHeight,
-          ),
-        ),
-      ],
+    return Center(
+      child: Image.asset(
+        Assets.loaderGif,
+        width: 80,
+        height: 80,
+        fit: BoxFit.fitHeight,
+      ),
     );
   }
 }
