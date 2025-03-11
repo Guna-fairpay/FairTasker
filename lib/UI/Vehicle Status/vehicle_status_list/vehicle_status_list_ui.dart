@@ -1,0 +1,87 @@
+import 'package:fairpytasker/Response/create_expense_field_data.dart';
+import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_check_list_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_config.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_events.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_bloc.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_states.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_body.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_notes_history_view_ui.dart';
+import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
+import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+class VehicleStatusListUi extends StatelessWidget {
+  const VehicleStatusListUi({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          VehicleStatusBloc()..add(VehicleStatusInitialEvent()),
+      child: BlocListener<VehicleStatusBloc, VehicleStatusState>(
+          listener: (context, state)  {
+            if (state is VehicleStatusLoadingState) {
+              EasyLoading.show();
+            } else {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is VehicleStatusErrorState) {
+                Toaster.showError("${state.errorMessage}");
+              } else if (state is VehicleStatusSuccessState) {
+                Toaster.showSuccess("${state.successMessage}");
+              } else if (state is VehicleStatusOnPressedState) {
+                var pressType = state.type;
+                var data = state.data;
+                var tripCategory = state.tripCategory;
+                if ((pressType != null) && (data != null)) {
+                  switch(pressType) {
+
+                    case VehicleStatusOnPressed.last_checklist:
+                      context.push(VehicleStatusChecklistUI(
+                          vehicleStatusListData: data,
+                          vehicleName: data['vehicle_name'] ?? '',
+                          vinNumber: data['vin'] ?? '',
+                          percentage: (data['vehicle_status_value'] ?? 0.0).toString()));
+                    case VehicleStatusOnPressed.vehicle_config:
+                      context.push(VehicleStatusConfigUI(
+                        vehicleStatusListData: data,
+                        vehicleName: data['vehicle_name'] ?? '',
+                        vinNumber: data['vin'] ?? '',
+                      ));
+                    case VehicleStatusOnPressed.vehicle_edit:
+                      context.push(VehicleNotesHistoryViewUi(
+                        vin: data['vin'] ?? '',
+                        vehicleName: data['vehicle_name'] ?? '',
+                      ));
+                    case VehicleStatusOnPressed.vehicle_details:
+                      context.push(VehicleHistoryViewUI(
+                        vehicleName: data['vehicle_name'] ?? '',
+                        vin: data['vin'] ?? '',
+                      ));
+                    case VehicleStatusOnPressed.date_pickup:
+                      // TODO: Handle this case.
+                    case VehicleStatusOnPressed.view_history:
+                    context.push(VehicleHistoryViewUI(
+                      vehicleName: data['vehicle_name'] ?? '',
+                      vin: data['vin'] ?? '',
+                    ));
+                    case VehicleStatusOnPressed.view_expense:
+                      context.push(CumulativeCostListUI(vehicleStatusListData: data, createExpenseFieldData: CreateExpenseFieldData()));
+                    case VehicleStatusOnPressed.add_vehicle:
+                      context.push(const CreateTodoUI());
+                    case VehicleStatusOnPressed.view_notes:
+                      NotesDialog.show(context, message: data['note']);
+                  }
+                }
+              }
+            }
+          }, child: const VehicleStatusListBody()),
+    );
+  }
+}

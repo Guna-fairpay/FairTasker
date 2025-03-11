@@ -4,8 +4,10 @@ import 'package:fairpytasker/UI/Feedback/feedback_view_bloc/feedback_view_bloc.d
 import 'package:fairpytasker/UI/Feedback/feedback_view_bloc/feedback_view_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_view_bloc/feedback_view_states.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,8 +36,10 @@ class FeedbackSearchbar extends StatelessWidget {
           hintText: "Search...",
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.search,
+          padding: WidgetStatePropertyAll(5.padding.copyWith(left: 10)),
           constraints: const BoxConstraints(),
           leading: const Icon(Icons.search_rounded, color: Colors.grey),
+          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
         ),
         dense: true,
         contentPadding: const EdgeInsets.all(10),

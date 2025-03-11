@@ -77,6 +77,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                           context
                               .read<VehicleHistoryBloc>()
                               .searchController,
+                          readOnly: state.isSameTaskSelected,
                           onSearch: (value) =>
                               context
                                   .read<VehicleHistoryBloc>()
@@ -99,10 +100,6 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                 onChanged: (value) => context.read<VehicleHistoryBloc>().add(VehicleHistorySameTaskEvent(title, value)),
                                 materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
-                                activeTrackColor: AppC.appColor,
-                                activeColor: AppC.white,
-                                inactiveTrackColor: AppC.white,
-                                inactiveThumbColor: AppC.appColor,
                               ),
                             ),
                           ),

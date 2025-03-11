@@ -2719,11 +2719,13 @@ class Utils {
 
   static Widget getSearchBarUI({void Function(String)? onChange,
     void Function(String value)? onSearch,
-    required TextEditingController searchController}) {
+    required TextEditingController searchController,
+  bool readOnly = false}) {
     return CustomSearchBar(
       controller: searchController,
       onChanged: onChange,
       onSearch: onSearch,
+      readOnly: readOnly,
     );
   }
 
