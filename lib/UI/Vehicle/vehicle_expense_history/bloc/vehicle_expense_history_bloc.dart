@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
@@ -14,6 +15,7 @@ import '../../../../Response/cohorts_response.dart';
 import '../../../../Response/payment_response.dart';
 import '../../../../Response/vehicle_list_response.dart';
 import '../../../../Utilities/Utils.dart';
+import '../../../../core/app/helper/toaster.dart';
 import '../../../Todo/add_todo/add_todo_const.dart';
 import '../../../Todo/todo_edti_expense/repository/todo_edit_expense_repository.dart';
 import '../event/vehicle_expense_history_event.dart';
@@ -34,7 +36,7 @@ class VehicleExpenseHistoryBloc
   List<Map<String, dynamic>>? categories = [];
   List<dynamic>? selectedPaymentId;
   List<dynamic>? attachments = [];
-  List<dynamic>? ogAttachments;
+  List<dynamic>? ogAttachments = [];
   TextEditingController vehicleController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -59,6 +61,10 @@ class VehicleExpenseHistoryBloc
           cohorts: const [],
           selectedCohorts: const {},
           selectedDate: DateTime.now(),
+          vehicle: const [],
+          selectedVehicle: const {},
+          vin: '',
+          vehicleName: '',
 
   )) {
 
@@ -142,6 +148,8 @@ class VehicleExpenseHistoryBloc
         amountController.text = "${apiResponse?['expense_amount'] ?? ''}";
         dateController.text = apiResponse?['expense_date'] ?? '';
 
+
+
         selectedVehicle = vehicleResponse?.data
             ?.where((e) => e['vin'] == apiResponse?['vin'])
             .toList();
@@ -160,7 +168,10 @@ class VehicleExpenseHistoryBloc
           cohorts: AddToDoConfig.expenseTo,
           selectedCohorts:selectedCohorts?.firstOrNull,
           selectedDate: apiResponse?['expense_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd'),
-
+          vehicle: vehicleResponse?.data,
+          selectedVehicle: selectedVehicle?.firstOrNull,
+          vin: selectedVehicle?.firstOrNull?['vin'] ?? '',
+          vehicleName: selectedVehicle?.firstOrNull?['vehicle_name'] ?? '',
         ));
       }catch(e){
         Utils.showMobileToast(e.toString());
@@ -188,7 +199,7 @@ class VehicleExpenseHistoryBloc
       }
     });
 
-    on<RemoveImageEvent>((event, emit) {
+    on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
       if (event.data is File) {
         // LOCAL SELECTION REMOVE
@@ -196,12 +207,15 @@ class VehicleExpenseHistoryBloc
       } else if (event.data is String) {
         // REMOTE SELECTION REMOVE
         var data = attachments?.firstWhereOrNull(
-                (element) => element == event.data.toString().removeStorageUrl);
+                (element) => element == event.data.toString());
+
         var attachmentId = ogAttachments
-            ?.where((element) => element['path'] == data)
+            ?.where((element) => element['path'] == data.toString().removeStorageUrl)
             .map((e) => e['id'])
             .firstOrNull;
-        // {API CALL HERE }// PASS INTO API TO DELETE ATTACHMENT
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.deleteVehicleExpenseImage(attachmentId);
+        emit(state.copyWith(isLoading: false));
         // once success remove from attachments
         attachments?.remove(event.data);
       }
@@ -221,6 +235,7 @@ class VehicleExpenseHistoryBloc
             attachments.add(element);
           }
         }
+        log("$attachments", name: "PickImageEvent");
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
@@ -228,11 +243,13 @@ class VehicleExpenseHistoryBloc
     on<CaptureImageEvent>((event, emit) async {
       var result = await _pickImages();
       if (result != null) {
-        log("Result ${result.runtimeType} ${attachments.runtimeType}", name: "CAPTURE_EVENT");
-        attachments?.add(result);
+        var attachments = List.from(state.expenseAttachments);
+        attachments.add(result);
+        log("$attachments", name: "CaptureImageEvent");
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
+
 
     on<SelectedPaymentEvent>((event, emit) =>
         emit(state.copyWith(selectedPaymentMethod: event.paymentType)));
@@ -260,7 +277,45 @@ class VehicleExpenseHistoryBloc
       emit(state.copyWith(isLoading: false));
     });
 
+    on<VehicleEvent>((event, emit) =>
+        emit(state.copyWith(selectedVehicle: event.selectedVehicle)));
+
+    on<UpdateVehicleExpenseHistoryEvent>((event, emit) async {
+     try {
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.updateVehicleExpenseHistory(
+          body: _expenseData(),
+          expenseId: event.id,
+          images: state.expenseAttachments.whereType<File>().toList(),
+        );
+        emit(state.copyWith(isLoading: false));
+      } catch (e){
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
   }
+
+  Map<String, String> _expenseData() {
+
+    Map<String, String> baseBody = {};
+    baseBody['expense_amount'] = amountController.text;
+    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
+    baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
+    baseBody['payment_method_id'] = "${state.selectedPaymentMethod?['id'] ?? ''}";
+    baseBody['expense_to'] =
+    "${state.selectedSubCategory?['expense_to'] ?? ''}";
+    baseBody['cohort_id'] = "${state.selectedCohorts?['id'] ?? ''}";
+    baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
+    baseBody['expense_date'] = dateController.text;
+    baseBody['expense_description'] = descriptionController.text;
+    baseBody['platform'] = 'tasker-app';
+    log(jsonEncode(baseBody), name: "Expense_Body");
+    return baseBody;
+  }
+
 
   Future<List<File>> _pickFiles() async {
     var result = await FilePicker.platform.pickFiles(

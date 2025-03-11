@@ -39,10 +39,10 @@ class CustomVendorLocationField extends StatelessWidget {
       selectedData = selected![3];
       var name = selectedData['name'];
       var controllerName = controller?.text;
-      if (name != controllerName) {
+      if ((name != controllerName) && (name != null)) {
         controller?.clear();
         await Future.delayed(Durations.medium3);
-        controller?.text = name;
+        controller?.text = name ?? "";
       }
     }
   }

@@ -51,7 +51,7 @@ class APiRepository {
 
   String get _getVehicleExpense => "getVehicleExpenses";
 
-  String get _deleteVehicleExpenseImage => "expense_attachment";
+  String get _deleteExpenseImage => "expense_attachment";
 
   String get _deleteExpenseTodo => "delete-expense-todo";
 
@@ -230,6 +230,8 @@ class APiRepository {
         final http.Response? response = await _apiClient.callPostMethodWithBody(
             apiUrl,
             body: body?..putIfAbsent('type', () => "inline"),
+            autoIncrement: true,
+            fieldName: "files",
             files: images?.map((e) => e.path).toList());
         if (response != null) {
           if (response.isSuccess) {
@@ -317,7 +319,7 @@ class APiRepository {
         dynamic todoVehicleId,) async {
       try {
         String apiUrl =
-            "${Str.LIST_BASE_URL}$_deleteVehicleExpenseImage/$todoVehicleId";
+            "${Str.LIST_BASE_URL}$_deleteExpenseImage/$todoVehicleId";
         final http.Response? response = await _apiClient.callDelete(apiUrl);
         var mapData = await response.mapData;
         return GeneralResponse.fromJson(mapData);
@@ -351,4 +353,36 @@ class APiRepository {
         rethrow;
       }
     }
+
+  Future<Map<String, dynamic>?> updateVehicleExpenseHistory({Map<String, dynamic>? body,
+    List<File>? images,
+    String? expenseId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+      log("${images?.length}", name: "updateVehicleExpenseHistory");
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(
+              mapData?['message'] ?? "Todo Updated Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callLoginAPI.exception2 : ${error.toString()}');
+      return null;
+    }
+  }
+
   }
