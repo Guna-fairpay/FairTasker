@@ -52,9 +52,13 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                       positiveText: "Yes, delete it!",
                       negativeText: "Cancel",
                       isReasonRequired: false,
-                    onPositivePressed: () =>
-                          context.read<VehicleExpenseHistoryBloc>().add(DeleteVehicleExpenseHistoryEvent(id: id)),
-
+                    onPositivePressed: () {
+                      context.read<VehicleExpenseHistoryBloc>().add(
+                          DeleteVehicleExpenseHistoryEvent(id: id));
+                      Future.delayed(const Duration(seconds: 1), () {
+                        Navigator.pop(context);
+                      });
+                    }
                     );
                   //context.read<VehicleExpenseHistoryBloc>().add(DeleteVehicleExpenseHistoryEvent(id: id!));
                   //   Navigator.pop(context);
@@ -266,7 +270,8 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Utils.getElevatedButton(
-                        () => Navigator.pop(context),
+                        //() => context.pushReplacement(Vehicle),
+                        (){},
                         text: 'Update',
                       ),
                     ],

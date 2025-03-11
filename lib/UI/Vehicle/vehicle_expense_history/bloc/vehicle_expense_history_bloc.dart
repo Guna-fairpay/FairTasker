@@ -33,7 +33,7 @@ class VehicleExpenseHistoryBloc
   List<dynamic>? subCategories = [];
   List<Map<String, dynamic>>? categories = [];
   List<dynamic>? selectedPaymentId;
-  List<dynamic>? attachments;
+  List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments;
   TextEditingController vehicleController = TextEditingController();
   TextEditingController amountController = TextEditingController();
@@ -126,9 +126,11 @@ class VehicleExpenseHistoryBloc
 
         ogAttachments = apiResponse?['attachments'];
 
-        attachments = ogAttachments
+        attachments?.clear();
+        attachments?.addAll(ogAttachments
             ?.map((e) => e['path'].toString().toStorageURL)
-            .toList() ?? [];
+            .toList() ?? []);
+
 
         if(apiResponse?['cohort_id'] != null){
           selectedCohorts = AddToDoConfig.expenseTo
@@ -226,12 +228,11 @@ class VehicleExpenseHistoryBloc
     on<CaptureImageEvent>((event, emit) async {
       var result = await _pickImages();
       if (result != null) {
+        log("Result ${result.runtimeType} ${attachments.runtimeType}", name: "CAPTURE_EVENT");
         attachments?.add(result);
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
-
-
 
     on<SelectedPaymentEvent>((event, emit) =>
         emit(state.copyWith(selectedPaymentMethod: event.paymentType)));

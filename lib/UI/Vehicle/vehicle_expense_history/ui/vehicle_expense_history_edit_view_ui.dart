@@ -2,6 +2,7 @@
 import 'package:fairpytasker/Component/custom_vehicle_expense_history_Info.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
@@ -155,14 +156,10 @@ class VehicleExpenseHistoryEditViewUI extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Utils.getElevatedButton(
-                        () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    VehicleExpenseHistoryEditPage(
-                                      id: "${state.editResponse['id']}",
-                                    )
-                            )
+                        () => context.pushReplacement(
+                            VehicleExpenseHistoryEditPage(
+                              id: "${state.editResponse['id']}",
+                            ), fullscreenDialog: true
                         ),
                         text: 'Edit',
                       ),
