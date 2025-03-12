@@ -35,12 +35,13 @@ class VehicleStatusSearcherUi extends StatelessWidget {
                       )),
                       Expanded(
                           child: Utils.getSearchBarUI(
+                            onChange: (val) => context.read<VehicleStatusBloc>().add(VehicleStatusSearchQueryEvent(val)),
                               searchController: context
                                   .read<VehicleStatusBloc>()
                                   .searchController)),
                       IconButton.outlined(
-                        onPressed: () {},
-                        icon: const Icon(Icons.settings),
+                        onPressed: () => context.read<VehicleStatusBloc>().add(VehicleStatusRefreshEvent()),
+                        icon: const Icon(Icons.refresh_rounded),
                         style: ButtonStyle(
                             shape: WidgetStatePropertyAll(
                                 ContinuousRectangleBorder(

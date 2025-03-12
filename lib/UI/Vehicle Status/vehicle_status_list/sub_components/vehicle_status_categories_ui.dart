@@ -47,22 +47,13 @@ class VehicleStatusCategoriesUi extends StatelessWidget {
                         .vehicleStatusCategories
                         .length),
               )),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.keyboard_double_arrow_right),
-            style: ButtonStyle(
-                shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
-                foregroundColor: const WidgetStatePropertyAll(AppC.red),
-                side: const WidgetStatePropertyAll(BorderSide.none)),
+          GestureDetector(
+            onTap: () => context.read<VehicleStatusBloc>().add(VehicleStatusMiscEvent()),
+            child: Padding(padding: 10.horizontalPadding, child: const Icon(Icons.keyboard_double_arrow_right, color: AppC.red),),
           ),
-          IconButton(
-            onPressed: () => context.read<VehicleStatusBloc>().add(VehicleStatusShowHideSearcherEvent()),
-            icon: Image.asset(Assets.vehicleFilterIcon, height: 24, width: 30,),
-            style: ButtonStyle(
-                shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
-                side: const WidgetStatePropertyAll(BorderSide.none)),
+          GestureDetector(
+            onTap: () => context.read<VehicleStatusBloc>().add(VehicleStatusShowHideSearcherEvent()),
+            child: Image.asset(Assets.vehicleFilterIcon, height: 24, width: 30, color: ((context.watch<VehicleStatusBloc>().showSearcher)) ? AppC.red : AppC().base,),
           ),
         ],
       ),

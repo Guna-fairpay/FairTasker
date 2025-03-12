@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_config.dart';
+import 'package:flutter/gestures.dart' show TapDownDetails;
 
 abstract class VehicleStatusEvent extends Equatable {
   @override
@@ -50,6 +51,46 @@ class VehicleOnCompleteEvent extends VehicleStatusEvent {
 class VehicleOnPreviousEvent extends VehicleStatusEvent {
   final Map<String, dynamic>? model;
   VehicleOnPreviousEvent({required this.model});
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleStatusSearchQueryEvent extends VehicleStatusEvent {
+  final String query;
+  VehicleStatusSearchQueryEvent(this.query);
+  @override
+  List<Object?> get props => [query];
+}
+
+class VehicleStatusRefreshEvent extends VehicleStatusEvent {}
+
+class VehicleStatusMiscEvent extends VehicleStatusEvent {}
+
+class VehicleStatusShowDatePickEvent extends VehicleStatusEvent {
+  final Map<String, dynamic>? model;
+  VehicleStatusShowDatePickEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleStatusSaveDateEvent extends VehicleStatusEvent {
+  final Map<String, dynamic>? model;
+  final DateTime? date;
+  VehicleStatusSaveDateEvent(this.model, this.date);
+  @override
+  List<Object?> get props => [model, date];
+}
+
+class VehicleStatusShowSortingEvent extends VehicleStatusEvent {
+  final TapDownDetails? details;
+  VehicleStatusShowSortingEvent(this.details);
+  @override
+  List<Object?> get props => [details];
+}
+
+class VehicleStatusSortEvent extends VehicleStatusEvent {
+  final Map<String, dynamic>? model;
+  VehicleStatusSortEvent(this.model);
   @override
   List<Object?> get props => [model];
 }

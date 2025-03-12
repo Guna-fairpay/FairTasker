@@ -247,7 +247,7 @@ class VehicleStatusCard extends StatelessWidget {
                     OutlinedButtonIcon(
                         onPressed: () => onPressed?.call(VehicleStatusOnPressed.view_history),
                         iconData: Icons.remove_red_eye_rounded),
-                    if (model['followup_date'].toString().isNullOrEmpty)
+                    // if (model['followup_date'].toString().isNullOrEmpty)
                       OutlinedButtonIcon(
                           onPressed: () => onPressed?.call(VehicleStatusOnPressed.date_pickup),
                           iconData: Icons.calendar_month_rounded),

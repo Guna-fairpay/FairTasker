@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Component/feedback_tab_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
+import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/check_list_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
 import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_ui.dart';
@@ -51,7 +52,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                 selectedVendor: state.selectedVLocations,
                     )
                   : state.selectedBottomTap['id'] == 2
-                      ? const Placeholder()
+                      ? const CreateTodoUI(showHeader: false)
                       : state.selectedBottomTap['id'] == 3
                           ? CheckListUI(
                               checkListData: state.selectedTask, todoItems: {})

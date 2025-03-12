@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_check_list_ui.dart';
@@ -11,7 +12,9 @@ import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.
 import 'package:fairpytasker/UI/Vehicle/vehicle_notes_history_view_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +68,7 @@ class VehicleStatusListUi extends StatelessWidget {
                         vin: data['vin'] ?? '',
                       ));
                     case VehicleStatusOnPressed.date_pickup:
-                      // TODO: Handle this case.
+                      Utils.showPickerDate(context, value: (data['followup_date'] ?? "").toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
                     case VehicleStatusOnPressed.view_history:
                     context.push(VehicleHistoryViewUI(
                       vehicleName: data['vehicle_name'] ?? '',
@@ -78,6 +81,16 @@ class VehicleStatusListUi extends StatelessWidget {
                     case VehicleStatusOnPressed.view_notes:
                       NotesDialog.show(context, message: data['note']);
                   }
+                }
+              } else if (state is VehicleStatusShowDatePickerState) {
+                var data = state.data;
+                Utils.showPickerDate(context, value: data?['followup_date'].toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
+              } else if (state is VehicleStatusShowSortingState) {
+                var details = state.details;
+                if (details != null) {
+                  var offSet = Offset(details.globalPosition.dx, details.globalPosition.dy);
+                  var items = context.read<VehicleStatusBloc>().filterBys;
+                  SimplePopUpMenu.instance.show(context, items: items, position: offSet, itemAsString: (item) => item['name'] ?? "", onTap: (item) => context.read<VehicleStatusBloc>().add(VehicleStatusSortEvent(item)));
                 }
               }
             }

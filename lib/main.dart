@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/color_extension.dart';
@@ -27,6 +28,7 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
     await Firebase.initializeApp();
     await Session.of.init();
+    Initializer.of.init(); // GET_IT INITIALIZATION
     if (kDebugMode) await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {
