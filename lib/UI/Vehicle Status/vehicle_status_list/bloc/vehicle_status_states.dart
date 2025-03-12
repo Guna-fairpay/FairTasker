@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_config.dart';
+import 'package:flutter/gestures.dart' show TapDownDetails;
 
 abstract class VehicleStatusState extends Equatable {
   @override
@@ -40,4 +41,25 @@ class VehicleStatusOnPressedState extends VehicleStatusState {
   VehicleStatusOnPressedState(this.data, this.type, this.tripCategory);
   @override
   List<Object?> get props => [data, type, tripCategory, Random().nextDouble()];
+}
+
+class VehicleStatusShowDatePickerState extends VehicleStatusState {
+  final Map<String, dynamic>? data;
+  VehicleStatusShowDatePickerState(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}
+
+class VehicleStatusCreateNewTaskState extends VehicleStatusState {
+  final Map<String, dynamic>? data;
+  VehicleStatusCreateNewTaskState(this.data);
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}
+
+class VehicleStatusShowSortingState extends VehicleStatusState {
+  final TapDownDetails? details;
+  VehicleStatusShowSortingState(this.details);
+  @override
+  List<Object?> get props => [details, Random().nextDouble()];
 }
