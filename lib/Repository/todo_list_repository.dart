@@ -41,7 +41,7 @@ import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/branch_response.dart';
 import '../Response/category_config_response.dart';
-import '../Response/checklist_response.dart';
+import '../UI/Todo/CheckList/checklist_response.dart';
 import '../Response/cohorts_response.dart';
 import '../Response/create_fix_task_data.dart';
 import '../Response/expense_other_categories.dart';
@@ -2118,7 +2118,7 @@ class TodoListRepo {
   Future<bool?> completeATodo(String? todoId, String? status) async {
     try {
       bool statusBool = status == "Completed" ? true : false;
-      String apiUrl = "${Str.BASE_URL}complete-todo/$todoId";
+      String apiUrl = "${Str.BASE_URL}complete-todo/${todoId.toString()}";
       debugPrint("completeATodo apiUrl: $apiUrl");
       String body = jsonEncode({"status": statusBool});
       debugPrint("completeATodo body: $body");
