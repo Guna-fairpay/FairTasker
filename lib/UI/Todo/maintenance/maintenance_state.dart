@@ -20,6 +20,8 @@ class MaintenanceState extends Equatable {
   final List<Map<String, dynamic>>? initialDropDown;
   final List<Map<String, dynamic>>? matchingTodos;
   final int? matchingTodoId;
+  final Map<String, dynamic>? popupId;
+  final List<String> middleValues;
 
   const MaintenanceState({
     this.maintenance,
@@ -40,6 +42,8 @@ class MaintenanceState extends Equatable {
     this.initialDropDown,
     this.matchingTodos = const [],
     this.matchingTodoId,
+    this.popupId = const {},
+    this.middleValues = const [],
   });
 
   MaintenanceState copyWith({
@@ -62,6 +66,9 @@ class MaintenanceState extends Equatable {
     List<int>? idList,
     List<Map<String, dynamic>>? matchingTodos,
     int? matchingTodoId,
+    Map<String, dynamic>? item,
+    Map<String, dynamic>? popupId,
+    List<String>? middleValues,
   }) =>
     MaintenanceState(
       maintenance: maintenance ?? this.maintenance,
@@ -82,6 +89,8 @@ class MaintenanceState extends Equatable {
       initialDropDown: initialDropDown ?? this.initialDropDown,
       matchingTodos: matchingTodos ?? this.matchingTodos,
       matchingTodoId: matchingTodoId ?? this.matchingTodoId,
+      popupId: popupId ?? this.popupId,
+      middleValues: middleValues ?? this.middleValues,
     );
 
 
@@ -105,5 +114,7 @@ class MaintenanceState extends Equatable {
     idList,
     matchingTodos,
     matchingTodoId,
+    popupId,
+    middleValues,
   ];
 }

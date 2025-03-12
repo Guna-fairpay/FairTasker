@@ -4,13 +4,14 @@ import 'dart:developer';
 import 'package:fairpytasker/Component/feedback_tab_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_edit_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
-import 'package:fairpytasker/UI/Todo/check_list_ui.dart';
+import 'package:fairpytasker/UI/Todo/CheckList/check_list_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
 import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_ui.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/appC.dart';
+import '../../../Manage Custom Data/Vehicles/Vehicle Edit Page/vehicle_edit_pageUI.dart';
 import '../../todo_edti_expense/ui/Test.dart';
 import '../bloc/edit_todo_bloc.dart';
 import '../state/edit_todo_state.dart';
@@ -49,13 +50,12 @@ class EditTodoBottomTabs extends StatelessWidget {
                   :state.selectedBottomTap['id'] == 2
                   ?const Placeholder()
                   :state.selectedBottomTap['id'] == 3
-                  ?CheckListUI(checkListData: state.selectedTask, todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
+                  ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 4
                   ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 5
-                  ?VehicleEditUI(vehicle: state.taskHistory.first, todoItems: state.apiResponse,)
+                  ?VehicleEditUI(vehicle: state.taskHistory.first, todoItems: state.apiResponse, showHeader: false,)
                   :const SizedBox(),
-
             ),
           ],
         );

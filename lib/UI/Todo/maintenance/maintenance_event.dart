@@ -7,7 +7,11 @@ abstract class MaintenanceEvent extends Equatable {
 }
 
 class CompleteTodoItemEvent  extends MaintenanceEvent {
-  CompleteTodoItemEvent();
+  const CompleteTodoItemEvent();
+}
+
+class DeleteTodoItemEvent  extends MaintenanceEvent {
+  const DeleteTodoItemEvent();
 }
 
 class FetchTodoListEvent extends MaintenanceEvent {

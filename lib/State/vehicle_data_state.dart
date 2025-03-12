@@ -2,8 +2,6 @@ part of '../Bloc/vehicle_data_bloc.dart';
 
 abstract class VehicleDataState extends Equatable {
   const VehicleDataState();
-
-
 }
 
 class VehicleDataInitial extends VehicleDataState {

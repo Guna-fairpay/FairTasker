@@ -16,19 +16,18 @@ class MaintenanceCheckListUI extends StatelessWidget {
   const MaintenanceCheckListUI(
       {super.key, required this.todoItems, required this.vehicle});
 
-  void _showTaskPopup(BuildContext context) {
+  void _showTaskPopup(BuildContext context, MaintenanceBloc maintenanceBloc) {
     final overlay = Overlay.of(context);
     OverlayEntry? overlayEntry;
-
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: 50,
-        left: MediaQuery.of(context).size.width * 0.1,
-        width: MediaQuery.of(context).size.width * 0.8,
+        left: MediaQuery.of(context).size.width * 0.025, // Adjust position
+        width: MediaQuery.of(context).size.width * 0.95, // Increased width
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
@@ -40,56 +39,58 @@ class MaintenanceCheckListUI extends StatelessWidget {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Flexible(
-                      child: Text(
-                        "Task already exists, please complete or delete the task",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                      ),
+            constraints: BoxConstraints(
+              minHeight: 100,
+              maxHeight: MediaQuery.of(context).size.height * 0.5,
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Close Button and Message in One Row
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    visualDensity: VisualDensity.compact,
+                    trailing: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      overlayEntry?.remove();
+                      overlayEntry = null;
+                    },
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Utils.getText(
+                          "Task already exists, please complete or delete the task",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10,),
+                  // Buttons Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Utils.getAddFilledButton("Complete", () {
                         overlayEntry?.remove();
                         overlayEntry = null;
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
+                        maintenanceBloc.add(const CompleteTodoItemEvent());
+                      }, bgColor: AppC.green),
+                      const SizedBox(width: 30,),
+                      Utils.getAddFilledButton("Delete", () {
                         overlayEntry?.remove();
                         overlayEntry = null;
-                        context.read<MaintenanceBloc>().add(CompleteTodoItemEvent());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppC.green,
-                      ),
-                      child: Text("Complete"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        overlayEntry?.remove();
-                        overlayEntry = null;
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppC.red,
-                      ),
-                      child: Text("Delete"),
-                    ),
-                  ],
-                ),
-              ],
+                        maintenanceBloc.add(const DeleteTodoItemEvent());
+                      }, bgColor: AppC.red),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -97,7 +98,6 @@ class MaintenanceCheckListUI extends StatelessWidget {
     );
     overlay.insert(overlayEntry!);
   }
-
 
   Widget checkBoxWithSingleTextAndTexBox({
     required bool checkboxValue,
@@ -201,29 +201,35 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                         checkBoxWithSingleTextAndTexBox(
                                           checkboxValue:
                                             state.individualCheckStates[item['id'].toString()] ??
-                                              !((state.dropdownValue is List ? (state.dropdownValue as List).any((element) =>
-                                              element['name'].toString().toLowerCase() == "good") : false)
+                                              !(
+                                                  (state.initialDropDown is List ? (state.initialDropDown as List).any((element) =>
+                                                  element['name'].toString().toLowerCase() == "good") : false)
+                                                  ||
+                                                  (state.dropdownValue is List ? (state.dropdownValue as List).any((element) =>
+                                                  element['name'].toString().toLowerCase() == "good") : false)
                                                   ||
                                                   ((state.idList?.contains(int.tryParse(item['id'].toString())) ?? false)
-                                                      ||
-                                                      (state.initialDropDown is List ? (state.initialDropDown as List).any((element) =>
-                                                      element['name'].toString().toLowerCase() == "good") : false)
-                                                        ||
-                                                          (state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] == true ? false : true))),
+                                                  ||
+                                                  (state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] == true ? false : true))
+                                              ),
                                               onCheckboxChanged: (bool? value) async {
-                                              _showTaskPopup(context);
-                                              context.read<MaintenanceBloc>().add(
+
+                                                if (state.middleValues.where((element) => element == item['id'].toString()).isNotEmpty) {
+                                                  final maintenanceBloc = context.read<MaintenanceBloc>();
+                                                  _showTaskPopup(context, maintenanceBloc);
+                                                }
+                                                context.read<MaintenanceBloc>().add(
                                                   IndividualCheckEvent(
                                                       item['id'].toString(),
                                                       value ?? false,
                                                     item: item
                                                   ),
-                                              );
-                                              state.selectedDropdownValues[item['id']] = value == true ? "Good" : "Bad";
-                                              await Future.delayed(Durations.medium2);
-                                              log("state.individualCheckStates ${state.individualCheckStates[item['id']]} ${state.dropdownValue}", name: "CHECKING_VALUE");
-                                            },
-                                          label: item['name'].trim() ?? '',
+                                                );
+                                                state.selectedDropdownValues[item['id']] = value == true ? "Good" : "Bad";
+                                                await Future.delayed(Durations.medium2);
+                                                //log("state.individualCheckStates ${state.individualCheckStates[item['id']]} ${state.dropdownValue}", name: "CHECKING_VALUE");
+                                              },
+                                              label: item['name'].trim() ?? '',
                                         ),
                                         if (item['name'] != 'Other')
                                           Expanded(
@@ -250,6 +256,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                 } else {
                                                   state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] = false;
                                                 }
+
                                                 log("value ${state.selectedDropdownValues}",
                                                     name: "TESTING_SELECTED");
                                                 log("value ${state.initialDropDown}",
@@ -299,8 +306,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                         children: [
                                           Utils.getBorderedMultilineTextField(
                                             'Notes',
-                                            state.notesControllers[
-                                                    item['id']]!,
+                                            state.notesControllers[item['id']]!,
                                             minLines: 2,
                                           ),
                                           Utils.getAddFilledButton(
@@ -364,44 +370,3 @@ class MaintenanceCheckListUI extends StatelessWidget {
     );
   }
 }
-
-// TodoListRepo todoListRepo = TodoListRepo();
-// final TextEditingController notesController = TextEditingController();
-// final TextEditingController controller = TextEditingController();
-// final List<TextEditingController> textEditingControllers = [];
-// List<Map<String, dynamic>> maintenanceCheckList = [];
-// bool isAllChecked = false;
-// bool checkValue = false;
-// dynamic todoItem, vehicle;
-
-// class _MaintenanceCheckListUIState extends State<MaintenanceCheckListUI> {
-//   TodoViewBloc? todoViewBloc;
-//   bool isAllCheck = false;
-//   TextEditingController notesController = TextEditingController();
-//   TextEditingController controller = TextEditingController();
-//   List<Map<String, dynamic>> data = [];
-//   List<dynamic> maintenanceListData = [];
-//   Map<int, Map<int, bool>> checkboxStates = {};
-//   Map<dynamic, String> selectedDropdownValues = {};
-//   int? selectedId;
-//   String? maintenanceTaskId;
-//   String? notes;
-//   bool isLoading = false;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     isAllCheck = false;
-//     data.clear();
-//     data = widget.maintenance;
-//     todoViewBloc=TodoViewBloc();
-//     for (var maintenanceItem in data) {
-//       int maintenanceId = maintenanceItem['id'];
-//       checkboxStates.putIfAbsent(maintenanceId, () => {});
-//       for (var item in maintenanceItem['children'] ?? []) {
-//         checkboxStates[maintenanceId]![item['id']] = true;
-//         selectedDropdownValues[item['id']] = "Good";
-//       }
-//     }
-//     setState(() {});
-//   }

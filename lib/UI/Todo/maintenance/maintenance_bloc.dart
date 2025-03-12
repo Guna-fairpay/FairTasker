@@ -22,6 +22,9 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
   List<int> idListAsInt = [];
   List<Map<String, dynamic>> matchingTodos = [];
   var itemCopy;
+  List<int>? result;
+  String? completeTodoID;
+  String? deleteTodoID;
 
   MaintenanceBloc()
       : super(const MaintenanceState(
@@ -35,45 +38,11 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
   ))
   {
 
-    on<CompleteTodoItemEvent>((event,emit) async {
-      emit(state.copyWith(isLoading: true));
-      try{
-        //final response3 = await todoListRepo.completeATodo();
-        List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
-          List<int> matchingIds = [];
 
-          // Extract relevant IDs from IndividualCheckEvent
-          int parentId = checkEvent["id"];
-          List<int> childIds = (checkEvent["children"] as List)
-              .map((child) => child["id"] as int)
-              .toList();
-
-          for (var task in maintenanceTasks) {
-            String maintenanceTaskId = task["maintenance_task_id"];
-            List<int> taskIds = maintenanceTaskId
-                .split(" - ")
-                .map((id) => int.tryParse(id) ?? -1)
-                .where((id) => id != -1)
-                .toList();
-
-            // Check if the task IDs match the hierarchy (parent + child)
-            if (taskIds.contains(parentId) && taskIds.any((id) => childIds.contains(id))) {
-              matchingIds.add(task["id"]);
-            }
-          }
-
-          return matchingIds;
-        }
-        List<int> result = getMatchingIds(itemCopy, matchingTodos);
-        print("final value ${result}"); // Output: [33646]
-      }
-      catch(e){
-        print("catch error ${e.toString()}");
-      }
-    });
     //Passing Initial items
     on<MaintenanceInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
+      List<String> middleValues = [];
       try {
         final response = await todoListRepo.getMaintenanceCheckList();
         final response1 = await todoListRepo.getTodoList();
@@ -104,16 +73,21 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           List<dynamic> fixTaskValues = fixTasksMap.values.toList();//[33540]
           print("fixTaskValues $fixTaskValues");
 
-
           matchingTodos = todoList
-              .where((todo) => fixTaskValues.contains(todo['id']))
-              .map((todo) => {
-                "id" : todo['id'],
-            "maintenance_task_id": todo["maintenance_task_id"],
-            "notes": todo["notes"],
-            "comments": todo["comments"],
-            }).toList();
+              .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
+              .map((todo) {
+            String maintenanceTaskId = todo["maintenance_task_id"];
+            String middleValue = maintenanceTaskId.split(" - ")[1];
+            middleValues.add(middleValue);
+            return {
+              "id": todo['id'],
+              "maintenance_task_id": todo["maintenance_task_id"], // Keep the original value
+              "notes": todo["notes"],
+              "comments": todo["comments"],
+            };
+          }).toList();
             log("Extracted Value: ${matchingTodos}");//[{maintenance_task_id: 4 - 11 - 41, notes: Tire Thread- Front - Need Wheel Alignment, comments: testing0}]
+          log("Middle Values: ${middleValues}");
 
           List<Map<String, dynamic>> parseMaintenanceData(List<Map<String, dynamic>> todos) {
             try {
@@ -192,6 +166,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
               notesControllers: notesControllers,
               isLoading: false,
               isAllCheck: isAllCheck,
+              middleValues: middleValues
               //individualCheckStates: individualCheckStates,
             )
           );
@@ -228,6 +203,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         updatedIndividualCheckStates[event.itemId] = event.status;//{Oil: false, Coolant: false, Front : false, Rear: false, Front: false,}
         print("Updated maintenanceTaskId: $updatedIndividualCheckStates");
         print("IndividualCheckEvent ${event.item}");
+        Map<String, dynamic> popupId = event.item ?? {};
+        print("popupId data ${popupId}");
         itemCopy = event.item;
         var childrenData = event.item?['children'];
         var childrens = List<Map<String, dynamic>>.from(childrenData ?? []);
@@ -268,8 +245,16 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
               matchingIds.add(task["id"]);
             }
           }
-
           return matchingIds;
+        }
+
+        for (var task in matchingTodos) {
+          String maintenanceTaskId = task['maintenance_task_id'];
+          List<String> taskIdParts = maintenanceTaskId.split(' - ');
+          int parentId = int.tryParse(taskIdParts[1]) ?? 0;
+          int childId = int.tryParse(taskIdParts[2]) ?? 0;
+
+          print('Parent ID: $parentId, Child ID: $childId');
         }
         print("final value1 ${itemCopy}");
         print("final value2 ${matchingTodos}");
@@ -277,6 +262,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         print("final value3 ${result}");
 
         emit(state.copyWith(
+          popupId: popupId,
           individualCheckStates: updatedIndividualCheckStates,
           dropdownValue: dropDownData,
         ));
@@ -313,7 +299,79 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
       emit(state.copyWith(dropdownValue: event.linkOption));
     });
 
+    on<DeleteTodoItemEvent>((event, emit) async {
+      try{
+        print("result.toString() ${result.toString()}");
+        List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
+          List<int> matchingIds = [];
 
+          // Extract relevant IDs from IndividualCheckEvent
+          int parentId = checkEvent["id"];
+          List<int> childIds = (checkEvent["children"] as List)
+              .map((child) => child["id"] as int)
+              .toList();
+
+          for (var task in maintenanceTasks) {
+            String maintenanceTaskId = task["maintenance_task_id"];
+            List<int> taskIds = maintenanceTaskId
+                .split(" - ")
+                .map((id) => int.tryParse(id) ?? -1)
+                .where((id) => id != -1)
+                .toList();
+
+            // Check if the task IDs match the hierarchy (parent + child)
+            if (taskIds.contains(parentId) && taskIds.any((id) => childIds.contains(id))) {
+              matchingIds.add(task["id"]);
+            }
+          }
+
+          return matchingIds;
+        }
+        result = getMatchingIds(itemCopy, matchingTodos);
+        print("final value ${result}");
+        deleteTodoID = result?.first.toString();
+        print("final value ${deleteTodoID}");
+        await todoListRepo.deleteATodo(deleteTodoID!);
+      }
+      catch(e){
+        print("catch error ${e.toString()}");
+      }
+    });
+
+    on<CompleteTodoItemEvent>((event,emit) async {
+      try{
+        List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
+          List<int> matchingIds = [];
+          // Extract relevant IDs from IndividualCheckEvent
+          int parentId = checkEvent["id"];
+          List<int> childIds = (checkEvent["children"] as List)
+              .map((child) => child["id"] as int)
+              .toList();
+          for (var task in maintenanceTasks) {
+            String maintenanceTaskId = task["maintenance_task_id"];
+            List<int> taskIds = maintenanceTaskId
+                .split(" - ")
+                .map((id) => int.tryParse(id) ?? -1)
+                .where((id) => id != -1)
+                .toList();
+            // Check if the task IDs match the hierarchy (parent + child)
+            if (taskIds.contains(parentId) && taskIds.any((id) => childIds.contains(id))) {
+              matchingIds.add(task["id"]);
+            }
+          }
+
+          return matchingIds;
+        }
+        result = getMatchingIds(itemCopy, matchingTodos);
+        completeTodoID = result?.first.toString();
+        print("final value ${completeTodoID}"); // Output: [33646]
+        //Api Update Part
+        await todoListRepo.completeATodo(completeTodoID,"Completed");
+      }
+      catch(e){
+        print("catch error ${e.toString()}");
+      }
+    });
 
 
   }
