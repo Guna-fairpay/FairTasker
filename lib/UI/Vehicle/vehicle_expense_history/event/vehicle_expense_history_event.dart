@@ -80,3 +80,17 @@ class DeleteVehicleExpenseHistoryEvent extends VehicleExpenseHistoryEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class VehicleEvent extends VehicleExpenseHistoryEvent {
+  final dynamic selectedVehicle;
+  const VehicleEvent({required this.selectedVehicle});
+  @override
+  List<Object?> get props => [selectedVehicle, Random().nextDouble()];
+}
+
+class UpdateVehicleExpenseHistoryEvent extends VehicleExpenseHistoryEvent {
+  final String? id;
+  const UpdateVehicleExpenseHistoryEvent({required this.id});
+  @override
+  List<Object?> get props => [id];
+}

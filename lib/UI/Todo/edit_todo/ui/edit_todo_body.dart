@@ -1,5 +1,7 @@
 
- import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
+ import 'dart:developer';
+
+import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -140,7 +142,11 @@ class EditTodoBody extends StatelessWidget {
                   vehiclesList: state.vehicles,
                   personsList: state.persons,
                   selected: state.selectedVPerson,
-                  onDeleted: (val) => context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val)),
+                 // onDeleted: (val) => context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val['id'])),
+                  onDeleted: (val) {
+                    log("${val}",name: "DELETE_VEHICLE");
+                   // context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: "${val['value']['vehicle_id']}"));
+                  },
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
@@ -151,7 +157,7 @@ class EditTodoBody extends StatelessWidget {
                 CustomVendorLocationField(
                   vendorsList: state.vendors,
                   locationsList: state.locations,
-                  selected: {3: state.selectedVLocations  ?? {}},
+                  selected: {3: state.selectedVLocations},
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVLocationEvent(val)),

@@ -20,6 +20,10 @@ class VehicleExpenseHistoryState extends Equatable{
   final List<dynamic> cohorts;
   final dynamic selectedCohorts;
   final DateTime? selectedDate;
+  final List<Map<String,dynamic>> vehicle;
+  final Map<String,dynamic> selectedVehicle;
+  final String vin;
+  final String vehicleName;
   final bool isLoading;
 
   const VehicleExpenseHistoryState({
@@ -37,6 +41,10 @@ class VehicleExpenseHistoryState extends Equatable{
     required this.cohorts,
     required this.selectedCohorts,
     required this.selectedDate,
+    required this.vehicle,
+    required this.selectedVehicle,
+    required this.vin,
+    required this.vehicleName,
     required this.isLoading,
   });
 
@@ -55,6 +63,10 @@ class VehicleExpenseHistoryState extends Equatable{
     List<dynamic>? cohorts,
     dynamic selectedCohorts,
     DateTime? selectedDate,
+    List<Map<String,dynamic>>? vehicle,
+    Map<String,dynamic>? selectedVehicle,
+    String? vin,
+    String? vehicleName,
     bool? isLoading,
   }){
     return VehicleExpenseHistoryState(
@@ -72,6 +84,10 @@ class VehicleExpenseHistoryState extends Equatable{
       cohorts: cohorts ?? this.cohorts,
       selectedCohorts: selectedCohorts ?? this.selectedCohorts,
       selectedDate: selectedDate ?? this.selectedDate,
+      vehicle: vehicle ?? this.vehicle,
+      selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+      vin: vin ?? this.vin,
+      vehicleName: vehicleName ?? this.vehicleName,
       isLoading:  isLoading ?? this.isLoading,
     );
   }
@@ -92,6 +108,10 @@ class VehicleExpenseHistoryState extends Equatable{
     cohorts,
     selectedCohorts,
     selectedDate,
+    vehicle,
+    selectedVehicle,
+    vin,
+    vehicleName,
     isLoading,
     Random().nextDouble()
   ];

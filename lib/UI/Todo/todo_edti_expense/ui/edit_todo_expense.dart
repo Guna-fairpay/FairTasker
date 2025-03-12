@@ -12,6 +12,7 @@ import '../../../../Component/image_viewer.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/num.dart';
 import '../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
+import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
 import '../bloc/todo_edit_expense_bloc.dart';
 import '../event/todo_edit_expense_event.dart';
@@ -206,26 +207,55 @@ class TodoExpense extends StatelessWidget {
                             currentAttachment: state.expenseAttachments[index]);
                       },
                       onTapDelete: () {
-                        context.read<TodoEditExpenseBloc>().add(
+                        AskPermissionDialog.show(context,
+                            title: "Are you sure?",
+                            description: "Do you want to delete this Expense Image?",
+                            positiveText: "Yes, delete it!",
+                            negativeText: "Cancel",
+                            isReasonRequired: false,
+                            onPositivePressed: () =>
+                                context.read<TodoEditExpenseBloc>().add(
+                                    RemoveImageEvent(
+                                        data: state.expenseAttachments[index])));
+                       /* context.read<TodoEditExpenseBloc>().add(
                             RemoveImageEvent(
-                                data: state.expenseAttachments[index]));
+                                data: state.expenseAttachments[index]));*/
                       },
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: MediaQuery.sizeOf(context).height,
-                          minWidth: MediaQuery.sizeOf(context).width,
-                        ),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: AppC.grey.withValues(alpha: 0.2)),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: ImageViewer(
-                          fit: BoxFit.cover,
-                          imageInput: state.expenseAttachments[index],
-                          isNotImage:
-                              !((state.expenseAttachments[index] as Object)
-                                  .isImage),
-                        ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            constraints: BoxConstraints(
+                              minHeight: MediaQuery.sizeOf(context).height,
+                              minWidth: MediaQuery.sizeOf(context).width,
+                            ),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: AppC.grey.withValues(alpha: 0.2)),
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            child: ImageViewer(
+                              fit: BoxFit.cover,
+                              imageInput: state.expenseAttachments[index],
+                              isNotImage:
+                                  !((state.expenseAttachments[index] as Object)
+                                      .isImage),
+                            ),
+                          ),
+                          if ((state.expenseAttachments[index] as Object).isPDF)
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppC.green,
+                              borderRadius: BorderRadius.circular(16),
+
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                Utils.openURL(state.expenseAttachments[index]);
+                              },child:Padding(
+                              padding: 4.padding,
+                              child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
+                            ),),
+                          ),
+                        ],
                       )),
                 ),
               ),

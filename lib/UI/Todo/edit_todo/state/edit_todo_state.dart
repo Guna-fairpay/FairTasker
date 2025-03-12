@@ -36,14 +36,13 @@ class EditTodoState extends Equatable {
   final bool todoStatus;
   final List<String> selectedResource;
   final List<dynamic> userGroup;
-  final Map<int, dynamic> selectedTaskIdentifier;
   final List<dynamic> resourceName;
   final List<Map<String, dynamic>> addresses;
   final String title;
   final List<dynamic>taskHistory;
   final dynamic selectedVehicle;
 
-  const EditTodoState({
+  const EditTodoState( {
     required this.isLoading,
     required this.isTimeSensitive,
     required this.tasks,
@@ -76,7 +75,6 @@ class EditTodoState extends Equatable {
     required this.todoStatus,
     required this.selectedResource,
     required this.userGroup,
-    required this.selectedTaskIdentifier,
     required this.resourceName,
     required this.addresses,
     required this.title,
@@ -131,7 +129,6 @@ class EditTodoState extends Equatable {
     bool? todoStatus,
     List<String>? selectedResource,
     List<dynamic>? userGroup,
-    Map<int, dynamic>? selectedTaskIdentifier,
     List<dynamic>? resourceName,
     List<dynamic>? address,
     String? title,
@@ -173,7 +170,6 @@ class EditTodoState extends Equatable {
         todoStatus: todoStatus ?? this.todoStatus,
         selectedResource: selectedResource ?? this.selectedResource,
         userGroup: userGroup ?? this.userGroup,
-        selectedTaskIdentifier: selectedTaskIdentifier ?? this.selectedTaskIdentifier,
         resourceName: resourceName ?? this.resourceName,
         addresses: addresses ?? this.addresses,
         title: title ?? this.title,
@@ -217,7 +213,6 @@ class EditTodoState extends Equatable {
     todoStatus,
     selectedResource,
     userGroup,
-    selectedTaskIdentifier,
     resourceName,
     addresses,
     title,

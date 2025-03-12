@@ -176,15 +176,19 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         percentageOrAmountController.addListener(_updateExpenseTotal);
         totalAmountController.addListener(_updateExpenseTotal);
 
-        ogAttachments = expenseDetailResponse?.expense?['attachments'];
+
         saleTaxController.text =
             ((double.tryParse(partsCostController.text) ?? 0) +
                     (double.tryParse(labourCostController.text) ?? 0))
                 .toString();
 
-        attachments = ogAttachments
-                ?.map((e) => e['path'].toString().toStorageURL)
-                .toList() ?? [];
+        ogAttachments = expenseDetailResponse?.expense?['attachments'];
+        attachments?.clear();
+
+        attachments?.addAll(ogAttachments
+            ?.map((e) => e['path'].toString().toStorageURL)
+            .toList() ?? []);
+
         amountController.text =
             expenseDetailResponse?.expense?['expense_amount'].toString() ?? '';
         descriptionController.text =
@@ -368,24 +372,29 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             attachments.add(element);
           }
         }
+        log("$attachments", name: "PickImageEvent");
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
 
-    on<RemoveImageEvent>((event, emit) {
+    on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
       if (event.data is File) {
         // LOCAL SELECTION REMOVE
-        attachments?.remove(event.data);
+        state.expenseAttachments.remove(event.data);
+        attachments = state.expenseAttachments;
       } else if (event.data is String) {
         // REMOTE SELECTION REMOVE
         var data = attachments?.firstWhereOrNull(
-            (element) => element == event.data.toString().removeStorageUrl);
+                (element) => element == event.data.toString());
+
         var attachmentId = ogAttachments
-            ?.where((element) => element['path'] == data)
+            ?.where((element) => element['path'] == data.toString().removeStorageUrl)
             .map((e) => e['id'])
             .firstOrNull;
-        // {API CALL HERE }// PASS INTO API TO DELETE ATTACHMENT
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.deleteVehicleExpenseImage(attachmentId);
+        emit(state.copyWith(isLoading: false));
         // once success remove from attachments
         attachments?.remove(event.data);
       }
@@ -431,7 +440,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<CaptureImageEvent>((event, emit) async {
       var result = await _pickImages();
       if (result != null) {
-        attachments?.add(result);
+        var attachments = List.from(state.expenseAttachments);
+        attachments.add(result);
+        log("$attachments", name: "CaptureImageEvent");
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
@@ -463,8 +474,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         log(jsonEncode(_invoiceData()), name: 'INVOICE_DATA');
-        /*emit(state.copyWith(isLoading: false));
-        return;*/
+
         var response =
             await apiRepository.generateInvoice(body: _invoiceData());
 
@@ -485,6 +495,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<SaveExpenseEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
+        log("${state.expenseAttachments.whereType<File>().toList()}", name: 'EXPENSE_DATA');
         var response = await apiRepository.updateTodoExpense(
             expenseId: todoItem['expense_id'],
             images: state.expenseAttachments.whereType<File>().toList(),

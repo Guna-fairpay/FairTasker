@@ -2551,7 +2551,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   }
                   else {
-                    Navigator.push(
+                    /*Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => EditTodoUI(
@@ -2564,7 +2564,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                 multipleLocationAddressList
                             ),
                         ),
-                    );
+                    );*/
                   }
                 }
                 return false;

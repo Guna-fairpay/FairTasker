@@ -69,7 +69,8 @@ class EditTodoMoreForm extends StatelessWidget {
                     .add(EditToDoSupplySelectionEvent(isChecked, value)),
                 itemAsString: (item) => item['name'].toString(),
                 onEmptyTap: () => context.push(const SuppliesViewUI(),
-                    fullscreenDialog: true)),
+                    fullscreenDialog: true)
+            ),
           Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
