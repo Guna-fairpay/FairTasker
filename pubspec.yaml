@@ -107,6 +107,7 @@ dependencies:
   timelines_plus: ^1.0.6
   audioplayers: ^6.2.0
   circular_menu: ^4.0.0
+  get_it: ^8.0.3
 
 dev_dependencies:
   flutter_test:

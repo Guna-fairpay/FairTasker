@@ -2872,6 +2872,17 @@ class Utils {
       showMobileToast(e.toString());
     }
   }
+
+  static void showPickerDate(BuildContext context, {DateTime? value, void Function(DateTime)? onChanged}) async {
+    var result = await showDatePicker(
+        context: context,
+        firstDate: DateTime.now().subtract(const Duration(days: 180)),
+        currentDate: DateTime.now(),
+        initialDate: value,
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
+        lastDate: DateTime.now().add(const Duration(days: 1825000)));
+    if (result != null) onChanged?.call(result);
+  }
 }
 
 extension Unique<E, Id> on List<E>? {

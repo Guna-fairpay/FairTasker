@@ -14,7 +14,6 @@ class VehicleStatusListBody extends StatelessWidget {
     return SafeArea(
       minimum: 10.padding,
         child: const Column(
-          // spacing: 10,
           children: [
             VehicleStatusSearcherUi(),
             VehicleStatusCategoriesUi(),

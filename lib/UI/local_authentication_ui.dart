@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
   void initState() {
     super.initState();
     authenticationBloc = LocalAuthenticationBloc();
+    getIt<CommonService>().getUsers();
     checkBiometric();
   }
 

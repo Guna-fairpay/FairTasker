@@ -68,7 +68,7 @@ extension StringExtension on String? {
 
   DateTime? toDateTime({String inputFormat = "yyyy-MM-dd"}) {
     var input = this;
-    if ((input == null) || (input.isEmpty) ) return null;
+    if ((input == null) || (input.isEmpty) || (isNullOrEmpty)) return null;
     var dateFormat = DateFormat(inputFormat);
     return dateFormat.parse(input);
   }
@@ -92,4 +92,6 @@ extension StringExtension on String? {
     var date = toDateTime(inputFormat: inputFormat);
     return (date != null) ? TimeOfDay.fromDateTime(date) : null;
   }
+
+  int get getOnlyNumeric => int.parse((this ?? "").replaceAll(RegExp('[^0-9]'), ''));
 }

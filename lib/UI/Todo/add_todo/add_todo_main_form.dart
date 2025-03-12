@@ -29,7 +29,8 @@ class AddTodoMainForm extends StatelessWidget {
     return BlocBuilder<AddToDoBloc, AddToDoState>(
         builder: (context, state) => Form(
                 child: ListView(
-                  padding: 10.topPadding,
+                  shrinkWrap: !showHeader,
+                  padding: (showHeader) ? 10.topPadding : EdgeInsets.zero,
                   physics: (showHeader) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
               children: [
                 10.height,

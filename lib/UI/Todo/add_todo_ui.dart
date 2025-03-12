@@ -39,8 +39,7 @@ class CreateTodoUI extends StatelessWidget {
               builder: (context, state) {
                 return Scaffold(
                   backgroundColor: AppC.white,
-                  appBar: state.showAppBar
-                      ? AppBar(
+                  appBar: AppBar(
                     elevation: 0,
                     backgroundColor: AppC.appColor,
                     foregroundColor: Colors.white,
@@ -113,8 +112,7 @@ class CreateTodoUI extends StatelessWidget {
                         ),
                       ),
                     ],
-                  )
-                      : null,
+                  ),
                   body: SafeArea(
                     minimum: 20.padding,
                     child: const AddTodoMainForm(),
@@ -141,7 +139,6 @@ class CreateTodoUI extends StatelessWidget {
           },
           child: BlocBuilder<AddToDoBloc, AddToDoState>(
               builder: (context, state) => SafeArea(
-                minimum: 20.padding,
                 child: AddTodoMainForm(showHeader: showHeader),
               )
           )),
