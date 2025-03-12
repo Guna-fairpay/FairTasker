@@ -199,11 +199,13 @@ class VehicleExpenseHistoryBloc
       }
     });
 
+
     on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
       if (event.data is File) {
         // LOCAL SELECTION REMOVE
-        attachments?.remove(event.data);
+        state.expenseAttachments.remove(event.data);
+       attachments=state.expenseAttachments;
       } else if (event.data is String) {
         // REMOTE SELECTION REMOVE
         var data = attachments?.firstWhereOrNull(

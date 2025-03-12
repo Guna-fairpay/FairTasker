@@ -119,33 +119,66 @@ class VehicleExpenseHistoryEditViewUI extends StatelessWidget {
                               itemBuilder: (context, index) => CloseBadge(
                                   showClose: false,
                                   onTapView: () {
+                                    /*var currentData = state.expenseAttachments[index];
+                                    if ((currentData is String) && (currentData.isPDF)) {
+                                      // OPEN URL
+                                      Utils.openURL(currentData);
+                                    } else {
+                                      ShowAttachmentsDialog.of.show(context,
+                                          attachments: state.expenseAttachments,
+                                          title: "",
+                                          currentAttachment:
+                                          state.expenseAttachments[index]);
+                                    }*/
                                     ShowAttachmentsDialog.of.show(context,
                                         attachments: state.expenseAttachments,
                                         title: "",
                                         currentAttachment:
-                                            state.expenseAttachments[index]);
+                                        state.expenseAttachments[index]);
                                   },
-                                  child: Container(
-                                    constraints: BoxConstraints(
-                                      minHeight:
-                                          MediaQuery.sizeOf(context).height,
-                                      minWidth:
-                                          MediaQuery.sizeOf(context).width,
-                                    ),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(16),
-                                        color:
-                                            AppC.grey.withValues(alpha: 0.2)),
-                                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                                    child: ImageViewer(
-                                      fit: BoxFit.cover,
-                                      imageInput: state.expenseAttachments[index],
-                                      isNotImage: !((state.expenseAttachments[index]
-                                              as Object)
-                                          .isImage),
-                                    ),
-                                  )),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        constraints: BoxConstraints(
+                                          minHeight:
+                                              MediaQuery.sizeOf(context).height,
+                                          minWidth:
+                                              MediaQuery.sizeOf(context).width,
+                                        ),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            color:
+                                                AppC.grey.withValues(alpha: 0.2)),
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        child: ImageViewer(
+                                          fit: BoxFit.cover,
+                                          imageInput: state.expenseAttachments[index],
+                                          isNotImage: !((state.expenseAttachments[index]
+                                                  as Object)
+                                              .isImage),
+                                        ),
+                                      ),
+                                      // Add download button only for PDF
+                                      if ((state.expenseAttachments[index] as Object).isPDF)
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: AppC.green,
+                                            borderRadius: BorderRadius.circular(16),
+
+                                          ),
+                                          child: InkWell(
+                                            onTap: () {
+                                              Utils.openURL(state.expenseAttachments[index]);
+                                            },child:Padding(
+                                              padding: 1.padding,
+                                              child: const Icon(Icons.download,color: AppC.white,),
+                                            ),),
+                                        ),
+                                        
+                                    ],
+                                  ),
+                              ),
                             ),
                           ),
                       ],

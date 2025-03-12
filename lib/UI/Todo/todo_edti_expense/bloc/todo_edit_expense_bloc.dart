@@ -381,7 +381,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       if (event.data == null) return;
       if (event.data is File) {
         // LOCAL SELECTION REMOVE
-        attachments?.remove(event.data);
+        state.expenseAttachments.remove(event.data);
+        attachments = state.expenseAttachments;
       } else if (event.data is String) {
         // REMOTE SELECTION REMOVE
         var data = attachments?.firstWhereOrNull(
@@ -473,8 +474,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         log(jsonEncode(_invoiceData()), name: 'INVOICE_DATA');
-        /*emit(state.copyWith(isLoading: false));
-        return;*/
+
         var response =
             await apiRepository.generateInvoice(body: _invoiceData());
 
