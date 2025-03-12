@@ -276,9 +276,9 @@ class APiRepository {
       }
     }
 
-    Future<GeneralResponse?> deleteTodoVehicle(dynamic todoVehicleId,) async {
+    Future<GeneralResponse?> deleteTodoVehicle({String? id}) async {
       try {
-        String apiUrl = "${Str.BASE_URL}$_deleteVehicles/$todoVehicleId";
+        String apiUrl = "${Str.BASE_URL}$_deleteVehicles/$id";
         final http.Response? response = await _apiClient.callDelete(apiUrl);
         var mapData = await response.mapData;
         return GeneralResponse.fromJson(mapData);
@@ -382,6 +382,20 @@ class APiRepository {
     } catch (error) {
       log('callLoginAPI.exception2 : ${error.toString()}');
       return null;
+    }
+  }
+
+  Future<GeneralResponse?> deleteTodo({String? id,dynamic reason}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({
+            'reason': '$reason',
+          }));
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
     }
   }
 

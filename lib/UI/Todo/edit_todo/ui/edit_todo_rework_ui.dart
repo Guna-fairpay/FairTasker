@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../../../../Utilities/appC.dart';
+import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
 import '../state/edit_todo_state.dart';
 import 'edit_todo_body.dart';
@@ -119,21 +120,42 @@ class EditTodoReworkUI extends StatelessWidget {
                       ),
                       IconButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            AskPermissionDialog.show(
+                              context,
+                              title:
+                              "Are you sure want to delete this task?",
+                              description:
+                              "Kindly enter a valid reason to confirm the deletion",
+                              positiveText: "Yes, delete it!",
+                              negativeText: "Cancel",
+                              isReasonRequired: true,
+                              onReasonSubmitted: (reason) {
+                                  context
+                                      .read<EditToDoBloc>()
+                                      .add(
+                                      DeleteTodoEvent(todoId: todoId, reason: reason)
+                                   );
+                                  Future.delayed(const Duration(seconds: 1), () {
+                                    Navigator.pop(context);
+                                  });
+                              }
+                            );
                           },
-                          icon: const Icon(Icons.delete)),
+                          icon: const Icon(Icons.delete)
+                      ),
                       IconButton(
                           onPressed: () {
                             context.read<EditToDoBloc>().add(EditToDoSaveEvent());
                             Navigator.pop(context);
                           },
-                          icon: const Icon(Icons.save)),
-
+                          icon: const Icon(Icons.save)
+                      ),
                       IconButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          icon: const Icon(Icons.close)),
+                          icon: const Icon(Icons.close)
+                      ),
                     ],
                   ),
                   body: SafeArea(
