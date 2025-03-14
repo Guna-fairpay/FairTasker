@@ -43,136 +43,161 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
     on<MaintenanceInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       List<String> middleValues = [];
+      List<Map<String, dynamic>> matchingTodos = [];
+      List<Map<String, dynamic>> parsedData = [];
+      List<int> idListAsInt = [];
+
       try {
         final response = await todoListRepo.getMaintenanceCheckList();
         final response1 = await todoListRepo.getTodoList();
-        if (response != null) {
-          final todoList = response1!.data ?? [];
-          final maintenanceCheckList = response.data ?? [];
-          final checkboxStates = <int, Map<int, bool>>{};
-          final selectedDropdownValues = <dynamic, String>{};
-          final notesControllers = <int, TextEditingController>{};
-
-          for (var maintenanceItem in maintenanceCheckList) {
-            final maintenanceId = maintenanceItem['id'];
-            checkboxStates[maintenanceId] = {};
-            for (var item in maintenanceItem['children'] ?? []) {
-              checkboxStates[maintenanceId]![item['id']] = true;
-              selectedDropdownValues[item['id']] = "Good";
-              notesControllers.putIfAbsent(item['id'], () => TextEditingController());
-              //individualCheckStates[item['name']] = false;
-            }
-          }
-
-          Map<String, dynamic> todoItem = event.todoItem;
-          //log("${todoItem}", name: "TODO_ITEM");
-          String fixTasksJson = todoItem['fix_tasks'];//{"11":33540}
-          print("fixTasksJson $fixTasksJson");
-          Map<String, dynamic> fixTasksMap = jsonDecode(fixTasksJson);//{11: 33540}
-          print("fixTasksMap $fixTasksMap");
-          List<dynamic> fixTaskValues = fixTasksMap.values.toList();//[33540]
-          print("fixTaskValues $fixTaskValues");
-
-          matchingTodos = todoList
-              .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
-              .map((todo) {
-            String maintenanceTaskId = todo["maintenance_task_id"];
-            String middleValue = maintenanceTaskId.split(" - ")[1];
-            middleValues.add(middleValue);
-            return {
-              "id": todo['id'],
-              "maintenance_task_id": todo["maintenance_task_id"], // Keep the original value
-              "notes": todo["notes"],
-              "comments": todo["comments"],
-            };
-          }).toList();
-            log("Extracted Value: ${matchingTodos}");//[{maintenance_task_id: 4 - 11 - 41, notes: Tire Thread- Front - Need Wheel Alignment, comments: testing0}]
-          log("Middle Values: ${middleValues}");
-
-          List<Map<String, dynamic>> parseMaintenanceData(List<Map<String, dynamic>> todos) {
-            try {
-              List<Map<String, dynamic>> result = [];
-              for (var todo in todos) {
-                if(todo["maintenance_task_id"] != null)
-                  {
-                    String ids = todo["maintenance_task_id"];
-                    print("ids $ids");
-                    String notes = todo["notes"];
-                    print("notes $notes");
-                    String comments = todo["comments"];
-                    print("comments $comments");
-                    List<String> idList = ids.split(" - ").map((e) => e.trim()).toList();
-                    print("idList $idList");
-                    List<String?> noteList = notes.split(" - ").map((e) => e.trim()).toList();
-                    print("noteList $noteList");
-                    for (int i = 0; i < idList.length; i++) {
-                      result.add({
-                        "id": int.parse(idList[i]),
-                        "name": i < noteList.length ? (noteList[i] ?? "") : "Unknown",
-                        "comments": comments,
-                        "fixTaskId" : todo['id'],
-                      });
-                    }
-                  }
-              }
-              return result;
-            } catch (e) {
-              print("error in parseMaintenanceData: $e");
-              return [];
-            }
-          }
-          print("parseMaintenanceData ");
-          List<Map<String, dynamic>> parsedData = parseMaintenanceData(matchingTodos);
-          print(parsedData);//[{id: 4, name: Tire Thread, comments: testing0}, {id: 11, name: Front, comments: testing0}, {id: 41, name: Need Wheel Alignment, comments: testing0}]
-
-          for (var data in matchingTodos) {
-            try {
-              if(data["maintenance_task_id"] != null)
-                {
-                  String taskIdsStr = data["maintenance_task_id"];
-                  List<String> taskIds = taskIdsStr.split(" - ").map((e) => e.trim()).toList();
-                  if (taskIds.length >= 2) {
-                    int secondTaskId = int.tryParse(taskIds[1]) ?? -1;
-                    if (secondTaskId != -1 && notesControllers.containsKey(secondTaskId)) {
-                      String commentsValue = data["comments"];
-                      notesControllers[secondTaskId]!.text = commentsValue;
-                    }
-                  }
-                }
-            } catch (e) {
-              print("Error parsing maintenance_task_id: $e");
-            }
-          }
-          maintenanceTaskId = event.todoItem['maintenance_task_id']?.toString();
-          if (maintenanceTaskId != null) {
-            idListAsInt = maintenanceTaskId
-                !.split('-')
-                .where((id) => id.trim().isNotEmpty)
-                .map((id) => int.tryParse(id) ?? 0)
-                .where((id) => id != 0)
-                .toList();
-          }
-          log("${idListAsInt}", name: "TESTING_ID_LIST");
-          final isAllCheck = event.todoItem['mandatory'] == 1 ? false : true;
-          print("isAllCheck $isAllCheck");
-          // Emit the updated state
-          emit(state.copyWith(
-              initialDropDown: parsedData,
-              matchingTodos: matchingTodos,
-              idList: idListAsInt,
-              maintenance: maintenanceCheckList,
-              checkboxStates: checkboxStates,
-              selectedDropdownValues: selectedDropdownValues,
-              notesControllers: notesControllers,
-              isLoading: false,
-              isAllCheck: isAllCheck,
-              middleValues: middleValues
-              //individualCheckStates: individualCheckStates,
-            )
-          );
+        if (response == null || response1 == null) {
+          print("Response is null");
+          emit(state.copyWith(isLoading: false));
+          return;
         }
-      }
-      catch (error) {
+
+        final todoList = response1.data ?? [];
+        final maintenanceCheckList = response.data ?? [];
+        final checkboxStates = <int, Map<int, bool>>{};
+        final selectedDropdownValues = <dynamic, String>{};
+        final notesControllers = <int, TextEditingController>{};
+
+        for (var maintenanceItem in maintenanceCheckList) {
+          final maintenanceId = maintenanceItem['id'];
+          if (maintenanceId == null) continue;
+          checkboxStates[maintenanceId] = {};
+          final children = maintenanceItem['children'] ?? [];
+          for (var item in children) {
+            final itemId = item['id'];
+            if (itemId == null) continue;
+            checkboxStates[maintenanceId]![itemId] = true;
+            selectedDropdownValues[itemId] = "Good";
+            notesControllers.putIfAbsent(itemId, () => TextEditingController());
+          }
+        }
+
+        Map<String, dynamic> todoItem = event.todoItem;
+        String? fixTasksJson = todoItem['fix_tasks'];
+        if (fixTasksJson == null) {
+          print("fix_tasks is null");
+          emit(state.copyWith(isLoading: false));
+          final isAllCheck = event.todoItem['mandatory'] == 1 ? false : true;
+          emit(state.copyWith(
+            initialDropDown: parsedData,
+            matchingTodos: matchingTodos,
+            idList: idListAsInt,
+            maintenance: maintenanceCheckList,
+            checkboxStates: checkboxStates,
+            selectedDropdownValues: selectedDropdownValues,
+            notesControllers: notesControllers,
+            isLoading: false,
+            isAllCheck: isAllCheck,
+            middleValues: middleValues,
+          ));
+          return;
+        }
+
+        Map<String, dynamic> fixTasksMap;
+        try {
+          fixTasksMap = jsonDecode(fixTasksJson);
+        } catch (e) {
+          print("Error decoding fixTasksJson: $e");
+          emit(state.copyWith(isLoading: false));
+          return;
+        }
+
+        List<dynamic> fixTaskValues = fixTasksMap.values.toList();
+
+        List<Map<String, dynamic>> parseMaintenanceData(List<Map<String, dynamic>> todos) {
+          try {
+            List<Map<String, dynamic>> result = [];
+            for (var todo in todos) {
+              final maintenanceTaskId = todo["maintenance_task_id"];
+              final notes = todo["notes"];
+              final comments = todo["comments"];
+              if (maintenanceTaskId == null || notes == null || comments == null) {
+                continue; // Skip if any required field is null
+              }
+              List<String> idList = maintenanceTaskId.split(" - ").map((e) => e.trim()).toList();
+              List<String?> noteList = notes.split(" - ").map((e) => e.trim()).toList();
+              for (int i = 0; i < idList.length; i++) {
+                result.add({
+                  "id": int.tryParse(idList[i]) ?? 0, // Handle invalid IDs
+                  "name": i < noteList.length ? (noteList[i] ?? "") : "Unknown",
+                  "comments": comments,
+                  "fixTaskId": todo['id'],
+                });
+              }
+            }
+            return result;
+          } catch (e) {
+            print("error in parseMaintenanceData: $e");
+            return [];
+          }
+        }
+
+        matchingTodos = todoList
+            .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
+            .map((todo) {
+          String? maintenanceTaskId = todo["maintenance_task_id"];
+          if (maintenanceTaskId == null) return null;
+          String middleValue = maintenanceTaskId.split(" - ")[1];
+          middleValues.add(middleValue);
+          return {
+            "id": todo['id'],
+            "maintenance_task_id": maintenanceTaskId,
+            "notes": todo["notes"],
+            "comments": todo["comments"],
+          };
+        })
+            .where((todo) => todo != null) // Filter out null values
+            .cast<Map<String, dynamic>>() // Cast to List<Map<String, dynamic>>
+            .toList();
+
+        parsedData = parseMaintenanceData(matchingTodos);
+
+        for (var data in matchingTodos) {
+          try {
+            if (data["maintenance_task_id"] != null) {
+              String taskIdsStr = data["maintenance_task_id"];
+              List<String> taskIds = taskIdsStr.split(" - ").map((e) => e.trim()).toList();
+              if (taskIds.length >= 2) {
+                int secondTaskId = int.tryParse(taskIds[1]) ?? -1;
+                if (secondTaskId != -1 && notesControllers.containsKey(secondTaskId)) {
+                  String commentsValue = data["comments"];
+                  notesControllers[secondTaskId]!.text = commentsValue;
+                }
+              }
+            }
+          } catch (e) {
+            print("Error parsing maintenance_task_id: $e");
+          }
+        }
+
+        String? maintenanceTaskId = event.todoItem['maintenance_task_id']?.toString();
+        if (maintenanceTaskId != null) {
+          idListAsInt = maintenanceTaskId
+              .split('-')
+              .where((id) => id.trim().isNotEmpty)
+              .map((id) => int.tryParse(id) ?? 0)
+              .where((id) => id != 0)
+              .toList();
+        }
+
+        final isAllCheck = event.todoItem['mandatory'] == 1 ? false : true;
+        emit(state.copyWith(
+          initialDropDown: parsedData,
+          matchingTodos: matchingTodos,
+          idList: idListAsInt,
+          maintenance: maintenanceCheckList,
+          checkboxStates: checkboxStates,
+          selectedDropdownValues: selectedDropdownValues,
+          notesControllers: notesControllers,
+          isLoading: false,
+          isAllCheck: isAllCheck,
+          middleValues: middleValues,
+        ));
+      } catch (error) {
         print("Error fetching checklist: $error");
         emit(state.copyWith(isLoading: false));
       }
