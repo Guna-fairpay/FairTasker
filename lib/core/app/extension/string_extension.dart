@@ -28,6 +28,8 @@ extension StringExtension on String? {
 
   bool get isImageFile => ((this?.endsWith('.jpg') ?? false) || (this?.endsWith('.png') ?? false) || (this?.endsWith('.jpeg') ?? false));
 
+  bool get isPdf => ((this?.endsWith('.pdf') ?? false));
+
   String get toAttachmentURL => "${Str.TODO_ATTACHMENTS_URL}$this";
 
   String get toStorageURL => "${Str.STORAGE_BASE_URL}$this";

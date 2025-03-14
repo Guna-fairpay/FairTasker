@@ -2551,20 +2551,14 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   }
                   else {
-                    Navigator.push(
+                    /*Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => EditTodoUI(
-                                todoItem: todos,
-                                userGroupList: userGroupList,
-                                resourceList: resourceList,
-                                categoriesListData: categoriesListData,
-                                addressesList: addresses,
-                                multipleLocationList:
-                                multipleLocationAddressList
+                            builder: (context) => EditTodoReworkUI(
+                                 todoId: todos['id'],
                             ),
                         ),
-                    );
+                    );*/
                   }
                 }
                 return false;

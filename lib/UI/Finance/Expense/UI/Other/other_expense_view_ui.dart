@@ -1,8 +1,5 @@
 
-import 'package:fairpytasker/Repository/todo_list_repository.dart';
-import 'package:fairpytasker/Response/expense_other_response.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Person/person_expense_edit_ui.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
@@ -10,17 +7,12 @@ import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:fairpytasker/Bloc/expense_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fairpytasker/State/expense_state.dart';
-import 'package:fairpytasker/Event/expense_event.dart';
-import '../../../../Bloc/todo_view_bloc.dart';
-import '../../../../Event/todo_view_event.dart';
-import '../../../../Repository/expense_repository.dart';
-import '../../../../Utilities/Str.dart';
-import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/num.dart';
-import 'Dialog/other_expense_delete_dialog.dart';
+import '../../../../../Bloc/todo_view_bloc.dart';
+import '../../../../../Event/todo_view_event.dart';
+import '../../../../../Utilities/Str.dart';
+import '../../../../../Utilities/appC.dart';
+import '../../../../../Utilities/num.dart';
 import 'other_expense_add_ui.dart';
 import 'other_expense_edit_ui.dart';
 

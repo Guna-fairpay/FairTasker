@@ -90,7 +90,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           todoStatus: false,
           selectedResource: const [],
           userGroup: const [],
-          selectedTaskIdentifier: const {},
           resourceName: const [],
           addresses: const [],
           title: '',
@@ -333,15 +332,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoVPersonEvent>((event, emit) {
-      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-      if ((event.vPerson as List).isEmpty) {
-        var oldIdentifier = state.selectedTaskIdentifier;
-        oldIdentifier.remove(2);
-        emit(state.copyWith(
-            selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
-        return;
-      }
-      var newData = List<Map<String, dynamic>>.from(event.vPerson);
       var existingVPersons =
       List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existingVPersons
@@ -351,14 +341,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
-      oldIdentifier[2] = newData;
       existingVPersons = existingVPersons.unique((element) => element['id']);
       existingVPersons.removeWhere((element) =>
       element['type'] ==
           ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
       emit(state.copyWith(
-          selectedVPerson: existingVPersons,
-          selectedTaskIdentifier: oldIdentifier));
+          selectedVPerson: existingVPersons,));
     });
 
     on<EditToDoShowPartsEvent>((event, emit) {
@@ -505,16 +493,30 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoSelectTaskHistoryEvent>((event, emit) =>
         emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
 
-    /*on<EditToDoDeleteVehicleEvent>((event, emit) async {
+
+
+    on<EditToDoDeleteVehicleEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try {
-        await apiRepository.deleteTodoVehicle(event.todoVehicleId);
+        await apiRepository.deleteTodoVehicle(id: event.vehicleId);
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(),name: 'ERROR');
-        emit(state.copyWith(isLoading: false));
     }
-    });*/
+      emit(state.copyWith(isLoading: false));
+    });
+
+    on<DeleteTodoEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+      }
+      emit(state.copyWith(isLoading: false));
+    });
+
 
     on<EditToDoSaveEvent>((event, emit) async {
       // VALIDATIONS MANDATORY
@@ -525,11 +527,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("Task name is required");
         return;
       }
-      var isPlatformRequired = state.selectedTaskIdentifier.containsKey(1) &&
-          Str.platFormCheckIds
-              .contains(state.selectedTaskIdentifier[1]['id']) &&
-          departmentId == '7' &&
-          !state.isSelectedPlatformCheck;
+      var isPlatformRequired = departmentId == '7' && !state.isSelectedPlatformCheck;
       if (isPlatformRequired) {
         Toaster.showError("Platform check is required");
         return;

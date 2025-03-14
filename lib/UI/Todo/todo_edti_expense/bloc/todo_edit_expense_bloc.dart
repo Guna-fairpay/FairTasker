@@ -17,7 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../Repository/api_repository.dart';
 import '../../../../Response/vehicle_list_response.dart';
-import '../../../../Response/vendor_response.dart';
+import '../../../../Utilities/Str.dart';
 import '../../../../core/app/helper/toaster.dart';
 import '../event/todo_edit_expense_event.dart';
 import '../repository/todo_edit_expense_repository.dart';
@@ -63,6 +63,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic> selectedPart = [];
   List<dynamic> selectedSupplies = [];
   dynamic selectedVendor={};
+  String? userId;
 
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
@@ -82,6 +83,11 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           suppliesList: [],
           vendorList: {},
         )) {
+
+    Utils.getStringPreference(Str.userIdPrefText).then((id) {
+        userId = id;
+    });
+
     FBroadcast.instance().register("Parts", (value, callback) {
       if (value is List) {
         if (partsList.isEmpty) {
@@ -176,15 +182,19 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         percentageOrAmountController.addListener(_updateExpenseTotal);
         totalAmountController.addListener(_updateExpenseTotal);
 
-        ogAttachments = expenseDetailResponse?.expense?['attachments'];
+
         saleTaxController.text =
             ((double.tryParse(partsCostController.text) ?? 0) +
                     (double.tryParse(labourCostController.text) ?? 0))
                 .toString();
 
-        attachments = ogAttachments
-                ?.map((e) => e['path'].toString().toStorageURL)
-                .toList() ?? [];
+        ogAttachments = expenseDetailResponse?.expense?['attachments'];
+        attachments?.clear();
+
+        attachments?.addAll(ogAttachments
+            ?.map((e) => e['path'].toString().toStorageURL)
+            .toList() ?? []);
+
         amountController.text =
             expenseDetailResponse?.expense?['expense_amount'].toString() ?? '';
         descriptionController.text =
@@ -368,24 +378,29 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             attachments.add(element);
           }
         }
+        log("$attachments", name: "PickImageEvent");
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
 
-    on<RemoveImageEvent>((event, emit) {
+    on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
       if (event.data is File) {
         // LOCAL SELECTION REMOVE
-        attachments?.remove(event.data);
+        state.expenseAttachments.remove(event.data);
+        attachments = state.expenseAttachments;
       } else if (event.data is String) {
         // REMOTE SELECTION REMOVE
         var data = attachments?.firstWhereOrNull(
-            (element) => element == event.data.toString().removeStorageUrl);
+                (element) => element == event.data.toString());
+
         var attachmentId = ogAttachments
-            ?.where((element) => element['path'] == data)
+            ?.where((element) => element['path'] == data.toString().removeStorageUrl)
             .map((e) => e['id'])
             .firstOrNull;
-        // {API CALL HERE }// PASS INTO API TO DELETE ATTACHMENT
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.deleteVehicleExpenseImage(attachmentId);
+        emit(state.copyWith(isLoading: false));
         // once success remove from attachments
         attachments?.remove(event.data);
       }
@@ -431,7 +446,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<CaptureImageEvent>((event, emit) async {
       var result = await _pickImages();
       if (result != null) {
-        attachments?.add(result);
+        var attachments = List.from(state.expenseAttachments);
+        attachments.add(result);
+        log("$attachments", name: "CaptureImageEvent");
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
@@ -463,8 +480,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         log(jsonEncode(_invoiceData()), name: 'INVOICE_DATA');
-        /*emit(state.copyWith(isLoading: false));
-        return;*/
+
         var response =
             await apiRepository.generateInvoice(body: _invoiceData());
 
@@ -485,6 +501,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<SaveExpenseEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
+        log("${state.expenseAttachments.whereType<File>().toList()}", name: 'EXPENSE_DATA');
         var response = await apiRepository.updateTodoExpense(
             expenseId: todoItem['expense_id'],
             images: state.expenseAttachments.whereType<File>().toList(),
@@ -534,9 +551,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       ...[splitLabor]
     ];
 
+
+
     final expenseAmount = amountController.text.isNotEmpty
         ? amountController.text
         : totalAmountController.text;
+    log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
     baseBody['category_name'] = "${state.selectedMainCategory?['name'] ?? ''}";
     baseBody['category_id'] = "${state.selectedMainCategory?['id'] ?? ''}";
@@ -551,7 +571,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['expense_date'] = DateTime.now().format('yyyy-MM-dd').toString();
     baseBody['cohort_id'] = "${todoItem["cohort_id"] ?? ''}";
     baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
-    baseBody['odometer'] = odometerController.text;
+    if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
     baseBody['type'] = "inline";
     baseBody['platform'] = "TaskerApp";
     baseBody['sales_tax_percentage'] =
@@ -559,13 +579,15 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['sales_tax'] = saleTaxController.text;
     baseBody['shipping_and_handling'] = shippingController.text;
     baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
-
-    splits.forEachIndexed((index, element) {
-      baseBody['split[$index][${element.keys.first}]'] =
-          element[element.keys.first].toString();
-      baseBody['split[$index][${element.keys.last}]'] =
-          element[element.keys.last].toString();
-    });
+    baseBody['employee_id'] = userId ?? '';
+    if (splitParts.isNotEmpty || splitSupplies.isNotEmpty) {
+      splits.forEachIndexed((index, element) {
+        baseBody['split[$index][${element.keys.first}]'] =
+            element[element.keys.first].toString();
+        baseBody['split[$index][${element.keys.last}]'] =
+            element[element.keys.last].toString();
+      });
+    }
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }

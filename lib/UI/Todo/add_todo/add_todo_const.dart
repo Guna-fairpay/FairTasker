@@ -67,4 +67,10 @@ class AddToDoConfig {
     {"id" : 2, "name" : "FairPy"},
   ];
 
+  static const List<Map<String, dynamic>> expenseTaps = [
+    {"id" : 1, "title" : "Vehicle"},
+    {"id" : 2, "title" : "Person"},
+    {"id" : 3, "title" : "Other"},
+  ];
+
 }

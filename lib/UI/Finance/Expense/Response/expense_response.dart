@@ -2,6 +2,7 @@
 class ExpenseResponse {
   ExpenseResponse({
     this.data,
+    this.totalExpensesAmount,
     this.status,
     this.message,
   });
@@ -10,12 +11,14 @@ class ExpenseResponse {
     data = json['data'] is Map<String, dynamic>
         ? [Map<String, dynamic>.from(json['data'] ?? {})]
         : List<Map<String, dynamic>>.from(json['data'] ?? []);
+    totalExpensesAmount = json['totalExpensesAmount'];
     message = json['message'] ?? "";
     status = json['status'];
 
   }
 
   List<Map<String, dynamic>>? data;
+  double? totalExpensesAmount;
   int? status;
   String? message;
 

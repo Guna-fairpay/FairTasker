@@ -222,10 +222,17 @@ class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
   List<Object?> get props => [selectTaskHistory];
 }
 
-class DeleteTodoEvent extends EditToDoEvent {}
+class DeleteTodoEvent extends EditToDoEvent {
+  final String? todoId;
+  final String? reason;
+  DeleteTodoEvent({required this.todoId,required this.reason});
+  @override
+  List<Object?> get props => [todoId,reason];
+}
 
 class EditToDoDeleteVehicleEvent extends EditToDoEvent {
-  final dynamic vehicleId;
+  final String vehicleId;
+
   EditToDoDeleteVehicleEvent({
    required this.vehicleId,
   });
@@ -233,9 +240,7 @@ class EditToDoDeleteVehicleEvent extends EditToDoEvent {
   List<Object?> get props => [vehicleId];
 }
 
-class EditToDoStatesChangeEvent extends EditToDoEvent {
-
-}
+class EditToDoStatesChangeEvent extends EditToDoEvent {}
 
 class EditToDoDeletePartsAndSuppliesEvent extends EditToDoEvent {}
 

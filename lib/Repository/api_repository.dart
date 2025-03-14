@@ -14,6 +14,7 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import '../UI/Finance/Expense/Response/expense_response.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
 import '../Utilities/str.dart' show Str;
@@ -53,7 +54,7 @@ class APiRepository {
 
   String get _getVehicleExpense => "getVehicleExpenses";
 
-  String get _deleteVehicleExpenseImage => "expense_attachment";
+  String get _deleteExpenseImage => "expense_attachment";
 
   String get _deleteExpenseTodo => "delete-expense-todo";
 
@@ -241,35 +242,37 @@ class APiRepository {
       {Map<String, dynamic>? body,
       List<File>? images,
       String? expenseId}) async {
-    try {
-      String apiUrl = '';
-      if (expenseId != null) {
-        apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
-      } else {
-        apiUrl = "${Str.LIST_BASE_URL}$_expenses";
-      }
-      final http.Response? response = await _apiClient.callPostMethodWithBody(
-          apiUrl,
-          body: body?..putIfAbsent('type', () => "inline"),
-          files: images?.map((e) => e.path).toList());
-      if (response != null) {
-        if (response.isSuccess) {
-          var mapData = await response.mapData;
-          Toaster.showSuccess(
-              mapData?['message'] ?? "Todo Updated Successfully");
-          return mapData;
+      try {
+        String apiUrl = '';
+        if (expenseId != null) {
+          apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
         } else {
-          Utils.showSomethingWentWrong();
+          apiUrl = "${Str.LIST_BASE_URL}$_expenses";
+        }
+        final http.Response? response = await _apiClient.callPostMethodWithBody(
+            apiUrl,
+            body: body?..putIfAbsent('type', () => "inline"),
+            autoIncrement: true,
+            fieldName: "files",
+            files: images?.map((e) => e.path).toList());
+        if (response != null) {
+          if (response.isSuccess) {
+            var mapData = await response.mapData;
+            Toaster.showSuccess(
+                mapData?['message'] ?? "Todo Updated Successfully");
+            return mapData;
+          } else {
+            Utils.showSomethingWentWrong();
+            return null;
+          }
+        } else {
           return null;
         }
-      } else {
+      } catch (error) {
+        log('callLoginAPI.exception2 : ${error.toString()}');
         return null;
       }
-    } catch (error) {
-      log('callLoginAPI.exception2 : ${error.toString()}');
-      return null;
     }
-  }
 
   Future<Map<String, dynamic>?> generateInvoice(
       {Map<String, String>? body}) async {
@@ -295,18 +298,16 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteTodoVehicle(
-    dynamic todoVehicleId,
-  ) async {
-    try {
-      String apiUrl = "${Str.BASE_URL}$_deleteVehicles/$todoVehicleId";
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
-    } catch (error) {
-      rethrow;
+    Future<GeneralResponse?> deleteTodoVehicle({String? id}) async {
+      try {
+        String apiUrl = "${Str.BASE_URL}$_deleteVehicles/$id";
+        final http.Response? response = await _apiClient.callDelete(apiUrl);
+        var mapData = await response.mapData;
+        return GeneralResponse.fromJson(mapData);
+      } catch (error) {
+        rethrow;
+      }
     }
-  }
 
   Future<VehicleExpenseHistoryResponse?> getVehicleExpense(
       {String? vin}) async {
@@ -336,19 +337,18 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteVehicleExpenseImage(
-    dynamic todoVehicleId,
-  ) async {
-    try {
-      String apiUrl =
-          "${Str.LIST_BASE_URL}$_deleteVehicleExpenseImage/$todoVehicleId";
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
-      var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
-    } catch (error) {
-      rethrow;
+    Future<GeneralResponse?> deleteVehicleExpenseImage(
+        dynamic todoVehicleId,) async {
+      try {
+        String apiUrl =
+            "${Str.LIST_BASE_URL}$_deleteExpenseImage/$todoVehicleId";
+        final http.Response? response = await _apiClient.callDelete(apiUrl);
+        var mapData = await response.mapData;
+        return GeneralResponse.fromJson(mapData);
+      } catch (error) {
+        rethrow;
+      }
     }
-  }
 
   Future<GeneralResponse?> deleteVehicleExpense(
     dynamic vehicleExpenseId,
@@ -363,14 +363,57 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteExpenseTodo(
-    dynamic todoVehicleId,
-  ) async {
+    Future<GeneralResponse?> deleteExpenseTodo(dynamic todoVehicleId,) async {
+      try {
+        String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
+        final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+            body: jsonEncode({
+              'todo_id': '$todoVehicleId',
+            }));
+        var mapData = await response.mapData;
+        return GeneralResponse.fromJson(mapData);
+      } catch (error) {
+        rethrow;
+      }
+    }
+
+  Future<Map<String, dynamic>?> updateVehicleExpenseHistory({Map<String, dynamic>? body,
+    List<File>? images,
+    String? expenseId}) async {
     try {
-      String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
+      String apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+      log("${images?.length}", name: "updateVehicleExpenseHistory");
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(
+              mapData?['message'] ?? "Todo Updated Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callLoginAPI.exception2 : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<GeneralResponse?> deleteTodo({String? id,dynamic reason}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
       final http.Response? response = await _apiClient.callPostMethod(apiUrl,
           body: jsonEncode({
-            'todo_id': '$todoVehicleId',
+            'reason': '$reason',
           }));
       var mapData = await response.mapData;
       return GeneralResponse.fromJson(mapData);
@@ -378,7 +421,6 @@ class APiRepository {
       rethrow;
     }
   }
-
   Future<Map<String, dynamic>?> getMiscellaneousVehicles() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_miscellaneousVehicles";
@@ -411,7 +453,7 @@ class APiRepository {
       final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
-      } catch(e) {
+    } catch(e) {
       rethrow;
     }
   }
@@ -434,7 +476,7 @@ class APiRepository {
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
-      } catch(e) {
+    } catch(e) {
       rethrow;
     }
   }
@@ -477,4 +519,19 @@ class APiRepository {
       rethrow;
     }
   }
-}
+
+  Future<ExpenseResponse?> getVehicleExpenseList(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null)
+          ? ExpenseResponse.fromJson(mapData)
+          : null;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  }

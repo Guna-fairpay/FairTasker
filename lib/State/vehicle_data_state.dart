@@ -2,8 +2,6 @@ part of '../Bloc/vehicle_data_bloc.dart';
 
 abstract class VehicleDataState extends Equatable {
   const VehicleDataState();
-
-
 }
 
 class VehicleDataInitial extends VehicleDataState {
@@ -211,11 +209,8 @@ class VehicleDataError extends VehicleDataState {
 }
 
 class VehicleDataUpdatedState extends VehicleDataState {
-  final dynamic updatedVehicle; // Use your actual data model instead of dynamic
-
+  final dynamic updatedVehicle;
   const VehicleDataUpdatedState({required this.updatedVehicle});
-
   @override
-  // TODO: implement props
   List<Object?> get props => [updatedVehicle];
 }

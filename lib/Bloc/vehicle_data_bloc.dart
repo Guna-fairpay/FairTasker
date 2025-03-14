@@ -69,7 +69,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         emit(const VehicleDataLoading()); // Start loading state
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
-
+          print("Bloc Triggered");
           emit(VehicleDataLoadedV(
             result: response?.data ?? [],
             vin: event.createVehicleData!.vin,

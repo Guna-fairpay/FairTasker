@@ -1,15 +1,17 @@
-import 'package:fairpytasker/Component/custom_vehicle_expense_history_Info.dart';
+import 'dart:developer';
+
+import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Component/close_badge.dart';
 import '../../../../Component/custom_date_time_picker.dart';
+import '../../../../Component/custom_single_selection_field.dart';
 import '../../../../Component/image_viewer.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/num.dart';
@@ -44,29 +46,33 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
               automaticallyImplyLeading: false,
               actions: [
                 IconButton(
-                  onPressed: (){
-                    AskPermissionDialog.show(
-                      context,
-                      title: "Are you sure?",
-                      description: "Do you want to delete this Expense?",
-                      positiveText: "Yes, delete it!",
-                      negativeText: "Cancel",
-                      isReasonRequired: false,
-                    onPositivePressed: () {
-                      context.read<VehicleExpenseHistoryBloc>().add(
-                          DeleteVehicleExpenseHistoryEvent(id: id));
-                      Future.delayed(const Duration(seconds: 1), () {
-                        Navigator.pop(context);
-                      });
-                    }
-                    );
-                  //context.read<VehicleExpenseHistoryBloc>().add(DeleteVehicleExpenseHistoryEvent(id: id!));
-                  //   Navigator.pop(context);
-                    },
+                  onPressed: () {
+                    AskPermissionDialog.show(context,
+                        title: "Are you sure?",
+                        description: "Do you want to delete this Expense?",
+                        positiveText: "Yes, delete it!",
+                        negativeText: "Cancel",
+                        isReasonRequired: false, onPositivePressed: () {
+                      context
+                          .read<VehicleExpenseHistoryBloc>()
+                          .add(DeleteVehicleExpenseHistoryEvent(id: id));
+                      Future.delayed(
+                        const Duration(seconds: 1),
+                        () => context.pushReplacement(VehicleExpenseHistoryUI(
+                          vin: state.vin,
+                          vehicleName: state.vehicleName,
+                        )),
+                      );
+                    });
+                  },
                   icon: const Icon(Icons.delete_outline),
                 ),
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () =>
+                      context.pushReplacement(VehicleExpenseHistoryUI(
+                    vin: state.vin,
+                    vehicleName: state.vehicleName,
+                  )),
                   icon: const Icon(Icons.close),
                 ),
               ],
@@ -164,36 +170,101 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                               ShowAttachmentsDialog.of.show(context,
                                   attachments: state.expenseAttachments,
                                   title: "",
-                                  currentAttachment: state.expenseAttachments[index]);
+                                  currentAttachment:
+                                      state.expenseAttachments[index]);
                             },
                             onTapDelete: () {
-                              context.read<VehicleExpenseHistoryBloc>().add(
-                                  RemoveImageEvent(
-                                      data: state.expenseAttachments[index]));
+                              AskPermissionDialog.show(context,
+                                  title: "Are you sure?",
+                                  description: "Do you want to delete this Expense Image?",
+                                  positiveText: "Yes, delete it!",
+                                  negativeText: "Cancel",
+                                  isReasonRequired: false,
+                                  onPositivePressed: () =>
+                                    context.read<VehicleExpenseHistoryBloc>().add(
+                                        RemoveImageEvent(
+                                            data: state.expenseAttachments[index])));
+
                             },
-                            child: Container(
-                              constraints: BoxConstraints(
-                                minHeight: MediaQuery.sizeOf(context).height,
-                                minWidth: MediaQuery.sizeOf(context).width,
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: AppC.grey.withValues(alpha: 0.2)),
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              child: ImageViewer(
-                                fit: BoxFit.cover,
-                                imageInput: state.expenseAttachments[index],
-                                isNotImage:
-                                    !((state.expenseAttachments[index] as Object)
+                            child:Stack(
+                              children: [
+                                Container(
+                                  constraints: BoxConstraints(
+                                    minHeight:
+                                    MediaQuery.sizeOf(context).height,
+                                    minWidth:
+                                    MediaQuery.sizeOf(context).width,
+                                  ),
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(16),
+                                      color:
+                                      AppC.grey.withValues(alpha: 0.2)),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: ImageViewer(
+                                    fit: BoxFit.cover,
+                                    imageInput: state.expenseAttachments[index],
+                                    isNotImage: !((state.expenseAttachments[index]
+                                    as Object)
                                         .isImage),
-                              ),
-                            )),
+                                  ),
+                                ),
+                                // Add download button only for PDF
+                                if ((state.expenseAttachments[index] as Object).isPDF)
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppC.green,
+                                      borderRadius: BorderRadius.circular(16),
+
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Utils.openURL(state.expenseAttachments[index]);
+                                      },child:Padding(
+                                      padding: 4.padding,
+                                      child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
+                                    ),),
+                                  ),
+
+                              ],
+                            ), /*Column(
+                              children: [
+                                Container(
+                                  constraints: BoxConstraints(
+                                    minHeight: MediaQuery.sizeOf(context).height,
+                                    minWidth: MediaQuery.sizeOf(context).width,
+                                  ),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: AppC.grey.withValues(alpha: 0.2)),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: ImageViewer(
+                                    fit: BoxFit.cover,
+                                    imageInput: state.expenseAttachments[index],
+                                    isNotImage: !((state.expenseAttachments[index]
+                                            as Object)
+                                        .isImage),
+                                  ),
+                                ),
+                              ],
+                            )*/),
                       ),
                     ),
                   10.height,
-                  Utils.getTextFormField(
-                    'Vehicle',
-                    context.read<VehicleExpenseHistoryBloc>().vehicleController,
+                  CustomSingleSelectionField<Map<String, dynamic>>(
+                    suggestionsList: state.vehicle,
+                    itemAsString: (item) => item['vehicle_name'] ?? '',
+                    selected: state.selectedVehicle,
+                    labelText: "Vehicle Name",
+                    hintText: "",
+                    onSelected: (val) {
+                      context
+                          .read<VehicleExpenseHistoryBloc>()
+                          .add(VehicleEvent(selectedVehicle: val));
+                    },
+                    controller: context
+                        .read<VehicleExpenseHistoryBloc>()
+                        .vehicleController,
                   ),
                   10.height,
                   Row(
@@ -227,35 +298,38 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                         .descriptionController,
                   ),
                   10.height,
-                  Utils.dropdownBox(
-                      'Select Category',
-                      state.categories,
-                          (value) {
-                        context.read<VehicleExpenseHistoryBloc>()
-                            .add(CategoryListEvent(category: value));
-                                    },
+                  Utils.dropdownBox('Select Category', state.categories,
+                      (value) {
+                    context
+                        .read<VehicleExpenseHistoryBloc>()
+                        .add(CategoryListEvent(category: value));
+                  },
                       labelKey: 'name',
                       selectedKey: state.selectedCategory,
                       initialSelection: state.selectedCategory),
                   10.height,
-                  Utils.dropdownBox(
-                      'Select SubCategory', state.subCategories, (value) {
-                                      context
-                    .read<VehicleExpenseHistoryBloc>()
-                    .add(SubCategoryListEvent(subCategory: value));
-                                    },
+                  Utils.dropdownBox('Select SubCategory', state.subCategories,
+                      (value) {
+                    context
+                        .read<VehicleExpenseHistoryBloc>()
+                        .add(SubCategoryListEvent(subCategory: value));
+                  },
                       labelKey: 'name',
                       selectedKey: state.selectedSubCategory,
                       initialSelection: state.selectedSubCategory),
                   10.height,
-                  Utils.dropdownBox('Select Expense To',
-                      state.cohorts, (value) {},
-                      labelKey: 'name',
+                  Utils.dropdownBox(
+                    'Select Expense To',
+                    state.cohorts,
+                    (value) {},
+                    labelKey: 'name',
                     initialSelection: state.selectedCohorts,
                   ),
                   10.height,
                   CustomDateTimePicker<DateTime>(
-                    controller: context.read<VehicleExpenseHistoryBloc>().dateController,
+                    controller: context
+                        .read<VehicleExpenseHistoryBloc>()
+                        .dateController,
                     format: "dd-MM-yyyy",
                     suffixIcon: Icon(Icons.calendar_month_rounded,
                         size: 18, color: context.theme.hintColor),
@@ -263,15 +337,25 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                     value: state.selectedDate,
                     onChanged: (value) => context
                         .read<VehicleExpenseHistoryBloc>()
-                        .add(DateChangeEvent(selectedDate:value)),
+                        .add(DateChangeEvent(selectedDate: value)),
                   ),
                   10.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Utils.getElevatedButton(
-                        //() => context.pushReplacement(Vehicle),
-                        (){},
+                        () {
+                          context.read<VehicleExpenseHistoryBloc>().add(
+                              UpdateVehicleExpenseHistoryEvent(
+                                  id: "${state.editResponse['id']}"));
+                          Future.delayed(
+                              const Duration(seconds: 1),
+                              () => context
+                                      .pushReplacement(VehicleExpenseHistoryUI(
+                                    vin: state.vin,
+                                    vehicleName: state.vehicleName,
+                                  )));
+                        },
                         text: 'Update',
                       ),
                     ],
