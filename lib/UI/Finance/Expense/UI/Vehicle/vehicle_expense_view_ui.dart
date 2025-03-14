@@ -1,24 +1,58 @@
-import 'package:fairpytasker/Bloc/employee_bloc.dart';
-import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
-import 'package:fairpytasker/Event/employee_event.dart';
-import 'package:fairpytasker/State/employee_state.dart';
-import 'package:fairpytasker/State/todo_view_state.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import '../../../../Component/drawer_ui.dart';
-import '../../../../Event/todo_view_event.dart';
-import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/num.dart';
-import '../../../../Utilities/utils.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:date_time/date_time.dart";
+import "package:fairpytasker/Component/expense_vehicle_list_item.dart";
+import "package:fairpytasker/Utilities/Utils.dart";
+import "package:fairpytasker/core/app/extension/sized_extension.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_easyloading/flutter_easyloading.dart";
+import "../../../../../Utilities/appC.dart";
+import "../../Bloc/expense_bloc.dart";
+import "../../Event/expense_event.dart";
+import "../../State/expense_state.dart";
 
-import '../Other/other_expense_view_ui.dart';
-import '../Person/person_expense_view_ui.dart';
-import 'vehicle_expense_add_ui.dart';
-import 'vehicle_expense_edit_ui.dart';
+class ExpenseVehicleViewUI extends StatelessWidget {
+  const ExpenseVehicleViewUI({super.key});
 
-class ExpenseViewUI extends StatefulWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<ExpenseBloc>(
+        create: (context) => ExpenseBloc()
+          ..add(GetVehicleExpenseData(
+              minDate: DateTime.now()
+                  .subtract(const Duration(days: 7))
+                  .format('yyyy-MM-dd')
+                  .toString(),
+              maxDate: DateTime.now().format('yyyy-MM-dd').toString())),
+        child: BlocListener<ExpenseBloc, ExpenseState>(
+          listener: (context, state) {
+            state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          },
+          child:
+              BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Utils.getText('Total:', weight: FontWeight.bold, size: 13),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 0.5),
+                    itemCount: state.filteredResponse.length,
+                    itemBuilder: (context, index) => ExpenseVehicleListItem(expense: state.apiResponse[index]),
+                  ),
+                ),
+              ],
+            );
+          }),
+        ));
+  }
+}
+
+/*class ExpenseViewUI extends StatefulWidget {
   const ExpenseViewUI({super.key});
 
   @override
@@ -527,4 +561,4 @@ class _ExpenseViewUIState extends State<ExpenseViewUI> {
       displayMonthsSeparator: true,
     );
   }
-}
+}*/

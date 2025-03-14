@@ -14,6 +14,7 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import '../UI/Finance/Expense/Response/expense_response.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
 import '../Utilities/str.dart' show Str;
@@ -515,6 +516,20 @@ class APiRepository {
       var mapData = await response.mapData;
       return mapData;
     } catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<ExpenseResponse?> getVehicleExpenseList(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null)
+          ? ExpenseResponse.fromJson(mapData)
+          : null;
+    } catch (error) {
       rethrow;
     }
   }
