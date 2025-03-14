@@ -19,4 +19,5 @@ class CreateSpareKeyData{
   int? vendorId;
   String vendorName = '';
   String vin = '';
+  String? vehicleNumber = '';
 }

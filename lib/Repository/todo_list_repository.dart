@@ -11,7 +11,7 @@ import 'package:fairpytasker/Response/cumulative_cost_response.dart';
 import 'package:fairpytasker/Response/expense_summary_details_response.dart';
 import 'package:fairpytasker/Response/expense_summary_response.dart';
 import 'package:fairpytasker/Response/location_response.dart';
-import 'package:fairpytasker/Response/maintenance_check_list_response.dart';
+import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_response.dart';
 import 'package:fairpytasker/Response/parts_response.dart';
 import 'package:fairpytasker/Response/supplies_response.dart';
 import 'package:fairpytasker/Response/task_category_group_response.dart';
@@ -28,6 +28,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/categories_response.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:fairpytasker/data/api_client.dart';
@@ -40,7 +41,7 @@ import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/branch_response.dart';
 import '../Response/category_config_response.dart';
-import '../Response/checklist_response.dart';
+import '../UI/Todo/CheckList/checklist_response.dart';
 import '../Response/cohorts_response.dart';
 import '../Response/create_fix_task_data.dart';
 import '../Response/expense_other_categories.dart';
@@ -60,6 +61,7 @@ import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
 import '../UI/Todo/create_sparekey_data.dart';
+import '../UI/Todo/maintenance/get_todolist_Response.dart';
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -273,7 +275,10 @@ class TodoListRepo {
 
       if (resourceId != null && resourceId != '') {
         resourceId.replaceAll('-1,', '');
+        //"${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
         apiUrl =
+        "${Str.BASE_URL}todo-data?resource=&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
+        //$resourceId
         "${Str.BASE_URL}todo-data?resource=&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
        /// "${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
       } else {
@@ -1187,7 +1192,7 @@ class TodoListRepo {
         (createTodoParams.todoReminder ?? '').toString().toLowerCase(),
         "person": createTodoParams.person.toString(),
         "person_id": createTodoParams.personId.toString(),
-        "time_sensitive":createTodoParams.timeSensitive.toString() ,
+        "time_sensitive":createTodoParams.timeSensitive.toString(),
         "vendor_id": createTodoParams.vendorId.toString(),
         "vendor_name": createTodoParams.vendorName.toString(),
         "location": createTodoParams.location.toString(),
@@ -1205,23 +1210,22 @@ class TodoListRepo {
         "user_id": createTodoParams.selectedUserId == null
             ? ''
             : (createTodoParams.selectedUserId!).toString(),
-        "vehicles": "${createTodoParams.vehicleList ?? []}",
+        "vehicles": "${(createTodoParams.vehicleList ?? []).distinct((element) => element['vin']).map((e) => jsonEncode(e)).toList()}",
         "custom_link_id":"${createTodoParams.customLinkId ?? ""}",
         "custom_link":createTodoParams.customLink.toString(),
         "reference_id":createTodoParams.referenceId.toString(),
+        "platform": "TaskerApp",
       };
       // var todoImages = createTodoParams.todoImage.mapIndexed((index, element) => http.MultipartFile.fromString("images[$index]", element.path));
-      debugPrint("createATodo apiUrl: $apiUrl");
+      //debugPrint("createATodo apiUrl: $apiUrl");
       log("${jsonEncode(body)}", name: "POST_BODY");
       final http.Response? response =
       await apiClient.callPostMethodWithBody(apiUrl, body: body, files: createTodoParams.todoImage.map((e) => e.path).toList());
       if (response != null) {
         log('createATodo api.response.body: ${response.body}');
         if (response.statusCode == 200 || response.statusCode == 201) {
-
         debugPrint('createATodo api.response.body: ${response.body}');
         debugPrint('createATodo api.statusCode: ${response.statusCode}');
-
         GeneralResponse generalResponse =
         GeneralResponse.fromJson(json.decode(response.body));
         if (generalResponse.status == 200 || generalResponse.status == 201) {
@@ -2114,7 +2118,7 @@ class TodoListRepo {
   Future<bool?> completeATodo(String? todoId, String? status) async {
     try {
       bool statusBool = status == "Completed" ? true : false;
-      String apiUrl = "${Str.BASE_URL}complete-todo/$todoId";
+      String apiUrl = "${Str.BASE_URL}complete-todo/${todoId.toString()}";
       debugPrint("completeATodo apiUrl: $apiUrl");
       String body = jsonEncode({"status": statusBool});
       debugPrint("completeATodo body: $body");
@@ -2315,6 +2319,25 @@ class TodoListRepo {
       }
     } catch (error) {
       log('getMaintenanceCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+  Future<GetTodoListResponse?> getTodoList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}todo";
+      debugPrint("getTodoList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        GetTodoListResponse getTodoListResponse =
+        GetTodoListResponse.fromJson(json.decode(response.body));
+        return getTodoListResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTodoList.exception : ${error.toString()}');
       return null;
     }
   }
@@ -3170,6 +3193,47 @@ class TodoListRepo {
       return null;
     }
   }
+
+  Future<bool?> allCheckInMainteance(CreateFixTaskData fixTask ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/${fixTask.id}";
+      String body = jsonEncode({
+        "type" : "inline",
+        "mandatory" : fixTask.mandatory
+      });
+      print("${fixTask}");
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('fixTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> completeTodo(int todoId) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}complete-todo/$todoId';
+      debugPrint("completeTodo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callPostMethod(apiUrl);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('fixTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
   Future<bool?> spareKeyTask(CreateSpareKeyData sparekeyData ) async {
     try {
       String apiUrl = "${Str.BASE_URL}add-todo";
@@ -3231,6 +3295,8 @@ class TodoListRepo {
         "custom_link": createFixTaskData.customLink,
         "custom_link_id": createFixTaskData.customLinkId,
         "reference_id": createFixTaskData.referenceId,
+        "comments" : createFixTaskData.comments,
+        "vehicle_number": createFixTaskData.vehicleNumber,
         "platform": "TaskerApp",
       });
       log("$body", name: "POST_BODY");

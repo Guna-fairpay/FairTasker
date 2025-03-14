@@ -1,8 +1,11 @@
 
-class CreateFixTaskData{
+class CreateFixTaskData
+{
   String? userId='';
-  int?userGroupId;
+  int? id;
+  int? userGroupId;
   int? identifierId;
+  int? mandatory;
   String? title='';
   String? startAt='';
   String? todoTime='';
@@ -15,5 +18,7 @@ class CreateFixTaskData{
   String? customLink = '';
   String? referenceId = '';
   String? maintenanceTaskId = '';
+  String? vehicleNumber = '';
+  String? comments ='';
   List<dynamic>? vehicleList = [];
 }

@@ -39,7 +39,7 @@ import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import '../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import '../dialog/show_attachments_dialog.dart';
-import 'check_list_ui.dart';
+import 'CheckList/check_list_ui.dart';
 import 'maintenance/maintenance_check_list_ui.dart';
 
 class EditTodoUI extends StatefulWidget {
@@ -1101,24 +1101,19 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                   ), child: const CreateTodoUI(showHeader: false),)
                                 else if (showExpenseTab == 2)
                                    CheckListUI(
-                                       checkListData:checkListData,
-                                     todoItems: todoItem,
+
+                                     todoItems: todoItem, vehicle: null,
                                    )
                                   else if ((showExpenseTab == 3) && isMaintenanceLoaded)
                                       MaintenanceCheckListUI(
-                                        maintenance: maintenanceCheckListData,
-                                        todoItems: todoItem,
+                                        todoItems: todoItem, vehicle: null,
                                       )
                                     else if (showExpenseTab == 4)
                                         // VehicleEditUI(vehicle: setVehicleList,showHeader: false, data: selectedDropDownData,
                                         //   todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
                                         // categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
                                         //   multipleLocationList: widget.multipleLocationList,)
-                                        VehicleEditUI(vehicle:
-                                        selectedDropDownData == null ? setVehicleList : DropDownData,showHeader: false, data: selectedDropDownData,
-                                          todoItems: widget.todoItem ,userGroupList: widget.userGroupList,resourceList: widget.resourceList,
-                                          categoriesListData: widget.categoriesListData,addressesList: widget.addressesList,
-                                          multipleLocationList: widget.multipleLocationList,)
+                                        VehicleEditUI(vehicle: {}, todoItems: {},)
                                       else if (showExpenseTab == 5)
                                           TodoExpense(expenseId: todoItem['expense_id'], todoItem: null,selectedParts:[],selectedSupplies:[], selectedVendor: null,)
                                       else
