@@ -1,12 +1,13 @@
-import 'dart:developer';
-
-import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Component/custom_auto_search_field.dart';
+import 'package:fairpytasker/Component/simple_popup_menu.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/material.dart';
-import 'package:searchfield/searchfield.dart';
+import 'dart:developer' as d;
 
 class CustomVendorLocationField extends StatelessWidget {
-  final ValueNotifier<dynamic>? selectedVLocations;
   final List<dynamic> vendorsList, locationsList;
   final TextEditingController? controller;
   final Map<int, dynamic>? selected;
@@ -14,7 +15,6 @@ class CustomVendorLocationField extends StatelessWidget {
 
   CustomVendorLocationField(
       {super.key,
-      this.selectedVLocations,
       required this.vendorsList,
       required this.locationsList,
       this.selected,
@@ -24,71 +24,65 @@ class CustomVendorLocationField extends StatelessWidget {
     _checkSelectedVData();
   }
 
-  final ValueNotifier<List<Map<String, dynamic>>> commonList =
-      ValueNotifier([]);
+  ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
 
-  final ValueNotifier<Map<String, dynamic>> selectedList = ValueNotifier({});
+  List<Map<String, dynamic>> unfilteredList = [];
+
+  Map<String, dynamic> selectedData = {};
 
   void _prepareData() {
-    var persons = locationsList
-        .map((element) => {
-              "id": element['id'],
-              "name": element['name'],
-              "type": "location",
-              "partNumber": 3,
-              "value": element
-            })
-        .toList();
-    var vehicles = vendorsList
-        .map((element) => {
-              "id": element['id'],
-              "name": element['name'],
-              "type": "vendor",
-              "partNumber": 3,
-              "value": element
-            })
-        .toList();
-    commonList.value = [...vehicles, ...persons];
+    unfilteredList = CustomSearchDataConverter.convertVLocation(vendors: vendorsList, locations: locationsList);
   }
 
-  void _checkSelectedVData() {
+  void _checkSelectedVData() async {
     if ((selected != null) && (selected![3] != null)) {
-      selectedList.value = selected![3];
-      controller?.text = "${selectedList.value['name']}";
-      selectedList.notifyListeners();
+      selectedData = selected![3];
+      var name = selectedData['name'];
+      var controllerName = controller?.text;
+      if ((name != controllerName) && (name != null)) {
+        controller?.clear();
+        await Future.delayed(Durations.medium3);
+        controller?.text = name ?? "";
+      }
     }
-    selectedVLocations?.addListener(() {
-      log("selectedVLocations: ${selectedVLocations?.value}",
-          name: "checkSelectedVData");
-      var value = selectedVLocations?.value;
-      selectedList.value = (value ?? {});
-      selectedList.notifyListeners();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: commonList,
-        builder: (context, value, child) =>
-            CustomSearchField<Map<String, dynamic>>(
-              controller: controller,
-              suggestions: value,
-              isDense: true,
-              style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
-              labelText: "Vendor/Location",
-              itemAsString: (item) => item['name'].toString(),
-              suggestionState: Suggestion.hidden,
-              onSuggestionTap: _onSuggested,
-            ));
+      valueListenable: showEmptyNotifier,
+      builder: (context, value, child) => CustomAutoSearchField(
+          controller: controller!,
+          labelText: "Vendor/Location",
+          onSelected: _onSuggested,
+          showEmptyWidget: value,
+          // autoClear: true,
+          onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
+            item == "Vendor" ? context.push(const VendorAddUI()) : context.push(const LocationAddUI());
+          },),
+          itemAsString: (item) => item['name'].toString(),
+          optionsBuilder: (textEditingValue) =>
+              onSearch(textEditingValue)),
+    );
+  }
+
+  Future<Iterable<Map<String, dynamic>>> onSearch(
+      TextEditingValue textEditingValue) async {
+    var val = textEditingValue.text.toLowerCase();
+    if (val.isEmpty) {
+      return [];
+    }
+    var omitted = (selectedData['name'] == textEditingValue.text) ? selectedData['name'] : null;
+    var list =
+    unfilteredList.where((element) => element['name'] != omitted).where((element) => element['name'].toString().toLowerCase().contains(val)).toList();
+    showEmptyNotifier.value = list.isEmpty && (omitted != null) && ((selectedData['name'] != textEditingValue.text));
+    return list;
   }
 
   void _onSuggested(Map<String, dynamic> val) {
     var data  = val;
-    selectedVLocations?.value = data;
-    selectedList.value = data;
-    selectedList.notifyListeners();
-    selectedVLocations?.notifyListeners();
-    onSelected?.call(selectedList.value);
+    selectedData = data;
+    controller?.text = data['name'].toString();
+    onSelected?.call(selectedData);
   }
 }

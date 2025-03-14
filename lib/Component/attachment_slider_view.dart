@@ -70,7 +70,6 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
 
   @override
   Widget build(BuildContext context) {
-    log("Build $currentAttachment", name: "AttachmentSliderView");
     return Column(
       mainAxisSize: MainAxisSize.min,
       spacing: 10,
@@ -86,7 +85,8 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
               builder: (context, value, child) => (value)
                   ? (_getValue.isImageFile)
                       ? ImagePreview(imageInput: currentAttachment)
-                      : VideoPlayerView(videoInput: currentAttachment)
+                      : (_getValue.isPdf) ? const Icon(Icons.picture_as_pdf_rounded)
+                  : VideoPlayerView(videoInput: currentAttachment)
                   : Container(),
             ),
           ),

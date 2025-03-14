@@ -13,6 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../Manage Custom Data/Vehicles/Vehicle Edit Page/vehicle_edit_pageUI.dart';
 import '../../todo_edti_expense/ui/Test.dart';
+import '../../todo_edti_expense/ui/edit_todo_expense.dart';
+import '../../todo_edti_expense/ui/edit_todo_expense.dart';
 import '../bloc/edit_todo_bloc.dart';
 import '../state/edit_todo_state.dart';
 
@@ -46,9 +48,15 @@ class EditTodoBottomTabs extends StatelessWidget {
             ),
             Container(
               child: state.selectedBottomTap['id'] == 1
-                  ?TodoExpense(expenseId: state.apiResponse['expense_id'],)
-                  :state.selectedBottomTap['id'] == 2
-                  ?const Placeholder()
+                  ? TodoExpense(
+                      expenseId: state.apiResponse['expense_id'],
+                      todoItem: state.apiResponse,
+                      selectedParts: state.selectedParts,
+                selectedSupplies: state.selectedSupplies,
+                selectedVendor: state.selectedVLocations,
+                    )
+                  : state.selectedBottomTap['id'] == 2
+                      ? const CreateTodoUI(showHeader: false)
                   :state.selectedBottomTap['id'] == 3
                   ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 4

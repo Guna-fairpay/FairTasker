@@ -1,3 +1,4 @@
+
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
@@ -46,9 +47,9 @@ class EditTodoMoreForm extends StatelessWidget {
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)
-            CustomMultiSelectionChipsField<dynamic>(
-                selectedPartsList: state.selectedParts,
-                suggestionsList: state.partServices,
+            CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                selectedPartsList: List.from(state.selectedParts),
+                suggestionsList: List.from(state.partServices),
                 controller: TextEditingController(),
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
@@ -58,9 +59,9 @@ class EditTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () =>
                     context.push(const PartViewUI(), fullscreenDialog: true)),
           if (state.isMoreEnable && state.isSuppliesEnable)
-            CustomMultiSelectionChipsField<dynamic>(
-                selectedPartsList: state.selectedSupplies,
-                suggestionsList: state.supplies,
+            CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                selectedPartsList: List.from(state.selectedSupplies),
+                suggestionsList: List.from(state.supplies),
                 controller: TextEditingController(),
                 labelText: "Supplies",
                 onChanged: (isChecked, value) => context
@@ -68,7 +69,8 @@ class EditTodoMoreForm extends StatelessWidget {
                     .add(EditToDoSupplySelectionEvent(isChecked, value)),
                 itemAsString: (item) => item['name'].toString(),
                 onEmptyTap: () => context.push(const SuppliesViewUI(),
-                    fullscreenDialog: true)),
+                    fullscreenDialog: true)
+            ),
           Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
@@ -150,18 +152,16 @@ class EditTodoMoreForm extends StatelessWidget {
           InkWell(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VehicleHistoryViewUI(
-                      vin: state.selectedVehicle['vin'],
-                      vehicleName: state.selectedVehicle['vehicle_name'],
-                  )));
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => VehicleHistoryViewUI(
+                            vin: state.selectedVehicle['vin'],
+                            vehicleName: state.selectedVehicle['vehicle_name'],
+                          )));
             },
             child: state.selectedVehicle.isNotEmpty
                 ? Utils.getText(
-                    'Task History - ${state.taskHistory.length == 1
-                        ? state.selectedVehicle['vehicle_name'] ?? ''
-                        : state.selectedVehicle['vin'] ?? ''}',
+                    'Task History - ${state.taskHistory.length == 1 ? state.selectedVehicle['vehicle_name'] ?? '' : state.selectedVehicle['vin'] ?? ''}',
                     color: AppC.appColor,
                     weight: FontWeight.w500,
                   )
@@ -170,7 +170,11 @@ class EditTodoMoreForm extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Utils.getElevatedButton(() {}, text: 'Update'),
+              Utils.getElevatedButton(() {
+                    context.read<EditToDoBloc>().add(EditToDoSaveEvent());
+                    Navigator.pop(context);
+              },
+                  text: 'Update'),
             ],
           ),
           if (state.apiResponse['recurring'] != null)

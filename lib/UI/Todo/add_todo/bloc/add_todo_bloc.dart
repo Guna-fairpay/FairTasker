@@ -176,18 +176,20 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoSelectedTaskIdentifierEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-      if ((!event.selectedTaskIdentifier.containsKey(1)) &&
-          existing.containsKey(1)) {
-        existing.remove(1);
-      }
-      if ((!event.selectedTaskIdentifier.containsKey(2)) &&
-          existing.containsKey(2)) {
-        existing.remove(2);
-      }
-      if ((!event.selectedTaskIdentifier.containsKey(3)) &&
-          existing.containsKey(3)) {
-        existing.remove(3);
-      }
+      // if ((!event.selectedTaskIdentifier.containsKey(1)) &&
+      //     existing.containsKey(1)) {
+      //   existing.remove(1);
+      // }
+      // if ((!event.selectedTaskIdentifier.containsKey(2)) &&
+      //     existing.containsKey(2)) {
+      //   existing.remove(2);
+      // }
+      // if ((!event.selectedTaskIdentifier.containsKey(3)) &&
+      //     existing.containsKey(3)) {
+      //   existing.remove(3);
+      // }
+      log("${event.selectedTaskIdentifier.keys}", name: "AddToDoBloc-before");
+      existing.removeWhere((key, value) => !event.selectedTaskIdentifier.keys.contains(key));
       if (event.selectedTaskIdentifier.isEmpty) existing.clear();
       if (event.selectedTaskIdentifier.isNotEmpty) {
         existing.addAll(event.selectedTaskIdentifier);
@@ -215,6 +217,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       if (!existing.containsKey(2)) existingVPersons.clear();
 
+      log("${existing[3]}", name: "AddToDoBloc-VLocation");
       vLocationController.text = existing[3]?['name'] ?? "";
       var showCleanCar = false;
       var showPlatformCheck = false;
@@ -272,7 +275,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoVLocationEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       existing[3] = event.vLocation;
-      emit(state.copyWith(selectedTaskIdentifier: existing));
+      log("${event.vLocation['name']}", name: "AddToDoBloc-Location");
+      vLocationController.text = event.vLocation['name'] ?? "";
+      emit(state.copyWith(selectedTaskIdentifier: existing, ));
     });
 
     on<AddToDoPersonTapEvent>((event, emit) {

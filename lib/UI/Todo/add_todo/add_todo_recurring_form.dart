@@ -47,8 +47,8 @@ class AddTodoRecurringForm extends StatelessWidget {
                           .add(AddToDoTimeChangeEvent(value)),
                     ),
                     Expanded(
-                        child: CustomDropdown<dynamic>(
-                            items: state.recurringTypes,
+                        child: CustomDropdown<Map<String, dynamic>>(
+                            items: List.from(state.recurringTypes),
                             value: state.selectedRecurring,
                             contentPadding: 5.padding,
                             itemAsString: (item) => item['label'].toString(),

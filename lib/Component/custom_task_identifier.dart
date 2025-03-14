@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
@@ -44,6 +45,7 @@ class TaskIdentifier extends StatelessWidget {
   List<Map<String, dynamic>> vLocations = [];
   int trigger = 0;
   String _previousText = "";
+  ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
 
   void initState() {
     updateCommonList();
@@ -120,7 +122,7 @@ class TaskIdentifier extends StatelessWidget {
     }
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
-     log("${_isHavingHypen()} ${taskIdentifierController.text.split("-").length}", name: "TaskIdentifier");
+     log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
      if (_isHavingHypen() || taskIdentifierController.text.isNullOrEmpty) _requestFocus();
   }
 
@@ -173,7 +175,24 @@ class TaskIdentifier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomSearchField<Map<String, dynamic>>(
+    return ValueListenableBuilder(
+      builder: (context, value, child) {
+        return CustomAutoSearchField<Map<String, dynamic>>(
+          controller: taskIdentifierController,
+          labelText: "Task Identifier",
+          onEmptyWidgetTap: () => context.push(const TaskAddUI(), fullscreenDialog: true),
+          onSelected: (value) {
+            selectedList[value['partNumber']] = value;
+            log("onSelected:	$value", name: "TaskIdentifier");
+            onSelected?.call(selectedList);
+          },
+          showEmptyWidget: value,
+          itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
+          optionsBuilder: (textEditingValue) => onSearch(textEditingValue),
+        );
+      }, valueListenable: showEmptyNotifier,
+    );
+    /*return CustomSearchField<Map<String, dynamic>>(
         key: UniqueKey(),
         suggestions: commonList,
         focusNode: _focusNode,
@@ -192,10 +211,116 @@ class TaskIdentifier extends StatelessWidget {
         suggestionState: Suggestion.hidden,
         labelText: "Task Identifier",
         onEmptyTap: () =>
-            context.push(const TaskAddUI(), fullscreenDialog: true));
+            context.push(const TaskAddUI(), fullscreenDialog: true));*/
   }
 
-  List<SearchFieldListItem<Map<String, dynamic>>>? onSearch(String val) {
+  Future<Iterable<Map<String, dynamic>>> onSearch(TextEditingValue textEditingValue) async {
+    var val = textEditingValue.text;
+    if (val.isEmpty) {
+      selectedList.clear();
+      onSelected?.call({});
+      showEmptyNotifier.value = false;
+      return [];
+    }
+    var inputValue = val.toLowerCase();
+    if (!inputValue.contains("-")) {
+      commonList = vTasks;
+      var list = commonList.where((element) => isExist(element, val));
+      showEmptyNotifier.value = list.isEmpty;
+      return list;
+    }
+    var inputParts = inputValue.split("-");
+    var cursorPosition =  taskIdentifierController.selection.start;
+    var filteredRecords = [];
+    List<int> hyphenPositions = [];
+    for (int i = 0; i < inputValue.length; i++) {
+      if (inputValue[i] == "-") hyphenPositions.add(i);
+    }
+    var typedPart = '';
+    if (hyphenPositions.isEmpty) {
+      typedPart = inputValue;
+      partNumber = 1;
+    } else {
+      for (int i = 0; i < hyphenPositions.length; i++) {
+        if (cursorPosition > hyphenPositions[i]) {
+          if (i == hyphenPositions.length - 1) {
+            typedPart = inputValue.substring(hyphenPositions[i] + 1);
+            partNumber = i + 2;
+          }
+        } else {
+          if (i == 0) {
+            typedPart = inputValue.substring(0, hyphenPositions[i]);
+            partNumber = 1;
+          } else {
+            typedPart = inputValue.substring(hyphenPositions[i - 1] + 1, hyphenPositions[i]);
+            partNumber = i + 1;
+          }
+          break;
+        }
+      }
+    }
+    switch(partNumber) {
+      case 1: {
+        type = "task";
+        commonList = vTasks;
+      }
+      break;
+      case 2:
+        {
+          if (typedPart.isEmpty) {
+            // PART 1
+            filteredRecords = vTasks.where((element) => element['name'].toString().toLowerCase().contains(inputParts[0].toLowerCase())).toList();
+            selectedList[1] = filteredRecords.firstOrNull;
+          }
+          type = "vperson";
+          commonList = vPersons;
+        }
+        break;
+      case 3:
+        {
+          if (typedPart.isEmpty) {
+            // PART 2
+            filteredRecords = vPersons.where((element) => element['name'].toString().toLowerCase().contains(inputParts[1].toLowerCase())).toList();
+            selectedList[2] = filteredRecords.firstOrNull;
+          }
+          type = "vlocation";
+          commonList = vLocations;
+        }
+        break;
+      default:
+        commonList = [];
+        break;
+    }
+    if (typedPart.isEmpty && partNumber == 3 && inputParts.length == 3) {
+      filteredRecords = vLocations.where((element) => element['name'].toString().toLowerCase().contains(inputParts[2].toLowerCase())).toList();
+      selectedList[3] = filteredRecords.firstOrNull;
+    }
+    inputParts.forEachIndexed((index, element) {
+      if (element.isEmpty) {
+        selectedList.remove(index+1);
+      }
+    });
+    log("$selectedList", name: "SELECTED_LIST");
+    _debounce?.cancel();
+    _debounce = Timer(Durations.extralong4, updateToFunction);
+    var inputted = (taskIdentifierController.text.split("-"));
+    List<String> omitted = (inputted).length <= 3 ? inputted : [];
+    omitted.removeWhere((element) => element.isNullOrEmpty);
+    if (omitted.length == 3) {
+      omitted.removeWhere((element) => ![
+        ...(vTasks.map((e) => e['name'])),
+        ...(vPersons.map((e) => e['name'])),
+        ...(vLocations.map((e) => e['name']))
+      ].contains(element));
+    }
+    log("$omitted ${omitted.length}", name: "OMITTED");
+    var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
+    // showEmptyNotifier.value = list.isEmpty;
+    return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
+  }
+
+
+  List<SearchFieldListItem<Map<String, dynamic>>>? onSearchOld(String val) {
     if (val.isEmpty) {
       selectedList.clear();
       onSelected?.call({});

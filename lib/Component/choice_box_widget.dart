@@ -4,7 +4,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 
-class ChoiceBoxWidget<T> extends StatelessWidget {
+class ChoiceBoxWidget<T extends Object> extends StatelessWidget {
   final List<T>? items;
   final ItemAsString<T>? itemAsString;
 

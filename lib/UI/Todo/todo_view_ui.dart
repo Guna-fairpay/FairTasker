@@ -2551,14 +2551,14 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   }
                   else {
-                    Navigator.push(
+                    /*Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => EditTodoReworkUI(
                                  todoId: todos['id'],
                             ),
                         ),
-                    );
+                    );*/
                   }
                 }
                 return false;

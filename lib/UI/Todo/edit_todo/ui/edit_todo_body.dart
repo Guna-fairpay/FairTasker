@@ -1,3 +1,6 @@
+
+ import 'dart:developer';
+
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
@@ -139,28 +142,32 @@ class EditTodoBody extends StatelessWidget {
                   vehiclesList: state.vehicles,
                   personsList: state.persons,
                   selected: state.selectedVPerson,
+                 // onDeleted: (val) => context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val['id'])),
+                  onDeleted: (val) {
+                    log("${val}",name: "DELETE_VEHICLE");
+                   // context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: "${val['value']['vehicle_id']}"));
+                  },
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
                   controller: context.read<EditToDoBloc>().vPersonController,
+
                 ),
                 10.height,
                 CustomVendorLocationField(
                   vendorsList: state.vendors,
                   locationsList: state.locations,
-                  selected: state.selectedVLocations,
+                  selected: {3: state.selectedVLocations},
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVLocationEvent(val)),
                   controller: context.read<EditToDoBloc>().vLocationController,
                 ),
                 10.height,
-                if (state.selectedTaskIdentifier.containsKey(3) &&
-                    state.selectedTaskIdentifier[3]['type'] == 'location')
-                  CustomMultiSelectionChipsField<dynamic>(
+                if (state.selectedVLocations['type'] == 'location')
+                  CustomMultiSelectionChipsField<Map<String, dynamic>>(
                       selectedPartsList: state.addresses,
-                      suggestionsList: state.selectedTaskIdentifier[3]['value']
-                      ['addresses'],
+                      suggestionsList: state.selectedVLocations['addresses'] ?? [],
                       controller: TextEditingController(),
                       labelText: "Address",
                       onChanged: (isChecked, value) => context
@@ -189,7 +196,8 @@ class EditTodoBody extends StatelessWidget {
                 10.height,
                 const EditTodoMoreForm(),
                 10.height,
-                const EditTodoBottomTabs(),
+                 if (state.apiResponse.isNotEmpty)
+                  const EditTodoBottomTabs(),
               ],
             )));
   }

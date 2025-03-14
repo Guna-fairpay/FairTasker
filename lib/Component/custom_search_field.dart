@@ -6,9 +6,9 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 
-typedef ItemAsString<T> = String Function(T item);
+typedef ItemAsString<T extends Object> = String Function(T item);
 
-class CustomSearchField<T> extends StatelessWidget {
+class CustomSearchField<T extends Object> extends StatelessWidget {
   final TextEditingController? controller;
   final List<T> suggestions;
   final ItemAsString<T>? itemAsString;
@@ -45,7 +45,7 @@ class CustomSearchField<T> extends StatelessWidget {
       onSearchTextChanged: onSearchTextChanged,
       onSuggestionTap: (val) {
         if (autoControllerClear) controller?.clear();
-        var item = val.item;
+        var item = val?.item;
         if (item != null) onSuggestionTap?.call(item);
       },
       suggestionDirection: SuggestionDirection.flex,

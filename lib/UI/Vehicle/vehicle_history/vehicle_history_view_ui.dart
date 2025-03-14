@@ -77,6 +77,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                           context
                               .read<VehicleHistoryBloc>()
                               .searchController,
+                          readOnly: state.isSameTaskSelected,
                           onSearch: (value) =>
                               context
                                   .read<VehicleHistoryBloc>()
@@ -99,10 +100,6 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                 onChanged: (value) => context.read<VehicleHistoryBloc>().add(VehicleHistorySameTaskEvent(title, value)),
                                 materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
-                                activeTrackColor: AppC.appColor,
-                                activeColor: AppC.white,
-                                inactiveTrackColor: AppC.white,
-                                inactiveThumbColor: AppC.appColor,
                               ),
                             ),
                           ),
@@ -233,7 +230,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                               );
                                             },
                                             onParts: () {
-                                              ShowChipDialog.show<dynamic>(
+                                              ShowChipDialog.show<Map<String, dynamic>>(
                                                   context, data: model['parts'] ?? [],
                                                   title: "Parts",
                                                   avatarIcon: const Icon(Icons.repartition_sharp),
@@ -241,7 +238,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                                       item) => "${item['parts_name'] ?? ""}");
                                             },
                                             onSupplies: () {
-                                              ShowChipDialog.show<dynamic>(
+                                              ShowChipDialog.show<Map<String, dynamic>>(
                                                   context, data: model['supplies'] ?? [],
                                                   title: "Supplies",
                                                   avatarIcon: const Icon(Icons.support_rounded),
@@ -249,7 +246,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                                       item) => "${item['supplies_name'] ?? ""}");
                                             },
                                             onUserTap: () {
-                                              ShowChipDialog.show<dynamic>(
+                                              ShowChipDialog.show<Map<String, dynamic>>(
                                                   context, data: users,
                                                   title: "Users",
                                                   avatarIcon: const Icon(Icons.person),

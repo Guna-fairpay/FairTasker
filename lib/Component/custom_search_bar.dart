@@ -9,12 +9,14 @@ class CustomSearchBar extends StatelessWidget {
   final void Function(String value)? onChanged;
   final void Function(String value)? onSearch;
   final EdgeInsets? padding;
-  const CustomSearchBar({super.key, this.controller, this.hintText = "Search here...", this.onChanged, this.onSearch, this.padding});
+  final bool readOnly;
+  const CustomSearchBar({super.key, this.controller, this.hintText = "Search here...", this.onChanged, this.onSearch, this.padding, this.readOnly = false});
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      readOnly: readOnly,
       decoration: InputDecoration(
         isDense: true,
         constraints: const BoxConstraints(),

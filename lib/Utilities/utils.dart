@@ -546,6 +546,7 @@ class Utils {
       Color hintTextColor = AppC.text,
       String? hintText,
       Widget? suffixIcon,
+        Widget? prefixIcon,
       bool obscure = false,
         bool isDense = true,
       double? height,
@@ -615,7 +616,10 @@ class Utils {
             //     ),
             //     borderRadius: BorderRadius.circular(borderRadius)),
             suffixIconConstraints: BoxConstraints(),
-            suffixIcon: suffixIcon),
+            suffixIcon: suffixIcon,
+          prefixIconConstraints: BoxConstraints(),
+          prefixIcon: prefixIcon,
+        ),
         style: style ?? TextStyle(
           // fontSize: textSize,
           color: textColor,
@@ -2719,11 +2723,13 @@ class Utils {
 
   static Widget getSearchBarUI({void Function(String)? onChange,
     void Function(String value)? onSearch,
-    required TextEditingController searchController}) {
+    required TextEditingController searchController,
+  bool readOnly = false}) {
     return CustomSearchBar(
       controller: searchController,
       onChanged: onChange,
       onSearch: onSearch,
+      readOnly: readOnly,
     );
   }
 
@@ -2865,6 +2871,17 @@ class Utils {
       log('Error launching URL: $e');
       showMobileToast(e.toString());
     }
+  }
+
+  static void showPickerDate(BuildContext context, {DateTime? value, void Function(DateTime)? onChanged}) async {
+    var result = await showDatePicker(
+        context: context,
+        firstDate: DateTime.now().subtract(const Duration(days: 180)),
+        currentDate: DateTime.now(),
+        initialDate: value,
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
+        lastDate: DateTime.now().add(const Duration(days: 1825000)));
+    if (result != null) onChanged?.call(result);
   }
 }
 

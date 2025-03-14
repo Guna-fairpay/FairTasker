@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:equatable/equatable.dart';
 
-abstract class TodoEditExpenseEvent extends Equatable{
+abstract class TodoEditExpenseEvent extends Equatable {
   const TodoEditExpenseEvent();
   @override
   List<Object?> get props => [];
@@ -9,16 +9,19 @@ abstract class TodoEditExpenseEvent extends Equatable{
 
 class GetTodoExpenseInitialEvent extends TodoEditExpenseEvent {
   final String? expenseId;
-  const GetTodoExpenseInitialEvent({required this.expenseId});
-  @override
-  List<Object?> get props => [expenseId];
-}
+  final dynamic todoItem;
+  final List<dynamic> selectedParts;
+  final List<dynamic> selectedSupplies;
+  final dynamic selectedVendor;
 
-class PaymentListEvent extends TodoEditExpenseEvent {
-  final dynamic paymentType;
-  const PaymentListEvent({required this.paymentType});
+  const GetTodoExpenseInitialEvent(
+      {required this.expenseId,
+      this.todoItem,
+      required this.selectedParts,
+      required this.selectedSupplies,
+      required this.selectedVendor});
   @override
-  List<Object?> get props => [paymentType, Random().nextDouble()];
+  List<Object?> get props => [expenseId, todoItem, Random().nextDouble()];
 }
 
 class TaskListEvent extends TodoEditExpenseEvent {
@@ -39,7 +42,7 @@ class SubCategoryListEvent extends TodoEditExpenseEvent {
   final dynamic subCategory;
   const SubCategoryListEvent({required this.subCategory});
   @override
-    List<Object?> get props => [subCategory, Random().nextDouble()];
+  List<Object?> get props => [subCategory, Random().nextDouble()];
 }
 
 class SaveExpenseEvent extends TodoEditExpenseEvent {
@@ -75,4 +78,21 @@ class TaxIconEvent extends TodoEditExpenseEvent {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class SelectedPaymentEvent extends TodoEditExpenseEvent {
+  final dynamic paymentType;
+  const SelectedPaymentEvent({required this.paymentType});
+  @override
+  List<Object?> get props => [paymentType, Random().nextDouble()];
+}
 
+class SelectedVehicleEvent extends TodoEditExpenseEvent {
+  final dynamic selectedVehicle;
+  const SelectedVehicleEvent({required this.selectedVehicle});
+  @override
+  List<Object?> get props => [selectedVehicle, Random().nextDouble()];
+}
+
+class GenerateInvoiceEvent extends TodoEditExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}

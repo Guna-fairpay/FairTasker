@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/color_extension.dart';
@@ -27,6 +29,7 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
     await Firebase.initializeApp();
     await Session.of.init();
+    Initializer.of.init(); // GET_IT INITIALIZATION
     if (kDebugMode) await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {
@@ -51,9 +54,8 @@ void configEasyLoading() {
     ..loadingStyle = EasyLoadingStyle.custom
     ..textColor = Colors.transparent
     ..indicatorColor = Colors.transparent
-    ..maskColor = Colors.transparent
-    ..maskType = EasyLoadingMaskType.clear
-    ..loadingStyle = EasyLoadingStyle.custom
+    ..maskColor = Colors.black26
+    ..maskType = EasyLoadingMaskType.black
     ..userInteractions = false
     ..dismissOnTap = false
     ..boxShadow = [];
@@ -69,7 +71,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fair Returns',
       theme: ThemeData(
-        dialogBackgroundColor: Colors.white,
         cardColor: Colors.white,
         appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
         dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
@@ -83,11 +84,16 @@ class MyApp extends StatelessWidget {
           side: const WidgetStatePropertyAll(BorderSide.none),
         ),
         switchTheme: SwitchThemeData(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.trans),
-          thumbColor: const WidgetStatePropertyAll(AppC.white),
+          // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.grey),
+          thumbColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.white : AppC.lightGrey),
+        ),
+        dividerTheme: const DividerThemeData(
+          color: AppC.grey,
+          thickness: Num.borderWidthThinField
         ),
         primarySwatch: AppC.appColor.toMaterialColor,
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: AppC.appColor.toMaterialColor),
         textTheme: GoogleFonts.poppinsTextTheme(
           Typography.blackCupertino.copyWith()
         ),

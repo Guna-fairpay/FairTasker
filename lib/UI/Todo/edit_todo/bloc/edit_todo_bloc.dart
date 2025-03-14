@@ -1,12 +1,15 @@
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Response/task_response.dart';
 import 'package:fairpytasker/Response/todo_list_response.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,12 +24,14 @@ import '../../../../Response/vendor_response.dart';
 import '../../../../Utilities/Str.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/prefs.dart';
+import '../../../../core/app/helper/toaster.dart';
 import '../../add_todo/add_todo_const.dart';
 import '../event/edit_todo_event.dart';
 import '../state/edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
+  final APiRepository apiRepository = APiRepository();
   dynamic todoId = '';
   final TextEditingController taskNameController = TextEditingController();
   final TextEditingController vPersonController = TextEditingController();
@@ -48,6 +53,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<Map<String, dynamic>> suppliesList = [];
   List<dynamic> vinList = [];
   List<dynamic> linkSelection = [];
+  List<dynamic> images = [];
+  List<dynamic> todoImages = [];
 
   EditToDoBloc()
       : super(EditTodoState(
@@ -83,14 +90,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           todoStatus: false,
           selectedResource: const [],
           userGroup: const [],
-          selectedTaskIdentifier: const {},
           resourceName: const [],
           addresses: const [],
           title: '',
           taskHistory: const [],
           selectedVehicle: const{},
-        )) {
+      )) {
+
     var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
+
     on<GetEditTodoInitialEvent>((event, emit) async {
       emit(state.copyWith());
       todoId = event.todoId;
@@ -179,7 +187,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
-
+        // log(vehicleList.toString(), name: "Vehicle List");
         List<dynamic> vendors = [];
         List<dynamic> locations = [];
         if (todoResponse?.editTodos?['location_id'] != null) {
@@ -232,6 +240,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               .where((element) => partsId.contains(element['id'].toString()))
               .toList();
         }
+       // log(partList.toString(), name: "Parts List");
+
 
         List<dynamic> suppliesId = [];
         if ((todoResponse?.editTodos?['supplies'] as List).isNotEmpty) {
@@ -246,6 +256,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               .where((element) => suppliesId.contains(element['id'].toString()))
               .toList();
         }
+        suppliesBroadcastEvent(suppliesList);
+
+        var showPlatformCheck = false;
+
+        showPlatformCheck = Str.platFormCheckIds.contains(todoResponse?.editTodos?['identifier_id']);
+
+        images=todoResponse?.editTodos?['todoimages'];
+
+        todoImages=images.map((e) => e['path'].toString().toAttachmentURL).toList();
 
         emit(state.copyWith(
           isLoading: false,
@@ -259,11 +278,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           tasks: taskResponse?.data ?? [],
           selectedVPerson:
               CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
-          selectedVLocations: {
-            3: CustomSearchDataConverter.convertVLocation(
-                    vendors: vendors, locations: locations)
-                .firstOrNull
-          },
+          selectedVLocations: CustomSearchDataConverter.convertVLocation(
+              vendors: vendors, locations: locations)
+              .firstOrNull ?? {},
           selectedDate: todoResponse?.editTodos?['todo_date']
               .toString()
               .toDateTime(inputFormat: 'yyyy-MM-dd'),
@@ -288,12 +305,25 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedSupplies: suppliesList,
           title: todoResponse?.editTodos?['title'] ?? '',
           selectedVehicle: vehicleList.firstOrNull,
-            taskHistory: vehicleList,
+          taskHistory: vehicleList,
+          showPlatformCheck: showPlatformCheck,
+          isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
+          isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
+          attachments: todoImages,
         ));
+        await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
+        await Future.delayed(Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
       } catch (e) {
-        log("$e", name: "Error");
+        log("$e", name: "Error In Bloc Value");
         emit(state.copyWith(isLoading: false));
       }
+    });
+
+    on<EditToDoVLocationEvent>((event, emit) {
+       var existing = event.vLocation;
+      emit(state.copyWith(selectedVLocations: existing));
+       vendorBroadcastEvent(existing);
+      // FBroadcast.instance().broadcast("Vendor",value:existing);
     });
 
     on<EditToDoShowMoreEvent>((event, emit) {
@@ -302,39 +332,21 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoVPersonEvent>((event, emit) {
-      if ((event.vPerson as List).isEmpty) {
-        var oldIdentifier = state.selectedTaskIdentifier;
-        oldIdentifier.remove(2);
-        emit(state.copyWith(
-            selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
-        return;
-      }
-      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       var existingVPersons =
-          List<Map<String, dynamic>>.from(state.selectedVPerson);
+      List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existingVPersons
-              .where((element) => element['type'] == 'person')
-              .isNotEmpty &&
+          .where((element) => element['type'] == 'person')
+          .isNotEmpty &&
           event.vPerson.first['type'] == 'person') {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
-      // existingVPersons.removeWhere((element) => !(event.vPerson.map((e) => e['id']).contains(element['id'])));
-      if (oldIdentifier.containsKey(2)) {
-        oldIdentifier.update(
-            2, (value) => (event.vPerson[0] as Map<String, dynamic>));
-      }
-      if (!oldIdentifier.containsKey(2)) {
-        oldIdentifier.putIfAbsent(
-            2, () => (event.vPerson[0] as Map<String, dynamic>));
-      }
       existingVPersons = existingVPersons.unique((element) => element['id']);
       existingVPersons.removeWhere((element) =>
-          element['type'] ==
+      element['type'] ==
           ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
       emit(state.copyWith(
-          selectedVPerson: existingVPersons,
-          selectedTaskIdentifier: oldIdentifier));
+          selectedVPerson: existingVPersons,));
     });
 
     on<EditToDoShowPartsEvent>((event, emit) {
@@ -347,8 +359,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isSuppliesEnable: !currentStatus));
     });
 
-    on<TaskStatusChangeEvent>((event, emit) {
-      emit(state.copyWith(todoStatus: !state.todoStatus));
+    on<TaskStatusChangeEvent>((event, emit) async {
+      bool? status =  event.todoStatus;
+      log(status.toString(),name: 'STATUS');
+      emit(state.copyWith(isLoading: true));
+      try {
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.completeToDo(todoId, status: status! );
+
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+      emit(state.copyWith(todoStatus: !state.todoStatus,isLoading: false));
     });
 
     on<EditToDoPersonTapEvent>((event, emit) {
@@ -374,7 +398,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       } else {
         if (existing.contains(event.part)) existing.remove(event.part);
       }
+      partsBroadcastEvent(existing);
+      // FBroadcast.instance().broadcast("Parts",value: existing, persistence: true);
       emit(state.copyWith(selectedParts: existing));
+
     });
 
     on<EditToDoSupplySelectionEvent>((event, emit) {
@@ -385,6 +412,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         if (existing.contains(event.data)) existing.remove(event.data);
       }
       emit(state.copyWith(selectedSupplies: existing));
+      suppliesBroadcastEvent(existing);
+     // FBroadcast.instance().broadcast("Supplies",value:existing);
+
     });
 
     on<EditToDoRecurringTypeEvent>((event, emit) =>
@@ -416,16 +446,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<EditToDoSelectLinkOptionEvent>((event, emit) =>
         emit(state.copyWith(selectedLinkOption: event.linkOption)));
-
-    on<EditToDoRecurringMonthOccurrenceEvent>((event, emit) => emit(
-        state.copyWith(
-            isRecurringMonthOccurrence: event.isRecurringMonthOccurrence)));
-    on<EditToDoRecurringEndDateEvent>((event, emit) =>
-        emit(state.copyWith(isRecurringEndDate: event.isRecurringEndDate)));
-    on<EditToDoRecurringYearlySelectedMonthEvent>((event, emit) => emit(
-        state.copyWith(recurringYearlySelectedMonth: event.selectedMonth)));
-    on<EditToDoRecurringEndDateSelectionEvent>((event, emit) =>
-        emit(state.copyWith(selectedRecurringEndDate: event.dateTime)));
 
     on<EditToDoOpenCustomLinkEvent>((event, emit) {
       var url = (state.selectedLinkOption?['label'].toString().isCustomLink ??
@@ -461,7 +481,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoAddressSelectionEvent>((event, emit) {
-      var existing = List.from(state.addresses);
+      List<Map<String, dynamic>>? existing = List.from(state.addresses);
       if (event.isChecked) {
         if (!existing.contains(event.data)) existing.add(event.data);
       } else {
@@ -473,7 +493,161 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoSelectTaskHistoryEvent>((event, emit) =>
         emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
 
+
+
+    on<EditToDoDeleteVehicleEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        await apiRepository.deleteTodoVehicle(id: event.vehicleId);
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+    }
+      emit(state.copyWith(isLoading: false));
+    });
+
+    on<DeleteTodoEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+      }
+      emit(state.copyWith(isLoading: false));
+    });
+
+
+    on<EditToDoSaveEvent>((event, emit) async {
+      // VALIDATIONS MANDATORY
+      // IF DEPARTMENT IS 7 THEN PLATFORM CHECK
+      // TASK NAME
+      // TASK MANAGER
+      if (taskNameController.text.isEmpty) {
+        Toaster.showError("Task name is required");
+        return;
+      }
+      var isPlatformRequired = departmentId == '7' && !state.isSelectedPlatformCheck;
+      if (isPlatformRequired) {
+        Toaster.showError("Platform check is required");
+        return;
+      }
+
+      // API CALL
+      try {
+        emit(state.copyWith(isLoading: true));
+        var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
+            images: state.attachments.whereType<File>().toList(), body: _editTodoBody());
+        if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
+        emit(state.copyWith(isLoading: false));
+        if (response?['status'] == 200) emit(state.copyWith(redirect: true));
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(),name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
   }
+
+  Map<String, String> _editTodoBody() {
+    Map<String, String> baseBody = {};
+
+    baseBody['title'] = taskNameController.text;
+    baseBody['identifier_id'] = "${state.apiResponse['identifier_id']}";
+    baseBody['todo_time'] = state.selectedTime.toHMS().toString();
+    baseBody['todo_date'] = dateController.text;
+    baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
+    baseBody['notes'] = notesController.text;
+    baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
+    baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
+    baseBody['odometer'] = odometerController.text;
+
+    baseBody['todo_user_type'] = "0";
+    baseBody['comments'] = "";
+    baseBody['mileage'] = "";
+    baseBody['resolution_notes'] = "";
+    baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
+    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1)
+        ? customLinkController.text
+        : "";
+    baseBody['reference_id'] = (state.selectedLinkOption?['id'] != 1)
+        ? customLinkController.text
+        : "";
+    if(state.selectedResource.isNotEmpty){
+      if (state.selectedResource.length == 1) {
+        baseBody['user_id'] = state.selectedResource.first.toString();
+        baseBody['assigned_to'] = state.selectedResource.first;
+      }
+      else if (state.selectedResource.length > 1) {
+        baseBody['user_group_data'] = "${state.selectedResource}";
+        baseBody['assigned_to'] = "${state.selectedResource}";
+      }
+    }
+
+      baseBody['parts']= "${state.selectedParts.isEmpty
+          ? null
+          : state.selectedParts.map((e)=>jsonEncode({
+        "parts_id": "${e['id']}",
+        "parts_name": "${e['name']}",
+      }) ).toList()}";
+
+    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
+          ? null
+          : state.selectedSupplies.map((e)=>jsonEncode({
+      "supplies_id": "${e['id']}",
+      "supplies_name": "${e['name']}",
+    }) ).toList()}";
+
+    if(state.selectedVLocations.isNotEmpty) {
+      if (state.selectedVLocations['type'] == "location") {
+        baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
+      }
+      if (state.selectedVLocations['type'] == "vendor") {
+        baseBody['vendor'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
+      }
+    }
+    baseBody['vehicles']= "${state.selectedVPerson
+          .where((element) => element['type'] == "vehicles")
+          .map((e) => e['value'])
+          .map((e) => jsonEncode({
+                "cohort_id": "${e['cohort']?['id'] ?? ""}",
+                "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+                "vin": e['vin'],
+                "vehicle_name": e['vehicle_name'],
+                "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
+                "vehicle_number": e['vehicle_number']
+              })).toList()}";
+    var personList = state.selectedVPerson
+        .where((element) => element['type'] == "person")
+        .toList();
+
+    var firstPerson = personList.isNotEmpty ? personList.first : null;
+
+    baseBody['person'] = firstPerson?['name']?.toString() ?? "";
+    baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+
+
+    log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
+    return baseBody;
+  }
+
+  void partsBroadcastEvent( dynamic value, ) {
+   // log(value.toString(), name: "Parts Broadcast");
+    FBroadcast.instance().broadcast("Parts", value: value, persistence: true);
+  }
+
+  void suppliesBroadcastEvent( dynamic value, ) {
+    FBroadcast.instance().broadcast("Supplies", value: value, persistence: true);
+  }
+
+  void vendorBroadcastEvent( dynamic value,) {
+    log(value.toString(), name: "Parts Broadcast");
+    FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
+  }
+
+
 
   // PICK MULTI IMAGES / FILES
   Future<List<File>?> _pickFiles() async {
