@@ -17,7 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../Repository/api_repository.dart';
 import '../../../../Response/vehicle_list_response.dart';
-import '../../../../Response/vendor_response.dart';
+import '../../../../Utilities/Str.dart';
 import '../../../../core/app/helper/toaster.dart';
 import '../event/todo_edit_expense_event.dart';
 import '../repository/todo_edit_expense_repository.dart';
@@ -63,6 +63,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic> selectedPart = [];
   List<dynamic> selectedSupplies = [];
   dynamic selectedVendor={};
+  String? userId;
 
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
@@ -82,6 +83,11 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           suppliesList: [],
           vendorList: {},
         )) {
+
+    Utils.getStringPreference(Str.userIdPrefText).then((id) {
+        userId = id;
+    });
+
     FBroadcast.instance().register("Parts", (value, callback) {
       if (value is List) {
         if (partsList.isEmpty) {
@@ -545,9 +551,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       ...[splitLabor]
     ];
 
+
+
     final expenseAmount = amountController.text.isNotEmpty
         ? amountController.text
         : totalAmountController.text;
+    log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
     baseBody['category_name'] = "${state.selectedMainCategory?['name'] ?? ''}";
     baseBody['category_id'] = "${state.selectedMainCategory?['id'] ?? ''}";
@@ -562,7 +571,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['expense_date'] = DateTime.now().format('yyyy-MM-dd').toString();
     baseBody['cohort_id'] = "${todoItem["cohort_id"] ?? ''}";
     baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
-    baseBody['odometer'] = odometerController.text;
+    if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
     baseBody['type'] = "inline";
     baseBody['platform'] = "TaskerApp";
     baseBody['sales_tax_percentage'] =
@@ -570,13 +579,15 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['sales_tax'] = saleTaxController.text;
     baseBody['shipping_and_handling'] = shippingController.text;
     baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
-
-    splits.forEachIndexed((index, element) {
-      baseBody['split[$index][${element.keys.first}]'] =
-          element[element.keys.first].toString();
-      baseBody['split[$index][${element.keys.last}]'] =
-          element[element.keys.last].toString();
-    });
+    baseBody['employee_id'] = userId ?? '';
+    if (splitParts.isNotEmpty || splitSupplies.isNotEmpty) {
+      splits.forEachIndexed((index, element) {
+        baseBody['split[$index][${element.keys.first}]'] =
+            element[element.keys.first].toString();
+        baseBody['split[$index][${element.keys.last}]'] =
+            element[element.keys.last].toString();
+      });
+    }
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }

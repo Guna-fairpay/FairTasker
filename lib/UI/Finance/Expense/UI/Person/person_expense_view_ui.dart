@@ -2,7 +2,7 @@
 
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Person/person_expense_edit_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_edit_ui.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../Event/todo_view_event.dart';
-import '../../../../Utilities/Str.dart';
-import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/num.dart';
+import '../../../../../Event/todo_view_event.dart';
+import '../../../../../Utilities/Str.dart';
+import '../../../../../Utilities/appC.dart';
+import '../../../../../Utilities/num.dart';
 import 'person_expense_add_ui.dart';
 
 class PersonExpenseViewUI extends StatefulWidget {
