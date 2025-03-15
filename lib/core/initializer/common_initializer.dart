@@ -63,7 +63,8 @@ class CommonService {
     return response;
   }
 
-  Future<List<Map<String, dynamic>>> getCohorts() async {
+  Future<List<Map<String, dynamic>>> getCohorts({bool reset = false}) async {
+    if (reset) cohortsList.clear();
     if (cohortsList.isNotEmpty) return cohortsList;
     try {
       var response = await _getCohortsAll();
@@ -76,7 +77,8 @@ class CommonService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getExpenseCategories() async {
+  Future<List<Map<String, dynamic>>> getExpenseCategories({bool reset = false}) async {
+    if (reset) expenseCategoriesList.clear();
     if (expenseCategoriesList.isNotEmpty) return expenseCategoriesList;
     try {
       var response = await _getCohortsAll();
