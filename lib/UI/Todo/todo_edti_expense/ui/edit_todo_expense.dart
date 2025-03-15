@@ -64,6 +64,7 @@ class TodoExpense extends StatelessWidget {
                                 vin: state.vehicleList.firstOrNull['vin'],
                                 vehicleName: state
                                     .vehicleList.firstOrNull['vehicle_name'],
+                            showTotalAmount: false,
                               )));
                 },
                 child: Utils.getText(

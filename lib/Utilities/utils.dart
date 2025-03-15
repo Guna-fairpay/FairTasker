@@ -12,6 +12,7 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -415,6 +416,7 @@ class Utils {
       style: ButtonStyle(
           backgroundColor:  WidgetStatePropertyAll(bgColor),
           iconColor: const WidgetStatePropertyAll(AppC.white),
+          //padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(16)))),
     );

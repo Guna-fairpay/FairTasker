@@ -5,6 +5,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:intl/intl.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../dialog/show_attachments_dialog.dart';
@@ -15,8 +16,14 @@ import '../state/vehicle_expense_history_state.dart';
 class VehicleExpenseHistoryUI extends StatelessWidget {
   final String vin;
   final String? vehicleName;
+  final bool showTotalAmount;
+  final double? currentExpenseAmount;
   const VehicleExpenseHistoryUI(
-      {super.key, required this.vin, required this.vehicleName});
+      {super.key,
+        required this.vin,
+        required this.vehicleName,
+        required this.showTotalAmount,
+        this.currentExpenseAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +38,10 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
         child:
             BlocBuilder<VehicleExpenseHistoryBloc, VehicleExpenseHistoryState>(
                 builder: (context, state) {
-          return Scaffold(
+
+                  String total = "${(currentExpenseAmount ?? 0) + (state.totalAmount ?? 0)}";
+
+                  return Scaffold(
               appBar: AppBar(
                 foregroundColor: Colors.white,
                 backgroundColor: AppC.appColor,
@@ -55,20 +65,52 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                 minimum: 20.padding,
                 child: Column(
                   children: [
+                    if(!showTotalAmount)
                     Utils.getSearchBarUI(
                         onChange: (value) => context
                             .read<VehicleExpenseHistoryBloc>()
                             .add(SearchVehicleExpenseHistoryEvent(value)),
                         searchController: state.searchController),
+                    if(showTotalAmount)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              text: 'Total Expense Till Date: ', // Normal text
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500
+                              ), // Regular style
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: '\$$total', // Bold amount
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    Divider(),
                     Expanded(
                       child: ListView.separated(
                           separatorBuilder: (context, index) => Divider(
                                 height: 0.5,
                                 color: Colors.grey.shade400,
                               ),
-                          itemCount: state.filteredResponse.length,
+                          itemCount:showTotalAmount
+                              ? state.approvedList.length
+                              :state.filteredResponse.length,
                           itemBuilder: (context, index) {
-                            var data = state.filteredResponse[index];
+                            var data = showTotalAmount
+                                ? state.approvedList[index]
+                                : state.filteredResponse[index];
                             List<dynamic> images = data?['attachments'];
 
                             List<dynamic> todoImages = images
@@ -76,12 +118,14 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                 .toList();
                             return InkWell(
                               onTap: () {
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            VehicleExpenseHistoryEditViewUI(
+                                            VehicleExpenseHistoryEditPreviewUI(
                                               id: "${data['id']}",
+                                              showTotalAmount: showTotalAmount,
+                                              currentExpenseAmount: currentExpenseAmount,
                                             )));
                               },
                               child: Padding(
@@ -101,7 +145,7 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                                   color: AppC.grey, size: 20),
                                               10.width,
                                               Utils.getText(
-                                                  "${data['expense_date'] ?? ''}"),
+                                                  DateFormat('MM-dd-yy').format(DateTime.parse(data['expense_date']))),
                                               const Spacer(),
                                               Utils.getText(
                                                   "\$ ${data['expense_amount'] ?? ''}",

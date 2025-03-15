@@ -1,6 +1,7 @@
 
 import 'package:fairpytasker/Component/custom_vehicle_expense_history_Info.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
@@ -16,9 +17,12 @@ import '../bloc/vehicle_expense_history_bloc.dart';
 import '../event/vehicle_expense_history_event.dart';
 import '../state/vehicle_expense_history_state.dart';
 
-class VehicleExpenseHistoryEditViewUI extends StatelessWidget {
+class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
   final String? id;
-  const VehicleExpenseHistoryEditViewUI({super.key, required this.id});
+  final bool showTotalAmount;
+  final double? currentExpenseAmount;
+  const VehicleExpenseHistoryEditPreviewUI({
+    super.key, required this.id,required this.showTotalAmount,this.currentExpenseAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,15 @@ class VehicleExpenseHistoryEditViewUI extends StatelessWidget {
               automaticallyImplyLeading: false,
               actions: [
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      VehicleExpenseHistoryUI(
+                        vin: state.editResponse['vin'],
+                        vehicleName: state.vehicleName, showTotalAmount: showTotalAmount,
+                        currentExpenseAmount: currentExpenseAmount,
+                      ))),
                   icon: const Icon(Icons.close),
                 ),
               ],
@@ -192,6 +204,8 @@ class VehicleExpenseHistoryEditViewUI extends StatelessWidget {
                         () => context.pushReplacement(
                             VehicleExpenseHistoryEditPage(
                               id: "${state.editResponse['id']}",
+                              showTotalAmount: showTotalAmount,
+                              currentExpenseAmount: currentExpenseAmount,
                             ), fullscreenDialog: true
                         ),
                         text: 'Edit',

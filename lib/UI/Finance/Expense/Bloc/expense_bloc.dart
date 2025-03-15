@@ -1,3 +1,4 @@
+
 import 'dart:developer';
 import 'dart:io';
 import 'package:date_time/date_time.dart';
@@ -32,6 +33,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  TextEditingController subCategoryController = TextEditingController();
   List<dynamic>? selectedCohorts;
   List<dynamic>? selectedVehicle;
   String? minDate;
@@ -53,6 +55,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           selectedCohorts: const {},
           tapData: AddToDoConfig.expenseTaps,
           selectedTap: AddToDoConfig.expenseTaps.first,
+          isApprove: false,
         )) {
     on<GetVehicleExpenseData>((event, emit) async {
       try {
@@ -69,15 +72,15 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         }
         var response = await _getExpense(minDate, maxDate);
         var usersList = await getIt<CommonService>().getUsers();
-        log("${response?.data}", name: "API_RESPONSE");
         ExpenseResponse? expenseResponse = response;
+
+        var apiResponse = expenseResponse?.data;
 
         /*apiResponse = apiResponse?.map((e) => e..putIfAbsent("employee_name", () {
           var user = usersList.firstWhere((element) => element['id'] == e['employee_id']);
           return (List<String>.from([(user['first_name'] ?? ""), (user['last_name'] ?? "")]).toInitial);
         })).toList();*/
 
-        var apiResponse = expenseResponse?.data;
         apiResponse = apiResponse?.map((e) {
           e.putIfAbsent("employee_name", () {
             var user = usersList.firstWhere(
@@ -94,7 +97,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         apiResponse.sort((a, b) =>
             DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
-        log("$apiResponse", name: "API_RESPONSE");
+
         emit(state.copyWith(
           isLoading: false,
           apiResponse: apiResponse,
@@ -109,6 +112,41 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
     on<ExpenseTapEvent>((event, emit) {
       emit(state.copyWith(selectedTap: event.selectedTap, isLoading: false));
+    });
+
+    on<ApproveEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        var model = event.model;
+        var existResponse = state.apiResponse.map((e) {
+          if (e['id'] == model['id']) {
+            return e..['approved'] = (int.tryParse(event.approved.toString()) ?? 0);
+          } else {
+            return e;
+          }
+        }).toList();
+        await apiRepository.expenseApprove(id:event.model['id'].toString(),approved:event.approved);
+        emit(state.copyWith(isLoading: false,apiResponse: existResponse));
+      } catch (e){
+        emit(state.copyWith(isLoading: false));
+        log("$e", name: "Error In ApproveEvent");
+      }
+      emit(state.copyWith(isLoading: false));
+    });
+
+    on<DeleteExpenseEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        await apiRepository.deleteExpenseTodo(event.id);
+        await apiRepository.deleteVehicleExpense(event.id);
+        var existResponse = state.apiResponse;
+        existResponse.removeWhere((e) => e['id'].toString() == event.id);
+        emit(state.copyWith(isLoading: false, apiResponse: existResponse));
+      } catch (e){
+        emit(state.copyWith(isLoading: false));
+        log("$e", name: "Error In DeleteExpenseEvent");
+      }
+      emit(state.copyWith(isLoading: false));
     });
 
   }
@@ -138,12 +176,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return (pickedFiles != null) ? File(pickedFiles.path) : null;
   }
 
-  /// API CALL: CATEGORIES
+  /// API CALL: Expense Vehicle
   Future<ExpenseResponse?> _getExpense(String? minDate, String? maxDate) async {
     return await apiRepository.getVehicleExpenseList(minDate: minDate,maxDate: maxDate);
   }
 
-  /// API CALL: ACTIVE-VEHICLES
-  Future<Map<String, dynamic>?> _getEmployees() async =>
-      await apiRepository.getUsers();
 }

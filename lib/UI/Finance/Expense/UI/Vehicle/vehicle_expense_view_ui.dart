@@ -1,11 +1,9 @@
 import "package:date_time/date_time.dart";
 import "package:fairpytasker/Component/expense_vehicle_list_item.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
-import "package:fairpytasker/core/app/extension/sized_extension.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_easyloading/flutter_easyloading.dart";
-import "../../../../../Utilities/appC.dart";
 import "../../Bloc/expense_bloc.dart";
 import "../../Event/expense_event.dart";
 import "../../State/expense_state.dart";
@@ -41,8 +39,15 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                   child: ListView.separated(
                     separatorBuilder: (context, index) =>
                         const Divider(height: 0.5),
-                    itemCount: state.filteredResponse.length,
-                    itemBuilder: (context, index) => ExpenseVehicleListItem(expense: state.apiResponse[index]),
+                    itemCount: state.apiResponse.length,
+                    itemBuilder: (context, index) => ExpenseVehicleListItem(
+                      expense: state.apiResponse[index],
+                      onChanged: (value) => context.read<ExpenseBloc>().add(
+                          ApproveEvent(
+                              model: state.apiResponse[index],
+                              approved: "${value == true ? 1 : 0}")),
+                      onDelete: (id) => context.read<ExpenseBloc>().add(DeleteExpenseEvent(id: id)),
+                    ),
                   ),
                 ),
               ],

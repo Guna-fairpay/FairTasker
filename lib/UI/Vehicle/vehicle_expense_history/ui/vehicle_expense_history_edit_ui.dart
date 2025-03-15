@@ -22,8 +22,9 @@ import '../state/vehicle_expense_history_state.dart';
 
 class VehicleExpenseHistoryEditPage extends StatelessWidget {
   final String? id;
-
-  const VehicleExpenseHistoryEditPage({super.key, required this.id});
+  final bool showTotalAmount;
+  final double? currentExpenseAmount;
+  const VehicleExpenseHistoryEditPage({super.key, required this.id,required this.showTotalAmount,this.currentExpenseAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +62,8 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                         () => context.pushReplacement(VehicleExpenseHistoryUI(
                           vin: state.vin,
                           vehicleName: state.vehicleName,
+                          showTotalAmount: showTotalAmount,
+                          currentExpenseAmount: currentExpenseAmount,
                         )),
                       );
                     });
@@ -72,6 +75,8 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                       context.pushReplacement(VehicleExpenseHistoryUI(
                     vin: state.vin,
                     vehicleName: state.vehicleName,
+                        showTotalAmount: showTotalAmount,
+                        currentExpenseAmount: currentExpenseAmount,
                   )),
                   icon: const Icon(Icons.close),
                 ),
@@ -354,6 +359,8 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                                       .pushReplacement(VehicleExpenseHistoryUI(
                                     vin: state.vin,
                                     vehicleName: state.vehicleName,
+                                    showTotalAmount: showTotalAmount,
+                                currentExpenseAmount: currentExpenseAmount,
                                   )));
                         },
                         text: 'Update',

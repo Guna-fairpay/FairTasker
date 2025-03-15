@@ -29,3 +29,18 @@ class ExpenseTapEvent extends ExpenseEvent {
   @override
   List<Object?> get props => [selectedTap];
 }
+
+class ApproveEvent extends ExpenseEvent {
+  final dynamic model;
+  final dynamic approved;
+  const ApproveEvent({required this.model, required this.approved});
+  @override
+  List<Object?> get props => [model, approved];
+}
+
+class DeleteExpenseEvent extends ExpenseEvent {
+  final String? id;
+  const DeleteExpenseEvent({required this.id});
+  @override
+  List<Object?> get props => [id];
+}

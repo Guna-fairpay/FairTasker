@@ -16,6 +16,7 @@ class ExpenseState extends Equatable{
   final dynamic selectedCohorts;
   final List<dynamic> tapData;
   final Map<String,dynamic> selectedTap;
+  final bool isApprove;
   final bool isLoading;
 
   const ExpenseState({
@@ -31,6 +32,7 @@ class ExpenseState extends Equatable{
     required this.selectedCohorts,
     required this.tapData,
     required this.selectedTap,
+    required this.isApprove,
     required this.isLoading,
   });
 
@@ -47,6 +49,7 @@ class ExpenseState extends Equatable{
     dynamic selectedCohorts,
     List<dynamic>? tapData,
     Map<String,dynamic>? selectedTap,
+    bool? isApprove,
     bool? isLoading,
   }){
     return ExpenseState(
@@ -62,6 +65,7 @@ class ExpenseState extends Equatable{
       selectedCohorts: selectedCohorts ?? this.selectedCohorts,
       tapData: tapData ?? this.tapData,
       selectedTap: selectedTap ?? this.selectedTap,
+      isApprove: isApprove ?? this.isApprove,
       isLoading:  isLoading ?? this.isLoading,
     );
   }
@@ -80,6 +84,7 @@ class ExpenseState extends Equatable{
     selectedCohorts,
     tapData,
     selectedTap,
+    isApprove,
     isLoading,
     Random().nextDouble()
   ];

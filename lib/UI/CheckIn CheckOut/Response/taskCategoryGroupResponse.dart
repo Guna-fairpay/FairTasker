@@ -17,7 +17,6 @@ class CohortsDataResponse{
   CohortsDataResponse({
     this.data
   });
-
   CohortsDataResponse.fromJson(dynamic json)
   {
     data = json['cohortsData'] != null
