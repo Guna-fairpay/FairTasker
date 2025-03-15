@@ -109,6 +109,7 @@ dependencies:
   circular_menu: ^4.0.0
   get_it: ^8.0.3
   flutter_screenutil: ^5.9.3
+  logger: ^2.5.0
 
 dev_dependencies:
   flutter_test:

@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
@@ -73,6 +74,32 @@ class APiRepository {
   String get _getFilter => "getFilter";
 
   String get _saveFilter => "saveFilter";
+
+  String get _locations => "locations";
+
+  String get _getBranch => "getBranch";
+
+  String get _vendors => "vendors";
+
+  String get _vehiclePartsList => "vehicle-parts-list";
+
+  String get _vehicleSupplies => "vehicle-supplies";
+
+  String get _taskCategoryGroup => "taskCategoryGroup";
+
+  String get _getToDoList => "todo-data";
+
+  String get _groupVehicle => "group-vehicle";
+
+  String get _activeVehicles => "active_vehicles";
+
+  String get _saveBouncieVehicle => "save-bouncie-vehicle";
+
+  String get _taskExpenseData => "task-expenses-data";
+
+  int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
+
+  String? get _userId => Session.of.getString(Str.userIdPrefText);
 
   Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
       {int? currentPage, int itemsPerPage = 5, String? search}) async {
@@ -242,37 +269,37 @@ class APiRepository {
       {Map<String, dynamic>? body,
       List<File>? images,
       String? expenseId}) async {
-      try {
-        String apiUrl = '';
-        if (expenseId != null) {
-          apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+    try {
+      String apiUrl = '';
+      if (expenseId != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_expenses";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body?..putIfAbsent('type', () => "inline"),
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(
+              mapData?['message'] ?? "Todo Updated Successfully");
+          return mapData;
         } else {
-          apiUrl = "${Str.LIST_BASE_URL}$_expenses";
-        }
-        final http.Response? response = await _apiClient.callPostMethodWithBody(
-            apiUrl,
-            body: body?..putIfAbsent('type', () => "inline"),
-            autoIncrement: true,
-            fieldName: "files",
-            files: images?.map((e) => e.path).toList());
-        if (response != null) {
-          if (response.isSuccess) {
-            var mapData = await response.mapData;
-            Toaster.showSuccess(
-                mapData?['message'] ?? "Todo Updated Successfully");
-            return mapData;
-          } else {
-            Utils.showSomethingWentWrong();
-            return null;
-          }
-        } else {
+          Utils.showSomethingWentWrong();
           return null;
         }
-      } catch (error) {
-        log('callLoginAPI.exception2 : ${error.toString()}');
+      } else {
         return null;
       }
+    } catch (error) {
+      log('callLoginAPI.exception2 : ${error.toString()}');
+      return null;
     }
+  }
 
   Future<Map<String, dynamic>?> generateInvoice(
       {Map<String, String>? body}) async {
@@ -298,16 +325,16 @@ class APiRepository {
     }
   }
 
-    Future<GeneralResponse?> deleteTodoVehicle({String? id}) async {
-      try {
-        String apiUrl = "${Str.BASE_URL}$_deleteVehicles/$id";
-        final http.Response? response = await _apiClient.callDelete(apiUrl);
-        var mapData = await response.mapData;
-        return GeneralResponse.fromJson(mapData);
-      } catch (error) {
-        rethrow;
-      }
+  Future<GeneralResponse?> deleteTodoVehicle({String? id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteVehicles/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
     }
+  }
 
   Future<VehicleExpenseHistoryResponse?> getVehicleExpense(
       {String? vin}) async {
@@ -337,18 +364,18 @@ class APiRepository {
     }
   }
 
-    Future<GeneralResponse?> deleteVehicleExpenseImage(
-        dynamic todoVehicleId,) async {
-      try {
-        String apiUrl =
-            "${Str.LIST_BASE_URL}$_deleteExpenseImage/$todoVehicleId";
-        final http.Response? response = await _apiClient.callDelete(apiUrl);
-        var mapData = await response.mapData;
-        return GeneralResponse.fromJson(mapData);
-      } catch (error) {
-        rethrow;
-      }
+  Future<GeneralResponse?> deleteVehicleExpenseImage(
+    dynamic todoVehicleId,
+  ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_deleteExpenseImage/$todoVehicleId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
     }
+  }
 
   Future<GeneralResponse?> deleteVehicleExpense(
     dynamic vehicleExpenseId,
@@ -363,23 +390,26 @@ class APiRepository {
     }
   }
 
-    Future<GeneralResponse?> deleteExpenseTodo(dynamic todoVehicleId,) async {
-      try {
-        String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
-        final http.Response? response = await _apiClient.callPostMethod(apiUrl,
-            body: jsonEncode({
-              'todo_id': '$todoVehicleId',
-            }));
-        var mapData = await response.mapData;
-        return GeneralResponse.fromJson(mapData);
-      } catch (error) {
-        rethrow;
-      }
+  Future<GeneralResponse?> deleteExpenseTodo(
+    dynamic todoVehicleId,
+  ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteExpenseTodo";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({
+            'todo_id': '$todoVehicleId',
+          }));
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
     }
+  }
 
-  Future<Map<String, dynamic>?> updateVehicleExpenseHistory({Map<String, dynamic>? body,
-    List<File>? images,
-    String? expenseId}) async {
+  Future<Map<String, dynamic>?> updateVehicleExpenseHistory(
+      {Map<String, dynamic>? body,
+      List<File>? images,
+      String? expenseId}) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
       log("${images?.length}", name: "updateVehicleExpenseHistory");
@@ -408,7 +438,7 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteTodo({String? id,dynamic reason}) async {
+  Future<GeneralResponse?> deleteTodo({String? id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
       final http.Response? response = await _apiClient.callPostMethod(apiUrl,
@@ -421,6 +451,7 @@ class APiRepository {
       rethrow;
     }
   }
+
   Future<Map<String, dynamic>?> getMiscellaneousVehicles() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_miscellaneousVehicles";
@@ -432,28 +463,34 @@ class APiRepository {
     }
   }
 
-  Future<Map<String, dynamic>?> saveNote({required dynamic vin, required DateTime? date}) async {
+  Future<Map<String, dynamic>?> saveNote(
+      {required dynamic vin, required DateTime? date}) async {
     try {
-      if ((vin.toString().isNullOrEmpty) || (date == null)) throw Exception( (vin.toString().isNullOrEmpty) ? "Invalid VIN" : "Invalid Date");
+      if ((vin.toString().isNullOrEmpty) || (date == null))
+        throw Exception(
+            (vin.toString().isNullOrEmpty) ? "Invalid VIN" : "Invalid Date");
       String apiUrl = "${Str.LIST_BASE_URL}$_saveNote$vin";
       Map<String, dynamic> body = {
-        "followup_date" : date.toFormat(format: "yyyy-MM-dd") ?? ""
+        "followup_date": date.toFormat(format: "yyyy-MM-dd") ?? ""
       };
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+      final http.Response? response =
+          await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>?> createStatusToDo({required Map<String, dynamic> body}) async {
+  Future<Map<String, dynamic>?> createStatusToDo(
+      {required Map<String, dynamic> body}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_createStatusToDo";
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+      final http.Response? response =
+          await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
@@ -464,58 +501,68 @@ class APiRepository {
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>?> vehicleStatusCheck({required dynamic vin}) async {
+  Future<Map<String, dynamic>?> vehicleStatusCheck(
+      {required dynamic vin}) async {
     if (vin.toString().isNullOrEmpty) throw Exception("Invalid VIN");
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusCheck$vin";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>?> updateStatusToDo({required Map<String, dynamic> body}) async {
+  Future<Map<String, dynamic>?> updateStatusToDo(
+      {required Map<String, dynamic> body}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_updateStatusToDo";
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+      final http.Response? response =
+          await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>?> getFilter({required dynamic filterName, required dynamic model}) async {
+  Future<Map<String, dynamic>?> getFilter(
+      {required dynamic filterName, required dynamic model}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getFilter";
-      Map<String, dynamic> params = {
-        "filter_name" : filterName,
-        "model" : model
-      };
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      Map<String, dynamic> params = {"filter_name": filterName, "model": model};
+      final http.Response? response =
+          await _apiClient.callGetMethod(apiUrl, params: params);
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>?> saveFilter({required dynamic filterName, required dynamic model, required dynamic filterData}) async {
+  Future<Map<String, dynamic>?> saveFilter(
+      {required dynamic filterName,
+      required dynamic model,
+      required dynamic filterData}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_saveFilter";
-      var body = {"filter_name": filterName, "model": model, "filter_data": filterData};
+      var body = {
+        "filter_name": filterName,
+        "model": model,
+        "filter_data": filterData
+      };
       log("${jsonEncode(body)}", name: "UPLOAD_BODY");
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+      final http.Response? response =
+          await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
-    } catch(e) {
+    } catch (e) {
       rethrow;
     }
   }
@@ -523,15 +570,143 @@ class APiRepository {
   Future<ExpenseResponse?> getVehicleExpenseList(
       {String? minDate, String? maxDate}) async {
     try {
-      String apiUrl = '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
+      String apiUrl =
+          '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
-      return (mapData != null)
-          ? ExpenseResponse.fromJson(mapData)
-          : null;
+      return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
     } catch (error) {
       rethrow;
     }
   }
 
+  Future<Map<String, dynamic>?> getLocations() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_locations";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
   }
+
+  Future<Map<String, dynamic>?> getBranch() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getBranch";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVendors() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendors";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getParts() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehiclePartsList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getSupplies() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleSupplies";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTaskCategoryGroup() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_taskCategoryGroup";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getToDoList(
+      {String? selectedDate, bool status = false, String? resourceId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getToDoList";
+      Map<String, dynamic> params = {
+        "resource": resourceId ?? "",
+        "date": selectedDate,
+        "status": status ? "Completed" : "In Progress",
+        "branch_id": _branchId ?? 1
+      };
+      Console.of.log(params);
+      final http.Response? response =
+          await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getGroupVehicle() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_groupVehicle";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getActiveVehicles() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_activeVehicles";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBouncieVehicles() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_saveBouncieVehicle";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTaskExpenseData() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_taskExpenseData";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+}
