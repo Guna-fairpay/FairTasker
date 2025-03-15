@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/color_extension.dart';
@@ -67,39 +67,44 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Fair Returns',
-      theme: ThemeData(
-        cardColor: Colors.white,
-        appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
-        dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
-        searchBarTheme: SearchBarThemeData(
-          backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-          textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
-          padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
-          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(16))),
-          elevation: const WidgetStatePropertyAll(0),
-          side: const WidgetStatePropertyAll(BorderSide.none),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Fair Returns',
+        theme: ThemeData(
+          cardColor: Colors.white,
+          appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
+          dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
+          searchBarTheme: SearchBarThemeData(
+            backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
+            textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
+            padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
+            shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+                borderRadius: BorderRadius.circular(16))),
+            elevation: const WidgetStatePropertyAll(0),
+            side: const WidgetStatePropertyAll(BorderSide.none),
+          ),
+          switchTheme: SwitchThemeData(
+            // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.grey),
+            thumbColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.white : AppC.lightGrey),
+          ),
+          dividerTheme: const DividerThemeData(
+              color: AppC.grey,
+              thickness: Num.borderWidthThinField
+          ),
+          primarySwatch: AppC.appColor.toMaterialColor,
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: AppC.appColor.toMaterialColor),
+          textTheme: GoogleFonts.poppinsTextTheme(
+              Typography.blackCupertino.copyWith()
+          ),
         ),
-        switchTheme: SwitchThemeData(
-          // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.grey),
-          thumbColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.white : AppC.lightGrey),
-        ),
-        dividerTheme: const DividerThemeData(
-          color: AppC.grey,
-          thickness: Num.borderWidthThinField
-        ),
-        primarySwatch: AppC.appColor.toMaterialColor,
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: AppC.appColor.toMaterialColor),
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Typography.blackCupertino.copyWith()
-        ),
+        builder: EasyLoading.init(),
+        home: const SplashScreen(),
       ),
-      builder: EasyLoading.init(),
-      home: const SplashScreen(),
     );
   }
 }

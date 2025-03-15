@@ -3,6 +3,7 @@ import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:fairpytasker/UI/Finance/Revenue/revenue_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_ui.dart';
+import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -64,7 +65,8 @@ class _BottomNavigationForTaskViewState
 
   // A Map for pages to avoid the switch case logic
   final Map<int, Widget> pages = {
-    0: const TodoViewUI(),
+    // 0: const TodoViewUI(),
+    0: const TaskerMainUi(),
     // 1: const CarStatusUI(resourceList: []),
     1: const VehicleStatusListUi(),
     2: const WorkingHoursViewUI(),

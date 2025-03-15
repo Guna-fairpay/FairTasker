@@ -1,26 +1,27 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:flutter/material.dart';
 
 class TodoTopHeader extends StatelessWidget {
-  final bool isFilterSelected, switchValue, isUserSelected;
-  final String? selectedMonthYear;
-  final VoidCallback? onNextPressed, onPreviousPressed, onCurrentYearPressed;
+  final bool isFilterSelected, showCompleted, isUserSelected;
+  final DateTime? selectedDate;
+  final VoidCallback? onNextPressed, onPreviousPressed, onDatePressed;
   final void Function(TapDownDetails details)? onUserTapDown, onFilterPressed, onVehicleSearchPressed;
   final void Function(bool val)? onSwitch;
   final Color? vehicleSearchColor;
 
   const TodoTopHeader(
       {super.key,
-      this.switchValue = false,
+      this.showCompleted = false,
       this.isUserSelected = false,
-      this.selectedMonthYear,
+      this.selectedDate,
       this.isFilterSelected = false,
       this.onFilterPressed,
       this.onNextPressed,
       this.onPreviousPressed,
-      this.onCurrentYearPressed,
+      this.onDatePressed,
       this.onVehicleSearchPressed,
       this.vehicleSearchColor,
       this.onSwitch,
@@ -53,7 +54,7 @@ class TodoTopHeader extends StatelessWidget {
                       activeColor: AppC.white,
                       inactiveThumbColor: AppC.white,
                       inactiveTrackColor: AppC.grey,
-                      value: switchValue,
+                      value: showCompleted,
                       onChanged: onSwitch)),
             ),
             const SizedBox(width: 15),
@@ -80,8 +81,8 @@ class TodoTopHeader extends StatelessWidget {
               width: 5,
             ),
             InkWell(
-              onTap: onCurrentYearPressed,
-              child: Utils.getText(selectedMonthYear ?? "",
+              onTap: onDatePressed,
+              child: Utils.getText((selectedDate.toFormat(format: "MMM dd") ?? ""),
                   size: 17, weight: FontWeight.w500),
             ),
             const SizedBox(
