@@ -13,6 +13,7 @@ class ToDoProcessor {
   List<Map<String, dynamic>> _activeVehicles = [];
   List<Map<String, dynamic>> _groupPersons = [];
   List<Map<String, dynamic>> _usersList = [];
+  List<Map<String, dynamic>> _vendorsList = [];
   List<Map<String, dynamic>> _bouncieVehicles = [];
   List<Map<String, dynamic>> _taskExpenseDatas = [];
 
@@ -27,6 +28,7 @@ class ToDoProcessor {
       _fetchTaskExpenseData(),
       _fetchGroupPersons(),
       _fetchUsers(),
+      _fetchVendors()
     ]);
     _groupVehicle = response[0] ?? [];
     _activeVehicles = response[1] ?? [];
@@ -34,6 +36,7 @@ class ToDoProcessor {
     _taskExpenseDatas = response[3] ?? [];
     _groupPersons = response[4] ?? [];
     _usersList = response[5] ?? [];
+    _vendorsList = response[6] ?? [];
   }
 
   Future<List<Map<String, dynamic>>> _fetchVehicleGroups() async =>
@@ -50,6 +53,9 @@ class ToDoProcessor {
 
   Future<List<Map<String, dynamic>>> _fetchUsers() async =>
       await getIt<CommonService>().getUsers();
+
+  Future<List<Map<String, dynamic>>> _fetchVendors() async =>
+      await getIt<CommonService>().getVendorsList();
 
   Future<List<Map<String, dynamic>>> _fetchTaskExpenseData() async =>
       await getIt<CommonService>().getTaskExpenseData();
@@ -122,6 +128,7 @@ class ToDoProcessor {
             "vehicle_plate" : _getVehiclePlate(e),
             "vehicle_distance" : _getVehicleDistance(e),
             "vehicle_name" : _getVehicleName(e),
+            "vendor" : _vendor(e),
           }
           )
         .toList();
@@ -335,6 +342,17 @@ class ToDoProcessor {
       } else {
         return initial;
       }
+    } else {
+      return null;
+    }
+  }
+
+  String? _vendorId(Map<String, dynamic> model) => model['vendor_id'].toString();
+
+  Map<String, dynamic>? _vendor(Map<String, dynamic> model) {
+    var vendorId = _vendorId(model);
+    if (vendorId.isNotNullOrEmpty) {
+      return _vendorsList.firstWhereOrNull((element) => element['id'].toString() == vendorId);
     } else {
       return null;
     }
