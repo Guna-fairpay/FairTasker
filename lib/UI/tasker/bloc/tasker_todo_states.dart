@@ -34,7 +34,11 @@ class ToDoTaskerDatePickerState extends ToDoTaskerState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class ToDoTaskerAddToDoState extends ToDoTaskerState {}
+class ToDoTaskerAddToDoState extends ToDoTaskerState {
+  @override
+  // TODO: implement props
+  List<Object?> get props => [Random().nextDouble()];
+}
 class ToDoTaskerMicState extends ToDoTaskerState {}
 
 class ToDoTaskerEditState extends ToDoTaskerState {
@@ -65,4 +69,11 @@ class ToDoTaskerVendorInfoState extends ToDoTaskerState {
   ToDoTaskerVendorInfoState(this.model);
   @override
   List<Object?> get props => [model];
+}
+
+class ToDoTaskerNotesTapState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerNotesTapState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
 }
