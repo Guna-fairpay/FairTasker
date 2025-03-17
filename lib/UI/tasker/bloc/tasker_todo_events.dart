@@ -60,3 +60,24 @@ class ToDoTaskerVendorInfoEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ToDoTaskerViewNotesEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewNotesEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerDateChangeTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerDateChangeTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerCompletedTimeTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerCompletedTimeTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
