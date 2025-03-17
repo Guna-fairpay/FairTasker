@@ -1,5 +1,6 @@
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
+import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_dialog.dart';
 import 'package:fairpytasker/UI/dialog/vendor_info_dialog.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
@@ -39,6 +40,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerTapUserFilterState(): break;
             case ToDoTaskerTapVehicleFilterState(): TaskerVehicleSearchDialog.show(context); break;
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;
+            case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes']); break;
             default: break;
           }
         }
