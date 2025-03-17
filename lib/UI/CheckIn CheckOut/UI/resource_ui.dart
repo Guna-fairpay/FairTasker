@@ -49,12 +49,16 @@ class WorkHoursViewUI extends StatelessWidget {
 
   //needed function in UI
   String removeSeconds(String totalHours) {
-    List<String> parts = totalHours.split(':');
-
-    if (parts.length >= 2) {
-      return '${parts[0]}:${parts[1]}';
-    } else {
-      throw FormatException("Invalid time format: $totalHours");
+    if(totalHours != '' && totalHours != null)
+      {
+        List<String> parts = totalHours.split(':');
+        if (parts.length >= 2) {
+          return '${parts[0]}:${parts[1]}';
+        } else {
+          throw FormatException("Invalid time format: $totalHours");
+        }
+      }else {
+      return '';
     }
   }
 
@@ -313,7 +317,7 @@ class WorkHoursViewUI extends StatelessWidget {
                         }).toList()
                             : state.combinedData;
                         return ListView.builder(
-                          itemCount: dataList?.length,
+                          itemCount: dataList?.length ?? 0,
                           itemBuilder: (context, index) {
                             final employee = dataList?[index];
                             final activeHours = (index < state.activeHours.length)
@@ -338,7 +342,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Expanded(flex: 5, child: Utils.getText(getFirstWord(employee!['first_name']))),
+                                      Expanded(flex: 5, child: Utils.getText(getFirstWord(employee?['first_name'] ?? ''))),
                                       Expanded(flex: 3, child: Utils.getText(activeHours)),
                                       Expanded(
                                         flex: 3,
@@ -346,7 +350,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                           onTap: () {
                                             // Handle tap event
                                           },
-                                          child: Utils.getText(removeSeconds(employee!['total_working_hours'])),
+                                          child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
                                         ),
                                       ),
                                       Expanded(
@@ -355,7 +359,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                           onTap: () {
                                             // Handle tap event
                                           },
-                                          child: Utils.getText(employee!['task_count'].toString()),
+                                          child: Utils.getText(employee?['task_count'].toString() ?? ''),
                                         ),
                                       ),
                                       Expanded(
