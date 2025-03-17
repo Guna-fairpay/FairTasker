@@ -99,6 +99,10 @@ class APiRepository {
 
   String get _taskExpenseData => "task-expenses-data";
 
+  String get _getWorkingHoursByUser => "getWorkingHourByUser";
+
+  String get _userPunchList => "userPunchList";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -719,6 +723,30 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getWorkingHoursByUser() async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_getWorkingHoursByUser/$_userId";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      var listData = List<Map<String, dynamic>>.from(mapData?['data'] ?? []);
+      return listData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getUserPunchList() async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_userPunchList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      var listData = List<Map<String, dynamic>>.from(mapData?['data'] ?? []);
+      return listData;
     } catch (e) {
       rethrow;
     }

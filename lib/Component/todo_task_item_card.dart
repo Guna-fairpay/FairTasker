@@ -12,9 +12,9 @@ import 'package:flutter/material.dart';
 class TodoTaskItemCard extends StatelessWidget {
   final Map<String, dynamic> model;
   final Future<bool?> Function()? onComplete, onPrevious;
-  final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onTitle, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory;
+  final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory;
   final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes;
-  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onTitle, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious});
+  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +85,8 @@ class TodoTaskItemCard extends StatelessWidget {
           ),
           Expanded(
               child: Dismissible(
-            key: UniqueKey(),
+            key: Key(model['id'].toString()),
+            direction: DismissDirection.horizontal,
             secondaryBackground: Container(
               decoration: BoxDecoration(
                   color: (model['display']?['hasCompleted'] ?? false)
@@ -148,7 +149,7 @@ class TodoTaskItemCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               GestureDetector(
-                                onTap: onTitle,
+                                onTap: onTap,
                                 child: Utils.getText("${model['display']?['task_title'] ?? ""}",
                                     color: (model['display']?['hasTimeSensitive'])
                                         ? AppC.red

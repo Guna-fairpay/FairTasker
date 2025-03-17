@@ -1,6 +1,8 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTabButton<T> extends StatelessWidget {
   final Function(T val)? onPressed;
@@ -10,6 +12,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final BorderRadius? tapBorderRaius;
   final T value, selectedValue;
   final Decoration? decoration;
+  final IconData? icon;
 
   const CustomTabButton(
       {super.key,
@@ -18,6 +21,7 @@ class CustomTabButton<T> extends StatelessWidget {
       this.textStyle,
       this.padding,
       this.tapBorderRaius,
+      this.icon,
       required this.buttonText,
       required this.value,
       required this.selectedValue});
@@ -44,9 +48,18 @@ class CustomTabButton<T> extends StatelessWidget {
                     borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(5),
                         topLeft: Radius.circular(5))),
-        child: Text(buttonText,
+        child: Text.rich(TextSpan(
+          children: [
+            if (icon != null)
+              WidgetSpan(child: Icon(icon, size: 16.sp, color: (selectedValue != value) ? null : AppC.appColor)),
+            if (icon != null)
+              WidgetSpan(child: 4.width),
+            TextSpan(text: buttonText)
+          ]
+        ),
             style: textStyle ??
                 context.textTheme.labelLarge?.copyWith(
+                  fontSize: 12.sp,
                     color: (selectedValue != value) ? null : AppC.appColor,
                     fontWeight: (selectedValue != value)
                         ? FontWeight.normal

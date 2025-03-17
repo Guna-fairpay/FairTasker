@@ -161,4 +161,37 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>?> getWorkingHourByUser() async {
+    try {
+      var response = await _apiRepository.getWorkingHoursByUser();
+      return response;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getUserPunchList() async {
+    try {
+      var response = await _apiRepository.getUserPunchList();
+      return response;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getVendorsList({bool reset = false}) async {
+    if (reset) vendorsList.clear();
+    if (vendorsList.isNotEmpty) return vendorsList;
+    try {
+      var response = await _apiRepository.getVendors();
+      vendorsList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return vendorsList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
 }

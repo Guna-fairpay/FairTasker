@@ -4,10 +4,8 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 
 class TodoTopHoursView extends StatelessWidget {
-  final String? checkInTime;
-  final String? hoursActive;
-  final String? hoursTotal;
-  const TodoTopHoursView({super.key, this.checkInTime, this.hoursActive, this.hoursTotal});
+  final Map<String, dynamic>? model;
+  const TodoTopHoursView({super.key, this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +13,7 @@ class TodoTopHoursView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Text.rich(TextSpan(
-            text: checkInTime ?? "00:00",
+            text: model?['checkIn'] ?? "00:00",
             children: [
               WidgetSpan(child: 3.width),
               TextSpan(text: "Check in", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))
@@ -27,7 +25,7 @@ class TodoTopHoursView extends StatelessWidget {
         ),
         Expanded(
           child: Text.rich(TextSpan(
-              text: hoursActive ?? "00:00",
+              text: model?['totalHours'] ?? "00:00",
               children: [
                 WidgetSpan(child: 3.width),
                 TextSpan(text: "Hours Active", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))
@@ -39,7 +37,7 @@ class TodoTopHoursView extends StatelessWidget {
           ),
         ),
         Text.rich(TextSpan(
-            text: hoursTotal ?? "00:00",
+            text: model?['checkOut'] ?? "00:00",
             children: [
               WidgetSpan(child: 3.width),
               TextSpan(text: "Hours Total", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))
