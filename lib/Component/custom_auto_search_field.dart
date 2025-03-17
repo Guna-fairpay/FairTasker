@@ -21,7 +21,7 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
   final GestureTapDownCallback? onEmptyWidgetTapDown;
   final bool autoClear;
 
-  const CustomAutoSearchField(
+  CustomAutoSearchField(
       {super.key,
       this.labelText,
       this.hintText,
@@ -35,6 +35,8 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
       this.onEmptyWidgetTap,
       this.onEmptyWidgetTapDown,
       });
+
+  final GlobalKey _textFieldKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -50,33 +52,38 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
           controller.clear();
         }
       },
-      optionsViewBuilder: (context, onSelected, options) => Align(
-        alignment: Alignment.topLeft,
-        child: Container(
-          width: context.width - 40,
-          constraints: const BoxConstraints(maxHeight: 200),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(Num.borderRadius)),
-              border: Border.all(width: 0.5, color: AppC.borderColor)),
-          child: ListView.separated(
-              shrinkWrap: true,
-              itemBuilder: (context, index) => ListTile(
-                    onTap: () => onSelected.call(options.elementAt(index)),
-                    dense: true,
-                    minTileHeight: 0,
-                    contentPadding: 10.horizontalPadding,
-                    title: Text(
-                        itemAsString?.call(options.elementAt(index)) ?? ""),
-                  ),
-              separatorBuilder: (context, index) => const Divider(
-                    thickness: 0.5,
-                    height: 0.5,
-                  ),
-              itemCount: options.length),
-        ),
-      ),
+      optionsViewBuilder: (context, onSelected, options) {
+        final RenderBox renderBox = _textFieldKey.currentContext!.findRenderObject() as RenderBox;
+        final size = renderBox.size;
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Container(
+            width: size.width,
+            constraints: const BoxConstraints(maxHeight: 200),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(Num.borderRadius)),
+                border: Border.all(width: 0.5, color: AppC.borderColor)),
+            child: ListView.separated(
+                shrinkWrap: true,
+                itemBuilder: (context, index) => ListTile(
+                  onTap: () => onSelected.call(options.elementAt(index)),
+                  dense: true,
+                  minTileHeight: 0,
+                  contentPadding: 10.padding,
+                  titleTextStyle: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
+                  title: Text(
+                      itemAsString?.call(options.elementAt(index)) ?? ""),
+                ),
+                separatorBuilder: (context, index) => const Divider(
+                  thickness: 0.5,
+                  height: 0.5,
+                ),
+                itemCount: options.length),
+          ),
+        );
+      },
       optionsViewOpenDirection: OptionsViewOpenDirection.down,
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
@@ -90,6 +97,7 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
                 TextSelection.collapsed(offset: controller.text.length - 1));
         if (controller.text.contains("id:")) controller.clear();
         return TextField(
+          key: _textFieldKey,
           controller: controller,
           focusNode: focusNode,
           onSubmitted: (value) => onFieldSubmitted,
