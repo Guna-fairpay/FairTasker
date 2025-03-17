@@ -1,4 +1,4 @@
-
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:date_time/date_time.dart';
@@ -17,7 +17,6 @@ import '../../../Todo/add_todo/add_todo_const.dart';
 import '../Response/expense_response.dart';
 
 class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
-
   final APiRepository apiRepository = APiRepository();
   final TodoListRepo todoListRepo = TodoListRepo();
   String? categoryId;
@@ -72,39 +71,43 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         }
         var response = await _getExpense(minDate, maxDate);
         var usersList = await getIt<CommonService>().getUsers();
+        var expenseCategories = await _getExpenseCategories();
+
         ExpenseResponse? expenseResponse = response;
 
         var apiResponse = expenseResponse?.data;
 
-        /*apiResponse = apiResponse?.map((e) => e..putIfAbsent("employee_name", () {
-          var user = usersList.firstWhere((element) => element['id'] == e['employee_id']);
-          return (List<String>.from([(user['first_name'] ?? ""), (user['last_name'] ?? "")]).toInitial);
-        })).toList();*/
-
         apiResponse = apiResponse?.map((e) {
-          e.putIfAbsent("employee_name", () {
-            var user = usersList.firstWhere(
+              e.putIfAbsent("employee_name", () {
+                var user = usersList.firstWhere(
                   (element) => element['id'] == e['employee_id'],
-              orElse: () => {},
-            );
-            return List<String>.from([
-              user['first_name'] ?? "",
-              user['last_name'] ?? ""]).toInitial;
-          });
-          return e;
-        }).toList() ?? [];
+                  orElse: () => {},
+                );
+                return List<String>.from(
+                        [user['first_name'] ?? "", user['last_name'] ?? ""])
+                    .toInitial;
+              });
+              return e;
+            }).toList() ??
+            [];
 
-        apiResponse.sort((a, b) =>
-            DateTime.parse(b['created_at'] ?? '')
-                .compareTo(DateTime.parse(a['created_at'] ?? '')));
+        apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+            .compareTo(DateTime.parse(a['created_at'] ?? '')));
+
+        apiResponse = apiResponse
+            .map((item) => item
+              ..['cohortList'] = [
+                {"id": "1", "name": "FairPy"},
+                {"id": "4", "name": "${item['cohort']['cohort']}"}
+              ])
+            .toList();
 
         emit(state.copyWith(
-          isLoading: false,
-          apiResponse: apiResponse,
-          filteredResponse: apiResponse,
-          expenseAttachments: [],
-        ));
-      }catch (e){
+            isLoading: false,
+            apiResponse: apiResponse,
+            filteredResponse: apiResponse,
+            categories: expenseCategories));
+      } catch (e) {
         log("$e", name: "Error In Bloc Value");
         emit(state.copyWith(isLoading: false));
       }
@@ -120,14 +123,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var model = event.model;
         var existResponse = state.apiResponse.map((e) {
           if (e['id'] == model['id']) {
-            return e..['approved'] = (int.tryParse(event.approved.toString()) ?? 0);
+            return e
+              ..['approved'] = (int.tryParse(event.approved.toString()) ?? 0);
           } else {
             return e;
           }
         }).toList();
-        await apiRepository.expenseApprove(id:event.model['id'].toString(),approved:event.approved);
-        emit(state.copyWith(isLoading: false,apiResponse: existResponse));
-      } catch (e){
+        await apiRepository.expenseApprove(
+            id: event.model['id'].toString(), approved: event.approved);
+        emit(state.copyWith(isLoading: false, apiResponse: existResponse));
+      } catch (e) {
         emit(state.copyWith(isLoading: false));
         log("$e", name: "Error In ApproveEvent");
       }
@@ -142,13 +147,65 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var existResponse = state.apiResponse;
         existResponse.removeWhere((e) => e['id'].toString() == event.id);
         emit(state.copyWith(isLoading: false, apiResponse: existResponse));
-      } catch (e){
+      } catch (e) {
         emit(state.copyWith(isLoading: false));
         log("$e", name: "Error In DeleteExpenseEvent");
       }
       emit(state.copyWith(isLoading: false));
     });
 
+    on<CategoryListEvent>((event, emit) {
+      if (event.selectedCategory != null) {
+        var subCategories = event.selectedCategory?['sub_categories'];
+        log(subCategories.toString(), name: 'subCategories');
+        emit(state.copyWith(
+            selectedCategory: event.selectedCategory,
+            subCategories: subCategories,
+            selectedSubCategory: {}));
+      }
+    });
+
+    on<SubCategoryListEvent>((event, emit) =>
+        emit(state.copyWith(selectedSubCategory: event.selectedSubCategory)));
+
+    on<CohortListEvent>((event, emit) {
+      emit(state.copyWith(selectedCohorts: event.selectedCohort));
+    });
+
+    on<CategoryDialogEvent>((event, emit) {
+      var data = event.data;
+      var selectedCategory = state.categories
+              .where(
+                (element) =>
+                    element['id'].toString() == data?['category_id'].toString(),
+              )
+              .firstOrNull ??
+          {};
+      List<dynamic> subCategories = selectedCategory['sub_categories'] ?? [];
+      var selectedSubCategory = subCategories
+              .where(
+                (element) =>
+                    element['id'].toString() ==
+                    data?['subcategory_id'].toString(),
+              ).firstOrNull ?? {};
+      log(selectedSubCategory.toString(), name: 'selectedSubCategory');
+      emit(state.copyWith(
+        selectedCategory: selectedCategory,
+        selectedSubCategory: selectedSubCategory,
+        subCategories: subCategories,
+      ));
+    });
+
+    on<CohortDialogEvent>((event, emit) {
+      var data = event.data;
+      List<dynamic> cohort = data['cohortList'] ?? [];
+      var selectedCohort = cohort
+              .where(
+                (element) =>
+                    element['id'].toString() == data['expense_to'].toString(),)
+              .firstOrNull ?? {};
+      emit(state.copyWith(cohorts: cohort, selectedCohorts: selectedCohort));
+    });
   }
 
   Future<List<File>> _pickFiles() async {
@@ -178,7 +235,12 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
   /// API CALL: Expense Vehicle
   Future<ExpenseResponse?> _getExpense(String? minDate, String? maxDate) async {
-    return await apiRepository.getVehicleExpenseList(minDate: minDate,maxDate: maxDate);
+    return await apiRepository.getVehicleExpenseList(
+        minDate: minDate, maxDate: maxDate);
   }
 
+  /// API CALL: CATEGORIES
+  Future<List<Map<String, dynamic>>?> _getExpenseCategories() async {
+    return await getIt<CommonService>().getExpenseCategories(reset: true);
+  }
 }

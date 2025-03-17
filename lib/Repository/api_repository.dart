@@ -15,6 +15,7 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import '../Response/subcategories_response.dart';
 import '../UI/Finance/Expense/Response/expense_response.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
@@ -102,6 +103,8 @@ class APiRepository {
   String get _getWorkingHoursByUser => "getWorkingHourByUser";
 
   String get _userPunchList => "userPunchList";
+
+  String get _expensesCategory => "expenses_category";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -751,4 +754,18 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<SubCategoriesResponse?> getExpenseTo() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null)
+          ? SubCategoriesResponse.fromJson(mapData)
+          : null;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
 }

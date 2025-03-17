@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
 abstract class ExpenseEvent extends Equatable {
@@ -43,4 +45,39 @@ class DeleteExpenseEvent extends ExpenseEvent {
   const DeleteExpenseEvent({required this.id});
   @override
   List<Object?> get props => [id];
+}
+
+class CohortListEvent extends ExpenseEvent {
+  final dynamic selectedCohort;
+  const CohortListEvent({required this.selectedCohort});
+  @override
+  List<Object?> get props => [selectedCohort, Random().nextDouble()];
+}
+
+class CategoryListEvent extends ExpenseEvent {
+  final dynamic selectedCategory;
+  const CategoryListEvent({required this.selectedCategory});
+  @override
+  List<Object?> get props => [selectedCategory, Random().nextDouble()];
+}
+
+class SubCategoryListEvent extends ExpenseEvent {
+  final dynamic selectedSubCategory;
+  const SubCategoryListEvent({required this.selectedSubCategory});
+  @override
+  List<Object?> get props => [selectedSubCategory, Random().nextDouble()];
+}
+
+class CategoryDialogEvent extends ExpenseEvent {
+  final dynamic data;
+  const CategoryDialogEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class CohortDialogEvent extends ExpenseEvent {
+  final dynamic data;
+  const CohortDialogEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
 }

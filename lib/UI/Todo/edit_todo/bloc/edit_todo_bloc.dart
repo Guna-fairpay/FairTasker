@@ -55,6 +55,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
+  Map<String,dynamic> selectionTaps={};
 
   EditToDoBloc()
       : super(EditTodoState(
@@ -77,7 +78,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedTask: const [],
           linkOptions: AddToDoConfig.customOptions,
           bottomTapData: const [],
-          selectedBottomTap: AddToDoConfig.editTodoBottomTaps.first,
+          selectedBottomTap: const {},
           isSelectedPlatformCheck: false,
           showPlatformCheck: false,
           isMoreEnable: false,
@@ -266,6 +267,27 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
         todoImages=images.map((e) => e['path'].toString().toAttachmentURL).toList();
 
+        final title = todoResponse?.editTodos?['title'];
+        final vehicleExists = todoResponse?.editTodos?['vehicle_name'] != null ||
+            todoResponse?.editTodos?['vin'] != null ||
+            (todoResponse?.editTodos?['vehicles']?.isNotEmpty ?? false);
+
+        final List<Map<String, dynamic>> tabs = [
+          if (!['Check In', 'Check Out'].contains(title)) {"id": 1, "title": "Expense"},
+          {"id": 2, "title": "Next Task"},
+          if (title == 'Pre Checks') {"id": 3, "title": "Check List"},
+          if (title == 'Maintenance Check') {"id": 4, "title": "Maintenance"},
+          if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
+            {"id": 5, "title": "Set Vehicle"},
+        ];
+
+        selectionTaps = tabs.firstWhere(
+              (e) => (title == "Pre Checks" && e['title'] == "Check List") ||
+              (title == "Maintenance Check" && e['title'] == "Maintenance"),
+          orElse: () => tabs.isNotEmpty ? tabs[0] : {},
+        );
+
+
         emit(state.copyWith(
           isLoading: false,
           bottomTapData: tabs,
@@ -275,6 +297,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               ? false
               : true,
           // selectedBottomTap: tabs.firstWhere((element) => element['id'] == 4),
+          selectedBottomTap: selectionTaps,
           tasks: taskResponse?.data ?? [],
           selectedVPerson:
               CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
@@ -310,6 +333,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
           attachments: todoImages,
+
         ));
         await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
         await Future.delayed(Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
@@ -688,6 +712,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   /// API CALL: GET-USER-GROUP
   Future<UserGroupResponse?> _getUserGroup() async =>
       await todoListRepo.fetchUserGroupingList();
+
+  var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
+
+
+
+
+
 }
 
 class EditToDoInitialEvent {}

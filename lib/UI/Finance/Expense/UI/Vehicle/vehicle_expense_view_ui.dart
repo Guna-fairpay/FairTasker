@@ -1,5 +1,8 @@
+
 import "package:date_time/date_time.dart";
-import "package:fairpytasker/Component/expense_vehicle_list_item.dart";
+import "package:fairpytasker/UI/Finance/Expense/Component/category_subcategory_dialog.dart";
+import "package:fairpytasker/UI/Finance/Expense/Component/cohort_dialog.dart";
+import "package:fairpytasker/UI/Finance/Expense/Component/expense_vehicle_list_item.dart";
 import "package:fairpytasker/Utilities/Utils.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -37,18 +40,36 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListView.separated(
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 0.5),
-                    itemCount: state.apiResponse.length,
-                    itemBuilder: (context, index) => ExpenseVehicleListItem(
-                      expense: state.apiResponse[index],
-                      onChanged: (value) => context.read<ExpenseBloc>().add(
-                          ApproveEvent(
-                              model: state.apiResponse[index],
-                              approved: "${value == true ? 1 : 0}")),
-                      onDelete: (id) => context.read<ExpenseBloc>().add(DeleteExpenseEvent(id: id)),
-                    ),
-                  ),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 0.5),
+                      itemCount: state.apiResponse.length,
+                      itemBuilder: (context, index) => ExpenseVehicleListItem(
+                            expense: state.apiResponse[index],
+                            onCategoryTapEvent: () {
+                              context.read<ExpenseBloc>().add(CategoryDialogEvent(data:state.apiResponse[index]));
+                              CategorySubcategoryDialog.show(
+                                context,
+                                expense: state.apiResponse[index],
+                              );
+                            },
+                        onCohortTapEvent: (){
+                              context.read<ExpenseBloc>().add(CohortDialogEvent(
+                                  data:state.apiResponse[index]));
+                          CohortDialog.show(context, expense: state.apiResponse[index],);
+                        },
+                            onChanged: (value) => context
+                                .read<ExpenseBloc>()
+                                .add(ApproveEvent(
+                                    model: state.apiResponse[index],
+                                    approved: "${value == true ? 1 : 0}")),
+                            onDelete: (id) => context
+                                .read<ExpenseBloc>()
+                                .add(DeleteExpenseEvent(id: id)),
+                            /*onCohort: (value) =>
+                                context.read<ExpenseBloc>().add(
+                                      CohortListEvent(selectedCohort: value),
+                                    ),*/
+                          )),
                 ),
               ],
             );
