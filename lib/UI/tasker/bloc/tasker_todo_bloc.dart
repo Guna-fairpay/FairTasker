@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:flutter/material.dart' show TextEditingController;
@@ -39,6 +38,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerTapVehicleFilterEvent>(_onTapVehicleFilterEvent);
     on<ToDoTaskerVendorInfoEvent>(_onVendorInfoEvent);
     on<ToDoTaskerViewNotesEvent>(_onViewNotesEvent);
+    on<ToDoTaskerSaveNotesEvent>(_onSaveNotesEvent);
+    on<ToDoTaskerVehiclePersonTapEvent>(_onVehiclePersonTapEvent);
+    on<ToDoTaskerResourceTapEvent>(_onResourceTapEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -182,5 +184,36 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onViewNotesEvent(ToDoTaskerViewNotesEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerNotesTapState(event.model));
+  }
+
+  void _onSaveNotesEvent(ToDoTaskerSaveNotesEvent event, Emitter<ToDoTaskerState> emit) {
+    var model = event.model;
+    var existingNotes = model?['notes'];
+    if (existingNotes != event.notes) {
+      // NEW NOTES ARRIVED
+      event.model
+        ?..['notes'] = event.notes
+        ..['display']?['notes'] = event.notes;
+      unfiltered = unfiltered.map((e) {
+        if (e['id'] == model?['id']) {
+          return e
+            ..['notes'] = event.notes
+              ..['display']?['notes'] = event.notes;
+        } else {
+          return e;
+        }
+      }).toList();
+      toDos = unfiltered;
+      // TODO: CALL API TO UPDATE
+      emit(ToDoTaskerCommonState());
+    }
+  }
+
+  void _onVehiclePersonTapEvent(ToDoTaskerVehiclePersonTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerVehiclePersonTapState(event.model));
+  }
+
+  void _onResourceTapEvent(ToDoTaskerResourceTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerResourceTapState(event.model));
   }
 }

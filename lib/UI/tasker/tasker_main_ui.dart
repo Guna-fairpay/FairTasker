@@ -1,6 +1,7 @@
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_dialog.dart';
 import 'package:fairpytasker/UI/dialog/vendor_info_dialog.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
@@ -8,16 +9,12 @@ import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/UI/tasker/sub_pages/tasker_listing_ui.dart';
 import 'package:fairpytasker/UI/tasker/task_components/tasker_header.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:popover/popover.dart';
 
 class TaskerMainUi extends StatelessWidget {
   const TaskerMainUi({super.key});
@@ -40,7 +37,9 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerTapUserFilterState(): break;
             case ToDoTaskerTapVehicleFilterState(): TaskerVehicleSearchDialog.show(context); break;
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;
-            case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes']); break;
+            case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes'], onSave: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveNotesEvent(state.model, value))); break;
+            case ToDoTaskerVehiclePersonTapState(): TaskerVehiclesChangeDialog.show(context, state.model); break;
+            case ToDoTaskerResourceTapState(): Toaster.showInfo("RESOURCE PRESSED"); break;
             default: break;
           }
         }
