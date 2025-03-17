@@ -8,23 +8,21 @@ class WorkingHistoryResponse {
 
   WorkingHistoryResponse.fromJson(dynamic json) {
     status = json['status'];
-    data = json['data'] is Map<String, dynamic>
-        ? [Map<String, dynamic>.from(json['data'] ?? {})]
-        : List<Map<String, dynamic>>.from(json['data'] ?? []);
+    data = json['data']['data'] is Map<String, dynamic>
+        ? [Map<String, dynamic>.from(json['data']['data'] ?? {})]
+        : List<Map<String, dynamic>>.from(json['data']['data'] ?? []);
   }
   bool? status;
   List<Map<String,dynamic>>? data;
-
-  // Map<String, dynamic> toJson() {
-  //   final map = <String, dynamic>{};
-  //   map['status'] = status;
-  //   if (data != null) {
-  //     map['data'] = data?.toJson();
-  //   }
-  //   return map;
-  // }
-
 }
+// Map<String, dynamic> toJson() {
+//   final map = <String, dynamic>{};
+//   map['status'] = status;
+//   if (data != null) {
+//     map['data'] = data?.toJson();
+//   }
+//   return map;
+// }
 
 /// current_page : 1
 /// data : [{

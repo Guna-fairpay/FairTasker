@@ -10,11 +10,10 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_ui.dart';
 import 'package:fairpytasker/Component/header.dart';
-import '../UI/Finance/Expense/UI/Vehicle/vehicle_expense_view_ui.dart';
+import '../UI/CheckIn CheckOut/UI/resource_ui.dart';
 import '../UI/Finance/Expense/UI/expense_tap_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
-import '../UI/CheckIn CheckOut/UI/working_hours_view_ui.dart';
 import '../Utilities/str.dart';
 
 class BottomNavigationForTaskView extends StatefulWidget {
@@ -69,7 +68,7 @@ class _BottomNavigationForTaskViewState
     0: const TaskerMainUi(),
     // 1: const CarStatusUI(resourceList: []),
     1: const VehicleStatusListUi(),
-    2: const WorkingHoursViewUI(),
+    2: WorkHoursViewUI(),
     3: const FeedBackUI(),
     4: const ExpenseTab(),
     5: const InvoiceViewUI(),
