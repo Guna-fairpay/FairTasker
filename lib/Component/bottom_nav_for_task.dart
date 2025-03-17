@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/car_status_ui.dart';
 import 'package:fairpytasker/Component/header.dart';
+import '../UI/CheckIn CheckOut/UI/resource_ui.dart';
 import '../UI/Finance/Expense/Vehicle/vehicle_expense_view_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
@@ -67,7 +68,7 @@ class _BottomNavigationForTaskViewState
     0: const TodoViewUI(),
     // 1: const CarStatusUI(resourceList: []),
     1: const VehicleStatusListUi(),
-    2: const WorkingHoursViewUI(),
+    2: WorkHoursViewUI(),
     3: const FeedBackUI(),
     4: const ExpenseViewUI(),
     5: const InvoiceViewUI(),
