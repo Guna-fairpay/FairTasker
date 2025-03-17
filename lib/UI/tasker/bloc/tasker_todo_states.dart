@@ -83,3 +83,10 @@ class ToDoTaskerVehiclePersonTapState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class ToDoTaskerResourceTapState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerResourceTapState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

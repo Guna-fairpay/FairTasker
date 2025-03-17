@@ -39,6 +39,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;
             case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes'], onSave: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveNotesEvent(state.model, value))); break;
             case ToDoTaskerVehiclePersonTapState(): TaskerVehiclesChangeDialog.show(context, state.model); break;
+            case ToDoTaskerResourceTapState(): Toaster.showInfo("RESOURCE PRESSED"); break;
             default: break;
           }
         }

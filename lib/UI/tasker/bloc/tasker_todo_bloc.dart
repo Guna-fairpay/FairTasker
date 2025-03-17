@@ -40,6 +40,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewNotesEvent>(_onViewNotesEvent);
     on<ToDoTaskerSaveNotesEvent>(_onSaveNotesEvent);
     on<ToDoTaskerVehiclePersonTapEvent>(_onVehiclePersonTapEvent);
+    on<ToDoTaskerResourceTapEvent>(_onResourceTapEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -210,5 +211,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onVehiclePersonTapEvent(ToDoTaskerVehiclePersonTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerVehiclePersonTapState(event.model));
+  }
+
+  void _onResourceTapEvent(ToDoTaskerResourceTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerResourceTapState(event.model));
   }
 }

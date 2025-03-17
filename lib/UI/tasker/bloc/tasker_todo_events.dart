@@ -96,3 +96,10 @@ class ToDoTaskerVehiclePersonTapEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ToDoTaskerResourceTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerResourceTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
