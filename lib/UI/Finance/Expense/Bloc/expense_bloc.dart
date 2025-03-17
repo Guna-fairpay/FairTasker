@@ -191,6 +191,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         await apiRepository.deleteVehicleExpense(event.id);
         var existResponse = state.filteredResponse;
         existResponse.removeWhere((e) => e['id'].toString() == event.id);
+
         approvedAmount=0;
         unApprovedAmount=0;
         if(state.isExpenseApproved){
