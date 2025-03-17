@@ -434,7 +434,10 @@ class Utils {
           backgroundColor:  WidgetStatePropertyAll(bgColor),
           iconColor: const WidgetStatePropertyAll(AppC.white),
           shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(16)))),
+              borderRadius: BorderRadius.circular(16)
+          )
+          )
+      ),
       child: Icon(Icons.add,size: 20,color: textColor,),
     );
   }

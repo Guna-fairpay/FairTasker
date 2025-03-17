@@ -1,7 +1,7 @@
 
 import 'dart:math';
-
 import 'package:equatable/equatable.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
 abstract class ExpenseEvent extends Equatable {
   const ExpenseEvent();
@@ -80,4 +80,18 @@ class CohortDialogEvent extends ExpenseEvent {
   const CohortDialogEvent({required this.data});
   @override
   List<Object?> get props => [data];
+}
+
+class UpdateDateRangeEvent extends ExpenseEvent {
+  final DateRange selectedRange;
+  const UpdateDateRangeEvent({required this.selectedRange});
+  @override
+  List<Object?> get props => [selectedRange];
+}
+
+class ApprovedExpenseEvent extends ExpenseEvent {
+  final bool? isApproved;
+  const ApprovedExpenseEvent({required this.isApproved});
+  @override
+  List<Object?> get props => [isApproved];
 }

@@ -1,6 +1,7 @@
 
 import 'dart:math';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
 class ExpenseState extends Equatable{
 
@@ -18,6 +19,10 @@ class ExpenseState extends Equatable{
   final Map<String,dynamic> selectedTap;
   final bool isApprove;
   final bool isLoading;
+  final DateRange? selectedDateRange;
+  final bool isExpenseApproved;
+  final dynamic approvedAmount;
+  final dynamic unApprovedAmount;
 
   const ExpenseState({
     required this.apiResponse,
@@ -34,6 +39,10 @@ class ExpenseState extends Equatable{
     required this.selectedTap,
     required this.isApprove,
     required this.isLoading,
+    required this.selectedDateRange,
+    required this.isExpenseApproved,
+    required this.approvedAmount,
+    required this.unApprovedAmount,
   });
 
   ExpenseState copyWith({
@@ -51,6 +60,10 @@ class ExpenseState extends Equatable{
     Map<String,dynamic>? selectedTap,
     bool? isApprove,
     bool? isLoading,
+    DateRange? selectedDateRange,
+    bool? isExpenseApproved,
+    dynamic approvedAmount,
+    dynamic unApprovedAmount,
   }){
     return ExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -67,6 +80,10 @@ class ExpenseState extends Equatable{
       selectedTap: selectedTap ?? this.selectedTap,
       isApprove: isApprove ?? this.isApprove,
       isLoading:  isLoading ?? this.isLoading,
+      selectedDateRange: selectedDateRange ?? this.selectedDateRange,
+      isExpenseApproved: isExpenseApproved ?? this.isExpenseApproved,
+      approvedAmount: approvedAmount ?? this.approvedAmount,
+      unApprovedAmount: unApprovedAmount ?? this.unApprovedAmount,
     );
   }
 
@@ -86,6 +103,10 @@ class ExpenseState extends Equatable{
     selectedTap,
     isApprove,
     isLoading,
+    selectedDateRange,
+    isExpenseApproved,
+    approvedAmount,
+    unApprovedAmount,
     Random().nextDouble()
   ];
 

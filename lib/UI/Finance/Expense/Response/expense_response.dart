@@ -1,4 +1,5 @@
 
+
 class ExpenseResponse {
   ExpenseResponse({
     this.data,
@@ -11,7 +12,7 @@ class ExpenseResponse {
     data = json['data'] is Map<String, dynamic>
         ? [Map<String, dynamic>.from(json['data'] ?? {})]
         : List<Map<String, dynamic>>.from(json['data'] ?? []);
-    totalExpensesAmount = json['totalExpensesAmount'];
+    totalExpensesAmount = double.parse(json['totalExpensesAmount'].toString());
     message = json['message'] ?? "";
     status = json['status'];
 

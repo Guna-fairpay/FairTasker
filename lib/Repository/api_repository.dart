@@ -581,6 +581,7 @@ class APiRepository {
     try {
       String apiUrl =
           '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
+      Console.of.log(apiUrl);
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
