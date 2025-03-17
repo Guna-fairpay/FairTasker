@@ -2823,12 +2823,12 @@ class TodoListRepo {
       print("repository side $body");
       String apiUrl = '';
       http.Response? response;
-      if (id == null) {
+      if (id == null && userId!=null) {
         apiUrl = "${Str.BASE_URL}add-configuration";
-        response = await apiClient.callPostMethod(apiUrl, body: body);
-      }else if(id == null && userId!=null)
+      }else if(id == null && userId==null)
       {
         apiUrl = "${Str.BASE_URL}add-configuration";
+        response = await apiClient.callPostMethod(apiUrl, body: body);
       }
       else {
         apiUrl = "${Str.BASE_URL}update-configuration/$id";

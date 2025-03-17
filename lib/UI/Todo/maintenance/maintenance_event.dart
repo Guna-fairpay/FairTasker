@@ -6,21 +6,6 @@ abstract class MaintenanceEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class CompleteTodoItemEvent  extends MaintenanceEvent {
-  const CompleteTodoItemEvent();
-}
-
-class DeleteTodoItemEvent  extends MaintenanceEvent {
-  const DeleteTodoItemEvent();
-}
-
-class FetchTodoListEvent extends MaintenanceEvent {
-  final String? selectedDate;
-  final String? status;
-  final String? resourceId;
-  FetchTodoListEvent({this.selectedDate, this.status, this.resourceId});
-}
-
 class MaintenanceInitialEvent extends MaintenanceEvent {
   final Map<String, dynamic> todoItem;
   final Map<String, dynamic> vehicle;
@@ -72,6 +57,21 @@ class createFixTaskEvent extends MaintenanceEvent {
 
   @override
   List<Object?> get props => [maintenanceTaskId, notes, comments];
+}
+
+class CompleteTodoItemEvent  extends MaintenanceEvent {
+  const CompleteTodoItemEvent();
+}
+
+class DeleteTodoItemEvent  extends MaintenanceEvent {
+  const DeleteTodoItemEvent();
+}
+
+class FetchTodoListEvent extends MaintenanceEvent {
+  final String? selectedDate;
+  final String? status;
+  final String? resourceId;
+  FetchTodoListEvent({this.selectedDate, this.status, this.resourceId});
 }
 
 

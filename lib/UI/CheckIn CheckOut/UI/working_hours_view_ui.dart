@@ -33,7 +33,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
   late TodoViewBloc workingHistoryBloc;
   late TodoViewBloc workingHoursBloc;
   late TodoViewBloc workingActiveBloc;
-  late TaskBloc getTaskCountBloc;
+  //late TaskBloc getTaskCountBloc;
   late Map<String, String> result={};
   DateTime? selectedDate;
   DateRange? selectedDateRange;
@@ -72,7 +72,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
     );
     super.initState();
     workingHoursBloc=TodoViewBloc();
-    getTaskCountBloc=TaskBloc();
+    //getTaskCountBloc=TaskBloc();
     workingHoursBloc.add(const GetWorkingHistoryCount());
     workingHoursBloc.add(const GetAssignedToList());
   }
@@ -255,7 +255,8 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
         },
             builder: (context, state)
             {
-              return Stack(
+              return
+                Stack(
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -408,7 +409,7 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                 width: MediaQuery.of(context).size.width * 1, // Responsive width
                                 child:
                                 DefaultTextStyle(
-                                  style: TextStyle(color: AppC.black, fontSize: 12),
+                                  style: const TextStyle(color: AppC.black, fontSize: 12),
                                   textAlign: TextAlign.center,
                                   child:
                                   DateRangeField(
@@ -562,9 +563,9 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                         flex: 3,
                                         child: GestureDetector(
                                           onTap: () {
-                                            TopNotificationPopup.show(context, dataList: employee['list'],
-                                                userName: employee['first_name'], selectedDateRange: selectedDateRange.toString(),
-                                                empID: employee['empID'], hrmID: employee['hrmID']);
+                                            // TopNotificationPopup.show(context, dataList: employee['list'],
+                                            //     userName: employee['first_name'], selectedDateRange: selectedDateRange.toString(),
+                                            //     empID: employee['empID'], hrmID: employee['hrmID']);
                                           },
                                           child: Utils.getText(removeSeconds(employee['total_working_hours'])),
                                         ),
@@ -573,10 +574,10 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                             flex: 2,
                                             child: GestureDetector(
                                                 onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) => WorkingHoursTaskUI(workingHoursData: filteredData[index], dateRange: dates,)));
+                                                  // Navigator.push(
+                                                  //     context,
+                                                  //     MaterialPageRoute(
+                                                  //         builder: (context) => WorkingHoursTaskUI(workingHoursData: filteredData[index], dateRange: dates,)));
                                                 },
                                                 child:
                                                 Utils.getText(employee['task_count'].toString() ?? '',)
@@ -588,9 +589,9 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                                 alignment: Alignment.center,
                                                 child: GestureDetector(
                                                     onTap: () {
-                                                      ReasonTopNotificationPopup.show(context, dataList: employee['list'],
-                                                          userName: employee['first_name'],
-                                                          selectedDateRange: selectedDateRange.toString(), hrmID: employee['hrmID']);
+                                                      // ReasonTopNotificationPopup.show(context, dataList: employee['list'],
+                                                      //     userName: employee['first_name'],
+                                                      //     selectedDateRange: selectedDateRange.toString(), hrmID: employee['hrmID']);
                                                     },
                                                     child:
                                                     Utils.getText("$totalHoursValue" ?? '',)
