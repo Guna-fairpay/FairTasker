@@ -3,7 +3,6 @@ import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
 import 'package:fairpytasker/Component/todo_task_item_card.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +23,8 @@ class TaskerListingUi extends StatelessWidget {
               onTap: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerEditEvent(model['id'].toString())),
               onVendorInfo: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerVendorInfoEvent(model)),
               onNotes: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewNotesEvent(model)),
+              onVehicleOrPerson: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVehiclePersonTapEvent(model)),
+              onResource: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerResourceTapEvent(model)),
               onComplete: () async {
                 return false;
               },

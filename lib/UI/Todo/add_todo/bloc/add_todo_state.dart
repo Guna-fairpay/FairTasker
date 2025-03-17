@@ -11,6 +11,7 @@ class AddToDoState extends Equatable {
   final List<dynamic> tasks;
   final List<dynamic> vehicles;
   final List<dynamic> persons;
+  final List<dynamic> groupVehicles;
   final List<dynamic> vendors;
   final List<dynamic> locations;
   final List<dynamic> partServices;
@@ -52,6 +53,7 @@ class AddToDoState extends Equatable {
     required this.vendors,
     required this.persons,
     required this.vehicles,
+    required this.groupVehicles,
     required this.locations,
     required this.partServices,
     required this.supplies,
@@ -104,6 +106,7 @@ class AddToDoState extends Equatable {
     List<dynamic>? tasks,
     List<dynamic>? vehicles,
     List<dynamic>? persons,
+    List<dynamic>? groupVehicles,
     List<dynamic>? vendors,
     List<dynamic>? locations,
     List<dynamic>? partServices,
@@ -142,6 +145,7 @@ class AddToDoState extends Equatable {
         clearDurations: clearDurations ?? this.clearDurations,
         vehicles: vehicles ?? this.vehicles,
         persons: persons ?? this.persons,
+        groupVehicles: groupVehicles ?? this.groupVehicles,
         vendors: vendors ?? this.vendors,
         locations: locations ?? this.locations,
         linkOptions: linkOptions ?? this.linkOptions,
@@ -181,6 +185,7 @@ class AddToDoState extends Equatable {
         isTimeSensitive,
         tasks,
         vehicles,
+        groupVehicles,
         persons,
         vendors,
         locations,
