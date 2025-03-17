@@ -47,5 +47,8 @@ static const redAccent = Color(0xffd01601);
 
   static const buttonColor = Color(0xFF369f6f);
   static const darkGreen = Color(0xFF075a33);
+  static const categoryColors = Color(0xFF13b3b3);
+  static const cohortColors = Color(0xFF143263);
+
 
 }

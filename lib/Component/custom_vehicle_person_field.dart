@@ -14,7 +14,7 @@ import 'package:searchfield/searchfield.dart';
 
 class CustomVehiclePersonField extends StatelessWidget {
   final ValueNotifier<dynamic>? selectedVPersons;
-  final List<dynamic> vehiclesList, personsList;
+  final List<dynamic> vehiclesList, personsList, groupVehicles;
   final List<Map<String, dynamic>>? selected;
   final void Function(dynamic val)? onSelected;
   final void Function(dynamic val)? onDeleted;
@@ -28,6 +28,7 @@ class CustomVehiclePersonField extends StatelessWidget {
       this.onSelected,
       this.onDeleted,
       required this.personsList,
+      this.groupVehicles = const [],
       this.controller}) {
     _prepareData();
     _checkSelectedVData();
@@ -45,7 +46,7 @@ class CustomVehiclePersonField extends StatelessWidget {
 
   void _prepareData() {
     unfilteredList = CustomSearchDataConverter.convertVPerson(
-        vehicles: vehiclesList, persons: personsList);
+        vehicles: vehiclesList, persons: personsList, groupVehicles: groupVehicles);
     commonList.value = unfilteredList;
   }
 
@@ -182,7 +183,7 @@ class CustomVehiclePersonField extends StatelessWidget {
 
   void _onSuggested(Map<String, dynamic> val) {
     List<Map<String, dynamic>> data = selectedVPersons?.value ?? [];
-    if (val['type'] == "person") {
+    if (["person", "g_vehicles"].contains(val['type'])) {
       data = [val];
     } else if (val['type'] == "vehicles") {
       data.removeWhere((element) =>

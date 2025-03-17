@@ -4,9 +4,10 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import '../../../../Component/drawer_ui.dart';
-import '../../../../Component/header.dart';
-import '../../../../Utilities/num.dart';
+
+import '../../../../../Component/drawer_ui.dart';
+import '../../../../../Component/header.dart';
+import '../../../../../Utilities/num.dart';
 
 class ExpensePersonEditUi extends StatefulWidget {
 

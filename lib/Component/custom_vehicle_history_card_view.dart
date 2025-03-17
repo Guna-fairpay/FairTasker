@@ -122,7 +122,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                         TextSpan(text: "$titleText")
                                       ]
                                     ),
-                                    style: context.textTheme.titleMedium
+                                    style: context.textTheme.labelLarge
                                         ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted ?? false) ? AppC.green : null),
                                   ),
                             subtitle: ((cleanCarText?.length ?? 0) != 0)

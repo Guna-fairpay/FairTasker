@@ -19,6 +19,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -71,6 +72,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             partServices: const [],
             supplies: const [],
             resources: const [],
+            groupVehicles: const [],
             selectedTaskPersons: const [],
             selectedVPerson: const [],
             selectedParts: const [],
@@ -110,6 +112,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           _getSupplies(),
           _getResources(),
         ]);
+        var groupVehicles = await _getGroupVehicles();
         TaskExpenseResponse? taskResponse =
             ((response[0] is TaskExpenseResponse) ? response[0] : null)
                 as TaskExpenseResponse?;
@@ -151,6 +154,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             vendors: vendorResponse?.data ?? [],
             partServices: partsResponse?.data ?? [],
             supplies: suppliesResponse?.data ?? [],
+            groupVehicles: groupVehicles ?? [],
             selectedTaskPersons: selectedUser,
             resources: resources,
             selectedLinkOption: AddToDoConfig.customOptions.first));
@@ -656,4 +660,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   // API CALL: GET-PARTS
   Future<SuppliesResponse?> _getSupplies() async =>
       await todoListRepo.getSupplies();
+
+  Future<List<Map<String, dynamic>>> _getGroupVehicles() async => await getIt<CommonService>().groupVehicles();
 }

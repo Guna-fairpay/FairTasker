@@ -67,13 +67,14 @@ class AddTodoMainForm extends StatelessWidget {
                 CustomVehiclePersonField(
                   vehiclesList: state.vehicles,
                   personsList: state.persons,
+                  groupVehicles: state.groupVehicles,
                   selected: state.selectedVPerson,
                   onSelected: (val) =>
                       context.read<AddToDoBloc>().add(AddToDoVPersonEvent(val)),
                   controller: context.read<AddToDoBloc>().vPersonController,
                 ),
                 if (state.selectedVPerson
-                    .where((element) => element['type'] == "vehicles")
+                    .where((element) => ["vehicles", "g_vehicles"].contains(element['type']))
                     .lastOrNull !=
                     null)
                   ...[

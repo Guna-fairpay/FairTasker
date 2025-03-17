@@ -1,26 +1,28 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TodoTopHeader extends StatelessWidget {
-  final bool isFilterSelected, switchValue, isUserSelected;
-  final String? selectedMonthYear;
-  final VoidCallback? onNextPressed, onPreviousPressed, onCurrentYearPressed;
+  final bool isFilterSelected, showCompleted, isUserSelected;
+  final DateTime? selectedDate;
+  final VoidCallback? onNextPressed, onPreviousPressed, onDatePressed;
   final void Function(TapDownDetails details)? onUserTapDown, onFilterPressed, onVehicleSearchPressed;
   final void Function(bool val)? onSwitch;
   final Color? vehicleSearchColor;
 
   const TodoTopHeader(
       {super.key,
-      this.switchValue = false,
+      this.showCompleted = false,
       this.isUserSelected = false,
-      this.selectedMonthYear,
+      this.selectedDate,
       this.isFilterSelected = false,
       this.onFilterPressed,
       this.onNextPressed,
       this.onPreviousPressed,
-      this.onCurrentYearPressed,
+      this.onDatePressed,
       this.onVehicleSearchPressed,
       this.vehicleSearchColor,
       this.onSwitch,
@@ -53,26 +55,26 @@ class TodoTopHeader extends StatelessWidget {
                       activeColor: AppC.white,
                       inactiveThumbColor: AppC.white,
                       inactiveTrackColor: AppC.grey,
-                      value: switchValue,
+                      value: showCompleted,
                       onChanged: onSwitch)),
             ),
             const SizedBox(width: 15),
-            InkWell(
+            GestureDetector(
               onTapDown: onVehicleSearchPressed,
               child: Image.asset(
                 Assets.vehicleSearchIcon,
-                height: 24,
-                width: 24,
+                height: 20.sp,
+                width: 20.sp,
                 color: vehicleSearchColor ?? AppC.appColor,
               ),
             ),
             const SizedBox(width: 20),
-            InkWell(
+            GestureDetector(
                 onTap: onPreviousPressed,
                 child: Icon(
                   Icons.chevron_left,
                   color: AppC().base,
-                  size: 24,
+                  size: 22.sp,
                 )),
           ]),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -80,9 +82,9 @@ class TodoTopHeader extends StatelessWidget {
               width: 5,
             ),
             InkWell(
-              onTap: onCurrentYearPressed,
-              child: Utils.getText(selectedMonthYear ?? "",
-                  size: 17, weight: FontWeight.w500),
+              onTap: onDatePressed,
+              child: Utils.getText((selectedDate.toFormat(format: "MMM dd") ?? ""),
+                  size: 12.sp, weight: FontWeight.w500),
             ),
             const SizedBox(
               width: 5,
@@ -91,26 +93,26 @@ class TodoTopHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InkWell(
+              GestureDetector(
                   onTap: onNextPressed,
                   child: Icon(
                     Icons.chevron_right,
                     color: AppC().base,
-                    size: 24,
+                    size: 22.sp,
                   )),
               const SizedBox(
                 width: 20,
               ),
-              InkWell(
+              GestureDetector(
                 onTapDown: onUserTapDown,
                 child: Row(
                   children: [
                     Icon(
                       isUserSelected
-                          ? Icons.supervisor_account
-                          : Icons.person_outline,
+                          ? Icons.supervisor_account_rounded
+                          : Icons.person_outline_rounded,
                       color: AppC().base,
-                      size: 24,
+                      size: 17.sp,
                     ),
                   ],
                 ),
@@ -118,16 +120,16 @@ class TodoTopHeader extends StatelessWidget {
               const SizedBox(
                 width: 15,
               ),
-              InkWell(
+              GestureDetector(
                   onTapDown: onFilterPressed,
                   child: Row(
                     children: [
                       Icon(
-                        isFilterSelected
+                        !isFilterSelected
                             ? Icons.filter_alt_outlined
                             : Icons.filter_alt_sharp,
                         color: AppC.black,
-                        size: 22,
+                        size: 18.sp,
                       ),
                     ],
                   )),

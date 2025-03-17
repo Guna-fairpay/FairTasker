@@ -3,15 +3,17 @@ import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:fairpytasker/UI/Finance/Revenue/revenue_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_ui.dart';
+import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_ui.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/car_status_ui.dart';
 import 'package:fairpytasker/Component/header.dart';
 import '../UI/CheckIn CheckOut/UI/resource_ui.dart';
 import '../UI/Finance/Expense/Vehicle/vehicle_expense_view_ui.dart';
+import '../UI/Finance/Expense/UI/Vehicle/vehicle_expense_view_ui.dart';
+import '../UI/Finance/Expense/UI/expense_tap_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
 import '../UI/CheckIn CheckOut/UI/working_hours_view_ui.dart';
@@ -65,12 +67,13 @@ class _BottomNavigationForTaskViewState
 
   // A Map for pages to avoid the switch case logic
   final Map<int, Widget> pages = {
-    0: const TodoViewUI(),
+    // 0: const TodoViewUI(),
+    0: const TaskerMainUi(),
     // 1: const CarStatusUI(resourceList: []),
     1: const VehicleStatusListUi(),
     2: WorkHoursViewUI(),
     3: const FeedBackUI(),
-    4: const ExpenseViewUI(),
+    4: const ExpenseTab(),
     5: const InvoiceViewUI(),
     6: const RevenueViewUI(),
     7: const ProfitAndLossUI(),

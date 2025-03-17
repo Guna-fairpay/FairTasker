@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class TodoTopSearchBar extends StatelessWidget {
   final VoidCallback? onAdd, onMic;
   final TextEditingController? controller;
-  const TodoTopSearchBar({super.key, this.onAdd, this.onMic, this.controller});
+  final ValueChanged<String>? onChanged;
+  const TodoTopSearchBar({super.key, this.onAdd, this.onMic, this.controller, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,9 @@ class TodoTopSearchBar extends StatelessWidget {
       leading: IconButton(onPressed: onAdd, icon: const Icon(Icons.add_rounded)),
       title: TextField(
         controller: controller ?? TextEditingController(),
+        onChanged: onChanged,
+        textInputAction: TextInputAction.search,
+        onSubmitted: onChanged,
         decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search_rounded),
             border: OutlineInputBorder(
