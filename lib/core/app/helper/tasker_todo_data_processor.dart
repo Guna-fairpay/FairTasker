@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -18,6 +19,7 @@ class ToDoProcessor {
   List<Map<String, dynamic>> _taskExpenseDatas = [];
 
   final APiRepository _aPiRepository = APiRepository();
+
   String? get _userId => Session.of.getString(Str.userIdPrefText);
 
   Future<void> initialize() async {
@@ -60,7 +62,9 @@ class ToDoProcessor {
   Future<List<Map<String, dynamic>>> _fetchTaskExpenseData() async =>
       await getIt<CommonService>().getTaskExpenseData();
 
-  Future<List<Map<String, dynamic>>?> _fetchToDoList(DateTime selectedDate, bool isCompleted, {String? resourceId}) async {
+  Future<List<Map<String, dynamic>>?> _fetchToDoList(
+      DateTime selectedDate, bool isCompleted,
+      {String? resourceId}) async {
     var response = await _aPiRepository.getToDoList(
         selectedDate: selectedDate.toFormat(),
         status: isCompleted,
@@ -74,17 +78,19 @@ class ToDoProcessor {
     data.removeWhere((element) => checkIO.contains(element['title']));
     data.addAll(checkInOut);
     data.sort((a, b) =>
-    a['todo_time']
-        .toString()
-        .toDateTime(inputFormat: "HH:mm:ss")
-        ?.compareTo(
-        b['todo_time'].toString().toDateTime(inputFormat: "HH:mm:ss") ??
-            DateTime.now()) ??
+        a['todo_time']
+            .toString()
+            .toDateTime(inputFormat: "HH:mm:ss")
+            ?.compareTo(
+                b['todo_time'].toString().toDateTime(inputFormat: "HH:mm:ss") ??
+                    DateTime.now()) ??
         0);
     return data;
   }
 
-  Future<List<Map<String, dynamic>>?> getToDoList(DateTime selectedDate, bool isCompleted, {String? resourceId}) async {
+  Future<List<Map<String, dynamic>>?> getToDoList(
+      DateTime selectedDate, bool isCompleted,
+      {String? resourceId}) async {
     var response = await Future.wait([
       _fetchGroupPersons(),
       _fetchToDoList(selectedDate, isCompleted, resourceId: resourceId)
@@ -106,7 +112,7 @@ class ToDoProcessor {
             "task_time": _time(e),
             "completed_time": _completedTime(e),
             "hasCompletedTime": _hasCompletedTime(e),
-            "hasTimeSensitive" : _hasTimeSensitive(e),
+            "hasTimeSensitive": _hasTimeSensitive(e),
             "person_name": _personName(e),
             "vendor_location": _vendorLocation(e),
             "resource_name": _resourceName(e),
@@ -121,16 +127,17 @@ class ToDoProcessor {
             "hasAttachments": _hasAttachments(e),
             "hasAddress": _hasAddress(e),
             "hasCustomLink": _hasCustomLink(e),
-            "hasCompleted" : _hasCompleted(e),
-            "hasVehiclePlate" : _hasVehiclePlate(e),
+            "hasCompleted": _hasCompleted(e),
+            "hasVehiclePlate": _hasVehiclePlate(e),
             "vins": _getVehicleVins(e),
-            "vehicle_image" : _getVehicleImage(e),
-            "vehicle_plate" : _getVehiclePlate(e),
-            "vehicle_distance" : _getVehicleDistance(e),
-            "vehicle_name" : _getVehicleName(e),
-            "vendor" : _vendor(e),
-          }
-          )
+            "vehicle_image": _getVehicleImage(e),
+            "vehicle_plate": _getVehiclePlate(e),
+            "vehicle_distance": _getVehicleDistance(e),
+            "vehicle_name": _getVehicleName(e),
+            "vendor": _vendor(e),
+            "resources": _resources(e),
+            "vehicles": _getVehicles(e)
+          })
         .toList();
   }
 
@@ -275,9 +282,11 @@ class ToDoProcessor {
       model['reference_id'].toString().isNotNullOrEmpty &&
       model['custom_link_id'] != 1;
 
-  bool _hasTimeSensitive(Map<String, dynamic> model) => model['time_sensitive'] == 1;
+  bool _hasTimeSensitive(Map<String, dynamic> model) =>
+      model['time_sensitive'] == 1;
 
-  bool _hasCompleted(Map<String, dynamic> model) => model['status'] == "Completed";
+  bool _hasCompleted(Map<String, dynamic> model) =>
+      model['status'] == "Completed";
 
   bool _hasVehiclePlate(Map<String, dynamic> model) {
     if (model['vehicle_group_id'].toString().isNotNullOrEmpty) {
@@ -302,7 +311,9 @@ class ToDoProcessor {
     if (completedTimeTaken.toString().isNotNullOrEmpty) {
       return completedTimeTaken;
     } else if (identifierId.toString().isNotNullOrEmpty) {
-      var taken = _taskExpenseDatas.firstWhereOrNull((element) => element['id'] == identifierId)?['time_taken'] ?? "";
+      var taken = _taskExpenseDatas.firstWhereOrNull(
+              (element) => element['id'] == identifierId)?['time_taken'] ??
+          "";
       if (taken.toString().isNotNullOrEmpty) {
         return "00:$taken";
       } else {
@@ -321,14 +332,11 @@ class ToDoProcessor {
   String? _resourceName(Map<String, dynamic> model) {
     Map<String, dynamic> users = model['users'] ?? {};
     if (users.isNotEmpty) {
-      return <String>[
-        (users['first_name'] ?? ""),
-        (users['last_name'] ?? "")
-      ].toInitial;
+      return <String>[(users['first_name'] ?? ""), (users['last_name'] ?? "")]
+          .toInitial;
     } else if (model['user_group_id'].toString().isNotNullOrEmpty) {
-      var userId = (_groupPersons.firstWhereOrNull(
-              (element) =>
-          element['id'] == model['user_group_id'])?['userId'] ??
+      var userId = (_groupPersons.firstWhereOrNull((element) =>
+              element['id'] == model['user_group_id'])?['userId'] ??
           "");
       List<int> userIds = List.from(jsonDecode(userId));
       var user = _usersList
@@ -347,12 +355,31 @@ class ToDoProcessor {
     }
   }
 
-  String? _vendorId(Map<String, dynamic> model) => model['vendor_id'].toString();
+  List<Map<String, dynamic>> _resources(Map<String, dynamic> model) {
+    Map<String, dynamic> users = model['users'] ?? {};
+    if (users.isNotEmpty) {
+      return [users];
+    } else if (model['user_group_id'].toString().isNotNullOrEmpty) {
+      var userId = (_groupPersons.firstWhereOrNull((element) =>
+              element['id'] == model['user_group_id'])?['userId'] ??
+          "");
+      List<int> userIds = List.from(jsonDecode(userId));
+      return _usersList
+          .where((element) => userIds.contains(element['id']))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  String? _vendorId(Map<String, dynamic> model) =>
+      model['vendor_id'].toString();
 
   Map<String, dynamic>? _vendor(Map<String, dynamic> model) {
     var vendorId = _vendorId(model);
     if (vendorId.isNotNullOrEmpty) {
-      return _vendorsList.firstWhereOrNull((element) => element['id'].toString() == vendorId);
+      return _vendorsList
+          .firstWhereOrNull((element) => element['id'].toString() == vendorId);
     } else {
       return null;
     }
@@ -365,5 +392,12 @@ class ToDoProcessor {
     vins.add(vin);
     vins.removeWhere((element) => element.isNullOrEmpty);
     return vins.distinct((element) => element);
+  }
+
+  List<Map<String, dynamic>> _getVehicles(Map<String, dynamic> model) {
+    var vins = _getVehicleVins(model);
+    return _activeVehicles
+        .where((element) => vins.contains(element['vin']))
+        .toList();
   }
 }

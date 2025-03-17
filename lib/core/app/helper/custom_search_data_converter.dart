@@ -4,7 +4,7 @@ class CustomSearchDataConverter {
 
   CustomSearchDataConverter._();
 
-  static List<Map<String, dynamic>> convertVPerson({List<dynamic>? vehicles, List<dynamic>? persons}) {
+  static List<Map<String, dynamic>> convertVPerson({List<dynamic>? vehicles, List<dynamic>? persons, List<dynamic>? groupVehicles}) {
     var personList = persons
         ?.map((element) => {
       "id": element['id'],
@@ -24,7 +24,16 @@ class CustomSearchDataConverter {
       "value": element
     })
         .toList() ?? [];
-    return [...vehicleList, ...personList];
+    var gVehicles = groupVehicles?.map((element) =>
+      {
+        "id": element['id'],
+        "name": element['name'],
+        "type": "g_vehicles",
+        "partNumber": 2,
+        "value": element
+      }
+    ).toList() ?? [];
+    return [...vehicleList, ...personList, ...gVehicles];
   }
 
   static List<Map<String, dynamic>> convertVLocation({List<dynamic>? vendors, List<dynamic>? locations}) {
