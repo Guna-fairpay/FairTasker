@@ -1,9 +1,11 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -250,7 +252,9 @@ class TodoExpense extends StatelessWidget {
                             ),
                             child: InkWell(
                               onTap: () {
-                                Utils.openURL(state.expenseAttachments[index]);
+                                var data = (state.expenseAttachments[index] is File) ? (state.expenseAttachments[index] as File).path : state.expenseAttachments[index];
+                                Console.of.log(data);
+                                Utils.openURL(data, isFile: (state.expenseAttachments[index] is File));
                               },child:Padding(
                               padding: 4.padding,
                               child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),

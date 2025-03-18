@@ -14,6 +14,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -2866,15 +2868,20 @@ class Utils {
 
   static void openURL(String url, {bool isFile = false}) async {
     // if ((!url.isNetworkURL) && (isFile)) return;
+    if (isFile) {
+      OpenFile.open(url);
+      return;
+    }
     final Uri uri = isFile ? Uri.file(url) : Uri.parse(url);
     try {
+      Console.of.error(uri);
       if (await canLaunchUrl(uri)) {
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
       } else {
-        showMobileToast("Could not launch $url");
+        showMobileToast("Could not launch $uri");
       }
     } catch (e) {
       log('Error launching URL: $e');
