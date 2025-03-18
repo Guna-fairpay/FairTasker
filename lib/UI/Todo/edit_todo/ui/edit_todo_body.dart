@@ -151,7 +151,7 @@ class EditTodoBody extends StatelessWidget {
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
                   controller: context.read<EditToDoBloc>().vPersonController,
-
+                  groupVehicles: state.groupVehicles,
                 ),
                 10.height,
                 CustomVendorLocationField(

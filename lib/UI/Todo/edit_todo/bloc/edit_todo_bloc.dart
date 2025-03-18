@@ -9,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -96,9 +97,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           title: '',
           taskHistory: const [],
           selectedVehicle: const{},
+          groupVehicles: const [],
       )) {
 
-    var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
+    //var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 
     on<GetEditTodoInitialEvent>((event, emit) async {
       emit(state.copyWith());
@@ -144,6 +146,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         UserGroupResponse? userGroupResponse =
             ((response[8] is UserGroupResponse) ? response[8] : null)
                 as UserGroupResponse?;
+        var groupVehiclesResponse = await _getGroupVehicles();
         var resources = assignedToResponse?.resource ?? [];
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
@@ -333,6 +336,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
           attachments: todoImages,
+          groupVehicles: groupVehiclesResponse,
 
         ));
         await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
@@ -358,6 +362,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoVPersonEvent>((event, emit) {
       var existingVPersons =
       List<Map<String, dynamic>>.from(state.selectedVPerson);
+      if (( ['person', 'g_vehicles'].contains(event.vPerson.first['type']))) {
+        existingVPersons.clear();
+      }
       if (existingVPersons
           .where((element) => element['type'] == 'person')
           .isNotEmpty &&
@@ -368,7 +375,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       existingVPersons = existingVPersons.unique((element) => element['id']);
       existingVPersons.removeWhere((element) =>
       element['type'] ==
-          ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
+          (( ['person', 'g_vehicles'].contains(event.vPerson.first['type'])) ? 'vehicles' : 'person'));
       emit(state.copyWith(
           selectedVPerson: existingVPersons,));
     });
@@ -712,6 +719,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   /// API CALL: GET-USER-GROUP
   Future<UserGroupResponse?> _getUserGroup() async =>
       await todoListRepo.fetchUserGroupingList();
+
+  /// API CALL: GET-USER-GROUP
+  Future<List<Map<String,dynamic>>> _getGroupVehicles() async =>
+      await getIt<CommonService>().groupVehicles();
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 

@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicl
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -198,7 +199,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
 
   void _onChangeTripCategory(VehicleStatusOnChangeTripCategory event, emit) {
     selectedTripCategory = event.tripCategory ?? {};
-    filteredTrips = _findByTripCategory(selectedTripCategory['id']);
+    filteredTrips = _findByTripCategory(selectedTripCategory['id'] ?? 1);
     emit(VehicleStatusChangedState());
   }
 
@@ -212,14 +213,18 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
           var response = await _getTuroVehiclesList();
           tripApiResponse =
               List<Map<String, dynamic>>.from(response?['data'] ?? []);
+          Console.of.log(tripApiResponse);
           tripStatusCategories = tripStatusCategories
-              .map((e) => e..['count'] = _findByTripCategory(e['id']).length)
+              .map((e) => e
+            ..['count'] = _findByTripCategory(e['id'] ?? 1).length
+          )
               .toList();
           selectedTripCategory = tripStatusCategories.first;
-          filteredTrips = _findByTripCategory(selectedTripCategory['id']);
+          filteredTrips = _findByTripCategory(selectedTripCategory['id'] ?? 1);
           emit(VehicleStatusLoadedState());
         }
       } catch (e) {
+        Console.of.log(e.toString());
         emit(VehicleStatusErrorState(e.toString()));
       }
     }
@@ -344,7 +349,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       VehicleStatusSearchQueryEvent event, Emitter<VehicleStatusState> emit) {
     if (event.query.trim().isEmpty) {
       filteredVehicleStatus = vehicleStatus;
-      filteredTrips = _findByTripCategory(selectedTripCategory['id']);
+      filteredTrips = _findByTripCategory(selectedTripCategory['id'] ?? 1);
     } else {
       filteredVehicleStatus = vehicleStatus
           .where((element) => element['vehicle_name']
@@ -352,7 +357,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
               .toLowerCase()
               .contains(event.query.toLowerCase()))
           .toList();
-      filteredTrips = _findByTripCategory(selectedTripCategory['id'])
+      filteredTrips = _findByTripCategory(selectedTripCategory['id'] ?? 1)
           .where((element) => element['vehicle_name']
               .toString()
               .toLowerCase()
