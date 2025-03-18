@@ -90,10 +90,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var response = await _getExpense(minDate, maxDate);
         var usersList = await getIt<CommonService>().getUsers();
         var expenseCategories = await _getExpenseCategories();
-        var vehicleList = await _getVehicleList();
-        var paymentType = await _getPaymentType();
-
-        log(paymentType.toString(), name: 'paymentType');
 
         ExpenseResponse? expenseResponse = response;
 
@@ -145,7 +141,25 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           categories: expenseCategories,
           approvedAmount: approvedAmount,
           unApprovedAmount: unApprovedAmount,
+        ));
+      } catch (e) {
+        log("$e", name: "Error In Bloc Value");
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
+    on<GetVehicleExpenseAddData>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try {
+        var vehicleList = await _getVehicleList();
+        var paymentType = await _getPaymentType();
+        var expenseCategories = await _getExpenseCategories();
+
+        emit(state.copyWith(
+            isLoading: false,
           vehicleList: vehicleList,
+          paymentType: paymentType,
+          categories: expenseCategories,
         ));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
@@ -249,6 +263,13 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
     on<SubCategoryListEvent>((event, emit) =>
         emit(state.copyWith(selectedSubCategory: event.selectedSubCategory)));
+
+    on<SelectedPaymentEvent>((event, emit) =>
+        emit(state.copyWith(selectedPaymentType: event.paymentType)));
+
+    on<VehicleEvent>((event, emit) =>
+        emit(state.copyWith(selectedVehicle: event.selectedVehicle)));
+
 
     on<CohortListEvent>((event, emit) {
       emit(state.copyWith(selectedCohorts: event.selectedCohort));
@@ -379,7 +400,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     on<DateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
 
-
   }
 
   Future<List<File>> _pickFiles() async {
@@ -424,8 +444,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   }
 
   /// API CALL: PAYMENT TYPE
-  Future<Map<String, dynamic>?> _getPaymentType() async {
-    return await apiRepository.getPaymentType();
+  Future<List<Map<String, dynamic>>?> _getPaymentType() async {
+    return await getIt<CommonService>().getPaymentTypes();
   }
 
   List<dynamic> filterApprovedResponse(

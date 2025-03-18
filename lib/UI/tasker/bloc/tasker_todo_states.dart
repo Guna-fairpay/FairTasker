@@ -44,7 +44,7 @@ class ToDoTaskerEditState extends ToDoTaskerState {
   final dynamic toDoId;
   ToDoTaskerEditState(this.toDoId);
   @override
-  List<Object?> get props => [toDoId];
+  List<Object?> get props => [toDoId, Random().nextDouble()];
 }
 
 class ToDoTaskerTapUserFilterState extends ToDoTaskerState {

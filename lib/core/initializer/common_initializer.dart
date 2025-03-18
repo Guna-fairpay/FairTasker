@@ -33,6 +33,7 @@ class CommonService {
   List<Map<String, dynamic>> groupPersonList = [];
   List<Map<String, dynamic>> taskExpenseDataList = [];
   List<Map<String, dynamic>> expenseCategoriesList = [];
+  List<Map<String, dynamic>> paymentTypesList = [];
 
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false);
@@ -193,5 +194,19 @@ class CommonService {
       return [];
     }
   }
+
+  Future<List<Map<String, dynamic>>> getPaymentTypes({bool reset = false}) async {
+    try {
+      var response = await _apiRepository.getPaymentType();
+      paymentTypesList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return paymentTypesList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+
+
 
 }
