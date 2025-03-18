@@ -86,7 +86,15 @@ extension StringExtension on String? {
     }).join(' ') ?? "";
   }
 
-  bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
+
+  String toSentenceCase() {
+    if (this?.isEmpty ?? false) return this ?? '';
+    return this![0].toUpperCase() + this!.substring(1).toLowerCase();
+  }
+
+
+
+bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
   bool get isNotNullOrEmpty => !isNullOrEmpty;
 
   TimeOfDay? toTimeOfDay({String inputFormat = "HH:mm"}) {

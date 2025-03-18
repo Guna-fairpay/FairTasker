@@ -17,6 +17,13 @@ class GetVehicleExpenseData extends ExpenseEvent {
   List<Object?> get props => [minDate, maxDate];
 }
 
+class GetVehicleExpenseAddData extends ExpenseEvent {
+
+  const GetVehicleExpenseAddData();
+  @override
+  List<Object?> get props => [];
+}
+
 class DateRangeEvent extends ExpenseEvent {
   final String? minDate;
   final String? maxDate;
@@ -94,4 +101,42 @@ class ApprovedExpenseEvent extends ExpenseEvent {
   const ApprovedExpenseEvent({required this.isApproved});
   @override
   List<Object?> get props => [isApproved];
+}
+
+class SelectedPaymentEvent extends ExpenseEvent {
+  final dynamic paymentType;
+  const SelectedPaymentEvent({required this.paymentType});
+  @override
+  List<Object?> get props => [paymentType, Random().nextDouble()];
+}
+
+class PickImageEvent extends ExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class CaptureImageEvent extends ExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class RemoveImageEvent extends ExpenseEvent {
+  final dynamic data;
+  const RemoveImageEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class VehicleEvent extends ExpenseEvent {
+  final dynamic selectedVehicle;
+  const VehicleEvent({required this.selectedVehicle});
+  @override
+  List<Object?> get props => [selectedVehicle, Random().nextDouble()];
+}
+
+class DateChangeEvent extends ExpenseEvent {
+  final DateTime selectedDate;
+  const DateChangeEvent({required this.selectedDate});
+  @override
+  List<Object?> get props => [selectedDate];
 }

@@ -97,7 +97,8 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                           ),
                         ],
                       ),
-                    Divider(),
+                    if(showTotalAmount)
+                      const Divider(height: 0.5,),
                     Expanded(
                       child: ListView.separated(
                           separatorBuilder: (context, index) => Divider(
@@ -140,6 +141,7 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Row(
+
                                             children: [
                                               const Icon(Icons.calendar_month,
                                                   color: AppC.grey, size: 20),
@@ -147,34 +149,28 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                               Utils.getText(
                                                   DateFormat('MM-dd-yy').format(DateTime.parse(data['expense_date']))),
                                               const Spacer(),
+
+                                                if (images.isNotEmpty)
+                                                InkWell(
+                                                  onTap: () =>
+                                                      ShowAttachmentsDialog.of.show(
+                                                          context,
+                                                          attachments: todoImages,
+                                                          title: 'Expense Image'),
+                                                  child: const Icon(
+                                                    Icons.remove_red_eye_outlined,
+                                                    color: AppC.blue,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              20.width,
                                               Utils.getText(
                                                   "\$ ${data['expense_amount'] ?? ''}",
                                                   color: AppC.green),
                                             ],
                                           ),
                                           Utils.getText(
-                                              "${data['expense_description'] ?? ''}"),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          if (images.isNotEmpty)
-                                            IconButton(
-                                              onPressed: () =>
-                                                  ShowAttachmentsDialog.of.show(
-                                                      context,
-                                                      attachments: todoImages,
-                                                      title: 'Expense Image'),
-                                              icon: const Icon(
-                                                Icons.remove_red_eye_outlined,
-                                                color: AppC.blue,
-                                                size: 20,
-                                              ),
-                                            ),
+                                              (data['expense_description']).toString().toSentenceCase(),)
                                         ],
                                       ),
                                     ),

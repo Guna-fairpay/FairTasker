@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/Response/payment_response.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Event/expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/State/expense_state.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController subCategoryController = TextEditingController();
+  TextEditingController odometerController = TextEditingController();
   List<dynamic>? selectedCohorts;
   List<dynamic>? selectedVehicle;
   String? minDate;
@@ -44,29 +47,33 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
   ExpenseBloc()
       : super(ExpenseState(
-          apiResponse: const [],
-          filteredResponse: const [],
-          expenseAttachments: const [],
-          editResponse: const {},
-          isLoading: true,
-          selectedCategory: const {},
-          selectedSubCategory: const {},
-          categories: const [],
-          subCategories: const [],
-          cohorts: const [],
-          selectedCohorts: const {},
-          tapData: AddToDoConfig.expenseTaps,
-          selectedTap: AddToDoConfig.expenseTaps.first,
-          selectedDateRange: DateRange(
-            DateTime.now().subtract(const Duration(days: 7)),
-            DateTime.now(),
-          ),
-          isApprove: false,
-          isExpenseApproved: false,
-          approvedAmount: 0.0,
-          unApprovedAmount: 0.0,
-
-        )) {
+            apiResponse: const [],
+            filteredResponse: const [],
+            expenseAttachments: const [],
+            editResponse: const {},
+            isLoading: true,
+            selectedCategory: const {},
+            selectedSubCategory: const {},
+            categories: const [],
+            subCategories: const [],
+            cohorts: const [],
+            selectedCohorts: const {},
+            tapData: AddToDoConfig.expenseTaps,
+            selectedTap: AddToDoConfig.expenseTaps.first,
+            selectedDateRange: DateRange(
+              DateTime.now().subtract(const Duration(days: 7)),
+              DateTime.now(),
+            ),
+            isApprove: false,
+            isExpenseApproved: false,
+            approvedAmount: 0.0,
+            unApprovedAmount: 0.0,
+            vehicleList: const [],
+            selectedVehicle: const {},
+            paymentType: const [],
+            selectedPaymentType: const {},
+            selectedDate: DateTime.now(),
+  )) {
     on<GetVehicleExpenseData>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
@@ -83,6 +90,10 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var response = await _getExpense(minDate, maxDate);
         var usersList = await getIt<CommonService>().getUsers();
         var expenseCategories = await _getExpenseCategories();
+        var vehicleList = await _getVehicleList();
+        var paymentType = await _getPaymentType();
+
+        log(paymentType.toString(), name: 'paymentType');
 
         ExpenseResponse? expenseResponse = response;
 
@@ -116,13 +127,15 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         List<dynamic> filteredResponse =
             filterApprovedResponse(apiResponse, state.isExpenseApproved);
 
-
-
-        if(state.isExpenseApproved){
-          approvedAmount = filteredResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+        if (state.isExpenseApproved) {
+          approvedAmount = filteredResponse
+              .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+              .sum;
         }
-        if(!state.isExpenseApproved){
-          unApprovedAmount = filteredResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+        if (!state.isExpenseApproved) {
+          unApprovedAmount = filteredResponse
+              .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+              .sum;
         }
 
         emit(state.copyWith(
@@ -132,6 +145,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           categories: expenseCategories,
           approvedAmount: approvedAmount,
           unApprovedAmount: unApprovedAmount,
+          vehicleList: vehicleList,
         ));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
@@ -161,21 +175,25 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         List<dynamic> filteredResponse =
             filterApprovedResponse(existResponse, state.isExpenseApproved);
 
-        approvedAmount=0;
-        unApprovedAmount=0;
+        approvedAmount = 0;
+        unApprovedAmount = 0;
 
-        if(state.isExpenseApproved){
-          approvedAmount = filteredResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+        if (state.isExpenseApproved) {
+          approvedAmount = filteredResponse
+              .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+              .sum;
         }
-        if(!state.isExpenseApproved){
-          unApprovedAmount = filteredResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+        if (!state.isExpenseApproved) {
+          unApprovedAmount = filteredResponse
+              .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+              .sum;
         }
 
         emit(state.copyWith(
-            isLoading: false,
-            filteredResponse: filteredResponse,
-            approvedAmount: approvedAmount,
-            unApprovedAmount: unApprovedAmount,
+          isLoading: false,
+          filteredResponse: filteredResponse,
+          approvedAmount: approvedAmount,
+          unApprovedAmount: unApprovedAmount,
         ));
       } catch (e) {
         emit(state.copyWith(isLoading: false));
@@ -192,20 +210,24 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var existResponse = state.filteredResponse;
         existResponse.removeWhere((e) => e['id'].toString() == event.id);
 
-        approvedAmount=0;
-        unApprovedAmount=0;
-        if(state.isExpenseApproved){
-          approvedAmount = existResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+        approvedAmount = 0;
+        unApprovedAmount = 0;
+        if (state.isExpenseApproved) {
+          approvedAmount = existResponse
+              .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+              .sum;
         }
-        if(!state.isExpenseApproved){
-          unApprovedAmount = existResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+        if (!state.isExpenseApproved) {
+          unApprovedAmount = existResponse
+              .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+              .sum;
         }
 
         emit(state.copyWith(
-            isLoading: false,
-            filteredResponse: existResponse,
-            approvedAmount: approvedAmount,
-            unApprovedAmount: unApprovedAmount,
+          isLoading: false,
+          filteredResponse: existResponse,
+          approvedAmount: approvedAmount,
+          unApprovedAmount: unApprovedAmount,
         ));
       } catch (e) {
         emit(state.copyWith(isLoading: false));
@@ -277,19 +299,21 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     });
 
     on<ApprovedExpenseEvent>((event, emit) {
-
       List<dynamic> filteredResponse =
           filterApprovedResponse(state.apiResponse, event.isApproved);
-      approvedAmount=0;
-      unApprovedAmount=0;
+      approvedAmount = 0;
+      unApprovedAmount = 0;
 
-      if(event.isApproved == true){
-        approvedAmount = filteredResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+      if (event.isApproved == true) {
+        approvedAmount = filteredResponse
+            .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+            .sum;
       }
-      if(event.isApproved == false){
-        unApprovedAmount = filteredResponse.map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0).sum;
+      if (event.isApproved == false) {
+        unApprovedAmount = filteredResponse
+            .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+            .sum;
       }
-      log('check-${event.isApproved} \n approvedAmount-${approvedAmount}\n unApprovedAmount-${unApprovedAmount}',name: 'Amount');
 
       emit(state.copyWith(
         isExpenseApproved: event.isApproved,
@@ -298,6 +322,64 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         unApprovedAmount: unApprovedAmount,
       ));
     });
+
+    on<PickImageEvent>((event, emit) async {
+      var result = await _pickFiles();
+      if (result.isNotEmpty) {
+        var attachments = List.from(state.expenseAttachments);
+        var existingAttachments = List.from(state.expenseAttachments)
+            .whereType<File>()
+            .map((e) => (e.path))
+            .toList();
+        for (var element in result) {
+          if (!existingAttachments.contains(element.path)) {
+            attachments.add(element);
+          }
+        }
+        log("$attachments", name: "PickImageEvent");
+        emit(state.copyWith(expenseAttachments: attachments));
+      }
+    });
+
+    on<CaptureImageEvent>((event, emit) async {
+      var result = await _pickImages();
+      if (result != null) {
+        var attachments = List.from(state.expenseAttachments);
+        attachments.add(result);
+        log("$attachments", name: "CaptureImageEvent");
+        emit(state.copyWith(expenseAttachments: attachments));
+      }
+    });
+
+    on<RemoveImageEvent>((event, emit) async {
+      if (event.data == null) return;
+      if (event.data is File) {
+        // LOCAL SELECTION REMOVE
+        state.expenseAttachments.remove(event.data);
+        attachments = state.expenseAttachments;
+      } else if (event.data is String) {
+        // REMOTE SELECTION REMOVE
+        var data = attachments
+            ?.firstWhereOrNull((element) => element == event.data.toString());
+
+        var attachmentId = ogAttachments
+            ?.where((element) =>
+                element['path'] == data.toString().removeStorageUrl)
+            .map((e) => e['id'])
+            .firstOrNull;
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.deleteVehicleExpenseImage(attachmentId);
+        emit(state.copyWith(isLoading: false));
+        // once success remove from attachments
+        attachments?.remove(event.data);
+      }
+      emit(state.copyWith(expenseAttachments: attachments));
+    });
+
+    on<DateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedDate: event.selectedDate)));
+
+
   }
 
   Future<List<File>> _pickFiles() async {
@@ -334,6 +416,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   /// API CALL: CATEGORIES
   Future<List<Map<String, dynamic>>?> _getExpenseCategories() async {
     return await getIt<CommonService>().getExpenseCategories(reset: true);
+  }
+
+  /// API CALL: VEHICLES
+  Future<List<Map<String, dynamic>>?> _getVehicleList() async {
+    return await getIt<CommonService>().getActiveVehicles(reset: true);
+  }
+
+  /// API CALL: PAYMENT TYPE
+  Future<Map<String, dynamic>?> _getPaymentType() async {
+    return await apiRepository.getPaymentType();
   }
 
   List<dynamic> filterApprovedResponse(

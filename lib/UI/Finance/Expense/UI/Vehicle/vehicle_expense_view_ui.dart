@@ -3,6 +3,7 @@ import "package:date_time/date_time.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/category_subcategory_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/cohort_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/expense_vehicle_list_item.dart";
+import "package:fairpytasker/UI/Finance/Expense/UI/Vehicle/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/appC.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -55,15 +56,18 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                           },
                         ),
                       ),
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                            color: AppC.appColor,
-                            borderRadius: BorderRadiusDirectional.circular(8)),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
+                      InkWell(
+                        onTap:()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const ExpenseVehicleAddUI(),)),
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                              color: AppC.appColor,
+                              borderRadius: BorderRadiusDirectional.circular(8)),
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       Column(
@@ -150,7 +154,8 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                                 context.read<ExpenseBloc>().add(
                                       CohortListEvent(selectedCohort: value),
                                     ),*/
-                          )),
+                          ),
+                  ),
                 ),
               ],
             );

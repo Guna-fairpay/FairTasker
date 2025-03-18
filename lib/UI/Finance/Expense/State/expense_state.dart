@@ -23,6 +23,11 @@ class ExpenseState extends Equatable{
   final bool isExpenseApproved;
   final dynamic approvedAmount;
   final dynamic unApprovedAmount;
+  final List<Map<String,dynamic>> vehicleList;
+  final Map<String,dynamic> selectedVehicle;
+  final List<dynamic> paymentType;
+  final dynamic selectedPaymentType;
+  final DateTime? selectedDate;
 
   const ExpenseState({
     required this.apiResponse,
@@ -43,6 +48,11 @@ class ExpenseState extends Equatable{
     required this.isExpenseApproved,
     required this.approvedAmount,
     required this.unApprovedAmount,
+    required this.vehicleList,
+    required this.selectedVehicle,
+    required this.paymentType,
+    required this.selectedPaymentType,
+    required this.selectedDate,
   });
 
   ExpenseState copyWith({
@@ -64,6 +74,11 @@ class ExpenseState extends Equatable{
     bool? isExpenseApproved,
     dynamic approvedAmount,
     dynamic unApprovedAmount,
+    List<Map<String, dynamic>>? vehicleList,
+    Map<String,dynamic>? selectedVehicle,
+    List<dynamic>? paymentType,
+    dynamic selectedPaymentType,
+    DateTime? selectedDate,
   }){
     return ExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -84,6 +99,11 @@ class ExpenseState extends Equatable{
       isExpenseApproved: isExpenseApproved ?? this.isExpenseApproved,
       approvedAmount: approvedAmount ?? this.approvedAmount,
       unApprovedAmount: unApprovedAmount ?? this.unApprovedAmount,
+      vehicleList: vehicleList ?? this.vehicleList,
+      selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+      paymentType: paymentType ?? this.paymentType,
+      selectedPaymentType: selectedPaymentType ?? this.selectedPaymentType,
+      selectedDate: selectedDate ?? this.selectedDate,
     );
   }
 
@@ -107,6 +127,11 @@ class ExpenseState extends Equatable{
     isExpenseApproved,
     approvedAmount,
     unApprovedAmount,
+    vehicleList,
+    selectedVehicle,
+    paymentType,
+    selectedPaymentType,
+    selectedDate,
     Random().nextDouble()
   ];
 
