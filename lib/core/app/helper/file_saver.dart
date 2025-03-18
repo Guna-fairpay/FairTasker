@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart' show OpenFile;
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class FileSaver {
   FileSaver._();
@@ -12,13 +14,22 @@ class FileSaver {
 
   Future<String> saveFile(http.Response response) async {
     // Get the Downloads directory
+    if (Platform.isAndroid) {
+      if (await Permission.manageExternalStorage.isDenied) {
+        await Permission.manageExternalStorage.request();
+      }
+    }
     Directory? downloadsDirectory;
     if (Platform.isAndroid) {
       downloadsDirectory = Directory('/storage/emulated/0/Download');
+      // downloadsDirectory = await getApplicationDocumentsDirectory();
     } else if (Platform.isIOS) {
-      downloadsDirectory = await getApplicationDocumentsDirectory();
+      downloadsDirectory = await getDownloadsDirectory();
     } else {
       throw Exception('Unsupported platform');
+    }
+    if (downloadsDirectory == null) {
+      throw Exception('Failed to get downloads directory');
     }
     var headResponse = response.headers;
     String? fileName;
@@ -35,7 +46,7 @@ class FileSaver {
       throw Exception('Failed to extract file name from headers.');
     }
 
-    var filePath = '${downloadsDirectory.path}/$fileName';
+    var filePath = '${downloadsDirectory?.path}/$fileName';
     File newFile = File(filePath);
     if (!(await newFile.exists())) {
       await newFile.create(recursive: true);
