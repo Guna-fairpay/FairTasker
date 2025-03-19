@@ -28,6 +28,11 @@ class ExpenseState extends Equatable{
   final List<dynamic> paymentType;
   final dynamic selectedPaymentType;
   final DateTime? selectedDate;
+  final dynamic todoDetails;
+  final List<dynamic> userNames;
+  final List<String>? todoVehicles;
+  final List<dynamic> partsList;
+  final List<dynamic> suppliesList;
 
   const ExpenseState({
     required this.apiResponse,
@@ -53,6 +58,11 @@ class ExpenseState extends Equatable{
     required this.paymentType,
     required this.selectedPaymentType,
     required this.selectedDate,
+    required this.todoDetails,
+    required this.userNames,
+    required this.todoVehicles,
+    required this.partsList,
+    required this.suppliesList,
   });
 
   ExpenseState copyWith({
@@ -79,6 +89,11 @@ class ExpenseState extends Equatable{
     List<dynamic>? paymentType,
     dynamic selectedPaymentType,
     DateTime? selectedDate,
+    dynamic todoDetails,
+    List<dynamic>? userNames,
+    List<String>? todoVehicles,
+    List<dynamic>? partsList,
+    List<dynamic>? suppliesList,
   }){
     return ExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -104,6 +119,11 @@ class ExpenseState extends Equatable{
       paymentType: paymentType ?? this.paymentType,
       selectedPaymentType: selectedPaymentType ?? this.selectedPaymentType,
       selectedDate: selectedDate ?? this.selectedDate,
+      todoDetails: todoDetails ?? this.todoDetails,
+      userNames: userNames ?? this.userNames,
+      todoVehicles: todoVehicles ?? this.todoVehicles,
+      partsList: partsList ?? this.partsList,
+      suppliesList: suppliesList ?? this.suppliesList,
     );
   }
 
@@ -132,6 +152,12 @@ class ExpenseState extends Equatable{
     paymentType,
     selectedPaymentType,
     selectedDate,
+    todoDetails,
+    userNames,
+    todoVehicles,
+    partsList,
+    suppliesList,
+
     Random().nextDouble()
   ];
 

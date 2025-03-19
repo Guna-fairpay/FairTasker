@@ -76,7 +76,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedParts: const [],
           selectedSupplies: const [],
           attachments: const [],
-          selectedTask: const [],
+          selectedTask: const {},
           linkOptions: AddToDoConfig.customOptions,
           bottomTapData: const [],
           selectedBottomTap: const {},
@@ -302,6 +302,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           // selectedBottomTap: tabs.firstWhere((element) => element['id'] == 4),
           selectedBottomTap: selectionTaps,
           tasks: taskResponse?.data ?? [],
+          //selectedTask: selectedUser,
           selectedVPerson:
               CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
           selectedVLocations: CustomSearchDataConverter.convertVLocation(
@@ -358,6 +359,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       var currentStatus = state.isMoreEnable;
       emit(state.copyWith(isMoreEnable: !currentStatus));
     });
+
+    on<EditToDoTaskEvent>((event, emit) =>
+        emit(state.copyWith(selectedVehicle: event.selectedTask)));
 
     on<EditToDoVPersonEvent>((event, emit) {
       var existingVPersons =

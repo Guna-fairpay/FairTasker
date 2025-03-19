@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class EditTodoState extends Equatable {
   final bool isLoading;
   final bool isTimeSensitive;
-  final List<dynamic> tasks;
+  final List<Map<String, dynamic>> tasks;
   final List<dynamic> vehicles;
   final List<dynamic> persons;
   final List<dynamic> vendors;
@@ -23,7 +23,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> attachments;
   final List<Map<String, dynamic>> selectedVPerson;
   final Map<String, dynamic> selectedVLocations;
-  final List<Map<String, dynamic>> selectedTask;
+  final Map<String, dynamic> selectedTask;
   final Map<String, dynamic> apiResponse;
   final dynamic selectedLinkOption;
   final bool showPlatformCheck;
@@ -99,10 +99,10 @@ class EditTodoState extends Equatable {
     dynamic selectedTime,
     dynamic selectedClearDuration,
     dynamic selectedLinkOption,
-    List<Map<String, dynamic>>? selectedTask,
+    Map<String, dynamic>? selectedTask,
     List<Map<String, dynamic>>? selectedVPerson,
     Map<String, dynamic>? selectedVLocations,
-    List<dynamic>? tasks,
+    List<Map<String, dynamic>>? tasks,
     List<dynamic>? vehicles,
     List<dynamic>? persons,
     List<dynamic>? vendors,

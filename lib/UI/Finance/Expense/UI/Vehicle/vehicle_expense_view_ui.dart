@@ -149,7 +149,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                                     approved: "${value == true ? 1 : 0}")),
                             onDelete: (id) => context
                                 .read<ExpenseBloc>()
-                                .add(DeleteExpenseEvent(id: id)),
+                                .add(DeleteExpenseEvent(id: id, isEditPage: false)),
                             /*onCohort: (value) =>
                                 context.read<ExpenseBloc>().add(
                                       CohortListEvent(selectedCohort: value),

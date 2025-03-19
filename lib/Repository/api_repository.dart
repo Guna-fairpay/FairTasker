@@ -109,6 +109,9 @@ class APiRepository {
 
   String get _paymentType => "payment-methods";
 
+  String get _getTodoDetails => "get-todo-details";
+
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -784,5 +787,16 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+
+  Future<Map<String, dynamic>?> getTodoDetails({String? expenseId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getTodoDetails?expense_id=$expenseId";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    } catch (e) {
+      rethrow;
+    }
+  }
 
 }

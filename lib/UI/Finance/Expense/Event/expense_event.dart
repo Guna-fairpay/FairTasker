@@ -24,6 +24,13 @@ class GetVehicleExpenseAddData extends ExpenseEvent {
   List<Object?> get props => [];
 }
 
+class GetVehicleExpenseEditData extends ExpenseEvent {
+  final String? id;
+  const GetVehicleExpenseEditData({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+
 class DateRangeEvent extends ExpenseEvent {
   final String? minDate;
   final String? maxDate;
@@ -49,7 +56,8 @@ class ApproveEvent extends ExpenseEvent {
 
 class DeleteExpenseEvent extends ExpenseEvent {
   final String? id;
-  const DeleteExpenseEvent({required this.id});
+  final bool? isEditPage;
+  const DeleteExpenseEvent({required this.id,required this.isEditPage});
   @override
   List<Object?> get props => [id];
 }
@@ -139,4 +147,16 @@ class DateChangeEvent extends ExpenseEvent {
   const DateChangeEvent({required this.selectedDate});
   @override
   List<Object?> get props => [selectedDate];
+}
+
+class DeleteExpenseVehicleEvent extends ExpenseEvent {
+  final String? id;
+  const DeleteExpenseVehicleEvent({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+
+class TaxIconEvent extends ExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
 }

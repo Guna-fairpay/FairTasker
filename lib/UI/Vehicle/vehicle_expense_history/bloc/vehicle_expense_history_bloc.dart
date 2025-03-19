@@ -185,9 +185,9 @@ class VehicleExpenseHistoryBloc
             .toList() ?? []);
 
 
-        if(apiResponse?['cohort_id'] != null){
+        if(apiResponse?['expense_to'] != null){
           selectedCohorts = AddToDoConfig.expenseTo
-              .where((e) => e['id'] == apiResponse?['cohort_id'])
+              .where((e) => e['id'] == apiResponse?['expense_to'])
               .toList();
         }
 

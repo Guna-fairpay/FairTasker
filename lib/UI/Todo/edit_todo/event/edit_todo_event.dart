@@ -30,12 +30,12 @@ class EditToDoShowSuppliesEvent extends EditToDoEvent {
   List<Object?> get props => [Random().nextDouble()];
 }
 
-// class EditToDoSelectedTaskIdentifierEvent extends EditToDoEvent {
-//   final Map<int, dynamic> selectedTaskIdentifier;
-//   EditToDoSelectedTaskIdentifierEvent(this.selectedTaskIdentifier);
-//   @override
-//   List<Object?> get props => [selectedTaskIdentifier];
-// }
+class EditToDoTaskEvent extends EditToDoEvent {
+  final dynamic selectedTask;
+  EditToDoTaskEvent({required this.selectedTask});
+  @override
+  List<Object?> get props => [selectedTask, Random().nextDouble()];
+}
 
 class EditToDoVPersonEvent extends EditToDoEvent {
   final dynamic vPerson;

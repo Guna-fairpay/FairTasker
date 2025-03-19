@@ -1,4 +1,3 @@
-
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
+import '../UI/Vehicle/vehicle_expense_edit_ui.dart';
 
 class ExpenseVehicleListItem extends StatelessWidget {
   final Map<String, dynamic> expense;
@@ -14,7 +14,6 @@ class ExpenseVehicleListItem extends StatelessWidget {
   final void Function(String? value) onDelete;
   final VoidCallback? onCategoryTapEvent;
   final VoidCallback? onCohortTapEvent;
-
 
   const ExpenseVehicleListItem({
     super.key,
@@ -105,11 +104,20 @@ class ExpenseVehicleListItem extends StatelessWidget {
                         color: approveColor,
                       ),
                       Expanded(
-                        child: Utils.getText(
-                            expense['vehicle']?['vehicle_name'] ?? '',
-                            overFlow: TextOverflow.ellipsis,
-                            color: approveColor,
-                            weight: FontWeight.bold),
+                        child: InkWell(
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                     ExpenseVehicleEditUI(expenseId: "${expense['id']}",
+                                     vehicleName: expense['vehicle']?['vehicle_name'],),
+                              )),
+                          child: Utils.getText(
+                              expense['vehicle']?['vehicle_name'] ?? '',
+                              overFlow: TextOverflow.ellipsis,
+                              color: approveColor,
+                              weight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),

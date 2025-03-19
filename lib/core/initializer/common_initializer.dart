@@ -34,6 +34,8 @@ class CommonService {
   List<Map<String, dynamic>> taskExpenseDataList = [];
   List<Map<String, dynamic>> expenseCategoriesList = [];
   List<Map<String, dynamic>> paymentTypesList = [];
+  List<Map<String, dynamic>> partsList = [];
+  List<Map<String, dynamic>> suppliesList = [];
 
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false);
@@ -195,7 +197,7 @@ class CommonService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getPaymentTypes({bool reset = false}) async {
+  Future<List<Map<String, dynamic>>> getPaymentTypes() async {
     try {
       var response = await _apiRepository.getPaymentType();
       paymentTypesList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
@@ -206,7 +208,26 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getPartList() async {
+    try {
+      var response = await _apiRepository.getParts();
+      partsList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return partsList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
 
-
+  Future<List<Map<String, dynamic>>> getSuppliesList() async {
+    try {
+      var response = await _apiRepository.getSupplies();
+      suppliesList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return suppliesList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
 
 }

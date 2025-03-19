@@ -8,12 +8,18 @@ class InfoWidget extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
+  final Color textColor;
+  final Color? iconColor;
+  final VoidCallback? onTap;
 
   const InfoWidget({
     Key? key,
     required this.label,
     required this.value,
     this.icon,
+    this.textColor = AppC.appColor,
+    this.iconColor,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -24,7 +30,7 @@ class InfoWidget extends StatelessWidget {
         children: [
           Column(
             children: [
-              Icon(icon, color: Colors.blueAccent[100], size: 20),
+              Icon(icon, color:iconColor ?? Colors.blueAccent[100], size: 20),
             ],
           ),
           const SizedBox(width: 8),
@@ -42,11 +48,14 @@ class InfoWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Utils.getText(
-                  value,
-                  color: AppC.appColor,
-                  weight: FontWeight.bold,
-                  size: 12,
+                InkWell(
+                  onTap: onTap,
+                  child: Utils.getText(
+                    value,
+                    color: textColor,
+                    weight: FontWeight.bold,
+                    size: 12,
+                  ),
                 ),
               ],
             ),
