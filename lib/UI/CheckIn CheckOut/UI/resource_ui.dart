@@ -1,22 +1,20 @@
 
 
 // working_hours_view_ui.dart
-import 'package:collection/collection.dart';
-import 'package:date_time/date_time.dart' show Time;
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-import '../../../Component/drawer_ui.dart';
+import '../../../Component/custom_date_time_picker.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
-import 'task_components-setting_ui.dart';
 
 
 class WorkHoursViewUI extends StatelessWidget {
@@ -68,15 +66,18 @@ class WorkHoursViewUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => WorkingHoursBloc()..add(const WorkingHoursInitialEvent('','')),
+      create: (context) => WorkingHoursBloc()..add(WorkingHoursInitialEvent(
+        DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now().subtract(const Duration(days: 7))),
+        DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now()),
+      )),
       child: BlocListener<WorkingHoursBloc, WorkingHoursState>(
         listener: (context, state) {
           if (state.isLoading) {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            filteredData = state.combinedData!;
-            dropDownResource = [{'id':'','full_name':'All'}, ...state.resources!];
+            filteredData = state?.combinedData ?? [];
+            dropDownResource = [{'id':'','full_name':'All'}, ...state?.resources ?? []];
           }
         },
         child:
@@ -218,36 +219,47 @@ class WorkHoursViewUI extends StatelessWidget {
                     children: [
                       Expanded(
                         child: SizedBox(
-                          height: 35,
-                          width: MediaQuery.of(context).size.width * 1, // Responsive width
-                          child:
-                          DefaultTextStyle(
-                            style: const TextStyle(color: AppC.black, fontSize: 12),
-                            textAlign: TextAlign.center,
-                            child:
-                            DateRangeField(
-                              decoration: InputDecoration(
-                                contentPadding:
-                                const EdgeInsets.only(left: 0,top: 0,right: 0,bottom: 0),
-                                border: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      color: AppC.fieldBase, width: Num.borderWidthField),
-                                  borderRadius:
-                                  BorderRadius.circular(Num.subradiusButton),
+                          height: 42,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppC.fieldBase, width: Num.borderWidthField),
+                              borderRadius: BorderRadius.circular(Num.subradiusButton),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: DateRangeField(
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(right: 10),
+                                      border: InputBorder.none, // Remove inner borders
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      hintStyle: Utils.getTextStyle(color: AppC.grey),
+                                      isDense: true,
+                                      // Reduce space
+                                    ),
+                                    childBuilder: (context, value)
+                                    {
+                                      return Row(
+                                        children: [
+                                          Expanded(child: Utils.getText("${selectedDateRange ?? state.selectedDateRange}",overFlow: TextOverflow.ellipsis,)),
+                                        ]
+                                      );
+                                    },
+                                    onDateRangeSelected: (DateRange? value) {
+                                      selectedDateRange = value;
+                                      startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now());
+                                      endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now());
+                                      print("startDate $startDate endDate $endDate");
+                                      context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
+                                      dates = generateDateList(startDate, endDate);
+                                    },
+                                    pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
+                                  ),
                                 ),
-                                hintStyle: Utils.getTextStyle(color: AppC.grey),
-                                hintText: 'Select date range',
-                              ),
-                              onDateRangeSelected: (DateRange? value) {
-                                  selectedDateRange = value;
-                                  startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
-                                  endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
-                                  print("startDate ${startDate} endDate ${endDate}");
-                                  context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
-                                  dates = generateDateList(startDate, endDate);
-                              },
-                              selectedDateRange: selectedDateRange,
-                              pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
+                                Icon(Icons.calendar_today, color: AppC.grey, size: 18), // Keep icon inline
+                              ],
                             ),
                           ),
                         ),

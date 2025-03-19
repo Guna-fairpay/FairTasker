@@ -29,98 +29,108 @@ class TaskComponentsSettingView extends StatelessWidget {
   TaskComponentsSettingView({super.key});
   dynamic selectedBase1 = {"base": "Task based"};
   dynamic selectedBases;
-  TextEditingController _taskNameController = TextEditingController();
-  TextEditingController _amountController = TextEditingController();
+  TextEditingController taskNameController = TextEditingController();
+  TextEditingController amountController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final TabController tabController = DefaultTabController.of(context);
-
-
     return BlocListener<WorkingHoursBloc, WorkingHoursState>(
       listener: (context, state) {
         if (state.isLoading) {
           EasyLoading.show();
         } else {
           if (EasyLoading.isShow) EasyLoading.dismiss();
+          taskNameController.clear();
+          amountController.clear();
+          taskNameController.text = state.taskNameController?.text ?? '';
+          amountController.text = state.amountController?.text ?? '';
         }
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
-          return
-            SafeArea(
-            child: Scaffold(
-              backgroundColor: AppC.white,
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(56),
-                child:
-                AppBar(
-                  automaticallyImplyLeading: false,
-                  backgroundColor: AppC.appColor,
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Utils.getText("Task Components - Settings", color: AppC.white, weight: FontWeight.bold, size: 18),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Icon(Icons.close_sharp, color: AppC.white),
-                      )
-                    ],
-                  ),
+          return Scaffold(
+            backgroundColor: AppC.white,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(56),
+              child: AppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: AppC.appColor,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Utils.getText("Task Components - Settings", color: AppC.white, weight: FontWeight.bold, size: 18),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(Icons.close_sharp, color: AppC.white),
+                    )
+                  ],
                 ),
               ),
-              body: Padding(
+            ),
+            body: SafeArea(
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
                     Utils.dropdownBox(
-                      selectedBase1['base'] ?? 'Task based',
-                      [
-                        {"base": "Task based"},
-                        {"base": "Hourly based"},
-                      ],
+                      'Task based',
+                      state.selectedBase1,
                           (value) {
-                            selectedBase1=value;
-                            selectedBases=value;
-                            print("selectedBases ${selectedBases}");
+                        selectedBase1 = value;
+                        selectedBases = value;
+                        print("selectedBases ${selectedBases}");
+                        context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
                         tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
                       },
-                      labelKey: 'base',initialSelection: selectedBase1,
+                      labelKey: 'base',
+                      initialSelection: state.selectedBase,
                     ),
                     const SizedBox(height: 16),
-                    Utils.getTextFormField('Task Name',_taskNameController),
+                    Utils.getTextFormField('Task Name', taskNameController),
                     const SizedBox(height: 16),
-                    Utils.getTextFormField('Amount (\$)', _amountController),
+                    Utils.getTextFormField('Amount (\$)', amountController),
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        Utils.getAddFilledButton("Save", () {
-                          // Handle save
-
-                          if(selectedBases['base']=='Task based' && _taskNameController.text.isNotEmpty)
-                            {
+                        if (!state.isEditMode)
+                          Utils.getAddFilledButton("Save", () {
+                            if (selectedBases['base'] == 'Task based' || taskNameController.text.isNotEmpty) {
                               FocusScope.of(context).unfocus();
                               context.read<WorkingHoursBloc>().add(CreateTaskEvent(
-                                  name: _taskNameController.text.toString(),
-                                  amount: _amountController.text.toString(),
-                                  task: 'task')
-                              );
+                                taskName: taskNameController.text.toString(),
+                                amount: amountController.text.toString(),
+                                task: 'task',
+                              ));
                             } else {
-                            if (_amountController.text.isNotEmpty && selectedBases['base'] != null)
-                              {
+                              if (amountController.text.isNotEmpty && selectedBases['base'] != null) {
                                 context.read().add(const CreateTaskEvent());
                               } else {
-                              {
                                 print("Error in saving");
                               }
                             }
-                          }
-
-                        }, bgColor: AppC.green),
+                          }, bgColor: AppC.green),
+                        if (state.isEditMode)
+                          Utils.getAddFilledButton("Update", () {
+                            FocusScope.of(context).unfocus();
+                            context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                            context.read<WorkingHoursBloc>().add(CreateTaskEvent(
+                              id: state.taskId,
+                              taskName: taskNameController.text.toString(),
+                              amount: amountController.text.toString(),
+                              task: 'task'
+                            ));
+                          }, bgColor: AppC.green),
+                        if (state.isEditMode)
+                          const SizedBox(width: 16),
+                        if (state.isEditMode)
+                          Utils.getAddFilledButton("Cancel", () {
+                            context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                          }, bgColor: AppC.red),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -154,6 +164,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                     TaskTabsView(
                       taskbased: state.taskBased,
                       hourlybased: state.hourlyBased,
+                      selectedBases: selectedBases,
                     ),
                   ],
                 ),

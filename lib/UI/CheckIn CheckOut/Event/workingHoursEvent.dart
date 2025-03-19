@@ -33,13 +33,33 @@ class TaskComponentsInitialEvent extends WorkingHoursEvent {
 class CreateTaskEvent extends WorkingHoursEvent {
   final int? id;
   final int? userId;
-  final String? name;
+  final String? taskName;
   final String? amount;
   final String? task;
-  const CreateTaskEvent({this.id,this.userId, this.name, this.amount, this.task});
+  const CreateTaskEvent({this.id,this.userId, this.taskName, this.amount, this.task});
   @override
-  List<Object?> get props => [id,userId, name, amount, task];
+  List<Object?> get props => [id,userId, taskName, amount, task];
 }
+
+class UpdateTaskEvent extends WorkingHoursEvent {
+  final int? id;
+  final int? userId;
+  final String? taskName;
+  final String? amount;
+  final String? task;
+  const UpdateTaskEvent({this.id,this.userId, this.taskName, this.amount, this.task});
+  @override
+  List<Object?> get props => [id,userId, taskName, amount, task];
+}
+
+class UpdateDropdownValueEvent extends WorkingHoursEvent {
+  final Map<String, dynamic> selectedBase;
+  const UpdateDropdownValueEvent(this.selectedBase);
+
+  @override
+  List<Object?> get props => [selectedBase];
+}
+
 
 class DeleteTaskComponentsEvent extends WorkingHoursEvent {
   final int? id;
@@ -48,6 +68,17 @@ class DeleteTaskComponentsEvent extends WorkingHoursEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class TaskDateChangeEvent extends WorkingHoursEvent {
+  final DateTime selectedDate;
+  TaskDateChangeEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
+
+class EnterEditModeEvent extends WorkingHoursEvent {}
+
+class ExitEditModeEvent extends WorkingHoursEvent {}
 
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {
 //   final String minDate;

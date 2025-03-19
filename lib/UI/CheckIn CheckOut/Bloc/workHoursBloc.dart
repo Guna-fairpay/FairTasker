@@ -1,9 +1,10 @@
 
 // working_hours_bloc.dart
 import 'dart:developer';
-import 'package:date_time/date_time.dart';
+import 'package:date_time/date_time.dart' hide DateRange;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import '../../../Repository/job_list_repository.dart';
 import '../../../Repository/todo_list_repository.dart';
 import '../Event/workingHoursEvent.dart';
@@ -27,6 +28,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   List<Map<String, dynamic>> taskComponentsData=[];
   List<Map<String, dynamic>> taskBased = [];
   List<Map<String, dynamic>> hourlyBased = [];
+  TextEditingController taskNameCtrl=TextEditingController();
+  TextEditingController amountCtrl=TextEditingController();
+  final TextEditingController dateController = TextEditingController();
 
   WorkingHoursBloc() : super(const WorkingHoursState ()) {
 
@@ -37,158 +41,176 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         DateTime now = DateTime.now();
         DateTime start = now.subtract(const Duration(days: 7));
         DateTime end = now;
-        String formattedStartDate = DateFormat('yyyy-MM-dd').format(start);
-        String formattedEndDate = DateFormat('yyyy-MM-dd').format(end);
-
-        String startDate = event.minDate?.toString() ?? formattedStartDate;
-        String endDate = event.maxDate?.toString() ?? formattedEndDate;
-
-        final response1 = await todoListRepo.getWorkingHistory(startDate, endDate);//no need
-        final response2 = await todoListRepo.getActiveHoursResponse(startDate, endDate);
-        final response3 = await authenticationRepo.getAssignedTo();
-        final response4 = await todoListRepo.getWorkingHoursData(startDate, endDate);
-        final response5 = await todoListRepo.getWorkingHistoryCount(startDate, endDate);
-        if (response1 != null && response2 != null && response3 != null && response4 != null) {
-          workingHistory.clear();
-          workingHistory = response5!.history!;//1
-          workHours.clear();
-          workHours = response4.data!;//2
-          resources.clear();
-          resources=response3.resource!;//3
-          workActiveHours.clear();
-          workActiveHours = response2.data!;//4
-
-          formattedResources = resources.map((resource) {
-            return {
-              'id': resource['id'],
-              'full_name': "${resource['first_name']} ${resource['last_name']}",
-            };
-          }).toList();
-
-          //Helper Function
-          String getFirstWord(String fullName) {
-            return fullName.split(' ').first;
-          }
-
-          List<Map<String, dynamic>> combineData(
-              List<Map<String, dynamic>> workhours,
-              List<Map<String, dynamic>> workhistory,
-              List<Map<String, dynamic>> workActivehours,
-              List<Map<String, dynamic>> formattedResource,
-              )
+        selectedDateRange = DateRange(start, end);
+        String startDate =  event.minDate.toString();
+        String endDate = event.maxDate.toString();
+        if(startDate.isNotEmpty || endDate.isNotEmpty)
           {
-            List<Map<String, dynamic>> combinedList = [];
-            Map<String, dynamic> combinedItem={};
-            combinedList.clear();
-            for (var workhour in workhours)
-            {
-              final userId = workhour['user']['id'];
-              final userName = workhour['user']['name'];
-              if(userId==null)
+            final response1 = await todoListRepo.getWorkingHistory(startDate, endDate);//no need
+            final response2 = await todoListRepo.getActiveHoursResponse(startDate, endDate);
+            final response3 = await authenticationRepo.getAssignedTo();
+            final response4 = await todoListRepo.getWorkingHoursData(startDate, endDate);
+            final response5 = await todoListRepo.getWorkingHistoryCount(startDate, endDate);
+            if (response1 != null && response2 != null && response3 != null && response4 != null) {
+              workingHistory.clear();
+              workingHistory = response5!.history!;//1
+              workHours.clear();
+              workHours = response4.data!;//2
+              resources.clear();
+              resources=response3.resource!;//3
+              workActiveHours.clear();
+              workActiveHours = response2.data!;//4
+
+              formattedResources = resources.map((resource) {
+                return {
+                  'id': resource['id'],
+                  'full_name': "${resource['first_name']} ${resource['last_name']}",
+                };
+              }).toList();
+
+              //Helper Function
+              String getFirstWord(String fullName) {
+                return fullName.split(' ').first;
+              }
+
+              List<Map<String, dynamic>> combineData(
+                  List<Map<String, dynamic>> workhours,
+                  List<Map<String, dynamic>> workhistory,
+                  List<Map<String, dynamic>> workActivehours,
+                  List<Map<String, dynamic>> formattedResource,
+                  )
               {
-                continue;
-              }
-              Map<String, dynamic>? historyItem; // Initialize to null
-              for (var item in workhistory) {
-                if (item['users'] != null && item['users']['hrm_id'] == userId) {
-                  historyItem = item; // Assign the matching item
-                  break;
+                List<Map<String, dynamic>> combinedList = [];
+                Map<String, dynamic> combinedItem={};
+                combinedList.clear();
+                for (var workhour in workhours)
+                {
+                  final userId = workhour['user']['id'];
+                  final userName = workhour['user']['name'];
+                  if(userId==null)
+                  {
+                    continue;
+                  }
+                  Map<String, dynamic>? historyItem; // Initialize to null
+                  for (var item in workhistory) {
+                    if (item['users'] != null && item['users']['hrm_id'] == userId) {
+                      historyItem = item; // Assign the matching item
+                      break;
+                    }
+                  }
+                  Map<String, dynamic>? activeHoursItem;
+                  for (var item in workActivehours) {
+                    if (item['active_hours'] != "00:00" && item['hrm_id'] == userId) {
+                      activeHoursItem = item; // Assign the matching item
+                      break;
+                    }
+                  }
+                  Map<String, dynamic>? empID;
+                  for (var item in formattedResource) {
+                    if (getFirstWord(item['full_name']) == getFirstWord(userName)) {
+                      empID = item;
+                      break;
+                    }
+                  }
+                  final taskCount = historyItem?['task_count'] ?? 0;
+                  final activeHours = activeHoursItem?['active_hours'] ?? "00:00";
+                  if (taskCount == 0 && activeHours == "00:00") {
+                    continue;
+                  }
+                  combinedItem = {
+                    'id': userId,
+                    'empID':historyItem?['users']['id'],
+                    'hrmID': historyItem?['users']['hrm_id'] ?? 0,
+                    'total_working_hours': workhour['user']['total_working_hours'],
+                    'list': workhour['user']['list'],
+                    'task_count': historyItem?['task_count'] ?? 0,
+                    'first_name': workhour['user']['name'] ?? '',
+                  };
+                  combinedList.add(combinedItem);
                 }
+                return combinedList;
               }
-              Map<String, dynamic>? activeHoursItem;
-              for (var item in workActivehours) {
-                if (item['active_hours'] != "00:00" && item['hrm_id'] == userId) {
-                  activeHoursItem = item; // Assign the matching item
-                  break;
+              combinedData.clear();
+              combinedData = combineData(workHours, workingHistory, workActiveHours, formattedResources);
+              //log("${combinedData}",name:"CombinedData");
+
+              //Active Hours Calculation Start
+              int timeStringToMinutes(String time) {
+                final minutes = Time.fromStr(time)?.inMins;
+                return minutes!;
+              }
+              String minutesToTimeString(int minutes) {
+                final hours = minutes ~/ 60;
+                final remainingMinutes = minutes % 60;
+                return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
+              }
+
+              String calculateActiveHours(List<Map<String, dynamic>> employeeActiveTotalHours, Map<String, dynamic> item)
+              {
+                final relevantHours = employeeActiveTotalHours.where(
+                      (activeHour) => activeHour['hrm_id']?.toString() == item['id']?.toString(),
+                );
+                final int totalMinutes = relevantHours.fold(
+                  0, (total, current) => total + timeStringToMinutes(current['active_hours']),
+                );
+                return minutesToTimeString(totalMinutes);
+              }
+              //Active Hours Calculation End
+
+              //Total Hours(#) Calculation Start
+              for(var employee in combinedData){
+                int lessCount = 0;
+                int greaterCount = 0;
+                if (employee['list'] != null) {
+                  for (var task in employee['list']) {
+                    final taskTotalHours = task['total_hours']?.split(':') ?? ['0', '0'];
+                    final int taskHours = int.tryParse(taskTotalHours[0]) ?? 0;
+                    final int taskMinutes = int.tryParse(taskTotalHours[1]) ?? 0;
+                    final int totalMinutes = taskHours * 60 + taskMinutes;
+                    if (totalMinutes < 420) {
+                      lessCount++;
+                    } else if (totalMinutes > 540) {
+                      greaterCount++;
+                    }
+                  }
                 }
+                //print("Total hours ${lessCount + greaterCount}");
+                totalHoursValue.add(lessCount + greaterCount);
+                //print("Total hours value ${totalHoursValue}");
+                activeHours.add(calculateActiveHours(workActiveHours, employee));
               }
-              Map<String, dynamic>? empID;
-              for (var item in formattedResource) {
-                if (getFirstWord(item['full_name']) == getFirstWord(userName)) {
-                  empID = item;
-                  break;
-                }
-              }
-              final taskCount = historyItem?['task_count'] ?? 0;
-              final activeHours = activeHoursItem?['active_hours'] ?? "00:00";
-              if (taskCount == 0 && activeHours == "00:00") {
-                continue;
-              }
-              combinedItem = {
-                'id': userId,
-                'empID':historyItem?['users']['id'],
-                'hrmID': historyItem?['users']['hrm_id'] ?? 0,
-                'total_working_hours': workhour['user']['total_working_hours'],
-                'list': workhour['user']['list'],
-                'task_count': historyItem?['task_count'] ?? 0,
-                'first_name': workhour['user']['name'] ?? '',
-              };
-              combinedList.add(combinedItem);
+              //Total Hours(#) Calculation End
+
+              emit(state.copyWith(
+                isLoading: false,
+                combinedData: combinedData,
+                workActiveHours: workActiveHours,
+                activeHours: activeHours,
+                totalHoursValue: totalHoursValue,
+                resources: formattedResources,
+                startDate: startDate,
+                endDate: endDate,
+                selectedDateRange: selectedDateRange,
+              ));
             }
-            return combinedList;
-          }
-          combinedData.clear();
-          combinedData = combineData(workHours, workingHistory, workActiveHours, formattedResources);
-          log("${combinedData[0]}",name:"CombinedData");
-
-          //Active Hours Calculation Start
-          int timeStringToMinutes(String time) {
-            final minutes = Time.fromStr(time)?.inMins;
-            return minutes!;
-          }
-          String minutesToTimeString(int minutes) {
-            final hours = minutes ~/ 60;
-            final remainingMinutes = minutes % 60;
-            return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
-          }
-
-          String calculateActiveHours(List<Map<String, dynamic>> employeeActiveTotalHours, Map<String, dynamic> item)
-          {
-            final relevantHours = employeeActiveTotalHours.where(
-                  (activeHour) => activeHour['hrm_id']?.toString() == item['id']?.toString(),
-            );
-            final int totalMinutes = relevantHours.fold(
-              0, (total, current) => total + timeStringToMinutes(current['active_hours']),
-            );
-            return minutesToTimeString(totalMinutes);
-          }
-          //Active Hours Calculation End
-
-          //Total Hours(#) Calculation Start
-          for(var employee in combinedData){
-            int lessCount = 0;
-            int greaterCount = 0;
-            if (employee['list'] != null) {
-              for (var task in employee['list']) {
-                final taskTotalHours = task['total_hours']?.split(':') ?? ['0', '0'];
-                final int taskHours = int.tryParse(taskTotalHours[0]) ?? 0;
-                final int taskMinutes = int.tryParse(taskTotalHours[1]) ?? 0;
-                final int totalMinutes = taskHours * 60 + taskMinutes;
-                if (totalMinutes < 420) {
-                  lessCount++;
-                } else if (totalMinutes > 540) {
-                  greaterCount++;
-                }
-              }
+            else {
+              print("Response is null");
             }
-            //print("Total hours ${lessCount + greaterCount}");
-            totalHoursValue.add(lessCount + greaterCount);
-            //print("Total hours value ${totalHoursValue}");
-            activeHours.add(calculateActiveHours(workActiveHours, employee));
-          }
-          //Total Hours(#) Calculation End
-        } else {
-          print("Response is null");
+          } else {
+          emit(state.copyWith(isLoading: false));
+          print("Error: startDate ${startDate} or endDate ${endDate} is empty");
         }
+
         emit(state.copyWith(
-            isLoading: false,
+          isLoading: false,
           combinedData: combinedData,
           workActiveHours: workActiveHours,
           activeHours: activeHours,
           totalHoursValue: totalHoursValue,
           resources: formattedResources,
           startDate: startDate,
-          endDate: endDate
+          endDate: endDate,
+          selectedDateRange: selectedDateRange,
         ));
       }
       catch (error)
@@ -222,14 +244,23 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         final response6 = await todoListRepo.getTaskHistoryConfiguration();
         if(response6 != null){
           taskComponentsData = response6.data!;
-          log("${taskComponentsData}",name:"TaskComponentsData");
           taskBased = taskComponentsData.where((task) => task['type'] == 'task').toList();
           hourlyBased = taskComponentsData.where((task) => task['type'] == 'hourly').toList();
+          List<Map<String, dynamic>> base = [
+            {"id":1,"base": "Task based"},
+            {"id":1,"base": "Hour based"}];
+          dynamic selectedBase = base[0];
           emit(state.copyWith(
-              taskComponentsData: taskComponentsData,
+            taskComponentsData: taskComponentsData,
             taskBased: taskBased,
             hourlyBased: hourlyBased,
+            selectedBase1: base,
+            selectedBase: selectedBase,
+
           ));
+          // print("Emitting initial selectedBase1: $selectedBase1");
+        } else {
+          emit(state.copyWith(isLoading: false));
         }
       }
       catch(error){
@@ -255,7 +286,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<CreateTaskEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
-        await todoListRepo.addTaskConfiguration(event.id,event.userId,event.name,event.amount,event.task);
+        print("CreateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ");
+        await todoListRepo.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
         add(const TaskComponentsInitialEvent());
       } catch (error){
         emit(state.copyWith(isLoading: false));
@@ -263,6 +295,36 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
+    //await todoListRepo.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
+    on<UpdateTaskEvent>((event, emit){
+      print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount}");
+      if(event.userId == null)
+        {
+          taskNameCtrl.text = event.taskName ?? '';
+          amountCtrl.text = event.amount ?? '';
+          print("event id ${event.id}");
+          emit(state.copyWith(
+            taskId: event.id,
+            taskNameController: taskNameCtrl,
+            amountController: amountCtrl,
+          ));
+        }
+    });
+
+    on<UpdateDropdownValueEvent>((event, emit) {
+      print("Emitting new selectedBase1: ${event.selectedBase}");
+    });
+
+    on<EnterEditModeEvent>((event, emit) {
+      emit(state.copyWith(isEditMode: true));
+    });
+
+    on<ExitEditModeEvent>((event, emit) {
+      emit(state.copyWith(isEditMode: false));
+    });
+
+    on<TaskDateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedDate: event.selectedDate)));
   }
 }
 // import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';
