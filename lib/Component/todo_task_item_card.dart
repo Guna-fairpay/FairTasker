@@ -148,33 +148,39 @@ class TodoTaskItemCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              GestureDetector(
-                                onTap: onTap,
-                                child: Utils.getText("${model['display']?['task_title'] ?? ""}",
-                                    color: (model['display']?['hasTimeSensitive'])
-                                        ? AppC.red
-                                        : AppC.appColor,
-                                    weight: FontWeight.bold,
-                                    overFlow: TextOverflow.ellipsis,
-                                    size: 12.sp),
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: onTap,
+                                  child: Utils.getText("${model['display']?['task_title'] ?? ""}",
+                                      color: (model['display']?['hasTimeSensitive'])
+                                          ? AppC.red
+                                          : AppC.appColor,
+                                      weight: FontWeight.bold,
+                                      overFlow: TextOverflow.ellipsis,
+                                      size: 12.sp),
+                                ),
                               ),
                               if (model['display']?['hasCustomLink'] ?? false)
-                                GestureDetector(
-                                  onTap: onCustomLink,
-                                  child: Utils.getText(
-                                    "T",
-                                    color: Colors.black,
-                                    weight: FontWeight.w700,
-                                    size: 14.sp,
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: onCustomLink,
+                                    child: Utils.getText(
+                                      "T",
+                                      color: Colors.black,
+                                      weight: FontWeight.w700,
+                                      size: 14.sp,
+                                    ),
                                   ),
                                 ),
                               if (model['display']?['hasAttachments'] ?? false)
-                                GestureDetector(
-                                  onTap: onViewAttachment,
-                                  child: Icon(
-                                    Icons.remove_red_eye_sharp,
-                                    size: 14.sp,
-                                    color: AppC.appColor,
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: onViewAttachment,
+                                    child: Icon(
+                                      Icons.remove_red_eye_sharp,
+                                      size: 14.sp,
+                                      color: AppC.appColor,
+                                    ),
                                   ),
                                 ),
                             ],
@@ -218,12 +224,12 @@ class TodoTaskItemCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if ((model['display']?['vehicle_name'].toString().isNotNullOrEmpty ?? false) || (model['display']?['person_name'].toString().isNotNullOrEmpty ?? false))
+                            if (model['display']?['vehicle_or_person_name'].toString().isNotNullOrEmpty ?? false)
                               Flexible(
                                 child: GestureDetector(
                                   onTapDown: onVehicleOrPerson,
                                   child: Utils.getText(
-                                    (model['display']?['person_name'] ?? model['display']?['vehicle_name']),
+                                    (model['display']?['vehicle_or_person_name'] ?? ""),
                                     size: 11.sp,
                                     overFlow: TextOverflow.ellipsis,
                                     weight: FontWeight.w900,
@@ -317,10 +323,12 @@ class TodoTaskItemCard extends StatelessWidget {
                                           color: AppC().base)),
                                 ),
                               if (model['display']?['hasAddress'] ?? false)
-                                GestureDetector(
-                                    onTapDown: onAddress,
-                                    child: Utils.getText("A",
-                                        weight: FontWeight.bold, size: 13.sp)),
+                                Flexible(
+                                  child: GestureDetector(
+                                      onTapDown: onAddress,
+                                      child: Utils.getText("A",
+                                          weight: FontWeight.bold, size: 13.sp)),
+                                ),
                               const SizedBox.shrink(),
                             ],
                           ),

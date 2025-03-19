@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 
 class ToDoProcessor {
@@ -15,6 +16,7 @@ class ToDoProcessor {
   List<Map<String, dynamic>> _groupPersons = [];
   List<Map<String, dynamic>> _usersList = [];
   List<Map<String, dynamic>> _vendorsList = [];
+  List<Map<String, dynamic>> _locationList = [];
   List<Map<String, dynamic>> _bouncieVehicles = [];
   List<Map<String, dynamic>> _taskExpenseDatas = [];
 
@@ -30,7 +32,8 @@ class ToDoProcessor {
       _fetchTaskExpenseData(),
       _fetchGroupPersons(),
       _fetchUsers(),
-      _fetchVendors()
+      _fetchVendors(),
+      _fetchLocations(),
     ]);
     _groupVehicle = response[0] ?? [];
     _activeVehicles = response[1] ?? [];
@@ -39,6 +42,7 @@ class ToDoProcessor {
     _groupPersons = response[4] ?? [];
     _usersList = response[5] ?? [];
     _vendorsList = response[6] ?? [];
+    _locationList = response[7] ?? [];
   }
 
   Future<List<Map<String, dynamic>>> _fetchVehicleGroups() async =>
@@ -58,6 +62,9 @@ class ToDoProcessor {
 
   Future<List<Map<String, dynamic>>> _fetchVendors() async =>
       await getIt<CommonService>().getVendorsList();
+
+  Future<List<Map<String, dynamic>>> _fetchLocations() async =>
+      await getIt<CommonService>().getLocationsList();
 
   Future<List<Map<String, dynamic>>> _fetchTaskExpenseData() async =>
       await getIt<CommonService>().getTaskExpenseData();
@@ -134,7 +141,10 @@ class ToDoProcessor {
             "vehicle_plate": _getVehiclePlate(e),
             "vehicle_distance": _getVehicleDistance(e),
             "vehicle_name": _getVehicleName(e),
+            "vehicle_or_person_name": _getVehicleName(e) ?? _personName(e),
             "vendor": _vendor(e),
+            "addresses" : _getAddresses(e),
+            "selectedAddress" : _getSelectedAddress(e),
             "resources": _resources(e),
             "vehicles": _getVehicles(e)
           })
@@ -274,8 +284,10 @@ class ToDoProcessor {
   bool _hasAttachments(Map<String, dynamic> model) =>
       List<Map<String, dynamic>>.from(model['todoimages'] ?? []).isNotEmpty;
 
-  bool _hasAddress(Map<String, dynamic> model) =>
-      model['addresses'].toString().isNotNullOrEmpty;
+  bool _hasAddress(Map<String, dynamic> model) {
+    var decoded = (model['address'].toString().isNotNullOrEmpty) ? jsonDecode(model['address']) : null;
+    return (model['address'].toString().isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
+  }
 
   bool _hasCustomLink(Map<String, dynamic> model) =>
       model['custom_link_id'].toString().isNotNullOrEmpty &&
@@ -370,6 +382,27 @@ class ToDoProcessor {
     } else {
       return [];
     }
+  }
+
+  List<Map<String, dynamic>> _getAddresses(Map<String, dynamic> model) {
+    var hasLocationId = model['location_id'].toString().isNotNullOrEmpty;
+    if (hasLocationId) {
+      var location = _locationList.firstWhereOrNull((element) => element['id'].toString() == model['location_id'].toString());
+      var addresses = List<Map<String, dynamic>>.from(location?['addresses'] ?? []);
+      return addresses;
+    }
+    return [];
+  }
+
+  Map<String, dynamic>? _getSelectedAddress(Map<String, dynamic> model) {
+    if (_hasAddress(model)) {
+      var addresses = _getAddresses(model);
+      var addressIds = List<int>.from(jsonDecode(model['address']) ?? []);
+      var result = addresses.firstWhereOrNull((element) => addressIds.contains(element['id']));
+      Console.of.log("Result: $result $addressIds");
+      return result;
+    }
+    return null;
   }
 
   String? _vendorId(Map<String, dynamic> model) =>

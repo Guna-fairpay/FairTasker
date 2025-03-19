@@ -41,6 +41,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerSaveNotesEvent>(_onSaveNotesEvent);
     on<ToDoTaskerVehiclePersonTapEvent>(_onVehiclePersonTapEvent);
     on<ToDoTaskerResourceTapEvent>(_onResourceTapEvent);
+    on<ToDoTaskerAddressTapEvent>(_onAddressTapEvent);
+    on<ToDoTaskerPartsTapEvent>(_onPartsTapEvent);
+    on<ToDoTaskerSuppliesTapEvent>(_onSuppliesTapEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -62,6 +65,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       await _toDoProcessor.initialize();
       await _taskerHoursProcessor.initialize();
       var response = await _fetchToDoList();
+      Console.of.log("LENGTH ${response?.length ?? -1}");
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = response ?? [];
       toDos = unfiltered;
@@ -108,9 +112,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var response = await _fetchToDoList();
       unfiltered = response ?? [];
       toDos = unfiltered;
+      Console.of.debug("CHECK ${toDos.length}");
       emit(ToDoTaskerLoadedState());
     } catch (e) {
-      Console.of.error(e);
+      Console.of.error("REFRESH_TODOS $e");
       emit(ToDoTaskerErrorState(e));
     }
   }
@@ -215,5 +220,17 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onResourceTapEvent(ToDoTaskerResourceTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerResourceTapState(event.model));
+  }
+
+  void _onAddressTapEvent(ToDoTaskerAddressTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerAddressTapState(event.model));
+  }
+
+  void _onPartsTapEvent(ToDoTaskerPartsTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerPartsTapState(event.model));
+  }
+
+  void _onSuppliesTapEvent(ToDoTaskerSuppliesTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerSuppliesTapState(event.model));
   }
 }

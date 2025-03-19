@@ -44,7 +44,7 @@ class ToDoTaskerEditState extends ToDoTaskerState {
   final dynamic toDoId;
   ToDoTaskerEditState(this.toDoId);
   @override
-  List<Object?> get props => [toDoId];
+  List<Object?> get props => [toDoId, Random().nextDouble()];
 }
 
 class ToDoTaskerTapUserFilterState extends ToDoTaskerState {
@@ -87,6 +87,27 @@ class ToDoTaskerVehiclePersonTapState extends ToDoTaskerState {
 class ToDoTaskerResourceTapState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   ToDoTaskerResourceTapState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class ToDoTaskerAddressTapState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerAddressTapState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class ToDoTaskerPartsTapState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerPartsTapState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class ToDoTaskerSuppliesTapState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerSuppliesTapState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }

@@ -7,26 +7,31 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
   final List<T> items;
   final List<T>? selectedItems;
   final ItemAsString<T>? itemAsString;
+  final ItemAsString<T>? selectionItemAsString;
   final void Function(bool isChecked, T value)? onChanged;
-  const CustomWrapChoice({super.key, required this.items, this.itemAsString, this.selectedItems, this.onChanged});
+
+  const CustomWrapChoice(
+      {super.key,
+      required this.items,
+      this.itemAsString,
+      this.selectedItems,
+      this.onChanged,
+      this.selectionItemAsString});
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
       children: List<Widget>.generate(
         items.length,
-            (int idx) {
+        (int idx) {
           var model = items[idx];
           return Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 2.0, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2),
             child: ChoiceChip(
               showCheckmark: false,
               padding: EdgeInsets.symmetric(horizontal: 5),
-              materialTapTargetSize:
-              MaterialTapTargetSize.shrinkWrap,
-              labelPadding:
-              const EdgeInsets.symmetric(horizontal: 4),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 4),
               selectedColor: AppC.appColor,
               backgroundColor: const Color(0xfff3f6f9),
               shape: RoundedRectangleBorder(
@@ -34,14 +39,31 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
               ),
               side: const BorderSide(color: AppC.appColor),
               label: Utils.getText(
-                itemAsString?.call(items[idx]) ?? "${items[idx]}",
-                color: selectedItems?.contains(items[idx]) ?? false
-                    ? AppC.white
-                    : AppC.text,
-                weight: (selectedItems?.contains(items[idx]) ?? false) ? FontWeight.bold : FontWeight.normal,
+                itemAsString?.call(model) ?? "$model",
+                color: ((selectionItemAsString != null)
+                    ? ((selectedItems
+                                ?.map((e) => selectionItemAsString?.call(e)))
+                            ?.contains(selectionItemAsString?.call(model)) ??
+                        false)
+                    : selectedItems?.contains(model) ?? false)
+                        ? AppC.white
+                        : AppC.text,
+                weight: ((selectionItemAsString != null)
+                    ? ((selectedItems
+                    ?.map((e) => selectionItemAsString?.call(e)))
+                    ?.contains(selectionItemAsString?.call(model)) ??
+                    false)
+                    : selectedItems?.contains(model) ?? false)
+                    ? FontWeight.bold
+                    : FontWeight.normal,
                 size: 12,
               ),
-              selected: selectedItems?.contains(items[idx]) ?? false,
+              selected: ((selectionItemAsString != null)
+                  ? ((selectedItems
+                  ?.map((e) => selectionItemAsString?.call(e)))
+                  ?.contains(selectionItemAsString?.call(model)) ??
+                  false)
+                  : selectedItems?.contains(model) ?? false),
               onSelected: (bool selected) {
                 onChanged?.call(selected, model);
               },
