@@ -27,6 +27,8 @@ class CommonService {
   List<Map<String, dynamic>> cohortsList = [];
   List<Map<String, dynamic>> vendorsList = [];
   List<Map<String, dynamic>> locationsList = [];
+  List<Map<String, dynamic>> partsList = [];
+  List<Map<String, dynamic>> suppliesList = [];
   List<Map<String, dynamic>> groupVehicleList = [];
   List<Map<String, dynamic>> activeVehicleList = [];
   List<Map<String, dynamic>> bouncieVehicles = [];
@@ -188,6 +190,45 @@ class CommonService {
       var response = await _apiRepository.getVendors();
       vendorsList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
       return vendorsList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLocationsList({bool reset = false}) async {
+    if (reset) locationsList.clear();
+    if (locationsList.isNotEmpty) return locationsList;
+    try {
+      var response = await _apiRepository.getLocations();
+      locationsList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return locationsList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPartsList({bool reset = false}) async {
+    if (reset) partsList.clear();
+    if (partsList.isNotEmpty) return partsList;
+    try {
+      var response = await _apiRepository.getParts();
+      partsList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return partsList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSuppliesList({bool reset = false}) async {
+    if (reset) suppliesList.clear();
+    if (suppliesList.isNotEmpty) return suppliesList;
+    try {
+      var response = await _apiRepository.getSupplies();
+      suppliesList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return suppliesList;
     } catch (e) {
       Toaster.showError(e.toString());
       return [];

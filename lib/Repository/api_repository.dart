@@ -204,10 +204,8 @@ class APiRepository {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusApi";
       Map<String, dynamic> params = {};
-      if (statusId != null && statusId != 0 && statusId != "0")
-        params['vehicle_status'] = statusId;
-      if (cohortId != null && cohortId != 0 && cohortId != "0")
-        params['cohort_id'] = cohortId;
+      if (statusId != null && statusId != 0 && statusId != "0") params['vehicle_status'] = statusId;
+      if (cohortId != null && cohortId != 0 && cohortId != "0") params['cohort_id'] = cohortId;
       params['branch_code'] = Session.of.getInt(Str.branchIdPrefText);
       final http.Response? response =
           await _apiClient.callGetMethod(apiUrl, params: params);
@@ -314,7 +312,7 @@ class APiRepository {
       if (response != null) {
         if (response.isSuccess) {
           var path = await FileSaver.instance.saveFile(response);
-          Toaster.showSuccess("Invoice Generated Successfully $path");
+          Toaster.showSuccess("Invoice Generated Successfully");
           return {'message': path};
         } else {
           Utils.showSomethingWentWrong();

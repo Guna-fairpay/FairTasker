@@ -25,6 +25,9 @@ class TaskerListingUi extends StatelessWidget {
               onNotes: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewNotesEvent(model)),
               onVehicleOrPerson: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVehiclePersonTapEvent(model)),
               onResource: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerResourceTapEvent(model)),
+              onAddress: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerAddressTapEvent(model)),
+              onParts: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerPartsTapEvent(model)),
+              onSupplies: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSuppliesTapEvent(model)),
               onComplete: () async {
                 return false;
               },

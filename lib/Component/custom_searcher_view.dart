@@ -12,6 +12,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   final TextEditingController controller;
   final bool showEmpty;
   final ValueNotifier<bool> _showEmptyWidget = ValueNotifier(false);
+  final VoidCallback? onEmptyTap;
 
   SearchViewField(
       {super.key,
@@ -20,6 +21,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       required this.itemAsString,
       this.selectedItem,
       this.showEmpty = false,
+      this.onEmptyTap,
       this.onSelected}) {
     if (selectedItem != null) {
       controller.text = itemAsString(selectedItem!);
@@ -36,13 +38,18 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               itemAsString: itemAsString,
               onSelected: onSelected,
               showEmptyWidget: value,
+              onEmptyWidgetTap: onEmptyTap,
             ));
   }
 
   FutureOr<Iterable<T>> _optionsBuilder(TextEditingValue textEditingValue) {
     var searchQuery = textEditingValue.text.toLowerCase();
     if (searchQuery.isNullOrEmpty) return [];
-    var omitted = ((selectedItem == null)) ? null : (itemAsString(selectedItem!) == controller.text) ? selectedItem : null;
+    var omitted = ((selectedItem == null))
+        ? null
+        : (itemAsString(selectedItem!) == controller.text)
+            ? selectedItem
+            : null;
     var result = suggestions
         .where((element) => element != omitted)
         .where((element) => "$element".toLowerCase().contains(searchQuery));

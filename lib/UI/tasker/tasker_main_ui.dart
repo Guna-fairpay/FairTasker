@@ -2,6 +2,9 @@ import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_change_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_dialog.dart';
 import 'package:fairpytasker/UI/dialog/vendor_info_dialog.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
@@ -39,7 +42,10 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;
             case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes'], onSave: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveNotesEvent(state.model, value))); break;
             case ToDoTaskerVehiclePersonTapState(): TaskerVehiclesChangeDialog.show(context, state.model); break;
-            case ToDoTaskerResourceTapState(): Toaster.showInfo("RESOURCE PRESSED"); break;
+            case ToDoTaskerResourceTapState(): TaskerResourceDialog.show(context, state.model); break;
+            case ToDoTaskerAddressTapState(): TaskerAddressChangeDialog.show(context, state.model); break;
+            case ToDoTaskerPartsTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: true); break;
+            case ToDoTaskerSuppliesTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: false); break;
             default: break;
           }
         }
