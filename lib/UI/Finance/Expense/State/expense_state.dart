@@ -33,6 +33,9 @@ class ExpenseState extends Equatable{
   final List<String>? todoVehicles;
   final List<dynamic> partsList;
   final List<dynamic> suppliesList;
+  final List<dynamic> splitExpense;
+  final String categoryName;
+  final String subCategoryName;
 
   const ExpenseState({
     required this.apiResponse,
@@ -63,6 +66,9 @@ class ExpenseState extends Equatable{
     required this.todoVehicles,
     required this.partsList,
     required this.suppliesList,
+    required this.splitExpense,
+    required this.categoryName,
+    required this.subCategoryName,
   });
 
   ExpenseState copyWith({
@@ -94,6 +100,9 @@ class ExpenseState extends Equatable{
     List<String>? todoVehicles,
     List<dynamic>? partsList,
     List<dynamic>? suppliesList,
+    List<dynamic>? splitExpense,
+    String? categoryName,
+    String? subCategoryName,
   }){
     return ExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -124,6 +133,9 @@ class ExpenseState extends Equatable{
       todoVehicles: todoVehicles ?? this.todoVehicles,
       partsList: partsList ?? this.partsList,
       suppliesList: suppliesList ?? this.suppliesList,
+      splitExpense: splitExpense ?? this.splitExpense,
+      categoryName: categoryName ?? this.categoryName,
+      subCategoryName: subCategoryName ?? this.subCategoryName,
     );
   }
 
@@ -157,7 +169,9 @@ class ExpenseState extends Equatable{
     todoVehicles,
     partsList,
     suppliesList,
-
+    splitExpense,
+    categoryName,
+    subCategoryName,
     Random().nextDouble()
   ];
 

@@ -18,6 +18,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../Bloc/expense_bloc.dart';
 import '../../State/expense_state.dart';
 
@@ -43,6 +44,10 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                 foregroundColor: Colors.white,
                 backgroundColor: AppC.appColor,
                 title: Text(vehicleName??''),
+                titleTextStyle: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppC.white),
                 actions: [
                   IconButton(
                       onPressed: () {
@@ -254,14 +259,15 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                       ),
                       10.height,
                       Row(
+                        spacing: 10,
                         children: [
+                          if(state.splitExpense.isEmpty)
                           Expanded(
                             child: Utils.getTextFormField(
                               'Amount in dollars',
                               context.read<ExpenseBloc>().amountController,
                             ),
                           ),
-                          10.width,
                           Expanded(
                             child: Utils.dropdownBox(
                               'Select Payment Method',
@@ -333,8 +339,10 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                       10.height,
                       Utils.getElevatedButton(() {}),
                       10.height,
+                      if(state.todoDetails.isNotEmpty)
                       const TodoDetailsUI(),
                       10.height,
+                      if(state.splitExpense.isNotEmpty)
                       const SplitExpenseUI(),
                     ],
                   )));

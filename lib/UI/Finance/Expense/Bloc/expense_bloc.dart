@@ -58,10 +58,10 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   final TextEditingController shippingController = TextEditingController();
   final TextEditingController totalAmountController = TextEditingController();
   final TextEditingController percentageOrAmountController =
-  TextEditingController();
+      TextEditingController();
   bool taxIsTapped = false;
-  List<Map<String, dynamic>>? selectedParts = [];
-  List<Map<String, dynamic>>? selectedSupplies = [];
+  List<Map<String, dynamic>> selectedParts = [];
+  List<Map<String, dynamic>> selectedSupplies = [];
 
   ExpenseBloc()
       : super(ExpenseState(
@@ -96,6 +96,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           todoVehicles: const [],
           partsList: const [],
           suppliesList: const [],
+          splitExpense: const [],
+          categoryName: '',
+          subCategoryName: '',
         )) {
     on<GetVehicleExpenseData>((event, emit) async {
       try {
@@ -214,7 +217,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
         saleTaxController.text =
             ((double.tryParse(partsCostController.text) ?? 0) +
-                (double.tryParse(labourCostController.text) ?? 0))
+                    (double.tryParse(labourCostController.text) ?? 0))
                 .toString();
 
         categoryId = apiResponse?['category_id'].toString() ?? '';
@@ -233,10 +236,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             ?.where((e) => e['id'].toString() == subcategoryId)
             .toList();
 
+        var categoryName = selectedCategory?.firstOrNull?['name'] ?? '';
+        var subCategoryName = selectedSubCategory?.firstOrNull?['name'] ?? '';
+
         selectedPaymentId = paymentType
-            ?.where(
-              (e) => e['id'] == apiResponse?['payment_method_id'],
-            )
+            ?.where((e) => e['id'] == apiResponse?['payment_method_id'],)
             .toList();
 
         ogAttachments = apiResponse?['attachments'];
@@ -272,10 +276,10 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               .firstOrNull;
           userId = user?['userId'];
         }
-        usersName = getUserInitials(userId, usersList);
+       usersName = getUserInitials(userId, usersList);
 
         if (todoDetails?['vin'] != null) {
-          vinList = [todoDetails ?? ['vin']];
+          vinList = [todoDetails?['vin']];
         } else {
           List<dynamic>? vehicles = todoDetails?['vehicles'];
           if (vehicles is List && vehicles.isNotEmpty) {
@@ -286,30 +290,32 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           }
         }
         if (vinList.isNotEmpty) {
-         List<Map<String, dynamic>> vehicleNames = vehicleList
-              !.where((element) => vinList.contains(element['vin'].toString()))
+          List<Map<String, dynamic>> vehicleNames = vehicleList!
+              .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
-          vehicleNameList = vehicleNames.map((vehicle) => vehicle["vehicle_name"].toString()).toList();
+          vehicleNameList = vehicleNames
+              .map((vehicle) => vehicle["vehicle_name"].toString())
+              .toList();
         }
 
-        String laborAmount =
-            (apiResponse?['split_expenses'] ?? [])
-                .firstWhere((element) => element['labour'] == 1,
-              orElse: () => null,)?['amount']
-                ?.toString() ?? "0";
+        String laborAmount = (apiResponse?['split_expenses'] ?? [])
+                .firstWhere(
+                  (element) => element['labour'] == 1,
+                  orElse: () => null,
+                )?['amount']
+                ?.toString() ??
+            "0";
 
         labourCostController.text = laborAmount;
 
-        taxIsTapped = apiResponse?['sales_tax_type'] == "\$"
-            ? true
-            : false;
+        taxIsTapped = apiResponse?['sales_tax_type'] == "\$" ? true : false;
 
         percentageOrAmountController.text = taxIsTapped
-            ? "${apiResponse?['sales_tax']??''}"
+            ? "${apiResponse?['sales_tax'] ?? ''}"
             : "${apiResponse?['sales_tax_percentage'] ?? ''}";
 
-        shippingController.text = "${apiResponse?['shipping_and_handling'] ?? ''}";
-
+        shippingController.text =
+            "${apiResponse?['shipping_and_handling'] ?? ''}";
 
         List<dynamic> partsIds = apiResponse?['split_expenses']
             .where((e) => e["parts_id"] != null)
@@ -321,13 +327,20 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             .map((e) => e["supplies_id"] as int)
             .toList();
 
-        List<Map<String, dynamic>> selectedParts = (parts ?? [])
-            .where((element) => partsIds.contains(element['id']))
-            .toList();
+        // List<Map<String, dynamic>> selectedParts=[];
+        // List<Map<String, dynamic>> selectedSupplies =[];
 
-        List<Map<String, dynamic>> selectedSupplies = (supplies ?? [])
-            .where((element) => suppliesIds.contains(element['id']))
-            .toList();
+        if (partsIds.isNotEmpty) {
+          selectedParts = (parts ?? [])
+              .where((element) => partsIds.contains(element['id']))
+              .toList();
+        }
+
+        if (suppliesIds.isNotEmpty) {
+          selectedSupplies = (supplies ?? [])
+              .where((element) => suppliesIds.contains(element['id']))
+              .toList();
+        }
 
         partsList = selectedParts
             .map((e) => e..["controller"] = TextEditingController())
@@ -337,7 +350,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             .map((e) => e..["controller"] = TextEditingController())
             .toList();
 
-        if(apiResponse?['split_expenses'] != null){
+        if (apiResponse?['split_expenses'] != null) {
           var splitExpenses = apiResponse?['split_expenses'];
           if (splitExpenses is List) {
             for (var expense in splitExpenses) {
@@ -361,11 +374,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           }
         }
 
-
-
-        log("${partsList}", name: 'partsList');
-        log("${suppliesList}", name: 'partsList');
-
         emit(state.copyWith(
           isLoading: false,
           vehicleList: vehicleList,
@@ -388,9 +396,12 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           todoVehicles: vehicleNameList,
           partsList: partsList,
           suppliesList: suppliesList,
+          splitExpense: apiResponse?['split_expenses'],
+          categoryName: categoryName,
+          subCategoryName: subCategoryName,
         ));
       } catch (e) {
-        log("$e", name: "Error In Bloc Value");
+        log("$e", name: "Error In Expense Edit Bloc Value");
         emit(state.copyWith(isLoading: false));
       }
     });
@@ -634,7 +645,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       emit(state.copyWith());
       _updateExpenseTotal();
     });
-
   }
 
   Future<List<File>> _pickFiles() async {
@@ -723,37 +733,45 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return existResponse;
   }
 
-  List<String> getUserInitials(
-      dynamic userIds, List<Map<String, dynamic>> users) {
-    if (userIds is String && userIds.startsWith("[") && userIds.endsWith("]")) {
-      userIds =
-          List<String>.from(jsonDecode(userIds).map((id) => id.toString()));
+  List<String> getUserInitials(dynamic userIds, List<Map<String, dynamic>> users) {
+    if (userIds == null) {
+      return [];
+    } else if (userIds is String && userIds.startsWith("[") && userIds.endsWith("]")) {
+      userIds = List<String>.from(jsonDecode(userIds).map((id) => id.toString()));
     } else if (userIds is String) {
       userIds = [userIds];
-    }
-    return users
-        .where((user) => userIds.contains(user['id'].toString())) // Match IDs
+    } else if (userIds is! List) {
+      return [];
+    }return users
+        .where((user) => userIds.contains(user['id'].toString()))
         .map((user) {
-      String firstInitial = user['first_name'].isNotEmpty
+      String firstInitial = (user['first_name']?.isNotEmpty ?? false)
           ? user['first_name'][0].toUpperCase()
           : "";
-      String lastInitial = user['last_name'].isNotEmpty
+      String lastInitial = (user['last_name']?.isNotEmpty ?? false)
           ? user['last_name'][0].toUpperCase()
           : "";
-      return "$firstInitial$lastInitial"; // Combine initials
+      return "$firstInitial$lastInitial";
     }).toList();
   }
+
 
   void _updateExpenseTotal() {
     double totalSuppliesCost = 0;
     double totalParts = 0;
-    totalParts = partsList.map((e) =>
-    double.tryParse((e['controller'] as TextEditingController)
-        .text.toString()) ?? 0.0).sum;
+    totalParts = partsList
+        .map((e) =>
+            double.tryParse(
+                (e['controller'] as TextEditingController).text.toString()) ??
+            0.0)
+        .sum;
 
-    totalSuppliesCost = suppliesList.map((e) =>
-    double.tryParse((e['controller'] as TextEditingController)
-        .text.toString()) ?? 0.0).sum;
+    totalSuppliesCost = suppliesList
+        .map((e) =>
+            double.tryParse(
+                (e['controller'] as TextEditingController).text.toString()) ??
+            0.0)
+        .sum;
 
     double labourCost = double.tryParse(labourCostController.text) ?? 0;
     double saleTax = double.tryParse(saleTaxController.text) ?? 0;
@@ -772,5 +790,4 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     double totalAmount = subTotal + saleTax + shippingCost;
     totalAmountController.text = totalAmount.toStringAsFixed(2);
   }
-
 }

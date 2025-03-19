@@ -568,6 +568,7 @@ class Utils {
         bool showErrorSuffix = false,
         int minLines = 1,
         int maxLines = 1,
+        bool isCollapsed = false,
       AutovalidateMode autoValidate = AutovalidateMode.disabled,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
@@ -605,6 +606,7 @@ class Utils {
             hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey,),
             labelStyle: labelStyle ?? const TextStyle(color: AppC.grey,fontSize: 13),
             filled: true,
+            isCollapsed: isCollapsed,
             fillColor: fillColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRadius),
