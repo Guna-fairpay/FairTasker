@@ -103,4 +103,11 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
   }
 
   int get getOnlyNumeric => int.parse((this ?? "").replaceAll(RegExp('[^0-9]'), ''));
+
+  String getInitials() {
+    RegExp regExp = RegExp(r"\b\w");
+    Iterable<Match> matches = regExp.allMatches(this!.trim().toUpperCase());
+
+    return matches.map((m) => m.group(0)!).take(2).join();
+  }
 }

@@ -49,7 +49,7 @@ class APiRepository {
 
   String get _generateInvoiceApi => "generate-invoice";
 
-  String get _updateTodoExpense => "expenses_update";
+  String get _updateExpense => "expenses_update";
 
   String get _expenses => "expenses";
 
@@ -110,6 +110,8 @@ class APiRepository {
   String get _paymentType => "payment-methods";
 
   String get _getTodoDetails => "get-todo-details";
+
+  String get _getPersonExpense => "ajaxPersonExpense";
 
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -287,7 +289,7 @@ class APiRepository {
     try {
       String apiUrl = '';
       if (expenseId != null) {
-        apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+        apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}$_expenses";
       }
@@ -427,7 +429,7 @@ class APiRepository {
       List<File>? images,
       String? expenseId}) async {
     try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+      String apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       log("${images?.length}", name: "updateVehicleExpenseHistory");
       final http.Response? response = await _apiClient.callPostMethodWithBody(
           apiUrl,
@@ -590,6 +592,19 @@ class APiRepository {
           '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
       Console.of.log(apiUrl);
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<ExpenseResponse?> getPersonExpense(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_getPersonExpense';
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({'minDate': minDate, 'maxDate': maxDate, 'platformCustom': 'tasker-app'}));
       var mapData = await response.mapData;
       return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
     } catch (error) {
@@ -787,7 +802,6 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-
   Future<Map<String, dynamic>?> getTodoDetails({String? expenseId}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getTodoDetails?expense_id=$expenseId";
@@ -796,6 +810,42 @@ Future<Map<String, dynamic>?> getLocations() async {
       return mapData?['data'];
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> expenseAddOrUpdateApi(
+      {Map<String, dynamic>? body,
+        List<File>? images,
+        String? expenseId}) async {
+    try {
+      String apiUrl = '';
+      if (expenseId != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_expenses";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(
+              mapData?['message'] ?? "Expense Added Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callExpenseAddOrUpdateAPI : ${error.toString()}');
+      return null;
     }
   }
 

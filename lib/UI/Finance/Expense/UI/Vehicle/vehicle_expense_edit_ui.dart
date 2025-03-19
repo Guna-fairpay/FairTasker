@@ -311,6 +311,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                         (value) => context.read<ExpenseBloc>().add(
                             SubCategoryListEvent(selectedSubCategory: value)),
                         labelKey: 'name',
+                        selectedKey: state.selectedCohorts,
                         initialSelection: state.selectedCohorts,
                       ),
                       10.height,
@@ -326,18 +327,10 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                             .add(DateChangeEvent(selectedDate: value)),
                       ),
                       10.height,
-                      Utils.getTextFormField('Odometer Reading',
-                          context.read<ExpenseBloc>().odometerController,
-                          textType: TextInputType.number,
-                          suffixIcon: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Icon(
-                              Icons.speed,
-                              color: AppC.redAccent,
-                            ),
-                          )),
-                      10.height,
-                      Utils.getElevatedButton(() {}),
+                      Utils.getElevatedButton(() {
+                        context.read<ExpenseBloc>().add(const UpdateExpenseEvent());
+                        context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
+                      }),
                       10.height,
                       if(state.todoDetails.isNotEmpty)
                       const TodoDetailsUI(),

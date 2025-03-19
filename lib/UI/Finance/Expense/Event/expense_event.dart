@@ -90,6 +90,8 @@ class CategoryDialogEvent extends ExpenseEvent {
   List<Object?> get props => [data];
 }
 
+
+
 class CohortDialogEvent extends ExpenseEvent {
   final dynamic data;
   const CohortDialogEvent({required this.data});
@@ -157,6 +159,18 @@ class DeleteExpenseVehicleEvent extends ExpenseEvent {
 }
 
 class TaxIconEvent extends ExpenseEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class SaveExpenseEvent extends ExpenseEvent {
+  const SaveExpenseEvent();
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class UpdateExpenseEvent extends ExpenseEvent {
+  const UpdateExpenseEvent();
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
