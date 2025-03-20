@@ -1,5 +1,5 @@
-
 import 'package:date_time/date_time.dart';
+import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Bloc/person_expense_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/person_expense_list_item.dart';
@@ -30,8 +30,8 @@ class PersonExpenseViewUI extends StatelessWidget {
           listener: (context, state) {
             state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           },
-          child:
-          BlocBuilder<PersonExpenseBloc, PersonExpenseState>(builder: (context, state) {
+          child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
+              builder: (context, state) {
             return Column(
               children: [
                 Padding(
@@ -54,14 +54,18 @@ class PersonExpenseViewUI extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap:()=> Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => const PersonExpenseAddUI(),)),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PersonExpenseAddUI(),
+                            )),
                         child: Container(
                           height: 40,
                           width: 40,
                           decoration: BoxDecoration(
                               color: AppC.appColor,
-                              borderRadius: BorderRadiusDirectional.circular(8)),
+                              borderRadius:
+                                  BorderRadiusDirectional.circular(8)),
                           child: const Icon(
                             Icons.add,
                             color: Colors.white,
@@ -73,35 +77,41 @@ class PersonExpenseViewUI extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Utils.getText(
-                            'Total: \$${'0.00'}',
+                            'Total: \$${state.approvedAmount.toStringAsFixed(2)}',
                             color: AppC.appColor,
                             weight: FontWeight.bold,
                           ),
-                                  ],
+                        ],
                       )
                     ],
                   ),
                 ),
-                Expanded(
+                (state.apiResponse.isEmpty && !state.isLoading)
+                    ? const EmptyWidget()
+                    : Expanded(
                   child: ListView.separated(
                     separatorBuilder: (context, index) =>
-                    const Divider(height: 0.5),
+                        const Divider(height: 0.5),
                     itemCount: state.apiResponse.length,
-                    itemBuilder: (context, index) => ExpensePersonListItem(
-                      expense: state.apiResponse[index],
-                      onChanged: (value) => context
-                          .read<PersonExpenseBloc>()
-                          .add(ApproveEvent(
-                          expenseId: state.apiResponse[index]['id'],
-                          approved: "${value == true ? 1 : 0}",)),
-                      onDelete: (id) => context
-                          .read<PersonExpenseBloc>()
-                          .add(DeletePersonExpenseEvent(id: id, isEditPage: false)),
-                      /*onCohort: (value) =>
+                    itemBuilder: (context, index) =>
+                        ExpensePersonListItem(
+                                expense: state.apiResponse[index],
+                                onChanged: (value) => context
+                                    .read<PersonExpenseBloc>()
+                                    .add(ApproveEvent(
+                                      model: state.apiResponse[index],
+                                      approved: "${value == true ? 1 : 0}",
+                                    )),
+                                onDelete: (id) => context
+                                    .read<PersonExpenseBloc>()
+                                    .add(DeletePersonExpenseEvent(
+                                        id: id, isEditPage: false)),
+                                employeeList: state.persons,
+                                /*onCohort: (value) =>
                                 context.read<ExpenseBloc>().add(
                                       CohortListEvent(selectedCohort: value),
                                     ),*/
-                    ),
+                              ),
                   ),
                 ),
               ],
@@ -110,8 +120,6 @@ class PersonExpenseViewUI extends StatelessWidget {
         ));
   }
 }
-
-
 
 /*import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';

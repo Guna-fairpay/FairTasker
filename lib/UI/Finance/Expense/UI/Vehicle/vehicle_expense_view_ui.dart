@@ -126,9 +126,9 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                       itemBuilder: (context, index) => ExpenseVehicleListItem(
                             expense: state.filteredResponse[index],
                             onCategoryTapEvent: () {
-                              context.read<ExpenseBloc>().add(
-                                  CategoryDialogEvent(
-                                      data: state.filteredResponse[index]));
+                              // context.read<ExpenseBloc>().add(
+                              //     CategoryDialogEvent(
+                              //         data: state.filteredResponse[index]));
                               CategorySubcategoryDialog.show(
                                 context,
                                 expense: state.filteredResponse[index],
@@ -147,6 +147,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                                 .add(ApproveEvent(
                                     model: state.filteredResponse[index],
                                     approved: "${value == true ? 1 : 0}")),
+
                             onDelete: (id) => context
                                 .read<ExpenseBloc>()
                                 .add(DeleteExpenseEvent(id: id, isEditPage: false)),

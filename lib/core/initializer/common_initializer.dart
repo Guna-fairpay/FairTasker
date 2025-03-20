@@ -36,6 +36,7 @@ class CommonService {
   List<Map<String, dynamic>> paymentTypesList = [];
   List<Map<String, dynamic>> partsList = [];
   List<Map<String, dynamic>> suppliesList = [];
+  Map<String, dynamic> employeesList = {};
 
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false);
@@ -207,6 +208,7 @@ class CommonService {
       return [];
     }
   }
+
 
   Future<List<Map<String, dynamic>>> getPartList() async {
     try {

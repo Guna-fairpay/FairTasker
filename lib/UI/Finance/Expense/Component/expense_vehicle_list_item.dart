@@ -14,6 +14,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
   final void Function(String? value) onDelete;
   final VoidCallback? onCategoryTapEvent;
   final VoidCallback? onCohortTapEvent;
+  final VoidCallback? onResetEvent;
 
   const ExpenseVehicleListItem({
     super.key,
@@ -22,6 +23,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
     required this.onDelete,
     this.onCategoryTapEvent,
     this.onCohortTapEvent,
+    this.onResetEvent,
   });
 
   @override
@@ -211,7 +213,8 @@ class ExpenseVehicleListItem extends StatelessWidget {
                   child: Checkbox(
                     activeColor: AppC.appColor,
                     value: (expense['approved'] == 1),
-                    onChanged: onChanged,
+                    onChanged:
+                      onChanged,
                   ),
                 ),
                 Expanded(
@@ -229,14 +232,14 @@ class ExpenseVehicleListItem extends StatelessWidget {
                                         vehicleName: expense['vehicle']
                                                 ['vehicle_name'] ??
                                             '',
-                                        currentExpenseAmount: double.tryParse(
+                                        currentExpenseAmount: expense['approved']==0? double.tryParse(
                                             expense['expense_amount']
-                                                .toString()),
+                                                .toString()):0.0,
                                         showTotalAmount: true,
                                       )));
                         },
                         child: Utils.getText(
-                          "\$${double.tryParse(expense['expense_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                          "\$${double.tryParse(expense['approved_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
                           weight: FontWeight.bold,
                           overFlow: TextOverflow.ellipsis,
                         ),

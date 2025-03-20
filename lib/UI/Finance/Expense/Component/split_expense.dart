@@ -6,9 +6,10 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../Bloc/expense_bloc.dart';
-import '../../State/expense_state.dart';
+import '../Bloc/expense_bloc.dart';
+import '../State/expense_state.dart';
 
 class SplitExpenseUI extends StatelessWidget {
   const SplitExpenseUI({super.key});
@@ -42,7 +43,7 @@ class SplitExpenseUI extends StatelessWidget {
                       '',
                       hintText: 'enter a amount',
                       e['controller'],
-                      textType: TextInputType.number,
+                      textType: const TextInputType.numberWithOptions(decimal: true),
                       prefixIcon: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5.0),
                         child: Text(
@@ -57,6 +58,8 @@ class SplitExpenseUI extends StatelessWidget {
                           ?.copyWith(color: context.theme.hintColor),
                       style: context.textTheme.labelLarge
                           ?.copyWith(fontFamily: "Lato"),
+                      textInputFormatter:[
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                     ),
                   ),
                 ],
@@ -77,7 +80,7 @@ class SplitExpenseUI extends StatelessWidget {
                       '',
                       hintText: 'enter a amount',
                       e['controller'],
-                      textType: TextInputType.number,
+                      textType: const TextInputType.numberWithOptions(decimal: true),
                       prefixIcon: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5.0),
                         child: Text(
@@ -92,6 +95,8 @@ class SplitExpenseUI extends StatelessWidget {
                           ?.copyWith(color: context.theme.hintColor),
                       style: context.textTheme.labelLarge
                           ?.copyWith(fontFamily: "Lato"),
+                      textInputFormatter:[
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                     ),
                   ),
                 ],
@@ -106,7 +111,7 @@ class SplitExpenseUI extends StatelessWidget {
                     '',
                     hintText: 'enter a amount',
                     context.read<ExpenseBloc>().labourCostController,
-                    textType: TextInputType.number,
+                    textType: const TextInputType.numberWithOptions(decimal: true),
                     inputAction: TextInputAction.done,
                     prefixIcon: const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 5.0),
@@ -119,6 +124,8 @@ class SplitExpenseUI extends StatelessWidget {
                         ?.copyWith(color: context.theme.hintColor),
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontFamily: "Lato"),
+                    textInputFormatter:[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                   ),
                 ),
               ],
@@ -148,6 +155,7 @@ class SplitExpenseUI extends StatelessWidget {
                         ?.copyWith(color: context.theme.hintColor),
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontFamily: "Lato"),
+
                   ),
                 ),
               ],
@@ -194,12 +202,14 @@ class SplitExpenseUI extends StatelessWidget {
                         inputAction: TextInputAction.done,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 3),
-                        textType: TextInputType.number,
+                        textType: const TextInputType.numberWithOptions(decimal: true),
                         textAlign: TextAlign.center,
                         labelStyle: context.textTheme.labelMedium
                             ?.copyWith(color: context.theme.hintColor),
                         style: context.textTheme.labelLarge
                             ?.copyWith(fontFamily: "Lato"),
+                        textInputFormatter:[
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                       )),
                       const Spacer(flex: 1)
                     ],
@@ -237,7 +247,7 @@ class SplitExpenseUI extends StatelessWidget {
                     '',
                     hintText: 'enter a amount',
                     context.read<ExpenseBloc>().shippingController,
-                    textType: TextInputType.number,
+                    textType: const TextInputType.numberWithOptions(decimal: true),
                     inputAction: TextInputAction.done,
                     prefixIcon: const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 5.0),
@@ -250,6 +260,8 @@ class SplitExpenseUI extends StatelessWidget {
                         ?.copyWith(color: context.theme.hintColor),
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontFamily: "Lato"),
+                    textInputFormatter:[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                   ),
                 ),
               ],

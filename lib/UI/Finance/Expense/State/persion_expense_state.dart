@@ -24,6 +24,10 @@ class PersonExpenseState extends Equatable{
   final bool isLoading;
   final dynamic approvedAmount;
   final DateTime? selectedDate;
+  final List<dynamic> approved;
+  final dynamic selectedApproved;
+  final List<dynamic> personExpenseHistory;
+  final double totalAmount;
 
   const PersonExpenseState({
     required this.apiResponse,
@@ -45,6 +49,11 @@ class PersonExpenseState extends Equatable{
     required this.selectedDate,
     required this.persons,
     required this.selectedPerson,
+    required this.approved,
+    required this.selectedApproved,
+    required this.personExpenseHistory,
+    required this.totalAmount,
+
   });
 
   PersonExpenseState copyWith({
@@ -67,6 +76,10 @@ class PersonExpenseState extends Equatable{
     DateTime? selectedDate,
     List<dynamic>? persons,
     dynamic selectedPerson,
+    List<dynamic>? approved,
+    dynamic selectedApproved,
+    List<dynamic>? personExpenseHistory,
+    double? totalAmount,
   }){
     return PersonExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -88,6 +101,11 @@ class PersonExpenseState extends Equatable{
       selectedDate: selectedDate ?? this.selectedDate,
       persons: persons ?? this.persons,
       selectedPerson: selectedPerson ?? this.selectedPerson,
+      approved: approved ?? this.approved,
+      selectedApproved: selectedApproved ?? this.selectedApproved,
+      personExpenseHistory: personExpenseHistory ?? this.personExpenseHistory,
+      totalAmount: totalAmount ?? this.totalAmount,
+
     );
   }
 
@@ -112,6 +130,10 @@ class PersonExpenseState extends Equatable{
     selectedDate,
     persons,
     selectedPerson,
+    approved,
+    selectedApproved,
+    personExpenseHistory,
+    totalAmount,
     Random().nextDouble()
   ];
 

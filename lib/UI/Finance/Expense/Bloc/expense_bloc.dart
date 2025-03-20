@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/Response/cohorts_response.dart';
+import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Event/expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/State/expense_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -10,6 +12,7 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:file_picker/file_picker.dart';
@@ -69,6 +72,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   String? resourceId;
   List<dynamic> splitSupplies = [];
   List<dynamic> splitParts = [];
+  List<Map<String, dynamic>>? expenseCategories =[];
+  List <dynamic> apiResponse =[];
 
   ExpenseBloc()
       : super(ExpenseState(
@@ -106,11 +111,24 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           splitExpense: const [],
           categoryName: '',
           subCategoryName: '',
+          expenseTo: const [],
+          selectedExpenseTo: const {},
+          pop: false,
         )) {
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
     });
 
+    // on<RefreshEvent>((event, emit) {
+    //   try{
+    //     emit(state.copyWith(isLoading: true));
+    //     Console.of.debug("REFRESHED");
+    //   }catch(e){
+    //
+    //   }
+    //   emit(state.copyWith(isLoading: true));
+    //   Console.of.debug("REFRESHED");
+    // } );
     on<GetVehicleExpenseData>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
@@ -123,39 +141,33 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               .toFormat(format: 'yyyy-MM-dd');
           maxDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
         }
-        //Console.of.log(maxDate);
+
+        _resetAll();
+
+       /*var startDate = DateTime.now()
+            .subtract(const Duration(days: 31))
+            .toFormat(format: 'yyyy-MM-dd');
+       var endDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
+
+        var expenseAmountResponse = await _getExpense(startDate, endDate);
         var response = await _getExpense(minDate, maxDate);
         var usersList = await getIt<CommonService>().getUsers();
         var expenseCategories = await _getExpenseCategories();
 
         ExpenseResponse? expenseResponse = response;
+        ExpenseResponse? expenseAmount = expenseAmountResponse;
 
         var apiResponse = expenseResponse?.data;
+        var amountResponse = expenseAmount?.data;
 
-        apiResponse = apiResponse?.map((e) {
-              e.putIfAbsent("employee_name", () {
-                var user = usersList.firstWhere(
-                  (element) => element['id'] == e['employee_id'],
-                  orElse: () => {},
-                );
-                return List<String>.from(
-                        [user['first_name'] ?? "", user['last_name'] ?? ""])
-                    .toInitial;
-              });
-              return e;
-            }).toList() ??
-            [];
+        apiResponse = calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
+
+        apiResponse = employeeNames(apiResponse, usersList);
+
+        apiResponse = cohortList(apiResponse);
 
         apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
             .compareTo(DateTime.parse(a['created_at'] ?? '')));
-
-        apiResponse = apiResponse
-            .map((item) => item
-              ..['cohortList'] = [
-                {"id": "1", "name": "FairPy"},
-                {"id": "4", "name": "${item['cohort']['cohort']}"}
-              ])
-            .toList();
 
         List<dynamic> filteredResponse =
             filterApprovedResponse(apiResponse, state.isExpenseApproved);
@@ -178,7 +190,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           categories: expenseCategories,
           approvedAmount: approvedAmount,
           unApprovedAmount: unApprovedAmount,
-        ));
+        ));*/
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
         emit(state.copyWith(isLoading: false));
@@ -190,13 +202,15 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         emit(state.copyWith(isLoading: true));
         var vehicleList = await _getVehicleList();
         var paymentType = await _getPaymentType();
-        var expenseCategories = await _getExpenseCategories();
+        var expenseCategories = await _getCategoryData();
+        var categories = expenseCategories?.expenseData;
+        log(categories.toString(), name: 'categories');
 
         emit(state.copyWith(
           isLoading: false,
           vehicleList: vehicleList,
           paymentType: paymentType,
-          categories: expenseCategories,
+          categories: categories,
           cohorts: AddToDoConfig.expenseTo,
         ));
       } catch (e) {
@@ -211,7 +225,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var response = await _getEditVehicleExpenseDetails(event.id);
         var vehicleList = await _getVehicleList();
         var paymentType = await _getPaymentType();
-        var expenseCategories = await _getExpenseCategories();
+        var expenseCategories = await _getCategoryData();
+        var categoryList = expenseCategories?.expenseData;
+       // expenseCategories = await _getExpenseCategories();
         var todoDetails = await _getTodoDetails(event.id);
         var usersList = await getIt<CommonService>().getUsers();
         var groupPerson = await _getGroupPerson();
@@ -235,8 +251,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         categoryId = apiResponse?['category_id'].toString() ?? '';
         subcategoryId = apiResponse?['subcategory_id'].toString() ?? '';
 
-        categories = expenseCategories;
-        subCategories = expenseCategories
+        categories = categoryList;
+        subCategories = categories
             ?.where((category) => category['id'].toString() == categoryId)
             .map((category) => category['sub_categories'] ?? [])
             .expand((subcategoryList) => subcategoryList)
@@ -425,8 +441,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     });
 
     on<ApproveEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
       try {
+        emit(state.copyWith(isLoading: true));
         var model = event.model;
         var existResponse = state.filteredResponse.map((e) {
           if (e['id'] == model['id']) {
@@ -439,7 +455,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         await apiRepository.expenseApprove(
             id: event.model['id'].toString(), approved: event.approved);
 
-        List<dynamic> filteredResponse =
+        _resetAll();
+
+        /*List<dynamic> filteredResponse =
             filterApprovedResponse(existResponse, state.isExpenseApproved);
 
         approvedAmount = 0;
@@ -461,40 +479,41 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           filteredResponse: filteredResponse,
           approvedAmount: approvedAmount,
           unApprovedAmount: unApprovedAmount,
-        ));
+        ));*/
       } catch (e) {
         emit(state.copyWith(isLoading: false));
         log("$e", name: "Error In ApproveEvent");
       }
-      emit(state.copyWith(isLoading: false));
     });
 
     on<DeleteExpenseEvent>((event, emit) async {
       try {
+        emit(state.copyWith(isLoading: true));
         await apiRepository.deleteExpenseTodo(event.id);
         await apiRepository.deleteVehicleExpense(event.id);
         if (event.isEditPage == false) {
-          var existResponse = state.filteredResponse;
-          existResponse.removeWhere((e) => e['id'].toString() == event.id);
-          approvedAmount = 0;
-          unApprovedAmount = 0;
-          if (state.isExpenseApproved) {
-            approvedAmount = existResponse
-                .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
-                .sum;
-          }
-          if (!state.isExpenseApproved) {
-            unApprovedAmount = existResponse
-                .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
-                .sum;
-          }
-
-          emit(state.copyWith(
-            isLoading: false,
-            filteredResponse: existResponse,
-            approvedAmount: approvedAmount,
-            unApprovedAmount: unApprovedAmount,
-          ));
+          // var existResponse = state.filteredResponse;
+          // existResponse.removeWhere((e) => e['id'].toString() == event.id);
+          // approvedAmount = 0;
+          // unApprovedAmount = 0;
+          // if (state.isExpenseApproved) {
+          //   approvedAmount = existResponse
+          //       .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+          //       .sum;
+          // }
+          // if (!state.isExpenseApproved) {
+          //   unApprovedAmount = existResponse
+          //       .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+          //       .sum;
+          // }
+          //
+          // emit(state.copyWith(
+          //   isLoading: false,
+          //   filteredResponse: existResponse,
+          //   approvedAmount: approvedAmount,
+          //   unApprovedAmount: unApprovedAmount,
+          // ));
+          _resetAll();
         } else {
           emit(state.copyWith(isLoading: false));
         }
@@ -502,7 +521,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         emit(state.copyWith(isLoading: false));
         log("$e", name: "Error In DeleteExpenseEvent");
       }
-      emit(state.copyWith(isLoading: false));
     });
 
     on<CategoryListEvent>((event, emit) {
@@ -534,47 +552,46 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     on<VehicleEvent>((event, emit) =>
         emit(state.copyWith(selectedVehicle: event.selectedVehicle)));
 
+    on<SubcategoryDropdownEvent>((event, emit) =>
+        emit(state.copyWith(selectedExpenseTo: event.selectedExpenseTo)));
+
     on<CohortListEvent>((event, emit) {
       emit(state.copyWith(selectedCohorts: event.selectedCohort));
     });
 
-    on<CategoryDialogEvent>((event, emit) {
-      var data = event.data;
-      var selectedCategory = state.categories
-              .where(
-                (element) =>
-                    element['id'].toString() == data?['category_id'].toString(),
-              )
-              .firstOrNull ??
-          {};
-      List<dynamic> subCategories = selectedCategory['sub_categories'] ?? [];
-      var selectedSubCategory = subCategories
-              .where(
-                (element) =>
-                    element['id'].toString() ==
-                    data?['subcategory_id'].toString(),
-              )
-              .firstOrNull ??
-          {};
-      log(selectedSubCategory.toString(), name: 'selectedSubCategory');
+    on<CategoryDialogEvent>((event, emit) async {
+     try {
+       emit(state.copyWith(isLoading: true));
+        var data = event.data;
+        var expenseCategories = await _getCategoryData();
+        var categoryList = expenseCategories?.expenseData;
+        var selectedCategory = categoryList?.where(
+              (element) => element['id'].toString() ==
+                  data?['category_id'].toString(),).firstOrNull ?? {};
+        List<dynamic> subCategories = selectedCategory['sub_categories'] ?? [];
+        var selectedSubCategory = subCategories.where((element) =>
+          element['id'].toString() == data?['subcategory_id'].toString(),
+          ).firstOrNull ?? {};
 
-      emit(state.copyWith(
-        selectedCategory: selectedCategory,
-        selectedSubCategory: selectedSubCategory,
-        subCategories: subCategories,
-      ));
+        emit(state.copyWith(
+          isLoading: false,
+          categories: categoryList,
+          selectedCategory: selectedCategory,
+          selectedSubCategory: selectedSubCategory,
+          subCategories: subCategories,
+          pop:false,
+        ));
+      }catch(e){
+       log("$e", name: "Error In CategoryDialogEvent");
+     }
     });
 
     on<CohortDialogEvent>((event, emit) {
       var data = event.data;
+      log(data.toString(), name: 'data');
       List<dynamic> cohort = data['cohortList'] ?? [];
-      var selectedCohort = cohort
-              .where(
-                (element) =>
-                    element['id'].toString() == data['expense_to'].toString(),
-              )
-              .firstOrNull ??
-          {};
+      var selectedCohort = cohort.where((element) =>
+      element['id'].toString() == data['expense_to'].toString(),).firstOrNull ?? {};
       emit(state.copyWith(cohorts: cohort, selectedCohorts: selectedCohort));
     });
 
@@ -710,6 +727,65 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       }
     });
 
+    on<UpdateCategoryEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        log("${state.expenseAttachments.whereType<File>().toList()}",
+            name: 'EXPENSE_DATA');
+        var response = await apiRepository.expenseAddOrUpdateApi(
+            expenseId: "${event.expenseData?['id']}",
+            body: _updateCategorys(event.expenseData));
+        // if (response?.isNotEmpty ?? false) {
+        //   Toaster.showSuccess(response?['message'] ?? "Success");
+        // }
+        _resetAll();
+
+        //emit(state.copyWith(isLoading: false));
+        //if (response?['status'] == 200) emit(state.copyWith());
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
+    on<SaveSubcategory>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.createSubCategory(
+          name: event.name,
+          expenseTo: event.expenseToId,
+          parentId: event.categoryId,
+        );
+        var expenseCategories = await _getCategoryData();
+        var categoryList = expenseCategories?.expenseData;
+        emit(state.copyWith(
+          isLoading: false,
+          pop: true,
+          categories: categoryList,
+        ));
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
+    on<GetSubCategoryExpenseTo>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        var response = await _getSubCategoryExpenseTo();
+        var apiResponse = response?.expenseTo;
+        emit(state.copyWith(
+            expenseTo: apiResponse,
+            isLoading: false
+        ));
+      }catch(e){
+        log("$e", name: "Error In GetSubCategoryExpenseTo");
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
   }
 
   Map<String, String> _updateExpenseData() {
@@ -739,19 +815,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
     baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
-    baseBody['subcategory_name'] =
-    "${state.selectedSubCategory?['name'] ?? ''}";
     baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
     baseBody['payment_method_id'] = "${state.selectedPaymentType?['id'] ?? ''}";
     baseBody['expense_to'] =
-    "${state.selectedSubCategory?['expense_to'] ?? ''}";
+    "${state.selectedCohorts?['id'] ?? ''}";
     baseBody['expense_amount'] = expenseAmount;
     baseBody['expense_description'] = descriptionController.text;
     baseBody['expense_date'] = state.selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['cohort_id'] = "${state.selectedVehicle["cohort_id"] ?? ''}";
     baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
     if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
-    baseBody['type'] = "inline";
     baseBody['platform'] = "TaskerApp";
     baseBody['sales_tax_percentage'] =
     taxIsTapped ? '' : percentageOrAmountController.text;
@@ -771,7 +844,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return baseBody;
   }
 
-
   Map<String, String> _saveExpenseData() {
     Map<String, String> baseBody = {};
     baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
@@ -789,6 +861,25 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     baseBody['platform'] = "TaskerApp";
     baseBody['employee_id'] = resourceId ?? '';
 
+    log(jsonEncode(baseBody), name: "Expense_Body");
+    return baseBody;
+  }
+
+  Map<String, String> _updateCategorys(dynamic expense) {
+    Map<String, String> baseBody = {};
+    baseBody['approved'] ='';
+    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? expense['category_id']??''}";
+    baseBody['cohort_id'] = "${expense["cohort_id"] ?? ''}";
+    baseBody['employee_id'] = resourceId ?? '';
+    baseBody['expense_amount'] = '${expense['expense_amount']??''}';
+    baseBody['expense_date'] = '${expense['expense_date']??''}';
+    baseBody['expense_description'] = '${expense['expense_description']??''}';
+    baseBody['expense_to'] = "${state.selectedCohorts?['id'] ??expense['expense_to'] ?? ''}";
+    baseBody['odometer'] = "${expense['odometer'] ?? ''}";
+    baseBody['payment_method_id'] = "${expense['payment_method_id'] ?? ''}";
+    baseBody['platform'] = "TaskerApp";
+    baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? expense['subcategory_id'] ?? ''}";
+    baseBody['vin'] = "${expense['vin'] ?? ''}";
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
@@ -840,8 +931,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   }
 
   /// API CALL: EDIT EXPENSE DETAILS
-  Future<VehicleExpenseHistoryResponse?> _getEditVehicleExpenseDetails(
-      dynamic expenseId) async {
+  Future<VehicleExpenseHistoryResponse?> _getEditVehicleExpenseDetails(dynamic expenseId) async {
     return await apiRepository.getEditVehicleExpense(id: expenseId);
   }
 
@@ -863,6 +953,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   /// API CALL: SUPPLIES
   Future<List<Map<String, dynamic>>?> _getSuppliesList() async {
     return await getIt<CommonService>().getSuppliesList();
+  }
+
+  /// API CALL: SUB CATEGORY EXPENSE TO
+  Future<SubCategoriesResponse?> _getSubCategoryExpenseTo() async {
+    return await apiRepository.getExpenseTo();
+  }
+
+  /// API CALL: SUB CATEGORY EXPENSE TO
+  Future<CohortsResponse?> _getCategoryData() async {
+    return await apiRepository.getExpenseCategories();
   }
 
   void calculateTotal() {
@@ -940,4 +1040,107 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     double totalAmount = subTotal + saleTax + shippingCost;
     totalAmountController.text = totalAmount.toStringAsFixed(2);
   }
+
+  List<Map<String, dynamic>> calculateApprovedAmounts(
+      List<Map<String, dynamic>> apiResponse,
+      List<Map<String, dynamic>> amountResponse) {
+    return apiResponse.map((e) {
+      var matchingAmounts = amountResponse
+          .where((element) => element['vin'] == e['vin'] && element['approved'] == 1)
+          .map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0).sum;
+      // num totalAmount = matchingAmounts.isNotEmpty
+      //     ? matchingAmounts.map((item) => num.tryParse(item['expense_amount'].toString()) ?? 0)
+      //     .fold(0, (a, b) => a + b)
+      //     : 0;
+      e["approved_amount"] = matchingAmounts;
+      return e;
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> employeeNames(
+      List<Map<String, dynamic>> apiResponse,
+      List<Map<String, dynamic>> usersList
+      ) {
+    return  apiResponse = apiResponse.map((e) {
+      e.putIfAbsent("employee_name", () {
+        var user = usersList.firstWhere(
+              (element) => element['id'] == e['employee_id'],
+          orElse: () => {},
+        );
+        return List<String>.from(
+            [user['first_name'] ?? "", user['last_name'] ?? ""])
+            .toInitial;
+      });
+      return e;
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> cohortList(List<Map<String, dynamic>> apiResponse,){
+    return apiResponse = apiResponse
+        .map((item) => item
+      ..['cohortList'] = [
+        {"id": "1", "name": "FairPy"},
+        {"id": "4", "name": "${item['cohort']['cohort']}"}
+      ])
+        .toList();
+  }
+
+  void _resetAll() async {
+    try {
+      emit(state.copyWith(isLoading: true));
+      Console.of.log("LOADING");
+      var startDate = DateTime.now()
+          .subtract(const Duration(days: 31))
+          .toFormat(format: 'yyyy-MM-dd');
+      var endDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
+
+      var expenseAmountResponse = await _getExpense(startDate, endDate);
+      var response = await _getExpense(minDate, maxDate);
+      var usersList = await getIt<CommonService>().getUsers();
+      var expenseCategories = await _getCategoryData();
+      var categories = expenseCategories?.expenseData;
+
+      ExpenseResponse? expenseResponse = response;
+      ExpenseResponse? expenseAmount = expenseAmountResponse;
+
+      var apiResponse = expenseResponse?.data;
+      var amountResponse = expenseAmount?.data;
+
+      apiResponse = calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
+
+      apiResponse = employeeNames(apiResponse, usersList);
+
+      apiResponse = cohortList(apiResponse);
+
+      apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+          .compareTo(DateTime.parse(a['created_at'] ?? '')));
+
+      List<dynamic> filteredResponse =
+      filterApprovedResponse(apiResponse, state.isExpenseApproved);
+
+      if (state.isExpenseApproved) {
+        approvedAmount = filteredResponse
+            .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+            .sum;
+      }
+      if (!state.isExpenseApproved) {
+        unApprovedAmount = filteredResponse
+            .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
+            .sum;
+      }
+
+      emit(state.copyWith(
+        isLoading: false,
+        apiResponse: apiResponse,
+        filteredResponse: filteredResponse,
+        categories: categories,
+        approvedAmount: approvedAmount,
+        unApprovedAmount: unApprovedAmount,
+      ));
+    } catch (e) {
+      log("$e", name: "Error In Bloc Value");
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
 }

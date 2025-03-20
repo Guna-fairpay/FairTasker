@@ -174,3 +174,40 @@ class UpdateExpenseEvent extends ExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class UpdateCategoryEvent extends ExpenseEvent {
+  final dynamic expenseData;
+  const UpdateCategoryEvent({required this.expenseData});
+  @override
+  List<Object?> get props => [expenseData,Random().nextDouble()];
+}
+
+class GetSubCategoryExpenseTo extends ExpenseEvent {
+  const GetSubCategoryExpenseTo();
+  @override
+  List<Object?> get props => [];
+}
+
+class SubcategoryDropdownEvent extends ExpenseEvent {
+  final dynamic selectedExpenseTo;
+  const SubcategoryDropdownEvent({required this.selectedExpenseTo});
+  @override
+  List<Object?> get props => [selectedExpenseTo, Random().nextDouble()];
+}
+
+class SaveSubcategory extends ExpenseEvent {
+  final String? name;
+  final String? expenseToId;
+  final String? categoryId;
+  const SaveSubcategory({required this.name, required this.expenseToId, required this.categoryId});
+  @override
+  List<Object?> get props => [name, expenseToId, categoryId,Random().nextDouble()];
+}
+
+class GetCategoryDropDownData extends ExpenseEvent {
+  const GetCategoryDropDownData();
+  @override
+  List<Object?> get props => [];
+}
+
+class RefreshEvent extends ExpenseEvent {}

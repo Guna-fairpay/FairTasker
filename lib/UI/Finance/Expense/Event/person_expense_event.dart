@@ -40,11 +40,11 @@ class DateRangeEvent extends PersonExpenseEvent {
 }
 
 class ApproveEvent extends PersonExpenseEvent {
-  final dynamic expenseId;
+  final dynamic model;
   final dynamic approved;
-  const ApproveEvent({required this.expenseId, required this.approved});
+  const ApproveEvent({required this.model, required this.approved});
   @override
-  List<Object?> get props => [expenseId, approved];
+  List<Object?> get props => [model, approved];
 }
 
 class DeletePersonExpenseEvent extends PersonExpenseEvent {
@@ -104,6 +104,13 @@ class PaymentDropDownEvent extends PersonExpenseEvent {
   List<Object?> get props => [paymentType, Random().nextDouble()];
 }
 
+class ApprovedDropDownEvent extends PersonExpenseEvent {
+  final dynamic selectedApproved;
+  const ApprovedDropDownEvent({required this.selectedApproved});
+  @override
+  List<Object?> get props => [selectedApproved, Random().nextDouble()];
+}
+
 class PickImageEvent extends PersonExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
@@ -123,10 +130,11 @@ class DateChangeEvent extends PersonExpenseEvent {
   List<Object?> get props => [selectedDate];
 }
 
-class SaveExpenseEvent extends PersonExpenseEvent {
-  const SaveExpenseEvent();
+class SavePersonExpenseEvent extends PersonExpenseEvent {
+  final String? id;
+  const SavePersonExpenseEvent({this.id});
   @override
-  List<Object?> get props => [Random().nextDouble()];
+  List<Object?> get props => [id];
 }
 
 class UpdateExpenseEvent extends PersonExpenseEvent {
@@ -134,3 +142,11 @@ class UpdateExpenseEvent extends PersonExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class GetPersonExpenseHistory extends PersonExpenseEvent {
+  final String? userId;
+  const GetPersonExpenseHistory({required this.userId});
+  @override
+  List<Object?> get props => [userId,];
+}
+

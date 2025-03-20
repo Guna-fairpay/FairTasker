@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/Utils.dart';
@@ -12,7 +11,7 @@ class CohortDialog {
 
   static void show(
     BuildContext context, {
-      required dynamic expense,
+    required dynamic expense,
   }) async {
     await showDialog(
         context: context,
@@ -20,75 +19,82 @@ class CohortDialog {
           return BlocProvider.value(
             value: BlocProvider.of<ExpenseBloc>(context),
             child: _CohortDialog(
-              expense: expense,),
-          );});
+              expense: expense,
+            ),
+          );
+        });
   }
 }
 
 class _CohortDialog extends StatelessWidget {
   final dynamic expense;
 
-  const _CohortDialog(
-      {required this.expense,});
+  const _CohortDialog({
+    required this.expense,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExpenseBloc, ExpenseState>(
-        builder: (context, state)  {
-          return Dialog(
-            backgroundColor: AppC.white,
-            insetPadding: const EdgeInsets.all(10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: SafeArea(
-              minimum: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-              child: Column(
-                spacing: 10,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
+      return Dialog(
+        backgroundColor: AppC.white,
+        insetPadding: const EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: SafeArea(
+          minimum: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          child: Column(
+            spacing: 10,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Utils.getText(
-                          expense['vehicle']?['vehicle_name'] ?? '',
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                      Utils.getText(
-                        '\$${expense['expense_amount'] ?? ''}',
-                        weight: FontWeight.w700,
-                      ),
-                    ],
+                  Expanded(
+                    child: Utils.getText(
+                      expense['vehicle']?['vehicle_name'] ?? '',
+                      weight: FontWeight.w700,
+                    ),
                   ),
-                  Utils.getText('Cohort', weight: FontWeight.w300),
-                  Utils.dropdownBox(
-                    'Select Cohort',
-                    state.cohorts,
-                        (value) =>
-                        context.read<ExpenseBloc>().add(
-                          CohortListEvent(selectedCohort: value),
-                        ),
-                    labelKey: 'name',
-                    initialSelection: state.selectedCohorts,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    spacing: 10,
-                    children: [
-                      Utils.getElevatedButton(text: 'Save', () {}),
-                      Utils.getElevatedButton(
-                          text: 'Cancel',
-                          () => Navigator.pop(context),
-                          bgColor: AppC.redAccent),
-                    ],
+                  Utils.getText(
+                    '\$${expense['expense_amount'] ?? ''}',
+                    weight: FontWeight.w700,
                   ),
                 ],
               ),
-            ),
-          );
-        }
-    );
+              Utils.getText('Cohort', weight: FontWeight.w300),
+              Utils.dropdownBox(
+                'Select Cohort',
+                state.cohorts,
+                (value) => context.read<ExpenseBloc>().add(
+                      CohortListEvent(selectedCohort: value),
+                    ),
+                labelKey: 'name',
+                initialSelection: state.selectedCohorts,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: 10,
+                children: [
+                  Utils.getElevatedButton(
+                      text: 'Save',
+                      () { context
+                          .read<ExpenseBloc>()
+                          .add(UpdateCategoryEvent(expenseData: expense));
+                          Navigator.pop(context);
+                      },
+                  ),
+                  Utils.getElevatedButton(
+                      text: 'Cancel',
+                      () => Navigator.pop(context),
+                      bgColor: AppC.redAccent),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

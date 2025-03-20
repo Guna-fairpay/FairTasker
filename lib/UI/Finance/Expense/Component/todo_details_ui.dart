@@ -1,6 +1,6 @@
 
 import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
-import 'package:fairpytasker/UI/Finance/Expense/UI/Vehicle/task_details_view.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Component/task_details_view.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -8,8 +8,8 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../Bloc/expense_bloc.dart';
-import '../../State/expense_state.dart';
+import '../Bloc/expense_bloc.dart';
+import '../State/expense_state.dart';
 
 class TodoDetailsUI extends StatelessWidget {
   const TodoDetailsUI({super.key});

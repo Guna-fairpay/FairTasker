@@ -1,4 +1,5 @@
 import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_edit_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_history_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -11,22 +12,20 @@ class ExpensePersonListItem extends StatelessWidget {
   final Map<String, dynamic> expense;
   final void Function(String? value) onDelete;
   final void Function(bool? value)? onChanged;
+  final List <dynamic> employeeList;
 
   const ExpensePersonListItem({
     super.key,
     required this.expense,
     required this.onDelete,
     required this.onChanged,
+    required this.employeeList,
   });
 
   @override
   Widget build(BuildContext context) {
     Color approveColor = expense['approved'] == 1 ? AppC.black : AppC.redAccent;
-    final cohort = expense['expense_to'] == 1
-        ? "${expense['expense_to_data']['expense_to'] ?? ''}"
-        : expense['expense_to'] == 4
-            ? '${expense['cohort']?['cohort'] ?? ''}'
-            : "";
+
 
     Color categoryColor = (expense['payment_method_id']).toString() == '4'
         ? const Color(0xFF13b3b3)
@@ -36,6 +35,8 @@ class ExpensePersonListItem extends StatelessWidget {
 
     List<dynamic> expenseImages =
         images.map((e) => e['path'].toString().toStorageURL).toList();
+
+    dynamic user = employeeList.firstWhere((element) => element['id'].toString() == expense['employee_id'].toString());
 
     return Dismissible(
       key: UniqueKey(),
@@ -89,7 +90,8 @@ class ExpensePersonListItem extends StatelessWidget {
                                 ),
                               )),
                           child: Utils.getText(
-                              "${expense['employee_name'] ?? ''}",
+                              "${user['first_name']??''} "
+                                  "${user['last_name']??''}",
                               overFlow: TextOverflow.ellipsis,
                               color: approveColor,
                               weight: FontWeight.bold),
@@ -115,7 +117,8 @@ class ExpensePersonListItem extends StatelessWidget {
                 10.width,
                 Expanded(
                   child: Utils.getText(
-                    expense['employee_name'].toString().getInitials(),
+                   "${user['first_name'].toString().getInitials()}"
+                       "${user['last_name'].toString().getInitials()}",
                     color: approveColor,
                     weight: FontWeight.bold,
                   ),
@@ -176,10 +179,20 @@ class ExpensePersonListItem extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Utils.getText(
-                        "\$${double.tryParse(expense['expense_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
-                        weight: FontWeight.bold,
-                        overFlow: TextOverflow.ellipsis,
+                      InkWell(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PersonExpenseHistoryUI(
+                                userId: expense['employee_id'].toString(),
+                                userName: "${user['first_name']??''} "
+                                    "${user['last_name']??''}",
+                              ))),
+                        child: Utils.getText(
+                          "\$${double.tryParse(expense['approved_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                          weight: FontWeight.bold,
+                          overFlow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

@@ -13,6 +13,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -235,6 +236,11 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               child: Utils.getTextFormField(
                                 'Amount in dollars',
                                 context.read<ExpenseBloc>().amountController,
+                                textType: TextInputType.numberWithOptions(decimal: true),
+                                inputAction: TextInputAction.done,
+                                textInputFormatter:[
+                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                                ],
                               ),
                             ),
                             10.width,
@@ -252,6 +258,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         Utils.getTextFormField(
                           'Enter Description',
                           context.read<ExpenseBloc>().descriptionController,
+                          inputAction: TextInputAction.done,
                         ),
                         10.height,
                         Utils.dropdownBox(

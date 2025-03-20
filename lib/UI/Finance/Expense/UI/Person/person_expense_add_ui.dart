@@ -1,9 +1,12 @@
+import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Bloc/person_expense_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Event/person_expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/State/persion_expense_state.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_view_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/expense_tap_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -12,7 +15,9 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -51,8 +56,12 @@ class PersonExpenseAddUI extends StatelessWidget {
                     children: [
                       Expanded(
                           child: Utils.dropdownBox(
-                              "Select Person", [], (value) {},
-                              labelKey: '')),
+                              "Select Person",
+                              state.persons,
+                              (value) => context.read<PersonExpenseBloc>().add(
+                                  PersonDropDownEvent(selectedPerson: value)),
+                              labelKey: 'first_name',
+                              labelKey2: 'last_name')),
                       Expanded(
                         child: CustomDateTimePicker<DateTime>(
                           controller:
@@ -75,12 +84,20 @@ class PersonExpenseAddUI extends StatelessWidget {
                     children: [
                       Expanded(
                           child: Utils.dropdownBox(
-                              "Select Category", [], (value) {},
-                              labelKey: '')),
+                              "Select Category",
+                              state.categories,
+                              (value) => context.read<PersonExpenseBloc>().add(
+                                  CategoryDropDownEvent(
+                                      selectedCategory: value)),
+                              labelKey: 'name')),
                       Expanded(
                           child: Utils.dropdownBox(
-                              "Select Sub Category", [], (value) {},
-                              labelKey: '')),
+                              "Select Sub Category",
+                              state.subCategories,
+                              (value) => context.read<PersonExpenseBloc>().add(
+                                  SubCategoryDropDownEvent(
+                                      selectedSubCategory: value)),
+                              labelKey: 'name')),
                     ],
                   ),
                   15.height,
@@ -88,13 +105,24 @@ class PersonExpenseAddUI extends StatelessWidget {
                     children: [
                       Expanded(
                           child: Utils.dropdownBox(
-                              "Select Expense To", [], (value) {},
-                              labelKey: '')),
+                        "Select Expense To",
+                        state.cohorts,
+                        (value) => context
+                            .read<PersonExpenseBloc>()
+                            .add(CohortDropDownEvent(selectedCohort: value)),
+                        labelKey: 'name',
+                        initialSelection: state.selectedCohorts,
+                      )),
                       20.width,
                       Expanded(
                           child: Utils.getTextFormField(
                         "Expense Amount",
                         context.read<PersonExpenseBloc>().amountController,
+                            textType: const TextInputType.numberWithOptions(decimal: true),
+                            inputAction: TextInputAction.done,
+                            textInputFormatter:[
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                            ],
                       )),
                     ],
                   ),
@@ -104,12 +132,19 @@ class PersonExpenseAddUI extends StatelessWidget {
                     children: [
                       Expanded(
                           child: Utils.dropdownBox(
-                              "Select Payment Type", [], (value) {},
-                              labelKey: '')),
+                              "Select Payment Type",
+                              state.paymentType,
+                              (value) => context.read<PersonExpenseBloc>().add(
+                                  PaymentDropDownEvent(paymentType: value)),
+                              labelKey: 'name')),
                       Expanded(
                           child: Utils.dropdownBox(
-                              "Select Person", [], (value) {},
-                              labelKey: '')),
+                              "Select Approved Status",
+                              state.approved,
+                              (value) => context.read<PersonExpenseBloc>().add(
+                                  ApprovedDropDownEvent(
+                                      selectedApproved: value)),
+                              labelKey: 'name')),
                     ],
                   ),
                   20.height,
@@ -199,7 +234,31 @@ class PersonExpenseAddUI extends StatelessWidget {
                       ),
                     ),
                   15.height,
-                  Utils.getElevatedButton(() {})
+                  Utils.getElevatedButton(() {
+                    if (state.selectedPerson.isEmpty) {
+                      return Toaster.showError("Please select person");
+                    }
+                    if (state.selectedCategory.isEmpty) {
+                      return Toaster.showError("Please select category");
+                    }
+                    if (state.selectedSubCategory.isEmpty) {
+                      return Toaster.showError("Please select subCategory");
+                    }
+                    if (state.selectedCohorts.isEmpty) {
+                      return Toaster.showError("Please select expenseTo");
+                    }
+                    if (context.read<PersonExpenseBloc>().amountController.text.isEmpty) {
+                      return Toaster.showError("Please enter amount");
+                    }
+                    if (state.selectedPaymentType.isEmpty) {
+                      return Toaster.showError("Please select payment type");
+                    }
+                    if (state.selectedApproved.isEmpty) {
+                      return Toaster.showError("Please select approved status");
+                    }
+                    context.read<PersonExpenseBloc>().add(const SavePersonExpenseEvent());
+                    //context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
+                  }),
                 ],
               ),
             ),

@@ -590,6 +590,14 @@ class Utils {
         readOnly: readOnly,
         maxLength: maxLength,
         obscureText: obscure,
+        //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+        //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+        // onTapOutside: (event) {
+        //   focusNode?.unfocus();
+        //   Future.delayed(Duration(milliseconds: 100), () {
+        //     controller.selection = TextSelection.collapsed(offset: 0);
+        //   });
+        // },
         textCapitalization: TextCapitalization.sentences,
         inputFormatters: textInputFormatter,
         textAlign: textAlign,

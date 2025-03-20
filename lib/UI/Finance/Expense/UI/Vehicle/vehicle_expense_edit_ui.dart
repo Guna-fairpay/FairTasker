@@ -5,8 +5,8 @@ import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Event/expense_event.dart';
-import 'package:fairpytasker/UI/Finance/Expense/UI/Vehicle/split_expense.dart';
-import 'package:fairpytasker/UI/Finance/Expense/UI/Vehicle/todo_details_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Component/split_expense.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Component/todo_details_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -16,6 +16,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -266,6 +267,11 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                             child: Utils.getTextFormField(
                               'Amount in dollars',
                               context.read<ExpenseBloc>().amountController,
+                              textType: TextInputType.numberWithOptions(decimal: true),
+                              inputAction: TextInputAction.done,
+                              textInputFormatter:[
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                              ],
                             ),
                           ),
                           Expanded(
@@ -284,6 +290,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                       Utils.getTextFormField(
                         'Enter Description',
                         context.read<ExpenseBloc>().descriptionController,
+                        inputAction: TextInputAction.done,
                       ),
                       10.height,
                       Utils.dropdownBox(

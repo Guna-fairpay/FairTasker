@@ -36,6 +36,9 @@ class ExpenseState extends Equatable{
   final List<dynamic> splitExpense;
   final String categoryName;
   final String subCategoryName;
+  final List<dynamic> expenseTo;
+  final dynamic selectedExpenseTo;
+  final bool pop;
 
   const ExpenseState({
     required this.apiResponse,
@@ -69,6 +72,9 @@ class ExpenseState extends Equatable{
     required this.splitExpense,
     required this.categoryName,
     required this.subCategoryName,
+    required this.expenseTo,
+    required this.selectedExpenseTo,
+    required this.pop,
   });
 
   ExpenseState copyWith({
@@ -103,6 +109,10 @@ class ExpenseState extends Equatable{
     List<dynamic>? splitExpense,
     String? categoryName,
     String? subCategoryName,
+    List<dynamic>? expenseTo,
+    dynamic selectedExpenseTo,
+    bool? pop,
+
   }){
     return ExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -136,6 +146,9 @@ class ExpenseState extends Equatable{
       splitExpense: splitExpense ?? this.splitExpense,
       categoryName: categoryName ?? this.categoryName,
       subCategoryName: subCategoryName ?? this.subCategoryName,
+      expenseTo: expenseTo ?? this.expenseTo,
+      selectedExpenseTo: selectedExpenseTo ?? this.selectedExpenseTo,
+      pop: pop ?? this.pop,
     );
   }
 
@@ -172,6 +185,9 @@ class ExpenseState extends Equatable{
     splitExpense,
     categoryName,
     subCategoryName,
+    expenseTo,
+    selectedExpenseTo,
+    pop,
     Random().nextDouble()
   ];
 

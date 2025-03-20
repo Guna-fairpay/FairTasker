@@ -13,7 +13,9 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -39,8 +41,29 @@ class PersonExpenseEditUI extends StatelessWidget {
                   backgroundColor: AppC.appColor,
                   actions: [
                     IconButton(
+                        onPressed: () {
+                          AskPermissionDialog.show(context,
+                              title: "Are you sure?",
+                              description: "Do you want to delete this Expense?",
+                              positiveText: "Yes, delete it!",
+                              negativeText: "Cancel",
+                              isReasonRequired: false,
+                              onPositivePressed: () {
+                                context
+                                    .read<PersonExpenseBloc>()
+                                    .add(DeletePersonExpenseEvent(id: id,isEditPage: true));
+                                // Future.delayed(
+                                //   const Duration(seconds: 1),
+                                //       () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',)),
+                                // );
+                              });
+                        },
+                        icon: Icon(Icons.delete_outline)
+                    ),
+                    IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(Icons.close))
+                        icon: Icon(Icons.close)
+                    ),
                   ],
                 ),
                 body: SafeArea(
@@ -52,8 +75,13 @@ class PersonExpenseEditUI extends StatelessWidget {
                         children: [
                           Expanded(
                               child: Utils.dropdownBox(
-                                  "Select Person", [], (value) {},
-                                  labelKey: '')),
+                                  "Select Person",
+                                  state.persons,
+                                      (value) =>context.read<PersonExpenseBloc>().add(PersonDropDownEvent(selectedPerson: value)),
+                                  labelKey: 'first_name',
+                                  labelKey2: 'last_name',
+                                initialSelection: state.selectedPerson,
+                              )),
                           Expanded(
                             child: CustomDateTimePicker<DateTime>(
                               controller:
@@ -76,12 +104,19 @@ class PersonExpenseEditUI extends StatelessWidget {
                         children: [
                           Expanded(
                               child: Utils.dropdownBox(
-                                  "Select Category", [], (value) {},
-                                  labelKey: '')),
+                                  "Select Category",
+                                  state.categories,
+                                      (value) =>context.read<PersonExpenseBloc>().add(CategoryDropDownEvent(selectedCategory: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedCategory,
+                              )),
                           Expanded(
-                              child: Utils.dropdownBox(
-                                  "Select Sub Category", [], (value) {},
-                                  labelKey: '')),
+                              child: Utils.dropdownBox("Select Sub Category",
+                                  state.subCategories,
+                                      (value) =>context.read<PersonExpenseBloc>().add(SubCategoryDropDownEvent(selectedSubCategory: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedSubCategory,
+                              )),
                         ],
                       ),
                       15.height,
@@ -89,13 +124,23 @@ class PersonExpenseEditUI extends StatelessWidget {
                         children: [
                           Expanded(
                               child: Utils.dropdownBox(
-                                  "Select Expense To", [], (value) {},
-                                  labelKey: '')),
+                                "Select Expense To",
+                                state.cohorts,
+                                    (value) =>context.read<PersonExpenseBloc>().add(CohortDropDownEvent(selectedCohort: value)),
+                                labelKey: 'name',
+                                initialSelection: state.selectedCohorts,
+
+                              )),
                           20.width,
                           Expanded(
                               child: Utils.getTextFormField(
                                 "Expense Amount",
                                 context.read<PersonExpenseBloc>().amountController,
+                                textType: TextInputType.numberWithOptions(decimal: true),
+                                inputAction: TextInputAction.done,
+                                textInputFormatter:[
+                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                                ],
                               )),
                         ],
                       ),
@@ -104,13 +149,19 @@ class PersonExpenseEditUI extends StatelessWidget {
                         spacing: 20,
                         children: [
                           Expanded(
-                              child: Utils.dropdownBox(
-                                  "Select Payment Type", [], (value) {},
-                                  labelKey: '')),
+                              child: Utils.dropdownBox("Select Payment Type",
+                                  state.paymentType,
+                                      (value) =>context.read<PersonExpenseBloc>().add(PaymentDropDownEvent(paymentType: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedPaymentType
+                              )),
                           Expanded(
-                              child: Utils.dropdownBox(
-                                  "Select Person", [], (value) {},
-                                  labelKey: '')),
+                              child: Utils.dropdownBox("Select Approved Status",
+                                  state.approved,
+                                      (value) =>context.read<PersonExpenseBloc>().add(ApprovedDropDownEvent(selectedApproved: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedApproved
+                              )),
                         ],
                       ),
                       20.height,
@@ -200,7 +251,29 @@ class PersonExpenseEditUI extends StatelessWidget {
                           ),
                         ),
                       15.height,
-                      Utils.getElevatedButton(() {})
+                      Utils.getElevatedButton((){
+                        if (state.selectedPerson.isEmpty) {
+                          return Toaster.showError("Please select person");
+                        }
+                        if (state.selectedCategory.isEmpty) {
+                          return Toaster.showError("Please select category");
+                        }
+                        if (state.selectedSubCategory.isEmpty) {
+                          return Toaster.showError("Please select subCategory");
+                        }
+                        if (state.selectedCohorts.isEmpty) {
+                          return Toaster.showError("Please select expenseTo");
+                        }
+                        if (context.read<PersonExpenseBloc>().amountController.text.isEmpty) {
+                          return Toaster.showError("Please enter amount");
+                        }
+                        if (state.selectedPaymentType.isEmpty) {
+                          return Toaster.showError("Please select payment type");
+                        }
+                        if (state.selectedApproved.isEmpty) {
+                          return Toaster.showError("Please select approved status");
+                        }
+                        context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));})
                     ],
                   ),
                 ),
