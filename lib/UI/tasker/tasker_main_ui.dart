@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_completed_time_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_filter_resource_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_move_previous_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_change_dialog.dart';
@@ -46,7 +47,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerMicState(): Toaster.showInfo("MIC PRESSED"); break;
             case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoReworkUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
             case ToDoTaskerEditState(): context.push(EditTodoReworkUI(todoId: state.toDoId),fullscreenDialog: true); break;
-            case ToDoTaskerTapUserFilterState(): break;
+            case ToDoTaskerTapUserFilterState(): TaskerFilterResourceDialog.show(context); break;
             case ToDoTaskerTapVehicleFilterState(): TaskerVehicleSearchDialog.show(context); break;
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;
             case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes'], onSave: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveNotesEvent(state.model, value))); break;
