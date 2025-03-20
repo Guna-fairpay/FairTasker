@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
-import 'package:flutter/material.dart' show TextEditingController;
+import 'package:flutter/material.dart' show TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -44,6 +47,16 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerAddressTapEvent>(_onAddressTapEvent);
     on<ToDoTaskerPartsTapEvent>(_onPartsTapEvent);
     on<ToDoTaskerSuppliesTapEvent>(_onSuppliesTapEvent);
+    on<ToDoTaskerCompleteEvent>(_onCompleteEvent);
+    on<ToDoTaskerPreviousEvent>(_onPreviousEvent);
+    on<ToDoTaskerMoveTomorrowEvent>(_onMoveTomorrowEvent);
+    on<ToDoTaskerDateChangeTapEvent>(_onDateChangeTapEvent);
+    on<ToDoTaskerDateChangeEvent>(_onDateChangeEvent);
+    on<ToDoTaskerCompletedTimeTapEvent>(_onCompletedTimeTapEvent);
+    on<ToDoTaskerCompletedTimeChangeEvent>(_onCompletedTimeChangeEvent);
+    on<ToDoTaskerTimePickerTapEvent>(_onTimePickerTapEvent);
+    on<ToDoTaskerTimeChangeEvent>(_onTimeChangeEvent);
+    on<ToDoTaskerSavePartsSuppliesEvent>(_onSavePartsSuppliesEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -51,6 +64,25 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           {String? resourceId}) async =>
       await _toDoProcessor.getToDoList(selectedDate, isCompleted,
           resourceId: resourceId);
+
+  Future<Map<String, dynamic>?> _changeToMorrow({
+    required List<String> todoIds,
+    dynamic groupId,
+    required String groupName,
+    DateTime? date,
+    TimeOfDay? time,
+  }) async =>
+      await _aPiRepository.changeToDoByGroup(
+          todoList: todoIds,
+          groupId: groupId,
+          groupName: groupName,
+          date: date,
+          time: time);
+
+  Future<Map<String, dynamic>?> _updateToDo(
+          {required Map<String, dynamic> body,
+          required dynamic todoId}) async =>
+      await _aPiRepository.updateToDo(body: body, toDoId: todoId);
 
   /* END: API CALLS */
 
@@ -173,64 +205,241 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     emit(ToDoTaskerEditState(event.toDoId));
   }
 
-  void _onTapUserFilterEvent(ToDoTaskerTapUserFilterEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onTapUserFilterEvent(
+      ToDoTaskerTapUserFilterEvent event, Emitter<ToDoTaskerState> emit) {
     isUserSelected = !isUserSelected;
     emit(ToDoTaskerTapUserFilterState(event.details));
   }
 
-  void _onTapVehicleFilterEvent(ToDoTaskerTapVehicleFilterEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onTapVehicleFilterEvent(
+      ToDoTaskerTapVehicleFilterEvent event, Emitter<ToDoTaskerState> emit) {
     isFilterSelected = !isFilterSelected;
     emit(ToDoTaskerTapVehicleFilterState(event.details));
   }
 
-  void _onVendorInfoEvent(ToDoTaskerVendorInfoEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onVendorInfoEvent(
+      ToDoTaskerVendorInfoEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerVendorInfoState(event.model));
   }
 
-  void _onViewNotesEvent(ToDoTaskerViewNotesEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onViewNotesEvent(
+      ToDoTaskerViewNotesEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerNotesTapState(event.model));
   }
 
-  void _onSaveNotesEvent(ToDoTaskerSaveNotesEvent event, Emitter<ToDoTaskerState> emit) {
-    var model = event.model;
-    var existingNotes = model?['notes'];
-    if (existingNotes != event.notes) {
-      // NEW NOTES ARRIVED
-      event.model
-        ?..['notes'] = event.notes
-        ..['display']?['notes'] = event.notes;
-      unfiltered = unfiltered.map((e) {
-        if (e['id'] == model?['id']) {
-          return e
-            ..['notes'] = event.notes
+  void _onSaveNotesEvent(
+      ToDoTaskerSaveNotesEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var existingNotes = model?['notes'];
+      if (existingNotes != event.notes) {
+        // NEW NOTES ARRIVED
+        event.model
+          ?..['notes'] = event.notes
+          ..['display']?['notes'] = event.notes;
+        unfiltered = unfiltered.map((e) {
+          if (e['id'] == model?['id']) {
+            return e
+              ..['notes'] = event.notes
               ..['display']?['notes'] = event.notes;
-        } else {
-          return e;
+          } else {
+            return e;
+          }
+        }).toList();
+        toDos = unfiltered;
+        // TODO: CALL API TO UPDATE
+        Map<String, dynamic> body = {
+          "notes": event.notes,
+        };
+        emit(ToDoTaskerLoadingState());
+        var response = await _updateToDo(body: body, todoId: model?['id']);
+        if (response != null) {
+          _reFetchToDos();
         }
-      }).toList();
-      toDos = unfiltered;
-      // TODO: CALL API TO UPDATE
-      emit(ToDoTaskerCommonState());
+        emit(ToDoTaskerCommonState());
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
     }
   }
 
-  void _onVehiclePersonTapEvent(ToDoTaskerVehiclePersonTapEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onVehiclePersonTapEvent(
+      ToDoTaskerVehiclePersonTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerVehiclePersonTapState(event.model));
   }
 
-  void _onResourceTapEvent(ToDoTaskerResourceTapEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onResourceTapEvent(
+      ToDoTaskerResourceTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerResourceTapState(event.model));
   }
 
-  void _onAddressTapEvent(ToDoTaskerAddressTapEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onAddressTapEvent(
+      ToDoTaskerAddressTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerAddressTapState(event.model));
   }
 
-  void _onPartsTapEvent(ToDoTaskerPartsTapEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onPartsTapEvent(
+      ToDoTaskerPartsTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerPartsTapState(event.model));
   }
 
-  void _onSuppliesTapEvent(ToDoTaskerSuppliesTapEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onSuppliesTapEvent(
+      ToDoTaskerSuppliesTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerSuppliesTapState(event.model));
+  }
+
+  void _onPreviousEvent(
+      ToDoTaskerPreviousEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerPreviousState(event.model, toDos));
+  }
+
+  void _onCompleteEvent(
+      ToDoTaskerCompleteEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerCompleteState(event.model));
+  }
+
+  void _onMoveTomorrowEvent(
+      ToDoTaskerMoveTomorrowEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var dateTime = event.selectedDate;
+      var time = event.selectedTime;
+      var models = event.model?.map((e) => e['id'].toString()).toList() ?? [];
+      var groupIds = event.model
+          ?.where((element) => element['group_id'].toString().isNotNullOrEmpty)
+          .map((e) => e['group_id'] ?? "")
+          .toList();
+      groupIds = groupIds.unique((element) => element);
+      groupIds.removeWhere((element) => element.toString().isNullOrEmpty);
+      var groupId = (groupIds.length > 1) ? null : groupIds.firstOrNull;
+      var groupName =
+          "${_toDoProcessor.userId}_${dateTime.year}_${dateTime.month}_${dateTime.day}_${time.hour.toString().padLeft(2, '0')}_${time.minute.toString().padLeft(2, '0')}_00";
+      if (models.isNotEmpty) {
+        emit(ToDoTaskerLoadingState());
+        var response = await _changeToMorrow(
+            todoIds: models,
+            groupId: groupId,
+            groupName: groupName,
+            date: dateTime,
+            time: time);
+        if (response != null) {
+          Console.of.log(
+              "MOVE_TO_MORROW:\t$models $groupName $groupId $dateTime $time $response");
+          _reFetchToDos();
+        }
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onDateChangeTapEvent(
+      ToDoTaskerDateChangeTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerDateChangeTapState(event.model));
+  }
+
+  void _onDateChangeEvent(
+      ToDoTaskerDateChangeEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var date = event.selectedDate;
+      var mapData = {
+        "todo_date": date.toFormat(),
+      };
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      if (response != null) {
+        _reFetchToDos();
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onCompletedTimeTapEvent(
+      ToDoTaskerCompletedTimeTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerCompletedTimeTapState(event.model));
+  }
+
+  void _onCompletedTimeChangeEvent(ToDoTaskerCompletedTimeChangeEvent event,
+      Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var timeTaken = event.timeTaken;
+      var reason = event.reason;
+      var mapData = {
+        "complete_time_approved": 0,
+        "complete_time_taken": timeTaken,
+        "notes_complete": reason
+      };
+      var isDifferent = (model?['display']?['completed_time'] != timeTaken);
+      if (isDifferent) {
+        emit(ToDoTaskerLoadingState());
+        var response = await _updateToDo(body: mapData, todoId: model?['id']);
+        if (response != null) {
+          _reFetchToDos();
+        }
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onTimePickerTapEvent(
+      ToDoTaskerTimePickerTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerTimePickerTapState(event.model));
+  }
+
+  void _onTimeChangeEvent(
+      ToDoTaskerTimeChangeEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var time = event.selectedTime;
+      var mapData = {
+        "todo_time": time.toHMS(),
+      };
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      if (response != null) {
+        _reFetchToDos();
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onSavePartsSuppliesEvent(ToDoTaskerSavePartsSuppliesEvent event, Emitter<ToDoTaskerState> emit) {
+    var model = event.model;
+    var parts = event.parts;
+    var supplies = event.supplies;
+    var modelPartIds = List<Map<String, dynamic>>.from(model?['parts'] ?? [])
+        .map((e) => e['parts_id'])
+        .toList();
+    var modelSupplyIds = List<Map<String, dynamic>>.from(
+        model?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
+    var uploadParts = parts?.where((element) =>
+    !modelPartIds.contains(element['id'].toString())).toList();
+    var uploadSupplies = supplies?.where((element) =>
+    !modelSupplyIds.contains(element['id'].toString())).toList();
+    if (((uploadParts?.isNotEmpty ?? false) ||
+        (uploadSupplies?.isNotEmpty ?? false))) {
+      Map<String, dynamic> body = {};
+      if (uploadParts != null && (uploadParts.isNotEmpty ?? false)) {
+        var partMap = uploadParts.map((e) =>
+        {
+          "parts_id": e['id'],
+          "parts_name": e['name']
+        });
+        partMap.forEach((element) => body.addAll(element));
+      }
+
+      if (uploadSupplies != null && (uploadSupplies.isNotEmpty ?? false)) {
+        var supplyMap = uploadSupplies.map((e) =>
+        {
+          "supplies_id": e['id'],
+          "supplies_name": e['name']
+        });
+        supplyMap.forEach((element) => body.addAll(element));
+      }
+    }
   }
 }

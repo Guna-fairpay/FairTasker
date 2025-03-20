@@ -3,6 +3,8 @@ import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_completed_time_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_move_previous_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_change_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_dialog.dart';
@@ -14,6 +16,7 @@ import 'package:fairpytasker/UI/tasker/sub_pages/tasker_listing_ui.dart';
 import 'package:fairpytasker/UI/tasker/task_components/tasker_header.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +30,7 @@ class TaskerMainUi extends StatelessWidget {
     return BlocProvider<ToDoTaskerBloc>(create: (_) => ToDoTaskerBloc()..add(ToDoTaskerInitialEvent()),
       child: BlocListener<ToDoTaskerBloc, ToDoTaskerState>(listener: (context, state) {
         if (state is ToDoTaskerLoadingState) {
-          EasyLoading.show();
+          if (!EasyLoading.isShow) EasyLoading.show();
         } else {
           if (EasyLoading.isShow) EasyLoading.dismiss();
           switch (state) {
@@ -44,8 +47,13 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVehiclePersonTapState(): TaskerVehiclesChangeDialog.show(context, state.model); break;
             case ToDoTaskerResourceTapState(): TaskerResourceDialog.show(context, state.model); break;
             case ToDoTaskerAddressTapState(): TaskerAddressChangeDialog.show(context, state.model); break;
-            case ToDoTaskerPartsTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: true); break;
-            case ToDoTaskerSuppliesTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: false); break;
+            case ToDoTaskerPartsTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: true, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSavePartsSuppliesEvent(model: state.model, parts: value))); break;
+            case ToDoTaskerSuppliesTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: false, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSavePartsSuppliesEvent(model: state.model, supplies: value))); break;
+            case ToDoTaskerCompleteState(): break;
+            case ToDoTaskerPreviousState(): TaskerMovePreviousDialog.show(context, state.model, state.models, onChanged: (models, date, time) => context.read<ToDoTaskerBloc>().add(ToDoTaskerMoveTomorrowEvent(models, date, time))); break;
+            case ToDoTaskerDateChangeTapState(): Utils.showPickerDate(context, value: state.model?['todo_date'].toString().toDateTime(), onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateChangeEvent(val, state.model))); break;
+            case ToDoTaskerCompletedTimeTapState(): TaskerCompletedTimeDialog.show(context, state.model, onChanged: (timeTaken, reason) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompletedTimeChangeEvent(state.model, timeTaken, reason))); break;
+            case ToDoTaskerTimePickerTapState(): break;
             default: break;
           }
         }

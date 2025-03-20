@@ -22,7 +22,7 @@ class ToDoProcessor {
 
   final APiRepository _aPiRepository = APiRepository();
 
-  String? get _userId => Session.of.getString(Str.userIdPrefText);
+  String? get userId => Session.of.getString(Str.userIdPrefText);
 
   Future<void> initialize() async {
     var response = await Future.wait([
@@ -80,7 +80,7 @@ class ToDoProcessor {
     var checkIO = ["Check In", "Check Out"];
     var checkInOut = data
         .where((element) => checkIO.contains(element['title']))
-        .where((element) => element['user_id'] == _userId)
+        .where((element) => element['user_id'] == userId)
         .toList();
     data.removeWhere((element) => checkIO.contains(element['title']));
     data.addAll(checkInOut);

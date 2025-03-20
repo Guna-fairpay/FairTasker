@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -68,6 +69,22 @@ class ApiClient {
         "lastImageIndex": lastImageIndex,
         "lastVideoIndex": lastVideoIndex
       });
+      return response;
+    } else {
+      Utils.showMobileToast(Str.checkInternetConnectionAlert);
+      return null;
+    }
+  }
+
+  Future<http.Response?> callPostMethodWithRawBody(String url,
+      {Map<String, dynamic>? body}) async {
+    if (await Utils.connection()) {
+      http.Response response = await compute(_postRawJsonCompute, {
+        "url": Uri.parse(url),
+        "token": Utils.getHeadersWithToken(url: url),
+        "fields": body,
+      });
+      Console.of.log(jsonEncode(body));
       return response;
     } else {
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -182,6 +199,15 @@ class ApiClient {
       ..headers.addAll(message['token'])
       ..fields.addAll(message['fields'])
       ..files.addAll(multiPartFiles);
+    var streamedResponse = await client.send(request);
+    var response = await streamedResponse.stream.bytesToString();
+    return http.Response(response, streamedResponse.statusCode);
+  }
+
+  Future<http.Response> _postRawJsonCompute(dynamic message) async {
+    var request = http.Request("POST", message['url'])
+      ..headers.addAll(message['token'])
+      ..body = jsonEncode(message['fields']);
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
     return http.Response(response, streamedResponse.statusCode);

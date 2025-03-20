@@ -9,11 +9,13 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
 import '../UI/Finance/Expense/Response/expense_response.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
@@ -100,6 +102,8 @@ class APiRepository {
   String get _getWorkingHoursByUser => "getWorkingHourByUser";
 
   String get _userPunchList => "userPunchList";
+
+  String get _changeToDoByGroup => "change-todo-by-group";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -731,6 +735,38 @@ class APiRepository {
       var mapData = await response.mapData;
       var listData = List<Map<String, dynamic>>.from(mapData?['data'] ?? []);
       return listData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> changeToDoByGroup({required List<String> todoList, dynamic groupId, dynamic groupName, DateTime? date, TimeOfDay? time}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_changeToDoByGroup";
+      Map<String, dynamic> body = {
+        "todoList": todoList,
+        "group_id": groupId,
+        "groupName": groupName,
+        "todoDate": date?.toFormat(format: "yyyy-MM-dd"),
+        "todoTime" : time?.toHMS()
+      };
+      var bodyVal = jsonEncode(body);
+      Console.of.log(bodyVal);
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateToDo({required Map<String, dynamic> body, required dynamic toDoId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_updateToDoApi/$toDoId";
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
     } catch (e) {
       rethrow;
     }

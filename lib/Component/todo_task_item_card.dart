@@ -11,10 +11,12 @@ import 'package:flutter/material.dart';
 
 class TodoTaskItemCard extends StatelessWidget {
   final Map<String, dynamic> model;
+  final bool? showCheckbox, value;
   final Future<bool?> Function()? onComplete, onPrevious;
+  final Function(bool? value)? onChecked;
   final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory;
   final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes;
-  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious});
+  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked});
 
   @override
   Widget build(BuildContext context) {
@@ -337,7 +339,7 @@ class TodoTaskItemCard extends StatelessWidget {
                           const Spacer(),
                         if (model['display']?['resource_name'].toString().isNotNullOrEmpty ?? false)
                         Row(
-                          spacing: 5,
+                          spacing: (showCheckbox ?? false) ? 10 : 5,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             GestureDetector(
@@ -346,6 +348,17 @@ class TodoTaskItemCard extends StatelessWidget {
                                     weight: FontWeight.bold,
                                     size: 13.sp,
                                     color: AppC().base)),
+                            if(showCheckbox ?? false)
+                              SizedBox.fromSize(
+                                size: const Size.fromRadius(0.8),
+                                child: Checkbox(value: value,
+                                  visualDensity: VisualDensity.adaptivePlatformDensity,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tristate: true,
+                                  shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadius)),
+                                  side: const BorderSide(color: AppC.borderColor, width: Num.borderWidthField),
+                                  onChanged: onChecked)
+                              ),
                             const SizedBox.shrink(),
                           ],
                         ),

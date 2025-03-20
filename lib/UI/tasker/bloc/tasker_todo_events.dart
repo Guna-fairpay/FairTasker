@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/gestures.dart' show TapDownDetails;
+import 'package:flutter/material.dart';
 
 abstract class ToDoTaskerEvent extends Equatable {
   @override
@@ -123,4 +124,68 @@ class ToDoTaskerSuppliesTapEvent extends ToDoTaskerEvent {
   ToDoTaskerSuppliesTapEvent(this.model);
   @override
   List<Object?> get props => [model];
+}
+
+class ToDoTaskerPreviousEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerPreviousEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerCompleteEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerCompleteEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerMoveTomorrowEvent extends ToDoTaskerEvent {
+  final List<Map<String, dynamic>>? model;
+  final DateTime selectedDate;
+  final TimeOfDay selectedTime;
+  ToDoTaskerMoveTomorrowEvent(this.model, this.selectedDate, this.selectedTime);
+  @override
+  List<Object?> get props => [model, selectedDate, selectedTime];
+}
+
+class ToDoTaskerDateChangeEvent extends ToDoTaskerEvent {
+  final DateTime selectedDate;
+  final Map<String, dynamic>? model;
+  ToDoTaskerDateChangeEvent(this.selectedDate, this.model);
+  @override
+  List<Object?> get props => [selectedDate, model];
+}
+
+class ToDoTaskerCompletedTimeChangeEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final String timeTaken;
+  final String? reason;
+  ToDoTaskerCompletedTimeChangeEvent(this.model, this.timeTaken, this.reason);
+  @override
+  List<Object?> get props => [model, timeTaken, reason];
+}
+
+class ToDoTaskerTimePickerTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerTimePickerTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerTimeChangeEvent extends ToDoTaskerEvent {
+  final TimeOfDay selectedTime;
+  final Map<String, dynamic>? model;
+  ToDoTaskerTimeChangeEvent(this.selectedTime, this.model);
+  @override
+  List<Object?> get props => [selectedTime, model];
+}
+
+class ToDoTaskerSavePartsSuppliesEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final List<Map<String, dynamic>>? parts;
+  final List<Map<String, dynamic>>? supplies;
+  ToDoTaskerSavePartsSuppliesEvent({required this.model, this.parts, this.supplies});
+  @override
+  List<Object?> get props => [model, parts, supplies];
 }

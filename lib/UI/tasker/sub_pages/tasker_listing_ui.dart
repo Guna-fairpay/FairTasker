@@ -29,9 +29,15 @@ class TaskerListingUi extends StatelessWidget {
               onParts: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerPartsTapEvent(model)),
               onSupplies: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSuppliesTapEvent(model)),
               onComplete: () async {
+                context.read<ToDoTaskerBloc>().add(ToDoTaskerCompleteEvent(model));
                 return false;
               },
-              onPrevious: () async => false,
+              onPrevious: () async {
+                context.read<ToDoTaskerBloc>().add(ToDoTaskerPreviousEvent(model));
+                return false;
+              },
+              onDateChange: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateChangeTapEvent(model)),
+              onCompletedTimeChange: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompletedTimeTapEvent(model)),
             );
           },
           onReorder: (oldIndex, newIndex) {},
