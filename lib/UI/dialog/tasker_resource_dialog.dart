@@ -15,20 +15,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class TaskerResourceDialog {
   TaskerResourceDialog._();
 
-  static void show(BuildContext context, Map<String, dynamic>? model) async {
+  static void show(BuildContext context, Map<String, dynamic>? model, {void Function(List<Map<String, dynamic>> value)? onSelected}) async {
     await showDialog(
       context: context,
       useSafeArea: true,
       barrierDismissible: true,
-      builder: (context) => _TaskerResourceDialogView(model: model),
+      builder: (context) => _TaskerResourceDialogView(model: model, onSelected: onSelected),
     );
   }
 }
 
 class _TaskerResourceDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
-
-  const _TaskerResourceDialogView({required this.model});
+  final void Function(List<Map<String, dynamic>>)? onSelected;
+  const _TaskerResourceDialogView({required this.model, this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _TaskerResourceDialogView extends StatelessWidget {
               }
             }
           },
-          child: const _TaskerResourceDialogBodyView(),
+          child: _TaskerResourceDialogBodyView(onSelected: onSelected),
         ),
       ),
     );
@@ -77,7 +77,8 @@ class _TaskerResourceDialogView extends StatelessWidget {
 }
 
 class _TaskerResourceDialogBodyView extends StatelessWidget {
-  const _TaskerResourceDialogBodyView({super.key});
+  final void Function(List<Map<String, dynamic>>)? onSelected;
+  const _TaskerResourceDialogBodyView({this.onSelected});
 
   @override
   Widget build(BuildContext _) {
@@ -96,7 +97,16 @@ class _TaskerResourceDialogBodyView extends StatelessWidget {
                 onChanged: (isChecked, value) => context
                     .read<TRSDBloc>()
                     .add(TRSDSelectedEvent(value, isChecked))),
-            Utils.getFilledButton("Save", () {})
+            if (onSelected != null)
+            Utils.getFilledButton("Save", () {
+              var selected = context.read<TRSDBloc>().selectedResourcesList;
+              if (selected.isNotEmpty) {
+                onSelected?.call(selected);
+                context.popDialog();
+              } else {
+                Toaster.showError("Select at least one resource");
+              }
+            })
           ],
         ),
       ),

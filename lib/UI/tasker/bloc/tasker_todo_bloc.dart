@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:collection/collection.dart';
+import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -57,6 +60,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerTimePickerTapEvent>(_onTimePickerTapEvent);
     on<ToDoTaskerTimeChangeEvent>(_onTimeChangeEvent);
     on<ToDoTaskerSavePartsSuppliesEvent>(_onSavePartsSuppliesEvent);
+    on<ToDoTaskerSwapTaskEvent>(_onSwapTaskEvent);
+    on<ToDoTaskerVendorLocationTapEvent>(_onVendorLocationTapEvent);
+    on<ToDoTaskerVendorLocationUpdateEvent>(_onVendorLocationUpdateEvent);
+    on<ToDoTaskerSaveVehiclesPersonsEvent>(_onSaveVehiclesPersonsEvent);
+    on<ToDoTaskerSaveAddressEvent>(_onSaveAddressEvent);
+    on<ToDoTaskerSaveResourcesEvent>(_onSaveResourcesEvent);
+    on<ToDoTaskerCompleteOdometerEvent>(_onCompleteOdometerEvent);
+    on<ToDoTaskerCompleteDropCarEvent>(_onCompleteDropCarEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -83,6 +94,20 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           {required Map<String, dynamic> body,
           required dynamic todoId}) async =>
       await _aPiRepository.updateToDo(body: body, toDoId: todoId);
+
+  Future<Map<String, dynamic>?> _swapToDo(
+          {required dynamic fromId, required dynamic toId}) async =>
+      await _aPiRepository.swapToDo(fromId: fromId, toId: toId);
+
+  Future<GeneralResponse?> _deleteVehicle(
+      {required String? id}) async =>
+      await _aPiRepository.deleteTodoVehicle(id : id);
+
+  Future<Map<String, dynamic>?> _addToDoOdometer({required dynamic toDoId, required dynamic currentOdometer, required dynamic nextOdometer, required dynamic nextMilesCheck}) async => await _aPiRepository.addToDoOdometer(toDoId: toDoId, currentOdometer: currentOdometer, nextOdometer: nextOdometer, nextMilesCheck: nextMilesCheck);
+
+  Future<Map<String, dynamic>?> _addToDo({required Map<String, dynamic> body}) async => await _aPiRepository.addToDo(body: body);
+
+  Future<Map<String, dynamic>?> _completeToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.completeTodo(todoId: todoId, body: body);
 
   /* END: API CALLS */
 
@@ -295,7 +320,38 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onCompleteEvent(
       ToDoTaskerCompleteEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ToDoTaskerCompleteState(event.model));
+    var model = event.model;
+    var identifierId = model?['identifier_id'];
+    var taskTitle = model?['title'];
+    if (identifierId.toString().isNullOrEmpty) {
+      // CUSTOM TASK
+      switch(taskTitle) {
+        case "Check Out": emit(ToDoTaskerCompleteCheckOutState(event.model)); break;
+        case "Check In": emit(ToDoTaskerCompleteCheckInState(event.model)); break;
+        default:
+          // CALL API TO COMPLETE
+          break;
+      }
+    } else {
+      switch(identifierId) {
+        case 35: // OIL CHANGE STATE
+        case 126: // OIL CHANGE STATE
+          emit(ToDoTaskerCompleteOilChangeState(event.model));
+          break;
+        case 257: emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); break;
+        case 212: emit(ToDoTaskerCompleteRentalCheckOutState(event.model)); break;
+        case 28:
+        case 210:
+          emit(ToDoTaskerCompleteRentalPickupState(event.model));
+          break;
+        case 27:
+          emit(ToDoTaskerCompleteDropCarState(event.model));
+          break;
+        default:
+          // CALL API TO COMPLETE TASK
+          break;
+      }
+    }
   }
 
   void _onMoveTomorrowEvent(
@@ -407,39 +463,249 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     }
   }
 
-  void _onSavePartsSuppliesEvent(ToDoTaskerSavePartsSuppliesEvent event, Emitter<ToDoTaskerState> emit) {
-    var model = event.model;
-    var parts = event.parts;
-    var supplies = event.supplies;
-    var modelPartIds = List<Map<String, dynamic>>.from(model?['parts'] ?? [])
-        .map((e) => e['parts_id'])
-        .toList();
-    var modelSupplyIds = List<Map<String, dynamic>>.from(
-        model?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
-    var uploadParts = parts?.where((element) =>
-    !modelPartIds.contains(element['id'].toString())).toList();
-    var uploadSupplies = supplies?.where((element) =>
-    !modelSupplyIds.contains(element['id'].toString())).toList();
-    if (((uploadParts?.isNotEmpty ?? false) ||
-        (uploadSupplies?.isNotEmpty ?? false))) {
-      Map<String, dynamic> body = {};
-      if (uploadParts != null && (uploadParts.isNotEmpty ?? false)) {
-        var partMap = uploadParts.map((e) =>
-        {
-          "parts_id": e['id'],
-          "parts_name": e['name']
-        });
-        partMap.forEach((element) => body.addAll(element));
-      }
+  void _onSavePartsSuppliesEvent(
+      ToDoTaskerSavePartsSuppliesEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var parts = event.parts;
+      var supplies = event.supplies;
+      var modelPartIds = List<Map<String, dynamic>>.from(model?['parts'] ?? [])
+          .map((e) => e['parts_id'])
+          .toList();
+      var modelSupplyIds =
+          List<Map<String, dynamic>>.from(model?['supplies'] ?? [])
+              .map((e) => e['supplies_id'])
+              .toList();
+      var uploadParts = parts
+          ?.where((element) => !modelPartIds.contains(element['id'].toString()))
+          .toList();
+      var uploadSupplies = supplies
+          ?.where((element) => !modelSupplyIds.contains(element['id'].toString()))
+          .toList();
+      if (((uploadParts?.isNotEmpty ?? false) ||
+          (uploadSupplies?.isNotEmpty ?? false))) {
+        Map<String, dynamic> body = {};
+        if (uploadParts != null && (uploadParts.isNotEmpty ?? false)) {
+          body["parts"] = uploadParts
+              .map((e) => {"parts_id": e['id'], "parts_name": e['name']}).toList();
+        }
 
-      if (uploadSupplies != null && (uploadSupplies.isNotEmpty ?? false)) {
-        var supplyMap = uploadSupplies.map((e) =>
-        {
-          "supplies_id": e['id'],
-          "supplies_name": e['name']
-        });
-        supplyMap.forEach((element) => body.addAll(element));
+        if (uploadSupplies != null && (uploadSupplies.isNotEmpty ?? false)) {
+          body["supplies"] = uploadSupplies
+              .map((e) => {"supplies_id": e['id'], "supplies_name": e['name']}).toList();
+        }
+        emit(ToDoTaskerLoadingState());
+        var response = await _updateToDo(body: body, todoId: model?['id']);
+        if (response != null) _reFetchToDos();
       }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onSwapTaskEvent(
+      ToDoTaskerSwapTaskEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      emit(ToDoTaskerLoadingState());
+      var response = await _swapToDo(fromId: event.fromId, toId: event.toId);
+      if (response != null) {
+        _reFetchToDos();
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onVendorLocationTapEvent(
+      ToDoTaskerVendorLocationTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerVendorLocationTapState(event.model));
+  }
+
+  void _onVendorLocationUpdateEvent(ToDoTaskerVendorLocationUpdateEvent event,
+      Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var hasVendor = (model?['vendor_id'].toString().isNotNullOrEmpty ?? false);
+      var hasLocation = (model?['location_id'].toString().isNotNullOrEmpty ?? false);
+      var selectedModel = event.selectedModel;
+      var mapData = {
+        "vendor_name": (hasVendor) ? (selectedModel?['name']) : "",
+        "vendor_id": (hasVendor) ? (selectedModel?['id']) : "",
+        "location": (hasLocation) ? (selectedModel?['name']) : "",
+        "location_id": (hasLocation) ? (selectedModel?['id']) : "",
+        "address": ""
+      };
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      if (response != null) {
+        _reFetchToDos();
+      }
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onSaveVehiclesPersonsEvent(ToDoTaskerSaveVehiclesPersonsEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var selected = event.selected;
+      var isVehicles = selected?.map((e) => e['type']).contains('vehicles') ?? false;
+      Map<String, dynamic> bodyData = {};
+      if (isVehicles) {
+        // VEHICLE
+        var selectedVins = selected?.map((e) => e['value']?['vin']) ?? [];
+        var modelVehiclesIds = List.from(model?['vehicles'] ?? []).where((element) => !selectedVins.contains(element['vin'])).map((e) => e['id'].toString());
+        if (modelVehiclesIds.isNotEmpty) await Future.wait(modelVehiclesIds.map((e) => _deleteVehicle(id: e)));
+        var modelVehicles = List.from(model?['vehicles'] ?? []).where((element) => !modelVehiclesIds.contains(element['id'])).map((e) => e['vin']);
+        var selectedVehicles = selected?.where((element) => !modelVehicles.contains(element['value']?['vin']));
+        bodyData = {
+          "vehicles": selectedVehicles?.map((e) => {
+            "cohort_id" : e['value']['cohort']?['id'] ?? "",
+            "cohort_name" : e['value']['cohort']?['cohort'] ?? "",
+            "vehicle_image" : List<Map<String, dynamic>>.from(e['value']?['images'] ?? []).firstWhereOrNull((element) => element['vehicle_image_type'] == 1)?['path'] ?? "",
+            "vehicle_name" : e['value']?['vehicle_name'],
+            "vehicle_number" : e['value']?['vehicle_number'],
+            "vin" : e['value']?['vin']
+          }).toList()
+        };
+      } else {
+        // PERSON
+        var lastData = selected?.lastOrNull;
+        var isPerson = lastData?['type'] == 'person';
+        bodyData = {
+          "person" : isPerson ? (lastData?['name']) : "",
+          "person_id" : isPerson ? (lastData?['id']) : "",
+          "vehicle_group_id" : isPerson ? "" : (lastData?['id'])
+        };
+      }
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: bodyData, todoId: model?['id']);
+      if (response != null) _reFetchToDos();
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onSaveAddressEvent(ToDoTaskerSaveAddressEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var selected = event.selected;
+      var mapData = {
+        "address" : (selected?.isNotEmpty ?? false) ? "${[selected?['id']]}" : "",
+      };
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      if (response != null) _reFetchToDos();
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onSaveResourcesEvent(ToDoTaskerSaveResourcesEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var selected = event.selected;
+      var mapData = {"user_group_data" : "${selected?.map((e) => e['id']).toList()}"};
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      if (response != null) _reFetchToDos();
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onCompleteOdometerEvent(ToDoTaskerCompleteOdometerEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      var currentOdometer = event.currentOdometer;
+      var nextMilesCheck = event.nextMilesCheck;
+      var nextOdometer = event.nextOdometer;
+      // addTodoOdometer
+      var addToDoMap = {
+        "address" : model?['address'],
+        "branch_id" : model?['branch_id'],
+        "cohort_id" : model?['cohort_id'],
+        "identifier_id" : model?['identifier_id'],
+        "location" : model?['location'],
+        "location_id" : model?['location_id'],
+        "notes" : model?['notes'],
+        "start_at" : model?['todo_date'],
+        "time_sensitive" : model?['time_sensitive'],
+        "title" : model?['title'],
+        "todo_time" : model?['todo_time'],
+        "user_group_id" : model?['user_group_id'],
+        "vehicle_name" : model?['vehicle_name'],
+        "vehicles" : model?['vehicles'],
+        "vendor_id" : model?['vendor_id'],
+        "vendor_name" : model?['vendor_name'],
+        "vin" : model?['vin'],
+      };
+      var completeTodoMap = {
+        "complete_time_approved" : model?['complete_time_approved'],
+        "complete_time_taken" : model?['complete_time_taken'],
+        "status" : true
+      };
+      emit(ToDoTaskerLoadingState());
+      var response = await Future.wait([
+        _addToDoOdometer(toDoId: model?['id'], currentOdometer: currentOdometer, nextOdometer: nextOdometer, nextMilesCheck: nextMilesCheck),
+        _addToDo(body: addToDoMap),
+        _completeToDo(body: completeTodoMap, todoId: model?['id'])
+      ]);
+      if (response.isNotEmpty && response.length == 3) _reFetchToDos();
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onCompleteDropCarEvent(ToDoTaskerCompleteDropCarEvent event, Emitter<ToDoTaskerState> emit) {
+    try {
+      var model = event.model;
+      var date = event.date;
+      var time = event.time;
+      var notes = event.notes;
+      var mapData = {
+        "title" : "Pickup Car",
+        "location" : null,
+        "location_id" : null,
+        "vehicles" : [],
+        "repeatPeriod" : null,
+        "repeatDay" : null,
+        "repeatWeek" : null,
+        "weekDay" : null,
+        "recur_monthly_type" : true,
+        "repeatDateMonth" : null,
+        "repeatMonth" : null,
+        "repeatDayMonth" : null,
+        "repeatDateYear" : null,
+        "repeatMonthYear" : "January",
+        "end_type" : true,
+        "end_after" : null,
+        "start_at" : date.toFormat(),
+        "end_at" : null,
+        "person" : null,
+        "person_id" : null,
+        "vendor_id" : null,
+        "vendor_name" : null,
+        "notes" : notes,
+        "parts" : [],
+        "supplies" : [],
+        "vehicle_group_id" : null,
+        "assigned_to" : [_toDoProcessor.userId],
+        "todo_time" : time.toHMS(),
+        "platform_check" : null,
+        "identifier_id" : 20,
+        "todo_user_type" : null,
+        "time_sensitive" : false,
+        "comments" : null,
+        "branch_id" : 1,
+        "mileage" : null,
+        "resolution_notes" : null,
+        "custom_link_id" : null,
+        "reference_id" : null,
+        "custom_link" : null
+      };
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
     }
   }
 }

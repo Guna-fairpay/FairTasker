@@ -2894,6 +2894,15 @@ class Utils {
         lastDate: DateTime.now().add(const Duration(days: 1825000))));
     if (result != null) onChanged?.call(result);
   }
+
+  static void showPickerTime(BuildContext context, {TimeOfDay? value, void Function(TimeOfDay)? onChanged}) async {
+    var result = await showTimePicker(
+      context: context,
+      initialTime: value ?? TimeOfDay.fromDateTime(DateTime.now()),
+      initialEntryMode: TimePickerEntryMode.dialOnly,
+    );
+    if (result != null) onChanged?.call(result);
+  }
 }
 
 extension Unique<E, Id> on List<E>? {

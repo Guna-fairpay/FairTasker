@@ -79,13 +79,14 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
                   Toaster.showError(state.message.toString());
                 }
               },
-              child: const _TaskerPartsSuppliesDialogBodyView(),
+              child: _TaskerPartsSuppliesDialogBodyView(onChanged: onChanged),
             )));
   }
 }
 
 class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
-  const _TaskerPartsSuppliesDialogBodyView({super.key});
+  final void Function(List<Map<String, dynamic>> value)? onChanged;
+  const _TaskerPartsSuppliesDialogBodyView({this.onChanged});
 
   @override
   Widget build(BuildContext _) {
@@ -96,14 +97,24 @@ class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   spacing: 5,
                   children: [
-                    CustomMultiSelectionChipsField<Map<String, dynamic>>(
-                      selectedPartsList: context.watch<TPSDBloc>().selectedPartsList,
-                      suggestionsList: context.watch<TPSDBloc>().apiResponse,
-                      itemAsString: (item) => item['name'],
-                      controller: context.read<TPSDBloc>().controller,
-                      onChanged: (isChecked, value) => context.read<TPSDBloc>().add(TPSDSelectedEvent(value, isChecked)),
-                    ),
-                    Utils.getFilledButton("Save", () {})
+                    Flexible(child: SingleChildScrollView(
+                      child: CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                        selectedPartsList: context.watch<TPSDBloc>().selectedPartsList,
+                        suggestionsList: context.watch<TPSDBloc>().apiResponse,
+                        itemAsString: (item) => item['name'],
+                        controller: context.read<TPSDBloc>().controller,
+                        onChanged: (isChecked, value) => context.read<TPSDBloc>().add(TPSDSelectedEvent(value, isChecked)),
+                      ),
+                    )),
+                    Utils.getFilledButton("Save", () {
+                      var selected = context.read<TPSDBloc>().selectedPartsList;
+                      var modelIds = context.read<TPSDBloc>().modelIdsData;
+                      var filtered = selected.where((element) => !modelIds.contains(element['id'].toString())).toList();
+                      if (filtered.isNotEmpty) {
+                        onChanged?.call(filtered);
+                        context.popDialog();
+                      }
+                    })
                   ]),
             ));
   }

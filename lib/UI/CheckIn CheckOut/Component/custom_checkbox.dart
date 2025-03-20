@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:flutter/material.dart';
 
 class CustomCheckboxListTile extends StatefulWidget {
@@ -6,12 +7,18 @@ class CustomCheckboxListTile extends StatefulWidget {
   final dynamic value;
   final ValueChanged<bool?> onChanged;
   final bool isCheckboxOnRight;
+  final bool useExpand;
+  final EdgeInsets? padding;
+  final MainAxisSize mainAxisSize;
 
   const CustomCheckboxListTile({
     Key? key,
     required this.title,
     required this.value,
     required this.onChanged,
+    this.padding,
+    this.useExpand = true,
+    this.mainAxisSize = MainAxisSize.max,
     this.isCheckboxOnRight = false,
   }) : super(key: key);
 
@@ -27,8 +34,9 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
         widget.onChanged(!widget.value);
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
+          mainAxisSize: widget.mainAxisSize,
           children: widget.isCheckboxOnRight
               ? [
             widget.title, // Title on the left
@@ -49,10 +57,14 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
               child: Checkbox(
                 value: widget.value,
                 onChanged: widget.onChanged,
+                shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.circular(Num.subradiusButton),
+                ),
+                side: BorderSide(width: 0.5, color: Colors.grey),
               ),
             ),
             const SizedBox(width: 4), // Spacing between checkbox and text
-            Expanded(child: widget.title), // Title on the right
+            (widget.useExpand) ? Expanded(child: widget.title) : widget.title, // Title on the right
           ],
         ),
       ),

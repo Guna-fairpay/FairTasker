@@ -189,3 +189,75 @@ class ToDoTaskerSavePartsSuppliesEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model, parts, supplies];
 }
+
+class ToDoTaskerSwapTaskEvent extends ToDoTaskerEvent {
+  final dynamic fromId;
+  final dynamic toId;
+  ToDoTaskerSwapTaskEvent(this.fromId, this.toId);
+  @override
+  List<Object?> get props => [fromId, toId];
+}
+
+class ToDoTaskerVendorLocationTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerVendorLocationTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerVendorLocationUpdateEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final Map<String, dynamic>? selectedModel;
+  ToDoTaskerVendorLocationUpdateEvent(this.model, this.selectedModel);
+  @override
+  List<Object?> get props => [model, selectedModel];
+}
+
+class ToDoTaskerSaveVehiclesPersonsEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final List<Map<String, dynamic>>? selected;
+  ToDoTaskerSaveVehiclesPersonsEvent({required this.model, this.selected});
+  @override
+  List<Object?> get props => [model, selected];
+}
+
+class ToDoTaskerVehicleGroupTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerVehicleGroupTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerSaveAddressEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final Map<String, dynamic>? selected;
+  ToDoTaskerSaveAddressEvent(this.model, this.selected);
+  @override
+  List<Object?> get props => [model, selected];
+}
+
+class ToDoTaskerSaveResourcesEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final List<Map<String, dynamic>>? selected;
+  ToDoTaskerSaveResourcesEvent(this.model, this.selected);
+  @override
+  List<Object?> get props => [model, selected];
+}
+
+class ToDoTaskerCompleteOdometerEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final num currentOdometer, nextMilesCheck, nextOdometer;
+  ToDoTaskerCompleteOdometerEvent(this.model, this.currentOdometer, this.nextMilesCheck, this.nextOdometer);
+  @override
+  List<Object?> get props => [model, currentOdometer, nextMilesCheck, nextOdometer];
+}
+
+class ToDoTaskerCompleteDropCarEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  final DateTime date;
+  final TimeOfDay time;
+  final String? notes;
+  ToDoTaskerCompleteDropCarEvent(this.model, this.date, this.time, this.notes);
+  @override
+  List<Object?> get props => [model, date, time, notes];
+}

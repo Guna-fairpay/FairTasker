@@ -9,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/foundation.dart';
 
 class ToDoProcessor {
   List<Map<String, dynamic>> _groupVehicle = [];
@@ -285,8 +286,9 @@ class ToDoProcessor {
       List<Map<String, dynamic>>.from(model['todoimages'] ?? []).isNotEmpty;
 
   bool _hasAddress(Map<String, dynamic> model) {
-    var decoded = (model['address'].toString().isNotNullOrEmpty) ? jsonDecode(model['address']) : null;
-    return (model['address'].toString().isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
+    var address = model['address'].toString().replaceAll("null", "");
+    var decoded = (address.isNotNullOrEmpty) ? jsonDecode(address) : null;
+    return (address.isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
   }
 
   bool _hasCustomLink(Map<String, dynamic> model) =>
@@ -397,9 +399,8 @@ class ToDoProcessor {
   Map<String, dynamic>? _getSelectedAddress(Map<String, dynamic> model) {
     if (_hasAddress(model)) {
       var addresses = _getAddresses(model);
-      var addressIds = List<int>.from(jsonDecode(model['address']) ?? []);
+      var addressIds = List.from(jsonDecode(model['address'].toString().replaceAll("null", "")) ?? []).map((e) => int.tryParse("${e ?? ""}"));
       var result = addresses.firstWhereOrNull((element) => addressIds.contains(element['id']));
-      Console.of.log("Result: $result $addressIds");
       return result;
     }
     return null;
