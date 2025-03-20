@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_tabBar.dart';
 import 'package:flutter/material.dart';
@@ -15,20 +16,18 @@ class TaskComponentsSettingsUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => WorkingHoursBloc()..add(const TaskComponentsInitialEvent()),
+      create: (context) =>
+          WorkingHoursBloc()..add(const TaskComponentsInitialEvent()),
       child: DefaultTabController(
-        length: 2,
-          initialIndex: 0,
-          child: TaskComponentsSettingView()
-      ),
+          length: 2, initialIndex: 0, child: TaskComponentsSettingView()),
     );
   }
 }
 
 class TaskComponentsSettingView extends StatelessWidget {
   TaskComponentsSettingView({super.key});
-  dynamic selectedBase1 = {"base": "Task based"};
   dynamic selectedBases;
+  dynamic resource;
   TextEditingController taskNameController = TextEditingController();
   TextEditingController amountController = TextEditingController();
 
@@ -45,10 +44,12 @@ class TaskComponentsSettingView extends StatelessWidget {
           amountController.clear();
           taskNameController.text = state.taskNameController?.text ?? '';
           amountController.text = state.amountController?.text ?? '';
+          FocusScope.of(context).unfocus();
         }
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
+          log("${state.selectedResource}", name: 'TEST1');
           return Scaffold(
             backgroundColor: AppC.white,
             appBar: PreferredSize(
@@ -59,7 +60,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Utils.getText("Task Components - Settings", color: AppC.white, weight: FontWeight.bold, size: 18),
+                    Utils.getText("Task Components - Settings",
+                        color: AppC.white, weight: FontWeight.bold, size: 18),
                     GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
@@ -72,7 +74,8 @@ class TaskComponentsSettingView extends StatelessWidget {
             ),
             body: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -80,35 +83,65 @@ class TaskComponentsSettingView extends StatelessWidget {
                     Utils.dropdownBox(
                       'Task based',
                       state.selectedBase1,
-                          (value) {
-                        selectedBase1 = value;
+                      (value) {
                         selectedBases = value;
                         print("selectedBases ${selectedBases}");
-                        context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
-                        tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
+                        context
+                            .read<WorkingHoursBloc>()
+                            .add(UpdateDropdownValueEvent(value));
+                        tabController
+                            .animateTo(value['base'] == "Task based" ? 0 : 1);
                       },
                       labelKey: 'base',
                       initialSelection: state.selectedBase,
                     ),
                     const SizedBox(height: 16),
-                    Utils.getTextFormField('Task Name', taskNameController),
-                    const SizedBox(height: 16),
-                    Utils.getTextFormField('Amount (\$)', amountController),
-                    const SizedBox(height: 16),
+                    if ((selectedBases != null && selectedBases['base'] == 'Task based') ||
+                        (state.selectedBase != null &&
+                            state.selectedBase['base'] == 'Task based')) ...[
+                      Utils.getTextFormField('Task Name', taskNameController),
+                      const SizedBox(height: 16),
+                      Utils.getTextFormField('Amount (\$)', amountController),
+                      const SizedBox(height: 16),
+                    ] else...[
+                      Text("${state.selectedResource}"),
+                      Utils.dropdownBox(
+                        'Select User',
+                        state.resource,
+                        (value) {
+                          resource = value;
+                          print("Selected Resource: $resource");
+                        },
+                        labelKey: 'full_name',
+                        //selectedKey: state.selectedResource,
+                        initialSelection: state.selectedResource,
+                      ),
+                      const SizedBox(height: 16),
+                      Utils.getTextFormField(
+                          'Amount per hour (\$)', amountController),
+                      const SizedBox(height: 16),
+                    ],
                     Row(
                       children: [
                         if (!state.isEditMode)
                           Utils.getAddFilledButton("Save", () {
-                            if (selectedBases['base'] == 'Task based' || taskNameController.text.isNotEmpty) {
+                            if (state.selectedBase['base'] == 'Task based' || selectedBases['base'] == 'Task based' ||
+                                taskNameController.text.isNotEmpty) {
                               FocusScope.of(context).unfocus();
                               context.read<WorkingHoursBloc>().add(CreateTaskEvent(
-                                taskName: taskNameController.text.toString(),
-                                amount: amountController.text.toString(),
-                                task: 'task',
-                              ));
+                                    taskName: taskNameController.text.toString(),
+                                    amount: amountController.text.toString(),
+                                    task: 'task',
+                                  ));
                             } else {
-                              if (amountController.text.isNotEmpty && selectedBases['base'] != null) {
-                                context.read().add(const CreateTaskEvent());
+                              if (amountController.text.isNotEmpty &&
+                                  selectedBases['base'] != null) {
+                                context.read<WorkingHoursBloc>().add(CreateTaskEvent(
+                                  taskName: '',
+                                  amount: amountController.text,
+                                  task: 'hourly',
+                                  userId: resource['id'],
+                                ));
                               } else {
                                 print("Error in saving");
                               }
@@ -117,19 +150,23 @@ class TaskComponentsSettingView extends StatelessWidget {
                         if (state.isEditMode)
                           Utils.getAddFilledButton("Update", () {
                             FocusScope.of(context).unfocus();
-                            context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
-                            context.read<WorkingHoursBloc>().add(CreateTaskEvent(
-                              id: state.taskId,
-                              taskName: taskNameController.text.toString(),
-                              amount: amountController.text.toString(),
-                              task: 'task'
-                            ));
+                            context
+                                .read<WorkingHoursBloc>()
+                                .add(ExitEditModeEvent());
+                            context.read<WorkingHoursBloc>().add(
+                                CreateTaskEvent(
+                                    id: state.taskId,
+                                    taskName:
+                                        taskNameController.text.toString(),
+                                    amount: amountController.text.toString(),
+                                    task: 'task'));
                           }, bgColor: AppC.green),
-                        if (state.isEditMode)
-                          const SizedBox(width: 16),
+                        if (state.isEditMode) const SizedBox(width: 16),
                         if (state.isEditMode)
                           Utils.getAddFilledButton("Cancel", () {
-                            context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                            context
+                                .read<WorkingHoursBloc>()
+                                .add(ExitEditModeEvent());
                           }, bgColor: AppC.red),
                       ],
                     ),
@@ -137,7 +174,9 @@ class TaskComponentsSettingView extends StatelessWidget {
                     Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        border: Border(bottom: BorderSide(color: Colors.black, width: 0.5)),
+                        border: Border(
+                            bottom:
+                                BorderSide(color: Colors.black, width: 0.5)),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 0, 10 * 9, 0),
@@ -156,7 +195,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                             border: Border.all(width: 1, color: AppC.appColor),
                           ),
                           indicatorSize: TabBarIndicatorSize.tab,
-                          overlayColor: WidgetStateProperty.all(Colors.transparent),
+                          overlayColor:
+                              WidgetStateProperty.all(Colors.transparent),
                         ),
                       ),
                     ),
@@ -165,6 +205,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                       taskbased: state.taskBased,
                       hourlybased: state.hourlyBased,
                       selectedBases: selectedBases,
+                      resource: state.resources,
                     ),
                   ],
                 ),

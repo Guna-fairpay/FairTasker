@@ -589,9 +589,9 @@ class _WorkingHoursViewUIState extends State<WorkingHoursViewUI> {
                                                 alignment: Alignment.center,
                                                 child: GestureDetector(
                                                     onTap: () {
-                                                      // ReasonTopNotificationPopup.show(context, dataList: employee['list'],
-                                                      //     userName: employee['first_name'],
-                                                      //     selectedDateRange: selectedDateRange.toString(), hrmID: employee['hrmID']);
+                                                      ReasonTopNotificationPopup.show(context, dataList: employee['list'],
+                                                          userName: employee['first_name'],
+                                                          selectedDateRange: selectedDateRange.toString(), hrmID: employee['hrmID']);
                                                     },
                                                     child:
                                                     Utils.getText("$totalHoursValue" ?? '',)

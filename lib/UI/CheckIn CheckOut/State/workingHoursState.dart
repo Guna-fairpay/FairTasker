@@ -29,7 +29,11 @@ class WorkingHoursState extends Equatable {
   final dynamic selectedBase;
   final bool isEditMode;
   final int? taskId;
+  final int? userId;
   final dynamic selectedDate;
+  final List<dynamic> resource;
+  final dynamic dropDownEvent;
+  final dynamic selectedResource;
 
   const WorkingHoursState(
       {
@@ -54,7 +58,11 @@ class WorkingHoursState extends Equatable {
         this.selectedBase,
         this.isEditMode = false,
         this.taskId,
+        this.userId,
         this.selectedDate,
+        this.resource = const [],
+        this.dropDownEvent,
+        this.selectedResource,
       });
 
   WorkingHoursState copyWith({
@@ -79,7 +87,11 @@ class WorkingHoursState extends Equatable {
     dynamic selectedBase,
     bool? isEditMode,
     int? taskId,
+    int? userId,
     DateTime? selectedDate,
+    List<dynamic>? resource,
+    dynamic dropDownEvent,
+    dynamic selectedResource,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -102,7 +114,11 @@ class WorkingHoursState extends Equatable {
     selectedBase: selectedBase,
     isEditMode: isEditMode ?? this.isEditMode,
     taskId: taskId ?? this.taskId,
+    userId: userId ?? this.userId,
     selectedDate: selectedDate ?? this.selectedDate,
+    resource: resource ?? this.resource,
+    dropDownEvent: dropDownEvent,
+    selectedResource: selectedResource
   );
 
   @override
@@ -128,8 +144,99 @@ class WorkingHoursState extends Equatable {
     selectedBase,
     isEditMode,
     taskId,
+    userId,
     selectedDate,
+    resource,
+    dropDownEvent,
+    selectedResource,
     Random().nextDouble()
   ];
 }
+
+//
+// import 'package:equatable/equatable.dart';
+// import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingHoursResponse.dart';
+// import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingReasonResponse.dart';
+//
+// import '../Response/checkInOutResponse.dart';
+//
+//
+// abstract class TaskState extends Equatable {
+//   @override
+//   List<Object?> get props => [];
+// }
+//
+// class TaskInitialState extends TaskState {}
+//
+// class TaskLoadingState extends TaskState {}
+//
+// class TaskErrorState extends TaskState {
+//   final String errorMessage;
+//
+//   TaskErrorState(this.errorMessage);
+//
+//   @override
+//   List<Object?> get props => [errorMessage];
+// }
+//
+// class TaskLoadedState extends TaskState {
+//   final WorkingHoursResponse history;
+//   TaskLoadedState(this.history);
+//   @override
+//   List<Object?> get props => [history];
+// }
+//
+// class CommentLoadedState extends TaskState
+// {
+//   final WorkingReasonResponse comment;
+//   CommentLoadedState(this.comment);
+//   @override
+//   List<Object?> get props => [comment];
+// }
+//
+// class CheckInoutReasonLoadedState extends TaskState
+// {
+//   final CheckInOutReasonResponse data;
+//   CheckInoutReasonLoadedState(this.data);
+//   @override
+//   List<Object?> get props => [data];
+// }
+//
+// class TaskHistoryLoadedState extends TaskState {
+//   final dynamic taskHistory;
+//   final List<Map<String, dynamic>> combinedList;
+//   TaskHistoryLoadedState({required this.taskHistory, required this.combinedList});
+//
+//   @override
+//   List<Object?> get props => [taskHistory];
+// }
+//
+// class GetConfigurationLoadedState extends TaskState {
+//   final dynamic data;
+//
+//   GetConfigurationLoadedState({required this.data});
+//
+//   @override
+//   List<Object?> get props => [data];
+// }
+//
+// class CategoryGroupLoadedState extends TaskState {
+//   final dynamic data;
+//
+//   CategoryGroupLoadedState({required this.data});
+//
+//   @override
+//   List<Object?> get props => [data];
+// }
+//
+// class CohortDataLoadedState extends TaskState {
+//   final dynamic data;
+//
+//   CohortDataLoadedState({required this.data});
+//
+//   @override
+//   List<Object?> get props => [data];
+// }
+
+// working_hours_state.dart
 

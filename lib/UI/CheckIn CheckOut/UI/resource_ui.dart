@@ -15,6 +15,7 @@ import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
+import 'Popups/reason_top_notification_popup.dart';
 
 
 class WorkHoursViewUI extends StatelessWidget {
@@ -369,7 +370,9 @@ class WorkHoursViewUI extends StatelessWidget {
                                         flex: 2,
                                         child: GestureDetector(
                                           onTap: () {
-                                            // Handle tap event
+                                            ReasonTopNotificationPopup.show(context, dataList: employee?['list'],
+                                                userName: employee?['first_name'],
+                                                selectedDateRange: selectedDateRange.toString(), hrmID: employee?['hrmID']);
                                           },
                                           child: Utils.getText(employee?['task_count'].toString() ?? ''),
                                         ),

@@ -8,11 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Repository/job_list_repository.dart';
 import '../../../Repository/todo_list_repository.dart';
 import '../Event/workingHoursEvent.dart';
+import '../Repository/workingHoursRepository.dart';
 import '../State/workingHoursState.dart';
 
 
 
 class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
+  final TaskRepository taskRepo = TaskRepository();
   final TodoListRepo todoListRepo = TodoListRepo();
   final JobListRepo authenticationRepo = JobListRepo();
   DateRange? selectedDateRange;
@@ -31,6 +33,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   TextEditingController taskNameCtrl=TextEditingController();
   TextEditingController amountCtrl=TextEditingController();
   final TextEditingController dateController = TextEditingController();
+  List<Map<String,dynamic>>?selectedResources=[];
+
 
   WorkingHoursBloc() : super(const WorkingHoursState ()) {
 
@@ -65,6 +69,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 return {
                   'id': resource['id'],
                   'full_name': "${resource['first_name']} ${resource['last_name']}",
+                  'first_name': '${resource['first_name']}',
                 };
               }).toList();
 
@@ -237,18 +242,40 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
+    //Task Components - Settings Page
     on<TaskComponentsInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
+        List<dynamic> resource;
         emit(state.copyWith(isLoading: false));
         final response6 = await todoListRepo.getTaskHistoryConfiguration();
-        if(response6 != null){
+        final response3 = await authenticationRepo.getAssignedTo();
+        if(response6 != null && response3 != null){
           taskComponentsData = response6.data!;
+          resources = response3.resource!;
+
+          formattedResources = resources.map((resource) {
+            return {
+              'id': resource['id'],
+              'full_name': "${resource['first_name']} ${resource['last_name']}",
+              'first_name': '${resource['first_name']}',
+            };
+          }).toList();
+
+          List<Map<String, dynamic>> resource = formattedResources.map((resource) {
+            return {
+              'id': resource['id'],
+              'full_name': '${resource['full_name']}',
+              'first_name': '${resource['first_name']}'
+              };
+          }).toList();
           taskBased = taskComponentsData.where((task) => task['type'] == 'task').toList();
           hourlyBased = taskComponentsData.where((task) => task['type'] == 'hourly').toList();
+
           List<Map<String, dynamic>> base = [
             {"id":1,"base": "Task based"},
-            {"id":1,"base": "Hour based"}];
+            {"id":2,"base": "Hour based"}
+          ];
           dynamic selectedBase = base[0];
           emit(state.copyWith(
             taskComponentsData: taskComponentsData,
@@ -256,7 +283,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             hourlyBased: hourlyBased,
             selectedBase1: base,
             selectedBase: selectedBase,
-
+            resources: formattedResources,
+            resource: resource,
           ));
           // print("Emitting initial selectedBase1: $selectedBase1");
         } else {
@@ -283,10 +311,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
+    //Create Update
     on<CreateTaskEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
-        print("CreateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ");
         await todoListRepo.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
         add(const TaskComponentsInitialEvent());
       } catch (error){
@@ -295,24 +323,48 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
-    //await todoListRepo.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
+
     on<UpdateTaskEvent>((event, emit){
-      print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount}");
+      print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ${event.userId}");
+      List<Map<String, dynamic>> base = [
+        {"id":1,"base": "Task based"},
+        {"id":2,"base": "Hour based"}
+      ];
       if(event.userId == null)
         {
           taskNameCtrl.text = event.taskName ?? '';
           amountCtrl.text = event.amount ?? '';
+          dynamic selectedBase = base[0];
           print("event id ${event.id}");
           emit(state.copyWith(
             taskId: event.id,
             taskNameController: taskNameCtrl,
             amountController: amountCtrl,
+            selectedBase: selectedBase,
           ));
         }
+      else {
+        amountCtrl.text = event.amount ?? '';
+        dynamic selectedBase = base[1];
+        log("${state.resource}", name: 'Resource');
+        selectedResources = state.resources?.where((resource) => resource['id'] == event.userId).toList();
+
+        //print("selectedResource $selectedResource");
+        log("${selectedResources}", name: 'selectedResource');
+        emit(state.copyWith(
+          taskId: event.id,
+          userId: event.userId,
+          amountController: amountCtrl,
+          selectedBase: selectedBase,
+          selectedResource: selectedResources?.firstOrNull,
+        ));
+        log("${state.selectedResource}", name: 'selectedResource');
+      }
     });
 
     on<UpdateDropdownValueEvent>((event, emit) {
       print("Emitting new selectedBase1: ${event.selectedBase}");
+      emit(state.copyWith(selectedBase: event.selectedBase));
     });
 
     on<EnterEditModeEvent>((event, emit) {
@@ -325,6 +377,33 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     on<TaskDateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
+
+    on<fetchEmployeeCommentEvent>((event, emit) async {
+      final comment = await taskRepo.fetchEmployeeComments(
+      hrmId: event.hrmId,
+      fromDate: event.fromDate,
+      toDate: event.toDate,
+    );
+  });
+
+    //   Future<void> _onFetchComment(
+//       fetchEmployeeComment event,
+//       Emitter<TaskState> emit,
+//       ) async {
+//     emit(TaskLoadingState());
+//     try {
+//       final comment = await taskRepo.fetchEmployeeComments(
+//         hrmId: event.hrmId,
+//         fromDate: event.fromDate,
+//         toDate: event.toDate,
+//       );
+//       emit(CommentLoadedState(comment!));
+//     } catch (e) {
+//       emit(TaskErrorState(e.toString()));
+//     }
+//   }
+
+
   }
 }
 // import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';

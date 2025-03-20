@@ -80,6 +80,23 @@ class EnterEditModeEvent extends WorkingHoursEvent {}
 
 class ExitEditModeEvent extends WorkingHoursEvent {}
 
+
+
+class fetchEmployeeCommentEvent extends WorkingHoursEvent {
+  final int hrmId;
+  final String fromDate;
+  final String toDate;
+
+  const fetchEmployeeCommentEvent({
+    required this.hrmId,
+    required this.fromDate,
+    required this.toDate,
+  });
+
+  @override
+  List<Object?> get props => [hrmId, fromDate, toDate];
+}
+
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {
 //   final String minDate;
 //   final String maxDate;

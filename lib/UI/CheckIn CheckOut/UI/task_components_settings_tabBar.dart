@@ -9,6 +9,7 @@ import '../Event/workingHoursEvent.dart';
 class TaskTabsView extends StatelessWidget {
   final List<Map<String, dynamic>> taskbased;
   final List<Map<String, dynamic>> hourlybased;
+  final List<Map<String, dynamic>>? resource;
   dynamic selectedBases;
 
   TaskTabsView({
@@ -16,6 +17,7 @@ class TaskTabsView extends StatelessWidget {
     required this.taskbased,
     required this.hourlybased,
     required this.selectedBases,
+    this.resource,
   });
 
   @override
@@ -26,7 +28,7 @@ class TaskTabsView extends StatelessWidget {
         controller: tabController,
         children: [
           TaskBasedTab(taskbased: taskbased, selectedBases: selectedBases),
-          HourlyBasedTab(hourlybased: hourlybased),
+          HourlyBasedTab(hourlybased: hourlybased, resource: resource),
         ],
       ),
     );
@@ -82,7 +84,8 @@ class TaskBasedTab extends StatelessWidget {
                         color: Colors.white,
                         border: Border(bottom: BorderSide(color: Colors.black, width: 0.2)),
                       ),
-                      child: Padding(
+                      child:
+                      Padding(
                         padding: const EdgeInsets.fromLTRB(8, 8, 10, 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,9 +150,8 @@ class TaskBasedTab extends StatelessWidget {
 
 class HourlyBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>> hourlybased;
-  const HourlyBasedTab({super.key, required this.hourlybased,
-  });
-
+  final List<Map<String, dynamic>>? resource;
+  const HourlyBasedTab({super.key, required this.hourlybased, required this.resource});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -182,6 +184,7 @@ class HourlyBasedTab extends StatelessWidget {
             itemCount: hourlybased.length,
             itemBuilder: (context, index) {
               final task = hourlybased[index];
+              // print("resources---> ${resource}");
               return Column(
                 children: [
                   Center(
@@ -195,14 +198,19 @@ class HourlyBasedTab extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Utils.getText("${task['user_id']}"), // Replace with actual name
+                            // Utils.getText("${task['user_id']}"),resource?.where((element) => element['id'] == task['user_id']).first['first_name'] ?? ''
+                            Utils.getText("${resource?.where((user) => user['id'] == task['user_id']).first['first_name'] ?? ''}"),
                             Row(
                               children: [
                                 Utils.getText("\$${task['amount']}"),
                                 const SizedBox(width: 30 * 3),
                                 GestureDetector(
                                   onTap: () {
-                                    // Handle edit
+                                    context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
+                                      id: task['id'],
+                                      userId: task['user_id'],
+                                      amount: task['amount'],
+                                    ));
                                   },
                                   child: const Icon(
                                     Icons.edit_outlined,
