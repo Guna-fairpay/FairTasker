@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class CustomCheckboxListTile extends StatefulWidget {
   final Widget  title;
-  final dynamic value;
+  final bool? value;
   final ValueChanged<bool?> onChanged;
   final bool isCheckboxOnRight;
   final bool useExpand;
@@ -31,39 +31,38 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        widget.onChanged(!widget.value);
+        widget.onChanged(!(widget.value ?? false));
       },
       child: Padding(
         padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
+          spacing: 3,
           mainAxisSize: widget.mainAxisSize,
           children: widget.isCheckboxOnRight
               ? [
-            widget.title, // Title on the left
-            const SizedBox(width: 4),
-            SizedBox(
-              width: 24, // Control checkbox width here
-              height: 24, // Control checkbox height here
+            widget.title,
+            SizedBox.fromSize(
+              size: const Size.fromRadius(14), // Control checkbox radius here
               child: Checkbox(
                 value: widget.value,
+                tristate: true,
                 onChanged: widget.onChanged,
               ),
             ),
           ]
               : [
-            SizedBox(
-              width: 24, // Control checkbox width here
-              height: 24, // Control checkbox height here
+            SizedBox.fromSize(
+              size: const Size.fromRadius(14), // Control checkbox radius here
               child: Checkbox(
                 value: widget.value,
                 onChanged: widget.onChanged,
+                tristate: true,
                 shape: ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(Num.subradiusButton),
                 ),
-                side: BorderSide(width: 0.5, color: Colors.grey),
+                side: const BorderSide(width: 0.5, color: Colors.grey),
               ),
             ),
-            const SizedBox(width: 4), // Spacing between checkbox and text
             (widget.useExpand) ? Expanded(child: widget.title) : widget.title, // Title on the right
           ],
         ),

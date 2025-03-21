@@ -243,7 +243,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                 onTap: onVehicleHistory,
                                 child: Icon(
                                   Icons.remove_red_eye,
-                                  color: AppC.blue,
+                                  color: (model['display']?['vehicleHistoryIconColorCode'] ?? AppC.blue) ,
                                   size: 16.sp,
                                 ),
                               ),

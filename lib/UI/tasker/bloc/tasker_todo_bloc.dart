@@ -68,6 +68,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerSaveResourcesEvent>(_onSaveResourcesEvent);
     on<ToDoTaskerCompleteOdometerEvent>(_onCompleteOdometerEvent);
     on<ToDoTaskerCompleteDropCarEvent>(_onCompleteDropCarEvent);
+    on<ToDoTaskerUndoCompleteEvent>(_onUndoCompleteEvent);
+    on<ToDoTaskerVehicleHistoryTapEvent>(_onVehicleHistoryTapEvent);
+    on<ToDoTaskerRefreshEvent>(_onRefreshEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -318,38 +321,33 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     emit(ToDoTaskerPreviousState(event.model, toDos));
   }
 
-  void _onCompleteEvent(
+  void  _onCompleteEvent(
       ToDoTaskerCompleteEvent event, Emitter<ToDoTaskerState> emit) {
     var model = event.model;
     var identifierId = model?['identifier_id'];
     var taskTitle = model?['title'];
+    Console.of.log("TASK COMPLETE ${identifierId} $taskTitle");
     if (identifierId.toString().isNullOrEmpty) {
-      // CUSTOM TASK
+      /// CUSTOM TASK
+      Console.of.log("CUSTOM TASK COMPLETE");
+      /// CALL COMPLETE API
+      _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
       switch(taskTitle) {
         case "Check Out": emit(ToDoTaskerCompleteCheckOutState(event.model)); break;
         case "Check In": emit(ToDoTaskerCompleteCheckInState(event.model)); break;
-        default:
-          // CALL API TO COMPLETE
-          break;
       }
     } else {
+      var autoCompleteIds = [27];
+      if (autoCompleteIds.contains(identifierId)) _callCompleteApi(model);
       switch(identifierId) {
         case 35: // OIL CHANGE STATE
-        case 126: // OIL CHANGE STATE
-          emit(ToDoTaskerCompleteOilChangeState(event.model));
-          break;
+        case 126: emit(ToDoTaskerCompleteOilChangeState(event.model)); break;
         case 257: emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); break;
         case 212: emit(ToDoTaskerCompleteRentalCheckOutState(event.model)); break;
         case 28:
-        case 210:
-          emit(ToDoTaskerCompleteRentalPickupState(event.model));
-          break;
-        case 27:
-          emit(ToDoTaskerCompleteDropCarState(event.model));
-          break;
-        default:
-          // CALL API TO COMPLETE TASK
-          break;
+        case 210: emit(ToDoTaskerCompleteRentalPickupState(event.model)); break;
+        case 27: emit(ToDoTaskerCompleteDropCarState(event.model)); break;
+        default: _callCompleteApi(model); break; // CALL API TO COMPLETE TASK
       }
     }
   }
@@ -707,5 +705,46 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
     }
+  }
+
+  void _callCompleteApi(Map<String, dynamic>? model, {bool showLoading = true}) async {
+    try {
+      if (showLoading) emit(ToDoTaskerLoadingState());
+      Map<String, dynamic> body = {
+        "complete_time_approved" : model?['complete_time_approved'],
+        "complete_time_taken" : model?['complete_time_taken'],
+        "status" : true
+      };
+      var response = await _completeToDo(body : body, todoId: model?['id']);
+      if (response != null) _reFetchToDos();
+      emit(ToDoTaskerTaskCompletedState(model));
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onUndoCompleteEvent(ToDoTaskerUndoCompleteEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      var model = event.model;
+      emit(ToDoTaskerLoadingState());
+      Map<String, dynamic> body = {
+        "complete_time_approved" : model?['complete_time_approved'],
+        "complete_time_taken" : model?['complete_time_taken'],
+        "status" : false
+      };
+      var response = await _completeToDo(body : body, todoId: model?['id']);
+      if (response != null) _reFetchToDos();
+      if (response == null) emit(ToDoTaskerCommonState());
+    } catch (e) {
+      emit(ToDoTaskerErrorState(e));
+    }
+  }
+
+  void _onVehicleHistoryTapEvent(ToDoTaskerVehicleHistoryTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerVehicleHistoryTapState(event.model));
+  }
+
+  void _onRefreshEvent(ToDoTaskerRefreshEvent event, Emitter<ToDoTaskerState> emit) {
+    _reFetchToDos();
   }
 }

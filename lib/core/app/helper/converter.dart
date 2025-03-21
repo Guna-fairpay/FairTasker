@@ -44,6 +44,20 @@ class Converter {
     }));
   }
 
+  Future<List<http.MultipartFile>?> convertFilePathToMultipartDynamic({required List<Map<String, String?>>? files}) async {
+    if (files == null || files.isEmpty) return null;
+    return await Future.wait(files.asMap().entries.map((entry) async {
+      int index = entry.key;
+      var fieldName = entry.value.keys.first;
+      String filePath = entry.value.values.first ?? "";
+      var file = File(filePath);
+      String fileName = basename(file.path);
+      var field = "$fieldName[$index]";
+
+      return await http.MultipartFile.fromPath(field, file.path, filename: fileName);
+    }));
+  }
+
   Future<List<http.MultipartFile>?> convertFilePathToMultipartWithFileTypeMemes({List<String>? files, int lastImageIndex = 0, int lastVideoIndex = 0}) async {
     if (files == null || files.isEmpty) return null;
     List<http.MultipartFile> multipartFiles = [];

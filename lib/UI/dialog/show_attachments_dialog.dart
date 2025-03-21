@@ -9,21 +9,22 @@ class ShowAttachmentsDialog {
 
   static final ShowAttachmentsDialog of = ShowAttachmentsDialog._();
 
-  void show(BuildContext context,{required List<dynamic> attachments, required String? title, dynamic currentAttachment}) async {
+  void show(BuildContext context,{required List<dynamic> attachments, required String? title, dynamic currentAttachment, void Function(dynamic value)? onDeleted}) async {
     var allAttachments = attachments;
     allAttachments.removeWhere((element) => element == null);
     await showDialog(
       context: context,
-      builder: (context) => ShowAttachmentsDialogView(attachments: attachments, title: title, currentAttachment: currentAttachment,),
+      builder: (context) => _ShowAttachmentsDialogView(attachments: attachments, title: title, currentAttachment: currentAttachment, onDeleted: onDeleted),
     );
   }
 }
 
-class ShowAttachmentsDialogView extends StatelessWidget {
+class _ShowAttachmentsDialogView extends StatelessWidget {
   final List<dynamic> attachments;
   final String? title;
   final dynamic currentAttachment;
-  const ShowAttachmentsDialogView({super.key, required this.attachments, required this.title, this.currentAttachment});
+  final void Function(dynamic value)? onDeleted;
+  const _ShowAttachmentsDialogView({super.key, required this.attachments, required this.title, this.currentAttachment, this.onDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +53,10 @@ class ShowAttachmentsDialogView extends StatelessWidget {
         child: AttachmentSliderView(
           attachments: attachments,
           currentAttachment: currentAttachment,
+          onDeleted: (onDeleted == null) ? null : (value) {
+            onDeleted?.call(value);
+          },
+          onClose: () => Navigator.pop(context),
         ),
       ),
     );

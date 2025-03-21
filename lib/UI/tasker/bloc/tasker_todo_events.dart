@@ -261,3 +261,19 @@ class ToDoTaskerCompleteDropCarEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model, date, time, notes];
 }
+
+class ToDoTaskerUndoCompleteEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerUndoCompleteEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerVehicleHistoryTapEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerVehicleHistoryTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerRefreshEvent extends ToDoTaskerEvent {}

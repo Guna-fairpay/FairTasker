@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
 import 'package:fairpytasker/Component/todo_task_item_card.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,7 @@ class TaskerListingUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ToDoTaskerBloc, ToDoTaskerState>(
-      builder: (context, state) => (context.watch<ToDoTaskerBloc>().toDos.isEmpty) ? const EmptyWidget() :  Expanded(
+      builder: (context, state) => (context.watch<ToDoTaskerBloc>().toDos.isEmpty && (state is! ToDoTaskerLoadingState)) ? const EmptyWidget() :  Expanded(
         child: ReorderableListView.builder(
           itemCount: context.watch<ToDoTaskerBloc>().toDos.length,
           itemBuilder: (context, index) {
@@ -41,6 +42,10 @@ class TaskerListingUi extends StatelessWidget {
               onTimeChange: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimePickerTapEvent(model)),
               onVendorOrLocation: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVendorLocationTapEvent(model)),
               onVehicleGroup: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVehicleGroupTapEvent(model)),
+              onVehicleHistory: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerVehicleHistoryTapEvent(model)),
+              onPlateNumTap: () {
+                Console.of.log("${model['display']?['vins']?.length} ${model['display']?['hasVehicleHistory']}");
+              },
             );
           },
           onReorder: (oldIndex, newIndex) {

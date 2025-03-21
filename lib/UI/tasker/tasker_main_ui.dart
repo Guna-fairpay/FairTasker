@@ -14,12 +14,14 @@ import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vendor_location_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_view_vehicle_history_dialog.dart';
 import 'package:fairpytasker/UI/dialog/vendor_info_dialog.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/UI/tasker/sub_pages/tasker_listing_ui.dart';
 import 'package:fairpytasker/UI/tasker/task_components/tasker_header.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -64,9 +66,11 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerCompleteOilChangeState(): TaskerOdometerCompleteDialog.show(context, state.model, onChanged: (currentOdometer, nextMileCheck, nextOdometer) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompleteOdometerEvent(state.model, currentOdometer, nextMileCheck, nextOdometer))); break;
             case ToDoTaskerCompleteCheckInState(): TaskerCheckInOutCompleteDialog.show(context, state.model, isCheckOut: false); break;
             case ToDoTaskerCompleteCheckOutState(): TaskerCheckInOutCompleteDialog.show(context, state.model, isCheckOut: true); break;
-            case ToDoTaskerCompleteRentalCheckOutState(): TaskerRentalCompleteDialog.show(context, state.model, true); break;
-            case ToDoTaskerCompleteRentalPickupState(): TaskerRentalCompleteDialog.show(context, state.model, false); break;
+            case ToDoTaskerCompleteRentalCheckOutState(): TaskerRentalCompleteDialog.show(context, state.model, true, onCompleted: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent())); break;
+            case ToDoTaskerCompleteRentalPickupState(): TaskerRentalCompleteDialog.show(context, state.model, false, onCompleted: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent())); break;
             case ToDoTaskerCompleteDropCarState(): TaskerPickupTaskDialog.show(context, state.model, onSelected: (date, time, notes) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompleteDropCarEvent(state.model, date, time, notes))); break;
+            case ToDoTaskerTaskCompletedState(): ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text("ToDo Completed"), action: SnackBarAction(label: "Undo", textColor: AppC.appColor, backgroundColor: AppC.blue50, onPressed: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerUndoCompleteEvent(state.model))))); break;
+            case ToDoTaskerVehicleHistoryTapState(): TaskerViewVehicleHistoryDialog.show(context, state.model); break;
             default: break;
           }
         }

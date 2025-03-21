@@ -31,10 +31,12 @@ class CommonService {
   List<Map<String, dynamic>> suppliesList = [];
   List<Map<String, dynamic>> groupVehicleList = [];
   List<Map<String, dynamic>> activeVehicleList = [];
+  List<Map<String, dynamic>> activeVehicleCountList = [];
   List<Map<String, dynamic>> bouncieVehicles = [];
   List<Map<String, dynamic>> groupPersonList = [];
   List<Map<String, dynamic>> taskExpenseDataList = [];
   List<Map<String, dynamic>> expenseCategoriesList = [];
+  Map<String, dynamic>? _vehicleStatus;
 
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false);
@@ -106,14 +108,39 @@ class CommonService {
     }
   }
 
+  Future<Map<String, dynamic>?> _getActiveVehicles({bool reset = false}) async {
+    if (reset) _vehicleStatus?.clear();
+    if ((_vehicleStatus != null) && (_vehicleStatus?.isNotEmpty ?? false)) return _vehicleStatus;
+    try {
+      var response = await _apiRepository.getActiveVehicles();
+      _vehicleStatus = response;
+      return _vehicleStatus;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return null;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getActiveVehicles({bool reset = false}) async {
     if (reset) activeVehicleList.clear();
     if (activeVehicleList.isNotEmpty) return activeVehicleList;
     try {
-      var response = await _apiRepository.getActiveVehicles();
-      activeVehicleList =
-      List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      var response = await _getActiveVehicles(reset: reset);
+      activeVehicleList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
       return activeVehicleList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getActiveVehiclesCount({bool reset = false}) async {
+    if (reset) activeVehicleCountList.clear();
+    if (activeVehicleCountList.isNotEmpty) return activeVehicleCountList;
+    try {
+      var response = await _getActiveVehicles(reset: reset);
+      activeVehicleCountList = List<Map<String, dynamic>>.from(response?['vehiclesCount'] ?? []);
+      return activeVehicleCountList;
     } catch (e) {
       Toaster.showError(e.toString());
       return [];

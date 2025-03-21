@@ -35,7 +35,7 @@ class _TaskerPickupTaskDialogView extends StatelessWidget {
       _selectedTime = model?['todo_time'].toString().toTimeOfDay(inputFormat: "HH:mm:ss");
       _dateController.text = _selectedDate?.toFormat() ?? "";
       _timeController.text = _selectedTime?.toHMS() ?? "";
-      _notesController.text = model?['notes'].toString() ?? "";
+      _notesController.text = model?['notes'] ?? "";
     }
   }
 

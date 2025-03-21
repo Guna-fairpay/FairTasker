@@ -9,11 +9,14 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Colors;
 
 class ToDoProcessor {
   List<Map<String, dynamic>> _groupVehicle = [];
   List<Map<String, dynamic>> _activeVehicles = [];
+  List<Map<String, dynamic>> _activeVehiclesCount = [];
   List<Map<String, dynamic>> _groupPersons = [];
   List<Map<String, dynamic>> _usersList = [];
   List<Map<String, dynamic>> _vendorsList = [];
@@ -35,6 +38,7 @@ class ToDoProcessor {
       _fetchUsers(),
       _fetchVendors(),
       _fetchLocations(),
+      _fetchActiveVehiclesCount(),
     ]);
     _groupVehicle = response[0] ?? [];
     _activeVehicles = response[1] ?? [];
@@ -44,6 +48,7 @@ class ToDoProcessor {
     _usersList = response[5] ?? [];
     _vendorsList = response[6] ?? [];
     _locationList = response[7] ?? [];
+    _activeVehiclesCount = response[8] ?? [];
   }
 
   Future<List<Map<String, dynamic>>> _fetchVehicleGroups() async =>
@@ -51,6 +56,9 @@ class ToDoProcessor {
 
   Future<List<Map<String, dynamic>>> _fetchActiveVehicles() async =>
       await getIt<CommonService>().getActiveVehicles();
+
+  Future<List<Map<String, dynamic>>> _fetchActiveVehiclesCount() async =>
+      await getIt<CommonService>().getActiveVehiclesCount();
 
   Future<List<Map<String, dynamic>>> _fetchBouncieVehicles() async =>
       await getIt<CommonService>().getBouncieVehicles();
@@ -147,7 +155,10 @@ class ToDoProcessor {
             "addresses" : _getAddresses(e),
             "selectedAddress" : _getSelectedAddress(e),
             "resources": _resources(e),
-            "vehicles": _getVehicles(e)
+            "vehicles": _getVehicles(e),
+            "vehicleStatus" : _getVehicleStatus(e),
+            "vehicleStatusCategoryName": _getVehicleStatusCategoryName(e),
+            "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
           })
         .toList();
   }
@@ -271,11 +282,8 @@ class ToDoProcessor {
   bool _hasVehicleHistory(Map<String, dynamic> model) {
     if (model['vehicle_group_id'].toString().isNotNullOrEmpty) {
       return false;
-    } else if (model['vin'].toString().isNotNullOrEmpty) {
-      return true;
     } else {
-      var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []);
-      return (vlist.length == 1);
+      return (_getVehicleVins(model).length == 1);
     }
   }
 
@@ -433,5 +441,32 @@ class ToDoProcessor {
     return _activeVehicles
         .where((element) => vins.contains(element['vin']))
         .toList();
+  }
+
+  int? _getVehicleStatus(Map<String, dynamic> model) {
+    var vins = _getVehicleVins(model);
+    if (vins.length == 1) {
+      return _activeVehicles.firstWhereOrNull((element) => element['vin'] == vins.first)?['vehicle_status'];
+    } else {
+      return null;
+    }
+  }
+
+  String? _getVehicleStatusCategoryName(Map<String, dynamic> model) {
+    var statusId = _getVehicleStatus(model);
+    if (statusId != null) {
+      return _activeVehiclesCount.firstWhereOrNull((element) => element['id'] == statusId)?['name'];
+    } else {
+      return null;
+    }
+  }
+
+  _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
+    var statusId = _getVehicleStatus(model);
+    if (statusId != null) {
+      (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
+    } else {
+      return AppC.appColor;
+    }
   }
 }

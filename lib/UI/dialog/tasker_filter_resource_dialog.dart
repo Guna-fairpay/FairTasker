@@ -22,7 +22,7 @@ class TaskerFilterResourceDialog {
       barrierDismissible: true,
       useSafeArea: true,
       barrierColor: Colors.transparent,
-      builder: (context) => _TaskerFilterResourceDialogView(),
+      builder: (context) => const _TaskerFilterResourceDialogView(),
     );
   }
 }
@@ -90,16 +90,13 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CustomCheckboxListTile(
-                    title: Text("All"),
+                    title: const Text("All"),
                     value: false,
                     onChanged: (value) {},
                   ),
                   const Divider(),
                   Flexible(
                     child: ListView(
-                      // mainAxisAlignment: MainAxisAlignment.start,
-                      // crossAxisAlignment: CrossAxisAlignment.start,
-                      // spacing: 10,
                       shrinkWrap: true,
                       children: context
                           .watch<TFRDBloc>()
@@ -117,7 +114,7 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount:
                               List.from(e['users']).length,
                               shrinkWrap: true,
@@ -129,7 +126,7 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                   horizontalTitleGap: 2,
                                   leading: Checkbox(
                                       value: false,
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                           color: AppC.borderColor,
                                           width: Num.borderWidthThinField
                                       ),
@@ -143,7 +140,8 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                       "${model['from_time'] ?? ""} - ${model['to_time'] ?? ""}")
                                       : null,
                                 );
-                              })
+                              }),
+
                         ],
                       ))
                           .toList() ??

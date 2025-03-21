@@ -12,12 +12,13 @@ import 'package:http/http.dart' as http;
 import 'package:talker/talker.dart' show Talker;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:talker_http_logger/talker_http_logger.dart';
+import 'package:talker_http_logger/talker_http_logger_settings.dart';
 
 class ApiClient {
-  // get client => http.Client();
+  // get client => http.Client()
+  final talker = Talker();
 
   InterceptedClient get client {
-    final talker = Talker();
     final client = InterceptedClient.build(interceptors: [
       TalkerHttpLogger(talker: talker),
     ]);
@@ -68,6 +69,21 @@ class ApiClient {
         "autoIncrement": "$autoIncrement",
         "lastImageIndex": lastImageIndex,
         "lastVideoIndex": lastVideoIndex
+      });
+      return response;
+    } else {
+      Utils.showMobileToast(Str.checkInternetConnectionAlert);
+      return null;
+    }
+  }
+
+  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, List<Map<String, String?>>? infusedFiles}) async {
+    if (await Utils.connection()) {
+      http.Response response = await compute(_postMultiPartComputeDynamic, {
+        "url": Uri.parse(url),
+        "token": Utils.getHeadersWithToken(url: url),
+        "fields": body,
+        "infusedFiles": infusedFiles,
       });
       return response;
     } else {
@@ -204,11 +220,29 @@ class ApiClient {
     return http.Response(response, streamedResponse.statusCode);
   }
 
+  Future<http.Response> _postMultiPartComputeDynamic(dynamic message) async {
+    var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
+    List<http.MultipartFile> multiPartFiles = [];
+    if (files.isNotEmpty) {
+      multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamic(files: files)) ?? [];
+    }
+    var request = http.MultipartRequest("POST", message['url'])
+      ..headers.addAll(message['token'])
+      ..fields.addAll(message['fields'])
+      ..files.addAll(multiPartFiles);
+    var streamedResponse = await client.send(request);
+    var response = await streamedResponse.stream.bytesToString();
+    return http.Response(response, streamedResponse.statusCode);
+  }
+
   Future<http.Response> _postRawJsonCompute(dynamic message) async {
     var request = http.Request("POST", message['url'])
       ..headers.addAll(message['token'])
       ..body = jsonEncode(message['fields']);
     var streamedResponse = await client.send(request);
+    var alterResponse = await http.Response.fromStream(streamedResponse);
+    talker.log(alterResponse.statusCode);
+    talker.log(alterResponse.body);
     var response = await streamedResponse.stream.bytesToString();
     return http.Response(response, streamedResponse.statusCode);
   }
