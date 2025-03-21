@@ -44,9 +44,11 @@ class _TaskerFilterTasksDialogView extends StatelessWidget {
     return AlertDialog(
       elevation: 5,
       surfaceTintColor: Colors.transparent,
+      alignment: Alignment.topCenter,
+      clipBehavior: Clip.antiAliasWithSaveLayer,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
-      insetPadding: 10.padding,
+      insetPadding: 10.padding.copyWith(top: 90),
       titlePadding: 10.horizontalPadding,
       backgroundColor: AppC.blue50?.withValues(alpha: 0.9),
       title: ListTile(
