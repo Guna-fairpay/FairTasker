@@ -32,7 +32,7 @@ class TaskerHeader extends StatelessWidget {
             onUserTapDown: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTapUserFilterEvent(details)),
             onVehicleSearchPressed: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTapVehicleFilterEvent(details)),
             isUserSelected: context.watch<ToDoTaskerBloc>().isUserSelected,
-            isFilterSelected: false,
+            isFilterSelected: context.watch<ToDoTaskerBloc>().isFilterSelected,
           ),
           TodoTopHoursView(model: context.watch<ToDoTaskerBloc>().processedWorkingHours),
           TodoTopSearchBar(

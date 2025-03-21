@@ -75,7 +75,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVehicleHistoryTapState(): TaskerViewVehicleHistoryDialog.show(context, state.model); break;
             case ToDoTaskerViewVehicleState(): Toaster.showInfo("Under Development"); break;
             case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
-            case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context); break;
+            case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
             default: break;
           }
         }

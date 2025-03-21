@@ -1,9 +1,11 @@
 
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart';
 
 class CustomCheckboxListTile extends StatefulWidget {
   final Widget  title;
+  final Widget? suffix;
   final bool? value;
   final ValueChanged<bool?> onChanged;
   final bool isCheckboxOnRight;
@@ -16,6 +18,7 @@ class CustomCheckboxListTile extends StatefulWidget {
     required this.title,
     required this.value,
     required this.onChanged,
+    this.suffix,
     this.padding,
     this.useExpand = true,
     this.mainAxisSize = MainAxisSize.max,
@@ -45,10 +48,15 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
               size: const Size.fromRadius(14), // Control checkbox radius here
               child: Checkbox(
                 value: widget.value,
-                tristate: true,
                 onChanged: widget.onChanged,
+                tristate: true,
+                shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.circular(Num.subradiusButton),
+                ),
+                side: const BorderSide(width: 1, color: AppC.borderColor),
               ),
             ),
+            if (widget.suffix != null) widget.suffix ?? const SizedBox.shrink(),
           ]
               : [
             SizedBox.fromSize(
@@ -60,10 +68,11 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
                 shape: ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(Num.subradiusButton),
                 ),
-                side: const BorderSide(width: 0.5, color: Colors.grey),
+                side: const BorderSide(width: 1, color: AppC.borderColor),
               ),
             ),
-            (widget.useExpand) ? Expanded(child: widget.title) : widget.title, // Title on the right
+            (widget.useExpand) ? Expanded(child: widget.title) : widget.title,
+            if (widget.suffix != null) widget.suffix ?? const SizedBox.shrink(),// Title on the right
           ],
         ),
       ),

@@ -293,3 +293,11 @@ class ToDoTaskerUserFilterEvent extends ToDoTaskerEvent {
 }
 
 class ToDoTaskerFilterTaskEvent extends ToDoTaskerEvent {}
+
+class ToDoTaskerTaskFilterEvent extends ToDoTaskerEvent {
+  final List<dynamic>? tasks;
+  ToDoTaskerTaskFilterEvent(this.tasks);
+  @override
+  List<Object?> get props => [tasks];
+
+}

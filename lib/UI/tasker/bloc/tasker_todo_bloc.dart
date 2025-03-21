@@ -20,6 +20,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool isFilterSelected = false;
   bool isUserSelected = false;
   bool isCompleted = false;
+  List<dynamic> selectedTasks = []; // USING FOR FILTERING TASKS
   DateTime selectedDate = DateTime.now();
   List<Map<String, dynamic>>? selectedUsers = [];
   final APiRepository _aPiRepository = APiRepository();
@@ -76,6 +77,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerVehicleGroupTapEvent>(_onVehicleGroupTapEvent);
     on<ToDoTaskerUserFilterEvent>(_onUserFilterEvent);
     on<ToDoTaskerFilterTaskEvent>(_onFilterTaskEvent);
+    on<ToDoTaskerTaskFilterEvent>(_onTaskFilterEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -177,6 +179,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var response = await _fetchToDoList(resourceId: selectedUsers?.map((e) => e['id'].toString()).join(","));
       unfiltered = response ?? [];
       toDos = unfiltered;
+      _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
       emit(ToDoTaskerLoadedState());
     } catch (e) {
@@ -771,5 +774,21 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onFilterTaskEvent(ToDoTaskerFilterTaskEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerFilterTaskState());
+  }
+
+  void _searchTasks() {
+    if (selectedTasks.isNotEmpty || searchController.text.isNotEmpty) {
+      var tasks = selectedTasks.map((e) => e.toString().toLowerCase()).toList();
+      toDos = unfiltered
+      .where((element) => element.toString().toLowerCase().contains(searchController.text.toLowerCase()))
+          .where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList();
+    }
+  }
+
+  void _onTaskFilterEvent(ToDoTaskerTaskFilterEvent event, Emitter<ToDoTaskerState> emit) {
+    selectedTasks = event.tasks ?? [];
+    isFilterSelected = (selectedTasks.isNotEmpty);
+    _searchTasks();
+    emit(ToDoTaskerCommonState());
   }
 }
