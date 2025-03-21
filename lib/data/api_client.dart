@@ -240,9 +240,6 @@ class ApiClient {
       ..headers.addAll(message['token'])
       ..body = jsonEncode(message['fields']);
     var streamedResponse = await client.send(request);
-    var alterResponse = await http.Response.fromStream(streamedResponse);
-    talker.log(alterResponse.statusCode);
-    talker.log(alterResponse.body);
     var response = await streamedResponse.stream.bytesToString();
     return http.Response(response, streamedResponse.statusCode);
   }
