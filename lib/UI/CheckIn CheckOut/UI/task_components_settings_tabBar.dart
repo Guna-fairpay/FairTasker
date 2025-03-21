@@ -198,7 +198,6 @@ class HourlyBasedTab extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Utils.getText("${task['user_id']}"),resource?.where((element) => element['id'] == task['user_id']).first['first_name'] ?? ''
                             Utils.getText("${resource?.where((user) => user['id'] == task['user_id']).first['first_name'] ?? ''}"),
                             Row(
                               children: [
@@ -206,6 +205,7 @@ class HourlyBasedTab extends StatelessWidget {
                                 const SizedBox(width: 30 * 3),
                                 GestureDetector(
                                   onTap: () {
+                                    context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
                                     context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
                                       id: task['id'],
                                       userId: task['user_id'],

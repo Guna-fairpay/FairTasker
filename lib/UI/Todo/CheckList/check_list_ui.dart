@@ -116,14 +116,14 @@ class CheckListUI extends StatelessWidget {
         child: BlocBuilder<CheckListBloc, CheckListState>(
           builder: (context, state) {
             if (state.checkListData == null || state.checkListData!.isEmpty) {
-              return const Center(child: Text('No data available'));
+              return const SizedBox();
             }
             return SingleChildScrollView(
               child: Column(
                 children: [
                   const SizedBox(height: 10),
                   ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(), // Prevent inner ListView from scrolling
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: state.checkListData!.length,
                     itemBuilder: (context, index) {
@@ -160,8 +160,8 @@ class CheckListUI extends StatelessWidget {
     String extractedText = notesController.text.split('-').length > 1 ? notesController.text.split('-')[1].trim() : notesController.text;
     notesController.text = parse(extractedText).body?.text ?? extractedText;
     bool hasNotes = notesController.text.isNotEmpty;
-    //bool isChecked = checkBoxStates[itemId] ?? !hasNotes;
-    bool isChecked = !hasNotes;
+    bool isChecked = checkBoxStates[itemId] ?? !hasNotes;
+    //bool isChecked = !hasNotes;
 
     return
       Column(
@@ -223,6 +223,7 @@ class CheckListUI extends StatelessWidget {
                         notes: '${checkListData['title']}-${notesController.text}',
                       ),
                     );
+                    FocusScope.of(context).unfocus();
                   },
                   bgColor: AppC.green,
                 ),

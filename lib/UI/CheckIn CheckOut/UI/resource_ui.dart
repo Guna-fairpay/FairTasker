@@ -1,20 +1,20 @@
 
 
 // working_hours_view_ui.dart
+import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-import '../../../Component/custom_date_time_picker.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
+import 'Popups/hours_top_notification_popup.dart';
 import 'Popups/reason_top_notification_popup.dart';
 
 
@@ -60,10 +60,10 @@ class WorkHoursViewUI extends StatelessWidget {
       return '';
     }
   }
-
   String getFirstWord(String fullName) {
     return fullName.split(' ').first;
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -107,26 +107,59 @@ class WorkHoursViewUI extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 5,
-                              child: Utils.getText('User', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('CheckIn', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('CheckOut', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Utils.getText('Active', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Utils.getText('Total', weight: FontWeight.bold)
-                              )),
+                      child:
+                      Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(1),
+                          1: FlexColumnWidth(2),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(2),
+                        },
+                        children: const [
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "User",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "CheckIn",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "CheckOut",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "Active",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "Total",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -149,25 +182,55 @@ class WorkHoursViewUI extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 5,
-                              child: Utils.getText('IA', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('05:09 AM', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Utils.getText('00:00', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Utils.getText('00:00', weight: FontWeight.bold))),
+                      child:
+                      Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(1),
+                          1: FlexColumnWidth(2),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(2),
+                        },
+                        children: const [
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child:
+                                Text(
+                                  "HM",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "08:19 AM",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  " ",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "02:30",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "02:54",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -253,6 +316,8 @@ class WorkHoursViewUI extends StatelessWidget {
                                       startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now());
                                       endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now());
                                       print("startDate $startDate endDate $endDate");
+                                      log("${startDate} ${endDate}",name: "startDateEndDate");
+                                      log("${selectedDateRange}",name: "selectedDateRange");
                                       context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
                                       dates = generateDateList(startDate, endDate);
                                     },
@@ -333,6 +398,7 @@ class WorkHoursViewUI extends StatelessWidget {
                           itemCount: dataList?.length ?? 0,
                           itemBuilder: (context, index) {
                             final employee = dataList?[index];
+                            //print("employee ${employee}");
                             final activeHours = (index < state.activeHours.length)
                                 ? state.activeHours[index]
                                 : '';
@@ -355,26 +421,31 @@ class WorkHoursViewUI extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Expanded(flex: 5, child: Utils.getText(getFirstWord(employee?['first_name'] ?? ''))),
-                                      Expanded(flex: 3, child: Utils.getText(activeHours)),
+                                      Expanded(flex: 5, child: Utils.getText(getFirstWord(employee?['first_name'] ?? ''))),//Employee
+                                      Expanded(flex: 3, child: Utils.getText(activeHours)),//Active
                                       Expanded(
                                         flex: 3,
                                         child: GestureDetector(
                                           onTap: () {
-                                            // Handle tap event
+                                            context.read<WorkingHoursBloc>().add(FetchTaskCountEvent(userId: employee?['hrmID'], fromDate: startDate, toDate: endDate));
+                                            context.read<WorkingHoursBloc>().add(FetchCheckInoutReasonEvent(hrmId: employee?['hrmID'], fromDate: startDate, toDate: endDate));
+                                            HoursPopup.show(context,
+                                                dataList: employee?['list'],
+                                                userName: employee?['first_name'],
+                                                selectedDateRange: selectedDateRange.toString(),
+                                                empID: employee?['empID'],
+                                                hrmID: employee?['hrmID'], taskCounts: state.hoursData2, checkInoutReason: state.hoursData1,
+                                            );
                                           },
-                                          child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
+                                          child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),//Hours
                                         ),
                                       ),
                                       Expanded(
                                         flex: 2,
                                         child: GestureDetector(
                                           onTap: () {
-                                            ReasonTopNotificationPopup.show(context, dataList: employee?['list'],
-                                                userName: employee?['first_name'],
-                                                selectedDateRange: selectedDateRange.toString(), hrmID: employee?['hrmID']);
                                           },
-                                          child: Utils.getText(employee?['task_count'].toString() ?? ''),
+                                          child: Utils.getText(employee?['task_count'].toString() ?? ''),//Task
                                         ),
                                       ),
                                       Expanded(
@@ -383,10 +454,18 @@ class WorkHoursViewUI extends StatelessWidget {
                                           alignment: Alignment.center,
                                           child: GestureDetector(
                                             onTap: () {
-                                              // Handle tap event
+                                              context.read<WorkingHoursBloc>().add(fetchEmployeeCommentEvent(hrmId: employee?['hrmID'], fromDate: startDate, toDate: endDate));
+                                              ReasonTopNotificationPopup.show(context,
+                                                  dataList: employee?['list'],
+                                                  userName: employee?['first_name'],
+                                                  selectedDateRange: selectedDateRange.toString(),
+                                                  hrmID: employee?['hrmID'],
+                                                  taskComments: state?.comments ?? [],
+                                              );
+
                                             },
                                             child: Utils.getText(state.totalHoursValue.isNotEmpty
-                                                ? state.totalHoursValue[index].toString()
+                                                ? state?.totalHoursValue[index].toString() ?? ''
                                                 : ''),
                                           ),
                                         ),

@@ -133,7 +133,7 @@ class Utils {
         double bottomLRadius = 4,
         double bottomRRadius = 4,
       }) {
-    Console.of.log("initialSelection${initialSelection}");
+    //Console.of.log("initialSelection${initialSelection}");
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -146,7 +146,7 @@ class Utils {
             bottomLeft: Radius.circular(bottomLRadius),
             bottomRight: Radius.circular(bottomRRadius))
       ),
-      child: DropdownMenu<Map<String, dynamic>>(
+      child: DropdownMenu<dynamic>(
         //key: ValueKey(selectedKey),
         initialSelection: initialSelection,
         hintText: hintText,

@@ -49,7 +49,7 @@ class TaskComponentsSettingView extends StatelessWidget {
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
-          log("${state.selectedResource}", name: 'TEST1');
+         // log("${state.selectedResource}", name: 'TEST1');
           return Scaffold(
             backgroundColor: AppC.white,
             appBar: PreferredSize(
@@ -85,7 +85,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                       state.selectedBase1,
                       (value) {
                         selectedBases = value;
-                        print("selectedBases ${selectedBases}");
+                       // print("selectedBases ${selectedBases}");
                         context
                             .read<WorkingHoursBloc>()
                             .add(UpdateDropdownValueEvent(value));
@@ -104,17 +104,17 @@ class TaskComponentsSettingView extends StatelessWidget {
                       Utils.getTextFormField('Amount (\$)', amountController),
                       const SizedBox(height: 16),
                     ] else...[
-                      Text("${state.selectedResource}"),
                       Utils.dropdownBox(
                         'Select User',
-                        state.resource,
+                        state.userList,
                         (value) {
                           resource = value;
-                          print("Selected Resource: $resource");
+                          //print("Selected Resource: $resource");
                         },
-                        labelKey: 'full_name',
+                        labelKey: 'first_name',
+                        labelKey2: 'last_name',
                         //selectedKey: state.selectedResource,
-                        initialSelection: state.selectedResource,
+                        initialSelection: state.selectedUser,
                       ),
                       const SizedBox(height: 16),
                       Utils.getTextFormField(
@@ -150,23 +150,32 @@ class TaskComponentsSettingView extends StatelessWidget {
                         if (state.isEditMode)
                           Utils.getAddFilledButton("Update", () {
                             FocusScope.of(context).unfocus();
-                            context
-                                .read<WorkingHoursBloc>()
-                                .add(ExitEditModeEvent());
-                            context.read<WorkingHoursBloc>().add(
-                                CreateTaskEvent(
-                                    id: state.taskId,
-                                    taskName:
-                                        taskNameController.text.toString(),
-                                    amount: amountController.text.toString(),
-                                    task: 'task'));
+                            context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                            if(state.userId == null)
+                              {
+                                context.read<WorkingHoursBloc>().add(
+                                    CreateTaskEvent(
+                                        id: state.taskId,
+                                        taskName: taskNameController.text.toString(),
+                                        amount: amountController.text.toString(),
+                                        task: 'task')
+                                );
+                              } else {
+                              context.read<WorkingHoursBloc>().add(
+                                  CreateTaskEvent(
+                                      id: state.taskId,
+                                      amount: amountController.text.toString(),
+                                      userId: resource['id'],
+                                      task: 'hourly')
+                              );
+                            }
                           }, bgColor: AppC.green),
                         if (state.isEditMode) const SizedBox(width: 16),
                         if (state.isEditMode)
                           Utils.getAddFilledButton("Cancel", () {
-                            context
-                                .read<WorkingHoursBloc>()
-                                .add(ExitEditModeEvent());
+                            context.read<WorkingHoursBloc>().add(ResetResourceEvent());
+                            context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 0));
+                            context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                           }, bgColor: AppC.red),
                       ],
                     ),

@@ -36,7 +36,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   List<Map<String,dynamic>>?selectedResources=[];
 
 
-  WorkingHoursBloc() : super(const WorkingHoursState ()) {
+  WorkingHoursBloc() : super(const WorkingHoursState (
+      userList: [],
+      selectedUser: {}
+  )) {
 
     on<WorkingHoursInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
@@ -179,9 +182,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     }
                   }
                 }
-                //print("Total hours ${lessCount + greaterCount}");
+                print("Total hours ${lessCount + greaterCount}");
+                totalHoursValue.clear();
                 totalHoursValue.add(lessCount + greaterCount);
-                //print("Total hours value ${totalHoursValue}");
+                print("Total hours value ${totalHoursValue}");
                 activeHours.add(calculateActiveHours(workActiveHours, employee));
               }
               //Total Hours(#) Calculation End
@@ -324,41 +328,47 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     });
 
 
-    on<UpdateTaskEvent>((event, emit){
+    on<UpdateTaskEvent>((event, emit) async {
       print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ${event.userId}");
       List<Map<String, dynamic>> base = [
         {"id":1,"base": "Task based"},
         {"id":2,"base": "Hour based"}
       ];
+      final apiResponse = await authenticationRepo.getAssignedTo();
+      var userListData = apiResponse?.resource;
+      dynamic selectedUser = userListData?.firstWhere(
+            (resource) => resource['id'] == event.userId,
+        orElse: () => {},
+      );
+      log("${selectedUser}",name: 'TEST1');
       if(event.userId == null)
         {
           taskNameCtrl.text = event.taskName ?? '';
           amountCtrl.text = event.amount ?? '';
           dynamic selectedBase = base[0];
+          log("${selectedBase}", name: 'TEST2');
           print("event id ${event.id}");
           emit(state.copyWith(
             taskId: event.id,
             taskNameController: taskNameCtrl,
             amountController: amountCtrl,
+            selectedBase1: base,
             selectedBase: selectedBase,
           ));
         }
       else {
         amountCtrl.text = event.amount ?? '';
         dynamic selectedBase = base[1];
-        log("${state.resource}", name: 'Resource');
-        selectedResources = state.resources?.where((resource) => resource['id'] == event.userId).toList();
-
-        //print("selectedResource $selectedResource");
-        log("${selectedResources}", name: 'selectedResource');
+        log("${selectedBase}", name: 'TEST1');
         emit(state.copyWith(
           taskId: event.id,
           userId: event.userId,
           amountController: amountCtrl,
+          selectedBase1: base,
           selectedBase: selectedBase,
-          selectedResource: selectedResources?.firstOrNull,
+          userList: userListData,
+          selectedUser:selectedUser,
         ));
-        log("${state.selectedResource}", name: 'selectedResource');
       }
     });
 
@@ -367,43 +377,93 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(selectedBase: event.selectedBase));
     });
 
-    on<EnterEditModeEvent>((event, emit) {
-      emit(state.copyWith(isEditMode: true));
+    on<ResetDropdownEvent>((event, emit) {
+      emit(state.copyWith(
+        selectedBase: event.isTaskBased
+            ? {"base": "Task based"}
+            : {"base": "Hour based"},
+      ));
     });
 
+    on<ResetResourceEvent>((event, emit) {
+      emit(state.copyWith(
+        selectedBase1: [],
+        selectedUser: [],
+      ));
+    });
+
+    on<EnterEditModeEvent>((event, emit) {
+      emit(state.copyWith(isEditMode: true,));
+    });
     on<ExitEditModeEvent>((event, emit) {
       emit(state.copyWith(isEditMode: false));
     });
+
+    // on<EnterHourEditModeEvent>((event, emit) {
+    //   emit(state.copyWith(isHourEditMode: true));
+    // });
+    // on<ExitHourEditModeEvent>((event, emit) {
+    //   emit(state.copyWith(isHourEditMode: false));
+    // });
 
     on<TaskDateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
 
     on<fetchEmployeeCommentEvent>((event, emit) async {
+      print("event data---------> ${event.hrmId} ${event.fromDate} ${event.toDate}");
       final comment = await taskRepo.fetchEmployeeComments(
       hrmId: event.hrmId,
       fromDate: event.fromDate,
       toDate: event.toDate,
     );
+      List<Map<String, dynamic>> commentList = [];
+      commentList = comment!.comments!;
+      print("comment ${commentList}");
+      emit(state.copyWith(comments: commentList));
   });
 
-    //   Future<void> _onFetchComment(
-//       fetchEmployeeComment event,
+    on<FetchCheckInoutReasonEvent>((event, emit) async {
+        final data = await taskRepo.fetchCheckInoutReason(
+        hrmId: event.hrmId,
+        fromDate: event.fromDate,
+        toDate: event.toDate,
+      );
+        List<Map<String, dynamic>> hoursData = [];
+        hoursData = data!.data!;
+        print("hoursData $hoursData");
+        emit(state.copyWith(hoursData1: hoursData));
+    });
+
+    on<FetchTaskCountEvent>((event, emit) async {
+      List<Map<String, dynamic>> history = [];
+      final data = await taskRepo.fetchEmployeeTaskCount(
+        userId: event.userId,
+        fromDate: event.fromDate,
+        toDate: event.toDate,
+      );
+      history = data!.history!;
+      print("history $history");
+      emit(state.copyWith(hoursData2: history));
+    });
+
+
+
+    //   Future<void> _onFetchTaskCount(
+//       FetchTaskCountEvent event,
 //       Emitter<TaskState> emit,
 //       ) async {
 //     emit(TaskLoadingState());
 //     try {
-//       final comment = await taskRepo.fetchEmployeeComments(
-//         hrmId: event.hrmId,
+//       final history = await taskRepo.fetchEmployeeTaskCount(
+//         userId: event.userId,
 //         fromDate: event.fromDate,
 //         toDate: event.toDate,
 //       );
-//       emit(CommentLoadedState(comment!));
+//       emit(TaskLoadedState(history!));
 //     } catch (e) {
 //       emit(TaskErrorState(e.toString()));
 //     }
 //   }
-
-
   }
 }
 // import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';

@@ -56,6 +56,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           return;
         }
 
+        todoItemsCopy = event.todoItem;
+        vehiclesCopy = event.vehicle;
         final todoList = response1.data ?? [];
         final maintenanceCheckList = response.data ?? [];
         final checkboxStates = <int, Map<int, bool>>{};
@@ -77,6 +79,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         }
 
         Map<String, dynamic> todoItem = event.todoItem;
+        log("$todoItem",name: "TodoItems");
+        log("${event.vehicle}",name: "Vehicles");
         String? fixTasksJson = todoItem['fix_tasks'];
         if (fixTasksJson == null) {
           print("fix_tasks is null");
@@ -118,8 +122,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
               if (maintenanceTaskId == null || notes == null || comments == null) {
                 continue; // Skip if any required field is null
               }
-              List<String> idList = maintenanceTaskId.split(" - ").map((e) => e.trim()).toList();
-              List<String?> noteList = notes.split(" - ").map((e) => e.trim()).toList();
+              List<dynamic> idList = maintenanceTaskId.split(" - ").map((e) => e.trim()).toList();
+              List<dynamic> noteList = notes.split(" - ").map((e) => e.trim()).toList();
               for (int i = 0; i < idList.length; i++) {
                 result.add({
                   "id": int.tryParse(idList[i]) ?? 0, // Handle invalid IDs
@@ -150,8 +154,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
             "comments": todo["comments"],
           };
         })
-            .where((todo) => todo != null) // Filter out null values
-            .cast<Map<String, dynamic>>() // Cast to List<Map<String, dynamic>>
+            .where((todo) => todo != null)
+            .cast<Map<String, dynamic>>()
             .toList();
 
         parsedData = parseMaintenanceData(matchingTodos);
@@ -295,12 +299,16 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
 
     //Create Fix Task
     on<createFixTaskEvent>((event, emit) async {
+      print("${todoItemsCopy['user_id']} ${todoItemsCopy['user_group_id']} ${event.item} ${event.maintenanceTaskId} ${event.notes}"
+          "${event.comments} ${todoItemsCopy['todo_time']} ${todoItemsCopy['todo_date']} ${event.item} ${todoItemsCopy['vehicles']}"
+          "${todoItemsCopy['location']} ${todoItemsCopy['location_id']} ${todoItemsCopy['vendor_id']} ${todoItemsCopy['vendor_name']}"
+          "${vehiclesCopy['vehicle_number']}");
       try{
         await todoListRepo.createFixTask(CreateFixTaskData()
           ..userId = todoItemsCopy['user_id']
           ..userGroupId = int.tryParse(todoItemsCopy['user_group_id']?.toString() ?? '0') ?? 0
           ..title = event.item == 64 ? 'Oil Change' : 'Fix'
-          ..maintenanceTaskId = maintenanceTaskId
+          ..maintenanceTaskId = event.maintenanceTaskId
           ..notes = event.notes
           ..comments = event.comments
           ..todoTime = todoItemsCopy['todo_time']
@@ -312,6 +320,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           ..vendorId = todoItemsCopy['vendor_id']
           ..vendorName = todoItemsCopy['vendor_name']
           ..vehicleNumber = vehiclesCopy['vehicle_number']);
+        add(const MaintenanceInitialEvent(todoItem: {}, vehicle: {}));
       }
       catch(e){
         print("catch error ${e.toString()}");

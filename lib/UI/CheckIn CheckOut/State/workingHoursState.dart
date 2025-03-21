@@ -25,15 +25,21 @@ class WorkingHoursState extends Equatable {
   final DateRange? selectedDateRange;
   final TextEditingController? taskNameController;
   final TextEditingController? amountController;
-  final List<Map<String, dynamic>> selectedBase1;
+  final List<dynamic> selectedBase1;
   final dynamic selectedBase;
   final bool isEditMode;
+  final bool isHourEditMode;
   final int? taskId;
   final int? userId;
   final dynamic selectedDate;
   final List<dynamic> resource;
   final dynamic dropDownEvent;
   final dynamic selectedResource;
+  final List<dynamic>userList;
+  final dynamic selectedUser;
+  final List<Map<String,dynamic>> comments;
+  final List<Map<String,dynamic>> hoursData1;
+  final List<Map<String,dynamic>> hoursData2;
 
   const WorkingHoursState(
       {
@@ -57,12 +63,18 @@ class WorkingHoursState extends Equatable {
         this.selectedBase1 = const [],
         this.selectedBase,
         this.isEditMode = false,
+        this.isHourEditMode = false,
         this.taskId,
         this.userId,
         this.selectedDate,
         this.resource = const [],
         this.dropDownEvent,
         this.selectedResource,
+        required this.userList,
+        required this.selectedUser,
+        this.comments = const [],
+        this.hoursData1 = const [],
+        this.hoursData2 = const [],
       });
 
   WorkingHoursState copyWith({
@@ -83,15 +95,21 @@ class WorkingHoursState extends Equatable {
     DateRange? selectedDateRange,
     TextEditingController? taskNameController,
     TextEditingController? amountController,
-    List<Map<String, dynamic>>? selectedBase1,
+    List<dynamic>? selectedBase1,
     dynamic selectedBase,
     bool? isEditMode,
+    bool? isHourEditMode,
     int? taskId,
     int? userId,
     DateTime? selectedDate,
     List<dynamic>? resource,
     dynamic dropDownEvent,
     dynamic selectedResource,
+    List<dynamic>?userList,
+    dynamic selectedUser,
+    List<Map<String,dynamic>>? comments,
+    List<Map<String,dynamic>>? hoursData1,
+    List<Map<String,dynamic>>? hoursData2,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -113,12 +131,18 @@ class WorkingHoursState extends Equatable {
     selectedBase1: selectedBase1 ?? this.selectedBase1,
     selectedBase: selectedBase,
     isEditMode: isEditMode ?? this.isEditMode,
+    isHourEditMode: isHourEditMode ?? this.isHourEditMode,
     taskId: taskId ?? this.taskId,
     userId: userId ?? this.userId,
     selectedDate: selectedDate ?? this.selectedDate,
     resource: resource ?? this.resource,
     dropDownEvent: dropDownEvent,
-    selectedResource: selectedResource
+    selectedResource: selectedResource,
+    userList: userList ?? this.userList,
+    selectedUser: selectedUser ?? this.selectedUser,
+    comments: comments ?? this.comments,
+    hoursData1: hoursData1 ?? this.hoursData1,
+    hoursData2: hoursData2 ?? this.hoursData2,
   );
 
   @override
@@ -143,12 +167,18 @@ class WorkingHoursState extends Equatable {
     selectedBase1,
     selectedBase,
     isEditMode,
+    isHourEditMode,
     taskId,
     userId,
     selectedDate,
     resource,
     dropDownEvent,
     selectedResource,
+    userList,
+    selectedUser,
+    comments,
+    hoursData1,
+    hoursData2,
     Random().nextDouble()
   ];
 }

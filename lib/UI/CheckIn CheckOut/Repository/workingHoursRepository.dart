@@ -4,7 +4,6 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingHoursResponse
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingReasonResponse.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-
 import '../../../Utilities/Str.dart';
 import '../../../data/api_client.dart';
 import '../Response/checkInOutResponse.dart';
@@ -15,6 +14,7 @@ import '../Response/workingTaskResponse.dart';
 class TaskRepository {
   final ApiClient apiClient = ApiClient();
 
+  //need
   Future<CheckInOutReasonResponse?> fetchCheckInoutReason({
     required int hrmId,
     required String fromDate,
@@ -41,6 +41,37 @@ class TaskRepository {
       }
     } catch (e) {
       log('Exception in fetchCheckInoutReason: $e');
+      return null;
+    }
+  }
+
+  //need
+  Future<WorkingHoursResponse?> fetchEmployeeTaskCount({
+    required int userId,
+    required String fromDate,
+    required String toDate,
+  }) async
+  {
+    try {
+      final String apiUrl =
+          '${Str
+          .BASE_URL}employeeTaskCount?user_id=$userId&from=$fromDate&to=$toDate';
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          final WorkingHoursResponse workingHoursResponse =
+          WorkingHoursResponse.fromJson(jsonDecode(response.body));
+          return workingHoursResponse;
+        } else {
+          log('API Error: ${response.statusCode}, Body: ${response.body}');
+          return null;
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      log('Exception in fetchEmployeeTaskCount: $e');
       return null;
     }
   }
@@ -75,35 +106,7 @@ class TaskRepository {
     }
   }
 
-  Future<WorkingHoursResponse?> fetchEmployeeTaskCount({
-    required int userId,
-    required String fromDate,
-    required String toDate,
-  }) async
-  {
-    try {
-      final String apiUrl =
-          '${Str
-          .BASE_URL}employeeTaskCount?user_id=$userId&from=$fromDate&to=$toDate';
-      final http.Response? response = await apiClient.callGetMethod(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200) {
-          final WorkingHoursResponse workingHoursResponse =
-          WorkingHoursResponse.fromJson(jsonDecode(response.body));
-          return workingHoursResponse;
-        } else {
-          log('API Error: ${response.statusCode}, Body: ${response.body}');
-          return null;
-        }
-      } else {
-        log('API Response is null');
-        return null;
-      }
-    } catch (e) {
-      log('Exception in fetchEmployeeTaskCount: $e');
-      return null;
-    }
-  }
+
 
   Future<WorkingTaskResponse?> fetchEmployeeTaskHistory({
     required String to,
