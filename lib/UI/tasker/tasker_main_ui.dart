@@ -50,7 +50,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerMicState(): Toaster.showInfo("MIC PRESSED"); break;
             case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoReworkUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
             case ToDoTaskerEditState(): context.push(EditTodoReworkUI(todoId: state.toDoId),fullscreenDialog: true); break;
-            case ToDoTaskerTapUserFilterState(): TaskerFilterResourceDialog.show(context); break;
+            case ToDoTaskerTapUserFilterState(): TaskerFilterResourceDialog.show(context, selected: context.read<ToDoTaskerBloc>().selectedUsers, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerUserFilterEvent(value))); break;
             case ToDoTaskerTapVehicleFilterState(): TaskerVehicleSearchDialog.show(context); break;
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;
             case ToDoTaskerNotesTapState(): NotesDialog.show(context, message: state.model?['notes'], onSave: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveNotesEvent(state.model, value))); break;

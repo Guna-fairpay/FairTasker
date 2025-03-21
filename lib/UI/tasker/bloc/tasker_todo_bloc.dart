@@ -21,6 +21,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool isUserSelected = false;
   bool isCompleted = false;
   DateTime selectedDate = DateTime.now();
+  List<Map<String, dynamic>>? selectedUsers = [];
   final APiRepository _aPiRepository = APiRepository();
   final TextEditingController searchController = TextEditingController();
 
@@ -73,6 +74,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerRefreshEvent>(_onRefreshEvent);
     on<ToDoTaskerViewVehicleEvent>(_onViewVehicleEvent);
     on<ToDoTaskerVehicleGroupTapEvent>(_onVehicleGroupTapEvent);
+    on<ToDoTaskerUserFilterEvent>(_onUserFilterEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -171,7 +173,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
-      var response = await _fetchToDoList();
+      var response = await _fetchToDoList(resourceId: selectedUsers?.map((e) => e['id'].toString()).join(","));
       unfiltered = response ?? [];
       toDos = unfiltered;
       Console.of.debug("CHECK ${toDos.length}");
@@ -237,7 +239,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onTapUserFilterEvent(
       ToDoTaskerTapUserFilterEvent event, Emitter<ToDoTaskerState> emit) {
-    isUserSelected = !isUserSelected;
     emit(ToDoTaskerTapUserFilterState(event.details));
   }
 
@@ -759,5 +760,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onVehicleGroupTapEvent(ToDoTaskerVehicleGroupTapEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerVehicleGroupTapState(event.model));
+  }
+
+  void _onUserFilterEvent(ToDoTaskerUserFilterEvent event, Emitter<ToDoTaskerState> emit) {
+    selectedUsers = event.users;
+    isUserSelected = selectedUsers?.isNotEmpty ?? false;
+    _reFetchToDos();
   }
 }

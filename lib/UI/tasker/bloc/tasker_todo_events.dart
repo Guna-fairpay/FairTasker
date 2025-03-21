@@ -284,3 +284,10 @@ class ToDoTaskerViewVehicleEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ToDoTaskerUserFilterEvent extends ToDoTaskerEvent {
+  final List<Map<String, dynamic>>? users;
+  ToDoTaskerUserFilterEvent(this.users);
+  @override
+  List<Object?> get props => [users];
+}

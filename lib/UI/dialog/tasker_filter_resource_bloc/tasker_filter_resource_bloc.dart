@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_bloc/tasker_filter_resource_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_bloc/tasker_filter_resource_states.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -16,9 +15,13 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
 
   List<Map<String, dynamic>>? users;
   List<Map<String, dynamic>>? departments;
+  List<Map<String, dynamic>>? selected = [];
+  bool isAllSelected = false;
   int? branchId = Session.of.getInt(Str.branchIdPrefText);
   TFRDBloc() : super(TFRDLoadingState()) {
     on<TFRDInitialEvent>(_onInitialEvent);
+    on<TFRDSelectEvent>(_onSelectEvent);
+    on<TFRDAllEvent>(_onAllEvent);
   }
 
   Future<List<Map<String, dynamic>>?> _fetchUsers() async => await getIt<CommonService>().getUsers();
@@ -26,9 +29,9 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
   void _onInitialEvent(TFRDInitialEvent event, Emitter<TFRDStates> emit) async {
     try {
       emit(TFRDLoadingState());
+      selected = event.selected;
       var response = (await _fetchUsers());
       users = List.from(response ?? []);
-      Console.of.debug("Branch ID $branchId ${branchId.runtimeType}");
       users?.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['branch_id'].toString().isNullOrEmpty) || ((element['branch_id'] != branchId)));
       departments = users?.map((e) => Map<String, dynamic>.from(e['departments'])).map((e) => e..['name'] = (['Admin Manager', 'Operations'].contains(e['name'])) ? "Core" : e['name']).toSet().toList();
       departments?.sort((a, b) => a['id'].compareTo(b['id']));
@@ -37,10 +40,29 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
       departments = departments.unique((element) => element['name']);
       departments = departments?.map((e) => e..['users'] = (users?.where((element) => List.from(e['ids']).contains(element['departments']?['id'])).toList())).toList();
       departments?.sort((a, b) => a['name'].compareTo(b['name']));
-      Console.of.debug(jsonEncode(departments));
+      isAllSelected = (selected?.length == users?.length);
       emit(TFRDCommonState());
     } catch (e) {
       emit(TFRDErrorState(e));
     }
+  }
+
+  void _onSelectEvent(TFRDSelectEvent event, Emitter<TFRDStates> emit) {
+    if (selected?.contains(event.model) ?? false) {
+      selected?.remove(event.model);
+    } else {
+      selected?.add(event.model ?? {});
+    }
+    emit(TFRDSelectedState(selected ?? []));
+  }
+
+  void _onAllEvent(TFRDAllEvent event, Emitter<TFRDStates> emit) {
+    isAllSelected = !isAllSelected;
+    if (isAllSelected) {
+      selected = users;
+    } else {
+      selected?.clear();
+    }
+    emit(TFRDSelectedState(selected ?? []));
   }
 }

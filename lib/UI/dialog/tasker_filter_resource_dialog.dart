@@ -16,19 +16,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class TaskerFilterResourceDialog {
   TaskerFilterResourceDialog._();
 
-  static void show(BuildContext context) async {
+  static void show(BuildContext context, {List<Map<String, dynamic>>? selected, void Function(List<Map<String, dynamic>>)? onChanged}) async {
     await showDialog(
       context: context,
       barrierDismissible: true,
       useSafeArea: true,
       barrierColor: Colors.transparent,
-      builder: (context) => const _TaskerFilterResourceDialogView(),
+      builder: (context) => _TaskerFilterResourceDialogView(selected: selected, onChanged: onChanged),
     );
   }
 }
 
 class _TaskerFilterResourceDialogView extends StatelessWidget {
-  const _TaskerFilterResourceDialogView({super.key});
+  final List<Map<String, dynamic>>? selected;
+  final void Function(List<Map<String, dynamic>>)? onChanged;
+  const _TaskerFilterResourceDialogView({this.selected, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,7 @@ class _TaskerFilterResourceDialogView extends StatelessWidget {
       ),
       contentPadding: 10.horizontalPadding,
       content: BlocProvider(
-        create: (context) => TFRDBloc()..add(TFRDInitialEvent()),
+        create: (context) => TFRDBloc()..add(TFRDInitialEvent(selected)),
         child: BlocListener<TFRDBloc, TFRDStates>(
           listener: (context, state) {
             if (state is TFRDLoadingState) {
@@ -67,10 +69,14 @@ class _TaskerFilterResourceDialogView extends StatelessWidget {
                 case TFRDErrorState():
                   Toaster.showError(state.message);
                   break;
+                case TFRDSelectedState():
+                  onChanged?.call(context.read<TFRDBloc>().selected ?? []);
+                  // context.popDialog();
+                  break;
               }
             }
           },
-          child: _TaskerFilterResourceDialogContentView(),
+          child: const _TaskerFilterResourceDialogContentView(),
         ),
       ),
     );
@@ -91,8 +97,8 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                 children: [
                   CustomCheckboxListTile(
                     title: const Text("All"),
-                    value: false,
-                    onChanged: (value) {},
+                    value: context.watch<TFRDBloc>().isAllSelected,
+                    onChanged: (value) => context.read<TFRDBloc>().add(TFRDAllEvent()),
                   ),
                   const Divider(),
                   Flexible(
@@ -124,13 +130,11 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                   dense: true,
                                   contentPadding: EdgeInsets.zero,
                                   horizontalTitleGap: 2,
-                                  leading: Checkbox(
-                                      value: false,
-                                      side: const BorderSide(
-                                          color: AppC.borderColor,
-                                          width: Num.borderWidthThinField
-                                      ),
-                                      onChanged: (value) {}),
+                                  onTap: () => context.read<TFRDBloc>().add(TFRDSelectEvent(model)),
+                                  leading: Icon(
+                                      (context.watch<TFRDBloc>().selected?.contains(model) ?? false) ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                                    color: (context.watch<TFRDBloc>().selected?.contains(model) ?? false) ? AppC.appColor : null,
+                                  ),
                                   title: Text(
                                       "${model['first_name'] ?? ""} ${model['last_name'] ?? ""}"),
                                   trailing: (model['from_time']
@@ -141,7 +145,6 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                       : null,
                                 );
                               }),
-
                         ],
                       ))
                           .toList() ??
