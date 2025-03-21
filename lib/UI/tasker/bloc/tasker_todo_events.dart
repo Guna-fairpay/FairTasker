@@ -291,3 +291,5 @@ class ToDoTaskerUserFilterEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [users];
 }
+
+class ToDoTaskerFilterTaskEvent extends ToDoTaskerEvent {}

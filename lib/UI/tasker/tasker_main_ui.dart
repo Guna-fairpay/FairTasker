@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_completed_time_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_group_vehicle_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_move_previous_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog.dart';
@@ -74,6 +75,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVehicleHistoryTapState(): TaskerViewVehicleHistoryDialog.show(context, state.model); break;
             case ToDoTaskerViewVehicleState(): Toaster.showInfo("Under Development"); break;
             case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
+            case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context); break;
             default: break;
           }
         }

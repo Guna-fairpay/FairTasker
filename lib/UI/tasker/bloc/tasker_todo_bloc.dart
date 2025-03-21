@@ -75,6 +75,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewVehicleEvent>(_onViewVehicleEvent);
     on<ToDoTaskerVehicleGroupTapEvent>(_onVehicleGroupTapEvent);
     on<ToDoTaskerUserFilterEvent>(_onUserFilterEvent);
+    on<ToDoTaskerFilterTaskEvent>(_onFilterTaskEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -766,5 +767,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     selectedUsers = event.users;
     isUserSelected = selectedUsers?.isNotEmpty ?? false;
     _reFetchToDos();
+  }
+
+  void _onFilterTaskEvent(ToDoTaskerFilterTaskEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerFilterTaskState());
   }
 }

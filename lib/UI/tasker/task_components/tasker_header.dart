@@ -26,7 +26,7 @@ class TaskerHeader extends StatelessWidget {
             onDatePressed: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerTapDateEvent()),
             onPreviousPressed: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerPreviousDateEvent()),
             onNextPressed: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerNextDateEvent()),
-            onFilterPressed: (details) => Toaster.showInfo("FILTER PRESSED"),
+            onFilterPressed: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerFilterTaskEvent()),
             onSwitch: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerShowCompleteEvent(val)),
             showCompleted: context.watch<ToDoTaskerBloc>().isCompleted,
             onUserTapDown: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTapUserFilterEvent(details)),

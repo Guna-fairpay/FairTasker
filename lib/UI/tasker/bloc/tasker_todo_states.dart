@@ -224,3 +224,8 @@ class ToDoTaskerViewVehicleState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class ToDoTaskerFilterTaskState extends ToDoTaskerState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
