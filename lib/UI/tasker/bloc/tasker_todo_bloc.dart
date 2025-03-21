@@ -71,6 +71,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerUndoCompleteEvent>(_onUndoCompleteEvent);
     on<ToDoTaskerVehicleHistoryTapEvent>(_onVehicleHistoryTapEvent);
     on<ToDoTaskerRefreshEvent>(_onRefreshEvent);
+    on<ToDoTaskerViewVehicleEvent>(_onViewVehicleEvent);
+    on<ToDoTaskerVehicleGroupTapEvent>(_onVehicleGroupTapEvent);
   }
 
   /* BEGIN: API CALLS */
@@ -623,13 +625,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "address" : model?['address'],
         "branch_id" : model?['branch_id'],
         "cohort_id" : model?['cohort_id'],
-        "identifier_id" : model?['identifier_id'],
+        "identifier_id" : 257,
         "location" : model?['location'],
         "location_id" : model?['location_id'],
         "notes" : model?['notes'],
         "start_at" : model?['todo_date'],
         "time_sensitive" : model?['time_sensitive'],
-        "title" : model?['title'],
+        "title" : "Maintenance Check",
         "todo_time" : model?['todo_time'],
         "user_group_id" : model?['user_group_id'],
         "vehicle_name" : model?['vehicle_name'],
@@ -655,7 +657,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     }
   }
 
-  void _onCompleteDropCarEvent(ToDoTaskerCompleteDropCarEvent event, Emitter<ToDoTaskerState> emit) {
+  void _onCompleteDropCarEvent(ToDoTaskerCompleteDropCarEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       var model = event.model;
       var date = event.date;
@@ -665,7 +667,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "title" : "Pickup Car",
         "location" : null,
         "location_id" : null,
-        "vehicles" : [],
+        "vehicles" : model?['vehicles'],
         "repeatPeriod" : null,
         "repeatDay" : null,
         "repeatWeek" : null,
@@ -691,17 +693,20 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "assigned_to" : [_toDoProcessor.userId],
         "todo_time" : time.toHMS(),
         "platform_check" : null,
-        "identifier_id" : 20,
+        "identifier_id" : 28,
         "todo_user_type" : null,
         "time_sensitive" : false,
         "comments" : null,
-        "branch_id" : 1,
+        "branch_id" : _toDoProcessor.branchId,
         "mileage" : null,
         "resolution_notes" : null,
         "custom_link_id" : null,
         "reference_id" : null,
         "custom_link" : null
       };
+      emit(ToDoTaskerLoadingState());
+      var response = await _addToDo(body: mapData);
+      if (response != null) _reFetchToDos();
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
     }
@@ -746,5 +751,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onRefreshEvent(ToDoTaskerRefreshEvent event, Emitter<ToDoTaskerState> emit) {
     _reFetchToDos();
+  }
+
+  void _onViewVehicleEvent(ToDoTaskerViewVehicleEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerViewVehicleState(event.model));
+  }
+
+  void _onVehicleGroupTapEvent(ToDoTaskerVehicleGroupTapEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerVehicleGroupTapState(event.model));
   }
 }

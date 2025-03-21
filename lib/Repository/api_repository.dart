@@ -115,6 +115,8 @@ class APiRepository {
 
   String get _addTodo => "add-todo";
 
+  String get _relatedToDos => "related-todos";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -894,6 +896,30 @@ class APiRepository {
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> relatedToDos({required List<dynamic> todoIds}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_relatedToDos?id=$todoIds";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      var listData = List<Map<String, dynamic>>.from(mapData?['todos'] ?? []);
+      return listData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateGroupVehicle({Map<String, dynamic>? body, required dynamic groupId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_groupVehicle/$groupId";
+      body?.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "PUT");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
       rethrow;
     }
   }

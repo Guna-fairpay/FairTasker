@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_completed_time_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_group_vehicle_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_move_previous_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_change_dialog.dart';
@@ -71,6 +72,8 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerCompleteDropCarState(): TaskerPickupTaskDialog.show(context, state.model, onSelected: (date, time, notes) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompleteDropCarEvent(state.model, date, time, notes))); break;
             case ToDoTaskerTaskCompletedState(): ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text("ToDo Completed"), action: SnackBarAction(label: "Undo", textColor: AppC.appColor, backgroundColor: AppC.blue50, onPressed: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerUndoCompleteEvent(state.model))))); break;
             case ToDoTaskerVehicleHistoryTapState(): TaskerViewVehicleHistoryDialog.show(context, state.model); break;
+            case ToDoTaskerViewVehicleState(): Toaster.showInfo("Under Development"); break;
+            case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
             default: break;
           }
         }

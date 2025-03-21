@@ -20,6 +20,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   final void Function(dynamic val)? onDeleted;
   final TextEditingController? controller;
   final bool updateWhileDelete;
+  final String labelText;
 
   CustomVehiclePersonField({
     super.key,
@@ -28,6 +29,7 @@ class CustomVehiclePersonField extends StatelessWidget {
     this.selected,
     this.onSelected,
     this.onDeleted,
+    this.labelText = "Vehicle/Person",
     required this.personsList,
     this.groupVehicles = const [],
     this.controller,
@@ -130,7 +132,7 @@ class CustomVehiclePersonField extends StatelessWidget {
               valueListenable: showEmptyNotifier,
               builder: (context, value, child) => CustomAutoSearchField(
                   controller: controller!,
-                  labelText: "Vehicle/Person",
+                  labelText: labelText,
                   onSelected: _onSuggested,
                   showEmptyWidget: value,
                   autoClear: true,

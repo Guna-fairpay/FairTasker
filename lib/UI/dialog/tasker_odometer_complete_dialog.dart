@@ -44,7 +44,7 @@ class _TaskerOdometerCompleteDialog extends StatelessWidget {
         minVerticalPadding: 0,
         minLeadingWidth: 0,
         minTileHeight: 0,
-        title: Text(""),
+        title: const Text(""),
         contentPadding: EdgeInsets.zero,
         trailing: IconButton(
             onPressed: context.popDialog,
@@ -71,7 +71,7 @@ class _TaskerOdometerCompleteDialog extends StatelessWidget {
                 }
               }
             },
-            child: _TaskerOdometerCompleteDialogBodyView()),
+            child: _TaskerOdometerCompleteDialogBodyView(onChanged: onChanged)),
       ),
     );
   }
@@ -84,7 +84,7 @@ class _TaskerOdometerCompleteDialogBodyView extends StatelessWidget {
   @override
   Widget build(BuildContext _) {
     return BlocBuilder<TOCDBloc, TOCDStates>(
-        builder: (context, state) => Container(
+        builder: (context, state) => SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Column(
                 mainAxisSize: MainAxisSize.min,

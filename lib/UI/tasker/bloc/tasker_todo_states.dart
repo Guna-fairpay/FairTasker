@@ -217,3 +217,10 @@ class ToDoTaskerVehicleHistoryTapState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class ToDoTaskerViewVehicleState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewVehicleState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

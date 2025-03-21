@@ -16,9 +16,9 @@ import 'package:talker_http_logger/talker_http_logger_settings.dart';
 
 class ApiClient {
   // get client => http.Client()
-  final talker = Talker();
 
   InterceptedClient get client {
+    final talker = Talker();
     final client = InterceptedClient.build(interceptors: [
       TalkerHttpLogger(talker: talker),
     ]);
@@ -93,10 +93,11 @@ class ApiClient {
   }
 
   Future<http.Response?> callPostMethodWithRawBody(String url,
-      {Map<String, dynamic>? body}) async {
+      {Map<String, dynamic>? body, String method = "POST"}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postRawJsonCompute, {
         "url": Uri.parse(url),
+        "method" : method,
         "token": Utils.getHeadersWithToken(url: url),
         "fields": body,
       });
@@ -236,7 +237,7 @@ class ApiClient {
   }
 
   Future<http.Response> _postRawJsonCompute(dynamic message) async {
-    var request = http.Request("POST", message['url'])
+    var request = http.Request(message["method"] ?? "POST", message['url'])
       ..headers.addAll(message['token'])
       ..body = jsonEncode(message['fields']);
     var streamedResponse = await client.send(request);

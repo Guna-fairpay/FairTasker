@@ -37,15 +37,17 @@ class TaskerListingUi extends StatelessWidget {
                 context.read<ToDoTaskerBloc>().add(ToDoTaskerPreviousEvent(model));
                 return false;
               },
+              onInProgress: () async {
+                context.read<ToDoTaskerBloc>().add(ToDoTaskerUndoCompleteEvent(model));
+                return false;
+              },
               onDateChange: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateChangeTapEvent(model)),
               onCompletedTimeChange: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompletedTimeTapEvent(model)),
               onTimeChange: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimePickerTapEvent(model)),
               onVendorOrLocation: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVendorLocationTapEvent(model)),
               onVehicleGroup: (details) => context.read<ToDoTaskerBloc>().add(ToDoTaskerVehicleGroupTapEvent(model)),
               onVehicleHistory: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerVehicleHistoryTapEvent(model)),
-              onPlateNumTap: () {
-                Console.of.log("${model['display']?['vins']?.length} ${model['display']?['hasVehicleHistory']}");
-              },
+              onPlateNumTap: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewVehicleEvent(model)),
             );
           },
           onReorder: (oldIndex, newIndex) {

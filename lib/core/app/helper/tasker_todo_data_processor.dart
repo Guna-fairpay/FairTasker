@@ -11,7 +11,7 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Colors;
+import 'package:flutter/material.dart' show Color, Colors;
 
 class ToDoProcessor {
   List<Map<String, dynamic>> _groupVehicle = [];
@@ -23,10 +23,12 @@ class ToDoProcessor {
   List<Map<String, dynamic>> _locationList = [];
   List<Map<String, dynamic>> _bouncieVehicles = [];
   List<Map<String, dynamic>> _taskExpenseDatas = [];
+  List<Map<String, dynamic>> _relatedToDos = [];
 
   final APiRepository _aPiRepository = APiRepository();
 
   String? get userId => Session.of.getString(Str.userIdPrefText);
+  int? branchId = Session.of.getInt(Str.branchIdPrefText);
 
   Future<void> initialize() async {
     var response = await Future.wait([
@@ -50,6 +52,9 @@ class ToDoProcessor {
     _locationList = response[7] ?? [];
     _activeVehiclesCount = response[8] ?? [];
   }
+
+  Future<List<Map<String, dynamic>>?> _fetchRelatedToDos({required List<dynamic> todoIds}) async =>
+      await _aPiRepository.relatedToDos(todoIds: todoIds);
 
   Future<List<Map<String, dynamic>>> _fetchVehicleGroups() async =>
       await getIt<CommonService>().groupVehicles();
@@ -113,6 +118,11 @@ class ToDoProcessor {
     ]);
     _groupPersons = response[0] ?? [];
     var todos = response[1] ?? [];
+    var relatedTaskIds = todos.map((e) => e['related_task_id'] ?? 0).toList();
+    relatedTaskIds.removeWhere((element) => element <= 0);
+    if (relatedTaskIds.isNotEmpty) {
+      _relatedToDos = await _fetchRelatedToDos(todoIds: relatedTaskIds) ?? [];
+    }
     return _processToDos(todos);
   }
 
@@ -144,6 +154,7 @@ class ToDoProcessor {
             "hasAddress": _hasAddress(e),
             "hasCustomLink": _hasCustomLink(e),
             "hasCompleted": _hasCompleted(e),
+            "hasRelatedTask": _hasRelatedTask(e),
             "hasVehiclePlate": _hasVehiclePlate(e),
             "vins": _getVehicleVins(e),
             "vehicle_image": _getVehicleImage(e),
@@ -159,6 +170,7 @@ class ToDoProcessor {
             "vehicleStatus" : _getVehicleStatus(e),
             "vehicleStatusCategoryName": _getVehicleStatusCategoryName(e),
             "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
+            "relatedTaskName" : _getRelatedTaskName(e),
           })
         .toList();
   }
@@ -461,12 +473,21 @@ class ToDoProcessor {
     }
   }
 
-  _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
+  Color? _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
     var statusId = _getVehicleStatus(model);
     if (statusId != null) {
       (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
     } else {
       return AppC.appColor;
     }
+    return null;
+  }
+
+  bool _hasRelatedTask(Map<String, dynamic> model) => (model['related_task_id'].toString().isNullOrEmpty) ? false : ((model['related_task_id'] ?? 0) > 0);
+
+  String? _getRelatedTaskName(Map<String, dynamic> model) {
+    if (!_hasRelatedTask(model)) return null;
+    var relatedTask = _relatedToDos.firstWhereOrNull((element) => element['id'] == model['related_task_id']);
+    return relatedTask?['title'] ?? "";
   }
 }
