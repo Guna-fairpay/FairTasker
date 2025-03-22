@@ -57,6 +57,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
   Map<String,dynamic> selectionTaps={};
+  final FBroadcast _broadcast = FBroadcast.instance();
+
 
   EditToDoBloc()
       : super(EditTodoState(
@@ -99,7 +101,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedVehicle: const{},
           groupVehicles: const [],
       )) {
-
     //var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -574,6 +575,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
             images: state.attachments.whereType<File>().toList(), body: _editTodoBody());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
+        _broadcast.stickyBroadcast("todo_view", value:true);
         emit(state.copyWith(isLoading: false));
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
       } catch (e) {

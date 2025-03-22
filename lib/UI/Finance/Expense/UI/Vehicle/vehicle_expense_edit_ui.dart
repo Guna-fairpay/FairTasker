@@ -336,7 +336,11 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                       10.height,
                       Utils.getElevatedButton(() {
                         context.read<ExpenseBloc>().add(const UpdateExpenseEvent());
-                        context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
+                        Future.delayed(
+                          const Duration(seconds: 1),
+                          () => Navigator.pop(context),
+                        );
+                        // context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
                       }),
                       10.height,
                       if(state.todoDetails.isNotEmpty)
