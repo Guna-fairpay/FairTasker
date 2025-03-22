@@ -947,7 +947,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
   /// API CALL: PARTS
   Future<List<Map<String, dynamic>>?> _getPartList() async {
-    return await getIt<CommonService>().getPartList();
+    return await getIt<CommonService>().getPartsList();
   }
 
   /// API CALL: SUPPLIES
