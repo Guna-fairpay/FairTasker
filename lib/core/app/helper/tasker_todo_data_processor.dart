@@ -9,20 +9,26 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/utilities/appC.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Color, Colors;
 
 class ToDoProcessor {
   List<Map<String, dynamic>> _groupVehicle = [];
   List<Map<String, dynamic>> _activeVehicles = [];
+  List<Map<String, dynamic>> _activeVehiclesCount = [];
   List<Map<String, dynamic>> _groupPersons = [];
   List<Map<String, dynamic>> _usersList = [];
   List<Map<String, dynamic>> _vendorsList = [];
   List<Map<String, dynamic>> _locationList = [];
   List<Map<String, dynamic>> _bouncieVehicles = [];
   List<Map<String, dynamic>> _taskExpenseDatas = [];
+  List<Map<String, dynamic>> _relatedToDos = [];
 
   final APiRepository _aPiRepository = APiRepository();
 
-  String? get _userId => Session.of.getString(Str.userIdPrefText);
+  String? get userId => Session.of.getString(Str.userIdPrefText);
+  int? branchId = Session.of.getInt(Str.branchIdPrefText);
 
   Future<void> initialize() async {
     var response = await Future.wait([
@@ -34,6 +40,7 @@ class ToDoProcessor {
       _fetchUsers(),
       _fetchVendors(),
       _fetchLocations(),
+      _fetchActiveVehiclesCount(),
     ]);
     _groupVehicle = response[0] ?? [];
     _activeVehicles = response[1] ?? [];
@@ -43,13 +50,20 @@ class ToDoProcessor {
     _usersList = response[5] ?? [];
     _vendorsList = response[6] ?? [];
     _locationList = response[7] ?? [];
+    _activeVehiclesCount = response[8] ?? [];
   }
+
+  Future<List<Map<String, dynamic>>?> _fetchRelatedToDos({required List<dynamic> todoIds}) async =>
+      await _aPiRepository.relatedToDos(todoIds: todoIds);
 
   Future<List<Map<String, dynamic>>> _fetchVehicleGroups() async =>
       await getIt<CommonService>().groupVehicles();
 
   Future<List<Map<String, dynamic>>> _fetchActiveVehicles() async =>
       await getIt<CommonService>().getActiveVehicles();
+
+  Future<List<Map<String, dynamic>>> _fetchActiveVehiclesCount() async =>
+      await getIt<CommonService>().getActiveVehiclesCount();
 
   Future<List<Map<String, dynamic>>> _fetchBouncieVehicles() async =>
       await getIt<CommonService>().getBouncieVehicles();
@@ -80,7 +94,7 @@ class ToDoProcessor {
     var checkIO = ["Check In", "Check Out"];
     var checkInOut = data
         .where((element) => checkIO.contains(element['title']))
-        .where((element) => element['user_id'] == _userId)
+        .where((element) => element['user_id'] == userId)
         .toList();
     data.removeWhere((element) => checkIO.contains(element['title']));
     data.addAll(checkInOut);
@@ -104,6 +118,11 @@ class ToDoProcessor {
     ]);
     _groupPersons = response[0] ?? [];
     var todos = response[1] ?? [];
+    var relatedTaskIds = todos.map((e) => e['related_task_id'] ?? 0).toList();
+    relatedTaskIds.removeWhere((element) => element <= 0);
+    if (relatedTaskIds.isNotEmpty) {
+      _relatedToDos = await _fetchRelatedToDos(todoIds: relatedTaskIds) ?? [];
+    }
     return _processToDos(todos);
   }
 
@@ -135,6 +154,7 @@ class ToDoProcessor {
             "hasAddress": _hasAddress(e),
             "hasCustomLink": _hasCustomLink(e),
             "hasCompleted": _hasCompleted(e),
+            "hasRelatedTask": _hasRelatedTask(e),
             "hasVehiclePlate": _hasVehiclePlate(e),
             "vins": _getVehicleVins(e),
             "vehicle_image": _getVehicleImage(e),
@@ -146,7 +166,11 @@ class ToDoProcessor {
             "addresses" : _getAddresses(e),
             "selectedAddress" : _getSelectedAddress(e),
             "resources": _resources(e),
-            "vehicles": _getVehicles(e)
+            "vehicles": _getVehicles(e),
+            "vehicleStatus" : _getVehicleStatus(e),
+            "vehicleStatusCategoryName": _getVehicleStatusCategoryName(e),
+            "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
+            "relatedTaskName" : _getRelatedTaskName(e),
           })
         .toList();
   }
@@ -270,11 +294,8 @@ class ToDoProcessor {
   bool _hasVehicleHistory(Map<String, dynamic> model) {
     if (model['vehicle_group_id'].toString().isNotNullOrEmpty) {
       return false;
-    } else if (model['vin'].toString().isNotNullOrEmpty) {
-      return true;
     } else {
-      var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []);
-      return (vlist.length == 1);
+      return (_getVehicleVins(model).length == 1);
     }
   }
 
@@ -285,8 +306,9 @@ class ToDoProcessor {
       List<Map<String, dynamic>>.from(model['todoimages'] ?? []).isNotEmpty;
 
   bool _hasAddress(Map<String, dynamic> model) {
-    var decoded = (model['address'].toString().isNotNullOrEmpty) ? jsonDecode(model['address']) : null;
-    return (model['address'].toString().isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
+    var address = model['address'].toString().replaceAll("null", "");
+    var decoded = (address.isNotNullOrEmpty) ? jsonDecode(address) : null;
+    return (address.isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
   }
 
   bool _hasCustomLink(Map<String, dynamic> model) =>
@@ -397,9 +419,8 @@ class ToDoProcessor {
   Map<String, dynamic>? _getSelectedAddress(Map<String, dynamic> model) {
     if (_hasAddress(model)) {
       var addresses = _getAddresses(model);
-      var addressIds = List<int>.from(jsonDecode(model['address']) ?? []);
+      var addressIds = List.from(jsonDecode(model['address'].toString().replaceAll("null", "")) ?? []).map((e) => int.tryParse("${e ?? ""}"));
       var result = addresses.firstWhereOrNull((element) => addressIds.contains(element['id']));
-      Console.of.log("Result: $result $addressIds");
       return result;
     }
     return null;
@@ -432,5 +453,41 @@ class ToDoProcessor {
     return _activeVehicles
         .where((element) => vins.contains(element['vin']))
         .toList();
+  }
+
+  int? _getVehicleStatus(Map<String, dynamic> model) {
+    var vins = _getVehicleVins(model);
+    if (vins.length == 1) {
+      return _activeVehicles.firstWhereOrNull((element) => element['vin'] == vins.first)?['vehicle_status'];
+    } else {
+      return null;
+    }
+  }
+
+  String? _getVehicleStatusCategoryName(Map<String, dynamic> model) {
+    var statusId = _getVehicleStatus(model);
+    if (statusId != null) {
+      return _activeVehiclesCount.firstWhereOrNull((element) => element['id'] == statusId)?['name'];
+    } else {
+      return null;
+    }
+  }
+
+  Color? _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
+    var statusId = _getVehicleStatus(model);
+    if (statusId != null) {
+      (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
+    } else {
+      return AppC.appColor;
+    }
+    return null;
+  }
+
+  bool _hasRelatedTask(Map<String, dynamic> model) => (model['related_task_id'].toString().isNullOrEmpty) ? false : ((model['related_task_id'] ?? 0) > 0);
+
+  String? _getRelatedTaskName(Map<String, dynamic> model) {
+    if (!_hasRelatedTask(model)) return null;
+    var relatedTask = _relatedToDos.firstWhereOrNull((element) => element['id'] == model['related_task_id']);
+    return relatedTask?['title'] ?? "";
   }
 }

@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 
 class TaskerAddressChangeDialog {
@@ -29,7 +32,7 @@ class _TaskerAddressChangeDialog extends StatelessWidget {
 
   _TaskerAddressChangeDialog({required this.model, this.onSelected}) {
     _controller.text = model?['display']?['selectedAddress']?['address'] ?? "";
-    _selectedAddress = model?['display']?['selectedAddress'];
+    _selectedAddress = Map.from(model?['display']?['selectedAddress'] ?? {});
   }
 
   @override
@@ -67,13 +70,11 @@ class _TaskerAddressChangeDialog extends StatelessWidget {
                 selectedItem: model?['display']?['selectedAddress'],
                 showEmpty: false),
             Utils.getFilledButton("Save", () {
-              if (model?['display']?['selectedAddress'] != _selectedAddress) {
-                onSelected?.call(_selectedAddress ?? {});
-                Navigator.pop(context);
-              } else if (_controller.text.trim().isNullOrEmpty) {
-                onSelected?.call({});
-                Navigator.pop(context);
-              }
+              var existingIds = List.from(jsonDecode(model?['address'] ?? ""));
+              var selectedIds = _selectedAddress?['id'];
+              if (existingIds.contains(selectedIds) || (_controller.text.trim().isNullOrEmpty)) _selectedAddress?.clear();
+              onSelected?.call(_selectedAddress ?? {});
+              context.popDialog();
             })
           ])),
     );

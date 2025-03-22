@@ -11,6 +11,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   final ItemAsString<T> itemAsString;
   final TextEditingController controller;
   final bool showEmpty;
+  final String? labelText, hintText;
   final ValueNotifier<bool> _showEmptyWidget = ValueNotifier(false);
   final VoidCallback? onEmptyTap;
 
@@ -19,6 +20,8 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       required this.controller,
       required this.suggestions,
       required this.itemAsString,
+      this.labelText,
+      this.hintText,
       this.selectedItem,
       this.showEmpty = false,
       this.onEmptyTap,
@@ -34,6 +37,8 @@ class SearchViewField<T extends Object> extends StatelessWidget {
         valueListenable: _showEmptyWidget,
         builder: (context, value, child) => CustomAutoSearchField<T>(
               controller: controller,
+              labelText: labelText,
+              hintText: hintText,
               optionsBuilder: _optionsBuilder,
               itemAsString: itemAsString,
               onSelected: onSelected,
