@@ -12,11 +12,12 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import '../Response/subcategories_response.dart';
@@ -134,9 +135,25 @@ class APiRepository {
 
   String get _expenseCategories => "expenseCategories";
 
+  String get _changeToDoByGroup => "change-todo-by-group";
+
+  String get _swapToDo => "swap-todo";
+
+  String get _getPreviousOdometer => "getPreviousOdometer";
+
+  String get _getTodoOdometer => "getTodoOdometer";
+
+  String get _addTodoOdometer => "addTodoOdometer";
+
+  String get _addTodo => "add-todo";
+
+  String get _relatedToDos => "related-todos";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
+
+  int? get _hrmId => Session.of.getInt(Str.hrmIdPrefText);
 
   Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
       {int? currentPage, int itemsPerPage = 5, String? search}) async {
@@ -237,10 +254,8 @@ class APiRepository {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusApi";
       Map<String, dynamic> params = {};
-      if (statusId != null && statusId != 0 && statusId != "0")
-        params['vehicle_status'] = statusId;
-      if (cohortId != null && cohortId != 0 && cohortId != "0")
-        params['cohort_id'] = cohortId;
+      if (statusId != null && statusId != 0 && statusId != "0") params['vehicle_status'] = statusId;
+      if (cohortId != null && cohortId != 0 && cohortId != "0") params['cohort_id'] = cohortId;
       params['branch_code'] = Session.of.getInt(Str.branchIdPrefText);
       final http.Response? response =
           await _apiClient.callGetMethod(apiUrl, params: params);
@@ -348,7 +363,7 @@ class APiRepository {
 
         if (response.isSuccess) {
           var path = await FileSaver.instance.saveFile(response);
-          Toaster.showSuccess("Invoice Generated Successfully $path");
+          Toaster.showSuccess("Invoice Generated Successfully");
           return {'message': path};
         } else {
           Utils.showSomethingWentWrong();
@@ -610,7 +625,6 @@ class APiRepository {
     try {
       String apiUrl =
           '${Str.LIST_BASE_URL}$_expenses/all?minDate=$minDate&maxDate=$maxDate&platformCustom=tasker-app';
-      Console.of.log(apiUrl);
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
@@ -778,7 +792,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<List<Map<String, dynamic>>?> getWorkingHoursByUser() async {
     try {
-      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_getWorkingHoursByUser/$_userId";
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_getWorkingHoursByUser/$_hrmId";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       var listData = List<Map<String, dynamic>>.from(mapData?['data'] ?? []);
@@ -1023,4 +1037,174 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+
+  Future<Map<String, dynamic>?> changeToDoByGroup({required List<String> todoList, dynamic groupId, dynamic groupName, DateTime? date, TimeOfDay? time}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_changeToDoByGroup";
+      Map<String, dynamic> body = {
+        "todoList": todoList,
+        "group_id": groupId,
+        "groupName": groupName,
+        "todoDate": date?.toFormat(format: "yyyy-MM-dd"),
+        "todoTime" : time?.toHMS()
+      };
+      var bodyVal = jsonEncode(body);
+      Console.of.log(bodyVal);
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateToDo({required Map<String, dynamic> body, required dynamic toDoId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_updateToDoApi/$toDoId";
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> swapToDo({required dynamic fromId, required dynamic toId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_swapToDo";
+      Map<String, dynamic> body = {
+        "from" : "$fromId",
+        "to" : "$toId"
+      };
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPreviousOdometer({required dynamic date, dynamic identifierId, required dynamic vin}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getPreviousOdometer";
+      Map<String, dynamic> body = {
+        "todo_date" : date,
+        "identifier_id" : identifierId,
+        "vin" : vin
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /*
+  * SAMPLE RESPONSE
+  * {
+    "status": true,
+    "data": {
+        "id": 292,
+        "todo_id": 43001,
+        "current_odometer": 1,
+        "next_miles_check": 2,
+        "next_odometer": 3,
+        "deleted_at": null,
+        "created_at": "2025-03-20T12:35:03.000000Z",
+        "updated_at": "2025-03-20T12:35:03.000000Z"
+    },
+    "message": "Odometer found"
+}
+  */
+  Future<Map<String, dynamic>?> getTodoOdometer({required dynamic toDoId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getTodoOdometer/$toDoId";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addToDoOdometer({required dynamic toDoId, required dynamic currentOdometer, required dynamic nextOdometer, required dynamic nextMilesCheck}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_addTodoOdometer";
+      Map<String, dynamic> body = {
+        "current_odometer" : currentOdometer,
+        "next_miles_check" : nextMilesCheck,
+        "next_odometer" : nextOdometer,
+        "todo_id" : toDoId
+      };
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> completeTodo({required dynamic todoId, required Map<String, dynamic> body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> completeTodoWithAttachments({required dynamic todoId, required Map<String, dynamic> body, required List<Map<String, String?>> infusedFiles}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_addTodo";
+      body.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> relatedToDos({required List<dynamic> todoIds}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_relatedToDos?id=$todoIds";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      var listData = List<Map<String, dynamic>>.from(mapData?['todos'] ?? []);
+      return listData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateGroupVehicle({Map<String, dynamic>? body, required dynamic groupId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_groupVehicle/$groupId";
+      body?.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "PUT");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

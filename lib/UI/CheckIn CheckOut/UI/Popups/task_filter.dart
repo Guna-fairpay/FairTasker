@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../Component/custom_checkbox.dart';
-import '../../../Todo/PopUp/checkin_completed_popup.dart'; // Import your custom checkbox
+import '../../../dialog/tasker_check_in_out_completed_dialog.dart'; // Import your custom checkbox
 
 class CheckboxPopup extends StatefulWidget {
   final List<Map<String, dynamic>> cohortsData;

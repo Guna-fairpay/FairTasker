@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -11,9 +12,10 @@ import 'package:http/http.dart' as http;
 import 'package:talker/talker.dart' show Talker;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:talker_http_logger/talker_http_logger.dart';
+import 'package:talker_http_logger/talker_http_logger_settings.dart';
 
 class ApiClient {
-  // get client => http.Client();
+  // get client => http.Client()
 
   InterceptedClient get client {
     final talker = Talker();
@@ -68,6 +70,38 @@ class ApiClient {
         "lastImageIndex": lastImageIndex,
         "lastVideoIndex": lastVideoIndex
       });
+      return response;
+    } else {
+      Utils.showMobileToast(Str.checkInternetConnectionAlert);
+      return null;
+    }
+  }
+
+  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, List<Map<String, String?>>? infusedFiles}) async {
+    if (await Utils.connection()) {
+      http.Response response = await compute(_postMultiPartComputeDynamic, {
+        "url": Uri.parse(url),
+        "token": Utils.getHeadersWithToken(url: url),
+        "fields": body,
+        "infusedFiles": infusedFiles,
+      });
+      return response;
+    } else {
+      Utils.showMobileToast(Str.checkInternetConnectionAlert);
+      return null;
+    }
+  }
+
+  Future<http.Response?> callPostMethodWithRawBody(String url,
+      {Map<String, dynamic>? body, String method = "POST"}) async {
+    if (await Utils.connection()) {
+      http.Response response = await compute(_postRawJsonCompute, {
+        "url": Uri.parse(url),
+        "method" : method,
+        "token": Utils.getHeadersWithToken(url: url),
+        "fields": body,
+      });
+      Console.of.log(jsonEncode(body));
       return response;
     } else {
       Utils.showMobileToast(Str.checkInternetConnectionAlert);
@@ -182,6 +216,30 @@ class ApiClient {
       ..headers.addAll(message['token'])
       ..fields.addAll(message['fields'])
       ..files.addAll(multiPartFiles);
+    var streamedResponse = await client.send(request);
+    var response = await streamedResponse.stream.bytesToString();
+    return http.Response(response, streamedResponse.statusCode);
+  }
+
+  Future<http.Response> _postMultiPartComputeDynamic(dynamic message) async {
+    var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
+    List<http.MultipartFile> multiPartFiles = [];
+    if (files.isNotEmpty) {
+      multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamic(files: files)) ?? [];
+    }
+    var request = http.MultipartRequest("POST", message['url'])
+      ..headers.addAll(message['token'])
+      ..fields.addAll(message['fields'])
+      ..files.addAll(multiPartFiles);
+    var streamedResponse = await client.send(request);
+    var response = await streamedResponse.stream.bytesToString();
+    return http.Response(response, streamedResponse.statusCode);
+  }
+
+  Future<http.Response> _postRawJsonCompute(dynamic message) async {
+    var request = http.Request(message["method"] ?? "POST", message['url'])
+      ..headers.addAll(message['token'])
+      ..body = jsonEncode(message['fields']);
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
     return http.Response(response, streamedResponse.statusCode);

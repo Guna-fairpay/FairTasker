@@ -8,7 +8,9 @@ import 'dart:io';
 class AttachmentSliderView extends StatefulWidget {
   final List<dynamic> attachments;
   final Object? currentAttachment;
-  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment});
+  final ValueChanged<dynamic>? onDeleted;
+  final VoidCallback? onClose;
+  const AttachmentSliderView({super.key, required this.attachments, this.currentAttachment, this.onDeleted, this.onClose});
 
   @override
   State<AttachmentSliderView> createState() => _AttachmentSliderViewState();
@@ -91,15 +93,32 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
             ),
           ),
         ),
-        if (attachments.length > 1)
+        if ((attachments.length > 1) || (widget.onDeleted != null))
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            if (attachments.length > 1)
             IconButton(
                 onPressed: (currentIndex == 0) ? null : _previousAttachment,
                 icon: const Icon(Icons.chevron_left_rounded)),
             const Spacer(),
+            if (widget.onDeleted != null)
+              ...[
+                IconButton(
+                    onPressed: () {
+                      widget.onDeleted?.call(currentAttachment);
+                      var attachmentLastIndex = attachments.length - 1;
+                      attachments.remove(currentAttachment);
+                      (currentIndex == attachmentLastIndex) ? _previousAttachment() : _nextAttachment();
+                      if (attachments.isEmpty) {
+                        widget.onClose?.call();
+                      }
+                    },
+                    icon: const Icon(Icons.delete_outline_rounded, color: Colors.red,)),
+                const Spacer()
+              ],
+            if (attachments.length > 1)
             IconButton(
                 onPressed: (currentIndex == attachments.length - 1) ? null :  _nextAttachment,
                 icon: const Icon(Icons.chevron_right_rounded)),
