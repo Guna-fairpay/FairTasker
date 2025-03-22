@@ -80,16 +80,18 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
             listener: (context, state) {
           if (state is TodoListLoading) {
             EasyLoading.show();
-          } else if (state is CategoryConfigListLoaded) {
-            loading = false;
-            category.clear();
-            final List<Map<String, dynamic>> list = [];
-            list.addAll(state.data ?? []);
-            category.addAll(list.where((item) => item['parent_id'] == null));
-            selectedCategory = category.firstWhere(
-                  (cat) => cat['id'] == widget.config['parent_id'],
-              orElse: () => {},
-            );
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is CategoryConfigListLoaded) {
+              category.clear();
+              final List<Map<String, dynamic>> list = [];
+              list.addAll(state.data ?? []);
+              category.addAll(list.where((item) => item['parent_id'] == null));
+              selectedCategory = category.firstWhere(
+                (cat) => cat['id'] == widget.config['parent_id'],
+                orElse: () => {},
+              );
+            }
           }
         }, builder: (context, state) {
           return SafeArea(

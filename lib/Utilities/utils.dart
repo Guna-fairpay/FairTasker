@@ -12,6 +12,7 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/main.dart';
@@ -417,6 +418,7 @@ class Utils {
       style: ButtonStyle(
           backgroundColor:  WidgetStatePropertyAll(bgColor),
           iconColor: const WidgetStatePropertyAll(AppC.white),
+          //padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(16)))),
     );
@@ -434,7 +436,10 @@ class Utils {
           backgroundColor:  WidgetStatePropertyAll(bgColor),
           iconColor: const WidgetStatePropertyAll(AppC.white),
           shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(16)))),
+              borderRadius: BorderRadius.circular(16)
+          )
+          )
+      ),
       child: Icon(Icons.add,size: 20,color: textColor,),
     );
   }
@@ -563,6 +568,7 @@ class Utils {
         bool showErrorSuffix = false,
         int minLines = 1,
         int maxLines = 1,
+        bool isCollapsed = false,
       AutovalidateMode autoValidate = AutovalidateMode.disabled,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
@@ -584,6 +590,14 @@ class Utils {
         readOnly: readOnly,
         maxLength: maxLength,
         obscureText: obscure,
+        //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+        //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+        // onTapOutside: (event) {
+        //   focusNode?.unfocus();
+        //   Future.delayed(Duration(milliseconds: 100), () {
+        //     controller.selection = TextSelection.collapsed(offset: 0);
+        //   });
+        // },
         textCapitalization: TextCapitalization.sentences,
         inputFormatters: textInputFormatter,
         textAlign: textAlign,
@@ -600,6 +614,7 @@ class Utils {
             hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey,),
             labelStyle: labelStyle ?? const TextStyle(color: AppC.grey,fontSize: 13),
             filled: true,
+            isCollapsed: isCollapsed,
             fillColor: fillColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRadius),

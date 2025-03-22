@@ -43,12 +43,15 @@ class VehicleExpenseHistoryBloc
   TextEditingController dateController = TextEditingController();
   List<dynamic>? selectedCohorts;
   List<dynamic>? selectedVehicle;
+  List<dynamic>? filterList = [];
+  List<dynamic>? approvedList=[];
 
   VehicleExpenseHistoryBloc()
       : super(VehicleExpenseHistoryState(
           searchController: TextEditingController(),
           apiResponse: const [],
           filteredResponse: const [],
+          approvedList: const [],
           expenseAttachments: const [],
           editResponse: const {},
           isLoading: true,
@@ -65,22 +68,66 @@ class VehicleExpenseHistoryBloc
           selectedVehicle: const {},
           vin: '',
           vehicleName: '',
-
+          totalAmount: 0.0,
   )) {
 
     on<GetVehicleExpenseHistoryList>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
-      var response = await apiRepository.getVehicleExpense(vin: event.vin);
-      var apiResponse = response?.data;
-      apiResponse?.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
-          .compareTo(DateTime.parse(a['created_at'] ?? '')));
+      try{
+        emit(state.copyWith(isLoading: true));
+        var response = await apiRepository.getVehicleExpense(vin: event.vin);
+        var apiResponse = response?.data;
+        apiResponse?.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+            .compareTo(DateTime.parse(a['created_at'] ?? '')));
 
-      emit(state.copyWith(
-        isLoading: false,
-        apiResponse: apiResponse,
-        filteredResponse: apiResponse,
-        expenseAttachments: [],
-      ));
+        DateTime startDate = DateTime.now().subtract(Duration(days: 30));
+        DateTime endDate = DateTime.now();
+
+
+        for (var data in apiResponse ?? []) {
+          if (data['expense_date'] != null && data['expense_date'].toString().isNotEmpty) {
+            DateTime apiDate = DateTime.parse(data['expense_date']);
+            DateTime expenseDate = DateTime(apiDate.year, apiDate.month, apiDate.day);
+
+            DateTime rangeStart = DateTime(startDate.year, startDate.month, startDate.day);
+            DateTime rangeEnd = DateTime(endDate.year, endDate.month, endDate.day);
+
+            if (!expenseDate.isBefore(rangeStart) && !expenseDate.isAfter(rangeEnd)) {
+              filterList?.add(data);
+
+            }
+          }
+        }
+
+
+        for(var data in filterList??[]){
+          if(data['approved'].toString() == "1"){
+            approvedList?.add(data);
+          }
+        }
+
+
+        double totalAmount = 0;
+
+        for (var data in approvedList ?? []) {
+          double expense = (data['expense_amount'] ?? 0).toDouble();
+          totalAmount += expense;
+        }
+        totalAmount = double.parse(totalAmount.toStringAsFixed(2));
+        log("Total Amount: $totalAmount", name: "Expense Calculation");
+
+
+        emit(state.copyWith(
+          isLoading: false,
+          apiResponse: apiResponse,
+          filteredResponse: apiResponse,
+          approvedList: approvedList,
+          totalAmount: totalAmount,
+        ));
+      }catch(e){
+        Utils.showMobileToast(e.toString());
+        log("$e", name: 'Error');
+        emit(state.copyWith(isLoading: false));
+      }
     });
 
     on<GetEditVehicleExpenseHistory>((event, emit) async {
@@ -138,9 +185,9 @@ class VehicleExpenseHistoryBloc
             .toList() ?? []);
 
 
-        if(apiResponse?['cohort_id'] != null){
+        if(apiResponse?['expense_to'] != null){
           selectedCohorts = AddToDoConfig.expenseTo
-              .where((e) => e['id'] == apiResponse?['cohort_id'])
+              .where((e) => e['id'] == apiResponse?['expense_to'])
               .toList();
         }
 
@@ -199,7 +246,6 @@ class VehicleExpenseHistoryBloc
       }
     });
 
-
     on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
       if (event.data is File) {
@@ -251,7 +297,6 @@ class VehicleExpenseHistoryBloc
         emit(state.copyWith(expenseAttachments: attachments));
       }
     });
-
 
     on<SelectedPaymentEvent>((event, emit) =>
         emit(state.copyWith(selectedPaymentMethod: event.paymentType)));
@@ -318,7 +363,6 @@ class VehicleExpenseHistoryBloc
     return baseBody;
   }
 
-
   Future<List<File>> _pickFiles() async {
     var result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
@@ -356,6 +400,5 @@ class VehicleExpenseHistoryBloc
   Future<VehicleExpenseHistoryResponse?> _getEditVehicleExpenseDetails(dynamic expenseId) async {
     return await apiRepository.getEditVehicleExpense(id: expenseId);
   }
-
 
 }

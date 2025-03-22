@@ -2,6 +2,7 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
+import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -11,6 +12,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import '../../../../Component/bottom_nav_for_task.dart';
 import '../../../../Utilities/str.dart';
 import '../../../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import '../bloc/edit_todo_bloc.dart';
@@ -172,7 +174,8 @@ class EditTodoMoreForm extends StatelessWidget {
             children: [
               Utils.getElevatedButton(() {
                     context.read<EditToDoBloc>().add(EditToDoSaveEvent());
-                    Navigator.pop(context);
+                    //Navigator.pop(context);
+                    context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0, message: '',));
               },
                   text: 'Update'),
             ],

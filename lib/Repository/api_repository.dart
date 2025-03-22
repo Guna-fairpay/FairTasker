@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
+import 'package:fairpytasker/Response/cohorts_response.dart';
+import 'package:fairpytasker/Response/employee_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
+import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
@@ -14,9 +17,10 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/data/api_client.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
+import '../Response/subcategories_response.dart';
 import '../UI/Finance/Expense/Response/expense_response.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
@@ -49,7 +53,7 @@ class APiRepository {
 
   String get _generateInvoiceApi => "generate-invoice";
 
-  String get _updateTodoExpense => "expenses_update";
+  String get _updateExpense => "expenses_update";
 
   String get _expenses => "expenses";
 
@@ -77,6 +81,8 @@ class APiRepository {
 
   String get _saveFilter => "saveFilter";
 
+  String get _expenseApprove => "expense-approval";
+
   String get _locations => "locations";
 
   String get _getBranch => "getBranch";
@@ -102,6 +108,32 @@ class APiRepository {
   String get _getWorkingHoursByUser => "getWorkingHourByUser";
 
   String get _userPunchList => "userPunchList";
+
+  String get _expensesCategory => "expenses_category";
+
+  String get _paymentType => "payment-methods";
+
+  String get _getTodoDetails => "get-todo-details";
+
+  String get _getPersonExpense => "ajaxPersonExpense";
+
+  String get _getEmployeeList => "employeeList";
+
+  String get _personExpenseApproval => "person-expense-approval";
+
+  String get _editPersonExpense => "editPersonExpense";
+
+  String get _personExpense => "personExpenses";
+
+  String get _personExpenseAdd => "storePersonExpense";
+
+  String get _updatePersonExpense => "updatePersonExpense";
+
+  String get _personExpenseAttachment => "person_expense_attachment";
+
+  String get _personExpenseHistory => "ajaxPersonExpense";
+
+  String get _expenseCategories => "expenseCategories";
 
   String get _changeToDoByGroup => "change-todo-by-group";
 
@@ -292,7 +324,7 @@ class APiRepository {
     try {
       String apiUrl = '';
       if (expenseId != null) {
-        apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+        apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}$_expenses";
       }
@@ -328,6 +360,7 @@ class APiRepository {
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       if (response != null) {
+
         if (response.isSuccess) {
           var path = await FileSaver.instance.saveFile(response);
           Toaster.showSuccess("Invoice Generated Successfully");
@@ -431,7 +464,7 @@ class APiRepository {
       List<File>? images,
       String? expenseId}) async {
     try {
-      String apiUrl = "${Str.LIST_BASE_URL}$_updateTodoExpense/$expenseId";
+      String apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       log("${images?.length}", name: "updateVehicleExpenseHistory");
       final http.Response? response = await _apiClient.callPostMethodWithBody(
           apiUrl,
@@ -600,7 +633,34 @@ class APiRepository {
     }
   }
 
-  Future<Map<String, dynamic>?> getLocations() async {
+  Future<ExpenseResponse?> getPersonExpense(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_getPersonExpense';
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({'minDate': minDate, 'maxDate': maxDate, 'platformCustom': 'tasker-app'}));
+      var mapData = await response.mapData;
+      return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> expenseApprove(
+      {String? id, String? approved}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expenseApprove';
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({'approved': approved, 'expenseId': id}));
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+
+Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_locations";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
@@ -753,6 +813,230 @@ class APiRepository {
       rethrow;
     }
   }
+
+  Future<SubCategoriesResponse?> getExpenseTo() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null)
+          ? SubCategoriesResponse.fromJson(mapData)
+          : null;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPaymentType() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_paymentType";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTodoDetails({String? expenseId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getTodoDetails?expense_id=$expenseId";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> expenseAddOrUpdateApi(
+      {Map<String, dynamic>? body,
+        List<File>? images,
+        String? expenseId}) async {
+    try {
+      String apiUrl = '';
+      if (expenseId != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_expenses";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(mapData?['message'] ?? "Expense Added Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callExpenseAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> createSubCategory(
+      {String? expenseTo,
+        String? name,
+        String? parentId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expensesCategory";
+      var body = {
+        "expense_to": expenseTo ?? '',
+        "name": name ?? '',
+        "parent_id": parentId ??'',
+        "platform" : "tasker-app",
+      };
+      Console.of.log(body);
+      final http.Response? response =
+      await _apiClient.callPostMethod(apiUrl, body:jsonEncode(body));
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<LeaveManagementEmployeeListResponse?> getEmployeeList() async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_getEmployeeList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null)
+          ? LeaveManagementEmployeeListResponse.fromJson(mapData)
+          : null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> approvePersonExpense(
+      {String? id, String? approved}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_personExpenseApproval';
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
+          body: jsonEncode({'approved': approved, 'expenseId': id}));
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditPersonExpense({String? expenseId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_editPersonExpense?expenseId=$expenseId";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<GeneralResponse?> deletePersonExpense(
+      dynamic personExpenseId,
+      ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_personExpense/$personExpenseId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> personExpenseAddOrUpdateApi(
+      {Map<String, dynamic>? body,
+        List<File>? images,
+        String? expenseId}) async {
+    try {
+      String apiUrl = '';
+      if (expenseId != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_updatePersonExpense/$expenseId";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_personExpenseAdd";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(mapData?['message'] ?? "Expense Added Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+
+  Future<GeneralResponse?> deletePersonExpenseImage(
+      dynamic id,
+      ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_personExpenseAttachment/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<ExpenseResponse?> getPersonExpenseHistory(
+      {String? minDate, String? maxDate}) async {
+    try {
+      String apiUrl =
+          '${Str.LIST_BASE_URL}$_personExpenseHistory';
+      var body = {
+        "minDate": minDate,
+        "maxDate": maxDate,
+        "platformCustom": "tasker-app"
+      };
+      Console.of.log(apiUrl);
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,body: jsonEncode(body));
+      var mapData = await response.mapData;
+      return (mapData != null) ? ExpenseResponse.fromJson(mapData) : null;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<CohortsResponse?> getExpenseCategories() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_getCohortsApi";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return (mapData != null)
+          ? CohortsResponse.fromJson(mapData)
+          : null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
 
   Future<Map<String, dynamic>?> changeToDoByGroup({required List<String> todoList, dynamic groupId, dynamic groupName, DateTime? date, TimeOfDay? time}) async {
     try {

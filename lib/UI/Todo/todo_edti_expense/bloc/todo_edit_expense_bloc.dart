@@ -15,6 +15,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../../Repository/api_repository.dart';
 import '../../../../Response/vehicle_list_response.dart';
 import '../../../../Utilities/Str.dart';
@@ -480,17 +481,27 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         log(jsonEncode(_invoiceData()), name: 'INVOICE_DATA');
+        await Permission.storage.request();
+        var status = await Permission.manageExternalStorage.status;
+        if (status.isGranted) {
 
-        var response =
-            await apiRepository.generateInvoice(body: _invoiceData());
+          var response =
+          await apiRepository.generateInvoice(body: _invoiceData());
 
-        // if (response?.isNotEmpty ?? false)
-        // Toaster.showSuccess(response?['message'] ?? "Success");
-        emit(state.copyWith(
-          isLoading: false,
-          expenseAttachments: state.expenseAttachments
-            ..add(File(response?['message'] ?? '')),
-        ));
+          // if (response?.isNotEmpty ?? false)
+          // Toaster.showSuccess(response?['message'] ?? "Success");
+          emit(state.copyWith(
+            isLoading: false,
+            expenseAttachments: state.expenseAttachments
+              ..add(File(response?['message'] ?? '')),
+          ));
+        }
+        else if (status.isDenied) {
+          await Permission.manageExternalStorage.request();
+          emit(state.copyWith(isLoading: false));
+        }
+        emit(state.copyWith(isLoading: false));
+
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');

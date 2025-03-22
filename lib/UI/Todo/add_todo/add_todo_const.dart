@@ -63,8 +63,8 @@ class AddToDoConfig {
   ];
 
   static const List<Map<String, dynamic>> expenseTo = [
-    {"id" : 1, "name" : "Cohort"},
-    {"id" : 2, "name" : "FairPy"},
+    {"id" : 1, "name" : "FairPy"},
+    {"id" : 4, "name" : "Cohort"},
   ];
 
   static const List<Map<String, dynamic>> expenseTaps = [

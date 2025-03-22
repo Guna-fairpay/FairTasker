@@ -88,7 +88,15 @@ extension StringExtension on String? {
     }).join(' ') ?? "";
   }
 
-  bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
+
+  String toSentenceCase() {
+    if (this?.isEmpty ?? false) return this ?? '';
+    return this![0].toUpperCase() + this!.substring(1).toLowerCase();
+  }
+
+
+
+bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
   bool get isNotNullOrEmpty => !isNullOrEmpty;
 
   TimeOfDay? toTimeOfDay({String inputFormat = "HH:mm"}) {
@@ -97,6 +105,13 @@ extension StringExtension on String? {
   }
 
   int get getOnlyNumeric => int.parse((this ?? "").replaceAll(RegExp('[^0-9]'), ''));
+
+  String getInitials() {
+    RegExp regExp = RegExp(r"\b\w");
+    Iterable<Match> matches = regExp.allMatches(this!.trim().toUpperCase());
+
+    return matches.map((m) => m.group(0)!).take(2).join();
+  }
 
   bool get isValidCompletedTime {
     if (isNullOrEmpty) return false;
