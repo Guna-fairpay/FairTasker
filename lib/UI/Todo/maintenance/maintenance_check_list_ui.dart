@@ -213,7 +213,6 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                   (state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] == true ? false : true))
                                               ),
                                               onCheckboxChanged: (bool? value) async {
-
                                                 if (state.middleValues.where((element) => element == item['id'].toString()).isNotEmpty) {
                                                   final maintenanceBloc = context.read<MaintenanceBloc>();
                                                   _showTaskPopup(context, maintenanceBloc);
@@ -324,11 +323,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                     createFixTaskEvent(
                                                       maintenanceTaskId:
                                                           '${maintenanceCheckListData['id']}-${item['id']}-${item['children'].firstWhere(
-                                                        (e) =>
-                                                            e['name'] ==
-                                                            state.selectedDropdownValues[
-                                                                item['id']],
-                                                      )['id']}',
+                                                        (e) => e['name'] == state.selectedDropdownValues[item['id']],)['id']}',
                                                       notes:
                                                           '${maintenanceCheckListData['name']}-${item['name']}-${state.selectedDropdownValues[item['id']] ?? "Unknown"}',
                                                       comments: state

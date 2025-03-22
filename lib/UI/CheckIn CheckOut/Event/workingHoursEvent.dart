@@ -33,13 +33,33 @@ class TaskComponentsInitialEvent extends WorkingHoursEvent {
 class CreateTaskEvent extends WorkingHoursEvent {
   final int? id;
   final int? userId;
-  final String? name;
+  final String? taskName;
   final String? amount;
   final String? task;
-  const CreateTaskEvent({this.id,this.userId, this.name, this.amount, this.task});
+  const CreateTaskEvent({this.id,this.userId, this.taskName, this.amount, this.task});
   @override
-  List<Object?> get props => [id,userId, name, amount, task];
+  List<Object?> get props => [id,userId, taskName, amount, task];
 }
+
+class UpdateTaskEvent extends WorkingHoursEvent {
+  final int? id;
+  final int? userId;
+  final String? taskName;
+  final String? amount;
+  final String? task;
+  const UpdateTaskEvent({this.id,this.userId, this.taskName, this.amount, this.task});
+  @override
+  List<Object?> get props => [id,userId, taskName, amount, task];
+}
+
+class UpdateDropdownValueEvent extends WorkingHoursEvent {
+  final Map<String, dynamic> selectedBase;
+  const UpdateDropdownValueEvent(this.selectedBase);
+
+  @override
+  List<Object?> get props => [selectedBase];
+}
+
 
 class DeleteTaskComponentsEvent extends WorkingHoursEvent {
   final int? id;
@@ -47,6 +67,63 @@ class DeleteTaskComponentsEvent extends WorkingHoursEvent {
 
   @override
   List<Object?> get props => [id];
+}
+
+class TaskDateChangeEvent extends WorkingHoursEvent {
+  final DateTime selectedDate;
+  const TaskDateChangeEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
+
+class EnterEditModeEvent extends WorkingHoursEvent {}
+
+class ExitEditModeEvent extends WorkingHoursEvent {}
+
+class ResetResourceEvent extends WorkingHoursEvent {}
+
+class ResetDropdownEvent extends WorkingHoursEvent {
+  final bool isTaskBased; // true for Task based, false for Hour based
+  const ResetDropdownEvent({required this.isTaskBased});
+}
+
+class fetchEmployeeCommentEvent extends WorkingHoursEvent {
+  final int hrmId;
+  final String fromDate;
+  final String toDate;
+  const fetchEmployeeCommentEvent({
+    required this.hrmId,
+    required this.fromDate,
+    required this.toDate,
+  });
+  @override
+  List<Object?> get props => [hrmId, fromDate, toDate];
+}
+
+class FetchCheckInoutReasonEvent extends WorkingHoursEvent {
+  final int hrmId;
+  final String fromDate;
+  final String toDate;
+  const FetchCheckInoutReasonEvent({
+    required this.hrmId,
+    required this.fromDate,
+    required this.toDate,
+  });
+  @override
+  List<Object?> get props => [hrmId, fromDate, toDate];
+}
+
+class FetchTaskCountEvent extends WorkingHoursEvent {
+  final int userId;
+  final String fromDate;
+  final String toDate;
+   const FetchTaskCountEvent({
+    required this.userId,
+    required this.fromDate,
+    required this.toDate,
+  });
+  @override
+  List<Object?> get props => [userId, fromDate, toDate];
 }
 
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {

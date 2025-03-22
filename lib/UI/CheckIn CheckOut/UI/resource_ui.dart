@@ -1,22 +1,21 @@
 
 
 // working_hours_view_ui.dart
-import 'package:collection/collection.dart';
-import 'package:date_time/date_time.dart' show Time;
+import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-import '../../../Component/drawer_ui.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
-import 'task_components-setting_ui.dart';
+import 'Popups/hours_top_notification_popup.dart';
+import 'Popups/reason_top_notification_popup.dart';
 
 
 class WorkHoursViewUI extends StatelessWidget {
@@ -61,22 +60,25 @@ class WorkHoursViewUI extends StatelessWidget {
       return '';
     }
   }
-
   String getFirstWord(String fullName) {
     return fullName.split(' ').first;
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => WorkingHoursBloc()..add(const WorkingHoursInitialEvent('','')),
+      create: (context) => WorkingHoursBloc()..add(WorkingHoursInitialEvent(
+        DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now().subtract(const Duration(days: 7))),
+        DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now()),
+      )),
       child: BlocListener<WorkingHoursBloc, WorkingHoursState>(
         listener: (context, state) {
           if (state.isLoading) {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            filteredData = state.combinedData!;
-            dropDownResource = [{'id':'','full_name':'All'}, ...state.resources!];
+            filteredData = state?.combinedData ?? [];
+            dropDownResource = [{'id':'','full_name':'All'}, ...state?.resources ?? []];
           }
         },
         child:
@@ -105,26 +107,59 @@ class WorkHoursViewUI extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 5,
-                              child: Utils.getText('User', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('CheckIn', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('CheckOut', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Utils.getText('Active', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Utils.getText('Total', weight: FontWeight.bold)
-                              )),
+                      child:
+                      Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(1),
+                          1: FlexColumnWidth(2),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(2),
+                        },
+                        children: const [
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "User",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "CheckIn",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "CheckOut",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "Active",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "Total",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -147,25 +182,55 @@ class WorkHoursViewUI extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 5,
-                              child: Utils.getText('IA', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('05:09 AM', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 3,
-                              child: Utils.getText('', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Utils.getText('00:00', weight: FontWeight.bold)),
-                          Expanded(
-                              flex: 2,
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Utils.getText('00:00', weight: FontWeight.bold))),
+                      child:
+                      Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(1),
+                          1: FlexColumnWidth(2),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(2),
+                        },
+                        children: const [
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child:
+                                Text(
+                                  "HM",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "08:19 AM",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  " ",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "02:30",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  "02:54",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -218,36 +283,49 @@ class WorkHoursViewUI extends StatelessWidget {
                     children: [
                       Expanded(
                         child: SizedBox(
-                          height: 35,
-                          width: MediaQuery.of(context).size.width * 1, // Responsive width
-                          child:
-                          DefaultTextStyle(
-                            style: const TextStyle(color: AppC.black, fontSize: 12),
-                            textAlign: TextAlign.center,
-                            child:
-                            DateRangeField(
-                              decoration: InputDecoration(
-                                contentPadding:
-                                const EdgeInsets.only(left: 0,top: 0,right: 0,bottom: 0),
-                                border: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      color: AppC.fieldBase, width: Num.borderWidthField),
-                                  borderRadius:
-                                  BorderRadius.circular(Num.subradiusButton),
+                          height: 42,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppC.fieldBase, width: Num.borderWidthField),
+                              borderRadius: BorderRadius.circular(Num.subradiusButton),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: DateRangeField(
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(right: 10),
+                                      border: InputBorder.none, // Remove inner borders
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      hintStyle: Utils.getTextStyle(color: AppC.grey),
+                                      isDense: true,
+                                      // Reduce space
+                                    ),
+                                    childBuilder: (context, value)
+                                    {
+                                      return Row(
+                                        children: [
+                                          Expanded(child: Utils.getText("${selectedDateRange ?? state.selectedDateRange}",overFlow: TextOverflow.ellipsis,)),
+                                        ]
+                                      );
+                                    },
+                                    onDateRangeSelected: (DateRange? value) {
+                                      selectedDateRange = value;
+                                      startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now());
+                                      endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now());
+                                      print("startDate $startDate endDate $endDate");
+                                      log("${startDate} ${endDate}",name: "startDateEndDate");
+                                      log("${selectedDateRange}",name: "selectedDateRange");
+                                      context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
+                                      dates = generateDateList(startDate, endDate);
+                                    },
+                                    pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
+                                  ),
                                 ),
-                                hintStyle: Utils.getTextStyle(color: AppC.grey),
-                                hintText: 'Select date range',
-                              ),
-                              onDateRangeSelected: (DateRange? value) {
-                                  selectedDateRange = value;
-                                  startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
-                                  endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
-                                  print("startDate ${startDate} endDate ${endDate}");
-                                  context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
-                                  dates = generateDateList(startDate, endDate);
-                              },
-                              selectedDateRange: selectedDateRange,
-                              pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
+                                Icon(Icons.calendar_today, color: AppC.grey, size: 18), // Keep icon inline
+                              ],
                             ),
                           ),
                         ),
@@ -320,9 +398,17 @@ class WorkHoursViewUI extends StatelessWidget {
                           itemCount: dataList?.length ?? 0,
                           itemBuilder: (context, index) {
                             final employee = dataList?[index];
-                            final activeHours = (index < state.activeHours.length)
+                            //print("employee ${employee}");
+
+                            final activeHours = (index < (state.activeHours?.length ?? 0))
                                 ? state.activeHours[index]
+                                : '00:00';
+
+                            // Validate index for state.totalHoursValue
+                            final totalHours = (index < (state.totalHoursValue?.length ?? 0))
+                                ? state.totalHoursValue[index]
                                 : '';
+
                             if (activeHours.toString() != '00:00' && employee?['task_count'].toString() != '0') {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2),
@@ -342,25 +428,48 @@ class WorkHoursViewUI extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Expanded(flex: 5, child: Utils.getText(getFirstWord(employee?['first_name'] ?? ''))),
-                                      Expanded(flex: 3, child: Utils.getText(activeHours)),
+                                      Expanded(
+                                        flex: 5,
+                                        child: Utils.getText(getFirstWord(employee?['first_name'] ?? '')),
+                                      ), // Employee
+                                      Expanded(
+                                        flex: 3,
+                                        child: Utils.getText(activeHours),
+                                      ), // Active
                                       Expanded(
                                         flex: 3,
                                         child: GestureDetector(
                                           onTap: () {
-                                            // Handle tap event
+                                            context.read<WorkingHoursBloc>().add(FetchTaskCountEvent(
+                                                userId: employee?['hrmID'],
+                                                fromDate: startDate,
+                                                toDate: endDate));
+                                            context.read<WorkingHoursBloc>().add(FetchCheckInoutReasonEvent(
+                                                hrmId: employee?['hrmID'],
+                                                fromDate: startDate,
+                                                toDate: endDate));
+                                            HoursPopup.show(
+                                              context,
+                                              dataList: employee?['list'],
+                                              userName: employee?['first_name'],
+                                              selectedDateRange: selectedDateRange.toString(),
+                                              empID: employee?['empID'],
+                                              hrmID: employee?['hrmID'],
+                                              taskCounts: state.hoursData2,
+                                              checkInoutReason: state.hoursData1,
+                                            );
                                           },
                                           child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
-                                        ),
+                                        ), // Hours
                                       ),
                                       Expanded(
                                         flex: 2,
                                         child: GestureDetector(
                                           onTap: () {
-                                            // Handle tap event
+                                            // Handle task count tap
                                           },
                                           child: Utils.getText(employee?['task_count'].toString() ?? ''),
-                                        ),
+                                        ), // Task
                                       ),
                                       Expanded(
                                         flex: 2,
@@ -368,11 +477,20 @@ class WorkHoursViewUI extends StatelessWidget {
                                           alignment: Alignment.center,
                                           child: GestureDetector(
                                             onTap: () {
-                                              // Handle tap event
+                                              context.read<WorkingHoursBloc>().add(fetchEmployeeCommentEvent(
+                                                  hrmId: employee?['hrmID'],
+                                                  fromDate: startDate,
+                                                  toDate: endDate));
+                                              ReasonTopNotificationPopup.show(
+                                                context,
+                                                dataList: employee?['list'],
+                                                userName: employee?['first_name'],
+                                                selectedDateRange: selectedDateRange.toString(),
+                                                hrmID: employee?['hrmID'],
+                                                taskComments: state.comments ?? [],
+                                              );
                                             },
-                                            child: Utils.getText(state.totalHoursValue.isNotEmpty
-                                                ? state.totalHoursValue[index].toString()
-                                                : ''),
+                                            child: Utils.getText(totalHours.toString()),
                                           ),
                                         ),
                                       ),
