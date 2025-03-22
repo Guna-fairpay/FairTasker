@@ -68,14 +68,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
 
-              formattedResources = resources.map((resource) {
+              formattedResources = resources.where((e)=>e['branch_id']==1 || e['branch_id']==null).map((resource) {
                 return {
                   'id': resource['id'],
                   'full_name': "${resource['first_name']} ${resource['last_name']}",
                   'first_name': '${resource['first_name']}',
                 };
               }).toList();
-
+              print("formattedResources $formattedResources");
               //Helper Function
               String getFirstWord(String fullName) {
                 return fullName.split(' ').first;
@@ -86,56 +86,81 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   List<Map<String, dynamic>> workhistory,
                   List<Map<String, dynamic>> workActivehours,
                   List<Map<String, dynamic>> formattedResource,
-                  )
-              {
+                  ) {
                 List<Map<String, dynamic>> combinedList = [];
-                Map<String, dynamic> combinedItem={};
-                combinedList.clear();
-                for (var workhour in workhours)
-                {
-                  final userId = workhour['user']['id'];
-                  final userName = workhour['user']['name'];
-                  if(userId==null)
-                  {
-                    continue;
-                  }
-                  Map<String, dynamic>? historyItem; // Initialize to null
-                  for (var item in workhistory) {
-                    if (item['users'] != null && item['users']['hrm_id'] == userId) {
-                      historyItem = item; // Assign the matching item
-                      break;
+
+                for (var workhour in workhours) {
+                  try {
+                    final userId = workhour['user']['id'];
+                    final userName = workhour['user']['name'];
+
+                    // Skip if userId is null
+                    if (userId == null) {
+                      continue;
                     }
-                  }
-                  Map<String, dynamic>? activeHoursItem;
-                  for (var item in workActivehours) {
-                    if (item['active_hours'] != "00:00" && item['hrm_id'] == userId) {
-                      activeHoursItem = item; // Assign the matching item
-                      break;
+
+                    Map<String, dynamic> historyItem = {};
+                    Map<String, dynamic> activeHoursItem = {};
+                    Map<String, dynamic> empID = {};
+
+                    // Find matching history item
+                    try {
+                      historyItem = workhistory.firstWhere(
+                            (item) =>
+                        item['users'] != null &&
+                            item['users']['hrm_id'] == userId &&
+                            formattedResource.any((resource) =>
+                            item['users']['first_name'] == resource['first_name']),
+                      );
+                    } catch (e) {
+                      print("Error finding history item for user $userId: $e");
                     }
-                  }
-                  Map<String, dynamic>? empID;
-                  for (var item in formattedResource) {
-                    if (getFirstWord(item['full_name']) == getFirstWord(userName)) {
-                      empID = item;
-                      break;
+
+                    // Find matching active hours item
+                    try {
+                      activeHoursItem = workActivehours.firstWhere(
+                            (item) =>
+                        item['active_hours'] != "00:00" &&
+                            item['hrm_id'] == userId &&
+                            formattedResource.any((resource) => item['user_id'] == resource['user_id']),
+                      );
+                    } catch (e) {
+                      print("Error finding active hours item for user $userId: $e");
                     }
+
+                    // Find matching employee ID from formattedResource
+                    try {
+                      empID = formattedResource.firstWhere(
+                            (item) => getFirstWord(item['full_name']) == getFirstWord(userName),
+                      );
+                    } catch (e) {
+                      print("Error finding employee ID for user $userId: $e");
+                    }
+
+                    // Skip if both taskCount and activeHours are default values
+                    final taskCount = historyItem['task_count'] ?? 0;
+                    final activeHours = activeHoursItem['active_hours'] ?? "00:00";
+                    if (taskCount == 0 && activeHours == "00:00") {
+                      continue;
+                    }
+
+                    // Combine data into a single item
+                    final combinedItem = {
+                      'id': userId,
+                      'empID': historyItem['users']?['id'],
+                      'hrmID': historyItem['users']?['hrm_id'] ?? 0,
+                      'total_working_hours': workhour['user']['total_working_hours'],
+                      'list': workhour['user']['list'],
+                      'task_count': taskCount,
+                      'first_name': empID['first_name'] ?? '',
+                    };
+
+                    combinedList.add(combinedItem);
+                  } catch (e) {
+                    print("Error processing workhour: $e");
                   }
-                  final taskCount = historyItem?['task_count'] ?? 0;
-                  final activeHours = activeHoursItem?['active_hours'] ?? "00:00";
-                  if (taskCount == 0 && activeHours == "00:00") {
-                    continue;
-                  }
-                  combinedItem = {
-                    'id': userId,
-                    'empID':historyItem?['users']['id'],
-                    'hrmID': historyItem?['users']['hrm_id'] ?? 0,
-                    'total_working_hours': workhour['user']['total_working_hours'],
-                    'list': workhour['user']['list'],
-                    'task_count': historyItem?['task_count'] ?? 0,
-                    'first_name': workhour['user']['name'] ?? '',
-                  };
-                  combinedList.add(combinedItem);
                 }
+
                 return combinedList;
               }
               combinedData.clear();
@@ -166,6 +191,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               //Active Hours Calculation End
 
               //Total Hours(#) Calculation Start
+              totalHoursValue.clear();
+              activeHours.clear();
               for(var employee in combinedData){
                 int lessCount = 0;
                 int greaterCount = 0;
@@ -175,15 +202,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     final int taskHours = int.tryParse(taskTotalHours[0]) ?? 0;
                     final int taskMinutes = int.tryParse(taskTotalHours[1]) ?? 0;
                     final int totalMinutes = taskHours * 60 + taskMinutes;
-                    if (totalMinutes < 420) {
+                    if (totalMinutes <= 420) {
                       lessCount++;
-                    } else if (totalMinutes > 540) {
+                    } else if (totalMinutes >= 540) {
                       greaterCount++;
                     }
                   }
                 }
                 print("Total hours ${lessCount + greaterCount}");
-                totalHoursValue.clear();
                 totalHoursValue.add(lessCount + greaterCount);
                 print("Total hours value ${totalHoursValue}");
                 activeHours.add(calculateActiveHours(workActiveHours, employee));

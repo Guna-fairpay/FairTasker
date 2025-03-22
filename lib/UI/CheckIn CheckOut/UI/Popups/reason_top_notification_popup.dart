@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/text_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -116,12 +117,13 @@ class ReasonTopNotificationPopup {
       }
     }
 
-    List<Map<String, dynamic>> combineData(List<dynamic> dataList, List<Map<String, dynamic>> taskCounts) {
+    List<Map<String, dynamic>> combineData(List<dynamic> dataList, List<Map<String, dynamic>> taskCounts)
+    {
       List<Map<String, dynamic>> combinedList = [];
       Map<String, List<Map<String, dynamic>>> taskCountsMap = {};
       for (var task in taskCounts) {
         final String? date = task['date'] != null
-            ? DateFormat('yyyy-MM-dd').format(DateTime.parse(task['date']))
+            ? DateFormat('yyyy-MM-dd').format(DateTime.parse(dataList.firstWhereOrNull((e) => e['date'] == task['date'])?['date'] ?? task['date']))
             : null;
 
         if (date != null) {
@@ -129,7 +131,8 @@ class ReasonTopNotificationPopup {
         }
       }
       for (var item in dataList) {
-        final String? date = item['date']?.toString();
+        //dataList.firstWhereOrNull((e) => e['date'] == task['date'])?['date'] ?? task['date']
+        final String? date = taskCounts.any((e) => e['date'] == item['date']) ? item['date'] : null;
         if (date == null) {
           continue;
         }
@@ -156,21 +159,6 @@ class ReasonTopNotificationPopup {
     combinedData = combineData(dataList, taskComments);
     log("$combinedData",name:"combinedData");
 
-    // String calculateTotalHours(String startTime, String endTime) {
-    //   if (startTime != '' && endTime != '') {
-    //     DateTime start = DateFormat('HH:mm:ss').parse(startTime);
-    //     DateTime end = DateFormat('HH:mm:ss').parse(endTime);
-    //     if (end.isBefore(start)) {
-    //       end = end.add(Duration(days: 1));
-    //     }
-    //     Duration duration = end.difference(start);
-    //     int hours = duration.inHours;
-    //     int minutes = duration.inMinutes % 60;
-    //     log("$hours $minutes",name:"calculateTotalHours");
-    //     return '${hours}h ${minutes}m';
-    //   }
-    //   return '0h 0m';
-    // }
 
     String formatTime(String timeString) {
       print("timeString $timeString");

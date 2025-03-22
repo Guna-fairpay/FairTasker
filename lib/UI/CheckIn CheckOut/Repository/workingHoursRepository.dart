@@ -83,8 +83,7 @@ class TaskRepository {
   }) async {
     try {
       print("-------->hrmId $hrmId fromDate $fromDate toDate $toDate");
-      final String apiUrl = '${Str
-          .BASE_URL}edit-comments?hrm_id=$hrmId&from=$fromDate&to=$toDate';
+      final String apiUrl = '${Str.BASE_URL}edit-comments?hrm_id=$hrmId&from=$fromDate&to=$toDate';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         print("Api response ${response.body}");

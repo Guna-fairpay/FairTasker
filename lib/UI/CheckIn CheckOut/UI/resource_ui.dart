@@ -399,9 +399,16 @@ class WorkHoursViewUI extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final employee = dataList?[index];
                             //print("employee ${employee}");
-                            final activeHours = (index < state.activeHours.length)
+
+                            final activeHours = (index < (state.activeHours?.length ?? 0))
                                 ? state.activeHours[index]
+                                : '00:00';
+
+                            // Validate index for state.totalHoursValue
+                            final totalHours = (index < (state.totalHoursValue?.length ?? 0))
+                                ? state.totalHoursValue[index]
                                 : '';
+
                             if (activeHours.toString() != '00:00' && employee?['task_count'].toString() != '0') {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2),
@@ -421,32 +428,48 @@ class WorkHoursViewUI extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Expanded(flex: 5, child: Utils.getText(getFirstWord(employee?['first_name'] ?? ''))),//Employee
-                                      Expanded(flex: 3, child: Utils.getText(activeHours)),//Active
+                                      Expanded(
+                                        flex: 5,
+                                        child: Utils.getText(getFirstWord(employee?['first_name'] ?? '')),
+                                      ), // Employee
+                                      Expanded(
+                                        flex: 3,
+                                        child: Utils.getText(activeHours),
+                                      ), // Active
                                       Expanded(
                                         flex: 3,
                                         child: GestureDetector(
                                           onTap: () {
-                                            context.read<WorkingHoursBloc>().add(FetchTaskCountEvent(userId: employee?['hrmID'], fromDate: startDate, toDate: endDate));
-                                            context.read<WorkingHoursBloc>().add(FetchCheckInoutReasonEvent(hrmId: employee?['hrmID'], fromDate: startDate, toDate: endDate));
-                                            HoursPopup.show(context,
-                                                dataList: employee?['list'],
-                                                userName: employee?['first_name'],
-                                                selectedDateRange: selectedDateRange.toString(),
-                                                empID: employee?['empID'],
-                                                hrmID: employee?['hrmID'], taskCounts: state.hoursData2, checkInoutReason: state.hoursData1,
+                                            context.read<WorkingHoursBloc>().add(FetchTaskCountEvent(
+                                                userId: employee?['hrmID'],
+                                                fromDate: startDate,
+                                                toDate: endDate));
+                                            context.read<WorkingHoursBloc>().add(FetchCheckInoutReasonEvent(
+                                                hrmId: employee?['hrmID'],
+                                                fromDate: startDate,
+                                                toDate: endDate));
+                                            HoursPopup.show(
+                                              context,
+                                              dataList: employee?['list'],
+                                              userName: employee?['first_name'],
+                                              selectedDateRange: selectedDateRange.toString(),
+                                              empID: employee?['empID'],
+                                              hrmID: employee?['hrmID'],
+                                              taskCounts: state.hoursData2,
+                                              checkInoutReason: state.hoursData1,
                                             );
                                           },
-                                          child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),//Hours
-                                        ),
+                                          child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
+                                        ), // Hours
                                       ),
                                       Expanded(
                                         flex: 2,
                                         child: GestureDetector(
                                           onTap: () {
+                                            // Handle task count tap
                                           },
-                                          child: Utils.getText(employee?['task_count'].toString() ?? ''),//Task
-                                        ),
+                                          child: Utils.getText(employee?['task_count'].toString() ?? ''),
+                                        ), // Task
                                       ),
                                       Expanded(
                                         flex: 2,
@@ -454,19 +477,20 @@ class WorkHoursViewUI extends StatelessWidget {
                                           alignment: Alignment.center,
                                           child: GestureDetector(
                                             onTap: () {
-                                              context.read<WorkingHoursBloc>().add(fetchEmployeeCommentEvent(hrmId: employee?['hrmID'], fromDate: startDate, toDate: endDate));
-                                              ReasonTopNotificationPopup.show(context,
-                                                  dataList: employee?['list'],
-                                                  userName: employee?['first_name'],
-                                                  selectedDateRange: selectedDateRange.toString(),
-                                                  hrmID: employee?['hrmID'],
-                                                  taskComments: state?.comments ?? [],
+                                              context.read<WorkingHoursBloc>().add(fetchEmployeeCommentEvent(
+                                                  hrmId: employee?['hrmID'],
+                                                  fromDate: startDate,
+                                                  toDate: endDate));
+                                              ReasonTopNotificationPopup.show(
+                                                context,
+                                                dataList: employee?['list'],
+                                                userName: employee?['first_name'],
+                                                selectedDateRange: selectedDateRange.toString(),
+                                                hrmID: employee?['hrmID'],
+                                                taskComments: state.comments ?? [],
                                               );
-
                                             },
-                                            child: Utils.getText(state.totalHoursValue.isNotEmpty
-                                                ? state?.totalHoursValue[index].toString() ?? ''
-                                                : ''),
+                                            child: Utils.getText(totalHours.toString()),
                                           ),
                                         ),
                                       ),
