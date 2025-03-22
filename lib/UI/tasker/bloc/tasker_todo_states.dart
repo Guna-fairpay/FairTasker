@@ -229,3 +229,17 @@ class ToDoTaskerFilterTaskState extends ToDoTaskerState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class ToDoTaskerViewCustomLinkState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewCustomLinkState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class ToDOTaskerViewAttachmentState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDOTaskerViewAttachmentState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

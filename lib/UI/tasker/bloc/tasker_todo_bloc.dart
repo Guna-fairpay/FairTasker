@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart' show TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
@@ -25,6 +26,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   List<Map<String, dynamic>>? selectedUsers = [];
   final APiRepository _aPiRepository = APiRepository();
   final TextEditingController searchController = TextEditingController();
+  final FBroadcast _fBroadcast = FBroadcast.instance();
 
   List<Map<String, dynamic>> toDos = [], unfiltered = [];
   Map<String, dynamic> processedWorkingHours = {};
@@ -32,6 +34,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   final TaskerHoursProcessor _taskerHoursProcessor = TaskerHoursProcessor();
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
+    _listenBroadCast();
     on<ToDoTaskerInitialEvent>(_onInitialEvent);
     on<ToDoTaskerPreviousDateEvent>(_onPreviousDateEvent);
     on<ToDoTaskerNextDateEvent>(_onNextDateEvent);
@@ -78,6 +81,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerUserFilterEvent>(_onUserFilterEvent);
     on<ToDoTaskerFilterTaskEvent>(_onFilterTaskEvent);
     on<ToDoTaskerTaskFilterEvent>(_onTaskFilterEvent);
+    on<ToDoTaskerViewAttachmentEvent>(_onViewAttachmentEvent);
+    on<ToDoTaskerViewCustomLinkEvent>(_onViewCustomLinkEvent);
+  }
+
+  void _listenBroadCast() {
+    _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
   }
 
   /* BEGIN: API CALLS */
@@ -790,5 +799,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     isFilterSelected = (selectedTasks.isNotEmpty);
     _searchTasks();
     emit(ToDoTaskerCommonState());
+  }
+
+  void _onViewAttachmentEvent(ToDoTaskerViewAttachmentEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDOTaskerViewAttachmentState(event.model));
+  }
+
+
+  void _onViewCustomLinkEvent(ToDoTaskerViewCustomLinkEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerViewCustomLinkState(event.model));
   }
 }
