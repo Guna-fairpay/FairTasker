@@ -1,5 +1,7 @@
+import 'package:date_time/date_time.dart' show Time;
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart' show OpenFile;
@@ -86,7 +88,15 @@ extension StringExtension on String? {
     }).join(' ') ?? "";
   }
 
-  bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
+
+  String toSentenceCase() {
+    if (this?.isEmpty ?? false) return this ?? '';
+    return this![0].toUpperCase() + this!.substring(1).toLowerCase();
+  }
+
+
+
+bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this == "null");
   bool get isNotNullOrEmpty => !isNullOrEmpty;
 
   TimeOfDay? toTimeOfDay({String inputFormat = "HH:mm"}) {
@@ -95,4 +105,28 @@ extension StringExtension on String? {
   }
 
   int get getOnlyNumeric => int.parse((this ?? "").replaceAll(RegExp('[^0-9]'), ''));
+
+  String getInitials() {
+    RegExp regExp = RegExp(r"\b\w");
+    Iterable<Match> matches = regExp.allMatches(this!.trim().toUpperCase());
+
+    return matches.map((m) => m.group(0)!).take(2).join();
+  }
+
+  bool get isValidCompletedTime {
+    if (isNullOrEmpty) return false;
+    var value = this;
+    var time = Time.fromStr(value);
+    var result = time != null;
+    Console.of.log("$time $result");
+    return result;
+  }
+
+  String get notValidCompletedTimeMessage {
+    if (isNullOrEmpty) return "Please select time taken";
+    var value = this;
+    var time = Time.fromStr(value);
+    var result = time != null;
+    return result ? "" : (this?.contains(":") == false) ? "Please enter time in the format of 01:00" : "Please enter valid time taken";
+  }
 }

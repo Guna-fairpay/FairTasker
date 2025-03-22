@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'Person/person_expense_view_ui.dart';
 import 'Vehicle/vehicle_expense_view_ui.dart';
 
 class ExpenseTab extends StatelessWidget {
@@ -52,7 +53,7 @@ class ExpenseTab extends StatelessWidget {
                       child: state.selectedTap['id'] == 1
                           ?  const ExpenseVehicleViewUI()
                           : state.selectedTap['id'] == 2
-                          ? const Text('2')///PersonExpenseViewUI()
+                          ? const PersonExpenseViewUI()
                           : state.selectedTap['id'] == 3
                           ? const Text('3')///OtherExpenseViewUI()
                           : const SizedBox(),

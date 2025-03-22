@@ -24,9 +24,9 @@ class VehicleStatusTripCategories extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.start,
               children: context
                   .read<VehicleStatusBloc>()
-                  .tripStatusCategories
+                  . tripStatusCategories
                   .map((e) => FilterChip(
-                        label: Text("${e['name']}"),
+                        label: Text("${e['name'] ?? ""}"),
                         clipBehavior: Clip.antiAliasWithSaveLayer,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         elevation: 2,

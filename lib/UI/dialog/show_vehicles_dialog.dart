@@ -12,19 +12,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TaskerVehiclesChangeDialog {
   TaskerVehiclesChangeDialog._();
 
-  static void show(BuildContext context, Map<String, dynamic>? data) async {
+  static void show(BuildContext context, Map<String, dynamic>? data, {void Function(List<Map<String, dynamic>> value)? onSelected}) async {
     await showDialog(
         context: context,
         useSafeArea: true,
         barrierDismissible: true,
-        builder: (context) => _TaskerVehiclesDialogView(data: data));
+        builder: (context) => _TaskerVehiclesDialogView(data: data, onSelected: onSelected));
   }
 }
 
 class _TaskerVehiclesDialogView extends StatelessWidget {
   final Map<String, dynamic>? data;
-
-  const _TaskerVehiclesDialogView({required this.data});
+  final void Function(List<Map<String, dynamic>> value)? onSelected;
+  const _TaskerVehiclesDialogView({required this.data, this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class _TaskerVehiclesDialogView extends StatelessWidget {
         create: (context) => TVPDBloc()..add(TVPDInitialEvent(data: data)),
         child: BlocListener<TVPDBloc, TVPDStates>(
           listener: (BuildContext context, TVPDStates state) {},
-          child: const _TaskerVehiclesContent(),
+          child: _TaskerVehiclesContent(onSelected: onSelected),
         ),
       ),
     );
@@ -58,7 +58,8 @@ class _TaskerVehiclesDialogView extends StatelessWidget {
 }
 
 class _TaskerVehiclesContent extends StatelessWidget {
-  const _TaskerVehiclesContent();
+  final void Function(List<Map<String, dynamic>> value)? onSelected;
+  const _TaskerVehiclesContent({this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -70,16 +71,20 @@ class _TaskerVehiclesContent extends StatelessWidget {
                 spacing: 10,
                 children: [
                   CustomVehiclePersonField(
-                    controller: TextEditingController(),
+                    controller: context.read<TVPDBloc>().controller,
                     vehiclesList: context.watch<TVPDBloc>().vehicles,
                     personsList: context.watch<TVPDBloc>().persons,
                     groupVehicles: context.watch<TVPDBloc>().groupVehicles,
                     selected: context.watch<TVPDBloc>().selectedVehicles,
                     onSelected: (val) => context.read<TVPDBloc>().add(TVPDSelectedEvent(data: val)),
                     onDeleted: (val) => context.read<TVPDBloc>().add(TVPDDeleteEvent(data: val)),
+                    updateWhileDelete: false,
                   ),
+                  if (onSelected != null)
                   Utils.getFilledButton("Save", () {
-                    Navigator.pop(context);
+                    var value = context.read<TVPDBloc>().selectedVehicles;
+                    if (value.isNotEmpty) onSelected?.call(value);
+                    context.popDialog();
                   })
                 ],
               ),

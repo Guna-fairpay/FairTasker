@@ -12,6 +12,7 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/main.dart';
@@ -23,6 +24,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -417,6 +419,7 @@ class Utils {
       style: ButtonStyle(
           backgroundColor:  WidgetStatePropertyAll(bgColor),
           iconColor: const WidgetStatePropertyAll(AppC.white),
+          //padding: const WidgetStatePropertyAll(EdgeInsets.zero),
           shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(16)))),
     );
@@ -434,7 +437,10 @@ class Utils {
           backgroundColor:  WidgetStatePropertyAll(bgColor),
           iconColor: const WidgetStatePropertyAll(AppC.white),
           shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(16)))),
+              borderRadius: BorderRadius.circular(16)
+          )
+          )
+      ),
       child: Icon(Icons.add,size: 20,color: textColor,),
     );
   }
@@ -563,6 +569,7 @@ class Utils {
         bool showErrorSuffix = false,
         int minLines = 1,
         int maxLines = 1,
+        bool isCollapsed = false,
       AutovalidateMode autoValidate = AutovalidateMode.disabled,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
@@ -584,6 +591,14 @@ class Utils {
         readOnly: readOnly,
         maxLength: maxLength,
         obscureText: obscure,
+        //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+        //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+        // onTapOutside: (event) {
+        //   focusNode?.unfocus();
+        //   Future.delayed(Duration(milliseconds: 100), () {
+        //     controller.selection = TextSelection.collapsed(offset: 0);
+        //   });
+        // },
         textCapitalization: TextCapitalization.sentences,
         inputFormatters: textInputFormatter,
         textAlign: textAlign,
@@ -600,6 +615,7 @@ class Utils {
             hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey,),
             labelStyle: labelStyle ?? const TextStyle(color: AppC.grey,fontSize: 13),
             filled: true,
+            isCollapsed: isCollapsed,
             fillColor: fillColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRadius),
@@ -2863,15 +2879,20 @@ class Utils {
 
   static void openURL(String url, {bool isFile = false}) async {
     // if ((!url.isNetworkURL) && (isFile)) return;
+    if (isFile) {
+      OpenFile.open(url);
+      return;
+    }
     final Uri uri = isFile ? Uri.file(url) : Uri.parse(url);
     try {
+      Console.of.error(uri);
       if (await canLaunchUrl(uri)) {
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
       } else {
-        showMobileToast("Could not launch $url");
+        showMobileToast("Could not launch $uri");
       }
     } catch (e) {
       log('Error launching URL: $e');
@@ -2880,13 +2901,22 @@ class Utils {
   }
 
   static void showPickerDate(BuildContext context, {DateTime? value, void Function(DateTime)? onChanged}) async {
-    var result = await showDatePicker(
+    var result = await Future.microtask(() => showDatePicker(
         context: context,
         firstDate: DateTime.now().subtract(const Duration(days: 180)),
         currentDate: DateTime.now(),
         initialDate: value,
         initialEntryMode: DatePickerEntryMode.calendarOnly,
-        lastDate: DateTime.now().add(const Duration(days: 1825000)));
+        lastDate: DateTime.now().add(const Duration(days: 1825000))));
+    if (result != null) onChanged?.call(result);
+  }
+
+  static void showPickerTime(BuildContext context, {TimeOfDay? value, void Function(TimeOfDay)? onChanged}) async {
+    var result = await showTimePicker(
+      context: context,
+      initialTime: value ?? TimeOfDay.fromDateTime(DateTime.now()),
+      initialEntryMode: TimePickerEntryMode.dialOnly,
+    );
     if (result != null) onChanged?.call(result);
   }
 }

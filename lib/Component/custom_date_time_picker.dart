@@ -16,6 +16,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final void Function(T value)? onChanged;
   final TextEditingController? controller;
   final bool use24HourFormat;
+  final bool showAsExpanded;
 
   const CustomDateTimePicker(
       {super.key,
@@ -28,6 +29,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       this.textStyle,
       this.textAlign,
       this.onChanged,
+      this.showAsExpanded = false,
       this.use24HourFormat = false});
 
   @override
@@ -61,12 +63,22 @@ class CustomDateTimePicker<T> extends StatelessWidget {
           spacing: 5,
           children: [
             if (prefixIcon != null) prefixIcon!,
-            Text(
-              "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
-              overflow: TextOverflow.ellipsis,
-              style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: AppC.text),
-              textAlign: textAlign,
+            if (showAsExpanded)
+            Expanded(
+              child: Text(
+                "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
+                overflow: TextOverflow.ellipsis,
+                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: AppC.text),
+                textAlign: textAlign,
+              ),
             ),
+            if (!showAsExpanded)
+              Text(
+                "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
+                overflow: TextOverflow.ellipsis,
+                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: AppC.text),
+                textAlign: textAlign,
+              ),
             if (suffixIcon != null) suffixIcon!,
           ],
         ),

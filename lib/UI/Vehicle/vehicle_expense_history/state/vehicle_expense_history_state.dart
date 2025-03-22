@@ -9,6 +9,7 @@ class VehicleExpenseHistoryState extends Equatable{
   final TextEditingController searchController;
   final List<dynamic> apiResponse;
   final List<dynamic> filteredResponse;
+  final List<dynamic> approvedList;
   final List<dynamic> expenseAttachments;
   final dynamic editResponse;
   final dynamic selectedCategory;
@@ -24,12 +25,14 @@ class VehicleExpenseHistoryState extends Equatable{
   final Map<String,dynamic> selectedVehicle;
   final String vin;
   final String vehicleName;
+  final double? totalAmount;
   final bool isLoading;
 
   const VehicleExpenseHistoryState({
     required this.searchController,
     required this.apiResponse,
     required this.filteredResponse,
+    required this.approvedList,
     required this.expenseAttachments,
     required this.editResponse,
     required this.selectedCategory,
@@ -45,6 +48,7 @@ class VehicleExpenseHistoryState extends Equatable{
     required this.selectedVehicle,
     required this.vin,
     required this.vehicleName,
+    required this.totalAmount,
     required this.isLoading,
   });
 
@@ -52,6 +56,7 @@ class VehicleExpenseHistoryState extends Equatable{
     TextEditingController? searchController,
     List<dynamic>? apiResponse,
     List<dynamic>? filteredResponse,
+    List<dynamic>? approvedList,
     List<dynamic>? expenseAttachments,
     dynamic selectedCategory,
     dynamic selectedSubCategory,
@@ -67,12 +72,14 @@ class VehicleExpenseHistoryState extends Equatable{
     Map<String,dynamic>? selectedVehicle,
     String? vin,
     String? vehicleName,
+    double? totalAmount,
     bool? isLoading,
   }){
     return VehicleExpenseHistoryState(
       searchController: searchController ?? this.searchController,
       apiResponse:apiResponse ?? this.apiResponse,
       filteredResponse:filteredResponse ?? this.filteredResponse,
+      approvedList: approvedList ?? this.approvedList,
       expenseAttachments: expenseAttachments ?? this.expenseAttachments,
       editResponse: editResponse ?? this.editResponse,
       selectedCategory: selectedCategory ?? this.selectedCategory,
@@ -88,6 +95,7 @@ class VehicleExpenseHistoryState extends Equatable{
       selectedVehicle: selectedVehicle ?? this.selectedVehicle,
       vin: vin ?? this.vin,
       vehicleName: vehicleName ?? this.vehicleName,
+      totalAmount: totalAmount ?? this.totalAmount,
       isLoading:  isLoading ?? this.isLoading,
     );
   }
@@ -97,6 +105,7 @@ class VehicleExpenseHistoryState extends Equatable{
     searchController,
     apiResponse,
     filteredResponse,
+    approvedList,
     expenseAttachments,
     editResponse,
     selectedCategory,
@@ -112,6 +121,7 @@ class VehicleExpenseHistoryState extends Equatable{
     selectedVehicle,
     vin,
     vehicleName,
+    totalAmount,
     isLoading,
     Random().nextDouble()
   ];

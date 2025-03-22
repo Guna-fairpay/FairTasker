@@ -885,7 +885,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                     todoList.addAll(resource as Iterable<Map<String,dynamic>>);
                                                     setState(() {});
                                                   },
-                                                  taskCategoryGroupData,
+                                                  // taskCategoryGroupData,
                                                   titleList,
                                                 );
                                               },
@@ -1456,7 +1456,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
       List<Map<String, dynamic>> todoListMenu,
       TapDownDetails details,
       Function(List<Map<String, dynamic>>?) onSelect,
-      List<Map<String, dynamic>> taskCategoryGroupData,
+      // List<Map<String, dynamic>> taskCategoryGroupData,
       List<Map<String, dynamic>> titleList,)
   async {
     List<Map<String, dynamic>> taskList = [];

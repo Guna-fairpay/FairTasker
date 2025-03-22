@@ -1,11 +1,10 @@
 
- import 'dart:developer';
-
+import 'dart:developer';
+import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -122,21 +121,12 @@ class EditTodoBody extends StatelessWidget {
                   ],
                 ),
                 10.height,
-                Utils.getTextFormField(
-                  'Task Name',
-                  context.read<EditToDoBloc>().taskNameController,
-                  isDense: true,
-                  showErrorSuffix: true,
-                  borderRadius: Num.borderRadius,
-                  autoValidate: AutovalidateMode.onUserInteraction,
-                  validator: (val) =>
-                      (val?.isEmpty ?? false) ? "Task name is missing" : null,
-                  contentPadding: 10.padding,
-                  labelStyle: context.textTheme.labelMedium
-                      ?.copyWith(color: context.theme.hintColor),
-                  style: context.textTheme.labelLarge
-                      ?.copyWith(fontFamily: "Lato"),
-                ),
+                SearchViewField(
+                    controller: context.read<EditToDoBloc>().taskNameController,
+                    suggestions: state.tasks,
+                    itemAsString: (item) => item['task'] ?? '',
+                onSelected: (value) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: value)),
+                showEmpty: true,),
                 10.height,
                 CustomVehiclePersonField(
                   vehiclesList: state.vehicles,
@@ -151,7 +141,7 @@ class EditTodoBody extends StatelessWidget {
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
                   controller: context.read<EditToDoBloc>().vPersonController,
-
+                  groupVehicles: state.groupVehicles,
                 ),
                 10.height,
                 CustomVendorLocationField(

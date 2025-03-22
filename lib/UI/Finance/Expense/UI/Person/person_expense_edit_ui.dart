@@ -1,429 +1,286 @@
 
-import 'dart:io';
-import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/Component/close_badge.dart';
+import 'package:fairpytasker/Component/custom_date_time_picker.dart';
+import 'package:fairpytasker/Component/image_viewer.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Bloc/person_expense_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Event/person_expense_event.dart';
+import 'package:fairpytasker/UI/Finance/Expense/State/persion_expense_state.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
+import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../../../../../Component/drawer_ui.dart';
-import '../../../../../Component/header.dart';
-import '../../../../../Utilities/num.dart';
-
-class ExpensePersonEditUi extends StatefulWidget {
-
-  final dynamic existingData;
-  const ExpensePersonEditUi({super.key, required this.existingData});
-
-  @override
-  State<ExpensePersonEditUi> createState() => _ExpensePersonEditUiState();
-}
-
-class _ExpensePersonEditUiState extends State<ExpensePersonEditUi> {
-
-  final TextEditingController amountController= TextEditingController();
-  final TextEditingController descriptionController=TextEditingController();
-  final TextEditingController dateController=TextEditingController();
-  dynamic selectedName;
-  dynamic selectedCategory;
-  dynamic selectedSubCategory;
-  dynamic selectedExpenseTo;
-  //dynamic selectedSubCategory;
-  dynamic selectedPayment;
-  dynamic selectedChoice;
-  bool isDateFieldEmpty=false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialize the form fields with the existing data passed to this screen.
-    if (widget.existingData != null) {
-      // Initialize the controllers with existing data
-      amountController.text = widget.existingData['amount'] ?? '';
-      descriptionController.text = widget.existingData['description'] ?? '';
-      dateController.text = widget.existingData['date'] ?? '';
-
-      // Initialize selectedName and other fields
-      selectedName = widget.existingData['name'];
-
-      // Use firstWhere to find the expenseTo value from the list
-      selectedExpenseTo = expenseto.firstWhere(
-            (item) => item['name'] == widget.existingData['expenseTo'],
-        orElse: () => {}, // Return an empty map if not found
-      );
-
-      // Use firstWhere to find the subcategory
-      selectedSubCategory = subcategory.firstWhere(
-            (item) => item['name'] == widget.existingData['subcategory'],
-        orElse: () => {}, // Return an empty map if not found
-      );
-
-      // Initialize selectedPayment
-      selectedPayment = payments.firstWhere(
-            (item) => item['name'] == widget.existingData['selectedPayment'],
-        orElse: () => {}, // Return an empty map if not found
-      );
-
-      // Initialize selectedChoice as 'Yes' or 'No' based on approval
-      selectedChoice = widget.existingData['approved'] == 1 ? 'Yes' : 'No';
-    }
-  }
-
-  void _save() {
-    // Convert "Yes" or "No" to 1 or 0
-    selectedChoice = (selectedChoice == "Yes") ? 1 : 0;
-
-    // Create the new data map from controllers and selected values
-    final newdata = {
-      'date': dateController.text,
-      'amount': amountController.text,
-      'approved': selectedChoice,
-      'name': selectedName?['name'], // Added dynamic selectedName
-      'category': selectedCategory?['category'], // Optional chaining to handle null
-      'subcategory': selectedSubCategory?['subcategory'], // Optional chaining to handle null
-      'description': descriptionController.text,
-      'selectedPayment': selectedPayment?['payment'], // Optional chaining to handle null
-      'expenseTo': selectedExpenseTo['ExpenseTo'], // Added dynamic selectedExpenseTo
-    };
-
-    // Print statements for debugging
-    print('New Data: $newdata');
-    // print("Category Type: ${newdata['category']?.runtimeType}");
-    // print("Subcategory Type: ${newdata['subcategory']?.runtimeType}");
-
-    // Return the new data
-    Navigator.pop(context, newdata);
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    final XFile? image = await _picker.pickImage(source: source);
-    if (image != null) {
-      setState(() {
-        _images.add(File(image.path));
-      });
-    }
-  }
-
-
-  void _viewImage(File image) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Image.file(image),
-      ),
-    );
-  }
-
-  void _removeImage(int index) {
-    setState(() {
-      _images.removeAt(index);
-    });
-  }
-
-  final List<File> _images = [];
-  final ImagePicker _picker = ImagePicker();
-
-  List<Map<String,dynamic>> names=[{'firstname': 'John','lastname':'Doe','name':''},{
-    'firstname': 'Jane','lastname':'Smith','name':''},
-    {'firstname': 'Alice','lastname':'Jhonson','name':''},
-    {'firstname': 'Bob','lastname':'Brown','name':''},
-    {'firstname': 'Charlie','lastname':'White','name':''}];
-  List<Map<String,dynamic>> category=[{"category":"Admin"}];
-  List<Map<String,dynamic>> subcategory=[{"subcategory":"Payroll partime"}];
-  List<Map<String,dynamic>> expenseto=[{"ExpenseTo":"FairPY"},{"ExpenseTo":"Cohort"}];//payments
-  List<Map<String,dynamic>> payments=[{"payment":"Corporate card"},{"payment":"Zelle"},{"payment":"Cash"},{"payment":"Personal cash/card"},{"payment":"Other"}];
-  List<Map<String,dynamic>> choices=[{"choice":"Yes"},{"choice":"No"}];
+class PersonExpenseEditUI extends StatelessWidget {
+  final String id;
+  const PersonExpenseEditUI({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: const DrawerView(),
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
-      ),
-      body: SingleChildScrollView( // Wrap with SingleChildScrollView to make it scrollable
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Align content to start
-            children: [
-              Row(
-                children: [
-                  GestureDetector(onTap:(){
-                    Navigator.pop(context);
-                  },
-                      child:
-                      const Icon(Icons.arrow_back,size: 16,)),
-                  const SizedBox(width: 5),
-                  Utils.getText('Edit Person Expense', size: 16, weight: FontWeight.bold,),
-                ],
-              ),
-              const SizedBox(height: 20,),
-              // First Row: Select Person & Date Picker
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.dropdownBox(
-                        'Select Person',
-                        names.map((person) => {
-                          'name': '${person['firstname']} ${person['lastname']}'
-                        }).toList(), // Combine firstname and lastname
-                            (selectedValue) {
-                          setState(() {
-                            selectedName = selectedValue;
-                          });
+    return BlocProvider<PersonExpenseBloc>(
+      create: (context) => PersonExpenseBloc()..add(GetPersonExpenseEditData(id:id)),
+      child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
+        listener: (context, state) {
+          state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+        },
+        child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
+            builder: (context, state) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Edit Person Expense '),
+                  foregroundColor: Colors.white,
+                  automaticallyImplyLeading: false,
+                  backgroundColor: AppC.appColor,
+                  actions: [
+                    IconButton(
+                        onPressed: () {
+                          AskPermissionDialog.show(context,
+                              title: "Are you sure?",
+                              description: "Do you want to delete this Expense?",
+                              positiveText: "Yes, delete it!",
+                              negativeText: "Cancel",
+                              isReasonRequired: false,
+                              onPositivePressed: () {
+                                context
+                                    .read<PersonExpenseBloc>()
+                                    .add(DeletePersonExpenseEvent(id: id,isEditPage: true));
+                                // Future.delayed(
+                                //   const Duration(seconds: 1),
+                                //       () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',)),
+                                // );
+                              });
                         },
-                        labelKey: 'name',
-                      ),
+                        icon: Icon(Icons.delete_outline)
                     ),
-                  ),
-
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.getTextFormField('',
-                        dateController,
-                        suffixIcon: Padding(
-                          padding: isDateFieldEmpty
-                              ? const EdgeInsets.only(right: 35.0)
-                              : EdgeInsets.zero,
-                          child: const Icon(
-                            Icons.date_range,
-                            color: AppC.appColor,
-                            size: 16,
-                          ),
-                        ),
-                        readOnly: true,
-                        onTapCallback: () {
-                          Utils.datePicker(
-                            context,
-                            '',
-                            initial: DateTime.now(), // Set initial date to the current date
-                          ).then((value) {
-                            if (value != null) {
-                              dateController.text = Utils.convertDateTimeToTheFormat(
-                                value.toString(),
-                              );
-                            }
-                          });
-                        },
-                        label: Utils.getText('Date', color: AppC.grey),
-                        borderColor: isDateFieldEmpty ? Colors.red : AppC.fieldBase,
-                      ),
+                    IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.close)
                     ),
-
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Second Row: Select Category & Sub Category
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.dropdownBox('Select Category', category,
-                              (selectedValue) {
-                            setState(() {
-                              selectedCategory = selectedValue;
-                            }
-                            );
-                          },
-                          labelKey:'category',
-                          initialSelection: selectedCategory
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.dropdownBox('Select Subcategory', subcategory,
-                              (selectedValue) {
-                            setState(() {
-                              selectedSubCategory = selectedValue;
-                            }
-                            );
-                          },
-                          labelKey:'subcategory',
-                          initialSelection: selectedSubCategory
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Third Row: Select Expense To & Amount
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.dropdownBox('Select Expense To', expenseto,
-                              (selectedValue) {
-                            setState(() {
-                              selectedExpenseTo = selectedValue;
-                            }
-                            );
-                          },
-                          labelKey:'ExpenseTo'
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                        height: 35,
-                        child: Utils.getTextFormField("Enter Amount", amountController)
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Fourth Row: Select & Select
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.dropdownBox('Select ', payments,
-                              (selectedValue) {
-                            setState(() {
-                              selectedPayment = selectedValue;
-                            }
-                            );
-                          },
-                          labelKey:'payment'
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                      height: 35,
-                      child: Utils.dropdownBox('Select ', choices,
-                              (selectedValue) {
-                            setState(() {
-                              selectedChoice = selectedValue;
-                            }
-                            );
-                          },
-                          labelKey:'choice'
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Expense Description
-              Utils.getTextFormField(
-                  'Enter Description',descriptionController
-              ),
-              const SizedBox(height: 16),
-              // Upload Button
-              GestureDetector(
-                onTap: () => _pickImage(ImageSource.gallery), // Handle tap gesture
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0), // Add space below
-                  child: Container(
-                    height: 30,
-                    width: 150,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppC.blue,
-                        width: Num.borderWidthField,
-                      ),
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(Num.subradiusButton),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.cloud_upload,
-                          color: AppC.blue,
-                          size: 12,
-                        ),
-                        const SizedBox(width: 5),
-                        Utils.getText('Upload', color: AppC.blue),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-
-              if (_images.isNotEmpty)
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _images.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      File image = entry.value;
-                      return Stack(
+                body: SafeArea(
+                  minimum: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  child: ListView(
+                    children: [
+                      Row(
+                        spacing: 20,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Image.file(
-                              image,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned(
-                            right: -5,
-                            top: 2,
-                            child: Column(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.red, // Circle color
-                                  radius: 10, // Adjust the radius for the desired size
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero, // Remove padding
-                                    constraints: BoxConstraints(), // Remove extra constraints
-                                    icon: const Icon(Icons.delete, color: Colors.white, size: 16), // Adjust icon size
-                                    onPressed: () => _removeImage(index),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.remove_red_eye, color: Colors.blue, size: 20),
-                                  onPressed: () => _viewImage(image),
-                                ),
-                              ],
+                          Expanded(
+                              child: Utils.dropdownBox(
+                                  "Select Person",
+                                  state.persons,
+                                      (value) =>context.read<PersonExpenseBloc>().add(PersonDropDownEvent(selectedPerson: value)),
+                                  labelKey: 'first_name',
+                                  labelKey2: 'last_name',
+                                initialSelection: state.selectedPerson,
+                              )),
+                          Expanded(
+                            child: CustomDateTimePicker<DateTime>(
+                              controller:
+                              context.read<PersonExpenseBloc>().dateController,
+                              format: "dd-MM-yyyy",
+                              suffixIcon: Icon(Icons.calendar_month_rounded,
+                                  size: 18, color: context.theme.hintColor),
+                              textAlign: TextAlign.center,
+                              value: state.selectedDate,
+                              onChanged: (value) => context
+                                  .read<PersonExpenseBloc>()
+                                  .add(DateChangeEvent(selectedDate: value)),
                             ),
                           ),
                         ],
-                      );
-                    }).toList(),
+                      ),
+                      15.height,
+                      Row(
+                        spacing: 20,
+                        children: [
+                          Expanded(
+                              child: Utils.dropdownBox(
+                                  "Select Category",
+                                  state.categories,
+                                      (value) =>context.read<PersonExpenseBloc>().add(CategoryDropDownEvent(selectedCategory: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedCategory,
+                              )),
+                          Expanded(
+                              child: Utils.dropdownBox("Select Sub Category",
+                                  state.subCategories,
+                                      (value) =>context.read<PersonExpenseBloc>().add(SubCategoryDropDownEvent(selectedSubCategory: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedSubCategory,
+                              )),
+                        ],
+                      ),
+                      15.height,
+                      Row(
+                        children: [
+                          Expanded(
+                              child: Utils.dropdownBox(
+                                "Select Expense To",
+                                state.cohorts,
+                                    (value) =>context.read<PersonExpenseBloc>().add(CohortDropDownEvent(selectedCohort: value)),
+                                labelKey: 'name',
+                                initialSelection: state.selectedCohorts,
+
+                              )),
+                          20.width,
+                          Expanded(
+                              child: Utils.getTextFormField(
+                                "Expense Amount",
+                                context.read<PersonExpenseBloc>().amountController,
+                                textType: TextInputType.numberWithOptions(decimal: true),
+                                inputAction: TextInputAction.done,
+                                textInputFormatter:[
+                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                                ],
+                              )),
+                        ],
+                      ),
+                      15.height,
+                      Row(
+                        spacing: 20,
+                        children: [
+                          Expanded(
+                              child: Utils.dropdownBox("Select Payment Type",
+                                  state.paymentType,
+                                      (value) =>context.read<PersonExpenseBloc>().add(PaymentDropDownEvent(paymentType: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedPaymentType
+                              )),
+                          Expanded(
+                              child: Utils.dropdownBox("Select Approved Status",
+                                  state.approved,
+                                      (value) =>context.read<PersonExpenseBloc>().add(ApprovedDropDownEvent(selectedApproved: value)),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedApproved
+                              )),
+                        ],
+                      ),
+                      20.height,
+                      Utils.getTextFormField("Description",
+                          context.read<PersonExpenseBloc>().descriptionController),
+                      15.height,
+                      GestureDetector(
+                        onTap: () =>
+                            context.read<PersonExpenseBloc>().add(PickImageEvent()),
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppC.blue,
+                              width: Num.borderWidthField,
+                            ),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(Num.subradiusButton),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.cloud_upload,
+                                color: AppC.blue,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Utils.getText('Upload',
+                                  color: AppC.blue, weight: FontWeight.bold),
+                            ],
+                          ),
+                        ),
+                      ),
+                      10.height,
+                      if (state.expenseAttachments.isNotEmpty)
+                        SizedBox(
+                          height: 100,
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            itemCount: state.expenseAttachments.length,
+                            scrollDirection: Axis.horizontal,
+                            gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1, mainAxisSpacing: 10),
+                            itemBuilder: (context, index) => CloseBadge(
+                                onTapView: () {
+                                  ShowAttachmentsDialog.of.show(context,
+                                      attachments: state.expenseAttachments,
+                                      title: "",
+                                      currentAttachment:
+                                      state.expenseAttachments[index]);
+                                },
+                                onTapDelete: () {
+                                  AskPermissionDialog.show(context,
+                                      title: "Are you sure?",
+                                      description:
+                                      "Do you want to delete this Expense Image?",
+                                      positiveText: "Yes, delete it!",
+                                      negativeText: "Cancel",
+                                      isReasonRequired: false,
+                                      onPositivePressed: () => context
+                                          .read<PersonExpenseBloc>()
+                                          .add(RemoveImageEvent(
+                                          data: state
+                                              .expenseAttachments[index])));
+                                },
+                                child: Container(
+                                  constraints: BoxConstraints(
+                                    minHeight: MediaQuery.sizeOf(context).height,
+                                    minWidth: MediaQuery.sizeOf(context).width,
+                                  ),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: AppC.grey.withValues(alpha: 0.2)),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: ImageViewer(
+                                    fit: BoxFit.cover,
+                                    imageInput: state.expenseAttachments[index],
+                                    isNotImage: !((state.expenseAttachments[index]
+                                    as Object)
+                                        .isImage),
+                                  ),
+                                )),
+                          ),
+                        ),
+                      15.height,
+                      Utils.getElevatedButton((){
+                        if (state.selectedPerson.isEmpty) {
+                          return Toaster.showError("Please select person");
+                        }
+                        if (state.selectedCategory.isEmpty) {
+                          return Toaster.showError("Please select category");
+                        }
+                        if (state.selectedSubCategory.isEmpty) {
+                          return Toaster.showError("Please select subCategory");
+                        }
+                        if (state.selectedCohorts.isEmpty) {
+                          return Toaster.showError("Please select expenseTo");
+                        }
+                        if (context.read<PersonExpenseBloc>().amountController.text.isEmpty) {
+                          return Toaster.showError("Please enter amount");
+                        }
+                        if (state.selectedPaymentType.isEmpty) {
+                          return Toaster.showError("Please select payment type");
+                        }
+                        if (state.selectedApproved.isEmpty) {
+                          return Toaster.showError("Please select approved status");
+                        }
+                        context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));})
+                    ],
                   ),
                 ),
-              const SizedBox(height: 15), // Add spacing
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start, // Align to the start
-                children: [
-                  SizedBox(
-                    height: 40, // Set the button's height
-                    child: Utils.getAddFilledButton(
-                      'Save', // Button label
-                          () {
-                        _save(); // Callback function
-                      },
-                      bgColor: AppC.green, // Set the button's background color
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+              );
+            }
         ),
       ),
     );
   }
 }
-

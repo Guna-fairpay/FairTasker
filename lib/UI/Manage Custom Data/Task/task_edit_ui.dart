@@ -100,25 +100,26 @@ class _TaskEditUIState extends State<TaskEditUI> {
           listener: (context, state) {
             if (state is TodoListLoading) {
                EasyLoading.show();
-            } else if (state is CohortsListLoaded) {
-              if(EasyLoading.isShow)EasyLoading.dismiss();
-              category.clear();
-              category.addAll(state.expenseData ?? []);
-              selectedCategory = category.firstWhere(
-                (e) => e['id'] == widget.task['category_id'],
-                orElse: () => {},
-              );
-              subCategory = state.expenseData!
-                  .where((category) =>
-                      category['id'].toString() ==
-                      widget.task['category_id'].toString())
-                  .map((category) => category['sub_categories'] ?? [])
-                  .expand((subcategoryList) => subcategoryList)
-                  .toList();
-              selectedSubCategory = subCategory.firstWhere(
-                (e) => e['id'] == widget.task['subcategory_id'],
-                orElse: () => {},
-              );
+            } else {if (EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is CohortsListLoaded) {
+                category.clear();
+                category.addAll(state.expenseData ?? []);
+                selectedCategory = category.firstWhere(
+                  (e) => e['id'] == widget.task['category_id'],
+                  orElse: () => {},
+                );
+                subCategory = state.expenseData!
+                    .where((category) =>
+                        category['id'].toString() ==
+                        widget.task['category_id'].toString())
+                    .map((category) => category['sub_categories'] ?? [])
+                    .expand((subcategoryList) => subcategoryList)
+                    .toList();
+                selectedSubCategory = subCategory.firstWhere(
+                  (e) => e['id'] == widget.task['subcategory_id'],
+                  orElse: () => {},
+                );
+              }
             }
           },
           builder: (context, state) {

@@ -1,6 +1,7 @@
 
 import 'dart:math';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
 class ExpenseState extends Equatable{
 
@@ -16,7 +17,28 @@ class ExpenseState extends Equatable{
   final dynamic selectedCohorts;
   final List<dynamic> tapData;
   final Map<String,dynamic> selectedTap;
+  final bool isApprove;
   final bool isLoading;
+  final DateRange? selectedDateRange;
+  final bool isExpenseApproved;
+  final dynamic approvedAmount;
+  final dynamic unApprovedAmount;
+  final List<Map<String,dynamic>> vehicleList;
+  final Map<String,dynamic> selectedVehicle;
+  final List<dynamic> paymentType;
+  final dynamic selectedPaymentType;
+  final DateTime? selectedDate;
+  final dynamic todoDetails;
+  final List<dynamic> userNames;
+  final List<String>? todoVehicles;
+  final List<dynamic> partsList;
+  final List<dynamic> suppliesList;
+  final List<dynamic> splitExpense;
+  final String categoryName;
+  final String subCategoryName;
+  final List<dynamic> expenseTo;
+  final dynamic selectedExpenseTo;
+  final bool pop;
 
   const ExpenseState({
     required this.apiResponse,
@@ -31,7 +53,28 @@ class ExpenseState extends Equatable{
     required this.selectedCohorts,
     required this.tapData,
     required this.selectedTap,
+    required this.isApprove,
     required this.isLoading,
+    required this.selectedDateRange,
+    required this.isExpenseApproved,
+    required this.approvedAmount,
+    required this.unApprovedAmount,
+    required this.vehicleList,
+    required this.selectedVehicle,
+    required this.paymentType,
+    required this.selectedPaymentType,
+    required this.selectedDate,
+    required this.todoDetails,
+    required this.userNames,
+    required this.todoVehicles,
+    required this.partsList,
+    required this.suppliesList,
+    required this.splitExpense,
+    required this.categoryName,
+    required this.subCategoryName,
+    required this.expenseTo,
+    required this.selectedExpenseTo,
+    required this.pop,
   });
 
   ExpenseState copyWith({
@@ -47,7 +90,29 @@ class ExpenseState extends Equatable{
     dynamic selectedCohorts,
     List<dynamic>? tapData,
     Map<String,dynamic>? selectedTap,
+    bool? isApprove,
     bool? isLoading,
+    DateRange? selectedDateRange,
+    bool? isExpenseApproved,
+    dynamic approvedAmount,
+    dynamic unApprovedAmount,
+    List<Map<String, dynamic>>? vehicleList,
+    Map<String,dynamic>? selectedVehicle,
+    List<dynamic>? paymentType,
+    dynamic selectedPaymentType,
+    DateTime? selectedDate,
+    dynamic todoDetails,
+    List<dynamic>? userNames,
+    List<String>? todoVehicles,
+    List<dynamic>? partsList,
+    List<dynamic>? suppliesList,
+    List<dynamic>? splitExpense,
+    String? categoryName,
+    String? subCategoryName,
+    List<dynamic>? expenseTo,
+    dynamic selectedExpenseTo,
+    bool? pop,
+
   }){
     return ExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -62,7 +127,28 @@ class ExpenseState extends Equatable{
       selectedCohorts: selectedCohorts ?? this.selectedCohorts,
       tapData: tapData ?? this.tapData,
       selectedTap: selectedTap ?? this.selectedTap,
+      isApprove: isApprove ?? this.isApprove,
       isLoading:  isLoading ?? this.isLoading,
+      selectedDateRange: selectedDateRange ?? this.selectedDateRange,
+      isExpenseApproved: isExpenseApproved ?? this.isExpenseApproved,
+      approvedAmount: approvedAmount ?? this.approvedAmount,
+      unApprovedAmount: unApprovedAmount ?? this.unApprovedAmount,
+      vehicleList: vehicleList ?? this.vehicleList,
+      selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+      paymentType: paymentType ?? this.paymentType,
+      selectedPaymentType: selectedPaymentType ?? this.selectedPaymentType,
+      selectedDate: selectedDate ?? this.selectedDate,
+      todoDetails: todoDetails ?? this.todoDetails,
+      userNames: userNames ?? this.userNames,
+      todoVehicles: todoVehicles ?? this.todoVehicles,
+      partsList: partsList ?? this.partsList,
+      suppliesList: suppliesList ?? this.suppliesList,
+      splitExpense: splitExpense ?? this.splitExpense,
+      categoryName: categoryName ?? this.categoryName,
+      subCategoryName: subCategoryName ?? this.subCategoryName,
+      expenseTo: expenseTo ?? this.expenseTo,
+      selectedExpenseTo: selectedExpenseTo ?? this.selectedExpenseTo,
+      pop: pop ?? this.pop,
     );
   }
 
@@ -80,7 +166,28 @@ class ExpenseState extends Equatable{
     selectedCohorts,
     tapData,
     selectedTap,
+    isApprove,
     isLoading,
+    selectedDateRange,
+    isExpenseApproved,
+    approvedAmount,
+    unApprovedAmount,
+    vehicleList,
+    selectedVehicle,
+    paymentType,
+    selectedPaymentType,
+    selectedDate,
+    todoDetails,
+    userNames,
+    todoVehicles,
+    partsList,
+    suppliesList,
+    splitExpense,
+    categoryName,
+    subCategoryName,
+    expenseTo,
+    selectedExpenseTo,
+    pop,
     Random().nextDouble()
   ];
 

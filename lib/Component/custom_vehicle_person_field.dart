@@ -19,17 +19,22 @@ class CustomVehiclePersonField extends StatelessWidget {
   final void Function(dynamic val)? onSelected;
   final void Function(dynamic val)? onDeleted;
   final TextEditingController? controller;
+  final bool updateWhileDelete;
+  final String labelText;
 
-  CustomVehiclePersonField(
-      {super.key,
-      this.selectedVPersons,
-      required this.vehiclesList,
-      this.selected,
-      this.onSelected,
-      this.onDeleted,
-      required this.personsList,
-      this.groupVehicles = const [],
-      this.controller}) {
+  CustomVehiclePersonField({
+    super.key,
+    this.selectedVPersons,
+    required this.vehiclesList,
+    this.selected,
+    this.onSelected,
+    this.onDeleted,
+    this.labelText = "Vehicle/Person",
+    required this.personsList,
+    this.groupVehicles = const [],
+    this.controller,
+    this.updateWhileDelete = true,
+  }) {
     _prepareData();
     _checkSelectedVData();
   }
@@ -46,7 +51,9 @@ class CustomVehiclePersonField extends StatelessWidget {
 
   void _prepareData() {
     unfilteredList = CustomSearchDataConverter.convertVPerson(
-        vehicles: vehiclesList, persons: personsList, groupVehicles: groupVehicles);
+        vehicles: vehiclesList,
+        persons: personsList,
+        groupVehicles: groupVehicles);
     commonList.value = unfilteredList;
   }
 
@@ -125,14 +132,22 @@ class CustomVehiclePersonField extends StatelessWidget {
               valueListenable: showEmptyNotifier,
               builder: (context, value, child) => CustomAutoSearchField(
                   controller: controller!,
-                  labelText: "Vehicle/Person",
+                  labelText: labelText,
                   onSelected: _onSuggested,
                   showEmptyWidget: value,
                   autoClear: true,
                   itemAsString: (item) => formatMapData(item),
-                  onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vehicle", "Person"], onTap: (item) {
-                    item == "Vehicle" ? context.push(const VehicleAddUI()) : context.push(const EmployeesAddUI());
-                  },),
+                  onEmptyWidgetTapDown: (details) =>
+                      SimplePopUpMenu.instance.show(
+                        context,
+                        position: details.globalPosition,
+                        items: ["Vehicle", "Person"],
+                        onTap: (item) {
+                          item == "Vehicle"
+                              ? context.push(const VehicleAddUI())
+                              : context.push(const EmployeesAddUI());
+                        },
+                      ),
                   // onEmptyWidgetTap: () => context.push(const EmployeesAddUI()),
                   optionsBuilder: (textEditingValue) =>
                       onSearch(textEditingValue)),
@@ -178,7 +193,7 @@ class CustomVehiclePersonField extends StatelessWidget {
     selectedList.value = value;
     selectedList.notifyListeners();
     selectedVPersons?.notifyListeners();
-    onSelected?.call(selectedList.value);
+    if (updateWhileDelete) onSelected?.call(selectedList.value);
   }
 
   void _onSuggested(Map<String, dynamic> val) {
