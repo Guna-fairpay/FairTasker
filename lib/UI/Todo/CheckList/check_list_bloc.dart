@@ -36,6 +36,10 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
         final response = await todoListRepo.getCheckList();
         final response1 = await todoListRepo.getTodoList();
 
+        //todoItemsCopy = event.todoItems;
+        todoItemsCopy.addAll(event.todoItems);
+        vehiclesCopy.addAll(event.vehicle);
+
         if (response != null) {
           checkListData = response.data ?? [];
           final todoList = response1?.data ?? [];
@@ -125,7 +129,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
     });
 
     on<AddFixTaskEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
+      //emit(state.copyWith(isLoading: true));
       try {
         await todoListRepo.createFixTask( CreateFixTaskData()
           ..userId = todoItemsCopy['user_id']
@@ -141,9 +145,10 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vendorName = todoItemsCopy['vendor_name']
             ..vehicleNumber = vehiclesCopy['vehicle_number']
         );
-        emit(state.copyWith(isLoading: false));
+        //emit(state.copyWith(isLoading: false));
+        add(const CheckListInitialEvent(todoItems: {}, vehicle: {}));
       } catch (e) {
-        emit(state.copyWith(isLoading: false));
+       // emit(state.copyWith(isLoading: false));
       }
     });
 

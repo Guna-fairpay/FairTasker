@@ -2819,14 +2819,17 @@ class TodoListRepo {
       String? amount,
       String? task) async {
     try {
-      String body = jsonEncode({"amount": amount, "task_name": name, "type":task, "id":id,"user_id": userId});
+      String body = jsonEncode({"amount": amount, "task_name": name, "type":task, "id":id, "user_id": userId});
       print("repository side $body");
       String apiUrl = '';
       http.Response? response;
-      if (id == null && userId!=null) {
+      if (id == null && userId==null) {
+        log("$task",name: "TaskBased");
         apiUrl = "${Str.BASE_URL}add-configuration";
-      }else if(id == null && userId==null)
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else if(id == null)
       {
+        log("$task",name: "HourBased");
         apiUrl = "${Str.BASE_URL}add-configuration";
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
