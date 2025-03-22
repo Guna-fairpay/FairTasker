@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_in_out_completed_dialog.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
@@ -76,6 +77,8 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerViewVehicleState(): Toaster.showInfo("Under Development"); break;
             case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
             case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
+            case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.model?['todoimages'], title: state.model?['title']); break;
+            case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
             default: break;
           }
         }

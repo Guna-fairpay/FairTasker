@@ -301,3 +301,17 @@ class ToDoTaskerTaskFilterEvent extends ToDoTaskerEvent {
   List<Object?> get props => [tasks];
 
 }
+
+class ToDoTaskerViewCustomLinkEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewCustomLinkEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ToDoTaskerViewAttachmentEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewAttachmentEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}

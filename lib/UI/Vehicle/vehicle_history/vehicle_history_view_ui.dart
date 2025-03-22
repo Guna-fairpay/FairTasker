@@ -12,6 +12,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
@@ -150,15 +151,10 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                           List<
                                               dynamic> users = model?['users'];
                                           String? firstName =
-                                          (model?['users']?[0]?['first_name']);
+                                          (users.firstOrNull?['first_name'] ?? "");
                                           String? lastName =
-                                          (model?['users']?[0]?['last_name']);
-                                          var firstLastChar =
-                                              "${firstName?.substring(0, 1) ??
-                                              ""}${lastName?.substring(
-                                              0, 1) ??
-                                              ""}${((model?['users'] as List)
-                                              .length > 1) ? ".." : ""}";
+                                          (users.firstOrNull?['last_name'] ?? "");
+                                          var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
                                           var customId = (model['custom_link_id'] ??
                                               0);
                                           var customText = (customId == 1)

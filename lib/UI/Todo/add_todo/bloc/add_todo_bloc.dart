@@ -20,6 +20,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -51,6 +52,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       TextEditingController();
 
   final TextEditingController reasonController = TextEditingController();
+
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
 
@@ -477,6 +480,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         var response = await todoListRepo.addTodo(body: _addTodoBody(), images: state.attachments.whereType<File>().toList());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
         emit(state.copyWith(isLoading: false));
+        _broadcast.stickyBroadcast("todo_view", value: true);
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
       } catch (e) {
         Toaster.showError("$e");
