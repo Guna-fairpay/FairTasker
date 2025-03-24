@@ -18,6 +18,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -52,6 +53,10 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       TextEditingController();
 
   final TextEditingController reasonController = TextEditingController();
+
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController partsController = TextEditingController();
+  final TextEditingController suppliesController = TextEditingController();
 
   final FBroadcast _broadcast = FBroadcast.instance();
 
@@ -114,8 +119,10 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           _getParts(),
           _getSupplies(),
           _getResources(),
+          _getGroupVehicles()
         ]);
-        var groupVehicles = await _getGroupVehicles();
+        // var groupVehicles = await _getGroupVehicles();
+        /*var tasks = response[0];
         TaskExpenseResponse? taskResponse =
             ((response[0] is TaskExpenseResponse) ? response[0] : null)
                 as TaskExpenseResponse?;
@@ -136,8 +143,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             : null) as SuppliesResponse?;
         AssignedToResponse? assignedToResponse =
             ((response[6] is AssignedToResponse) ? response[6] : null)
-                as AssignedToResponse?;
-        var resources = assignedToResponse?.resource ?? [];
+                as AssignedToResponse?;*/
+        var resources = response[6] ?? [];
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
             ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
@@ -148,16 +155,17 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             .where((element) => element['id'].toString() == currentUserId)
             .toList();
         departmentId = selectedUser.firstOrNull?['department'].toString();
+        Console.of.log(response.map((e) => e?.length).join(", "));
         emit(state.copyWith(
             isLoading: false,
-            tasks: taskResponse?.data ?? [],
-            vehicles: vehicleResponse?.data ?? [],
+            tasks: response[0] ?? [],
+            vehicles: response[1] ?? [],
             persons: resources,
-            locations: locationResponse?.data ?? [],
-            vendors: vendorResponse?.data ?? [],
-            partServices: partsResponse?.data ?? [],
-            supplies: suppliesResponse?.data ?? [],
-            groupVehicles: groupVehicles ?? [],
+            locations: response[3] ?? [],
+            vendors: response[2] ?? [],
+            partServices: response[4] ?? [],
+            supplies: response[5] ?? [],
+            groupVehicles: response[7] ?? [],
             selectedTaskPersons: selectedUser,
             resources: resources,
             selectedLinkOption: AddToDoConfig.customOptions.first));
@@ -281,9 +289,17 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoVLocationEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-      existing[3] = event.vLocation;
+      if (event.vLocation == existing[3]) {
+        existing.remove(3);
+      } else {
+        existing[3] = event.vLocation;
+      }
       log("${event.vLocation['name']}", name: "AddToDoBloc-Location");
-      vLocationController.text = event.vLocation['name'] ?? "";
+      if (existing.containsKey(3)) {
+        if ((existing[3]?['name'] ?? "") != vLocationController.text) vLocationController.text = existing[3]?['name'] ?? "";
+      } else {
+        vLocationController.clear();
+      }
       emit(state.copyWith(selectedTaskIdentifier: existing, ));
     });
 
@@ -640,30 +656,33 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   }
 
   // API CALL: TASKS
-  Future<TaskExpenseResponse?> _getTasks() async =>
-      await todoListRepo.getTaskExpense();
+  Future<List<Map<String, dynamic>>?> _getTasks() async =>
+      await getIt<CommonService>().getTaskExpenseData();
 
   // API CALL: VENDORS
-  Future<VendorResponse?> _getVendors() async => await todoListRepo.getVendor();
+  Future<List<Map<String, dynamic>>?> _getVendors() async =>
+      await getIt<CommonService>().getVendorsList();
 
   // API CALL: LOCATIONS
-  Future<LocationResponse?> _getLocations() async =>
-      await todoListRepo.getLocation();
+  Future<List<Map<String, dynamic>>?> _getLocations() async =>
+      await getIt<CommonService>().getLocationsList();
 
   // API CALL: ACTIVE-VEHICLES
-  Future<VehicleListResponse?> _getVehicles() async =>
-      await todoListRepo.fetchVehicleList();
+  Future<List<Map<String, dynamic>>?> _getVehicles() async =>
+      await getIt<CommonService>().getActiveVehicles();
 
   // API CALL: GET-RESOURCES
-  Future<AssignedToResponse?> _getResources() async =>
-      await todoListRepo.getAssignedTo();
+  Future<List<Map<String, dynamic>>?> _getResources() async =>
+      await getIt<CommonService>().getResources();
 
   // API CALL: GET-PARTS
-  Future<PartsResponse?> _getParts() async => await todoListRepo.getParts();
+  Future<List<Map<String, dynamic>>?> _getParts() async =>
+      await getIt<CommonService>().getPartsList();
 
   // API CALL: GET-PARTS
-  Future<SuppliesResponse?> _getSupplies() async =>
-      await todoListRepo.getSupplies();
+  Future<List<Map<String, dynamic>>?> _getSupplies() async =>
+      await getIt<CommonService>().getSuppliesList();
 
-  Future<List<Map<String, dynamic>>> _getGroupVehicles() async => await getIt<CommonService>().groupVehicles();
+  Future<List<Map<String, dynamic>>> _getGroupVehicles() async =>
+      await getIt<CommonService>().groupVehicles();
 }

@@ -4,6 +4,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as d;
 
@@ -20,6 +21,8 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
   final VoidCallback? onEmptyWidgetTap;
   final GestureTapDownCallback? onEmptyWidgetTapDown;
   final bool autoClear;
+
+  late FocusNode? myFocusNode;
 
   CustomAutoSearchField(
       {super.key,
@@ -51,6 +54,11 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
         initialValue: controller.value,
         onSelected: (option) {
           onSelected?.call(option);
+          Future.delayed(Duration(milliseconds: 100), () {
+            Console.of.debug(labelText);
+            // FocusScope.of(context).requestFocus(myFocusNode);
+            controller.value.copyWith(selection: TextSelection.collapsed(offset: 0));
+          });
           if (autoClear) {
             controller.clear();
           }
@@ -105,6 +113,7 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
               selection:
                   TextSelection.collapsed(offset: controller.text.length - 1));
           if (controller.text.contains("id:")) controller.clear();
+          myFocusNode = focusNode;
           return TextField(
             key: _textFieldKey,
             controller: controller,

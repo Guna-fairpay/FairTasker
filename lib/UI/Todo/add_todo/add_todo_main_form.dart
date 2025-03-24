@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
+import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
@@ -102,6 +103,9 @@ class AddTodoMainForm extends StatelessWidget {
                   vendorsList: state.vendors,
                   locationsList: state.locations,
                   selected: state.selectedTaskIdentifier,
+                  onCleared: (val) => context
+                      .read<AddToDoBloc>()
+                      .add(AddToDoVLocationEvent(val)),
                   onSelected: (val) => context
                       .read<AddToDoBloc>()
                       .add(AddToDoVLocationEvent(val)),
@@ -109,16 +113,31 @@ class AddTodoMainForm extends StatelessWidget {
                 ),
                 if (state.selectedTaskIdentifier.containsKey(3) &&
                     state.selectedTaskIdentifier[3]['type'] == 'location')
-                  CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                  ...[
+                    10.height,
+                    SearchViewField<Map<String, dynamic>>(controller: context.read<AddToDoBloc>().addressController,
+                        suggestions: List.from(state.selectedTaskIdentifier[3]['value']['addresses']),
+                        selectedItem: state.addresses.lastOrNull,
+                        labelText: "Address",
+                        onCleared: (val) => context
+                            .read<AddToDoBloc>()
+                            .add(AddToDoAddressSelectionEvent(val, false)),
+                        onSelected: (value) => context
+                            .read<AddToDoBloc>()
+                            .add(AddToDoAddressSelectionEvent(value, true)),
+                        itemAsString: (item) => item['address'].toString())
+                  ],
+                  /*CustomMultiSelectionChipsField<Map<String, dynamic>>(
                       selectedPartsList: List.from(state.addresses),
                       suggestionsList: List.from(state.selectedTaskIdentifier[3]['value']
                       ['addresses']),
-                      controller: TextEditingController(),
+                      controller: context.read<AddToDoBloc>().addressController,
                       labelText: "Address",
+                      showEmpty: false,
                       onChanged: (isChecked, value) => context
                           .read<AddToDoBloc>()
                           .add(AddToDoAddressSelectionEvent(value, isChecked)),
-                      itemAsString: (item) => item['address'].toString()),
+                      itemAsString: (item) => item['address'].toString()),*/
                 10.height,
                 Utils.getTextFormField(
                     'Notes', context.read<AddToDoBloc>().notesController,

@@ -7,7 +7,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 class SearchViewField<T extends Object> extends StatelessWidget {
   final List<T> suggestions;
   final T? selectedItem;
-  final ValueChanged<T>? onSelected;
+  final ValueChanged<T>? onSelected, onCleared;
   final ItemAsString<T> itemAsString;
   final TextEditingController controller;
   final bool showEmpty;
@@ -25,6 +25,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       this.selectedItem,
       this.showEmpty = false,
       this.onEmptyTap,
+      this.onCleared,
       this.onSelected}) {
     if (selectedItem != null) {
       controller.text = itemAsString(selectedItem!);
@@ -40,6 +41,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               labelText: labelText,
               hintText: hintText,
               optionsBuilder: _optionsBuilder,
+              onChanged: (value) => (value.isNullOrEmpty && (selectedItem != null)) ? onCleared?.call(selectedItem!) : null,
               itemAsString: itemAsString,
               onSelected: onSelected,
               showEmptyWidget: value,

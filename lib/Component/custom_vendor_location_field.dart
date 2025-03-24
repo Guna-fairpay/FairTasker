@@ -3,6 +3,7 @@ import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as d;
@@ -11,7 +12,7 @@ class CustomVendorLocationField extends StatelessWidget {
   final List<dynamic> vendorsList, locationsList;
   final TextEditingController? controller;
   final Map<int, dynamic>? selected;
-  final void Function(dynamic val)? onSelected;
+  final void Function(dynamic val)? onSelected, onCleared;
 
   CustomVendorLocationField(
       {super.key,
@@ -19,6 +20,7 @@ class CustomVendorLocationField extends StatelessWidget {
       required this.locationsList,
       this.selected,
       this.onSelected,
+      this.onCleared,
       this.controller}) {
     _prepareData();
     _checkSelectedVData();
@@ -54,6 +56,7 @@ class CustomVendorLocationField extends StatelessWidget {
       builder: (context, value, child) => CustomAutoSearchField(
           controller: controller!,
           labelText: "Vendor/Location",
+          onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,
           onSelected: _onSuggested,
           showEmptyWidget: value,
           // autoClear: true,

@@ -37,6 +37,7 @@ class CommonService {
   List<Map<String, dynamic>> taskExpenseDataList = [];
   List<Map<String, dynamic>> expenseCategoriesList = [];
   List<Map<String, dynamic>> paymentTypesList = [];
+  List<Map<String, dynamic>> resourcesList = [];
   // List<Map<String, dynamic>> partsList = [];
   // List<Map<String, dynamic>> suppliesList = [];
   Map<String, dynamic> employeesList = {};
@@ -285,6 +286,19 @@ class CommonService {
       var response = await _apiRepository.getTaskCategoryGroup();
       taskCategoryGroupList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
       return taskCategoryGroupList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getResources({bool reset = false}) async {
+    if (reset) resourcesList.clear();
+    if (resourcesList.isNotEmpty) return resourcesList;
+    try {
+      var response = await _apiRepository.getResourcesList();
+      resourcesList = List.from(response?.resource ?? []);
+      return resourcesList;
     } catch (e) {
       Toaster.showError(e.toString());
       return [];
