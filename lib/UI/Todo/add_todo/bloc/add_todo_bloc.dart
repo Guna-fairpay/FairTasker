@@ -640,19 +640,19 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           ? null
           : state.selectedParts
           .map((e) =>
-      {
+      jsonEncode({
         "parts_id": e['id'],
         "parts_name": e['name'],
-      })
+      }))
           .toList()}",
       "supplies": "${
         state.selectedSupplies.isEmpty
             ? null
             : state.selectedSupplies
-                .map((e) => {
-                      "supplies_id": e['id'],
-                      "supplies_name": e['name'],
-                    })
+                .map((e) => jsonEncode({
+          "supplies_id": e['id'],
+          "supplies_name": e['name'],
+        }))
                 .toList()
       }",
       "vehicle_group_id": "",

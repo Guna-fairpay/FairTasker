@@ -62,7 +62,7 @@ class CustomVendorLocationField extends StatelessWidget {
           labelText: "Vendor/Location",
           onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,
           onSelected: _onSuggested,
-          showEmptyWidget: true,
+          showEmptyWidget: value,
           // autoClear: true,
           onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
             item == "Vendor" ? context.push(const VendorAddUI()) : context.push(const LocationAddUI());
@@ -82,7 +82,8 @@ class CustomVendorLocationField extends StatelessWidget {
     var omitted = (selectedData['name'] == textEditingValue.text) ? selectedData['name'] : null;
     var list =
     unfilteredList.where((element) => element['name'] != omitted).where((element) => element['name'].toString().toLowerCase().contains(val)).toList();
-    showEmptyNotifier.value = list.isEmpty && (omitted != null) && ((selectedData['name'] != textEditingValue.text));
+    Console.of.debug("Omitted ${omitted != null} ${((selectedData['name'] != textEditingValue.text))} ${((omitted != null) && ((selectedData['name'] != textEditingValue.text)))}");
+    showEmptyNotifier.value = list.isEmpty;
     return list;
   }
 

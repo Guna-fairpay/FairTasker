@@ -305,4 +305,23 @@ class CommonService {
     }
   }
 
+  Future<void> clearAll() async {
+    usersList.clear();
+    cohortsList.clear();
+    vendorsList.clear();
+    locationsList.clear();
+    partsList.clear();
+    suppliesList.clear();
+    groupVehicleList.clear();
+    activeVehicleList.clear();
+    activeVehicleCountList.clear();
+    bouncieVehicles.clear();
+    groupPersonList.clear();
+    taskExpenseDataList.clear();
+    expenseCategoriesList.clear();
+    paymentTypesList.clear();
+    resourcesList.clear();
+    _vehicleStatus?.clear();
+  }
+
 }
