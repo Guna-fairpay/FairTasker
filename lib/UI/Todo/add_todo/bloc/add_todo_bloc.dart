@@ -76,6 +76,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> vehicles = [];
   List<Map<String, dynamic>> vendors = [];
+  List<dynamic> attachments = [];
 
   AddToDoBloc()
       : super(AddToDoState(
@@ -381,8 +382,16 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         for (var element in result) {
           if (!existingPaths.contains(element.path)) existing.add(element);
         }
+        attachments = existing;
         emit(state.copyWith(attachments: existing));
       }
+    });
+
+    on<AddToDoDeleteAttachment>((event, emit) {
+      var existing = List.from(state.attachments);
+      existing.remove(event.attachment);
+      attachments = existing;
+      emit(state.copyWith(attachments: existing));
     });
 
     on<AddToDoSelectLinkOptionEvent>((event, emit) =>

@@ -176,3 +176,10 @@ class AddToDoRecurringEndDateSelectionEvent extends AddToDoEvent {
 class AddToDoOpenCustomLinkEvent extends AddToDoEvent {}
 
 class AddToDoSaveEvent extends AddToDoEvent {}
+
+class AddToDoDeleteAttachment extends AddToDoEvent {
+  final dynamic attachment;
+  AddToDoDeleteAttachment(this.attachment);
+  @override
+  List<Object?> get props => [attachment];
+}

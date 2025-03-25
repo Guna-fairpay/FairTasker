@@ -57,9 +57,9 @@ class CreateTodoUI extends StatelessWidget {
                           .shrinkWrap, // the '2023' part
                     ),
                   ),
-                  if (state.attachments.isNotEmpty)
+                  if (state.attachments.isNotEmpty && state.attachments.length > 0)
                     IconButton(
-                      onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo"),
+                      onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo", onDeleted: (value) => context.read<AddToDoBloc>().add(AddToDoDeleteAttachment(value))),
                       icon: const Icon(Icons.remove_red_eye_outlined),
                       padding: EdgeInsets.zero,
                       style: const ButtonStyle(
