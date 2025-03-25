@@ -217,6 +217,6 @@ class AddToDoState extends Equatable {
         isRecurringMonthOccurrence,
         isRecurringEndDate,
         selectedRecurringEndDate,
-        // Random().nextDouble()
+        Random().nextDouble()
       ];
 }
