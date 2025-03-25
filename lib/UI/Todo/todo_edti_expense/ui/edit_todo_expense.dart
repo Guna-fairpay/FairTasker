@@ -57,23 +57,29 @@ class TodoExpense extends StatelessWidget {
           children: [
             10.height,
             if (state.vehicleList.length == 1)
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VehicleExpenseHistoryUI(
-                                vin: state.vehicleList.firstOrNull['vin'],
-                                vehicleName: state
-                                    .vehicleList.firstOrNull['vehicle_name'],
-                            showTotalAmount: false,
-                              )));
-                },
-                child: Utils.getText(
-                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
-                  color: AppC().base,
-                  align: TextAlign.end,
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => VehicleExpenseHistoryUI(
+                                    vin: state.vehicleList.firstOrNull['vin'],
+                                    vehicleName: state
+                                        .vehicleList.firstOrNull['vehicle_name'],
+                                showTotalAmount: false,
+                                  )));
+                    },
+                    child: Utils.getText(
+                      'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                      color: AppC().base,
+                      align: TextAlign.end,
+                    ),
+                  ),
+                ],
               ),
             if (state.vehicleList.length > 1)
               Utils.dropdownBox(

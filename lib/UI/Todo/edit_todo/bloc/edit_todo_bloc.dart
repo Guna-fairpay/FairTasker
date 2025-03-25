@@ -599,7 +599,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
   }
 
-  Map<String, String> _editTodoBody()                                                                                                                                                                                                                                                                                                                               {
+  Map<String, String> _editTodoBody() {
 
     state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
 
