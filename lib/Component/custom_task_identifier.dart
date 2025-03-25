@@ -116,7 +116,7 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void _setValue({bool emit = true}) {
-    log("setValue:\t$emit", name: "TaskIdentifier");
+    Console.of.warning("SetValue:	$emit", name: "TaskIdentifier");
     if (emit) {
       onSelected?.call(selectedList);
       _requestFocus();
@@ -168,7 +168,7 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void _requestFocus() {
-    _focusNode.requestFocus();
+    // _focusNode.requestFocus();
   }
 
   void _unRequestFocus() {

@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -35,90 +36,87 @@ class CreateTodoUI extends StatelessWidget {
               context.pop();
             }
           },
-          child: BlocBuilder<AddToDoBloc, AddToDoState>(
-              builder: (context, state) {
-                return Scaffold(
-                  backgroundColor: AppC.white,
-                  appBar: AppBar(
-                    elevation: 0,
-                    backgroundColor: AppC.appColor,
-                    foregroundColor: Colors.white,
-                    automaticallyImplyLeading: false,
-                    title: Utils.getText('Add Todo',
-                        size: 18, weight: FontWeight.w700, color: AppC.white),
-                    actions: [
-                      IconButton(
-                        onPressed: () => context.read<AddToDoBloc>().add(AddToDoAddAttachmentEvent()),
-                        icon: const Icon(Icons.upload_rounded),
-                        padding: EdgeInsets.zero,
-                        constraints: state.attachments.isNotEmpty ? const BoxConstraints() : null,
-                        style: const ButtonStyle(
-                          tapTargetSize: MaterialTapTargetSize
-                              .shrinkWrap, // the '2023' part
-                        ),
+          child: Scaffold(
+            backgroundColor: AppC.white,
+            appBar: PreferredSize(preferredSize: const Size.fromHeight(60),
+                child: BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => AppBar(
+                elevation: 0,
+                backgroundColor: AppC.appColor,
+                foregroundColor: Colors.white,
+                automaticallyImplyLeading: false,
+                title: Utils.getText('Add Todo',
+                    size: 18, weight: FontWeight.w700, color: AppC.white),
+                actions: [
+                  IconButton(
+                    onPressed: () => context.read<AddToDoBloc>().add(AddToDoAddAttachmentEvent()),
+                    icon: const Icon(Icons.upload_rounded),
+                    padding: EdgeInsets.zero,
+                    constraints: state.attachments.isNotEmpty ? const BoxConstraints() : null,
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize
+                          .shrinkWrap, // the '2023' part
+                    ),
+                  ),
+                  if (state.attachments.isNotEmpty)
+                    IconButton(
+                      onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo"),
+                      icon: const Icon(Icons.remove_red_eye_outlined),
+                      padding: EdgeInsets.zero,
+                      style: const ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize
+                            .shrinkWrap, // the '2023' part
                       ),
-                      if (state.attachments.isNotEmpty)
-                        IconButton(
-                          onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo"),
-                          icon: const Icon(Icons.remove_red_eye_outlined),
-                          padding: EdgeInsets.zero,
-                          style: const ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize
-                                .shrinkWrap, // the '2023' part
+                    ),
+                  GestureDetector(
+                    onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 10,
+                      children: [
+                        SizedBox(
+                          width: 10,
+                          child: Checkbox(
+                            value: state.isTimeSensitive,
+                            checkColor: AppC.white,
+                            // The color of the check mark
+                            shape: ContinuousRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(10)),
+                            side: BorderSide.none,
+                            fillColor: WidgetStateProperty.resolveWith<Color>((states) => (states.contains(WidgetState.selected)) ? AppC.blue : AppC.white),
+                            onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
                           ),
                         ),
-                      GestureDetector(
-                        onTap: () => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 10,
-                          children: [
-                            SizedBox(
-                              width: 10,
-                              child: Checkbox(
-                                value: state.isTimeSensitive,
-                                checkColor: AppC.white,
-                                // The color of the check mark
-                                shape: ContinuousRectangleBorder(
-                                    side: BorderSide.none,
-                                    borderRadius: BorderRadius.circular(10)),
-                                side: BorderSide.none,
-                                fillColor: WidgetStateProperty.resolveWith<Color>((states) => (states.contains(WidgetState.selected)) ? AppC.blue : AppC.white),
-                                onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoTimeSensitiveEvent()),
-                              ),
-                            ),
-                            Utils.getText('Time Sensitive',
-                                color: AppC.white, weight: FontWeight.bold)
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      IconButton(
-                        onPressed: () => context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
-                        icon: const Icon(Icons.save),
-                        padding: EdgeInsets.zero,
-                        style: const ButtonStyle(
-                          tapTargetSize: MaterialTapTargetSize
-                              .shrinkWrap, // the '2023' part
-                        ),
-                      ),
-                      const CloseButton(
-                        color: Colors.white,
-                        style: ButtonStyle(
-                          tapTargetSize: MaterialTapTargetSize
-                              .shrinkWrap, // the '2023' part
-                        ),
-                      ),
-                    ],
+                        Utils.getText('Time Sensitive',
+                            color: AppC.white, weight: FontWeight.bold)
+                      ],
+                    ),
                   ),
-                  body: SafeArea(
-                    minimum: 20.padding,
-                    child: const AddTodoMainForm(),
+                  const SizedBox(
+                    width: 10,
                   ),
-                );
-              }
+                  IconButton(
+                    onPressed: () => context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
+                    icon: const Icon(Icons.save),
+                    padding: EdgeInsets.zero,
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize
+                          .shrinkWrap, // the '2023' part
+                    ),
+                  ),
+                  const CloseButton(
+                    color: Colors.white,
+                    style: ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize
+                          .shrinkWrap, // the '2023' part
+                    ),
+                  ),
+                ],
+              ))),
+            body: SafeArea(
+              minimum: 20.padding,
+              child: const AddTodoMainForm(),
+            ),
           )),
     );
   }
@@ -137,10 +135,8 @@ class CreateTodoUI extends StatelessWidget {
               context.pop();
             }
           },
-          child: BlocBuilder<AddToDoBloc, AddToDoState>(
-              builder: (context, state) => SafeArea(
-                child: AddTodoMainForm(showHeader: showHeader),
-              )
+          child: SafeArea(
+            child: AddTodoMainForm(showHeader: showHeader),
           )),
     );
   }

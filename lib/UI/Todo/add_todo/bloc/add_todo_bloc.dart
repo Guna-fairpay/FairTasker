@@ -19,6 +19,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -65,6 +66,16 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? departmentId; // LoggedIn User department ID
+
+  List<Map<String, dynamic>> vendorLocations = [];
+
+  Map<String, dynamic>? selectedVLocation;
+
+  List<Map<String, dynamic>> locations = [];
+  List<Map<String, dynamic>> persons = [];
+  List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> vehicles = [];
+  List<Map<String, dynamic>> vendors = [];
 
   AddToDoBloc()
       : super(AddToDoState(
@@ -156,6 +167,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             .toList();
         departmentId = selectedUser.firstOrNull?['department'].toString();
         Console.of.log(response.map((e) => e?.length).join(", "));
+        vendorLocations = CustomSearchDataConverter.convertVLocation(vendors: response[2], locations: response[3]);
+        tasks = response[0] ?? [];
+        vehicles = response[1] ?? [];
+        persons = resources;
+        locations = response[3] ?? [];
+        vendors = response[2] ?? [];
         emit(state.copyWith(
             isLoading: false,
             tasks: response[0] ?? [],
@@ -252,9 +269,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     });
 
     on<AddToDoVPersonEvent>((event, emit) {
-      log("${event.vPerson}", name: "AddToDoBloc-Person-before-check");
+      log("${(event.vPerson as List).isEmpty}", name: "AddToDoBloc-Person-before-check");
       if ((event.vPerson as List).isEmpty) {
-        var oldIdentifier = state.selectedTaskIdentifier;
+        var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
         oldIdentifier.remove(2);
         emit(state.copyWith(
             selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
@@ -289,13 +306,14 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoVLocationEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-      if (event.vLocation == existing[3]) {
+      if ((event.vLocation == existing[3]) || (event.vLocation == null)) {
         existing.remove(3);
       } else {
         existing[3] = event.vLocation;
       }
-      log("${event.vLocation['name']}", name: "AddToDoBloc-Location");
-      if (existing.containsKey(3)) {
+      Console.of.warning("${event.vLocation?['name']} ${existing.containsKey(3)} ${existing[3]}", name: "AddToDoBloc-Location");
+      if (existing.containsKey(3) && (existing[3] != null)) {
+        if ((selectedVLocation != existing[3])) selectedVLocation = existing[3];
         if ((existing[3]?['name'] ?? "") != vLocationController.text) vLocationController.text = existing[3]?['name'] ?? "";
       } else {
         vLocationController.clear();

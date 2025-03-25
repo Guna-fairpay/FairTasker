@@ -108,6 +108,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
                 showEmptyWidget: value,
                 onSelected: (val) {
                   onChanged?.call(true, val);
+                  Future.microtask(() => Utils.dismissKeyboard(context));
                 },
                 itemAsString: itemAsString,
                 labelText: labelText,

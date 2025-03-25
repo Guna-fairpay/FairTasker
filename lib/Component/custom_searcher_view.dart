@@ -14,6 +14,10 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   final String? labelText, hintText;
   final ValueNotifier<bool> _showEmptyWidget = ValueNotifier(false);
   final VoidCallback? onEmptyTap;
+  final bool autoClear;
+  final Function(FocusNode focusNode)? onFieldFocusCreated;
+  final Function(TapDownDetails details)? onEmptyTapDetails;
+  final Function(T value, {FocusNode? focusNode})? onSelectedFocus;
 
   SearchViewField(
       {super.key,
@@ -23,10 +27,14 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       this.labelText,
       this.hintText,
       this.selectedItem,
+      this.onFieldFocusCreated,
       this.showEmpty = false,
+      this.autoClear = false,
       this.onEmptyTap,
+      this.onEmptyTapDetails,
       this.onCleared,
-      this.onSelected}) {
+      this.onSelected,
+      this.onSelectedFocus}) {
     if (selectedItem != null) {
       controller.text = itemAsString(selectedItem!);
     }
@@ -40,12 +48,16 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               controller: controller,
               labelText: labelText,
               hintText: hintText,
+              autoClear: autoClear,
+              onSelectedFocus: onSelectedFocus,
+              onFieldFocusCreated: onFieldFocusCreated,
               optionsBuilder: _optionsBuilder,
               onChanged: (value) => (value.isNullOrEmpty && (selectedItem != null)) ? onCleared?.call(selectedItem!) : null,
               itemAsString: itemAsString,
               onSelected: onSelected,
               showEmptyWidget: value,
               onEmptyWidgetTap: onEmptyTap,
+          onEmptyWidgetTapDown: onEmptyTapDetails,
             ));
   }
 
