@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Response/task_response.dart';
 import 'package:fairpytasker/Response/todo_list_response.dart';
@@ -42,11 +43,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController odometerController = TextEditingController();
-
+  final TextEditingController tripDrivenController = TextEditingController();
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
-
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
-
   String? departmentId; // LoggedIn User department ID
   List<String> selectedIds = [];
   List<Map<String, dynamic>> vehicleList = [];
@@ -58,6 +57,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> todoImages = [];
   Map<String,dynamic> selectionTaps={};
   final FBroadcast _broadcast = FBroadcast.instance();
+  dynamic selectedSentiments = {};
 
 
   EditToDoBloc()
@@ -100,8 +100,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           taskHistory: const [],
           selectedVehicle: const{},
           groupVehicles: const [],
+          sentiments: AddToDoConfig.sentiments,
+          selectedSentiment: const {},
       )) {
-    //var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 
     on<GetEditTodoInitialEvent>((event, emit) async {
       emit(state.copyWith());
@@ -161,12 +162,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         taskNameController.text = todoResponse?.editTodos?['title'] ?? '';
         timeController.text = todoResponse?.editTodos?['todo_time'] ?? '';
         dateController.text = todoResponse?.editTodos?['todo_date'] ?? '';
-        odometerController.text = todoResponse?.editTodos?['odometer'] ?? '';
         notesController.text = todoResponse?.editTodos?['notes'] ?? '';
         departmentId = selectedUser.firstOrNull?['department'].toString();
         customLinkController.text =
             todoResponse?.editTodos?['reference_id'] ?? '';
+        tripDrivenController.text=todoResponse?.editTodos?['trip_driven'] ?? '';
 
+        if (todoResponse?.editTodos?['trip_review'] != null) {
+          selectedSentiments= AddToDoConfig.sentiments.firstWhereOrNull(
+                  (element) => element['name']==todoResponse?.editTodos?['trip_review'])??{};
+        }
+        log(selectedSentiments.toString(),name: "Selected_Sentiments");
         linkSelection = AddToDoConfig.customOptions
             .where((element) =>
         element['id']?.toString() == todoResponse?.editTodos?['custom_link_id']?.toString())
@@ -291,6 +297,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           orElse: () => tabs.isNotEmpty ? tabs[0] : {},
         );
 
+        log("$vinList",name: "vinLIST");
+        log("$selectedIds",name: "selectedIds");
+
+
+        var selectedTask = taskResponse?.data?.firstWhereOrNull((element) => element['id']==todoResponse?.editTodos?['identifier_id']);
 
         emit(state.copyWith(
           isLoading: false,
@@ -300,10 +311,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           todoStatus: todoResponse?.editTodos?['status'] == 'In Progress'
               ? false
               : true,
-          // selectedBottomTap: tabs.firstWhere((element) => element['id'] == 4),
           selectedBottomTap: selectionTaps,
           tasks: taskResponse?.data ?? [],
-          //selectedTask: selectedUser,
+          selectedTask: selectedTask,
           selectedVPerson:
               CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
           selectedVLocations: CustomSearchDataConverter.convertVLocation(
@@ -339,6 +349,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
           attachments: todoImages,
           groupVehicles: groupVehiclesResponse,
+          selectedSentiment: selectedSentiments,
 
         ));
         await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
@@ -361,8 +372,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isMoreEnable: !currentStatus));
     });
 
-    on<EditToDoTaskEvent>((event, emit) =>
-        emit(state.copyWith(selectedVehicle: event.selectedTask)));
+    on<EditToDoTaskEvent>((event, emit) {
+        emit(state.copyWith(selectedTask: event.selectedTask));
+    });
 
     on<EditToDoVPersonEvent>((event, emit) {
       var existingVPersons =
@@ -483,6 +495,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoSelectLinkOptionEvent>((event, emit) =>
         emit(state.copyWith(selectedLinkOption: event.linkOption)));
 
+    on<EditToDoSelectSentimentsEvent>((event, emit) =>
+        emit(state.copyWith(selectedSentiment: event.selectedSentiments)));
+
     on<EditToDoOpenCustomLinkEvent>((event, emit) {
       var url = (state.selectedLinkOption?['label'].toString().isCustomLink ??
               false)
@@ -529,8 +544,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoSelectTaskHistoryEvent>((event, emit) =>
         emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
 
-
-
     on<EditToDoDeleteVehicleEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try {
@@ -553,7 +566,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isLoading: false));
     });
 
-
     on<EditToDoSaveEvent>((event, emit) async {
       // VALIDATIONS MANDATORY
       // IF DEPARTMENT IS 7 THEN PLATFORM CHECK
@@ -563,12 +575,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("Task name is required");
         return;
       }
-      var isPlatformRequired = departmentId == '7' && !state.isSelectedPlatformCheck;
+
+      var isPlatformRequired = Str.platFormCheckIds.contains(state.selectedTask['id']) && departmentId == '7' && !state.isSelectedPlatformCheck;
       if (isPlatformRequired) {
         Toaster.showError("Platform check is required");
         return;
       }
-
       // API CALL
       try {
         emit(state.copyWith(isLoading: true));
@@ -584,9 +596,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(isLoading: false));
       }
     });
+
   }
 
-  Map<String, String> _editTodoBody() {
+  Map<String, String> _editTodoBody()                                                                                                                                                                                                                                                                                                                               {
+
+    state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
+
     Map<String, String> baseBody = {};
 
     baseBody['title'] = taskNameController.text;
@@ -598,12 +614,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['odometer'] = odometerController.text;
-
     baseBody['todo_user_type'] = "0";
     baseBody['comments'] = "";
     baseBody['mileage'] = "";
     baseBody['resolution_notes'] = "";
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
+    baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
+    baseBody['trip_driven'] = tripDrivenController.text;
     baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1)
         ? customLinkController.text
         : "";
@@ -664,7 +681,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
-
 
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
@@ -731,10 +747,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       await getIt<CommonService>().groupVehicles();
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
-
-
-
-
 
 }
 

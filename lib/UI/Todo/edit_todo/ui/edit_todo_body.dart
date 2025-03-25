@@ -3,7 +3,9 @@ import 'dart:developer';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
+import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -28,7 +30,7 @@ class EditTodoBody extends StatelessWidget {
                 child: ListView(
               children: [
                 Row(
-                  spacing: 5,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CustomDateTimePicker<DateTime>(
                       controller: context.read<EditToDoBloc>().dateController,
@@ -91,21 +93,46 @@ class EditTodoBody extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTapDown: (TapDownDetails details) {
-                          ResourceSelection.showResourceSelection(
+                    GestureDetector(
+                      onTapDown: (TapDownDetails details) {
+                        ResourceSelection.showResourceSelection(
+                          context,
+                          details,
+                          state.resources,
+                          state.selectedResource,
+                          (value, name) => context.read<EditToDoBloc>().add(
+                            UserSelectionEvent(
+                                selectedResource: value,
+                                resourceName: name
+                            ),
+                          ),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Utils.getText(
+                              state.resourceName.length > 1
+                                  ? "${state.resourceName.first}..."
+                                  : state.resourceName.join(', '),
+                              weight: FontWeight.bold,
+                              color: AppC.appColor),
+                        ],
+                      ),
+                    ),
+                    /*Expanded(
+                      child: InkWell(
+                        onTap: () =>
+                            TaskerResourceDialog.show(
                             context,
-                            details,
                             state.resources,
                             state.selectedResource,
-                            (value, name) => context.read<EditToDoBloc>().add(
-                                  UserSelectionEvent(
-                                      selectedResource: value,
-                                      resourceName: name),
-                                ),
-                          );
-                        },
+                                (value, name) => context.read<EditToDoBloc>().add(
+                              UserSelectionEvent(
+                                  selectedResource: value,
+                                  resourceName: name),
+                            ),
+                          ),
                         child: Column(
                           children: [
                             Utils.getText(
@@ -117,7 +144,7 @@ class EditTodoBody extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
                 10.height,
@@ -126,7 +153,12 @@ class EditTodoBody extends StatelessWidget {
                     suggestions: state.tasks,
                     itemAsString: (item) => item['task'] ?? '',
                 onSelected: (value) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: value)),
-                showEmpty: true,),
+                selectedItem: (state.selectedTask.isEmpty) ? null : state.selectedTask,
+                onEmptyTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>const TaskAddUI())),
+                showEmpty: true,
+                  labelText: 'Task Name',
+                  hintText: "Select Task",
+                ),
                 10.height,
                 CustomVehiclePersonField(
                   vehiclesList: state.vehicles,

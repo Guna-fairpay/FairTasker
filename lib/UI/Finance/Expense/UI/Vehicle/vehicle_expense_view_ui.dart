@@ -58,7 +58,9 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap:()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const ExpenseVehicleAddUI(),)),
+                        onTap:()=> Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => const ExpenseVehicleAddUI(),
+                            fullscreenDialog: true)),
                         child: Container(
                           height: 40,
                           width: 40,

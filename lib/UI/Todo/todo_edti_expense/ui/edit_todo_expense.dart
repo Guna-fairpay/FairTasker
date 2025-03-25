@@ -300,15 +300,19 @@ class TodoExpense extends StatelessWidget {
               context
                   .read<TodoEditExpenseBloc>()
                   .add(CategoryListEvent(mainCategory: selectedValue));
+              Future.microtask(() => Utils.dismissKeyboard(context));
             },
                 selectedKey: state.selectedMainCategory,
                 initialSelection: state.selectedMainCategory,
                 labelKey: 'name'),
-            Utils.dropdownBox('Select SubCategory', state.subCategories,
+            Utils.dropdownBox(
+                'Select SubCategory',
+                state.subCategories,
                 (selectedValue) {
               context
                   .read<TodoEditExpenseBloc>()
                   .add(SubCategoryListEvent(subCategory: selectedValue));
+              Future.microtask(() => Utils.dismissKeyboard(context));
             },
                 selectedKey: state.selectedSubCategory,
                 initialSelection: state.selectedSubCategory,

@@ -12,6 +12,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +62,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
   String? resourceId;
   List<dynamic> splitSupplies = [];
   List<dynamic> splitParts = [];
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   PersonExpenseBloc()
       : super(PersonExpenseState(
@@ -94,7 +96,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
     });
-
+    _registerBroadcast();
     on<GetPersonExpenseData>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
@@ -144,6 +146,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           paymentType: paymentType,
           approved: approved,
           categories: categories,
+          popAddPage: false,
         ));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
@@ -202,6 +205,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           expenseAttachments: attachments,
           selectedPerson: selectedEmployee,
           selectedCohorts: selectedCohorts,
+          popEditPage: false,
         ));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
@@ -310,6 +314,10 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       }
     });
 
+    on<RefreshEvent>((event, emit) async {
+      _resetAll();
+    });
+
     on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
       if (event.data is File) {
@@ -348,7 +356,8 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
-        emit(state.copyWith(isLoading: false));
+        _broadcast.stickyBroadcast("expense_person_refresh", value: true);
+        emit(state.copyWith(isLoading: false, popAddPage: true, popEditPage: true));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
@@ -402,6 +411,13 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
     baseBody['is_employee'] = "${1}";
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
+  }
+
+  void _registerBroadcast() {
+    _broadcast.register("expense_person_refresh", (value, callback) {
+      Console.of.log("expense_person_refresh");
+      _resetAll();
+    });
   }
 
   Future<List<File>> _pickFiles() async {
@@ -506,8 +522,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
   void _resetAll() async {
     try {
-      emit(state.copyWith(isLoading: true));
-
+      if(!isClosed) emit(state.copyWith(isLoading: true));
       var startDate = DateTime.now()
           .subtract(const Duration(days: 31))
           .toFormat(format: 'yyyy-MM-dd');
@@ -533,15 +548,25 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
           .compareTo(DateTime.parse(a['created_at'] ?? '')));
 
-      emit(state.copyWith(
+     if(!isClosed){ emit(state.copyWith(
         isLoading: false,
         apiResponse: apiResponse,
         approvedAmount: approvedAmount,
         persons: employeeList,
-      ));
+      ));}
+     else{
+       emit(state.copyWith(
+         isLoading: false,
+         apiResponse: apiResponse,
+         approvedAmount: approvedAmount,
+         persons: employeeList,
+       ));
+     }
     } catch (e) {
       log("$e", name: "Error In Bloc Value");
-      emit(state.copyWith(isLoading: false));
+      if(!isClosed) emit(state.copyWith(isLoading: false));
     }
   }
 }
+
+

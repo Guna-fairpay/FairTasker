@@ -32,6 +32,9 @@ class PersonExpenseAddUI extends StatelessWidget {
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          if(state.popAddPage){
+            Navigator.pop(context);
+          }
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {
@@ -257,7 +260,6 @@ class PersonExpenseAddUI extends StatelessWidget {
                       return Toaster.showError("Please select approved status");
                     }
                     context.read<PersonExpenseBloc>().add(const SavePersonExpenseEvent());
-                    //context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
                   }),
                 ],
               ),

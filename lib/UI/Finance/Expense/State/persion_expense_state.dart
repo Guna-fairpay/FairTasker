@@ -28,6 +28,8 @@ class PersonExpenseState extends Equatable{
   final dynamic selectedApproved;
   final List<dynamic> personExpenseHistory;
   final double totalAmount;
+  final bool popEditPage;
+  final bool popAddPage;
 
   const PersonExpenseState({
     required this.apiResponse,
@@ -53,6 +55,9 @@ class PersonExpenseState extends Equatable{
     required this.selectedApproved,
     required this.personExpenseHistory,
     required this.totalAmount,
+    this.popEditPage = false,
+    this.popAddPage = false,
+
 
   });
 
@@ -80,6 +85,8 @@ class PersonExpenseState extends Equatable{
     dynamic selectedApproved,
     List<dynamic>? personExpenseHistory,
     double? totalAmount,
+    bool? popEditPage,
+    bool? popAddPage,
   }){
     return PersonExpenseState(
       apiResponse:apiResponse ?? this.apiResponse,
@@ -105,7 +112,8 @@ class PersonExpenseState extends Equatable{
       selectedApproved: selectedApproved ?? this.selectedApproved,
       personExpenseHistory: personExpenseHistory ?? this.personExpenseHistory,
       totalAmount: totalAmount ?? this.totalAmount,
-
+      popEditPage: popEditPage ?? this.popEditPage,
+      popAddPage: popAddPage ?? this.popAddPage,
     );
   }
 
@@ -134,6 +142,9 @@ class PersonExpenseState extends Equatable{
     selectedApproved,
     personExpenseHistory,
     totalAmount,
+    popEditPage,
+    popAddPage,
+
     Random().nextDouble()
   ];
 

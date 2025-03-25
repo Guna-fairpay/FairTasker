@@ -30,6 +30,9 @@ class PersonExpenseEditUI extends StatelessWidget {
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          if(state.popAddPage){
+            Navigator.pop(context);
+          }
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {

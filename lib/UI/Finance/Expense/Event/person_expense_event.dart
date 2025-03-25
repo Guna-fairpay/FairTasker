@@ -150,3 +150,4 @@ class GetPersonExpenseHistory extends PersonExpenseEvent {
   List<Object?> get props => [userId,];
 }
 
+class RefreshEvent extends PersonExpenseEvent {}

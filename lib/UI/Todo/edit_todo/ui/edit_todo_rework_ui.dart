@@ -34,7 +34,7 @@ class EditTodoReworkUI extends StatelessWidget {
                 (previous.attachments != current.attachments) ||
                 (previous.todoStatus != current.todoStatus),*/
             builder: (context, state) => Scaffold(
-              resizeToAvoidBottomInset: false, // Prevents widget rebuild
+              //resizeToAvoidBottomInset: false, // Prevents widget rebuild
               backgroundColor: Colors.white,
                   appBar: AppBar(
                     backgroundColor: state.todoStatus
@@ -146,7 +146,6 @@ class EditTodoReworkUI extends StatelessWidget {
                       IconButton(
                           onPressed: () {
                             context.read<EditToDoBloc>().add(EditToDoSaveEvent());
-                            Navigator.pop(context);
                           },
                           icon: const Icon(Icons.save)
                       ),
