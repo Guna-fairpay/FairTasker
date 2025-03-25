@@ -18,6 +18,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:number_pagination/number_pagination.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
@@ -123,22 +124,20 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                       index);
                                   var value = state.vehicleDataList[keyValue];
                                   return StickyHeader(
-                                      header: Container(
-                                        width: double.maxFinite,
-                                        padding: 10.padding,
-                                        decoration: const BoxDecoration(
-                                            color: AppC.appColor,
-                                            borderRadius: BorderRadius
-                                                .vertical(
-                                                top: Radius.circular(
-                                                    Num.borderRadiusLarge))),
-                                        child: Text(
-                                          "${keyValue.toFormat(
-                                              format: "MM-dd-yy")}",
-                                          style: context.textTheme.labelLarge
-                                              ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white),
+                                      header: Center(
+                                        child: Container(
+                                          padding: 8.padding.copyWith(left: 10.sp, right: 10.sp),
+                                          decoration: const BoxDecoration(
+                                              color: AppC.borderColor,
+                                              borderRadius: const BorderRadius.all(Radius.circular(Num.borderRadiusXLarge))),
+                                          child: Text(
+                                            "${keyValue.toFormat(
+                                                format: "MM-dd-yy")}",
+                                            style: context.textTheme.labelMedium
+                                                ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: AppC.appColor),
+                                          ),
                                         ),
                                       ),
                                       overlapHeaders: false,

@@ -102,7 +102,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
     var result = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+      initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
       initialEntryMode: TimePickerEntryMode.dialOnly,
     );
     return result;
@@ -112,7 +112,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
     var result = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+      initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
       initialEntryMode: TimePickerEntryMode.dialOnly,
       builder: (context, child) {
         return MediaQuery(

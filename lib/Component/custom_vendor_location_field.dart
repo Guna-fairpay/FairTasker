@@ -3,6 +3,8 @@ import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as d;
@@ -11,7 +13,7 @@ class CustomVendorLocationField extends StatelessWidget {
   final List<dynamic> vendorsList, locationsList;
   final TextEditingController? controller;
   final Map<int, dynamic>? selected;
-  final void Function(dynamic val)? onSelected;
+  final void Function(dynamic val)? onSelected, onCleared;
 
   CustomVendorLocationField(
       {super.key,
@@ -19,6 +21,7 @@ class CustomVendorLocationField extends StatelessWidget {
       required this.locationsList,
       this.selected,
       this.onSelected,
+      this.onCleared,
       this.controller}) {
     _prepareData();
     _checkSelectedVData();
@@ -31,11 +34,14 @@ class CustomVendorLocationField extends StatelessWidget {
   Map<String, dynamic> selectedData = {};
 
   void _prepareData() {
+    Console.of.warning("_prepareData", name: "CustomVendorLocationField");
     unfilteredList = CustomSearchDataConverter.convertVLocation(vendors: vendorsList, locations: locationsList);
   }
 
   void _checkSelectedVData() async {
-    if ((selected != null) && (selected![3] != null)) {
+    Console.of.warning("_checkSelectedVData ${(selected?.containsKey(3) ?? false) && (selectedData != (selected?[3]))}", name: "CustomVendorLocationField");
+    Console.of.warning("_checkSelectedVData ${selectedData} ${selectedData[3]}", name: "CustomVendorLocationField");
+    if ((selected?.containsKey(3) ?? false) && (selectedData != (selected?[3]))) {
       selectedData = selected![3];
       var name = selectedData['name'];
       var controllerName = controller?.text;
@@ -54,6 +60,7 @@ class CustomVendorLocationField extends StatelessWidget {
       builder: (context, value, child) => CustomAutoSearchField(
           controller: controller!,
           labelText: "Vendor/Location",
+          onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,
           onSelected: _onSuggested,
           showEmptyWidget: value,
           // autoClear: true,
@@ -75,7 +82,8 @@ class CustomVendorLocationField extends StatelessWidget {
     var omitted = (selectedData['name'] == textEditingValue.text) ? selectedData['name'] : null;
     var list =
     unfilteredList.where((element) => element['name'] != omitted).where((element) => element['name'].toString().toLowerCase().contains(val)).toList();
-    showEmptyNotifier.value = list.isEmpty && (omitted != null) && ((selectedData['name'] != textEditingValue.text));
+    Console.of.debug("Omitted ${omitted != null} ${((selectedData['name'] != textEditingValue.text))} ${((omitted != null) && ((selectedData['name'] != textEditingValue.text)))}");
+    showEmptyNotifier.value = list.isEmpty;
     return list;
   }
 

@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -115,14 +116,15 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void _setValue({bool emit = true}) {
-    log("setValue:\t$emit", name: "TaskIdentifier");
+    Console.of.warning("SetValue:	$emit", name: "TaskIdentifier");
     if (emit) {
       onSelected?.call(selectedList);
       _requestFocus();
     }
+    Console.of.log(formatMapData(selectedList), name: "TaskIdentifier");
      taskIdentifierController.text = formatMapData(selectedList);
-     taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  taskIdentifierController.text.length - 1));
-     log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
+     taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  formatMapData(selectedList).length - 1));
+     Console.of.log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
      if (_isHavingHypen() || taskIdentifierController.text.isNullOrEmpty) _requestFocus();
   }
 
@@ -166,7 +168,7 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void _requestFocus() {
-    _focusNode.requestFocus();
+    // _focusNode.requestFocus();
   }
 
   void _unRequestFocus() {
@@ -188,34 +190,14 @@ class TaskIdentifier extends StatelessWidget {
           },
           showEmptyWidget: value,
           itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
-          optionsBuilder: (textEditingValue) => onSearch(textEditingValue),
+          optionsBuilder: _onSearch,
         );
       }, valueListenable: showEmptyNotifier,
     );
-    /*return CustomSearchField<Map<String, dynamic>>(
-        key: UniqueKey(),
-        suggestions: commonList,
-        focusNode: _focusNode,
-        itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
-        onTap: _requestFocus,
-        onTapOutSide: _unRequestFocus,
-        onSuggestionTap: (val) {
-          selectedList[val['partNumber']] = val;
-          _setValue();
-          _requestFocus();
-        },
-        isDense: true,
-        style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
-        onSearchTextChanged: onSearch,
-        controller:  taskIdentifierController,
-        suggestionState: Suggestion.hidden,
-        labelText: "Task Identifier",
-        onEmptyTap: () =>
-            context.push(const TaskAddUI(), fullscreenDialog: true));*/
   }
 
-  Future<Iterable<Map<String, dynamic>>> onSearch(TextEditingValue textEditingValue) async {
-    var val = textEditingValue.text;
+  FutureOr<Iterable<Map<String, dynamic>>> onSearch(TextEditingValue textEditingValue) async {
+    var val = taskIdentifierController.text;
     if (val.isEmpty) {
       selectedList.clear();
       onSelected?.call({});
@@ -301,6 +283,7 @@ class TaskIdentifier extends StatelessWidget {
       }
     });
     log("$selectedList", name: "SELECTED_LIST");
+    Console.of.log("PartNumber $partNumber $cursorPosition $inputParts");
     _debounce?.cancel();
     _debounce = Timer(Durations.extralong4, updateToFunction);
     var inputted = (taskIdentifierController.text.split("-"));
@@ -313,10 +296,24 @@ class TaskIdentifier extends StatelessWidget {
         ...(vLocations.map((e) => e['name']))
       ].contains(element));
     }
+    Console.of.error("${inputParts.length}");
+    if (inputParts.length > 3) commonList.clear();
     log("$omitted ${omitted.length}", name: "OMITTED");
+    var omitLength = omitted.length;
+    if (omitLength == 1) {
+      // SECOND
+      type = "vperson";
+      commonList = vPersons;
+    } else if (omitLength == 2) {
+      // THIRD
+      type = "vlocation";
+      commonList = vLocations;
+    }
+    Console.of.error("${type} ${commonList.length}");
     var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
+    Console.of.debug("SECOND ${list.length}");
     // showEmptyNotifier.value = list.isEmpty;
-    return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
+    return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : (list.isEmpty) ? commonList : list;
   }
 
 
@@ -428,5 +425,9 @@ class TaskIdentifier extends StatelessWidget {
     } else {
       return data['name'].toString().toLowerCase().contains(input.toLowerCase());
     }
+  }
+
+  FutureOr<Iterable<Map<String, dynamic>>> _onSearch(TextEditingValue textEditingValue) {
+    return onSearch(textEditingValue);
   }
 }

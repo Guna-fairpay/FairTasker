@@ -5,6 +5,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomVehicleHistoryCardView extends StatelessWidget {
   final bool hasParts;
@@ -93,13 +94,8 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                     if (userNameText?.isNotEmpty ?? false)
                       InkWell(
                         onTap: onUserTap,
-                        borderRadius: BorderRadius.circular(Num.borderRadius),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.circular(Num.borderRadius),
-                              color: AppC.appColor),
-                          padding: const EdgeInsets.all(8),
+                        borderRadius: BorderRadius.circular(Num.borderRadiusXLarge),
+                        child: CircleAvatar(
                           child: Text("$userNameText",
                               style: context.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
@@ -113,7 +109,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                         children: [
                           ListTile(
                             dense: true,
-                            contentPadding: 10.topPadding,
+                            contentPadding: 16.sp.topPadding,
                             title: ((titleText?.length ?? 0) == 0)
                                 ? null
                                 : Text.rich(
@@ -201,15 +197,15 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 5),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(6.0),
                                   bottomRight: Radius.circular(6.0)),
-                              color: Colors.grey),
+                              color: AppC.grey),
                           child: Text(
                             "PARTS",
                             style: context.textTheme.labelSmall?.copyWith(
-                                color: Colors.black,
+                                color: AppC.white,
                                 fontWeight: FontWeight.bold),
                           ),
                         ),

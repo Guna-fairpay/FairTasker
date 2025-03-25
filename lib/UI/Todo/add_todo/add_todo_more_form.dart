@@ -69,7 +69,7 @@ class AddTodoMoreForm extends StatelessWidget {
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedParts),
                 suggestionsList: List.from(state.partServices),
-                controller: TextEditingController(),
+                controller: context.read<AddToDoBloc>().partsController,
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
                 onChanged: (isChecked, value) => context
@@ -81,7 +81,7 @@ class AddTodoMoreForm extends StatelessWidget {
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedSupplies),
                 suggestionsList: List.from(state.supplies),
-                controller: TextEditingController(),
+                controller: context.read<AddToDoBloc>().suppliesController,
                 labelText: "Supplies",
                 onChanged: (isChecked, value) => context
                     .read<AddToDoBloc>()

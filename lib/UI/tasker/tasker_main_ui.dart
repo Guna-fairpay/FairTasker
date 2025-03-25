@@ -77,7 +77,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerViewVehicleState(): Toaster.showInfo("Under Development"); break;
             case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
             case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
-            case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.model?['todoimages'], title: state.model?['title']); break;
+            case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['todoimages']).map((e) => e['path'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
             case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
             default: break;
           }

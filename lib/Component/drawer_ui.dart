@@ -6,6 +6,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../UI/Manage Custom Data/reports/reports_view.dart';
@@ -213,6 +214,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 onTap: () {
                   AskPermissionDialog.show(context, title: "Confirm logout", description: "Are you sure you want to logout?", negativeText: "No", positiveText: "Yes", onPositivePressed: () async {
                     await Authenticator.instance.logout();
+                    await getIt<CommonService>().clearAll();
                     Utils.deletePreferences(key: Str.loginPrefText);
                     Utils.deletePreferences(key: Str.accessTokenPrefText);
                     Utils.deletePreferences(key: Str.userIdPrefText);
