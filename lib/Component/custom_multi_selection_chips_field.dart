@@ -140,7 +140,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
 
   Future<Iterable<T>> _onSearch(TextEditingValue editValue) async {
     var val = editValue.text.toLowerCase();
-    if (val.trim().isEmpty) {
+    if (val.isEmpty) {
       return [];
     }
     var data = suggestionsList.where((element) =>
