@@ -229,7 +229,9 @@ class CommonService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getPaymentTypes() async {
+  Future<List<Map<String, dynamic>>> getPaymentTypes({bool reset = false}) async {
+    if (reset) paymentTypesList.clear();
+    if (paymentTypesList.isNotEmpty) return paymentTypesList;
     try {
       var response = await _apiRepository.getPaymentType();
       paymentTypesList = List<Map<String, dynamic>>.from(response?['data'] ?? []);

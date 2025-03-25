@@ -149,7 +149,7 @@ class Utils {
             bottomRight: Radius.circular(bottomRRadius))
       ),
       child: DropdownMenu<dynamic>(
-        //key: ValueKey(selectedKey),
+        key: ValueKey(selectedKey),
         initialSelection: initialSelection,
         hintText: hintText,
         menuHeight: 250,

@@ -296,11 +296,13 @@ class APiRepository {
           apiUrl,
           body: body?..putIfAbsent('type', () => "inline"),
           files: images?.map((e) => e.path).toList(),
-          fieldName: "files",
+          fieldName: "images",
           autoIncrement: true);
       if (response != null) {
         if (response.isSuccess) {
           var mapData = await response.mapData;
+          log(mapData.toString(), name: "updateToDoApi");
+
           Toaster.showSuccess(
               mapData?['message'] ?? "Todo Updated Successfully");
           return mapData;
@@ -360,7 +362,6 @@ class APiRepository {
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       if (response != null) {
-
         if (response.isSuccess) {
           var path = await FileSaver.instance.saveFile(response);
           Toaster.showSuccess("Invoice Generated Successfully");

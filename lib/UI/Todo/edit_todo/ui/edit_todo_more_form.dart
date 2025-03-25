@@ -2,7 +2,6 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
-import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -12,7 +11,6 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import '../../../../Component/bottom_nav_for_task.dart';
 import '../../../../Utilities/str.dart';
 import '../../../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import '../bloc/edit_todo_bloc.dart';
@@ -73,6 +71,24 @@ class EditTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () => context.push(const SuppliesViewUI(),
                     fullscreenDialog: true)
             ),
+          if (state.isMoreEnable)
+            10.height,
+          if (state.isMoreEnable)
+            Row(
+            spacing: 15,
+            children: [
+              Expanded(child: Utils.getTextFormField("Trip driven miles", context.read<EditToDoBloc>().tripDrivenController,)),
+              Expanded(child: Utils.dropdownBox(
+                "Selected Sentiments",
+                state.sentiments,
+                    (val)=>context.read<EditToDoBloc>().add(EditToDoSelectSentimentsEvent(val)),
+                labelKey: 'name',
+                initialSelection: state.selectedSentiment,
+              ),),
+            ],
+          ),
+          if (state.isMoreEnable)
+            10.height,
           Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
@@ -131,11 +147,13 @@ class EditTodoMoreForm extends StatelessWidget {
                           decorationColor: AppC.appColor),
                     ),
             ),
-          if (Str.odometer.contains(state.apiResponse['title']))
+          if ((Str.completedOdometer.contains(state.apiResponse['title'])
+              && state.apiResponse['status']=="Completed")
+              || (Str.unCompletedOdometer.contains(state.apiResponse['title'])))
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Utils.getText('Previous Odometer : '),
+                Utils.getText('Previous Odometer : ${state.apiResponse['mileage']??''}'),
                 Utils.getTextFormField(
                   'Odometer',
                   context.read<EditToDoBloc>().odometerController,
@@ -157,9 +175,13 @@ class EditTodoMoreForm extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => VehicleHistoryViewUI(
+                        showSameTask: true,
+                            title: state.apiResponse['title'],
                             vin: state.selectedVehicle['vin'],
                             vehicleName: state.selectedVehicle['vehicle_name'],
-                          )));
+                          )
+                  )
+              );
             },
             child: state.selectedVehicle.isNotEmpty
                 ? Utils.getText(
@@ -175,7 +197,7 @@ class EditTodoMoreForm extends StatelessWidget {
               Utils.getElevatedButton(() {
                     context.read<EditToDoBloc>().add(EditToDoSaveEvent());
                     //Navigator.pop(context);
-                    context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0, message: '',));
+                    //context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0, message: '',));
               },
                   text: 'Update'),
             ],

@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../../utilities/appC.dart';
 
@@ -92,7 +93,7 @@ class ResourceSelection {
                                       vertical: 2.0,
                                     ),
                                     child: Utils.getText(
-                                      '${user['first_name'][0] ?? ''}${user['last_name'][0] ?? ''}',
+                                      <String>[(user?['first_name'] ?? ""), (user?['last_name'] ?? "")].toInitial,
                                       size: 12,
                                       weight: FontWeight.bold,
                                       color: isSelected ? AppC.white : AppC.appColor,

@@ -1054,7 +1054,6 @@ class _EditTodoUIState extends State<EditTodoUI> {
                 builder: (context, state) {
                   if (!isMaintenanceLoaded) isMaintenanceLoaded = state is MaintenanceCheckListLoaded;
                   if (isMaintenanceLoaded) showExpenseTab = 3;
-
                   //log("${state.runtimeType} $isMaintenanceLoaded", name: "STATE_TYPE");
                   return SafeArea(
                     child: Stack(

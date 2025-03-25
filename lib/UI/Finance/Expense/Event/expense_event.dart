@@ -210,4 +210,6 @@ class GetCategoryDropDownData extends ExpenseEvent {
   List<Object?> get props => [];
 }
 
-class RefreshEvent extends ExpenseEvent {}
+class RefreshEvent extends ExpenseEvent {
+
+}

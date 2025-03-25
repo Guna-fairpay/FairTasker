@@ -40,6 +40,9 @@ class ExpenseState extends Equatable{
   final dynamic selectedExpenseTo;
   final bool pop;
   final bool categoriesPop;
+  final bool popAddPagePop;
+  final bool popEditPage;
+
 
   const ExpenseState({
     required this.apiResponse,
@@ -77,6 +80,9 @@ class ExpenseState extends Equatable{
     required this.selectedExpenseTo,
     required this.pop,
     required this.categoriesPop,
+    required this.popAddPagePop,
+    required this.popEditPage,
+
   });
 
   ExpenseState copyWith({
@@ -115,6 +121,8 @@ class ExpenseState extends Equatable{
     dynamic selectedExpenseTo,
     bool? pop,
     bool? categoriesPop,
+    bool? popAddPagePop,
+    bool? popEditPage,
 
   }){
     return ExpenseState(
@@ -153,6 +161,8 @@ class ExpenseState extends Equatable{
       selectedExpenseTo: selectedExpenseTo ?? this.selectedExpenseTo,
       pop: pop ?? this.pop,
       categoriesPop: categoriesPop ?? this.categoriesPop,
+      popAddPagePop: popAddPagePop ?? this.popAddPagePop,
+      popEditPage: popEditPage ?? this.popEditPage,
 
     );
   }
@@ -194,6 +204,8 @@ class ExpenseState extends Equatable{
     selectedExpenseTo,
     pop,
     categoriesPop,
+    popAddPagePop,
+    popEditPage,
     Random().nextDouble()
   ];
 

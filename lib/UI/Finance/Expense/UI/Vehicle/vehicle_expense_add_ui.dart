@@ -1,9 +1,12 @@
+
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Event/expense_event.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/Vehicle/Bloc/add_expense_vehicle_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/Vehicle/Event/add_expense_vehicle_event.dart';
+import 'package:fairpytasker/UI/Finance/Expense/UI/Vehicle/State/add_expense_vehicle_state.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -17,22 +20,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../../Bloc/expense_bloc.dart';
-import '../../State/expense_state.dart';
-
 class ExpenseVehicleAddUI extends StatelessWidget {
   const ExpenseVehicleAddUI({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ExpenseBloc>(
-      create: (context) => ExpenseBloc()..add(const GetVehicleExpenseAddData()),
-      child: BlocListener<ExpenseBloc, ExpenseState>(
+    return BlocProvider<AddExpenseVehicleBloc>(
+      create: (context) => AddExpenseVehicleBloc()..add(const GetVehicleExpenseAddData()),
+      child: BlocListener<AddExpenseVehicleBloc, AddExpenseVehicleState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
         },
         child:
-            BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
+            BlocBuilder<AddExpenseVehicleBloc, AddExpenseVehicleState>(builder: (context, state) {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
@@ -60,7 +60,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () => context
-                                    .read<ExpenseBloc>()
+                                    .read<AddExpenseVehicleBloc>()
                                     .add(PickImageEvent()),
                                 child: Container(
                                   height: 40,
@@ -94,7 +94,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () => context
-                                    .read<ExpenseBloc>()
+                                    .read<AddExpenseVehicleBloc>()
                                     .add(CaptureImageEvent()),
                                 child: Container(
                                   height: 40,
@@ -155,7 +155,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                                         negativeText: "Cancel",
                                         isReasonRequired: false,
                                         onPositivePressed: () => context
-                                            .read<ExpenseBloc>()
+                                            .read<AddExpenseVehicleBloc>()
                                             .add(RemoveImageEvent(
                                                 data: state.expenseAttachments[
                                                     index])));
@@ -223,11 +223,11 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           hintText: "",
                           onSelected: (val) {
                             context
-                                .read<ExpenseBloc>()
+                                .read<AddExpenseVehicleBloc>()
                                 .add(VehicleEvent(selectedVehicle: val));
                           },
                           controller:
-                              context.read<ExpenseBloc>().vehicleController,
+                              context.read<AddExpenseVehicleBloc>().vehicleController,
                         ),
                         10.height,
                         Row(
@@ -235,8 +235,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                             Expanded(
                               child: Utils.getTextFormField(
                                 'Amount in dollars',
-                                context.read<ExpenseBloc>().amountController,
-                                textType: TextInputType.numberWithOptions(decimal: true),
+                                context.read<AddExpenseVehicleBloc>().amountController,
+                                textType: const TextInputType.numberWithOptions(decimal: true),
                                 inputAction: TextInputAction.done,
                                 textInputFormatter:[
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
@@ -248,7 +248,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               child: Utils.dropdownBox(
                                   'Select Payment Method',
                                   state.paymentType,
-                                  (value) => context.read<ExpenseBloc>().add(
+                                  (value) => context.read<AddExpenseVehicleBloc>().add(
                                       SelectedPaymentEvent(paymentType: value)),
                                   labelKey: 'name'),
                             ),
@@ -257,7 +257,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         10.height,
                         Utils.getTextFormField(
                           'Enter Description',
-                          context.read<ExpenseBloc>().descriptionController,
+                          context.read<AddExpenseVehicleBloc>().descriptionController,
                           inputAction: TextInputAction.done,
                         ),
                         10.height,
@@ -265,7 +265,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           'Select Category',
                           state.categories,
                           (value) => context
-                              .read<ExpenseBloc>()
+                              .read<AddExpenseVehicleBloc>()
                               .add(CategoryListEvent(selectedCategory: value)),
                           labelKey: 'name',
                         ),
@@ -273,7 +273,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         Utils.dropdownBox(
                           'Select Sub Category',
                           state.subCategories,
-                          (value) => context.read<ExpenseBloc>().add(
+                          (value) => context.read<AddExpenseVehicleBloc>().add(
                               SubCategoryListEvent(selectedSubCategory: value)),
                           labelKey: 'name',
                           selectedKey: state.selectedSubCategory,
@@ -284,7 +284,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           'Select Expense To',
                           state.cohorts,
                           (value) => context
-                              .read<ExpenseBloc>()
+                              .read<AddExpenseVehicleBloc>()
                               .add(CohortListEvent(selectedCohort: value)),
                           labelKey: 'name',
                           selectedKey: state.selectedCohorts,
@@ -293,19 +293,19 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         10.height,
                         CustomDateTimePicker<DateTime>(
                           controller:
-                              context.read<ExpenseBloc>().dateController,
+                              context.read<AddExpenseVehicleBloc>().dateController,
                           format: "dd-MM-yyyy",
                           suffixIcon: Icon(Icons.calendar_month_rounded,
                               size: 18, color: context.theme.hintColor),
                           textAlign: TextAlign.center,
                           value: state.selectedDate,
                           onChanged: (value) => context
-                              .read<ExpenseBloc>()
+                              .read<AddExpenseVehicleBloc>()
                               .add(DateChangeEvent(selectedDate: value)),
                         ),
                         10.height,
                         Utils.getTextFormField('Odometer Reading',
-                            context.read<ExpenseBloc>().odometerController,
+                            context.read<AddExpenseVehicleBloc>().odometerController,
                             textType: TextInputType.number,
                             suffixIcon: const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -317,8 +317,12 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         10.height,
                         Utils.getElevatedButton(
                           () {
-                            context.read<ExpenseBloc>().add(const SaveExpenseEvent());
-                            context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
+                            context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent());
+                            Future.delayed(
+                              const Duration(seconds: 1),
+                                  () => Navigator.pop(context),
+                            );
+                           // context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
                           }
                         )
                       ],
