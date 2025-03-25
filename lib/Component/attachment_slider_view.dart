@@ -1,6 +1,7 @@
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/Component/video_player_view.dart';
 import 'package:fairpytasker/Component/image_preview.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'dart:io';
@@ -108,9 +109,18 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
                 IconButton(
                     onPressed: () {
                       widget.onDeleted?.call(currentAttachment);
-                      var attachmentLastIndex = attachments.length - 1;
                       attachments.remove(currentAttachment);
-                      (currentIndex == attachmentLastIndex) ? _previousAttachment() : _nextAttachment();
+                      if (currentIndex <= attachments.length) {
+                        currentIndex = (attachments.isEmpty) ? 0 : (currentIndex - 1);
+                        currentIndex = currentIndex.abs();
+                      }
+                      Console.of.log("TOTAL ${attachments.length} $currentIndex");
+                      try {
+                        currentAttachment = attachments[currentIndex];
+                        if (mounted) setState(() {});
+                      } catch (e) {
+
+                      }
                       if (attachments.isEmpty) {
                         widget.onClose?.call();
                       }
