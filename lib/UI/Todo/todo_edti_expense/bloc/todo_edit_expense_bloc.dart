@@ -638,7 +638,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
+        allowedExtensions: ['jpg', 'jpeg', 'png']);
+       // allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
     return result?.paths
             .where((element) => (element?.isNotEmpty ?? false))
             .map((e) => File(e!))
