@@ -164,11 +164,12 @@ class EditTodoBody extends StatelessWidget {
                   vehiclesList: state.vehicles,
                   personsList: state.persons,
                   selected: state.selectedVPerson,
-                 // onDeleted: (val) => context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val['id'])),
-                  onDeleted: (val) {
-                    log("${val}",name: "DELETE_VEHICLE");
-                   // context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: "${val['value']['vehicle_id']}"));
-                  },
+                 onDeleted: (val){
+                    if(state.selectedVPerson.first['type'] == 'vehicles') {
+                      context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(
+                     vehicleId: val?['value']?['vin']));
+                    }
+                    },
                   onSelected: (val) => context
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
@@ -185,6 +186,7 @@ class EditTodoBody extends StatelessWidget {
                       .add(EditToDoVLocationEvent(val)),
                   controller: context.read<EditToDoBloc>().vLocationController,
                 ),
+                if (state.selectedVLocations['type'] == 'location')
                 10.height,
                 if (state.selectedVLocations['type'] == 'location')
                   CustomMultiSelectionChipsField<Map<String, dynamic>>(
@@ -199,6 +201,35 @@ class EditTodoBody extends StatelessWidget {
                 10.height,
                 Utils.getTextFormField(
                     'Notes', context.read<EditToDoBloc>().notesController,
+                    isDense: true,
+                    contentPadding: 10.padding,
+                    labelStyle: context.textTheme.labelMedium
+                        ?.copyWith(color: context.theme.hintColor),
+                    style: context.textTheme.labelLarge
+                        ?.copyWith(fontFamily: "Lato"),
+                    readOnly: false,
+                    onChangeCallback: (value) {}),
+                if(state.apiResponse['maintenance_task_id'] != null)
+                10.height,
+                if(state.apiResponse['maintenance_task_id'] != null)
+                Utils.getTextFormField(
+                    'Comments', context.read<EditToDoBloc>().commentsController,
+                    isDense: true,
+                    contentPadding: 10.padding,
+                    labelStyle: context.textTheme.labelMedium
+                        ?.copyWith(color: context.theme.hintColor),
+                    style: context.textTheme.labelLarge
+                        ?.copyWith(fontFamily: "Lato"),
+                    readOnly: false,
+                    onChangeCallback: (value) {},
+                  minLines: 3,
+                  maxLines: 3,
+                ),
+                if(state.apiResponse['title'] == 'Fix')
+                10.height,
+                if(state.apiResponse['title'] == 'Fix')
+                Utils.getTextFormField(
+                    'Resolution Notes', context.read<EditToDoBloc>().resolutionNotesController,
                     isDense: true,
                     contentPadding: 10.padding,
                     labelStyle: context.textTheme.labelMedium

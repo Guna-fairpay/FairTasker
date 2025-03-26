@@ -92,6 +92,8 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           selectedApproved: const {},
           personExpenseHistory: const [],
           totalAmount: 0.0,
+          popEditPage: false,
+          popAddPage: false,
         )) {
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
@@ -206,6 +208,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           selectedPerson: selectedEmployee,
           selectedCohorts: selectedCohorts,
           popEditPage: false,
+          popAddPage: false,
         ));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
@@ -531,23 +534,16 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       var response = await _getPersonExpense(minDate, maxDate);
       var employeeResponse = await _getEmployeeList();
       employeeList = employeeResponse?.data;
-
-
-
       var apiResponse = response?.data;
       var amountResponse = expenseAmountResponse?.data;
-
       apiResponse =
           calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
-
       approvedAmount = apiResponse
           .where((element) => element['approved'].toString() == "1")
           .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
           .sum;
-
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
           .compareTo(DateTime.parse(a['created_at'] ?? '')));
-
      if(!isClosed){ emit(state.copyWith(
         isLoading: false,
         apiResponse: apiResponse,

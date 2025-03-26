@@ -44,6 +44,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> groupVehicles;
   final List<dynamic> sentiments;
   final dynamic selectedSentiment;
+  final bool popUpdatePage;
 
   const EditTodoState( {
     required this.isLoading,
@@ -86,6 +87,7 @@ class EditTodoState extends Equatable {
     required this.groupVehicles,
     required this.sentiments,
     required this.selectedSentiment,
+    required this.popUpdatePage,
   });
 
   EditTodoState copyWith({
@@ -142,6 +144,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? groupVehicles,
     List<dynamic>? sentiments,
     dynamic selectedSentiment,
+    bool? popUpdatePage,
 
   }) =>
       EditTodoState(
@@ -186,6 +189,7 @@ class EditTodoState extends Equatable {
         groupVehicles: groupVehicles ?? this.groupVehicles,
         sentiments: sentiments ?? this.sentiments,
         selectedSentiment: selectedSentiment ?? this.selectedSentiment,
+        popUpdatePage: popUpdatePage ?? this.popUpdatePage,
 
       );
 
@@ -232,6 +236,7 @@ class EditTodoState extends Equatable {
     groupVehicles,
     sentiments,
     selectedSentiment,
+    popUpdatePage,
 
     Random().nextDouble()
   ];

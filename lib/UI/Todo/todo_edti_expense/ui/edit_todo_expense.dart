@@ -1,6 +1,5 @@
-import 'dart:developer';
-import 'dart:io';
 
+import 'dart:io';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
@@ -71,7 +70,9 @@ class TodoExpense extends StatelessWidget {
                                     vehicleName: state
                                         .vehicleList.firstOrNull['vehicle_name'],
                                 showTotalAmount: false,
-                                  )));
+                                  )
+                          )
+                      );
                     },
                     child: Utils.getText(
                       'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',

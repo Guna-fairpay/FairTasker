@@ -71,12 +71,11 @@ class EditTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () => context.push(const SuppliesViewUI(),
                     fullscreenDialog: true)
             ),
-          if (state.isMoreEnable)
-            10.height,
-          if (state.isMoreEnable)
+          if (state.isMoreEnable && (Str.completedOdometer.contains(state.apiResponse['title'])))
             Row(
             spacing: 15,
             children: [
+              10.height,
               Expanded(child: Utils.getTextFormField("Trip driven miles", context.read<EditToDoBloc>().tripDrivenController,)),
               Expanded(child: Utils.dropdownBox(
                 "Selected Sentiments",
@@ -85,10 +84,9 @@ class EditTodoMoreForm extends StatelessWidget {
                 labelKey: 'name',
                 initialSelection: state.selectedSentiment,
               ),),
+              10.height,
             ],
           ),
-          if (state.isMoreEnable)
-            10.height,
           Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
