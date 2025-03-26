@@ -38,8 +38,8 @@ class CommonService {
   List<Map<String, dynamic>> expenseCategoriesList = [];
   List<Map<String, dynamic>> paymentTypesList = [];
   List<Map<String, dynamic>> resourcesList = [];
-  // List<Map<String, dynamic>> partsList = [];
-  // List<Map<String, dynamic>> suppliesList = [];
+  List<Map<String, dynamic>> branchList = [];
+  List<Map<String, dynamic>> vehicleStatusList = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;

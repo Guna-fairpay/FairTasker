@@ -20,7 +20,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> selectedTaskPersons;
   final List<dynamic> selectedParts;
   final List<dynamic> selectedSupplies;
-  final List<dynamic> attachments;
+  final List<dynamic> todoAttachments;
   final List<Map<String, dynamic>> selectedVPerson;
   final Map<String, dynamic> selectedVLocations;
   final Map<String, dynamic> selectedTask;
@@ -74,7 +74,7 @@ class EditTodoState extends Equatable {
     required this.isSuppliesEnable,
     required this.selectedDate,
     required this.selectedTime,
-    required this.attachments,
+    required this.todoAttachments,
     required this.apiResponse,
     required this.todoStatus,
     required this.selectedResource,
@@ -124,7 +124,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? selectedParts,
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
-    List<dynamic>? attachments,
+    List<dynamic>? todoAttachments,
     List<Map<String, dynamic>>? addresses,
     List<dynamic>? selectedRecurringDays,
     Map<String, dynamic>? apiResponse,
@@ -177,7 +177,7 @@ class EditTodoState extends Equatable {
         selectedTaskPersons: selectedTaskPersons ?? this.selectedTaskPersons,
         selectedSupplies: selectedSupplies ?? this.selectedSupplies,
         selectedParts: selectedParts ?? this.selectedParts,
-        attachments: attachments ?? this.attachments,
+        todoAttachments: todoAttachments ?? this.todoAttachments,
         todoStatus: todoStatus ?? this.todoStatus,
         selectedResource: selectedResource ?? this.selectedResource,
         userGroup: userGroup ?? this.userGroup,
@@ -223,7 +223,7 @@ class EditTodoState extends Equatable {
     selectedParts,
     selectedSupplies,
     selectedTaskPersons,
-    attachments,
+    todoAttachments,
     apiResponse,
     todoStatus,
     selectedResource,

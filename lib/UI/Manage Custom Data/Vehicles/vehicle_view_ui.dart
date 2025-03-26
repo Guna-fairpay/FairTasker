@@ -1,7 +1,6 @@
 
 import 'dart:developer';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/Vehicle_edit_tab_bar.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_grouping_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/UI/vehicle_grouping_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -13,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Response/create_expense_field_data.dart';
 import '../../../Utilities/assets.dart';
+import 'TabBarPages/Vehicle_edit_tab_bar.dart';
 import 'vehicle_add_ui.dart';
 import 'vehicle_edit_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';

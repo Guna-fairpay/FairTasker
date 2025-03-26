@@ -79,7 +79,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedVLocations: const {},
           selectedParts: const [],
           selectedSupplies: const [],
-          attachments: const [],
+          todoAttachments: const [],
           selectedTask: const {},
           linkOptions: AddToDoConfig.customOptions,
           bottomTapData: const [],
@@ -329,7 +329,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           tasks: taskResponse,
           selectedTask: selectedTask,
           selectedVPerson:
-              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
+              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList,),
           selectedVLocations: CustomSearchDataConverter.convertVLocation(
               vendors: vendors, locations: locations)
               .firstOrNull ?? {},
@@ -361,7 +361,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           showPlatformCheck: showPlatformCheck,
           isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
-          attachments: todoImages,
+          todoAttachments: todoImages,
           groupVehicles: groupVehiclesResponse,
           selectedSentiment: selectedSentiments,
 
@@ -512,15 +512,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoEditAttachmentEvent>((event, emit) async {
       var result = await _pickFiles();
       if (result != null) {
-        var existing = List.from(state.attachments);
-        var existingPaths = List.from(state.attachments)
+        var existing = List.from(state.todoAttachments);
+        var existingPaths = List.from(state.todoAttachments)
             .whereType<File>()
             .map((e) => (e.path))
             .toList();
         for (var element in result) {
           if (!existingPaths.contains(element.path)) existing.add(element);
         }
-        emit(state.copyWith(attachments: existing));
+        emit(state.copyWith(todoAttachments: existing));
       }
     });
 
@@ -602,6 +602,30 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(isLoading: false));
     });
 
+    on<RemoveImageEvent>((event, emit) async {
+      if (event.data == null) return;
+      if (event.data is File) {
+        // LOCAL SELECTION REMOVE
+        state.todoAttachments.remove(event.data);
+        todoImages = state.todoAttachments;
+      } else if (event.data is String) {
+        // REMOTE SELECTION REMOVE
+        var data = todoImages.firstWhereOrNull(
+                (element) => element == event.data.toString());
+
+        var attachmentId = images
+            .where((element) => element['path'] == data.toString().removeStorageUrl)
+            .map((e) => e['id'])
+            .firstOrNull;
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.deleteTodoImage(attachmentId);
+        emit(state.copyWith(isLoading: false));
+        // once success remove from attachments
+        todoImages.remove(event.data);
+      }
+      emit(state.copyWith(todoAttachments: todoImages));
+    });
+
     on<EditToDoSaveEvent>((event, emit) async {
       // VALIDATIONS MANDATORY
       // IF DEPARTMENT IS 7 THEN PLATFORM CHECK
@@ -621,7 +645,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       try {
         emit(state.copyWith(isLoading: true));
         var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
-            images: state.attachments.whereType<File>().toList(), body: _editTodoBody());
+            images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
         _broadcast.stickyBroadcast("todo_view", value:true);
         emit(state.copyWith(isLoading: false));
@@ -719,6 +743,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+
+    var groupVehicleList = state.selectedVPerson
+        .where((element) => element['type'] == "g_vehicles")
+        .toList();
+
+    var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
+
+    baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
+
 
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;

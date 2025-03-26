@@ -163,6 +163,7 @@ class EditTodoBody extends StatelessWidget {
                 CustomVehiclePersonField(
                   vehiclesList: state.vehicles,
                   personsList: state.persons,
+                  groupVehicles: state.groupVehicles,
                   selected: state.selectedVPerson,
                  onDeleted: (val){
                     if(state.selectedVPerson.first['type'] == 'vehicles') {
@@ -174,7 +175,7 @@ class EditTodoBody extends StatelessWidget {
                       .read<EditToDoBloc>()
                       .add(EditToDoVPersonEvent(val)),
                   controller: context.read<EditToDoBloc>().vPersonController,
-                  groupVehicles: state.groupVehicles,
+
                 ),
                 10.height,
                 CustomVendorLocationField(

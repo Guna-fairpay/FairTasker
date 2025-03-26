@@ -1,12 +1,10 @@
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_expense_ui.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_repair&maintenance_ui.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/TabBarPages/vehicle_expense_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/TabBarPages/vehicle_log.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/TabBarPages/vehicle_repair&maintenance_ui.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../Utilities/appC.dart';
-import '../Private Rental/private_rental_view_ui.dart';
+import '../VehicleEdit/UI/edit_vehicle_ui.dart';
 
 class VehicleEditTabBar extends StatelessWidget {
   Map<String, dynamic> vehicle;
@@ -25,7 +23,7 @@ class VehicleEditTabBar extends StatelessWidget {
           leadingWidth: 20,
           title: TabBar(
             tabs: const [
-             // Tab(text: 'Edit Vehicles', height: 30,),
+              Tab(text: 'Vehicles', height: 30,),
               Tab(text: 'Expense', height: 30),
               Tab(text: 'Repair & Maintenance', height: 30),
               Tab(text: 'Log', height: 30),
@@ -44,12 +42,11 @@ class VehicleEditTabBar extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-           // SafeArea(child: VehicleEditUI()),
+            SafeArea(child: EditVehicleUI()),
             SafeArea(child: VehicleExpenseUI()),
             SafeArea(child: VehicleRepairMaintenanceUI()),
             SafeArea(child: VehicleLogUI()),
           ],
-
         ),
       ),
     );

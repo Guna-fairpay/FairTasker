@@ -149,6 +149,10 @@ class APiRepository {
 
   String get _relatedToDos => "related-todos";
 
+  String get _deleteTodoImage => "deleteTodoImage";
+
+  String get _vehiclesApi => "vehiclesApi";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1208,4 +1212,57 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<GeneralResponse?> deleteTodoImage(
+      dynamic todoId,
+      ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteTodoImage/$todoId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<GeneralResponse?> deleteActiveVehicle(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return GeneralResponse.fromJson(mapData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> moveVehicleToPrivateRental(
+      {dynamic rentalData}) async {
+    try {
+      String body = jsonEncode({
+        "branch_code":rentalData['branch_code'],
+        "cohort_id":rentalData['cohort_id'],
+        "purchase_date":rentalData['purchase_date'],
+        "purchase_price":rentalData['purchase_price'],
+        "vehicle_status":rentalData['vehicle_status'],
+        "rental_status": 3,
+        "vehicle_number": rentalData['vehicle_number'],
+        "vehicle_id": rentalData['vehicle_id'],
+        "vin": rentalData['vin'],
+        "make": rentalData['make'],
+        "model": rentalData['model'],
+        "year": rentalData['year'],
+        "platform_from": "TaskerApp"
+      });
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi/${rentalData['id']}";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl, body:body,);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+
 }

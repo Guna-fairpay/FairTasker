@@ -53,6 +53,7 @@ class EditTodoMoreForm extends StatelessWidget {
                 controller: TextEditingController(),
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
+
                 onChanged: (isChecked, value) => context
                     .read<EditToDoBloc>()
                     .add(EditToDoPartSelectionEvent(isChecked, value)),

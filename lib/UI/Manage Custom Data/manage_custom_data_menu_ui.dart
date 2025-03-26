@@ -14,7 +14,7 @@ import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
 import 'Task/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
-import 'Vehicles/vehicle_tab_bar.dart';
+import 'Vehicles/Components/vehicle_tab_bar.dart';
 import 'Vehicles/vehicle_view_ui.dart';
 import 'Vendor/vendor_view_ui.dart';
 

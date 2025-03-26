@@ -1,9 +1,10 @@
 
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/UI/vehicle_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 
-import '../../../Utilities/appC.dart';
-import 'Private Rental/private_rental_view_ui.dart';
 
 class VehicleTabBar extends StatelessWidget {
   const VehicleTabBar({super.key});
@@ -11,6 +12,7 @@ class VehicleTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
+
       length: 2,
       child:Scaffold(
         backgroundColor: AppC.white,
@@ -18,7 +20,7 @@ class VehicleTabBar extends StatelessWidget {
         backgroundColor: AppC.appColor,
         automaticallyImplyLeading: true,
         foregroundColor: Colors.white,
-        leadingWidth: 20,
+        leadingWidth: 40,
         title: TabBar(
          // controller: tabController,
           tabs: const [
@@ -40,10 +42,15 @@ class VehicleTabBar extends StatelessWidget {
           overlayColor: WidgetStateProperty.all(Colors.transparent),
         ),
       ),
-        body: const TabBarView(
+        body: TabBarView(
+          physics:  NeverScrollableScrollPhysics(),
           children: [
-          SafeArea(child: VehicleViewUI()),
-            SafeArea(child: RentalViewUI())
+          SafeArea(
+              minimum: 10.padding,
+              child: const VehicleViewUI()),
+            SafeArea(
+              minimum: 10.padding,
+                child: const VehicleMainPage())
         ],
 
         ),
