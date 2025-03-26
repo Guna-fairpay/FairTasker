@@ -5,6 +5,7 @@ import 'package:date_time/date_time.dart' hide DateRange;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../../Repository/job_list_repository.dart';
 import '../../../Repository/todo_list_repository.dart';
 import '../Event/workingHoursEvent.dart';
@@ -24,6 +25,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   List<Map<String, dynamic>> workingHistory = [];
   List<Map<String, dynamic>> workActiveHours = [];
   List<Map<String, dynamic>> combinedData=[];
+  List<Map<String, dynamic>> ReasonCombinedData=[];
   List<Map<String, dynamic>> dropDownData=[];
   List<String> activeHours = [];
   List<int> totalHoursValue = [];
@@ -425,71 +427,475 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isEditMode: false));
     });
 
-    // on<EnterHourEditModeEvent>((event, emit) {
-    //   emit(state.copyWith(isHourEditMode: true));
-    // });
-    // on<ExitHourEditModeEvent>((event, emit) {
-    //   emit(state.copyWith(isHourEditMode: false));
-    // });
+
 
     on<TaskDateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
 
     on<fetchEmployeeCommentEvent>((event, emit) async {
       print("event data---------> ${event.hrmId} ${event.fromDate} ${event.toDate}");
+      //Fetch Data
       final comment = await taskRepo.fetchEmployeeComments(
       hrmId: event.hrmId,
       fromDate: event.fromDate,
       toDate: event.toDate,
-    );
+      );
       List<Map<String, dynamic>> commentList = [];
+      commentList.clear();
       commentList = comment!.comments!;
       print("comment ${commentList}");
-      emit(state.copyWith(comments: commentList));
-  });
 
-    on<FetchCheckInoutReasonEvent>((event, emit) async {
+      //Helper Function
+
+      List<String> getFromDateAndToDate(String dateRange) {
+        try {
+          dateRange = dateRange.trim();
+          if (!dateRange.contains(" - ")) {
+            throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
+          }
+          List<String> dates = dateRange.split(" - ").map((d) => d.trim()).toList();
+
+          if (dates.length != 2) {
+            throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
+          }
+          String normalizeDate(String dateStr) {
+            try {
+              if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateStr)) {
+                DateTime parsedDate = DateFormat("yyyy-MM-dd").parse(dateStr);
+                return DateFormat("dd/MM/yyyy").format(parsedDate);
+              } else if (RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(dateStr)) {
+                return dateStr;
+              } else {
+                throw Exception("Unrecognized date format: $dateStr");
+              }
+            } catch (e) {
+              throw Exception("Invalid date format: $dateStr");
+            }
+          }
+          String fromDateStr = normalizeDate(dates[0]);
+          String toDateStr = normalizeDate(dates[1]);
+          DateTime fromDateParsed = DateFormat("dd/MM/yyyy").parse(fromDateStr);
+          DateTime toDateParsed = DateFormat("dd/MM/yyyy").parse(toDateStr);
+          String fromDate = DateFormat("yyyy-MM-dd").format(fromDateParsed);
+          String toDate = DateFormat("yyyy-MM-dd").format(toDateParsed);
+          log("$fromDate $toDate",name:"fromDateToDate");
+          return [fromDate, toDate];
+        } catch (e) {
+          print("Error parsing date range: $e");
+          throw Exception("Error parsing date range: ${e.toString()}");
+        }
+      }
+
+      List<String> result;
+      try {
+        result = getFromDateAndToDate(event.ReasonPopupSelectedDateRange);
+      } catch (e) {
+        print("Error parsing date range: $e");
+        result = [DateFormat("yyyy-MM-dd").format(DateTime.now()), DateFormat("yyyy-MM-dd").format(DateTime.now())];
+      }
+
+      List<Map<String, dynamic>> combineData(List<dynamic> dataList, List<Map<String, dynamic>> taskCounts) {
+        List<Map<String, dynamic>> combinedList = [];
+        Map<String, List<Map<String, dynamic>>> taskCountsMap = {};
+        combinedList.clear();
+        taskCountsMap.clear();
+        for (var task in taskCounts) {
+          final String? formattedDate = task['date'] != null
+              ? DateFormat('yyyy-MM-dd').format(DateTime.parse(task['date'].toString()))
+              : null;
+
+          if (formattedDate != null) {
+            taskCountsMap.putIfAbsent(formattedDate, () => []).add(task);
+          }
+        }
+
+        for (var item in dataList) {
+          final String? formattedDate = item['date'] != null
+              ? DateFormat('yyyy-MM-dd').format(DateTime.parse(item['date'].toString()))
+              : null;
+
+          if (formattedDate == null) {
+            continue;
+          }
+
+          List<Map<String, dynamic>>? taskDataList = taskCountsMap[formattedDate];
+
+          String reason = '';
+          String comments = '';
+          if (taskDataList != null && taskDataList.isNotEmpty) {
+            reason = taskDataList.map((task) => task['reason']?.toString() ?? '').join(', ');
+            comments = taskDataList.map((task) => task['comments']?.toString() ?? '').join(', ');
+          }
+
+          combinedList.add({
+            'date': DateFormat('MM-dd-yy').format(DateTime.parse(formattedDate)),
+            'total_hours': item['total_hours'] ?? '',
+            'start_time': item['start_time'] ?? '',
+            'end_time': item['end_time'] ?? '',
+            'reason': reason,
+            'comments': comments,
+          });
+        }
+
+        print("Combined Data on First Open: $combinedList");
+        return combinedList;
+      }
+      ReasonCombinedData = [];
+      ReasonCombinedData = List.from(combineData(event.dataList, commentList));
+      log("$ReasonCombinedData",name:"combinedData");
+      emit(state.copyWith(
+          isLoading: false,comments: ReasonCombinedData));
+    });
+
+    on<HoursPopupEvent>((event, emit) async {
         final data = await taskRepo.fetchCheckInoutReason(
         hrmId: event.hrmId,
         fromDate: event.fromDate,
         toDate: event.toDate,
       );
+        final response = await taskRepo.fetchEmployeeTaskCount(
+          userId: event.hrmId,
+          fromDate: event.fromDate,
+          toDate: event.toDate,
+        );
         List<Map<String, dynamic>> hoursData = [];
         hoursData = data!.data!;
+        List<Map<String, dynamic>> history = [];
+        history = response?.history! ?? [];
         print("hoursData $hoursData");
-        emit(state.copyWith(hoursData1: hoursData));
+        //print("history $history");
+
+        List<String> getFromDateAndToDate(String dateRange) {
+          try {
+            if (dateRange.isEmpty) {
+              throw Exception("Date range is empty");
+            }
+
+            dateRange = dateRange.trim();
+            if (!dateRange.contains(" - ")) {
+              throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
+            }
+
+            List<String> dates = dateRange.split(" - ").map((d) => d.trim()).toList();
+            if (dates.length != 2) {
+              throw Exception("Invalid date range format.");
+            }
+
+            String normalizeDate(String dateStr) {
+              if (dateStr.isEmpty) {
+                throw Exception("Date string is empty");
+              }
+
+              try {
+                if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateStr)) {
+                  return DateFormat("dd/MM/yyyy").format(DateFormat("yyyy-MM-dd").parse(dateStr));
+                } else if (RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(dateStr)) {
+                  return dateStr;
+                } else {
+                  throw Exception("Unrecognized date format: $dateStr");
+                }
+              } catch (e) {
+                throw Exception("Invalid date format: $dateStr");
+              }
+            }
+
+            String fromDateStr = normalizeDate(dates[0]);
+            String toDateStr = normalizeDate(dates[1]);
+
+            return [
+              DateFormat("yyyy-MM-dd").format(DateFormat("dd/MM/yyyy").parse(fromDateStr)),
+              DateFormat("yyyy-MM-dd").format(DateFormat("dd/MM/yyyy").parse(toDateStr))
+            ];
+          } catch (e) {
+            print("Error parsing date range: $e");
+            return [
+              DateFormat("yyyy-MM-dd").format(DateTime.now()),
+              DateFormat("yyyy-MM-dd").format(DateTime.now())
+            ];
+          }
+        }
+
+        List<String> result;
+        try {
+          result = getFromDateAndToDate(event.HoursPopupSelectedDateRange);
+        } catch (e) {
+          print("Error parsing date range: $e");
+          result = [DateFormat("yyyy-MM-dd").format(DateTime.now()), DateFormat("yyyy-MM-dd").format(DateTime.now())];
+        }
+
+
+        List<Map<String, dynamic>> combineData(
+            List<dynamic> dataList,
+            List<Map<String, dynamic>> taskCounts,
+            List<Map<String, dynamic>> checkInout) {
+          List<Map<String, dynamic>> combinedList = [];
+
+          // Map to organize task counts by date
+          Map<String, int> taskCountsMap = {};
+          for (var task in taskCounts) {
+            final date = DateFormat('yyyy-MM-dd')
+                .format(DateFormat('yyyy-MM-dd').parse(task['todo_date'].toString()));
+
+            taskCountsMap[date] = (taskCountsMap[date] ?? 0) +
+                (int.tryParse(task['task_count'].toString()) ?? 0);
+          }
+          // Map to organize check-in/out reasons by date
+          Map<String, List<dynamic>> checkinReasonsMap = {};
+          Map<String, List<dynamic>> checkoutReasonsMap = {};
+          for (var entry in checkInout) {
+            final date = DateFormat('yyyy-MM-dd')
+                .format(DateFormat('yyyy-MM-dd').parse(entry['date'].toString()));
+
+            checkinReasonsMap.putIfAbsent(date, () => []);
+            checkoutReasonsMap.putIfAbsent(date, () => []);
+
+            checkinReasonsMap[date]?.add(entry['checkin_reason']);
+            checkoutReasonsMap[date]?.add(entry['checkout_reason']);
+          }
+          // Combine data
+          for (var item in dataList) {
+            final String? date = item['date']?.toString();
+            if (date == null) continue;
+
+            final taskCount = taskCountsMap[date] ?? 0;
+            final List<dynamic> checkinReason = checkinReasonsMap[date] ?? [];
+            final List<dynamic> checkoutReason = checkoutReasonsMap[date] ?? [];
+
+            checkinReason.removeWhere((element) => ((element.toString().isEmpty) || (element == null)));
+            checkoutReason.removeWhere((element) => ((element.toString().isEmpty) || (element == null)));
+            // Combine into a single map
+            combinedList.add({
+              'date': DateFormat('MM-dd-yyyy').format(DateTime.parse(date)),
+              'total_hours': item['total_hours'],
+              'start_time': item['start_time'] ?? '',
+              'end_time': item['end_time'] ?? '',
+              'task_count': taskCount.toString(),
+              'checkin_reason': checkinReason,
+              'checkout_reason': checkoutReason,
+            });
+          }
+          return combinedList;
+        }
+        combinedData=combineData(event.dataList,hoursData,history);
+
+        emit(state.copyWith(isLoading: false,hoursData1: combinedData));
     });
 
-    on<FetchTaskCountEvent>((event, emit) async {
-      List<Map<String, dynamic>> history = [];
-      final data = await taskRepo.fetchEmployeeTaskCount(
+
+    on<TaskInitialEvent>((event, emit) async{
+      //Api fetching
+      emit(state.copyWith(isLoading: true));
+      final taskHistory = await taskRepo.fetchEmployeeTaskHistory(
+        to: event.to,
+        from: event.from,
         userId: event.userId,
-        fromDate: event.fromDate,
-        toDate: event.toDate,
       );
-      history = data!.history!;
-      print("history $history");
-      emit(state.copyWith(hoursData2: history));
+      List<Map<String, dynamic>> combinedHistory = [];
+      if (taskHistory?.history2 != null) {
+        combinedHistory.addAll(taskHistory!.history2!);
+      }
+      if (taskHistory?.history3 != null) {
+        combinedHistory.addAll(taskHistory!.history3!);
+      }
+      final data = await taskRepo.fetchGetConfiguration();
+      final response1 = await taskRepo.fetchCohortData();
+      final response2 = await todoListRepo.getTaskCategoryGroup();
+      List<Map<String, dynamic>> taskCategoryGroup = [];
+      taskCategoryGroup = response2?.data ?? [];
+
+      try{
+        List<String> titles = taskCategoryGroup.map((item) => item['name'].toString()).toList();
+
+        List<Map<String, dynamic>> sortTitles(List<String> titles, List<Map<String, dynamic>> taskCategoryGroup) {
+          Map<String, List<String>> classifiedTask = {
+            'Other': [],
+            'Parts': []
+          };
+          Set<String> addedTitles = {};
+
+          List<String> categoryOrder = [
+            'Rental',
+            'Repair',
+            'Parts',
+            'Rental Ready',
+            'Maintenance',
+            'Operations',
+            'Other'
+          ];
+
+          if (taskCategoryGroup.isNotEmpty) {
+            for (var parentCategory in taskCategoryGroup) {
+              // Skip 'Sales' category
+              if (parentCategory['name'] == 'Sales') continue;
+
+              // Initialize category if not 'Offshore' or 'Purchase'
+              if (parentCategory['name'] != 'Offshore' && parentCategory['name'] != 'Purchase') {
+                classifiedTask[parentCategory['name']] = [];
+              }
+
+              // Classify subcategories
+              if (parentCategory.containsKey('subcategories') && parentCategory['subcategories'] is List) {
+                for (var childCategory in parentCategory['subcategories']) {
+                  for (var title in titles) {
+                    String lowercaseTitle = title.toLowerCase();
+                    if (lowercaseTitle == childCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
+                      classifiedTask[parentCategory['name']] ??= [];
+                      classifiedTask[parentCategory['name']]!.add(title);
+                      addedTitles.add(lowercaseTitle);
+                    }
+                  }
+                }
+              }
+
+              // Classify titles matching the parent category name
+              for (var title in titles) {
+                String lowercaseTitle = title.toLowerCase();
+                if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
+                  classifiedTask[parentCategory['name']]!.add(title);
+                  addedTitles.add(lowercaseTitle);
+                }
+              }
+            }
+          }
+
+          // Classify any title related to 'Parts'
+          for (var title in titles) {
+            String lowercaseTitle = title.toLowerCase();
+            if (lowercaseTitle.contains('parts') && !addedTitles.contains(lowercaseTitle)) {
+              classifiedTask['Parts']!.add(title);
+              addedTitles.add(lowercaseTitle);
+            }
+          }
+
+          // Add remaining titles to 'Other' category
+          for (var title in titles) {
+            String lowercaseTitle = title.toLowerCase();
+            if (!addedTitles.contains(lowercaseTitle)) {
+              classifiedTask['Other']!.add(title);
+              addedTitles.add(lowercaseTitle);
+            }
+          }
+
+          // Convert classifiedTask map into the required list format
+          List<Map<String, dynamic>> sortedTask = [];
+
+          for (var category in categoryOrder) {
+            if (classifiedTask.containsKey(category)) {
+              sortedTask.add({
+                "title": category,
+                "subcategory": classifiedTask[category]!.map((e) => {"sub_title": e}).toList()
+              });
+            }
+          }
+
+          return sortedTask;
+        }
+        var result = sortTitles(titles, taskCategoryGroup);
+        //log("$result",name: "result");
+
+        //Helper Function
+        List<Map<String, dynamic>> formatTaskData(
+            List<Map<String, dynamic>> categoryData,
+            List<Map<String, dynamic>> tasks) {
+          Map<String, List<Map<String, dynamic>>> classifiedTasks = {};
+
+          // Initialize categories
+          for (var category in categoryData) {
+            classifiedTasks[category['title']] = [];
+          }
+
+          // Classify tasks
+          for (var task in tasks) {
+            String taskTitle = task['title'];
+            bool matched = false;
+
+            for (var category in categoryData) {
+              for (var sub in category['subcategory']) {
+                if (sub['sub_title'] == taskTitle) {
+                  classifiedTasks[category['title']]!.add(task);
+                  matched = true;
+                  break;
+                }
+              }
+              if (matched) break;
+            }
+
+            if (!matched) {
+              classifiedTasks['Other'] ??= [];
+              classifiedTasks['Other']!.add(task);
+            }
+          }
+
+          List<Map<String, dynamic>> finalList = [];
+
+          for (var category in categoryData) {
+            List<Map<String, dynamic>> subcategories = [];
+            Map<String, Map<String, dynamic>> groupedTasks = {}; // Group by sub_title
+
+            for (var task in classifiedTasks[category['title']] ?? []) {
+              String subTitle = task['title'];
+              List<Map<String, dynamic>> vehicles = [];
+
+              if (task['vehicle_name'] != null) {
+                // First check if `task` has a `vehicle_name`
+                vehicles.add({
+                  "vehicle_name": task['vehicle_name'],
+                  "todo_date": task['todo_date'] ?? '',
+                });
+              } else if (task['vehicles'] != null && task['vehicles'] is List) {
+                // Otherwise, check inside `task['vehicles']`
+                vehicles = (task['vehicles'] as List<dynamic>)
+                    .map<Map<String, dynamic>>((v) => {
+                  "vehicle_name": v['vehicle_name'],
+                  "todo_date": task['todo_date'] ?? '',
+                }).toList();
+              }
+
+              if (vehicles.isEmpty) {
+                vehicles.add({
+                  "vehicle_name": "No Vehicle",
+                  "todo_date": task['todo_date'] ?? '',
+                });
+              }
+
+              if (groupedTasks.containsKey(subTitle)) {
+                // Merge vehicles under the same sub_title
+                groupedTasks[subTitle]!['vehicles'].addAll(vehicles);
+                groupedTasks[subTitle]!['count'] += vehicles.length;
+              } else {
+                groupedTasks[subTitle] = {
+                  "sub_title": subTitle,
+                  "count": vehicles.length,
+                  "vehicles": vehicles,
+                  "todo_date": task['todo_date'] ?? '',
+                  "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
+                };
+              }
+            }
+
+            subcategories = groupedTasks.values.toList();
+
+            finalList.add({
+              "title": category['title'],
+              "count": subcategories.length,
+              "subcategory": subcategories
+            });
+          }
+          return finalList;
+        }
+
+        List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
+        log("$taskData",name: "taskData");
+        emit(state.copyWith(isLoading: false,categoryGroupData: taskData, combinedHistory: combinedHistory,));
+      }
+      catch (e){
+        print("error $e");
+        emit(state.copyWith(isLoading: false));
+      }
+
+
     });
 
-
-
-    //   Future<void> _onFetchTaskCount(
-//       FetchTaskCountEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final history = await taskRepo.fetchEmployeeTaskCount(
-//         userId: event.userId,
-//         fromDate: event.fromDate,
-//         toDate: event.toDate,
-//       );
-//       emit(TaskLoadedState(history!));
-//     } catch (e) {
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
   }
 }
 // import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';

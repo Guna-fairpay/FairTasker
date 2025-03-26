@@ -40,6 +40,13 @@ class WorkingHoursState extends Equatable {
   final List<Map<String,dynamic>> comments;
   final List<Map<String,dynamic>> hoursData1;
   final List<Map<String,dynamic>> hoursData2;
+  final List<dynamic> reasonPopupDataList;
+  final String userName;
+  final int hrmID;
+  final String ReasonPopupSelectedDateRange;
+  final String HoursPopupSelectedDateRange;
+  final List<Map<String, dynamic>> categoryGroupData;
+  final List<Map<String, dynamic>> combinedHistory;
 
   const WorkingHoursState(
       {
@@ -75,6 +82,13 @@ class WorkingHoursState extends Equatable {
         this.comments = const [],
         this.hoursData1 = const [],
         this.hoursData2 = const [],
+        this.reasonPopupDataList = const [],
+        this.userName = '',
+        this.hrmID = 0,
+        this.ReasonPopupSelectedDateRange = '',
+        this.HoursPopupSelectedDateRange = '',
+        this.categoryGroupData = const [],
+        this.combinedHistory = const [],
       });
 
   WorkingHoursState copyWith({
@@ -110,6 +124,13 @@ class WorkingHoursState extends Equatable {
     List<Map<String,dynamic>>? comments,
     List<Map<String,dynamic>>? hoursData1,
     List<Map<String,dynamic>>? hoursData2,
+    List<dynamic>? reasonPopupDataList,
+    String? userName,
+    int? hrmID,
+    String? ReasonPopupSelectedDateRange,
+    String? HoursPopupSelectedDateRange,
+    List<Map<String, dynamic>>? categoryGroupData,
+    List<Map<String, dynamic>>? combinedHistory,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -143,6 +164,13 @@ class WorkingHoursState extends Equatable {
     comments: comments ?? this.comments,
     hoursData1: hoursData1 ?? this.hoursData1,
     hoursData2: hoursData2 ?? this.hoursData2,
+    reasonPopupDataList: reasonPopupDataList ?? this.reasonPopupDataList,
+    userName: userName ?? this.userName,
+    hrmID: hrmID ?? this.hrmID,
+    ReasonPopupSelectedDateRange: ReasonPopupSelectedDateRange ?? this.ReasonPopupSelectedDateRange,
+    HoursPopupSelectedDateRange: HoursPopupSelectedDateRange ?? this.HoursPopupSelectedDateRange,
+    categoryGroupData: categoryGroupData ?? this.categoryGroupData,
+    combinedHistory: combinedHistory ?? this.combinedHistory,
   );
 
   @override
@@ -179,6 +207,13 @@ class WorkingHoursState extends Equatable {
     comments,
     hoursData1,
     hoursData2,
+    reasonPopupDataList,
+    userName,
+    hrmID,
+    ReasonPopupSelectedDateRange,
+    HoursPopupSelectedDateRange,
+    categoryGroupData,
+    combinedHistory,
     Random().nextDouble()
   ];
 }

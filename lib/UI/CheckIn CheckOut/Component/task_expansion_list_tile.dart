@@ -31,7 +31,13 @@ class TaskExpansionListTile extends StatelessWidget {
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         dense: true,
-        leading: Utils.getText(leadingText),
+        leading: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.6, // Adjust this value as needed
+          ),
+          child:
+          Text("$leadingText",maxLines: 2,overflow: TextOverflow.clip,style: TextStyle(fontSize: 14),),
+        ),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,

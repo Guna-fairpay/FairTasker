@@ -80,6 +80,21 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         }
       }
     });
+    on<UpdateVehicleDataEvent>((event, emit) async {
+      if (event.createVehicleData != null) {
+        try {
+          final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          print("Bloc Triggered");
+          emit(VehicleDataLoadedV(
+            result: response?.data ?? [],
+            vin: event.createVehicleData!.vin,
+            categoryId: event.createVehicleData!.categoryId,
+          ));
+        } catch (error) {
+          emit(const VehicleDataError( errorMessage: ''));
+        }
+      }
+    });
 
 
     //

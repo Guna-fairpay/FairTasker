@@ -3,6 +3,7 @@
 // working_hours_view_ui.dart
 import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -398,17 +399,12 @@ class WorkHoursViewUI extends StatelessWidget {
                           itemCount: dataList?.length ?? 0,
                           itemBuilder: (context, index) {
                             final employee = dataList?[index];
-                            //print("employee ${employee}");
-
                             final activeHours = (index < (state.activeHours?.length ?? 0))
                                 ? state.activeHours[index]
                                 : '00:00';
-
-                            // Validate index for state.totalHoursValue
                             final totalHours = (index < (state.totalHoursValue?.length ?? 0))
                                 ? state.totalHoursValue[index]
                                 : '';
-
                             if (activeHours.toString() != '00:00' && employee?['task_count'].toString() != '0') {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2),
@@ -440,23 +436,16 @@ class WorkHoursViewUI extends StatelessWidget {
                                         flex: 3,
                                         child: GestureDetector(
                                           onTap: () {
-                                            context.read<WorkingHoursBloc>().add(FetchTaskCountEvent(
-                                                userId: employee?['hrmID'],
-                                                fromDate: startDate,
-                                                toDate: endDate));
-                                            context.read<WorkingHoursBloc>().add(FetchCheckInoutReasonEvent(
-                                                hrmId: employee?['hrmID'],
-                                                fromDate: startDate,
-                                                toDate: endDate));
                                             HoursPopup.show(
                                               context,
+                                              hrmId: employee?['hrmID'],
                                               dataList: employee?['list'],
                                               userName: employee?['first_name'],
                                               selectedDateRange: selectedDateRange.toString(),
                                               empID: employee?['empID'],
                                               hrmID: employee?['hrmID'],
-                                              taskCounts: state.hoursData2,
-                                              checkInoutReason: state.hoursData1,
+                                                fromDate: startDate,
+                                                toDate: endDate
                                             );
                                           },
                                           child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
@@ -466,7 +455,14 @@ class WorkHoursViewUI extends StatelessWidget {
                                         flex: 2,
                                         child: GestureDetector(
                                           onTap: () {
-                                            // Handle task count tap
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        WorkingHoursTaskUI(
+                                                          workingHoursData: dataList![index],
+                                                          dateRange: dates,
+                                                        )));
                                           },
                                           child: Utils.getText(employee?['task_count'].toString() ?? ''),
                                         ), // Task
@@ -475,19 +471,18 @@ class WorkHoursViewUI extends StatelessWidget {
                                         flex: 2,
                                         child: Align(
                                           alignment: Alignment.center,
-                                          child: GestureDetector(
+                                          child:
+                                          GestureDetector(
                                             onTap: () {
-                                              context.read<WorkingHoursBloc>().add(fetchEmployeeCommentEvent(
-                                                  hrmId: employee?['hrmID'],
-                                                  fromDate: startDate,
-                                                  toDate: endDate));
                                               ReasonTopNotificationPopup.show(
                                                 context,
                                                 dataList: employee?['list'],
                                                 userName: employee?['first_name'],
+                                                taskComments: state.comments,
                                                 selectedDateRange: selectedDateRange.toString(),
-                                                hrmID: employee?['hrmID'],
-                                                taskComments: state.comments ?? [],
+                                                hrmId: employee?['hrmID'],
+                                                startDate: startDate,
+                                                endDate: endDate,
                                               );
                                             },
                                             child: Utils.getText(totalHours.toString()),
