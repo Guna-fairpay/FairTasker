@@ -34,7 +34,7 @@ class EditTodoReworkUI extends StatelessWidget {
                 (previous.attachments != current.attachments) ||
                 (previous.todoStatus != current.todoStatus),*/
             builder: (context, state) => Scaffold(
-              //resizeToAvoidBottomInset: false, // Prevents widget rebuild
+              resizeToAvoidBottomInset: false,
               backgroundColor: Colors.white,
                   appBar: AppBar(
                     backgroundColor: state.todoStatus

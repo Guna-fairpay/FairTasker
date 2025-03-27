@@ -224,6 +224,9 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       emit(state.copyWith(selectedPerson: event.selectedPerson));
     });
 
+    on<DateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedDate: event.selectedDate)));
+
     on<CategoryDropDownEvent>((event, emit) {
       if (event.selectedCategory != null) {
         emit(state.copyWith(

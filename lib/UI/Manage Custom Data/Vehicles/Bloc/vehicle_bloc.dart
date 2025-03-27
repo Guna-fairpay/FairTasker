@@ -4,6 +4,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_state.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +25,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
      var response= await _getVehicle();
      response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
      apiResponse = response??[];
+     filteredResponse.clear();
      filteredResponse = apiResponse;
       emit(VehicleLoadedState());
     });
@@ -87,7 +89,10 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
             }
           }).toList();
           filteredResponse = existResponse;
+          Toaster.showSuccess(response?['message']??'');
           emit(VehicleCommonState());
+        }else{
+          Toaster.showError(response?['message']??'');
         }
         emit(VehicleLoadedState());
       } catch (e) {
@@ -96,6 +101,9 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
       }
     });
 
+    on<AddVehicleEvent>((event, emit) async {
+      emit(AddVehicleState());
+    });
 
   }
 

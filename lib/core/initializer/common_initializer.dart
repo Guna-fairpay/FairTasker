@@ -307,6 +307,18 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getBranches() async {
+    if (branchList.isNotEmpty) return branchList;
+    try {
+      var response = await _apiRepository.getBranch();
+      branchList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return branchList;
+    }catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
   Future<void> clearAll() async {
     usersList.clear();
     cohortsList.clear();
@@ -324,6 +336,7 @@ class CommonService {
     paymentTypesList.clear();
     resourcesList.clear();
     _vehicleStatus?.clear();
+    branchList.clear();
   }
 
 }

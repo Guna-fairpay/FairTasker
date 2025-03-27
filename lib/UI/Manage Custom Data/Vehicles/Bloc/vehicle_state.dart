@@ -29,4 +29,9 @@ class VehicleSuccessState extends VehicleState {
   List<Object?> get props => [message];
 }
 
+class AddVehicleState extends VehicleState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
 

@@ -183,6 +183,7 @@ class PersonExpenseAddUI extends StatelessWidget {
                     SizedBox(
                       height: 100,
                       child: GridView.builder(
+
                         shrinkWrap: true,
                         itemCount: state.expenseAttachments.length,
                         scrollDirection: Axis.horizontal,

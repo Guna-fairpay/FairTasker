@@ -1,32 +1,31 @@
 
-
-
-
-
+import 'dart:math';
 import 'package:equatable/equatable.dart';
 
-class vehiclePageState extends Equatable {
-  final Map<String, dynamic>? todoItems;
-  final Map<String, dynamic>? vehicle;
-  final bool isLoading;
-
-  const vehiclePageState({
-    this.todoItems,
-    this.vehicle,
-    this.isLoading = true,
-  });
-
-  vehiclePageState copyWith({
-    Map<String, dynamic>? todoItems,
-    Map<String, dynamic>? vehicle,
-    bool? isLoading,
-  }) => vehiclePageState(
-    todoItems: todoItems ?? this.todoItems,
-    vehicle: vehicle ?? this.vehicle,
-    isLoading: isLoading ?? this.isLoading,
-  );
-
+abstract class EditVehicleState extends Equatable {
   @override
-  List<Object?> get props => [todoItems, vehicle, isLoading];
+  List<Object?> get props => [];
+}
 
+class EditVehicleLoadingState extends EditVehicleState {}
+
+class EditVehicleLoadedState extends EditVehicleState {}
+
+class EditVehicleCommonState extends EditVehicleState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class EditVehicleErrorState extends EditVehicleState {
+  final dynamic message;
+  EditVehicleErrorState(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class EditVehicleSuccessState extends EditVehicleState {
+  final dynamic message;
+  EditVehicleSuccessState(this.message);
+  @override
+  List<Object?> get props => [message];
 }

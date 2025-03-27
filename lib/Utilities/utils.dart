@@ -156,6 +156,7 @@ class Utils {
         textStyle: const TextStyle(
           color: AppC.text,
             overflow: TextOverflow.ellipsis,
+          fontSize: 14
         ),
         inputDecorationTheme:  const InputDecorationTheme(
           hintStyle: TextStyle(color: AppC.grey),

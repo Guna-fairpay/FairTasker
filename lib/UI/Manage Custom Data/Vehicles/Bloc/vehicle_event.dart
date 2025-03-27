@@ -36,3 +36,5 @@ class MoveToPrivateRentalEvent extends VehicleEvent {
   @override
   List<Object?> get props => [vehicleData];
 }
+
+class AddVehicleEvent extends VehicleEvent {}

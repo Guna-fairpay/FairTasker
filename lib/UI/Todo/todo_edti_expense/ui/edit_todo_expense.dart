@@ -1,6 +1,5 @@
 
 import 'dart:io';
-import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
@@ -342,7 +341,7 @@ class TodoExpense extends StatelessWidget {
               children: [
                 Utils.getElevatedButton(
                   () {
-                    if(context.read<TodoEditExpenseBloc>().amountController.text.isEmpty) {
+                    if((state.partsList.isEmpty && state.suppliesList.isEmpty) && context.read<TodoEditExpenseBloc>().amountController.text.isEmpty) {
                       return Toaster.showError("Please enter amount");
                     }
                     if(state.selectedMainCategory.isEmpty) {
