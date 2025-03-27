@@ -267,8 +267,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             : state.combinedData?.where((item) {
           return getFirstWord(item['first_name']) == getFirstWord(event.selectedName['full_name']);
         }).toList()) ?? []; // Ensure it's not null
-
-        log("${dropDownData}", name: "Filtered DropDownData");
         emit(state.copyWith(dropDownData: dropDownData));
       } catch (error) {
         print("Error on ResourceDropDownEvent: $error");
@@ -902,13 +900,85 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     on<ExtendedDetailsTaskEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
-      final response = await todoListRepo.editTodoData(id: event.id);
-      //log("${response?.editTodos}",name: "response");
-      try{
-        emit(state.copyWith(isLoading: false,extendedDetails: response?.editTodos));
-      } catch (e){
-        print("error $e");
-        emit(state.copyWith(isLoading: false));
+
+      try {
+        final response = await todoListRepo.editTodoData(id: event.id);
+        final response1 = await authenticationRepo.getAssignedTo();
+        final response2 = await todoListRepo.fetchUserGroupingList();
+
+        if (response == null || response1 == null || response2 == null) {
+          throw Exception('One or more API responses are null');
+        }
+
+        final dynamic userId = response.editTodos?['user_id'] ??
+            response.editTodos?['user_group_id'];
+
+        if (userId == null) {
+          throw Exception('Both user_id and user_group_id are null');
+        }
+
+        final userGroup = response2.data?.firstWhere(
+              (element) => element['id'] == userId,
+          orElse: () => {},
+        );
+
+        final userGroupIds = userGroup?['userId']?.toString();
+
+        log("${response.editTodos}", name: "userIds");
+        log("$userGroupIds", name: "userGroupIds");
+
+        String getInitials(String ids, List<Map<String, dynamic>> resources) {
+          try {
+            // Parse IDs string like "[10,16]"
+            final idList = ids
+                .replaceAll('[', '')
+                .replaceAll(']', '')
+                .split(',')
+                .map((s) => int.tryParse(s.trim()))
+                .where((id) => id != null)
+                .toList();
+
+            if (idList.isEmpty) return '';
+
+            return idList.map((id) {
+              // Find matching user in resources
+              final user = resources.firstWhere(
+                    (u) => u['id'] == id,
+                orElse: () => {},
+              );
+
+              // Extract and format initials
+              final firstName = user['first_name']?.toString() ?? '';
+              final lastName = user['last_name']?.toString() ?? '';
+
+              final firstInitial = firstName.isNotEmpty ? firstName[0].toUpperCase() : '?';
+              final lastInitial = lastName.isNotEmpty ? lastName[0].toUpperCase() : '?';
+
+              return '$firstInitial$lastInitial';
+            }).where((initials) => initials.isNotEmpty).join(',');
+          } catch (e) {
+            log('Initials extraction error: $e');
+            return '';
+          }
+        }
+
+        final initials = userGroupIds != null && response1.resource != null
+            ? getInitials(userGroupIds, response1.resource!)
+            : '';
+        log("Extracted initials: $initials", name: "InitialsResult");
+
+
+        emit(state.copyWith(
+          isLoading: false,
+          extendedDetails: response.editTodos,
+          groupInitials: initials,
+        ));
+
+      } catch (e) {
+        log('Error in ExtendedDetailsTaskEvent: $e');
+        emit(state.copyWith(
+          isLoading: false,
+        ));
       }
     });
 

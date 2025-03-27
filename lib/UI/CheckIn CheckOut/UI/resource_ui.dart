@@ -407,17 +407,17 @@ class WorkHoursViewUI extends StatelessWidget {
                               getFirstWord(selectedName['full_name']);
                         }).toList() ?? [];
 
-                        log("${state.dropDownData}", name: "dropDownData");
-                        log("${state.combinedData}", name: "combinedData");
+                        // log("${state.dropDownData}", name: "dropDownData");
+                        // log("${state.combinedData}", name: "combinedData");
 
-                        if (dataList!.isEmpty) {
+                        if ((dataList ?? []).isEmpty) {
                           return const SizedBox.shrink();
                         }
 
                         return ListView.builder(
-                          itemCount: dataList.length,
+                          itemCount: dataList?.length ?? 0,
                           itemBuilder: (context, index) {
-                            final employee = dataList[index];
+                            final employee = dataList?[index];
 
                             final activeHours = (index < (state.activeHours?.length ?? 0))
                                 ? state.activeHours[index]
@@ -481,7 +481,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) => WorkingHoursTaskUI(
-                                                      workingHoursData: dataList[index],
+                                                      workingHoursData: dataList![index],
                                                       dateRange: dates,
                                                     )));
                                           },

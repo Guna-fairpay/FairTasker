@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../UI/reason_employee_task_history.dart';
+import '../UI/extended_details.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 

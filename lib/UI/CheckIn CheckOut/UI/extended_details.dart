@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/Bloc/workHoursBloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:intl/intl.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import '../Event/workingHoursEvent.dart';
@@ -14,6 +15,22 @@ class ExtendedDetailsTask extends StatelessWidget {
   final int id;
   const ExtendedDetailsTask({super.key, required this.id});
 
+  String formatTime(String time) {
+    try {
+      final DateTime dateTime = DateFormat("HH:mm:ss").parse(time);
+      return DateFormat("hh:mm a").format(dateTime);
+    } catch (e) {
+      return ""; // Handle errors gracefully
+    }
+  }
+  String formatDate(String date) {
+    try {
+      final DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
+      return DateFormat("MM-dd-yyyy").format(dateTime);
+    } catch (e) {
+      return ""; // Handle errors gracefully
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,15 +77,18 @@ class ExtendedDetailsTask extends StatelessWidget {
                           leading: const Icon(Icons.calendar_month),
                           title: Row(
                             children: [
-                              Utils.getText(state.extendedDetails['todo_date'] ?? ''),
+                              Utils.getText(formatDate(state.extendedDetails['todo_date'] ?? '')),
                               const SizedBox(width: 5),
-                              Utils.getText(state.extendedDetails['todo_time'] ?? '')
+                              Utils.getText(formatTime(state?.extendedDetails['todo_time'] ?? ''))
                             ],
                           ),
                         ),
                         ListTile(
                           leading: const Icon(Icons.person_outline_outlined),
-                          title: Utils.getText("${state.extendedDetails['users']?['first_name'][0] ?? ''}${state.extendedDetails['users']?['last_name'][0] ?? ''}"),
+                          title:
+                          state.extendedDetails['users'] != null ?
+                          Utils.getText("${state.extendedDetails['users']?['first_name'][0] ?? ''}${state.extendedDetails['users']?['last_name'][0] ?? ''}") :
+                          Utils.getText(state.groupInitials),
                         ),
                         ListTile(
                           leading: const Icon(Icons.directions_car_filled_outlined),
@@ -78,14 +98,14 @@ class ExtendedDetailsTask extends StatelessWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.person_pin_circle_outlined),
-                          title: Utils.getText(state.extendedDetails['vendor_name'] ?? ''),
+                          title: Utils.getText(state.extendedDetails['vendor_name'] ?? state.extendedDetails['location'] ?? ''),
                         ),
                         if(state.extendedDetails['notes'] != null)
                         ListTile(
                           leading: const Icon(Icons.sticky_note_2_outlined),
                           title: Utils.getText(state.extendedDetails['notes'] ?? ''),
                         ),
-                        if(state.extendedDetails['reason'] != null)
+                        if(state.extendedDetails['reason'] != null && state.extendedDetails['reason'] != '')
                         ListTile(
                           leading: const Icon(Icons.sticky_note_2_outlined),
                           title: Utils.getText(state.extendedDetails['reason'] ?? ''),
