@@ -34,4 +34,11 @@ class AddVehicleState extends VehicleState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class EditVehicleTabState extends VehicleState {
+  dynamic vehicleData;
+  EditVehicleTabState({required this.vehicleData});
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
 

@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import '../VehicleEdit/UI/edit_vehicle_ui.dart';
 
 class VehicleEditTabBar extends StatelessWidget {
-  Map<String, dynamic> vehicle;
-   VehicleEditTabBar({super.key,required this.vehicle});
+  final Map<String, dynamic> vehicle;
+   const VehicleEditTabBar({super.key,required this.vehicle});
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child:Scaffold(
         backgroundColor: AppC.white,
         appBar: AppBar(
@@ -23,10 +23,10 @@ class VehicleEditTabBar extends StatelessWidget {
           leadingWidth: 20,
           title: TabBar(
             tabs: const [
-              Tab(text: 'Vehicles', height: 30,),
-              Tab(text: 'Expense', height: 30),
-              Tab(text: 'Repair & Maintenance', height: 30),
-              Tab(text: 'Log', height: 30),
+              Tab(text: 'Vehicles', height: 40,),
+              Tab(text: 'Expense', height: 40),
+              Tab(text: 'Repair & Maintenance', height: 40),
+              Tab(text: 'Log', height: 40),
             ],
             dividerColor: AppC.trans,
             labelStyle: const TextStyle(fontSize: 16),
@@ -40,12 +40,13 @@ class VehicleEditTabBar extends StatelessWidget {
             overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
           children: [
-            SafeArea(child: EditVehicleUI()),
-            SafeArea(child: VehicleExpenseUI()),
-            SafeArea(child: VehicleRepairMaintenanceUI()),
-            SafeArea(child: VehicleLogUI()),
+            SafeArea(child: EditVehicleUI(vehicleData: vehicle,)),
+            const SafeArea(child: VehicleExpenseUI()),
+            const SafeArea(child: VehicleRepairMaintenanceUI()),
+            const SafeArea(child: VehicleLogUI()),
           ],
         ),
       ),

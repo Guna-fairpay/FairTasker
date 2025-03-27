@@ -83,7 +83,7 @@ class VehicleListingUI extends StatelessWidget {
                               ),
                               Expanded(
                                 child: InkWell(
-                                  onTap: () {},
+                                  onTap: ()=> context.read<VehicleBloc>().add(EditVehicleTabEvent(vehicleData: vehicle)),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0, horizontal: 4),

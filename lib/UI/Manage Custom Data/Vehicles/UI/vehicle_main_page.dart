@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+import '../TabBarPages/Vehicle_edit_tab_bar.dart';
+
 class VehicleMainPage extends StatelessWidget {
   const VehicleMainPage({super.key});
 
@@ -23,7 +25,7 @@ class VehicleMainPage extends StatelessWidget {
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             if (state is AddVehicleState) context.push(const AddVehicleUI(),fullscreenDialog: true);
-
+            if (state is EditVehicleTabState) context.push(VehicleEditTabBar(vehicle: state.vehicleData));
           }
         },
         child: const VehicleListingUI(),

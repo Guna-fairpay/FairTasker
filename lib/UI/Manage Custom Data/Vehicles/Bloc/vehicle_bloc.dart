@@ -105,6 +105,10 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
       emit(AddVehicleState());
     });
 
+    on<EditVehicleTabEvent>((event, emit) async {
+      emit(EditVehicleTabState(vehicleData: event.vehicleData));
+    });
+
   }
 
   Future<List<Map<String, dynamic>>?> _getVehicle() async {

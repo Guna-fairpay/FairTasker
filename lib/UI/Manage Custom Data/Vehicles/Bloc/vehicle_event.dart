@@ -38,3 +38,10 @@ class MoveToPrivateRentalEvent extends VehicleEvent {
 }
 
 class AddVehicleEvent extends VehicleEvent {}
+
+class EditVehicleTabEvent extends VehicleEvent {
+  final dynamic vehicleData;
+  EditVehicleTabEvent({required this.vehicleData});
+  @override
+  List<Object?> get props => [vehicleData];
+}

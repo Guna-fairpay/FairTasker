@@ -8,7 +8,13 @@ abstract class EditVehicleEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class EditVehicleInitialEvent extends EditVehicleEvent {}
+class EditVehicleInitialEvent extends EditVehicleEvent {
+  final dynamic vehicleData;
+  EditVehicleInitialEvent({required this.vehicleData});
+  @override
+  List<Object?> get props => [vehicleData];
+
+}
 
 class DateChangeEvent extends EditVehicleEvent {
   final DateTime selectedDate;
