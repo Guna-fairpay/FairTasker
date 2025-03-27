@@ -26,6 +26,7 @@ class WorkHoursViewUI extends StatelessWidget {
   Map<String, String> dates={};
   dynamic selectedName;
   DateRange? selectedDateRange;
+  DateRange? temporarySelectedDateRange;
   String startDate='';
   String endDate='';
 
@@ -294,7 +295,8 @@ class WorkHoursViewUI extends StatelessWidget {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: DateRangeField(
+                                  child:
+                                  DateRangeField(
                                     decoration: InputDecoration(
                                       contentPadding: EdgeInsets.only(right: 10),
                                       border: InputBorder.none, // Remove inner borders
@@ -313,16 +315,24 @@ class WorkHoursViewUI extends StatelessWidget {
                                       );
                                     },
                                     onDateRangeSelected: (DateRange? value) {
-                                      selectedDateRange = value;
-                                      startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now());
-                                      endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now());
-                                      print("startDate $startDate endDate $endDate");
-                                      log("${startDate} ${endDate}",name: "startDateEndDate");
-                                      log("${selectedDateRange}",name: "selectedDateRange");
-                                      context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
-                                      dates = generateDateList(startDate, endDate);
+                                      if (value != null) {
+                                        selectedDateRange = value; // Only update confirmed selection
+                                        startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
+                                        endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
+                                        print("startDate $startDate endDate $endDate");
+
+                                        log("${startDate} ${endDate}", name: "startDateEndDate");
+                                        log("${selectedDateRange}", name: "selectedDateRange");
+
+                                        // Notify the Bloc
+                                        context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
+                                        dates = generateDateList(startDate, endDate);
+                                      }
                                     },
-                                    pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, onDateRangeChanged),
+                                    pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, (newRange) {
+                                      temporarySelectedDateRange = newRange; // Track temporary changes
+                                      onDateRangeChanged(newRange);
+                                    },),
                                   ),
                                 ),
                                 Icon(Icons.calendar_today, color: AppC.grey, size: 18), // Keep icon inline
@@ -389,23 +399,35 @@ class WorkHoursViewUI extends StatelessWidget {
                     child:
                     Builder(
                       builder: (context) {
-                        final dataList = state.dropDownData.isNotEmpty
-                            ? state.dropDownData.where((dropdownItem) {
-                          return state.combinedData?.any((combinedItem) =>
-                          dropdownItem['full_name'] == combinedItem['name']) ?? false;
-                        }).toList()
-                            : state.combinedData;
+                        // If dropdown has a selection, filter data, otherwise load state.combinedData
+                        final dataList = (selectedName == null || selectedName['full_name'] == 'All')
+                            ? state.combinedData
+                            : state.combinedData?.where((item) {
+                          return getFirstWord(item['first_name']) ==
+                              getFirstWord(selectedName['full_name']);
+                        }).toList() ?? [];
+
+                        log("${state.dropDownData}", name: "dropDownData");
+                        log("${state.combinedData}", name: "combinedData");
+
+                        if (dataList!.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
                         return ListView.builder(
-                          itemCount: dataList?.length ?? 0,
+                          itemCount: dataList.length,
                           itemBuilder: (context, index) {
-                            final employee = dataList?[index];
+                            final employee = dataList[index];
+
                             final activeHours = (index < (state.activeHours?.length ?? 0))
                                 ? state.activeHours[index]
                                 : '00:00';
                             final totalHours = (index < (state.totalHoursValue?.length ?? 0))
                                 ? state.totalHoursValue[index]
                                 : '';
-                            if (activeHours.toString() != '00:00' && employee?['task_count'].toString() != '0') {
+
+                            if (activeHours.toString() != '00:00' &&
+                                employee?['task_count'].toString() != '0') {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2),
                                 child: Container(
@@ -444,8 +466,8 @@ class WorkHoursViewUI extends StatelessWidget {
                                               selectedDateRange: selectedDateRange.toString(),
                                               empID: employee?['empID'],
                                               hrmID: employee?['hrmID'],
-                                                fromDate: startDate,
-                                                toDate: endDate
+                                              fromDate: startDate,
+                                              toDate: endDate,
                                             );
                                           },
                                           child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
@@ -458,11 +480,10 @@ class WorkHoursViewUI extends StatelessWidget {
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        WorkingHoursTaskUI(
-                                                          workingHoursData: dataList![index],
-                                                          dateRange: dates,
-                                                        )));
+                                                    builder: (context) => WorkingHoursTaskUI(
+                                                      workingHoursData: dataList[index],
+                                                      dateRange: dates,
+                                                    )));
                                           },
                                           child: Utils.getText(employee?['task_count'].toString() ?? ''),
                                         ), // Task
@@ -471,8 +492,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                         flex: 2,
                                         child: Align(
                                           alignment: Alignment.center,
-                                          child:
-                                          GestureDetector(
+                                          child: GestureDetector(
                                             onTap: () {
                                               ReasonTopNotificationPopup.show(
                                                 context,
@@ -494,7 +514,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                 ),
                               );
                             }
-                            return const SizedBox.shrink(); // Avoid null return
+                            return const SizedBox.shrink(); // ✅ Hide empty data
                           },
                         );
                       },
@@ -513,12 +533,16 @@ class WorkHoursViewUI extends StatelessWidget {
   Widget datePickerBuilder(
       BuildContext context, dynamic Function(DateRange?) onDateRangeChanged,
       [bool doubleMonth = false]) {
+    temporarySelectedDateRange = selectedDateRange;
     return DateRangePickerWidget(
       doubleMonth: doubleMonth,
       initialDateRange: selectedDateRange,
       disabledDates: const [],
       initialDisplayedDate: selectedDateRange?.start ?? DateTime.now(),
-      onDateRangeChanged: onDateRangeChanged,
+      onDateRangeChanged: (newRange) {
+        temporarySelectedDateRange = newRange; // Store temporary selection
+        onDateRangeChanged(newRange);
+      },
       height: 338,
       displayMonthsSeparator: true,
     );

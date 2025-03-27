@@ -106,24 +106,32 @@ class TaskRepository {
     }
   }
 
-
-
   Future<WorkingTaskResponse?> fetchEmployeeTaskHistory({
     required String to,
     required String from,
     required int? userId,
+    required List<int>? cohortIds, // Allow cohortIds to be nullable
   }) async {
     try {
-      print("Request parameters - from: $from, to: $to, userId: $userId");
-      final String apiUrl = '${Str.BASE_URL}employeeTaskHistory?to=$to&user_id=$userId&from=$from';
+      print("Request parameters - from: $from, to: $to, userId: $userId, cohortIds: $cohortIds");
+
+      // Construct the base API URL
+      String apiUrl = '${Str.BASE_URL}employeeTaskHistory?to=$to&user_id=$userId&from=$from';
+
+      // Append cohort IDs only if they are not null or empty
+      if (cohortIds != null && cohortIds.isNotEmpty) {
+        String cohortQuery = cohortIds.map((id) => 'cohort_id[]=$id').join('&');
+        apiUrl += '&$cohortQuery';
+      }
+
+      print("Final API URL: $apiUrl");
+
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
 
-      print("API URL: $apiUrl");
       if (response != null) {
         print("Response body: ${response.body}");
         if (response.statusCode == 200) {
-          WorkingTaskResponse workingTaskResponse = WorkingTaskResponse.fromJson(jsonDecode(response.body));
-          return workingTaskResponse;
+          return WorkingTaskResponse.fromJson(jsonDecode(response.body));
         } else {
           print('Failed to load task history. Status code: ${response.statusCode}');
           throw Exception('Failed to load task history. Status code: ${response.statusCode}');

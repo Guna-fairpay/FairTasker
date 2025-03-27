@@ -47,6 +47,9 @@ class WorkingHoursState extends Equatable {
   final String HoursPopupSelectedDateRange;
   final List<Map<String, dynamic>> categoryGroupData;
   final List<Map<String, dynamic>> combinedHistory;
+  final Map<String, dynamic> extendedDetails;
+  final List<Map<String, dynamic>> cohortsData;
+  final List<dynamic>? lastSelectedCohortIds;
 
   const WorkingHoursState(
       {
@@ -89,6 +92,9 @@ class WorkingHoursState extends Equatable {
         this.HoursPopupSelectedDateRange = '',
         this.categoryGroupData = const [],
         this.combinedHistory = const [],
+        this.extendedDetails = const {},
+        this.cohortsData = const [],
+        this.lastSelectedCohortIds,
       });
 
   WorkingHoursState copyWith({
@@ -131,6 +137,9 @@ class WorkingHoursState extends Equatable {
     String? HoursPopupSelectedDateRange,
     List<Map<String, dynamic>>? categoryGroupData,
     List<Map<String, dynamic>>? combinedHistory,
+    Map<String, dynamic>? extendedDetails,
+    List<Map<String, dynamic>>? cohortsData,
+    List<dynamic>? lastSelectedCohortIds,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -171,6 +180,9 @@ class WorkingHoursState extends Equatable {
     HoursPopupSelectedDateRange: HoursPopupSelectedDateRange ?? this.HoursPopupSelectedDateRange,
     categoryGroupData: categoryGroupData ?? this.categoryGroupData,
     combinedHistory: combinedHistory ?? this.combinedHistory,
+    extendedDetails: extendedDetails ?? this.extendedDetails,
+    cohortsData: cohortsData ?? this.cohortsData,
+    lastSelectedCohortIds: lastSelectedCohortIds ?? this.lastSelectedCohortIds,
   );
 
   @override
@@ -214,6 +226,9 @@ class WorkingHoursState extends Equatable {
     HoursPopupSelectedDateRange,
     categoryGroupData,
     combinedHistory,
+    extendedDetails,
+    cohortsData,
+    lastSelectedCohortIds,
     Random().nextDouble()
   ];
 }

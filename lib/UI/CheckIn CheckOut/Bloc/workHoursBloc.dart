@@ -266,8 +266,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             ? state.combinedData
             : state.combinedData?.where((item) {
           return getFirstWord(item['first_name']) == getFirstWord(event.selectedName['full_name']);
-        }).toList())!;
+        }).toList()) ?? []; // Ensure it's not null
 
+        log("${dropDownData}", name: "Filtered DropDownData");
         emit(state.copyWith(dropDownData: dropDownData));
       } catch (error) {
         print("Error on ResourceDropDownEvent: $error");
@@ -627,7 +628,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         List<Map<String, dynamic>> combineData(
             List<dynamic> dataList,
             List<Map<String, dynamic>> taskCounts,
-            List<Map<String, dynamic>> checkInout) {
+            List<Map<String, dynamic>> checkInout
+            ) {
           List<Map<String, dynamic>> combinedList = [];
 
           // Map to organize task counts by date
@@ -688,21 +690,21 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       final taskHistory = await taskRepo.fetchEmployeeTaskHistory(
         to: event.to,
         from: event.from,
-        userId: event.userId,
+        userId: event.userId, cohortIds: event?.cohortIds ?? [],
       );
       List<Map<String, dynamic>> combinedHistory = [];
-      if (taskHistory?.history2 != null) {
-        combinedHistory.addAll(taskHistory!.history2!);
+      if (taskHistory?.history2 != null && taskHistory!.history2 is List) {
+        combinedHistory.addAll(taskHistory.history2!.whereType<Map<String, dynamic>>());
       }
-      if (taskHistory?.history3 != null) {
-        combinedHistory.addAll(taskHistory!.history3!);
+      if (taskHistory?.history3 != null && taskHistory!.history3 is List) {
+        combinedHistory.addAll(taskHistory.history3!.whereType<Map<String, dynamic>>());
       }
       final data = await taskRepo.fetchGetConfiguration();
       final response1 = await taskRepo.fetchCohortData();
       final response2 = await todoListRepo.getTaskCategoryGroup();
       List<Map<String, dynamic>> taskCategoryGroup = [];
       taskCategoryGroup = response2?.data ?? [];
-
+      //log("${response1!.data?[0]['cohort']}",name: "response1");
       try{
         List<String> titles = taskCategoryGroup.map((item) => item['name'].toString()).toList();
 
@@ -725,15 +727,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
           if (taskCategoryGroup.isNotEmpty) {
             for (var parentCategory in taskCategoryGroup) {
-              // Skip 'Sales' category
               if (parentCategory['name'] == 'Sales') continue;
 
-              // Initialize category if not 'Offshore' or 'Purchase'
               if (parentCategory['name'] != 'Offshore' && parentCategory['name'] != 'Purchase') {
                 classifiedTask[parentCategory['name']] = [];
               }
 
-              // Classify subcategories
               if (parentCategory.containsKey('subcategories') && parentCategory['subcategories'] is List) {
                 for (var childCategory in parentCategory['subcategories']) {
                   for (var title in titles) {
@@ -841,6 +840,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 vehicles.add({
                   "vehicle_name": task['vehicle_name'],
                   "todo_date": task['todo_date'] ?? '',
+                  "id": task['id'],
                 });
               } else if (task['vehicles'] != null && task['vehicles'] is List) {
                 // Otherwise, check inside `task['vehicles']`
@@ -848,12 +848,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     .map<Map<String, dynamic>>((v) => {
                   "vehicle_name": v['vehicle_name'],
                   "todo_date": task['todo_date'] ?? '',
+                  "id": task['id'],
                 }).toList();
               }
 
               if (vehicles.isEmpty) {
                 vehicles.add({
-                  "vehicle_name": "No Vehicle",
+                  "vehicle_name": "",
                   "todo_date": task['todo_date'] ?? '',
                 });
               }
@@ -867,7 +868,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   "sub_title": subTitle,
                   "count": vehicles.length,
                   "vehicles": vehicles,
-                  "todo_date": task['todo_date'] ?? '',
                   "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
                 };
               }
@@ -885,15 +885,31 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         }
 
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
-        log("$taskData",name: "taskData");
-        emit(state.copyWith(isLoading: false,categoryGroupData: taskData, combinedHistory: combinedHistory,));
+        //log("$taskData",name: "taskData");
+
+        emit(state.copyWith(
+          isLoading: false,
+          categoryGroupData: taskData,
+          combinedHistory: combinedHistory,
+          cohortsData: response1?.data ?? [],
+        ));
       }
       catch (e){
         print("error $e");
         emit(state.copyWith(isLoading: false));
       }
+    });
 
-
+    on<ExtendedDetailsTaskEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      final response = await todoListRepo.editTodoData(id: event.id);
+      //log("${response?.editTodos}",name: "response");
+      try{
+        emit(state.copyWith(isLoading: false,extendedDetails: response?.editTodos));
+      } catch (e){
+        print("error $e");
+        emit(state.copyWith(isLoading: false));
+      }
     });
 
   }

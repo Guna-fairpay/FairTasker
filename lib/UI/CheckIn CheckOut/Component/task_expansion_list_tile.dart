@@ -10,11 +10,14 @@ class TaskExpansionListTile extends StatelessWidget {
   final String dateText;
   final String timeText;
   final Color timeTextColor;
+  final int id;
 
   const TaskExpansionListTile({Key? key,required this.leadingText,
     required this.dateText,
     required this.timeText,
-    this.timeTextColor = Colors.black,});
+    this.timeTextColor = Colors.black,
+    required this.id,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +56,9 @@ class TaskExpansionListTile extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const ReasonEmployeeTaskHistory())
+                  builder: (context) => ExtendedDetailsTask(
+                    id: id,
+                  ))
           );
         },
       ),

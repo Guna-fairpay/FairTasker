@@ -143,13 +143,24 @@ class TaskInitialEvent extends WorkingHoursEvent{
   final String to;
   final String from;
   final int? userId;
-
+  final List<int> cohortIds;
   TaskInitialEvent({
     required this.to,
     required this.from,
     required this.userId,
+    required this.cohortIds,
 });
+  @override
+  List<Object?> get props => [to, from, userId, cohortIds];
+}
 
+class ExtendedDetailsTaskEvent extends WorkingHoursEvent{
+  final int id;
+  const ExtendedDetailsTaskEvent({
+    required this.id,
+});
+  @override
+  List<Object?> get props => [id,];
 }
 
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {
