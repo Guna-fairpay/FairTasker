@@ -121,6 +121,7 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                             children: const [
                               TableRow(
+
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -170,7 +171,7 @@ class WorkHoursViewUI extends StatelessWidget {
                       ),
                       // Scrollable Body Container
                       Container(
-                        height: 80, // Set a fixed height for the scrollable area (adjust as needed)
+                        height: 80,
                         decoration: const BoxDecoration(
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(4),
@@ -196,9 +197,11 @@ class WorkHoursViewUI extends StatelessWidget {
                                 2: FlexColumnWidth(2),
                                 3: FlexColumnWidth(2),
                               },
-                              children: List.generate(state?.punchListData.length ?? 0, (index) {
+                              children:
+                              List.generate(state.punchListData.length, (index) {
                                 final item = state.punchListData[index];
-                                return TableRow(
+                                return
+                                  TableRow(
                                   children: [
                                     Padding(
                                       padding: EdgeInsets.symmetric(vertical: 8.0),

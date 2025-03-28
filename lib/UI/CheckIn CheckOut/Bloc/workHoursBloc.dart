@@ -90,7 +90,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   List<Map<String, dynamic>> workhistory,
                   List<Map<String, dynamic>> workActivehours,
                   List<Map<String, dynamic>> formattedResource,
-                  ) {
+                  )
+              {
                 List<Map<String, dynamic>> combinedList = [];
 
                 for (var workhour in workhours) {
@@ -220,7 +221,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
               //Total Hours(#) Calculation End
 
-              //Punch Card Calculation Start//All Values Working with Active Hours
+              //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
                   List<Map<String, dynamic>> rawData,
                   List<Map<String, dynamic>> workActiveHours) {
@@ -231,7 +232,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 String formatTime(String timeStr) {
                   if (timeStr.isEmpty) return "";
 
-                  // Parse as UTC but DO NOT convert to local, since data is already correct
                   DateTime dateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(timeStr);
 
                   return DateFormat("hh:mm a").format(dateTime);
@@ -376,6 +376,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               'id': resource['id'],
               'full_name': "${resource['first_name']} ${resource['last_name']}",
               'first_name': '${resource['first_name']}',
+              'last_name': '${resource['last_name']}',
             };
           }).toList();
 
@@ -402,6 +403,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             selectedBase: selectedBase,
             resources: formattedResources,
             resource: resource,
+            userList: resources,
           ));
           // print("Emitting initial selectedBase1: $selectedBase1");
         } else {

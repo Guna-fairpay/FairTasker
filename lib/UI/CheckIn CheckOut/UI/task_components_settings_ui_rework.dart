@@ -86,11 +86,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                       (value) {
                         selectedBases = value;
                        // print("selectedBases ${selectedBases}");
-                        context
-                            .read<WorkingHoursBloc>()
-                            .add(UpdateDropdownValueEvent(value));
-                        tabController
-                            .animateTo(value['base'] == "Task based" ? 0 : 1);
+                        context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
+                        tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
                       },
                       labelKey: 'base',
                       initialSelection: state.selectedBase,
@@ -140,7 +137,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                   taskName: '',
                                   amount: amountController.text,
                                   task: 'hourly',
-                                  userId: resource['id'],
+                                  userId: resource['id'] ?? state.selectedUser['id'],
                                 ));
                               } else {
                                 print("Error in saving");
