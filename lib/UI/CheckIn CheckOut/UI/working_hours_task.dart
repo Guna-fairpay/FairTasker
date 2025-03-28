@@ -67,62 +67,70 @@ class WorkingHoursTaskUI extends StatelessWidget {
             userId: workingHoursData['empID'], cohortIds: selectedFilters?.toList() ?? [])),
       child: Scaffold(
           backgroundColor: AppC.white,
-          appBar: AppBar(
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          appBar:
+          AppBar(
+            backgroundColor: AppC.appColor,
+            automaticallyImplyLeading: false,
+            title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
             Utils.getText(
               "${workingHoursData['first_name']}",
               color: Colors.white,
               size: 18,
               weight: FontWeight.bold,
             ),
-            Row(
-              children: [
-                BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
-                  builder: (context, state) {
-                    int totalCount = getTotalCategoryCount(state.categoryGroupData);
-                    log("Total Count: $totalCount");
-                    return Container(
-                      width: 40,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white),
-                      ),
-                      child: Center(
-                        child: Utils.getText(
-                          "$totalCount",
-                          size: 14,
-                          color: Colors.white,
-                          weight: FontWeight.bold,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  '\$84',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.white,
+              Row(
+                children: [
+                  BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
+                    builder: (context, state) {
+                      int totalAmount = state.totalAmount; // Extract amount inside the builder
+                      int totalCount = getTotalCategoryCount(state.categoryGroupData);
+                      log("Total Count: $totalCount");
+
+                      return Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white),
+                            ),
+                            child: Center(
+                              child: Utils.getText(
+                                "$totalCount",
+                                size: 18,
+                                color: Colors.white,
+                                weight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '\$$totalAmount', // Now inside BlocBuilder, so it works
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
         ),
       ),
         body: BlocListener<WorkingHoursBloc, WorkingHoursState>(

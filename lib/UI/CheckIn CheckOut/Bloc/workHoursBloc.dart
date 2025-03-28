@@ -60,6 +60,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             final response3 = await authenticationRepo.getAssignedTo();
             final response4 = await todoListRepo.getWorkingHoursData(startDate, endDate);
             final response5 = await todoListRepo.getWorkingHistoryCount(startDate, endDate);
+            final response6 = await taskRepo.fetchPunchList();
+            log("${response6?.data}",name:"PunchList");
             if (response1 != null && response2 != null && response3 != null && response4 != null) {
               workingHistory.clear();
               workingHistory = response5!.history!;//1
@@ -218,6 +220,89 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
               //Total Hours(#) Calculation End
 
+              //Punch Card Calculation Start//All Values Working with Active Hours
+              List<Map<String, dynamic>> formatEmployeeData(
+                  List<Map<String, dynamic>> rawData,
+                  List<Map<String, dynamic>> workActiveHours) {
+
+                String today = DateFormat("yyyy-MM-dd").format(DateTime.now());
+                log("${today}", name: "Today");
+
+                String formatTime(String timeStr) {
+                  if (timeStr.isEmpty) return "";
+
+                  // Parse as UTC but DO NOT convert to local, since data is already correct
+                  DateTime dateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(timeStr);
+
+                  return DateFormat("hh:mm a").format(dateTime);
+                }
+
+                String initials(String name) {
+                  return name.split(' ').map((e) => e[0]).take(2).join();
+                }
+
+                String formatTotal(String total) {
+                  List<String> parts = total.split(':');
+                  return "${parts[0]}:${parts[1]}"; // Extract HH:MM (Hours and Minutes)
+                }
+
+                String calculateElapsedTime(String startTime) {
+                  DateTime startDateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(startTime);
+                  DateTime now = DateTime.now().toUtc().subtract(Duration(hours: 5)); // Convert to EST (UTC-5)
+
+                  if (now.isBefore(startDateTime)) {
+                    return "00:00"; // Prevent errors if time is in the future
+                  }
+
+                  Duration elapsed = now.difference(startDateTime);
+                  int hours = elapsed.inHours;
+                  int minutes = elapsed.inMinutes % 60;
+
+                  return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
+                }
+
+                // Function to sum active hours for today's date
+                String sumActiveHours(int hrmId) {
+                  int totalMinutes = 0;
+
+                  for (var record in workActiveHours) {
+                    if (record['hrm_id'] == hrmId && record['todo_date'] == today) {
+                      List<String> timeParts = record['active_hours'].split(':');
+                      int hours = int.parse(timeParts[0]);
+                      int minutes = int.parse(timeParts[1]);
+
+                      totalMinutes += (hours * 60) + minutes;
+                    }
+                  }
+
+                  // Convert total minutes into HH:MM format
+                  int finalHours = totalMinutes ~/ 60;
+                  int finalMinutes = totalMinutes % 60;
+                  return "${finalHours.toString().padLeft(2, '0')}:${finalMinutes.toString().padLeft(2, '0')}";
+                }
+
+                return rawData.map((data) {
+                  String totalTime;
+
+                  if (data['end_time'].isEmpty) {
+                    totalTime = calculateElapsedTime(data['start_time']);
+                  } else {
+                    totalTime = formatTotal(data['total_hours']);
+                  }
+
+                  return {
+                    "User": initials(data['employee']['name']),
+                    "CheckIn": formatTime(data['start_time']),
+                    "CheckOut": data['end_time'].isEmpty ? "" : formatTime(data['end_time']),
+                    "Active": sumActiveHours(data['employee']['id']), // Assuming active time isn't provided
+                    "Total": totalTime,
+                  };
+                }).toList();
+              }
+
+              List<Map<String, dynamic>> formattedData = formatEmployeeData(response6?.data ?? [],workActiveHours);
+              log("${formattedData}",name:"FormattedData");
+              //Punch Card Calculation End
               emit(state.copyWith(
                 isLoading: false,
                 combinedData: combinedData,
@@ -228,6 +313,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 startDate: startDate,
                 endDate: endDate,
                 selectedDateRange: selectedDateRange,
+                punchListData: formattedData,
               ));
             }
             else {
@@ -707,7 +793,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         List<String> titles = taskCategoryGroup.map((item) => item['name'].toString()).toList();
 
         List<Map<String, dynamic>> sortTitles(List<String> titles, List<Map<String, dynamic>> taskCategoryGroup) {
-          Map<String, List<String>> classifiedTask = {
+          // Change classifiedTask to store a list of maps with title and id
+          Map<String, List<Map<String, dynamic>>> classifiedTask = {
             'Other': [],
             'Parts': []
           };
@@ -737,7 +824,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     String lowercaseTitle = title.toLowerCase();
                     if (lowercaseTitle == childCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
                       classifiedTask[parentCategory['name']] ??= [];
-                      classifiedTask[parentCategory['name']]!.add(title);
+                      // Store both title and id (if available, otherwise null)
+                      classifiedTask[parentCategory['name']]!.add({
+                        'title': title,
+                        'id': childCategory['id'] ?? null // Use id from subcategory if it exists
+                      });
                       addedTitles.add(lowercaseTitle);
                     }
                   }
@@ -748,7 +839,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               for (var title in titles) {
                 String lowercaseTitle = title.toLowerCase();
                 if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
-                  classifiedTask[parentCategory['name']]!.add(title);
+                  classifiedTask[parentCategory['name']]!.add({
+                    'title': title,
+                    'id': parentCategory['id'] ?? null // Use id from parent category if it exists
+                  });
                   addedTitles.add(lowercaseTitle);
                 }
               }
@@ -759,7 +853,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           for (var title in titles) {
             String lowercaseTitle = title.toLowerCase();
             if (lowercaseTitle.contains('parts') && !addedTitles.contains(lowercaseTitle)) {
-              classifiedTask['Parts']!.add(title);
+              classifiedTask['Parts']!.add({
+                'title': title,
+                'id': null // No id available here unless sourced elsewhere
+              });
               addedTitles.add(lowercaseTitle);
             }
           }
@@ -768,7 +865,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           for (var title in titles) {
             String lowercaseTitle = title.toLowerCase();
             if (!addedTitles.contains(lowercaseTitle)) {
-              classifiedTask['Other']!.add(title);
+              classifiedTask['Other']!.add({
+                'title': title,
+                'id': null // No id available here unless sourced elsewhere
+              });
               addedTitles.add(lowercaseTitle);
             }
           }
@@ -780,7 +880,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             if (classifiedTask.containsKey(category)) {
               sortedTask.add({
                 "title": category,
-                "subcategory": classifiedTask[category]!.map((e) => {"sub_title": e}).toList()
+                "subcategory": classifiedTask[category]!.map((e) => {
+                  "sub_title": e['title'],
+                  "id": e['id'] // Include id in the output
+                }).toList()
               });
             }
           }
@@ -788,12 +891,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           return sortedTask;
         }
         var result = sortTitles(titles, taskCategoryGroup);
-        //log("$result",name: "result");
+        log("$result",name: "result");
+
 
         //Helper Function
         List<Map<String, dynamic>> formatTaskData(
             List<Map<String, dynamic>> categoryData,
-            List<Map<String, dynamic>> tasks) {
+            List<Map<String, dynamic>> tasks)
+        {
           Map<String, List<Map<String, dynamic>>> classifiedTasks = {};
 
           // Initialize categories
@@ -881,15 +986,92 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           }
           return finalList;
         }
-
+        //log("$result",name: "result");
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
+
+        String cleanString(String? input) {
+          if (input == null || input.trim().isEmpty) return "";
+
+          return input
+              .replaceAll(RegExp(r'[^a-zA-Z0-9\s]'), '') // Remove special characters
+              .replaceAll(RegExp(r'\s+'), ' ') // Replace multiple spaces with single space
+              .trim()
+              .toLowerCase();
+        }
+
+        String removePersonSuffix(String taskName) {
+          if (taskName.endsWith("person")) {
+            return taskName.replaceAll(RegExp(r'person$'), '').trim();
+          }
+          return taskName;
+        }
+
+        int calculateTotalAmount(List<Map<String, dynamic>> taskData, List<Map<String, dynamic>> taskList, List<Map<String, dynamic>> taskCategoryGroup) {
+          int totalAmount = 0;
+          Map<String, int> taskCounts = {}; // Stores task name and its count
+
+          // Extract task names and counts from taskData
+          for (var category in taskData) {
+            for (var subcategory in category["subcategory"] ?? []) {
+              if (subcategory.containsKey("sub_title")) {
+                String taskName = cleanString(subcategory["sub_title"]?.toString());
+                int count = subcategory["count"] ?? 1; // Default count is 1 if missing
+
+                if (taskName.isNotEmpty) {
+                  taskCounts[taskName] = (taskCounts[taskName] ?? 0) + count;
+                }
+              }
+            }
+          }
+
+          // Extract and clean task names from taskCategoryGroup
+          List<String> categoryTitles = taskCategoryGroup.map((item) => cleanString(item['name'].toString())).toList();
+          for (var title in categoryTitles) {
+            taskCounts[title] = (taskCounts[title] ?? 0) + 1; // Default count as 1
+          }
+
+          print("[DEBUG] Extracted Task Names with Counts: $taskCounts");
+
+          for (var task in taskList) {
+            String taskName = cleanString(task["task_name"]?.toString());
+            String amountStr = task["amount"]?.toString()?.trim() ?? "0";
+
+            int count = taskCounts[taskName] ?? 1; // Default count 1 if not found
+            int amount = (int.tryParse(amountStr) ?? 0) * count;
+
+            if (taskCounts.containsKey(taskName)) {
+              totalAmount += amount;
+              print("[DEBUG] Matched Task: $taskName | Count: $count | Amount: ${amount ~/ count} | Total: $totalAmount");
+              continue;
+            }
+
+            // Check by removing "person"
+            String modifiedTaskName = removePersonSuffix(taskName);
+            count = taskCounts[modifiedTaskName] ?? 1; // Get count after modification
+            amount = (int.tryParse(amountStr) ?? 0) * count;
+
+            if (taskCounts.containsKey(modifiedTaskName)) {
+              totalAmount += amount;
+              print("[DEBUG] Matched Task (Modified): $modifiedTaskName | Count: $count | Amount: ${amount ~/ count} | Total: $totalAmount");
+              continue;
+            }
+
+            print("[DEBUG] No Match Found for: $taskName");
+          }
+
+          return totalAmount;
+        }
+
         //log("$taskData",name: "taskData");
+        int totalAmount = calculateTotalAmount(taskData, data?.data ?? [], taskCategoryGroup);
+        //log("$totalAmount",name: "totalAmount");
 
         emit(state.copyWith(
           isLoading: false,
           categoryGroupData: taskData,
           combinedHistory: combinedHistory,
           cohortsData: response1?.data ?? [],
+          totalAmount: totalAmount
         ));
       }
       catch (e){

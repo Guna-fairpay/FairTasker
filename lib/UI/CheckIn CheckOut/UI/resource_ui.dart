@@ -91,151 +91,158 @@ class WorkHoursViewUI extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 7),
-                  Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(4),
-                          topRight: Radius.circular(4)
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey,
-                          spreadRadius: 0.2,
-                          blurRadius: 0.5,
-                          offset: Offset(0, 1),
+                  Column(
+                    children: [
+                      // Header Container (Fixed)
+                      Container(
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey,
+                              spreadRadius: 0.2,
+                              blurRadius: 0.5,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                          color: Color.fromRGBO(240, 240, 240, 1),
                         ),
-                      ],
-                      color: Color.fromRGBO(240, 240, 240, 1),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child:
-                      Table(
-                        columnWidths: const {
-                          0: FlexColumnWidth(1),
-                          1: FlexColumnWidth(2),
-                          2: FlexColumnWidth(2),
-                          3: FlexColumnWidth(2),
-                        },
-                        children: const [
-                          TableRow(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "User",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "CheckIn",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "CheckOut",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "Active",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "Total",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Table(
+                            columnWidths: const {
+                              0: FlexColumnWidth(1),
+                              1: FlexColumnWidth(2),
+                              2: FlexColumnWidth(2),
+                              3: FlexColumnWidth(2),
+                            },
+                            children: const [
+                              TableRow(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      "User",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      "CheckIn",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      "CheckOut",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      "Active",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      "Total",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(4),
-                          bottomRight: Radius.circular(4)
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey,
-                          spreadRadius: 0.2,
-                          blurRadius: 0.5,
-                          offset: Offset(0, 1),
                         ),
-                      ],
-                      color: AppC.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child:
-                      Table(
-                        columnWidths: const {
-                          0: FlexColumnWidth(1),
-                          1: FlexColumnWidth(2),
-                          2: FlexColumnWidth(2),
-                          3: FlexColumnWidth(2),
-                        },
-                        children: const [
-                          TableRow(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child:
-                                Text(
-                                  "HM",
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "08:19 AM",
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  " ",
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "02:30",
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  "02:54",
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ),
-                    ),
+                      // Scrollable Body Container
+                      Container(
+                        height: 80, // Set a fixed height for the scrollable area (adjust as needed)
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(4),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey,
+                              spreadRadius: 0.2,
+                              blurRadius: 0.5,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                          color: AppC.white, // Ensure AppC.white is defined in your code
+                        ),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Table(
+                              columnWidths: const {
+                                0: FlexColumnWidth(1),
+                                1: FlexColumnWidth(2),
+                                2: FlexColumnWidth(2),
+                                3: FlexColumnWidth(2),
+                              },
+                              children: List.generate(state?.punchListData.length ?? 0, (index) {
+                                final item = state.punchListData[index];
+                                return TableRow(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['User'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['CheckIn'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['CheckOut'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['Active'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['Total'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Container(
@@ -514,7 +521,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                 ),
                               );
                             }
-                            return const SizedBox.shrink(); // ✅ Hide empty data
+                            return const SizedBox.shrink();
                           },
                         );
                       },
@@ -545,6 +552,48 @@ class WorkHoursViewUI extends StatelessWidget {
       },
       height: 338,
       displayMonthsSeparator: true,
+    );
+  }
+}
+
+// Reusable table header cell widget
+class _TableHeaderCell extends StatelessWidget {
+  final String text;
+
+  const _TableHeaderCell(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _TableCell extends StatelessWidget {
+  final String text;
+
+  const _TableCell(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 13),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 }

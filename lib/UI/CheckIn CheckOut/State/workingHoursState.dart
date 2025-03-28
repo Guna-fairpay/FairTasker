@@ -51,6 +51,8 @@ class WorkingHoursState extends Equatable {
   final List<Map<String, dynamic>> cohortsData;
   final List<dynamic>? lastSelectedCohortIds;
   final String groupInitials;
+  final List<Map<String, dynamic>> punchListData;
+  final int totalAmount;
 
   const WorkingHoursState(
       {
@@ -97,6 +99,8 @@ class WorkingHoursState extends Equatable {
         this.cohortsData = const [],
         this.lastSelectedCohortIds,
         this.groupInitials = '',
+        this.punchListData = const [],
+        this.totalAmount = 0,
       });
 
   WorkingHoursState copyWith({
@@ -143,6 +147,8 @@ class WorkingHoursState extends Equatable {
     List<Map<String, dynamic>>? cohortsData,
     List<dynamic>? lastSelectedCohortIds,
     String? groupInitials,
+    List<Map<String, dynamic>>? punchListData,
+    int? totalAmount,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -187,6 +193,8 @@ class WorkingHoursState extends Equatable {
     cohortsData: cohortsData ?? this.cohortsData,
     lastSelectedCohortIds: lastSelectedCohortIds ?? this.lastSelectedCohortIds,
     groupInitials: groupInitials ?? this.groupInitials,
+    punchListData: punchListData ?? this.punchListData,
+    totalAmount: totalAmount ?? this.totalAmount,
   );
 
   @override
@@ -234,6 +242,8 @@ class WorkingHoursState extends Equatable {
     cohortsData,
     lastSelectedCohortIds,
     groupInitials,
+    punchListData,
+    totalAmount,
     Random().nextDouble()
   ];
 }

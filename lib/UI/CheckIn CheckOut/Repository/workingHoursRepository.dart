@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingHoursResponse
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingReasonResponse.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import '../../../Response/punchList_Response.dart';
 import '../../../Utilities/Str.dart';
 import '../../../data/api_client.dart';
 import '../Response/checkInOutResponse.dart';
@@ -215,5 +216,30 @@ class TaskRepository {
     }
     return null;
   }
+
+  Future<PunchlistResponse?> fetchPunchList() async
+  {
+    try{
+      final String apiUrl = '${Str.GOPORTAL_BASE_URL}userPunchList';
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      print("Api URL $apiUrl");
+      if(response != null){
+        if(response.statusCode == 200 ) {
+          PunchlistResponse punchlistResponse = PunchlistResponse.fromJson(jsonDecode(response.body));
+          return punchlistResponse;
+        } else {
+          throw Exception(
+              'Failed to load . Status code: ${response.statusCode}');
+        }
+      } else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching : $e');
+    }
+    return null;
+  }
+
+
 }
 
