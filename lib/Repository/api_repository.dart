@@ -153,6 +153,8 @@ class APiRepository {
 
   String get _vehiclesApi => "vehiclesApi";
 
+  String get _editVehicleExpenseDetails => "filter?vin";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1260,6 +1262,18 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getEditVehicleExpenseDetails(
+      {String? vin}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expenses/$_editVehicleExpenseDetails=$vin&platformCustom=tasker-app';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
       rethrow;
     }
   }

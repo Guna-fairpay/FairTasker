@@ -19,6 +19,8 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   List<Map<String, dynamic>> cohort = [];
   List<Map<String, dynamic>> branch = [];
   List<dynamic> vehicleStatus = [];
+  List<dynamic> expenseDetails = [];
+  List<dynamic> repairAndMaintenanceDetails = [];
   List<dynamic> activeStatus = [{'id': 1, 'category_name': 'Active'}, {'id': 0, 'category_name': 'Inactive'}];
   List<dynamic> vehicleImage = [];
   List<dynamic> receiptImage = [];
@@ -26,6 +28,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   List<dynamic> tollImage = [];
   List<dynamic> uploadRegSticker = [];
   List<dynamic> insuranceImage = [];
+
 
   dynamic selectedCohort = {};
   dynamic selectedBranch = {};
@@ -85,12 +88,17 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       var cohortResponse= await _getCohort();
       var branchResponse= await _getBranch();
       var vehicleStatusResponse= await _getVehicleStatusCategories();
+      var editVehicleExpenseDetailsResponse= await _getEditVehicleExpenseDetails(vin:"${event.vehicleData['vin']}");
 
       branchId = await Utils.getIntPreference(Str.branchIdPrefText);
 
       cohort = cohortResponse??[];
       branch = branchResponse??[];
       vehicleStatus = vehicleStatusResponse?['data']??[];
+      expenseDetails = editVehicleExpenseDetailsResponse?['data']??[];
+      log(expenseDetails.toString(), name: "EditVehicleInitialEvent");
+      repairAndMaintenanceDetails = editVehicleExpenseDetailsResponse?['repair_and_maintenance_details']??[];
+
       selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['cohort_id'].toString(),);
       selectedBranch = branch.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['branch_code'].toString(),);
       selectedVehicleStatus = vehicleStatus.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['vehicle_status'].toString(),);
@@ -138,6 +146,19 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       }
 
     });
+
+    // on<EditVehicleExpenseDetailsEvent>((event, emit) async {
+    //   try{
+    //     emit(EditVehicleLoadingState());
+    //     var editVehicleExpenseDetailsResponse= await _getEditVehicleExpenseDetails(vin:"${event.vehicleData['vin']}");
+    //     expenseDetails = editVehicleExpenseDetailsResponse?['data']??[];
+    //     repairAndMaintenanceDetails = editVehicleExpenseDetailsResponse?['data']??[];
+    //     emit(EditVehicleLoadedState());
+    //   }catch(e){
+    //     emit(EditVehicleErrorState(e.toString()));
+    //     log(e.toString(),name: "EditVehicleExpenseDetailsEvent");
+    //   }
+    // });
 
     on<DateChangeEvent>((event, emit) {
       selectedDate = event.selectedDate;
@@ -306,6 +327,10 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   /// VEHICLE STATUS API CALL
   Future<Map<String, dynamic>?> _getVehicleStatusCategories() async =>
       await _apiRepository.getVehicleCategories();
+
+  ///EDIT VEHICLE EXPENSE DETAILS API CALL getEditVehicleExpenseDetails
+  Future<Map<String, dynamic>?> _getEditVehicleExpenseDetails({String? vin}) async =>
+      await _apiRepository.getEditVehicleExpenseDetails(vin:vin);
 
 }
 

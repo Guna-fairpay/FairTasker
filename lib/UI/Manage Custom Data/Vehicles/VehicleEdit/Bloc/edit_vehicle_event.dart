@@ -13,7 +13,13 @@ class EditVehicleInitialEvent extends EditVehicleEvent {
   EditVehicleInitialEvent({required this.vehicleData});
   @override
   List<Object?> get props => [vehicleData];
+}
 
+class EditVehicleExpenseDetailsEvent extends EditVehicleEvent {
+  final dynamic vehicleData;
+  EditVehicleExpenseDetailsEvent({required this.vehicleData});
+  @override
+  List<Object?> get props => [vehicleData];
 }
 
 class DateChangeEvent extends EditVehicleEvent {

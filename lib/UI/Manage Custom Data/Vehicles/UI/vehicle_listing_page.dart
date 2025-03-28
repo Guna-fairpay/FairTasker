@@ -44,7 +44,6 @@ class VehicleListingUI extends StatelessWidget {
                   ),
                   Expanded(
                     child: ListView.separated(
-                      key: UniqueKey(),
                       separatorBuilder: (context, index) => const Divider(height: 0.5,),
                       itemCount: context.watch<VehicleBloc>().filteredResponse.length,
                       itemBuilder: (context, index) {
