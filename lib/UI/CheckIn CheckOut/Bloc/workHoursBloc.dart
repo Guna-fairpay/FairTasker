@@ -85,14 +85,41 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 return fullName.split(' ').first;
               }
 
-              List<Map<String, dynamic>> combineData(
+              List<Map<String, dynamic>> combineAndCalculateData(
                   List<Map<String, dynamic>> workhours,
                   List<Map<String, dynamic>> workhistory,
                   List<Map<String, dynamic>> workActivehours,
                   List<Map<String, dynamic>> formattedResource,
-                  )
-              {
+                  ) {
                 List<Map<String, dynamic>> combinedList = [];
+
+                // Helper function to convert time string to minutes
+                int timeStringToMinutes(String time) {
+                  final parts = time.split(':');
+                  final hours = int.tryParse(parts[0]) ?? 0;
+                  final minutes = int.tryParse(parts[1]) ?? 0;
+                  return hours * 60 + minutes;
+                }
+
+                // Helper function to convert minutes to time string
+                String minutesToTimeString(int minutes) {
+                  final hours = minutes ~/ 60;
+                  final remainingMinutes = minutes % 60;
+                  return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
+                }
+
+                // Helper function to get the first word of a name
+                String getFirstWord(String name) {
+                  return name.split(' ').first;
+                }
+
+                // Helper function to remove seconds from time string
+                String removeSeconds(String time) {
+                  if (time.length >= 8) { // Check if the time string is in hh:mm:ss format
+                    return time.substring(0, 5); // Extract hh:mm
+                  }
+                  return time; // Return as-is if not in expected format
+                }
 
                 for (var workhour in workhours) {
                   try {
@@ -116,6 +143,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                             item['users']['hrm_id'] == userId &&
                             formattedResource.any((resource) =>
                             item['users']['first_name'] == resource['first_name']),
+                        orElse: () => {},
                       );
                     } catch (e) {
                       print("Error finding history item for user $userId: $e");
@@ -128,6 +156,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                         item['active_hours'] != "00:00" &&
                             item['hrm_id'] == userId &&
                             formattedResource.any((resource) => item['user_id'] == resource['user_id']),
+                        orElse: () => {},
                       );
                     } catch (e) {
                       print("Error finding active hours item for user $userId: $e");
@@ -137,6 +166,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     try {
                       empID = formattedResource.firstWhere(
                             (item) => getFirstWord(item['full_name']) == getFirstWord(userName),
+                        orElse: () => {},
                       );
                     } catch (e) {
                       print("Error finding employee ID for user $userId: $e");
@@ -149,15 +179,51 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       continue;
                     }
 
-                    // Combine data into a single item
+                    // Calculate total hours (#)
+                    int lessCount = 0;
+                    int greaterCount = 0;
+                    if (workhour['user']['list'] != null) {
+                      for (var task in workhour['user']['list']) {
+                        final taskTotalHours = task['total_hours']?.split(':') ?? ['0', '0'];
+                        final int taskHours = int.tryParse(taskTotalHours[0]) ?? 0;
+                        final int taskMinutes = int.tryParse(taskTotalHours[1]) ?? 0;
+                        final int totalMinutes = taskHours * 60 + taskMinutes;
+                        if (totalMinutes <= 420) {
+                          lessCount++;
+                        } else if (totalMinutes >= 540) {
+                          greaterCount++;
+                        }
+                      }
+                    }
+                    final totalHoursCount = lessCount + greaterCount;
+
+                    // Calculate active hours
+                    final relevantHours = workActivehours.where(
+                          (activeHour) => activeHour['hrm_id']?.toString() == userId?.toString(),
+                    );
+                    final int totalMinutes = relevantHours.fold(
+                      0,
+                          (total, current) => total + timeStringToMinutes(current['active_hours']),
+                    );
+                    final calculatedActiveHours = minutesToTimeString(totalMinutes);
+
+                    // Format the total working hours to remove seconds
+                    final rawHours = workhour['user']['total_working_hours'] ?? "00:00:00";
+                    final formattedHours = removeSeconds(rawHours);
+
+                    // Combine data into a single item formatted for the table
                     final combinedItem = {
-                      'id': userId,
-                      'empID': historyItem['users']?['id'],
-                      'hrmID': historyItem['users']?['hrm_id'] ?? 0,
-                      'total_working_hours': workhour['user']['total_working_hours'],
-                      'list': workhour['user']['list'],
-                      'task_count': taskCount,
-                      'first_name': empID['first_name'] ?? '',
+                      'Employee': historyItem['users']?['first_name'] ?? empID['first_name'] ?? '',
+                      'Active': calculatedActiveHours,
+                      'Hours': formattedHours, // Use formatted hours without seconds
+                      'Task': taskCount,
+                      '#': totalHoursCount,
+                      'hrm_id': historyItem['users']?['hrm_id'] ?? userId,
+                      'user_id': historyItem['users']?['id'] ?? '',
+                      'list': workhour['user']['list'] ?? [],
+                      'first_name': historyItem['users']?['first_name'] ?? empID['first_name'] ?? '',
+                      'last_name': historyItem['users']?['last_name'] ?? '',
+                      'empID': historyItem['users']?['id'] ?? '',
                     };
 
                     combinedList.add(combinedItem);
@@ -168,58 +234,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
                 return combinedList;
               }
+
               combinedData.clear();
-              combinedData = combineData(workHours, workingHistory, workActiveHours, formattedResources);
+              combinedData = combineAndCalculateData(workHours, workingHistory, workActiveHours, formattedResources);
               //log("${combinedData}",name:"CombinedData");
-
-              //Active Hours Calculation Start
-              int timeStringToMinutes(String time) {
-                final minutes = Time.fromStr(time)?.inMins;
-                return minutes!;
-              }
-              String minutesToTimeString(int minutes) {
-                final hours = minutes ~/ 60;
-                final remainingMinutes = minutes % 60;
-                return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
-              }
-
-              String calculateActiveHours(List<Map<String, dynamic>> employeeActiveTotalHours, Map<String, dynamic> item)
-              {
-                final relevantHours = employeeActiveTotalHours.where(
-                      (activeHour) => activeHour['hrm_id']?.toString() == item['id']?.toString(),
-                );
-                final int totalMinutes = relevantHours.fold(
-                  0, (total, current) => total + timeStringToMinutes(current['active_hours']),
-                );
-                return minutesToTimeString(totalMinutes);
-              }
-              //Active Hours Calculation End
-
-              //Total Hours(#) Calculation Start
-              totalHoursValue.clear();
-              activeHours.clear();
-              for(var employee in combinedData){
-                int lessCount = 0;
-                int greaterCount = 0;
-                if (employee['list'] != null) {
-                  for (var task in employee['list']) {
-                    final taskTotalHours = task['total_hours']?.split(':') ?? ['0', '0'];
-                    final int taskHours = int.tryParse(taskTotalHours[0]) ?? 0;
-                    final int taskMinutes = int.tryParse(taskTotalHours[1]) ?? 0;
-                    final int totalMinutes = taskHours * 60 + taskMinutes;
-                    if (totalMinutes <= 420) {
-                      lessCount++;
-                    } else if (totalMinutes >= 540) {
-                      greaterCount++;
-                    }
-                  }
-                }
-                print("Total hours ${lessCount + greaterCount}");
-                totalHoursValue.add(lessCount + greaterCount);
-                print("Total hours value ${totalHoursValue}");
-                activeHours.add(calculateActiveHours(workActiveHours, employee));
-              }
-              //Total Hours(#) Calculation End
 
               //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
@@ -534,51 +552,107 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
       //Helper Function
 
-      List<String> getFromDateAndToDate(String dateRange) {
+      DateTime _parseAnyDateFormat(String dateStr) {
+        final possibleFormats = [
+          'dd/MM/yyyy',
+          'MM/dd/yyyy',
+          'yyyy-MM-dd',
+          'yyyyMMdd',
+          'yyyy/MM/dd',
+          'dd-MM-yyyy',
+          'MM-dd-yyyy',
+          'dd.MM.yyyy',
+          'MM.dd.yyyy',
+        ];
+
+        for (final format in possibleFormats) {
+          try {
+            return DateFormat(format).parse(dateStr);
+          } catch (_) {}
+        }
+
+        throw FormatException('Unrecognized date format "$dateStr"');
+      }
+
+      List<String> parseDateRange(String? dateRange) {
+        // Handle null or empty input by returning last 7 days
+        if (dateRange == null || dateRange.trim().isEmpty) {
+          final now = DateTime.now();
+          final sevenDaysAgo = now.subtract(const Duration(days: 7));
+          return [
+            DateFormat('dd/MM/yy').format(sevenDaysAgo),
+            DateFormat('dd/MM/yy').format(now),
+          ];
+        }
+
         try {
           dateRange = dateRange.trim();
-          if (!dateRange.contains(" - ")) {
-            throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
-          }
-          List<String> dates = dateRange.split(" - ").map((d) => d.trim()).toList();
 
-          if (dates.length != 2) {
-            throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
+          // Handle case where input might be "null" as string
+          if (dateRange.toLowerCase() == 'null') {
+            throw FormatException('Explicit "null" string provided');
           }
-          String normalizeDate(String dateStr) {
-            try {
-              if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateStr)) {
-                DateTime parsedDate = DateFormat("yyyy-MM-dd").parse(dateStr);
-                return DateFormat("dd/MM/yyyy").format(parsedDate);
-              } else if (RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(dateStr)) {
-                return dateStr;
-              } else {
-                throw Exception("Unrecognized date format: $dateStr");
-              }
-            } catch (e) {
-              throw Exception("Invalid date format: $dateStr");
+
+          // Check for single date
+          if (!dateRange.contains('-') && !dateRange.contains('/') && !dateRange.contains(' ')) {
+            final singleDate = _parseAnyDateFormat(dateRange);
+            final formatted = DateFormat('yyyy-MM-dd').format(singleDate);
+            return [formatted, formatted];
+          }
+
+          // Try different separators
+          final separators = [' - ', ' to ', ' until ', '..', '-'];
+          String? separator;
+
+          for (final sep in separators) {
+            if (dateRange.contains(sep)) {
+              separator = sep;
+              break;
             }
           }
-          String fromDateStr = normalizeDate(dates[0]);
-          String toDateStr = normalizeDate(dates[1]);
-          DateTime fromDateParsed = DateFormat("dd/MM/yyyy").parse(fromDateStr);
-          DateTime toDateParsed = DateFormat("dd/MM/yyyy").parse(toDateStr);
-          String fromDate = DateFormat("yyyy-MM-dd").format(fromDateParsed);
-          String toDate = DateFormat("yyyy-MM-dd").format(toDateParsed);
-          log("$fromDate $toDate",name:"fromDateToDate");
-          return [fromDate, toDate];
+
+          if (separator == null) {
+            throw FormatException('No valid range separator found. Use " - ", " to ", or similar');
+          }
+
+          final parts = dateRange.split(separator);
+          if (parts.length != 2) {
+            throw FormatException('Expected exactly two dates separated by "$separator"');
+          }
+
+          final fromDate = _parseAnyDateFormat(parts[0].trim());
+          final toDate = _parseAnyDateFormat(parts[1].trim());
+
+          if (toDate.isBefore(fromDate)) {
+            throw FormatException('End date cannot be before start date');
+          }
+
+          return [
+            DateFormat('yyyy-MM-dd').format(fromDate),
+            DateFormat('yyyy-MM-dd').format(toDate)
+          ];
         } catch (e) {
-          print("Error parsing date range: $e");
-          throw Exception("Error parsing date range: ${e.toString()}");
+          // Provide helpful error message including the original input
+          throw FormatException(
+              'Failed to parse date range "$dateRange".\n'
+                  'Supported formats:\n'
+                  '• "dd/MM/yyyy - dd/MM/yyyy"\n'
+                  '• "MM/dd/yyyy to MM/dd/yyyy"\n'
+                  '• "yyyy-MM-dd until yyyy-MM-dd"\n'
+                  '• Single dates like "2023-12-31"\n'
+                  '• Empty input returns last 7 days\n\n'
+                  'Error details: ${e.toString().replaceFirst('FormatException: ', '')}'
+          );
         }
       }
 
+
       List<String> result;
       try {
-        result = getFromDateAndToDate(event.ReasonPopupSelectedDateRange);
+        result = parseDateRange(event.ReasonPopupSelectedDateRange);
       } catch (e) {
         print("Error parsing date range: $e");
-        result = [DateFormat("yyyy-MM-dd").format(DateTime.now()), DateFormat("yyyy-MM-dd").format(DateTime.now())];
+        result = [DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 7))), DateFormat('yyyy-MM-dd').format(DateTime.now())];
       }
 
       List<Map<String, dynamic>> combineData(List<dynamic> dataList, List<Map<String, dynamic>> taskCounts) {
@@ -893,7 +967,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           return sortedTask;
         }
         var result = sortTitles(titles, taskCategoryGroup);
-        log("$result",name: "result");
+        //log("$result",name: "result");
 
 
         //Helper Function
@@ -991,89 +1065,71 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         //log("$result",name: "result");
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
 
-        String cleanString(String? input) {
-          if (input == null || input.trim().isEmpty) return "";
 
-          return input
-              .replaceAll(RegExp(r'[^a-zA-Z0-9\s]'), '') // Remove special characters
-              .replaceAll(RegExp(r'\s+'), ' ') // Replace multiple spaces with single space
-              .trim()
-              .toLowerCase();
+        int _convertToInt(dynamic value) {
+          if (value is int) return value;
+          if (value is double) return value.toInt();
+          if (value is String) return int.tryParse(value) ?? 0;
+          return 0;
         }
+        int calculateTotalAmount(
+            List<Map<String, dynamic>> taskData,
+            List<Map<String, dynamic>> paymentData,
+            ) {
+          int total = 0;
 
-        String removePersonSuffix(String taskName) {
-          if (taskName.endsWith("person")) {
-            return taskName.replaceAll(RegExp(r'person$'), '').trim();
+          // Create a map of task names to amounts with proper type conversion
+          final paymentMap = {
+            for (var payment in paymentData.where((p) => p['type'] == 'task'))
+              payment['task_name']?.toString(): _convertToInt(payment['amount'])
+          };
+
+          // Helper function to check for partial matches
+          int? findPaymentAmount(String taskName) {
+            // Try exact match first
+            if (paymentMap.containsKey(taskName)) {
+              return paymentMap[taskName];
+            }
+
+            // Check for partial matches
+            for (final paymentTask in paymentMap.keys) {
+              if (paymentTask != null && taskName.contains(paymentTask.split('/')[0])) {
+                return paymentMap[paymentTask];
+              }
+            }
+
+            return null;
           }
-          return taskName;
-        }
 
-        int calculateTotalAmount(List<Map<String, dynamic>> taskData, List<Map<String, dynamic>> taskList, List<Map<String, dynamic>> taskCategoryGroup) {
-          int totalAmount = 0;
-          Map<String, int> taskCounts = {}; // Stores task name and its count
+          // Process each task in taskData
+          for (final category in taskData) {
+            final subcategories = category['subcategory'] as List<dynamic>? ?? [];
 
-          // Extract task names and counts from taskData
-          for (var category in taskData) {
-            for (var subcategory in category["subcategory"] ?? []) {
-              if (subcategory.containsKey("sub_title")) {
-                String taskName = cleanString(subcategory["sub_title"]?.toString());
-                int count = subcategory["count"] ?? 1; // Default count is 1 if missing
+            for (final subcategory in subcategories) {
+              final taskName = subcategory['sub_title']?.toString() ?? '';
+              final count = _convertToInt(subcategory['count'] ?? 0);
 
-                if (taskName.isNotEmpty) {
-                  taskCounts[taskName] = (taskCounts[taskName] ?? 0) + count;
-                }
+              final amount = findPaymentAmount(taskName);
+              if (amount != null) {
+                total += amount * count;
               }
             }
           }
 
-          // Extract and clean task names from taskCategoryGroup
-          List<String> categoryTitles = taskCategoryGroup.map((item) => cleanString(item['name'].toString())).toList();
-          for (var title in categoryTitles) {
-            taskCounts[title] = (taskCounts[title] ?? 0) + 1; // Default count as 1
-          }
-
-          print("[DEBUG] Extracted Task Names with Counts: $taskCounts");
-
-          for (var task in taskList) {
-            String taskName = cleanString(task["task_name"]?.toString());
-            String amountStr = task["amount"]?.toString()?.trim() ?? "0";
-
-            int count = taskCounts[taskName] ?? 1; // Default count 1 if not found
-            int amount = (int.tryParse(amountStr) ?? 0) * count;
-
-            if (taskCounts.containsKey(taskName)) {
-              totalAmount += amount;
-              print("[DEBUG] Matched Task: $taskName | Count: $count | Amount: ${amount ~/ count} | Total: $totalAmount");
-              continue;
-            }
-
-            // Check by removing "person"
-            String modifiedTaskName = removePersonSuffix(taskName);
-            count = taskCounts[modifiedTaskName] ?? 1; // Get count after modification
-            amount = (int.tryParse(amountStr) ?? 0) * count;
-
-            if (taskCounts.containsKey(modifiedTaskName)) {
-              totalAmount += amount;
-              print("[DEBUG] Matched Task (Modified): $modifiedTaskName | Count: $count | Amount: ${amount ~/ count} | Total: $totalAmount");
-              continue;
-            }
-
-            print("[DEBUG] No Match Found for: $taskName");
-          }
-
-          return totalAmount;
+          return total;
         }
 
-        //log("$taskData",name: "taskData");
-        int totalAmount = calculateTotalAmount(taskData, data?.data ?? [], taskCategoryGroup);
-        //log("$totalAmount",name: "totalAmount");
+        int totalAmount = calculateTotalAmount(taskData,data?.data ?? []);
+        log("$totalAmount",name: "totalAmount");
 
         emit(state.copyWith(
           isLoading: false,
           categoryGroupData: taskData,
           combinedHistory: combinedHistory,
           cohortsData: response1?.data ?? [],
-          totalAmount: totalAmount
+          totalAmount: totalAmount,
+          taskData: taskData,
+          amountData: data?.data ?? [],
         ));
       }
       catch (e){
@@ -1168,189 +1224,5 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
   }
 }
-// import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart';
-// import 'package:fairpytasker/UI/CheckIn%20CheckOut/State/workingHoursState.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:fairpytasker/UI/CheckIn%20CheckOut/Repository/workingHoursRepository.dart';
-//
-// import '../Response/taskCategoryGroupResponse.dart';
-//
-// class TaskBloc extends Bloc<TaskCountEvent, TaskState> {
-//   TaskRepository taskRepo = TaskRepository();
-//
-//   TaskBloc() : super(TaskInitialState()) {
-//     on<FetchTaskCountEvent>(_onFetchTaskCount);
-//     on<fetchEmployeeComment>(_onFetchComment);
-//     on<FetchCheckInoutReasonEvent>(_onFetchCheckInoutReason);
-//     on<fetchEmployeeTaskHistoryEvent>(_onFetchTaskHistory);
-//     on<fetchWorkingGetConfigurationEvent>(_onFetchGetConfiguration);
-//     on<fetchTaskCategoryGroupEvent>(_onFetchCategoryGroup);
-//     on<fetchCohortsDataEvent>(_onFetchCohortsData);
-//   }
-//
-//   Future<void> _onFetchTaskCount(
-//       FetchTaskCountEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final history = await taskRepo.fetchEmployeeTaskCount(
-//         userId: event.userId,
-//         fromDate: event.fromDate,
-//         toDate: event.toDate,
-//       );
-//       emit(TaskLoadedState(history!));
-//     } catch (e) {
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//   Future<void> _onFetchComment(
-//       fetchEmployeeComment event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final comment = await taskRepo.fetchEmployeeComments(
-//         hrmId: event.hrmId,
-//         fromDate: event.fromDate,
-//         toDate: event.toDate,
-//       );
-//       emit(CommentLoadedState(comment!));
-//     } catch (e) {
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//   Future<void> _onFetchCheckInoutReason(
-//       FetchCheckInoutReasonEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final data = await taskRepo.fetchCheckInoutReason(
-//         hrmId: event.hrmId,
-//         fromDate: event.fromDate,
-//         toDate: event.toDate,
-//       );
-//       emit(CheckInoutReasonLoadedState(data!));
-//     } catch (e) {
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//   Future<void> _onFetchTaskHistory(
-//       fetchEmployeeTaskHistoryEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final taskHistory = await taskRepo.fetchEmployeeTaskHistory(
-//         to: event.to,
-//         from: event.from,
-//         userId: event.userId,
-//       );
-//
-//       if (taskHistory?.history2 == null || taskHistory!.history2!.isEmpty) {
-//         emit(TaskErrorState("No task history found"));
-//         return;
-//       }
-//
-//       List<Map<String, dynamic>> combinedList = [];
-//
-//       void extractData(Map<String, dynamic> item)
-//       {
-//         combinedList.add({
-//           "vehicle_name": item["vehicles"]?.isNotEmpty ?? false
-//               ? item["vehicles"][0]["vehicle_name"]
-//               : null,
-//           "todo_date": item["todo_date"],
-//           "complete_time_taken": item["complete_time_taken"],
-//           "fname": item["users"]?["first_name"],
-//           "lname": item["users"]?["last_name"],
-//           "location": item["location"],
-//           "notes": item["notes"],
-//           "reference_id": item["reference_id"],
-//           "mileage": item["mileage"],
-//           "expense_amount": item["expense_amount"],
-//           "expense_description": item["expense_description"],
-//           "category_name": item["category_name"],
-//           "subcategory_name": item["subcategory_name"],
-//           "expense_attachment": item["expense_attachment"],
-//         });
-//       }
-//
-//       taskHistory.history2!.forEach(extractData);
-//
-//       print("combinedList $combinedList");
-//
-//       emit(TaskHistoryLoadedState(taskHistory: taskHistory, combinedList: combinedList));
-//     } catch (e) {
-//       print("taskHistory exception $e");
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//
-//
-//   Future<void> _onFetchGetConfiguration(
-//       fetchWorkingGetConfigurationEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final data = await taskRepo.fetchGetConfiguration();
-//       emit(GetConfigurationLoadedState(data: data));
-//     } catch (e) {
-//       print("FetchConfigExcep $e");
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//   Future<void> _onFetchCategoryGroup(
-//       fetchTaskCategoryGroupEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final response = await taskRepo.fetchCategoryGroup();
-//       final data = response?.data?.map((data) {
-//         return {
-//           'id': data['id'],
-//           'name': data['name'],
-//         };
-//       }).toList();
-//
-//       emit(CategoryGroupLoadedState(data: data));
-//     } catch (e) {
-//       print("CategoryGroupExcep $e");
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//   Future<void> _onFetchCohortsData(
-//       fetchCohortsDataEvent event,
-//       Emitter<TaskState> emit,
-//       ) async {
-//     emit(TaskLoadingState());
-//     try {
-//       final response = await taskRepo.fetchCohortData();
-//
-//       final cohortList = response?.data?.map((cohort) {
-//         return {
-//           'id': cohort['id'],
-//           'cohort': cohort['cohort'],
-//         };
-//       }).toList();
-//
-//       emit(CohortDataLoadedState(data: cohortList));
-//     } catch (e) {
-//       print("CohortException $e");
-//       emit(TaskErrorState(e.toString()));
-//     }
-//   }
-//
-//
-// }
 
 

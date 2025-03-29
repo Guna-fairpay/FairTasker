@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import '../Event/workingHoursEvent.dart';
@@ -125,7 +126,18 @@ class ExtendedDetailsTask extends StatelessWidget {
                         ),
                         if(state.extendedDetails['reference_id'] != null)
                         ListTile(
-                          leading: Utils.getText("Reservation No- ${state.extendedDetails['reference_id'] ?? ''}", color: AppC.red),
+                          leading: GestureDetector
+                            (
+                            onTap: () async{
+                              final Uri url = Uri.parse("https://turo.com/us/en/reservation/${state.extendedDetails['reference_id'] ?? ''}");
+                              if (await canLaunchUrl(url)) {
+                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                              } else {
+                              throw "Could not launch $url";
+                              }
+                            },
+                              child: Utils.getText("Reservation No- ${state.extendedDetails['reference_id'] ?? ''}", color: AppC.red)
+                          ),
                         ),
                         if(state.extendedDetails['expense_amount'] != null || state.extendedDetails['expense_description'] != null
                         || state.extendedDetails['category_name'] != null || state.extendedDetails['subcategory_name'] != null ||

@@ -31,7 +31,8 @@ class HoursPopup {
         required String selectedDateRange,
         required int empID,
         required int hrmID,
-        required hrmId, required String fromDate, required String toDate,
+        required String fromDate,
+        required String toDate,
       }) {
     _showTopNotification(context, dataList, userName, selectedDateRange, empID, hrmID, fromDate, toDate);
   }

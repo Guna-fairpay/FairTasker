@@ -13,6 +13,8 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/Event/workingHoursEvent.dart'
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/State/workingHoursState.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Bloc/workHoursBloc.dart';
 
+import 'Popups/totalAmount_popup.dart';
+
 class WorkingHoursTaskUI extends StatelessWidget {
   final Map<String, dynamic> workingHoursData;
   final Map<String, String> dateRange;
@@ -65,7 +67,7 @@ class WorkingHoursTaskUI extends StatelessWidget {
             to: dateRange['to'].toString(),
             from: dateRange['from'].toString(),
             userId: workingHoursData['empID'], cohortIds: selectedFilters?.toList() ?? [])),
-      child: Scaffold(
+          child: Scaffold(
           backgroundColor: AppC.white,
           appBar:
           AppBar(
@@ -75,23 +77,23 @@ class WorkingHoursTaskUI extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
             Utils.getText(
-              "${workingHoursData['first_name']}",
+              "${workingHoursData['first_name']} ${workingHoursData['last_name']}",
               color: Colors.white,
-              size: 18,
+              size: 16,
               weight: FontWeight.bold,
             ),
               Row(
                 children: [
                   BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
                     builder: (context, state) {
-                      int totalAmount = state.totalAmount; // Extract amount inside the builder
+                      int totalAmount = state.totalAmount;
                       int totalCount = getTotalCategoryCount(state.categoryGroupData);
                       log("Total Count: $totalCount");
 
                       return Row(
                         children: [
                           Container(
-                            width: 42,
+                            width: 40,
                             height: 25,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
@@ -100,19 +102,29 @@ class WorkingHoursTaskUI extends StatelessWidget {
                             child: Center(
                               child: Utils.getText(
                                 "$totalCount",
-                                size: 18,
+                                size: 16,
                                 color: Colors.white,
                                 weight: FontWeight.bold,
                               ),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            '\$$totalAmount', // Now inside BlocBuilder, so it works
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                          GestureDetector(
+                            onTap: () {
+                              showHoursSummaryPopup(
+                                context,
+                                taskData: state.taskData,
+                                paymentData: state.amountData,
+                                name: "${workingHoursData['first_name']} ${workingHoursData['last_name']}"
+                              );
+                            },
+                            child: Text(
+                              '\$$totalAmount', // Now inside BlocBuilder, so it works
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           IconButton(

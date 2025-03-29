@@ -88,163 +88,141 @@ class WorkHoursViewUI extends StatelessWidget {
           builder: (context, state) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: Column(
+              child: 
+              Column(
                 children: [
                   const SizedBox(height: 7),
                   Column(
                     children: [
                       // Header Container (Fixed)
-                      Container(
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(4),
-                            topRight: Radius.circular(4),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              spreadRadius: 0.2,
-                              blurRadius: 0.5,
-                              offset: Offset(0, 1),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Table(
+                          columnWidths: const {
+                            0: FlexColumnWidth(2),
+                            1: FlexColumnWidth(3),
+                            2: FlexColumnWidth(3),
+                            3: FlexColumnWidth(2),
+                            4: FlexColumnWidth(2),
+                          },
+                          children: [
+                              const TableRow(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(4),
+                                    topRight: Radius.circular(4),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey,
+                                      spreadRadius: 0.2,
+                                      blurRadius: 0.5,
+                                      offset: Offset(0, 1),
+                                    ),
+                                  ],
+                                  color: Color.fromRGBO(240, 240, 240, 1),
+                                ),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "User",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "CheckIn",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "CheckOut",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "Active",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "Total",
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                          color: Color.fromRGBO(240, 240, 240, 1),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Table(
-                            columnWidths: const {
-                              0: FlexColumnWidth(1),
-                              1: FlexColumnWidth(2),
-                              2: FlexColumnWidth(2),
-                              3: FlexColumnWidth(2),
-                            },
-                            children: const [
-                              TableRow(
-
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "User",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "CheckIn",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "CheckOut",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "Active",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "Total",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
+                            ...state.punchListData.map((item) => TableRow(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(4),
+                                  bottomRight: Radius.circular(4),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    spreadRadius: 0.2,
+                                    blurRadius: 0.5,
+                                    offset: Offset(0, 1),
                                   ),
                                 ],
+                                color: AppC.white, // Ensure AppC.white is defined in your code
                               ),
-                            ],
-                          ),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "${item['User'] ?? ''}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "${item['CheckIn'] ?? ''}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "${item['CheckOut'] ?? ''}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "${item['Active'] ?? ''}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    "${item['Total'] ?? ''}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            )).toList(),
+                          ],
                         ),
                       ),
                       // Scrollable Body Container
-                      Container(
-                        height: 80,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(4),
-                            bottomRight: Radius.circular(4),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              spreadRadius: 0.2,
-                              blurRadius: 0.5,
-                              offset: Offset(0, 1),
-                            ),
-                          ],
-                          color: AppC.white, // Ensure AppC.white is defined in your code
-                        ),
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Table(
-                              columnWidths: const {
-                                0: FlexColumnWidth(1),
-                                1: FlexColumnWidth(2),
-                                2: FlexColumnWidth(2),
-                                3: FlexColumnWidth(2),
-                              },
-                              children:
-                              List.generate(state.punchListData.length, (index) {
-                                final item = state.punchListData[index];
-                                return
-                                  TableRow(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Text(
-                                        "${item['User'] ?? ''}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Text(
-                                        "${item['CheckIn'] ?? ''}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Text(
-                                        "${item['CheckOut'] ?? ''}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Text(
-                                        "${item['Active'] ?? ''}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Text(
-                                        "${item['Total'] ?? ''}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -337,6 +315,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                         // Notify the Bloc
                                         context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
                                         dates = generateDateList(startDate, endDate);
+                                        log("${dates}", name: "dates");
                                       }
                                     },
                                     pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, (newRange) {
@@ -409,16 +388,15 @@ class WorkHoursViewUI extends StatelessWidget {
                     child:
                     Builder(
                       builder: (context) {
-                        // If dropdown has a selection, filter data, otherwise load state.combinedData
+                        //If dropdown has a selection, filter data, otherwise load state.combinedData
                         final dataList = (selectedName == null || selectedName['full_name'] == 'All')
                             ? state.combinedData
                             : state.combinedData?.where((item) {
                           return getFirstWord(item['first_name']) ==
                               getFirstWord(selectedName['full_name']);
                         }).toList() ?? [];
-
-                        // log("${state.dropDownData}", name: "dropDownData");
-                        // log("${state.combinedData}", name: "combinedData");
+                        //final dataList = state.combinedData;
+                        //log("${state.combinedData}", name: "combinedData");
 
                         if ((dataList ?? []).isEmpty) {
                           return const SizedBox.shrink();
@@ -429,15 +407,9 @@ class WorkHoursViewUI extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final employee = dataList?[index];
 
-                            final activeHours = (index < (state.activeHours?.length ?? 0))
-                                ? state.activeHours[index]
-                                : '00:00';
-                            final totalHours = (index < (state.totalHoursValue?.length ?? 0))
-                                ? state.totalHoursValue[index]
-                                : '';
-
-                            if (activeHours.toString() != '00:00' &&
-                                employee?['task_count'].toString() != '0') {
+                            //final activeHours = employee?['Active'] ?? '00:00';
+                            final taskCount = employee?['#']?.toString() ?? '0';
+                            if (taskCount != '0') {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2),
                                 child: Container(
@@ -458,11 +430,11 @@ class WorkHoursViewUI extends StatelessWidget {
                                     children: [
                                       Expanded(
                                         flex: 5,
-                                        child: Utils.getText(getFirstWord(employee?['first_name'] ?? '')),
+                                        child: Utils.getText(employee?['Employee'] ?? ''), // Resource Name
                                       ), // Employee
                                       Expanded(
                                         flex: 3,
-                                        child: Utils.getText(activeHours),
+                                        child: Utils.getText(employee?['Active'] ?? ''), // Active Hours
                                       ), // Active
                                       Expanded(
                                         flex: 3,
@@ -470,17 +442,16 @@ class WorkHoursViewUI extends StatelessWidget {
                                           onTap: () {
                                             HoursPopup.show(
                                               context,
-                                              hrmId: employee?['hrmID'],
                                               dataList: employee?['list'],
                                               userName: employee?['first_name'],
                                               selectedDateRange: selectedDateRange.toString(),
-                                              empID: employee?['empID'],
-                                              hrmID: employee?['hrmID'],
+                                              empID: employee?['user_id'],
+                                              hrmID: employee?['hrm_id'],
                                               fromDate: startDate,
                                               toDate: endDate,
                                             );
                                           },
-                                          child: Utils.getText(removeSeconds(employee?['total_working_hours'] ?? '')),
+                                          child: Utils.getText(employee?['Hours'] ?? ''),
                                         ), // Hours
                                       ),
                                       Expanded(
@@ -488,14 +459,16 @@ class WorkHoursViewUI extends StatelessWidget {
                                         child: GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) => WorkingHoursTaskUI(
-                                                      workingHoursData: dataList![index],
-                                                      dateRange: dates,
-                                                    )));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => WorkingHoursTaskUI(
+                                                  workingHoursData: dataList![index],
+                                                  dateRange: dates,
+                                                ),
+                                              ),
+                                            );
                                           },
-                                          child: Utils.getText(employee?['task_count'].toString() ?? ''),
+                                          child: Utils.getText(employee?['Task'].toString() ?? ''),
                                         ), // Task
                                       ),
                                       Expanded(
@@ -510,12 +483,12 @@ class WorkHoursViewUI extends StatelessWidget {
                                                 userName: employee?['first_name'],
                                                 taskComments: state.comments,
                                                 selectedDateRange: selectedDateRange.toString(),
-                                                hrmId: employee?['hrmID'],
+                                                hrmId: employee?['hrm_id'],
                                                 startDate: startDate,
                                                 endDate: endDate,
                                               );
                                             },
-                                            child: Utils.getText(totalHours.toString()),
+                                            child: Utils.getText(employee?['#'].toString() ?? ''),
                                           ),
                                         ),
                                       ),

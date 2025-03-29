@@ -108,10 +108,10 @@ class TaskRepository {
   }
 
   Future<WorkingTaskResponse?> fetchEmployeeTaskHistory({
-    required String to,
-    required String from,
-    required int? userId,
-    required List<int>? cohortIds, // Allow cohortIds to be nullable
+    required dynamic to,
+    required dynamic from,
+    required dynamic userId,
+    required List<dynamic>? cohortIds, // Allow cohortIds to be nullable
   }) async {
     try {
       print("Request parameters - from: $from, to: $to, userId: $userId, cohortIds: $cohortIds");
