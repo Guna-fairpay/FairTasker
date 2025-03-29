@@ -19,3 +19,10 @@ class SearchExpenseEvent extends ExpenseDetailsEvent {
   @override
   List<Object?> get props => [query];
 }
+
+class SearchRmExpenseEvent extends ExpenseDetailsEvent {
+  final String query;
+  SearchRmExpenseEvent(this.query);
+  @override
+  List<Object?> get props => [query];
+}

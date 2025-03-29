@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_page.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo_ui.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
@@ -2971,7 +2972,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                                         (value) async {
                                                                       if (value == 'Add Vehicle') {
                                                                         await Navigator.of(context).push(MaterialPageRoute(
-                                                                          builder: (context) => const VehicleViewUI(),
+                                                                          builder: (context) => const VehicleMainPage(),
                                                                         ));
                                                                       } else {
                                                                         await Navigator.of(context)

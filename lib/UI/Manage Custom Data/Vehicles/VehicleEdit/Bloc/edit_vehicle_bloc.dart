@@ -328,7 +328,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   Future<Map<String, dynamic>?> _getVehicleStatusCategories() async =>
       await _apiRepository.getVehicleCategories();
 
-  ///EDIT VEHICLE EXPENSE DETAILS API CALL getEditVehicleExpenseDetails
+  ///EDIT VEHICLE EXPENSE DETAILS API CALL
   Future<Map<String, dynamic>?> _getEditVehicleExpenseDetails({String? vin}) async =>
       await _apiRepository.getEditVehicleExpenseDetails(vin:vin);
 

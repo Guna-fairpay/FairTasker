@@ -1,51 +1,49 @@
 import 'dart:io';
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Customers/customer_view_ui.dart';
+import 'package:fairpytasker/Bloc/private_rental_bloc.dart';
+import 'package:fairpytasker/Event/private_rental_event.dart';
+import 'package:fairpytasker/State/private_rental_state.dart';
 import 'package:flutter/material.dart';
-import '../../../../Bloc/private_rental_bloc.dart';
-import '../../../../Component/drawer_ui.dart';
-import '../../../../Component/header.dart';
-import '../../../../Event/private_rental_event.dart';
-import '../../../../State/private_rental_state.dart';
-import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/image_pick_helper.dart';
-import '../../../../Utilities/num.dart';
-import '../../../../Utilities/utils.dart';
+import '../../../../../../Component/drawer_ui.dart';
+import '../../../../../../Component/header.dart';
+import '../../../../../../Utilities/appC.dart';
+import '../../../../../../Utilities/image_pick_helper.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../../../Utilities/num.dart';
+import '../../../../../../Utilities/utils.dart';
+import '../../../../Customers/customer_view_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RentalEditUI extends StatefulWidget {
-  final Map<String, dynamic> rentalData;
-
-  const RentalEditUI({super.key, required this.rentalData});
+class RentalAddUI extends StatefulWidget {
+  const RentalAddUI({super.key});
 
   @override
-  State<RentalEditUI> createState() => _RentalEditUIState();
+  State<RentalAddUI> createState() => _RentalAddUI();
 }
 
-class _RentalEditUIState extends State<RentalEditUI> {
+class _RentalAddUI extends State<RentalAddUI> {
   late PrivateRentalBloc privateRentalBloc;
-  final TextEditingController vehicleController = TextEditingController();
-  final TextEditingController customerController = TextEditingController();
-  final TextEditingController checkInDateController = TextEditingController();
-  final TextEditingController checkOutDateController = TextEditingController();
-  final TextEditingController checkInMileageController =
-      TextEditingController();
-  final TextEditingController checkOutMileageController =
-      TextEditingController();
-  final ImagePickHelper imagePickHelper = ImagePickHelper();
-  final List<Map<String, dynamic>> receiptImageFile = [];
-  final List<String> confirmationTypeList = ['Confirm', 'Close'];
-  String? selectedConfirmationType;
+  TextEditingController rentalController = TextEditingController();
+  TextEditingController vehicleController = TextEditingController();
+  TextEditingController customerController = TextEditingController();
+  TextEditingController checkInDateController = TextEditingController();
+  TextEditingController checkOutDateController = TextEditingController();
+  TextEditingController checkInMileageController = TextEditingController();
+  TextEditingController checkOutMileageController = TextEditingController();
+  TextEditingController fileController = TextEditingController();
+  ImagePickHelper imagePickHelper = ImagePickHelper();
+  List<Map<String, dynamic>> receiptImageFile = [];
+  List<String> confirmationTypeList = ['Confirm', 'Close'];
+  String? selectedConfirmationTypeList;
   bool isVehicleFieldEmpty = false;
   bool isCustomerFieldEmpty = false;
   bool showCustomerList = false;
   List<Map<String, dynamic>> customer = [];
   List<Map<String, dynamic>> filteredCustomer = [];
-  List<Map<String, dynamic>> vehicle = [];
-  List<Map<String, dynamic>> filteredVehicle = [];
   final FocusNode customerFocusNode = FocusNode();
   dynamic selectedCustomer;
+  List<Map<String, dynamic>> vehicle = [];
+  List<Map<String, dynamic>> filteredVehicle = [];
   final FocusNode vehicleFocusNode = FocusNode();
   final GlobalKey vehicleFieldKey = GlobalKey();
   final GlobalKey customerFieldKey = GlobalKey();
@@ -56,30 +54,7 @@ class _RentalEditUIState extends State<RentalEditUI> {
   @override
   void initState() {
     super.initState();
-
     privateRentalBloc = PrivateRentalBloc();
-    vehicleController.text = widget.rentalData['vehicle_name'] ?? '';
-    if (widget.rentalData['customer'] is Map<String, dynamic>) {
-      customerController.text =
-          (widget.rentalData['customer']['first_name'] ?? '') +
-              ' ' +
-              (widget.rentalData['customer']['last_name'] ?? '');
-    } else {
-      return;
-    }
-    checkInDateController.text =
-        widget.rentalData['rental']['check_in_date'] ?? '';
-    checkOutDateController.text =
-        widget.rentalData['rental']['check_out_date'] ?? '';
-    checkInMileageController.text =
-        (widget.rentalData['rental']['check_in_mileage'] ?? '').toString();
-    checkOutMileageController.text =
-        (widget.rentalData['rental']['check_out_mileage'] ?? '').toString();
-    selectedConfirmationType = (widget.rentalData['rental']['rental_status'] ??
-                confirmationTypeList[1]) ==
-            1
-        ? confirmationTypeList[0]
-        : confirmationTypeList[1];
     privateRentalBloc.add(const GetPrivateRentalData());
     customerFocusNode.addListener(() {
       if (!customerFocusNode.hasFocus) {
@@ -112,20 +87,24 @@ class _RentalEditUIState extends State<RentalEditUI> {
       isVehicleFieldEmpty = vehicleController.text.isEmpty;
       isCustomerFieldEmpty = customerController.text.isEmpty;
     });
-    if (customerController.text.isEmpty || vehicleController.text.isEmpty) {
-      return Utils.showMobileToast("Please fill the required fields");
+    if (vehicleController.text.isEmpty || customerController.text.isEmpty) {
+      return Utils.showMobileToast('Please fill in all required fields');
     }
 
-    final updatedRental = {
-      'vehicle': vehicleController.text,
-      'customer': customerController.text,
-      'checkin': checkInDateController.text,
-      'checkout': checkOutDateController.text,
-      // Include other fields if necessary
+    // Create a map with rental data
+    final newRental = {
+      'vin': vehicleController.text,
+      'customer_id': customerController.text,
+      'check_in_date': checkInDateController.text,
+      'check_out_date': checkOutDateController.text,
+      'check_in_mileage': checkInMileageController.text,
+      'check_out_mileage': checkOutMileageController.text,
+      'rental_status': selectedConfirmationTypeList ?? '',
+      // Add other fields if necessary
     };
 
-    // Return the updated rental data to the previous screen
-    Navigator.pop(context, updatedRental);
+    // Return the new rental data to the previous screen
+    Navigator.pop(context, newRental);
   }
 
   @override
@@ -168,7 +147,7 @@ class _RentalEditUIState extends State<RentalEditUI> {
                             },
                             child: const Icon(Icons.arrow_back),
                           ),
-                          Utils.getText('Edit Private Rental',
+                          Utils.getText('Add Private Rental',
                               size: 20, weight: FontWeight.bold)
                         ],
                       ),
@@ -375,7 +354,7 @@ class _RentalEditUIState extends State<RentalEditUI> {
                               child: Utils.getText('Transaction Type',
                                   color: AppC.grey),
                             ),
-                            value: selectedConfirmationType,
+                            value: selectedConfirmationTypeList,
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down),
                             elevation: 0,
@@ -384,7 +363,7 @@ class _RentalEditUIState extends State<RentalEditUI> {
                               color: Colors.transparent,
                             ),
                             onChanged: (String? value) {
-                              selectedConfirmationType = value;
+                              selectedConfirmationTypeList = value;
                               setState(() {});
                             },
                             items: confirmationTypeList
@@ -447,14 +426,14 @@ class _RentalEditUIState extends State<RentalEditUI> {
                       Visibility(
                         visible: receiptImageFile.isNotEmpty,
                         child: SizedBox(
-                          height: 80, // Set a height for the ListView
+                          height: 80,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: receiptImageFile.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 5),
+                                    const EdgeInsets.symmetric(horizontal: 5.0),
                                 child: Stack(
                                   alignment: Alignment.topRight,
                                   children: [
@@ -490,9 +469,8 @@ class _RentalEditUIState extends State<RentalEditUI> {
                                               .isEmpty) {
                                             receiptImageFile.removeAt(index);
                                           } else {
-                                            // vehicleDataBloc.add(
-                                            //   DeleteExpenseImage(id: receiptImageFile[index]['id']),);
-                                            receiptImageFile.removeAt(index);
+                                            // vehicleDataBloc.add(DeleteVehicleImage(id: imageFile[index]['id']));
+                                            // imageFile.removeAt(index);
                                           }
                                           setState(() {});
                                         },
@@ -503,10 +481,9 @@ class _RentalEditUIState extends State<RentalEditUI> {
                                           ),
                                           alignment: Alignment.center,
                                           child: const Icon(
-                                            Icons.delete_outline_outlined,
-                                            color: AppC.white,
-                                            size: 16,
-                                          ),
+                                              Icons.delete_outline_outlined,
+                                              color: AppC.white,
+                                              size: 16),
                                         ),
                                       ),
                                     ),

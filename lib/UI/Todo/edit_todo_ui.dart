@@ -1,3 +1,4 @@
+/*
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -144,7 +145,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
   List<String?>? selectedResourceList;
   List<String> vendorLocationSuggestionList = [];
   List<String> taskIdentifierSuggestionList = [];
-  List<String> vehiclePersonSuggestionList = [];
+  List<String> vehiclePersonSuggestionList = [];*/
+/**//*
+
   List<String>? vehicleGroupVinNumbersList;
 
   List<String> priorityList = ['High - On Time', 'Medium', 'Low', 'Feature'];
@@ -573,12 +576,14 @@ class _EditTodoUIState extends State<EditTodoUI> {
                     .then((selectedFiles) {
                   if (selectedFiles.isNotEmpty) {
                     todoImages.addAll(selectedFiles.map((e) => File(e)).toList());
-                    /*for (var filePath in selectedFiles) {
+                    */
+/*for (var filePath in selectedFiles) {
                       // Add each image to your todoImages list
                       todoImages.add({
                         'path': filePath,
                       });
-                    }*/
+                    }*//*
+
                     setState(() {}); // Refresh the UI
                   } else {
                     debugPrint("No images selected.");
@@ -700,9 +705,11 @@ class _EditTodoUIState extends State<EditTodoUI> {
               create: (context) =>
               vehicleDataBloc!..add(const vdb.VehicleInitial()),
             ),
-            /*BlocProvider(
+            */
+/*BlocProvider(
               create: (context) => locationDataBloc!..add(const AddedLocationInitial()),
-            ),*/
+            ),*//*
+
           ],
           child: MultiBlocListener(
             listeners: [
@@ -761,8 +768,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         // vehicleDataBloc = VehicleDataBloc();
                         vehicleDataBloc!.add(vdb.GetVehicleHistoryEvent(
                             vin: createTodoParams.vin,
-                            vehicleGroupId: /*value.vehicleGroupId != null ?*/
-                                /*int.parse(value.vehicleGroupId??'0') :*/ null,
+                            vehicleGroupId: */
+/*value.vehicleGroupId != null ?*//*
+
+                                */
+/*int.parse(value.vehicleGroupId??'0') :*//*
+ null,
                             needUI: false));
                         setState(() {});
                       }
@@ -1026,21 +1037,27 @@ class _EditTodoUIState extends State<EditTodoUI> {
                           textColors = AppC.text;
                         }
                       }
-                      /*List<Todos> list = [];
+                      */
+/*List<Todos> list = [];
                       list.addAll(state.vehicleHistoryList ?? []);
                       list.sort((a, b) =>
                           DateTime.parse(a.createdAt ?? '').compareTo(
                               DateTime.parse(b.createdAt ?? '')));
-                     */
+                     *//*
+
                       todoList.addAll(state.vehicleHistoryList!);
                       todoListRepo.vehicleHistoryTempSearchList
-                          .addAll(/*todoList*/ state.vehicleHistoryList!);
+                          .addAll(*/
+/*todoList*//*
+ state.vehicleHistoryList!);
 
-                      /*if (todoList.isNotEmpty) {
+                      */
+/*if (todoList.isNotEmpty) {
                         if (todoList.first.title == 'clean car'){
 
                         }
-                      }*/
+                      }*//*
+
                       setState(() {});
                     }
                     setState(() {
@@ -1752,7 +1769,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                 onChangeCallback: (value) {
                                               editPartsSuggestionList.clear();
                                               List<dynamic> partsList =
-                                                  editPartsList /*.map((e) =>'${e.name}').toList()*/;
+                                                  editPartsList */
+/*.map((e) =>'${e.name}').toList()*//*
+;
                                               editPartsSuggestionList.addAll(
                                                   Utils.searchObjectList(
                                                       partsList, value));
@@ -1903,7 +1922,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                                       editSuppliesSuggestionList
                                                           .clear();
                                                       List<dynamic> supplyList =
-                                                          editSuppliesList /*.map((e) =>'${e.name}').toList()*/;
+                                                          editSuppliesList */
+/*.map((e) =>'${e.name}').toList()*//*
+;
                                                       editSuppliesSuggestionList
                                                           .addAll(Utils
                                                               .searchObjectList(
@@ -2284,8 +2305,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
                         // vehicleDataBloc = VehicleDataBloc();
                         vehicleDataBloc!.add(vdb.GetVehicleHistoryEvent(
                             vin: value.vin,
-                            vehicleGroupId: /*value.vehicleGroupId != null ?*/
-                                /*int.parse(value.vehicleGroupId??'0') :*/ null,
+                            vehicleGroupId: */
+/*value.vehicleGroupId != null ?*//*
+
+                                */
+/*int.parse(value.vehicleGroupId??'0') :*//*
+ null,
                             needUI: false));
                         setState(() {});
                       }
@@ -3085,10 +3110,12 @@ class _EditTodoUIState extends State<EditTodoUI> {
         }
       }
     }
-    /*vehicleName: createTodoParamForVHistory.vehicleName,
+    */
+/*vehicleName: createTodoParamForVHistory.vehicleName,
      vehicleGroupId: int.parse(createTodoParamForVHistory.vehicleGroupId??'0'),
      vin: createTodoParamForVHistory.vin,
-     vehicleImage: createTodoParamForVHistory.vehicleImage*/
+     vehicleImage: createTodoParamForVHistory.vehicleImage*//*
+
     return createTodoParams;
   }
 
@@ -3459,7 +3486,9 @@ class _EditTodoUIState extends State<EditTodoUI> {
                                 borderRadius:
                                     const BorderRadius.all(Radius.circular(0)),
                                 border: Border.all(
-                                    color: AppC.fieldBase /*, width: 0.2*/)),
+                                    color: AppC.fieldBase */
+/*, width: 0.2*//*
+)),
                             child: const Icon(
                               Icons.clear_rounded,
                               color: AppC.red,
@@ -3595,3 +3624,4 @@ class _EditTodoUIState extends State<EditTodoUI> {
     });
   }
 }
+*/

@@ -19,6 +19,7 @@ class ExpenseDetailsBloc
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> usersList = [];
   TextEditingController searchController = TextEditingController();
+  TextEditingController rmSearchController = TextEditingController();
   dynamic expenseAmount;
   dynamic rmExpenseAmount;
 
@@ -32,6 +33,7 @@ class ExpenseDetailsBloc
 
         apiResponse = List.from(editVehicleExpenseDetailsResponse?['data']);
         apiResponse = employeeNames(apiResponse, usersList);
+        apiResponse = cohortList(apiResponse);
 
         expenseDetails = apiResponse
             .where((element) =>
@@ -63,74 +65,31 @@ class ExpenseDetailsBloc
 
     on<SearchExpenseEvent>((event, emit) {
       var searchQuery = event.query;
-
-      if (searchQuery.isNotNullOrEmpty) {
-        var response = expenseDetails.where((element) =>
-        /*(element['vehicle']?['vehicle_name']?.toString().toLowerCase())
-            !.contains(searchQuery.toString().toLowerCase()) ||*/
-            (element['expense_to_data']?['expense_to']?.toString().toLowerCase())
-                !.contains(searchQuery.toString().toLowerCase()) ||
-            (element['cohort']?['cohort']?.toString().toLowerCase())
-                !.contains(searchQuery.toString().toLowerCase()) ||
-            (element['category']?['name']?.toString().toLowerCase())
-                !.contains(searchQuery.toLowerCase()) ||
-            (element['subcategory']?['name']?.toString().toLowerCase())
-                !.contains(searchQuery.toLowerCase()) ||
-            element['expense_amount'].toString().contains(searchQuery))
-            .toList();
-
-        filteredExpenseDetails = response;
-        emit(ExpenseDetailsCommonState());
-      } else {
-        filteredExpenseDetails = expenseDetails;
-        emit(ExpenseDetailsCommonState());
-      }
+      filteredExpenseDetails = filterExpenses(expenseDetails, searchQuery);
+      emit(ExpenseDetailsCommonState());
     });
 
+    on<SearchRmExpenseEvent>((event, emit) {
+      var searchQuery = event.query;
+      filteredRmExpenseDetails = filterExpenses(rmExpenseDetails, searchQuery);
+      emit(ExpenseDetailsCommonState());
+    });
 
-    /*on<SearchExpenseEvent>((event, emit) {
-      var searchQuery = event.query??'';
-      if (searchQuery.isNotNullOrEmpty) {
-        filteredExpenseDetails = expenseDetails.where((element) => ((element['vehicle']?['vehicle_name']
-            .toString()
-            .toLowerCase()
-            .contains(searchQuery.toLowerCase()) ??
-            false) ||
-            (element['expense_to_data']?['expense_to']
-                .toString()
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ??
-                false) ||
-            (element['cohort']?['cohort']
-                .toString()
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ??
-                false) ||
-            (element['category']?['name']
-                .toString()
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ??
-                false) ||
-            (element['subcategory']?['name'].toString().toLowerCase().contains(searchQuery.toLowerCase()) ??
-                false) ||
-            (element['expense_amount']
-                    .toString()
-                .contains(searchQuery.toLowerCase()))))
-            .toList();
-
-        emit(ExpenseDetailsCommonState());
-      }
-      else {
-        filteredExpenseDetails = expenseDetails;
-        emit(ExpenseDetailsLoadedState());
-      }
-    });*/
   }
 
   ///EDIT VEHICLE EXPENSE DETAILS API CALL
   Future<Map<String, dynamic>?> _getEditVehicleExpenseDetails(
           {String? vin}) async =>
       await _apiRepository.getEditVehicleExpenseDetails(vin: vin);
+
+  List<Map<String, dynamic>> cohortList(List<Map<String, dynamic>> apiResponse) {
+    return apiResponse.map((item) {
+      item['cohortName'] = (item['expense_to'] == 4)
+          ? item['cohort']['cohort']??''
+          : item['expense_to_data']['expense_to'] ?? '';
+      return item;
+    }).toList();
+  }
 
   List<Map<String, dynamic>> employeeNames(
       List<Map<String, dynamic>> apiResponse,
@@ -147,4 +106,20 @@ class ExpenseDetailsBloc
       return e;
     }).toList();
   }
+
+  List<Map<String, dynamic>> filterExpenses(
+      List<Map<String, dynamic>> expenseDetails, String searchQuery) {
+    if (searchQuery.isEmpty) return expenseDetails;
+    return expenseDetails.where((element) {
+      final query = searchQuery.toLowerCase();
+      return (element['expense_to_data']?['expense_to']?.toString().toLowerCase() ?? '')
+          .contains(query) ||
+          (element['cohortName']?.toString().toLowerCase() ?? '').contains(query) ||
+          (element['category']?['name']?.toString().toLowerCase() ?? '').contains(query) ||
+          (element['subcategory']?['name']?.toString().toLowerCase() ?? '').contains(query) ||
+          element['expense_amount'].toString().contains(query);
+    }).toList();
+  }
+
+
 }

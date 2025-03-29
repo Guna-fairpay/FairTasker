@@ -155,6 +155,10 @@ class APiRepository {
 
   String get _editVehicleExpenseDetails => "filter?vin";
 
+  String get _privateRentalVehiclesList => "private_rental_vehicles_list";
+
+  String get _privateRentalCustomersList => "private_rental_customers_list";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1278,5 +1282,26 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String,dynamic>?> getPrivateRentalVehicleList() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_privateRentalVehiclesList';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getPrivateRentalCustomersList() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_privateRentalCustomersList';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+      } catch (error) {
+      rethrow;
+    }
+  }
 
 }

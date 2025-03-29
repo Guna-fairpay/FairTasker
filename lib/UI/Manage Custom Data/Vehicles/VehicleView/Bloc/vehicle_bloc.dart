@@ -1,13 +1,14 @@
 
 import 'dart:developer';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_event.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_state.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   final APiRepository _apiRepository = APiRepository();

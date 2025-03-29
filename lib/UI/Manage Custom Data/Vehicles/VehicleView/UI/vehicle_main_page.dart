@@ -1,15 +1,15 @@
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_bloc.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_event.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Bloc/vehicle_state.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/UI/vehicle_listing_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/UI/add_vehicle_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/TabBarPages/Vehicle_edit_tab_bar.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_bloc.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_listing_page.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../TabBarPages/Vehicle_edit_tab_bar.dart';
 
 class VehicleMainPage extends StatelessWidget {
   const VehicleMainPage({super.key});

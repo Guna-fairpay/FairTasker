@@ -1,5 +1,5 @@
+
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_view.dart';
 import 'package:flutter/material.dart';
 import '../../Component/drawer_ui.dart';
 import '../../Component/header.dart';
@@ -9,13 +9,11 @@ import 'Categorys/category_view_ui.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/location_view_ui.dart';
 import 'Parts/part_view_ui.dart';
-import 'Parts/ui/parts_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
 import 'Task/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
-import 'Vehicles/Components/vehicle_tab_bar.dart';
-import 'Vehicles/vehicle_view_ui.dart';
+import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
 import 'Vendor/vendor_view_ui.dart';
 
 class ManageCustomDataMenuUI extends StatelessWidget {

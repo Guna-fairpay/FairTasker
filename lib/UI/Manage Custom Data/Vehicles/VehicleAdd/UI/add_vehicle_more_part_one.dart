@@ -1,10 +1,10 @@
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Components/checkbox_with_text.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/UI/add_vehicle_more_part_two.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/checkbox_with_text.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,5 +1,4 @@
 
-import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/Bloc/expense_details_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/Bloc/expense_details_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/Bloc/expense_details_state.dart';
@@ -72,6 +71,9 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
                         }
                       }
                       List<dynamic> images = model['attachments'];
+                      Color categoryColor = (model['payment_method_id']).toString() == '4'
+                          ? const Color(0xFF13b3b3)
+                          : AppC.grey;
 
                       List<dynamic> expenseImages =
                       images.map((e) => e['path'].toString().toStorageURL).toList();
@@ -140,7 +142,7 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Utils.getText(
-                                  cohort,
+                                  "${model["cohortName"]??''}",
                                   overFlow: TextOverflow.ellipsis,
                                   color: (model['expense_to']).toString() == '4'
                                       ? getCategoryColor(cohort)
@@ -150,12 +152,14 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
                                 Utils.getText(
                                   '${model['category']['name']} ',
                                   overFlow: TextOverflow.ellipsis,
+                                  color: categoryColor,
                                 ),
                                 Utils.getText(" | ", weight: FontWeight.w900),
                                 Expanded(
                                   child: Utils.getText(
                                     '${model['subcategory']['name']}',
                                     overFlow: TextOverflow.ellipsis,
+                                    color: categoryColor,
                                   ),
                                 ),
                               ],
