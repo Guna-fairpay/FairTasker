@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
@@ -7,12 +8,14 @@ import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart'
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_comment_attachments.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get_time_ago/get_time_ago.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../Component/drawer_ui.dart';
@@ -73,14 +76,14 @@ class FeedbackEditComments extends StatelessWidget {
                                           minVerticalPadding: 0,
                                           leading: CircleAvatar(
                                             child: Center(
-                                                child: Utils.getText("I",
+                                                child: Utils.getText(<String>[(model?['users']?['first_name'] ?? ''), (model?['users']?['last_name'] ?? '')].toInitial,
                                                     size: 16,
                                                     weight: FontWeight.bold,
                                                     color: AppC.white)),
                                           ),
                                           title: Text(
                                               "${model?['users']?['first_name'] ?? ''} ${model?['users']['last_name']}"),
-                                          subtitle: const Text("2days ago"),
+                                          subtitle: Text(GetTimeAgo.parse(DateTime.tryParse(model?['created_at'] ?? "") ?? DateTime.now().toUtc())),
                                           trailing: ((model?['attachments'] !=
                                                       null) &&
                                                   (model?['attachments']

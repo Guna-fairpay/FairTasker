@@ -167,6 +167,8 @@ class APiRepository {
 
   String get _editPrivateRental => "private_rental_update";
 
+  String get _feedback => "feedback";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1388,6 +1390,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     } catch (error) {
       log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
       return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> uploadFeedback({required Map<String, dynamic>? body, List<Map<String, String?>>? infusedFiles}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_feedback";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
     }
   }
 
