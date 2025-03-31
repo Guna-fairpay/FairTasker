@@ -15,6 +15,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -335,12 +336,25 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                       ),
                       10.height,
                       Utils.getElevatedButton(() {
+                        if(state.selectedVehicle.isEmpty) {
+                          return Toaster.showError("Please select vehicle");
+                        }
+                        if(context.read<ExpenseBloc>().amountController.text.isEmpty) {
+                          return Toaster.showError("Please enter amount");
+                        }
+                        if(state.selectedCategory.isEmpty) {
+                          return Toaster.showError("Please select category");
+                        }
+                        if(state.subCategories.isNotEmpty && state.selectedSubCategory.isEmpty) {
+                          return Toaster.showError("Please select subCategory");
+                        }
+                        if(state.selectedCohorts.isEmpty) {
+                          return Toaster.showError("Please select subCategory");
+                        }
                         context.read<ExpenseBloc>().add(const UpdateExpenseEvent());
-                        Future.delayed(
-                          const Duration(seconds: 1),
-                          () => Navigator.pop(context),
+                        Future.delayed(const Duration(seconds: 1),
+                          () => context.pop(),
                         );
-                        // context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
                       }),
                       10.height,
                       if(state.todoDetails.isNotEmpty)

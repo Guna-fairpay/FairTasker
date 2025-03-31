@@ -54,8 +54,8 @@ class ExpenseTab extends StatelessWidget {
                           ?  const ExpenseVehicleViewUI()
                           : state.selectedTap['id'] == 2
                           ? const PersonExpenseViewUI()
-                          : state.selectedTap['id'] == 3
-                          ? const Text('3')///OtherExpenseViewUI()
+                          // : state.selectedTap['id'] == 3
+                          // ? const Text('3')///OtherExpenseViewUI()
                           : const SizedBox(),
                     ),
                   ),

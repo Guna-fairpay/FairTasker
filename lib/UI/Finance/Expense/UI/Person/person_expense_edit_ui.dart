@@ -30,9 +30,6 @@ class PersonExpenseEditUI extends StatelessWidget {
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-          if(state.popAddPage){
-            Navigator.pop(context);
-          }
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {
@@ -276,7 +273,11 @@ class PersonExpenseEditUI extends StatelessWidget {
                         if (state.selectedApproved.isEmpty) {
                           return Toaster.showError("Please select approved status");
                         }
-                        context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));})
+                        context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));
+                        Future.delayed(const Duration(seconds: 1),
+                              () => context.pop(),
+                        );
+                      })
                     ],
                   ),
                 ),

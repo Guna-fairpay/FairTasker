@@ -12,6 +12,7 @@ class CohortDialog {
   static void show(
     BuildContext context, {
     required dynamic expense,
+        // VoidCallback? onCompleted,
   }) async {
     await showDialog(
         context: context,
@@ -20,6 +21,7 @@ class CohortDialog {
             value: BlocProvider.of<ExpenseBloc>(context),
             child: _CohortDialog(
               expense: expense,
+                // onCompleted: onCompleted,
             ),
           );
         });
@@ -28,9 +30,10 @@ class CohortDialog {
 
 class _CohortDialog extends StatelessWidget {
   final dynamic expense;
-
+  // final VoidCallback? onCompleted;
   const _CohortDialog({
     required this.expense,
+    // this.onCompleted
   });
 
   @override
@@ -81,7 +84,7 @@ class _CohortDialog extends StatelessWidget {
                       text: 'Save',
                       () { context
                           .read<ExpenseBloc>()
-                          .add(UpdateCategoryEvent(expenseData: expense));
+                          .add(UpdateCohortEvent(expenseData: expense));
                           Navigator.pop(context);
                       },
                   ),

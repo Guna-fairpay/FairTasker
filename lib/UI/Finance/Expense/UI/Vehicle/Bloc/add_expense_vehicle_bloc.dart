@@ -178,7 +178,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
-        emit(state.copyWith(isLoading: false,popAddPagePop: true));
+        emit(state.copyWith(popAddPagePop: true));
         _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
         if (response?['status'] == 200) emit(state.copyWith());
       } catch (e) {

@@ -55,8 +55,8 @@ class PersonExpenseState extends Equatable{
     required this.selectedApproved,
     required this.personExpenseHistory,
     required this.totalAmount,
-    this.popEditPage = false,
-    this.popAddPage = false,
+    required this.popEditPage,
+    required this.popAddPage,
 
 
   });
