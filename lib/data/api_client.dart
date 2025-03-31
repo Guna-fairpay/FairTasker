@@ -225,6 +225,7 @@ class ApiClient {
 
   Future<http.Response> _postMultiPartComputeDynamic(dynamic message) async {
     var infusedFiles = message['infusedFiles'];
+    Console.of.debug(infusedFiles);
     List<http.MultipartFile> multiPartFiles = [];
     if (infusedFiles is List<Map<String, String?>>) {
       var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
@@ -239,8 +240,13 @@ class ApiClient {
       ..headers.addAll(message['token'])
       ..fields.addAll(message['fields'])
       ..files.addAll(multiPartFiles);
+    Console.of.debug(message['fields']);
+    multiPartFiles.forEach((element) {
+      Console.of.debug("${element.filename} ${element.field}");
+    });
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
+    Console.of.log(response);
     return http.Response(response, streamedResponse.statusCode);
   }
 

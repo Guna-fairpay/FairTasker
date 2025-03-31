@@ -70,10 +70,7 @@ class _ExpenseLogAttachmentDialogContentView extends StatelessWidget {
           if (model?['video'].toString().isNotNullOrEmpty ?? false) ...[
             Utils.getText("Video", size: 12.sp, weight: FontWeight.bold),
             10.height,
-            SizedBox(
-              height: context.height * 0.4,
-              child: VideoPlayerView(videoInput: model?['video'], autoPlay: false),
-            ),
+            VideoPlayerView(videoInput: model?['video'], autoPlay: false),
             10.height,
           ],
           if (model?['image'].toString().isNotNullOrEmpty ?? false) ...[
