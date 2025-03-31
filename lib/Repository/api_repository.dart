@@ -149,6 +149,8 @@ class APiRepository {
 
   String get _relatedToDos => "related-todos";
 
+  String get _expenseLogs => "expenseLogs";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1202,6 +1204,39 @@ Future<Map<String, dynamic>?> getLocations() async {
       String apiUrl = "${Str.BASE_URL}$_groupVehicle/$groupId";
       body?.putIfAbsent("type", () => "inline");
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "PUT");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> expenseLogs({dynamic vin}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = List<Map<String, dynamic>>.from(jsonDecode(response?.body ?? ""));
+      return (vin.toString().isNotNullOrEmpty) ?  mapData.where((element) => element['vin'] == vin).toList() : mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> uploadExpenseLogs({required Map<String, dynamic>? body, required dynamic infusedFiles}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteExpenseLog({dynamic logId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs/$logId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (e) {

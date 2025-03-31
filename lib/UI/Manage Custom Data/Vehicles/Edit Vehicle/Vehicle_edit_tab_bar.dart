@@ -42,12 +42,12 @@ class VehicleEditTabBar extends StatelessWidget {
             overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
            // SafeArea(child: VehicleEditUI()),
-            SafeArea(child: VehicleExpenseUI()),
-            SafeArea(child: VehicleRepairMaintenanceUI()),
-            SafeArea(child: VehicleLogUI()),
+            const SafeArea(child: VehicleExpenseUI()),
+            const SafeArea(child: VehicleRepairMaintenanceUI()),
+            SafeArea(child: VehicleLogUI(vin: vehicle['vin'])),
           ],
 
         ),

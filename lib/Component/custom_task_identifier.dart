@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -14,6 +15,7 @@ import 'dart:developer';
 class TaskIdentifier extends StatelessWidget {
   final List<dynamic> tasks;
   final List<dynamic> vehicles;
+  final List<dynamic> gVehicles;
   final List<dynamic> persons;
   final List<dynamic> vendors;
   final List<dynamic> location;
@@ -28,6 +30,7 @@ class TaskIdentifier extends StatelessWidget {
       required this.persons,
       required this.tasks,
       required this.vehicles,
+      required this.gVehicles,
       required this.vendors,
       this.onSelected,
       this.selected}) {
@@ -75,9 +78,10 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void updateCommonList() {
-    vTasks =  tasks
-        .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
-        .toList();
+    // vTasks =  tasks
+    //     .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
+    //     .toList();
+    vTasks = CustomSearchDataConverter.convertTasks(tasks: tasks);
     var person =  persons.map((element) =>
     {
       "id": element['id'],
@@ -95,7 +99,8 @@ class TaskIdentifier extends StatelessWidget {
       "partNumber" : 2,
       "value" : element
     }).toList();
-    vPersons = [...vehicle, ...person];
+    vPersons = CustomSearchDataConverter.convertVPerson(vehicles: vehicles, persons: persons, groupVehicles: gVehicles);
+    // vPersons = [...vehicle, ...person];
     var locations =  location.map((element) =>
     {
       "id": element['id'],
@@ -111,7 +116,8 @@ class TaskIdentifier extends StatelessWidget {
       "partNumber" : 3,
       "value" : element
     }).toList();
-    vLocations = [...vendor, ...locations];
+    vLocations = CustomSearchDataConverter.convertVLocation(vendors: vendors, locations: location);
+    // vLocations = [...vendor, ...locations];
     commonList = vTasks;
   }
 
@@ -300,20 +306,20 @@ class TaskIdentifier extends StatelessWidget {
     if (inputParts.length > 3) commonList.clear();
     log("$omitted ${omitted.length}", name: "OMITTED");
     var omitLength = omitted.length;
-    if (omitLength == 1) {
-      // SECOND
-      type = "vperson";
-      commonList = vPersons;
-    } else if (omitLength == 2) {
-      // THIRD
-      type = "vlocation";
-      commonList = vLocations;
-    }
+    // if (omitLength == 1) {
+    //   // SECOND
+    //   type = "vperson";
+    //   commonList = vPersons;
+    // } else if (omitLength == 2) {
+    //   // THIRD
+    //   type = "vlocation";
+    //   commonList = vLocations;
+    // }
     Console.of.error("${type} ${commonList.length}");
     var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
     Console.of.debug("SECOND ${list.length}");
     // showEmptyNotifier.value = list.isEmpty;
-    return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : (list.isEmpty) ? commonList : list;
+    return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
 
 

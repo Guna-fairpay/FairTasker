@@ -83,7 +83,7 @@ class CustomVendorLocationField extends StatelessWidget {
     var list =
     unfilteredList.where((element) => element['name'] != omitted).where((element) => element['name'].toString().toLowerCase().contains(val)).toList();
     Console.of.debug("Omitted ${omitted != null} ${((selectedData['name'] != textEditingValue.text))} ${((omitted != null) && ((selectedData['name'] != textEditingValue.text)))}");
-    showEmptyNotifier.value = list.isEmpty;
+    showEmptyNotifier.value = ((omitted == null) && (list.isEmpty)) ?  true : false;
     return list;
   }
 

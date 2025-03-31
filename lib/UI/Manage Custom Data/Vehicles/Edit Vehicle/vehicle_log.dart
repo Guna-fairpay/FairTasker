@@ -1,71 +1,47 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/add_vehicle_log/add_vehicle_log_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/vehicle_log_listing_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/vehicle_log_search_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log_bloc/vehicle_log_bloc.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log_bloc/vehicle_log_events.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log_bloc/vehicle_log_states.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/expense_log_attachment_dialog.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../../../../Utilities/Utils.dart';
-import '../../../../Utilities/appC.dart';
-
-class VehicleLogUI extends StatefulWidget {
-  const VehicleLogUI({super.key});
-
-  @override
-  _VehicleLogUIState createState() => _VehicleLogUIState();
-}
-
-class _VehicleLogUIState extends State<VehicleLogUI> {
-  final TextEditingController _messageController = TextEditingController();
-
-  void _sendMessage() {
-    print("Message sent: ${_messageController.text}");
-    _messageController.clear();
-  }
+class VehicleLogUI extends StatelessWidget {
+  final dynamic vin;
+  const VehicleLogUI({super.key,required this.vin});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppC.white,
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(), // Placeholder for chat messages
-          ),
-          _buildMessageInput(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageInput() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.image),
-            onPressed: () {}, // Handle image selection
-          ),
-          IconButton(
-            icon: const Icon(Icons.mic),
-            onPressed: () {}, // Handle audio recording
-          ),
-          IconButton(
-            icon: const Icon(Icons.videocam),
-            onPressed: () {}, // Handle video selection
-          ),
-          Expanded(
-            child: Utils.getBorderedMultilineTextField(
-              "Type a message...",
-              _messageController,
-              borderRadius: 20,
-              maxLines: 5,
-              minLines: 1
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: _sendMessage,
-          ),
-        ],
-      ),
-    );
+    return BlocProvider(
+        create: (context) => VehicleLogBloc()..add(VehicleLogInitialEvent(vin)),
+        child: BlocListener<VehicleLogBloc, VehicleLogState>(
+          listener: (context, state) {
+            if (state is VehicleLogLoadingState) {
+             if (!EasyLoading.isShow) EasyLoading.show();
+            } else {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
+              switch(state) {
+                case VehicleLogErrorState(): Toaster.showError(state.message); break;
+                case VehicleLogSuccessState(): Toaster.showSuccess(state.message); break;
+                case VehicleLogDeleteTapState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this vehicle log?", negativeText: "No", positiveText: "Yes", isReasonRequired: false, onPositivePressed: () => context.read<VehicleLogBloc>().add(VehicleLogDeleteEvent(state.model))); break;
+                case VehicleLogViewAttachmentState(): ExpenseLogAttachmentDialog.show(context, model: state.model); break;
+                case VehicleLogAddState(): context.push(AddVehicleLogView(vin: state.vin,), fullscreenDialog: true); break;
+              }
+            }
+          },
+          child: const SafeArea(
+              child: Column(
+            children: [
+              VehicleLogSearchView(),
+              VehicleLogListingView(),
+            ],
+          )),
+        ));
   }
 }
