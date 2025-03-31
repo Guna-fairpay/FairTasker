@@ -1395,7 +1395,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> vehicleAddOrUpdateApi(
       {Map<String, dynamic>? body,
-        List<File>? images,
+        List<Map<String, String?>>? infusedFiles,
         String? id}) async {
     try {
       String apiUrl = '';
@@ -1404,13 +1404,10 @@ Future<Map<String, dynamic>?> getLocations() async {
       } else {
         apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi";
       }
-      final http.Response? response = await _apiClient.callPostMethodWithBody(
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(
           apiUrl,
           body: body,
-          autoIncrement: true,
-          fieldName: "images",
-          files: images?.map((e) => e.path).toList(),
-
+          infusedFiles: infusedFiles,
       );
       if (response != null) {
         if (response.isSuccess) {

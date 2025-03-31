@@ -10,6 +10,7 @@ import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -203,28 +204,36 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     });
 
     on<PurchaseReceiptImageEvent>((event, emit) async {
-      await _handleFileSelection(receiptImage, "receiptImageFile", emit);
+      receiptImage = await _handleFileSelection(receiptImage, "receiptImageFile");
       log("$receiptImage", name: "PurchaseReceiptImageEvent");
+      emit(EditVehicleCommonState());
     });
 
     on<VehicleImageEvent>((event, emit) async {
-      await _handleFileSelection(vehicleImage, "vehicleImageFile", emit);
+      vehicleImage = await _handleFileSelection(vehicleImage, "vehicleImageFile");
+      log("$vehicleImage", name: "VehicleImageEvent");
+
+      emit(EditVehicleCommonState());
     });
 
     on<TollImageEvent>((event, emit) async {
-      await _handleFileSelection(tollImage, "tollImageFile", emit);
+      tollImage = await _handleFileSelection(tollImage, "tollImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<TireImageEvent>((event, emit) async {
-      await _handleFileSelection(tireImage, "tireImageFile", emit);
+      tireImage = await _handleFileSelection(tireImage, "tireImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<UploadRegStickerImageEvent>((event, emit) async {
-      await _handleFileSelection(uploadRegSticker, "uploadRegStickerImageFile", emit);
+      uploadRegSticker = await _handleFileSelection(uploadRegSticker, "uploadRegStickerImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<InsuranceImageEvent>((event, emit) async {
-      await _handleFileSelection(insuranceImage, "insuranceImageFile", emit);
+      insuranceImage = await _handleFileSelection(insuranceImage, "insuranceImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<RemovePurchaseReceiptImageEvent>((event, emit) async {
@@ -312,8 +321,17 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     on<SaveUpdatedVehicle>((event, emit) async {
       try {
         emit(EditVehicleLoadingState());
+        List<Map<String, String?>> infusedFiles = [
+          ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),
+          ...receiptImage.whereType<File>().map((e) => {"files" : e.path}),
+          ...tireImage.whereType<File>().map((e) => {"tyre_images" : e.path}),
+          ...tollImage.whereType<File>().map((e) => {"toll_images" : e.path}),
+          ...uploadRegSticker.whereType<File>().map((e) => {"registration_documents" : e.path}),
+          ...insuranceImage.whereType<File>().map((e) => {"insurance_agent_images" : e.path}),
+        ];
+        Console.of.log(infusedFiles, name: "infusedFiles");
         var response = await _apiRepository.vehicleAddOrUpdateApi(
-          images: vehicleImage.whereType<File>().toList(),
+          infusedFiles: infusedFiles,
           body: _save(),
           id:"${event.data['id']}",
         );
@@ -392,25 +410,36 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         [];
   }
 
-  Future<void> _handleFileSelection(
-      List<dynamic> fileList, String logName, Emitter emit) async {
+  Future<List<dynamic>> _handleFileSelection(
+      List<dynamic> fileList, String logName) async {
     var result = await _pickFiles();
     if (result.isNotEmpty) {
       var existingAttachments =
       fileList.whereType<File>().map((e) => e.path).toList();
+      var existingAttachmentString =
+      fileList.whereType<String>().map((e) => e).toList();
 
-      List<File> newFiles = [];
+      List<dynamic> newFiles = [];
       for (var element in result) {
         if (!existingAttachments.contains(element.path)) {
           newFiles.add(element);
         }
       }
-      fileList.clear();
-      fileList.addAll(existingAttachments.map((path) => File(path)));
+      Console.of.log(fileList);
+      Console.of.debug(existingAttachments);
+      Console.of.error(newFiles);
+      fileList = [];
+      List<dynamic> existing = existingAttachments.map((path) => File(path)).toList();
+      fileList.addAll(existingAttachmentString);
+      fileList.addAll(existing);
       fileList.addAll(newFiles);
 
       log("$fileList", name: logName);
-      emit(EditVehicleCommonState());
+      Console.of.warning(vehicleImage, name: "vehicleImage");
+      return fileList;
+      // emit(EditVehicleCommonState());
+    } else {
+      return [];
     }
   }
 

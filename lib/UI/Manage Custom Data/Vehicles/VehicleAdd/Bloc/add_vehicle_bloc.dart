@@ -214,8 +214,16 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     on<SaveNewVehicleEvent>((event, emit) async {
       try {
         emit(AddVehicleLoadingState());
+        List<Map<String, String?>> infusedFiles = [
+          ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),
+          ...receiptImage.whereType<File>().map((e) => {"files" : e.path}),
+          ...tireImage.whereType<File>().map((e) => {"tyre_images" : e.path}),
+          ...tollImage.whereType<File>().map((e) => {"toll_images" : e.path}),
+          ...uploadRegSticker.whereType<File>().map((e) => {"registration_documents" : e.path}),
+          ...insuranceImage.whereType<File>().map((e) => {"insurance_agent_images" : e.path}),
+        ];
         var response = await _apiRepository.vehicleAddOrUpdateApi(
-          images: vehicleImage.whereType<File>().toList(),
+          infusedFiles: infusedFiles,
           body: _save(),
         );
         if (response?.isNotEmpty ?? false) {

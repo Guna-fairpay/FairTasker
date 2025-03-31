@@ -24,8 +24,8 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
   List<dynamic> validation = [{'id': 1, 'status': 'Confirm'}, {'id': 0, 'status': 'Close'}];
   List<dynamic> imageList = [];
   List<dynamic> attachment = [];
-  dynamic selectedVehicle = {};
-  dynamic selectedCustomer = {};
+  Map<String,dynamic> selectedVehicle = {};
+  Map<String,dynamic> selectedCustomer = {};
   dynamic selectedStatus = {};
   dynamic rentalData = {};
   DateTime? selectedCheckInDate;
@@ -57,8 +57,8 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
       vehicleList =List.from(response?['vehicles'] ?? []);
       rentalData = editResponse ?? {};
 
-      selectedVehicle = vehicleList.firstWhereOrNull((element) => element['vin'] == rentalData['vin']);
-      selectedCustomer =customerList.firstWhereOrNull((element) => element['id'] == rentalData?['customer_id']);
+      selectedVehicle = vehicleList.firstWhereOrNull((element) => element['vin'] == rentalData['vin'])??{};
+      selectedCustomer =customerList.firstWhereOrNull((element) => element['id'] == rentalData?['customer_id'])??{};
       selectedCheckInDate = rentalData?['check_in_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd');
       selectedCheckOutDate = rentalData?['check_out_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd');
       checkInController.text = "${rentalData?['check_in_date']??''}";
