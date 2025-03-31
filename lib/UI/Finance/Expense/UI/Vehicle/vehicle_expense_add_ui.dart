@@ -1,5 +1,7 @@
 
-import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
+
+import 'dart:developer';
+
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
@@ -15,6 +17,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +33,10 @@ class ExpenseVehicleAddUI extends StatelessWidget {
       child: BlocListener<AddExpenseVehicleBloc, AddExpenseVehicleState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          if(state.popAddPagePop){
+            Navigator.pop(context);
+          }
+          log("${state.popAddPagePop}");
         },
         child:
             BlocBuilder<AddExpenseVehicleBloc, AddExpenseVehicleState>(builder: (context, state) {
@@ -317,12 +324,22 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         10.height,
                         Utils.getElevatedButton(
                           () {
+                            if(state.selectedVehicle.isEmpty) {
+                              return Toaster.showError("Please select vehicle");
+                            }
+                            if(context.read<AddExpenseVehicleBloc>().amountController.text.isEmpty) {
+                              return Toaster.showError("Please enter amount");
+                            }
+                            if(state.selectedCategory.isEmpty) {
+                              return Toaster.showError("Please select category");
+                            }
+                            if(/*state.subCategories.isNotEmpty && */state.selectedSubCategory.isEmpty) {
+                              return Toaster.showError("Please select subCategory");
+                            }
+                            if(state.selectedCohorts.isEmpty) {
+                              return Toaster.showError("Please select subCategory");
+                            }
                             context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent());
-                            Future.delayed(
-                              const Duration(seconds: 1),
-                                  () => Navigator.pop(context),
-                            );
-                           // context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',));
                           }
                         )
                       ],

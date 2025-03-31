@@ -44,6 +44,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController timeController = TextEditingController();
   final TextEditingController odometerController = TextEditingController();
   final TextEditingController tripDrivenController = TextEditingController();
+  final TextEditingController resolutionNotesController = TextEditingController();
+  final TextEditingController commentsController = TextEditingController();
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? departmentId; // LoggedIn User department ID
@@ -58,7 +60,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Map<String,dynamic> selectionTaps={};
   final FBroadcast _broadcast = FBroadcast.instance();
   dynamic selectedSentiments = {};
-
+  List<dynamic>vehicleData=[];
 
   EditToDoBloc()
       : super(EditTodoState(
@@ -77,7 +79,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedVLocations: const {},
           selectedParts: const [],
           selectedSupplies: const [],
-          attachments: const [],
+          todoAttachments: const [],
           selectedTask: const {},
           linkOptions: AddToDoConfig.customOptions,
           bottomTapData: const [],
@@ -102,6 +104,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           groupVehicles: const [],
           sentiments: AddToDoConfig.sentiments,
           selectedSentiment: const {},
+          popUpdatePage: false,
       )) {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -112,44 +115,53 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(isLoading: true));
         var response = await Future.wait([
           _editTodoData(todoId),
-          _getTasks(),
-          _getVehicles(),
-          _getVendors(),
-          _getLocations(),
-          _getParts(),
-          _getSupplies(),
-          _getResources(),
-          _getUserGroup(),
+          // _getTasks(),
+          // _getVehicles(),
+          // _getVendors(),
+          // _getLocations(),
+          // _getParts(),
+          // _getSupplies(),
+          // _getResources(),
+          // _getUserGroup(),
         ]);
+
+        var partsResponse = await getIt<CommonService>().getPartsList();
+        var suppliesResponse = await getIt<CommonService>().getSuppliesList();
+        var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
+        var vendorResponse = await getIt<CommonService>().getVendorsList();
+        var locationResponse = await getIt<CommonService>().getLocationsList();
+        var taskResponse = await getIt<CommonService>().getTaskExpenseData();
+        var userGroupResponse = await getIt<CommonService>().getGroupPersons();
+        var assignedToResponse = await getIt<CommonService>().getResources();
         TodoListResponse? todoResponse = ((response[0] is TodoListResponse)
             ? response[0]
-            : null) as TodoListResponse?;
-        TaskExpenseResponse? taskResponse =
-            ((response[1] is TaskExpenseResponse) ? response[1] : null)
-                as TaskExpenseResponse?;
-        VehicleListResponse? vehicleResponse =
-            ((response[2] is VehicleListResponse) ? response[2] : null)
-                as VehicleListResponse?;
-        VendorResponse? vendorResponse = ((response[3] is VendorResponse)
-            ? response[3]
-            : null) as VendorResponse?;
-        LocationResponse? locationResponse = ((response[4] is LocationResponse)
-            ? response[4]
-            : null) as LocationResponse?;
-        PartsResponse? partsResponse = ((response[5] is PartsResponse)
-            ? response[5]
-            : null) as PartsResponse?;
-        SuppliesResponse? suppliesResponse = ((response[6] is SuppliesResponse)
-            ? response[6]
-            : null) as SuppliesResponse?;
-        AssignedToResponse? assignedToResponse =
-            ((response[7] is AssignedToResponse) ? response[7] : null)
-                as AssignedToResponse?;
-        UserGroupResponse? userGroupResponse =
-            ((response[8] is UserGroupResponse) ? response[8] : null)
-                as UserGroupResponse?;
+            : null);
+        // TaskExpenseResponse? taskResponse =
+        //     ((response[1] is TaskExpenseResponse) ? response[1] : null)
+        //         as TaskExpenseResponse?;
+        // VehicleListResponse? vehicleResponse =
+        //     ((response[2] is VehicleListResponse) ? response[2] : null)
+        //         as VehicleListResponse?;
+        // VendorResponse? vendorResponse = ((response[3] is VendorResponse)
+        //     ? response[3]
+        //     : null) as VendorResponse?;
+        // LocationResponse? locationResponse = ((response[4] is LocationResponse)
+        //     ? response[4]
+        //     : null) as LocationResponse?;
+        // PartsResponse? partsResponse = ((response[5] is PartsResponse)
+        //     ? response[5]
+        //     : null) as PartsResponse?;
+        // SuppliesResponse? suppliesResponse = ((response[6] is SuppliesResponse)
+        //     ? response[6]
+        //     : null) as SuppliesResponse?;
+        // AssignedToResponse? assignedToResponse =
+        //     ((response[7] is AssignedToResponse) ? response[7] : null)
+        //         as AssignedToResponse?;
+        // UserGroupResponse? userGroupResponse =
+        //     ((response[8] is UserGroupResponse) ? response[8] : null)
+        //         as UserGroupResponse?;
         var groupVehiclesResponse = await _getGroupVehicles();
-        var resources = assignedToResponse?.resource ?? [];
+        var resources = assignedToResponse;
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
             ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
@@ -167,6 +179,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         customLinkController.text =
             todoResponse?.editTodos?['reference_id'] ?? '';
         tripDrivenController.text=todoResponse?.editTodos?['trip_driven'] ?? '';
+        resolutionNotesController.text=todoResponse?.editTodos?['resolution_notes'] ?? '';
+        commentsController.text=todoResponse?.editTodos?['comments'] ?? '';
 
         if (todoResponse?.editTodos?['trip_review'] != null) {
           selectedSentiments= AddToDoConfig.sentiments.firstWhereOrNull(
@@ -194,7 +208,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           }
         }
         if (vinList.isNotEmpty) {
-          vehicleList = vehicleResponse!.data!
+          vehicleList = vehicleResponse
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
@@ -202,14 +216,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         List<dynamic> vendors = [];
         List<dynamic> locations = [];
         if (todoResponse?.editTodos?['location_id'] != null) {
-          locations = locationResponse!.data!
+          locations = locationResponse
               .where((element) =>
                   element['id'].toString() ==
                   todoResponse?.editTodos?['location_id'])
               .toList();
         }
         if (todoResponse?.editTodos?['vendor_id'] != null) {
-          vendors = vendorResponse!.data!
+          vendors = vendorResponse
               .where((element) =>
                   element['id'].toString() ==
                   todoResponse?.editTodos?['vendor_id'])
@@ -221,7 +235,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               ((todoResponse?.editTodos?['user_id']).toString()).split(',');
         }
         if (todoResponse?.editTodos?['user_group_id'] != null) {
-          for (var group in userGroupResponse?.data ?? []) {
+          for (var group in userGroupResponse) {
             if (group['id'] == todoResponse?.editTodos?['user_group_id']) {
               var decodedList = json.decode(group['userId'] ?? '[]');
               if (decodedList is List) {
@@ -232,7 +246,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             }
           }
         }
-        var list = (assignedToResponse?.resource ?? [])
+        var list = assignedToResponse
             .where((element) => selectedIds.contains(element['id'].toString()))
             .map((e) => [e['first_name'].toString(), e['last_name'].toString()]
                 .toInitial)
@@ -247,7 +261,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         }
 
         if (partsId.isNotEmpty) {
-          partList = partsResponse!.data!
+          partList = partsResponse
               .where((element) => partsId.contains(element['id'].toString()))
               .toList();
         }
@@ -263,7 +277,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         }
 
         if (suppliesId.isNotEmpty) {
-          suppliesList = (suppliesResponse!.data)!
+          suppliesList = suppliesResponse
               .where((element) => suppliesId.contains(element['id'].toString()))
               .toList();
         }
@@ -301,8 +315,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         log("$selectedIds",name: "selectedIds");
 
 
-        var selectedTask = taskResponse?.data?.firstWhereOrNull((element) => element['id']==todoResponse?.editTodos?['identifier_id']);
-
+        var selectedTask = taskResponse.firstWhereOrNull((element) => element['id']==todoResponse?.editTodos?['identifier_id']);
+        vehicleData=todoResponse?.editTodos?['vehicles']??[];
         emit(state.copyWith(
           isLoading: false,
           bottomTapData: tabs,
@@ -312,10 +326,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               ? false
               : true,
           selectedBottomTap: selectionTaps,
-          tasks: taskResponse?.data ?? [],
+          tasks: taskResponse,
           selectedTask: selectedTask,
           selectedVPerson:
-              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList),
+              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList,),
           selectedVLocations: CustomSearchDataConverter.convertVLocation(
               vendors: vendors, locations: locations)
               .firstOrNull ?? {},
@@ -325,12 +339,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedTime: todoResponse?.editTodos?['todo_time']
               .toString()
               .toTimeOfDay(inputFormat: 'HH:mm'),
-          vehicles: vehicleResponse?.data ?? [],
+          vehicles: vehicleResponse,
           persons: resources,
-          locations: locationResponse?.data ?? [],
-          vendors: vendorResponse?.data ?? [],
-          partServices: partsResponse?.data ?? [],
-          supplies: suppliesResponse?.data ?? [],
+          locations: locationResponse,
+          vendors: vendorResponse,
+          partServices: partsResponse,
+          supplies: suppliesResponse,
           selectedTaskPersons: selectedUser,
           resources: resources,
           selectedLinkOption:linkSelection.first,
@@ -347,7 +361,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           showPlatformCheck: showPlatformCheck,
           isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
           isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
-          attachments: todoImages,
+          todoAttachments: todoImages,
           groupVehicles: groupVehiclesResponse,
           selectedSentiment: selectedSentiments,
 
@@ -376,25 +390,43 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(selectedTask: event.selectedTask));
     });
 
+    // on<EditToDoVPersonEvent>((event, emit) {
+    //   var existingVPersons =
+    //   List<Map<String, dynamic>>.from(state.selectedVPerson);
+    //   if (( ['person', 'g_vehicles'].contains(event.vPerson.first['type']))) {
+    //     existingVPersons.clear();
+    //   }
+    //   if (existingVPersons
+    //       .where((element) => element['type'] == 'person')
+    //       .isNotEmpty &&
+    //       event.vPerson.first['type'] == 'person') {
+    //     existingVPersons.clear();
+    //   }
+    //   existingVPersons.addAll(event.vPerson);
+    //   existingVPersons = existingVPersons.unique((element) => element['id']);
+    //   existingVPersons.removeWhere((element) =>
+    //   element['type'] ==
+    //       (( ['person', 'g_vehicles'].contains(event.vPerson.first['type'])) ? 'vehicles' : 'person'));
+    //   emit(state.copyWith(
+    //       selectedVPerson: existingVPersons,));
+    // });
+
     on<EditToDoVPersonEvent>((event, emit) {
       var existingVPersons =
       List<Map<String, dynamic>>.from(state.selectedVPerson);
-      if (( ['person', 'g_vehicles'].contains(event.vPerson.first['type']))) {
+      String? type = existingVPersons.isNotEmpty ? existingVPersons.first['type'] : null;
+      String newType = event.vPerson.first['type'];
+      if (['person', 'g_vehicles'].contains(newType)) {
         existingVPersons.clear();
       }
-      if (existingVPersons
-          .where((element) => element['type'] == 'person')
-          .isNotEmpty &&
-          event.vPerson.first['type'] == 'person') {
+      if (type != null && type != newType) {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
       existingVPersons = existingVPersons.unique((element) => element['id']);
-      existingVPersons.removeWhere((element) =>
-      element['type'] ==
-          (( ['person', 'g_vehicles'].contains(event.vPerson.first['type'])) ? 'vehicles' : 'person'));
+      log(existingVPersons.toString(),name: "existingVPersons");
       emit(state.copyWith(
-          selectedVPerson: existingVPersons,));
+        selectedVPerson: existingVPersons,));
     });
 
     on<EditToDoShowPartsEvent>((event, emit) {
@@ -480,15 +512,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoEditAttachmentEvent>((event, emit) async {
       var result = await _pickFiles();
       if (result != null) {
-        var existing = List.from(state.attachments);
-        var existingPaths = List.from(state.attachments)
+        var existing = List.from(state.todoAttachments);
+        var existingPaths = List.from(state.todoAttachments)
             .whereType<File>()
             .map((e) => (e.path))
             .toList();
         for (var element in result) {
           if (!existingPaths.contains(element.path)) existing.add(element);
         }
-        emit(state.copyWith(attachments: existing));
+        emit(state.copyWith(todoAttachments: existing));
       }
     });
 
@@ -545,14 +577,18 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
 
     on<EditToDoDeleteVehicleEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
       try {
-        await apiRepository.deleteTodoVehicle(id: event.vehicleId);
+        emit(state.copyWith(isLoading: true));
+        var id = vehicleData.firstWhereOrNull((element) => element['vin'] == event.vehicleId)?['id'];
+        vinList.removeWhere((element) => event.vehicleId.contains(element),);
+        await apiRepository.deleteTodoVehicle(id:"$id");
+        _broadcast.stickyBroadcast("todo_view", value:true);
+        emit(state.copyWith(isLoading: false));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(),name: 'ERROR');
+       // emit(state.copyWith(isLoading: false));
     }
-      emit(state.copyWith(isLoading: false));
     });
 
     on<DeleteTodoEvent>((event, emit) async {
@@ -564,6 +600,30 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         log(e.toString(),name: 'ERROR');
       }
       emit(state.copyWith(isLoading: false));
+    });
+
+    on<RemoveImageEvent>((event, emit) async {
+      if (event.data == null) return;
+      if (event.data is File) {
+        // LOCAL SELECTION REMOVE
+        state.todoAttachments.remove(event.data);
+        todoImages = state.todoAttachments;
+      } else if (event.data is String) {
+        // REMOTE SELECTION REMOVE
+        var data = todoImages.firstWhereOrNull(
+                (element) => element == event.data.toString());
+
+        var attachmentId = images
+            .where((element) => element['path'] == data.toString().removeStorageUrl)
+            .map((e) => e['id'])
+            .firstOrNull;
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.deleteTodoImage(attachmentId);
+        emit(state.copyWith(isLoading: false));
+        // once success remove from attachments
+        todoImages.remove(event.data);
+      }
+      emit(state.copyWith(todoAttachments: todoImages));
     });
 
     on<EditToDoSaveEvent>((event, emit) async {
@@ -585,7 +645,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       try {
         emit(state.copyWith(isLoading: true));
         var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
-            images: state.attachments.whereType<File>().toList(), body: _editTodoBody());
+            images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
         _broadcast.stickyBroadcast("todo_view", value:true);
         emit(state.copyWith(isLoading: false));
@@ -611,6 +671,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['todo_date'] = dateController.text;
     baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
     baseBody['notes'] = notesController.text;
+    baseBody['comments'] = commentsController.text;
+    baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['odometer'] = odometerController.text;
@@ -681,6 +743,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+
+    var groupVehicleList = state.selectedVPerson
+        .where((element) => element['type'] == "g_vehicles")
+        .toList();
+
+    var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
+
+    baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
+
 
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;

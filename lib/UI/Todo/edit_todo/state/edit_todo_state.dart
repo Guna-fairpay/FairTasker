@@ -20,7 +20,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> selectedTaskPersons;
   final List<dynamic> selectedParts;
   final List<dynamic> selectedSupplies;
-  final List<dynamic> attachments;
+  final List<dynamic> todoAttachments;
   final List<Map<String, dynamic>> selectedVPerson;
   final Map<String, dynamic> selectedVLocations;
   final Map<String, dynamic> selectedTask;
@@ -44,6 +44,7 @@ class EditTodoState extends Equatable {
   final List<dynamic> groupVehicles;
   final List<dynamic> sentiments;
   final dynamic selectedSentiment;
+  final bool popUpdatePage;
 
   const EditTodoState( {
     required this.isLoading,
@@ -73,7 +74,7 @@ class EditTodoState extends Equatable {
     required this.isSuppliesEnable,
     required this.selectedDate,
     required this.selectedTime,
-    required this.attachments,
+    required this.todoAttachments,
     required this.apiResponse,
     required this.todoStatus,
     required this.selectedResource,
@@ -86,6 +87,7 @@ class EditTodoState extends Equatable {
     required this.groupVehicles,
     required this.sentiments,
     required this.selectedSentiment,
+    required this.popUpdatePage,
   });
 
   EditTodoState copyWith({
@@ -122,7 +124,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? selectedParts,
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
-    List<dynamic>? attachments,
+    List<dynamic>? todoAttachments,
     List<Map<String, dynamic>>? addresses,
     List<dynamic>? selectedRecurringDays,
     Map<String, dynamic>? apiResponse,
@@ -142,6 +144,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? groupVehicles,
     List<dynamic>? sentiments,
     dynamic selectedSentiment,
+    bool? popUpdatePage,
 
   }) =>
       EditTodoState(
@@ -174,7 +177,7 @@ class EditTodoState extends Equatable {
         selectedTaskPersons: selectedTaskPersons ?? this.selectedTaskPersons,
         selectedSupplies: selectedSupplies ?? this.selectedSupplies,
         selectedParts: selectedParts ?? this.selectedParts,
-        attachments: attachments ?? this.attachments,
+        todoAttachments: todoAttachments ?? this.todoAttachments,
         todoStatus: todoStatus ?? this.todoStatus,
         selectedResource: selectedResource ?? this.selectedResource,
         userGroup: userGroup ?? this.userGroup,
@@ -186,6 +189,7 @@ class EditTodoState extends Equatable {
         groupVehicles: groupVehicles ?? this.groupVehicles,
         sentiments: sentiments ?? this.sentiments,
         selectedSentiment: selectedSentiment ?? this.selectedSentiment,
+        popUpdatePage: popUpdatePage ?? this.popUpdatePage,
 
       );
 
@@ -219,7 +223,7 @@ class EditTodoState extends Equatable {
     selectedParts,
     selectedSupplies,
     selectedTaskPersons,
-    attachments,
+    todoAttachments,
     apiResponse,
     todoStatus,
     selectedResource,
@@ -232,6 +236,7 @@ class EditTodoState extends Equatable {
     groupVehicles,
     sentiments,
     selectedSentiment,
+    popUpdatePage,
 
     Random().nextDouble()
   ];

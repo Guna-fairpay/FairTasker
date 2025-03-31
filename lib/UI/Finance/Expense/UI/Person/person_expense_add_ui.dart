@@ -1,12 +1,9 @@
-import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Bloc/person_expense_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Event/person_expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/State/persion_expense_state.dart';
-import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_view_ui.dart';
-import 'package:fairpytasker/UI/Finance/Expense/UI/expense_tap_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -32,9 +29,6 @@ class PersonExpenseAddUI extends StatelessWidget {
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-          if(state.popAddPage){
-            Navigator.pop(context);
-          }
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {
@@ -189,6 +183,7 @@ class PersonExpenseAddUI extends StatelessWidget {
                     SizedBox(
                       height: 100,
                       child: GridView.builder(
+
                         shrinkWrap: true,
                         itemCount: state.expenseAttachments.length,
                         scrollDirection: Axis.horizontal,
@@ -260,6 +255,9 @@ class PersonExpenseAddUI extends StatelessWidget {
                       return Toaster.showError("Please select approved status");
                     }
                     context.read<PersonExpenseBloc>().add(const SavePersonExpenseEvent());
+                    Future.delayed(const Duration(seconds: 1),
+                          () => context.pop(),
+                    );
                   }),
                 ],
               ),

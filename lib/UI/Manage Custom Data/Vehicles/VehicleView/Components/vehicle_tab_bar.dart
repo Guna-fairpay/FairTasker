@@ -1,9 +1,10 @@
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/ViewPrivateRental/UI/private_rental_main_page.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_page.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 
-import '../../../Utilities/appC.dart';
-import 'Private Rental/private_rental_view_ui.dart';
 
 class VehicleTabBar extends StatelessWidget {
   const VehicleTabBar({super.key});
@@ -11,6 +12,7 @@ class VehicleTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
+
       length: 2,
       child:Scaffold(
         backgroundColor: AppC.white,
@@ -18,18 +20,18 @@ class VehicleTabBar extends StatelessWidget {
         backgroundColor: AppC.appColor,
         automaticallyImplyLeading: true,
         foregroundColor: Colors.white,
-        leadingWidth: 20,
+        leadingWidth: 40,
         title: TabBar(
          // controller: tabController,
           tabs: const [
             Tab(
               text: 'Vehicles',
-              height: 30,
+              height: 40,
             ),
-            Tab(text: 'Private Rental', height: 30),
+            Tab(text: 'Private Rental', height: 40),
           ],
           dividerColor: AppC.trans,
-          labelStyle: const TextStyle(fontSize: 16),
+          labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
           labelColor: AppC.appColor,
           unselectedLabelColor: AppC.white,
           indicator: BoxDecoration(
@@ -40,10 +42,15 @@ class VehicleTabBar extends StatelessWidget {
           overlayColor: WidgetStateProperty.all(Colors.transparent),
         ),
       ),
-        body: const TabBarView(
+        body: TabBarView(
+          physics:  NeverScrollableScrollPhysics(),
           children: [
-          SafeArea(child: VehicleViewUI()),
-            SafeArea(child: RentalViewUI())
+          SafeArea(
+              minimum: 10.padding,
+              child: const VehicleMainPage()),//VehicleViewUI
+            SafeArea(
+              minimum: 10.padding,
+                child: const PrivateRentalMainPage())
         ],
 
         ),
