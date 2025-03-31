@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:path/path.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -65,7 +66,7 @@ class Converter {
       String filePath = entry.value ?? "";
       var file = File(filePath);
       String fileName = basename(file.path);
-
+      Console.of.warning("Field: $fieldName, FilePath: $filePath");
       return await http.MultipartFile.fromPath(fieldName, file.path, filename: fileName);
     }));
   }

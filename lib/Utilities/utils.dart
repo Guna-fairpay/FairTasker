@@ -582,6 +582,7 @@ class Utils {
       builder: (context, value, child) => TextFormField(
         key: key,
         validator: validator,
+        spellCheckConfiguration: const SpellCheckConfiguration(),
         autovalidateMode: autoValidate,
         textInputAction: inputAction ?? TextInputAction.next,
         onTap: onTapCallback,
