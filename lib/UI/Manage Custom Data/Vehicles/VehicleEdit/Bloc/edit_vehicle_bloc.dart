@@ -139,6 +139,8 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       permanentPlate = event.vehicleData['permanent_plate'] == 1 ? true : false;
       frontLicensePlate = event.vehicleData['front_license_plate'] == 1 ? true : false;
 
+
+
       emit(EditVehicleLoadedState());
       }catch(e){
         emit(EditVehicleErrorState(e.toString()));

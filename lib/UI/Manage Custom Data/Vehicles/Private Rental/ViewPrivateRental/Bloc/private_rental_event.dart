@@ -23,11 +23,16 @@ class DeletePrivateRentalEvent extends PrivateRentalEvent {
 }
 
 
-class AddPrivateRentalEvent extends PrivateRentalEvent {}
-
-class EditPrivateRentalEvent extends PrivateRentalEvent {
+class AddPrivateRentalEvent extends PrivateRentalEvent {
   final dynamic vehicleData;
-  EditPrivateRentalEvent({required this.vehicleData});
+  AddPrivateRentalEvent({this.vehicleData});
   @override
   List<Object?> get props => [vehicleData];
+}
+
+class EditPrivateRentalEvent extends PrivateRentalEvent {
+  final dynamic rentalData;
+  EditPrivateRentalEvent({required this.rentalData});
+  @override
+  List<Object?> get props => [rentalData];
 }

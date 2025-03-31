@@ -1,3 +1,4 @@
+
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -81,7 +82,7 @@ class PrivateRentalListingPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: () => vehicle['rental'] != null
-                                  ? context.read<PrivateRentalBloc>().add(EditPrivateRentalEvent(vehicleData: vehicle))
+                                  ? context.read<PrivateRentalBloc>().add(EditPrivateRentalEvent(rentalData: vehicle['rental']??{}))
                                   : null,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4),
@@ -107,7 +108,7 @@ class PrivateRentalListingPage extends StatelessWidget {
                               )),
                           if (vehicle['rental'] == null)
                             InkWell(
-                              onTap: () => context.read<PrivateRentalBloc>().add(AddPrivateRentalEvent()),
+                              onTap: () => context.read<PrivateRentalBloc>().add(AddPrivateRentalEvent(vehicleData: vehicle)),
                               child: const Icon(
                                 Icons.add,
                                 color: AppC.green,

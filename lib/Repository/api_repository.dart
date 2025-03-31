@@ -159,6 +159,12 @@ class APiRepository {
 
   String get _privateRentalCustomersList => "private_rental_customers_list";
 
+  String get _getEditPrivateRental => "private_rental_edit";
+
+  String get _addPrivateRental => "private_rental_assign";
+
+  String get _editPrivateRental => "private_rental_update";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1301,6 +1307,52 @@ Future<Map<String, dynamic>?> getLocations() async {
       return mapData?['data'];
       } catch (error) {
       rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getEditPrivateRentalData({String? id}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_getEditPrivateRental/$id';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> privateRentalAddOrUpdateApi(
+      {Map<String, dynamic>? body,
+        List<File>? images,
+        String? id}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_editPrivateRental/$id";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_addPrivateRental";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "images",
+          files: images?.map((e) => e.path).toList());
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(mapData?['message'] ?? "PR Added Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
+      return null;
     }
   }
 

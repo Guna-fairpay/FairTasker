@@ -30,13 +30,15 @@ class PrivateRentalSuccessState extends PrivateRentalState {
 }
 
 class AddPrivateRentalState extends PrivateRentalState {
+  final dynamic rentalData;
+  AddPrivateRentalState({this.rentalData});
   @override
-  List<Object?> get props => [Random().nextDouble()];
+  List<Object?> get props => [rentalData, Random().nextDouble()];
 }
 
 class EditPrivateRentalState extends PrivateRentalState {
-  final dynamic vehicleData;
-  EditPrivateRentalState({required this.vehicleData});
+  final dynamic rentalData;
+  EditPrivateRentalState({required this.rentalData});
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
