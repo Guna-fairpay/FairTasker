@@ -69,7 +69,7 @@ class AddVehicleBody extends StatelessWidget {
               suffixIcon: Icon(Icons.calendar_month_rounded,
                   size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
-              value: context.read<AddVehicleBloc>().selectedDate,
+              value: context.read<AddVehicleBloc>().selectedPurchaseDate,
               onChanged: (value) => context
                   .read<AddVehicleBloc>().add(DateChangeEvent(selectedDate: value)),
             ),
@@ -119,7 +119,7 @@ class AddVehicleBody extends StatelessWidget {
                       .shade800),
             ),
             10.height,
-            Utils.getElevatedButton((){}),
+            Utils.getElevatedButton(()=>context.read<AddVehicleBloc>().add(SaveNewVehicleEvent())),
           ],
         ),
       ),

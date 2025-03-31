@@ -1391,4 +1391,41 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> vehicleAddOrUpdateApi(
+      {Map<String, dynamic>? body,
+        List<File>? images,
+        String? id}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi/$id";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body: body,
+          autoIncrement: true,
+          fieldName: "images",
+          files: images?.map((e) => e.path).toList(),
+
+      );
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          Toaster.showSuccess(mapData?['message'] ?? "PR Added Successfully");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
 }

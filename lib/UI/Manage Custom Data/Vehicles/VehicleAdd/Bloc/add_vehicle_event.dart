@@ -147,3 +147,5 @@ class FrontLicensePlateEvent extends AddVehicleEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class SaveNewVehicleEvent extends AddVehicleEvent {}
