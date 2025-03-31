@@ -603,6 +603,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     var person = (state.selectedTaskIdentifier[2]?['type'] == "person")
         ? state.selectedTaskIdentifier[2]
         : null;
+    var vehicleGroup = (state.selectedTaskIdentifier[2]?['type'] == "g_vehicles")
+        ? state.selectedTaskIdentifier[2]
+        : null;
     var isAdd = state.selectedTaskIdentifier[1]?['id'] == 210;
     var date = state.selectedDate ?? DateTime.now();
     var timeAt = state.selectedTime.toDateTime;
@@ -664,7 +667,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         }))
                 .toList()
       }",
-      "vehicle_group_id": "",
+      "vehicle_group_id": "${vehicleGroup?['id'] ?? ""}",
       "address": "${state.addresses.map((e) => e['id']).toList()}",
       "assigned_to": "${state.selectedTaskPersons.map((e) => e['id']).toList()}",
       "todo_time": "${timeDay.toHMS()}",

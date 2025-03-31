@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
@@ -26,6 +27,22 @@ class AddTodoMoreForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         spacing: 5,
         children: [
+          if (state.selectedTaskIdentifier.containsKey(3) &&
+              (state.selectedTaskIdentifier[3]['type'] == 'location') && (state.isMoreEnable))
+            ...[
+              10.height,
+              SearchViewField<Map<String, dynamic>>(controller: context.read<AddToDoBloc>().addressController,
+                  suggestions: List.from(state.selectedTaskIdentifier[3]['value']['addresses']),
+                  selectedItem: state.addresses.lastOrNull,
+                  labelText: "Address",
+                  onCleared: (val) => context
+                      .read<AddToDoBloc>()
+                      .add(AddToDoAddressSelectionEvent(val, false)),
+                  onSelected: (value) => context
+                      .read<AddToDoBloc>()
+                      .add(AddToDoAddressSelectionEvent(value, true)),
+                  itemAsString: (item) => item['address'].toString())
+            ],
           if (state.isMoreEnable)
             Row(
               spacing: 10,

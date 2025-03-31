@@ -35,6 +35,7 @@ class AddTodoSubForm extends StatelessWidget {
               persons: state.persons,
               tasks: state.tasks,
               vehicles: state.vehicles,
+              gVehicles: state.groupVehicles,
               vendors: state.vendors,
               selected: state.selectedTaskIdentifier,
               onSelected: (val) => context
@@ -114,25 +115,6 @@ class AddTodoSubForm extends StatelessWidget {
               controller: context.read<AddToDoBloc>().vLocationController,
             ),
           ),
-          if (state.selectedTaskIdentifier.containsKey(3) &&
-              state.selectedTaskIdentifier[3]['type'] == 'location')
-            ...[
-              10.height,
-              FocusTraversalOrder(
-                order: NumericFocusOrder(4),
-                child: SearchViewField<Map<String, dynamic>>(controller: context.read<AddToDoBloc>().addressController,
-                    suggestions: List.from(state.selectedTaskIdentifier[3]['value']['addresses']),
-                    selectedItem: state.addresses.lastOrNull,
-                    labelText: "Address",
-                    onCleared: (val) => context
-                        .read<AddToDoBloc>()
-                        .add(AddToDoAddressSelectionEvent(val, false)),
-                    onSelected: (value) => context
-                        .read<AddToDoBloc>()
-                        .add(AddToDoAddressSelectionEvent(value, true)),
-                    itemAsString: (item) => item['address'].toString()),
-              )
-            ],
           10.height,
           FocusTraversalOrder(
             order: NumericFocusOrder(5),

@@ -52,7 +52,7 @@ class VehicleEditTabBar extends StatelessWidget {
             ),
             EditVehicleExpenseDetailsUI(vin: "${vehicle['vin']}"),
             VehicleRMUI(vin: "${vehicle['vin']}"),
-            VehicleLogUI(),
+            VehicleLogUI(vin: vehicle['vin']),
           ],
         ),
       ),
