@@ -167,6 +167,8 @@ class APiRepository {
 
   String get _editPrivateRental => "private_rental_update";
 
+  String get _vehicleImages => "vehicle_images";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1273,12 +1275,12 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<GeneralResponse?> deleteActiveVehicle(dynamic id) async {
+  Future<Map<String, dynamic>?> deleteActiveVehicle(dynamic id) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -1413,7 +1415,8 @@ Future<Map<String, dynamic>?> getLocations() async {
       if (response != null) {
         if (response.isSuccess) {
           var mapData = await response.mapData;
-          Toaster.showSuccess(mapData?['message'] ?? "PR Added Successfully");
+          log("$mapData", name: "Success");
+          Toaster.showSuccess(mapData?['message'] ?? "");
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
@@ -1425,6 +1428,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     } catch (error) {
       log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
       return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVehicleImage(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleImages/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
     }
   }
 

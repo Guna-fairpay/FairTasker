@@ -22,23 +22,23 @@ class EditPrivateRentalBody extends StatelessWidget {
           child: ListView(
             children: [
               10.height,
-              SearchViewField(
+              SearchViewField<Map<String, dynamic>>(
                 controller: context.read<EditPrivateRentalBloc>().vehicleController,
-                suggestions: context.read<EditPrivateRentalBloc>().vehicleList,
-                itemAsString: (item) => (item as Map<String, dynamic>)['vehicle_name'] ?? '',
+                suggestions: context.watch<EditPrivateRentalBloc>().vehicleList,
+                itemAsString: (item) => (item)['vehicle_name'] ?? '',
                 onSelected: (value) => context.read<EditPrivateRentalBloc>().add(VehicleSearchEvent(selectedVehicle: value)),
-                selectedItem: (context.read<EditPrivateRentalBloc>().selectedVehicle.isEmpty) ? null : context.read<EditPrivateRentalBloc>().selectedVehicle,
+                selectedItem: context.watch<EditPrivateRentalBloc>().selectedVehicle,
                 showEmpty: false,
                 labelText: 'Vehicle',
                 hintText: "Select Vehicle",
               ),
               10.height,
-              SearchViewField(
+              SearchViewField<Map<String, dynamic>>(
                 controller: context.read<EditPrivateRentalBloc>().customerController,
-                suggestions: context.read<EditPrivateRentalBloc>().customerList,
-                itemAsString: (item) => (item as Map<String, dynamic>)['customer_name']?? '',
+                suggestions: context.watch<EditPrivateRentalBloc>().customerList,
+                itemAsString: (item) => (item)['customer_name']?? '',
                 onSelected: (value) => context.read<EditPrivateRentalBloc>().add(CustomerSearchEvent(selectedCustomer: value)),
-                selectedItem: (context.read<EditPrivateRentalBloc>().selectedCustomer.isEmpty) ? null : context.read<EditPrivateRentalBloc>().selectedCustomer,
+                selectedItem: context.watch<EditPrivateRentalBloc>().selectedCustomer,
                 showEmpty: false,
                 labelText: 'Customer',
                 hintText: "Select Customer",

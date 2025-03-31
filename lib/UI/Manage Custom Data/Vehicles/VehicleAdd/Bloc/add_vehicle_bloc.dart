@@ -11,6 +11,7 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,6 +79,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   bool spareTire = false;
   bool spareKey = false;
   bool frontLicensePlate = false;
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   AddVehicleBloc() : super(AddVehicleLoadingState()) {
 
@@ -217,16 +219,17 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
           body: _save(),
         );
         if (response?.isNotEmpty ?? false) {
-          Toaster.showSuccess(response?['message'] ?? "Success");
+          Toaster.showSuccess(response?['message'] ?? []);
+          _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          emit(AddCompletedState());
         }
         // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
-        emit(AddVehicleLoadedState());
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
-        emit(AddVehicleLoadedState());
+        emit(AddCompletedState());
       }
-      emit(AddVehicleCommonState());
+
     });
 
   }
@@ -270,6 +273,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     baseBody['maintenance_check'] = maintenanceCheckController.text;
     baseBody['insurance_agent'] = insuranceAgentController.text;
     baseBody['insurance_cost'] = insuranceCostController.text;
+    baseBody['platform_from'] = 'tasker-app';
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }

@@ -13,12 +13,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
 class EditVehicleBody extends StatelessWidget {
-  const EditVehicleBody({super.key});
+  final dynamic vehicleData;
+  const EditVehicleBody({super.key,required this.vehicleData});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EditVehicleBloc, EditVehicleState>(
       builder: (context, state) => Form(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         key: context.watch<EditVehicleBloc>().formKey,
         child: ListView(
           children: [
@@ -71,7 +73,7 @@ class EditVehicleBody extends StatelessWidget {
               suffixIcon: Icon(Icons.calendar_month_rounded,
                   size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
-              value: context.read<EditVehicleBloc>().selectedDate,
+              value: context.read<EditVehicleBloc>().selectedPurchaseDate,
               onChanged: (value) => context
                   .read<EditVehicleBloc>().add(DateChangeEvent(selectedDate: value)),
             ),
@@ -121,7 +123,10 @@ class EditVehicleBody extends StatelessWidget {
                       .shade800),
             ),
             10.height,
-            Utils.getElevatedButton((){}),
+            Utils.getElevatedButton((){
+              if (context.read<EditVehicleBloc>().formKey.currentState?.validate() ?? false) {
+              context.read<EditVehicleBloc>().add(SaveUpdatedVehicle(data:vehicleData));}
+              }),
           ],
         ),
       ),

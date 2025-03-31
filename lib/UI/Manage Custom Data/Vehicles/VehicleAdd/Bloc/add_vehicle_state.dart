@@ -15,6 +15,8 @@ class AddVehicleCommonState extends AddVehicleState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class AddCompletedState extends AddVehicleState {}
+
 class AddVehicleErrorState extends AddVehicleState {
   final dynamic message;
   AddVehicleErrorState(this.message);

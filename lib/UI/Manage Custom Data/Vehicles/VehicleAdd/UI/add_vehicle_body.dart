@@ -19,15 +19,15 @@ class AddVehicleBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AddVehicleBloc, AddVehicleState>(
       builder: (context, state) => Form(
-        key: context.watch<AddVehicleBloc>().formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        key: context.read<AddVehicleBloc>().formKey,
         child: ListView(
           children: [
             10.height,
             Utils.getTextFormField(
                 "Year",context.read<AddVehicleBloc>().yearController,
               autoValidate: AutovalidateMode.onUserInteraction,
-              validator: (val) =>
-              val!.isEmpty ? 'Please enter year' : null,
+              validator: (val) => val!.isEmpty ? 'Please enter year' : null,
               textType: TextInputType.number,
               textInputFormatter:[
                 FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}'))
@@ -119,7 +119,11 @@ class AddVehicleBody extends StatelessWidget {
                       .shade800),
             ),
             10.height,
-            Utils.getElevatedButton(()=>context.read<AddVehicleBloc>().add(SaveNewVehicleEvent())),
+            Utils.getElevatedButton(() {
+              if (context.read<AddVehicleBloc>().formKey.currentState?.validate() ?? false) {
+                context.read<AddVehicleBloc>().add(SaveNewVehicleEvent());
+              }
+            }),
           ],
         ),
       ),
