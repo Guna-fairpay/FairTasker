@@ -1,5 +1,16 @@
 import 'dart:io';
+import 'package:fairpytasker/Component/close_badge.dart';
+import 'package:fairpytasker/Component/custom_quill_editor.dart';
+import 'package:fairpytasker/Component/image_viewer.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_add/bloc/feedback_add_bloc.dart';
+import 'package:fairpytasker/UI/Feedback/feedback_add/bloc/feedback_add_events.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -10,14 +21,133 @@ import '../../Utilities/utils.dart';
 
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
-class FeedbackAddUI extends StatefulWidget {
+import 'feedback_add/bloc/feedback_add_states.dart';
+
+class FeedbackAddUI extends StatelessWidget {
   const FeedbackAddUI({super.key});
 
   @override
-  State<FeedbackAddUI> createState() => _FeedbackAddUIState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Add Feedback", textDirection: TextDirection.ltr, textAlign: TextAlign.start),
+        elevation: 5,
+        leading: const SizedBox.shrink(),
+        leadingWidth: 0,
+        actions: [IconButton(onPressed: context.pop, icon: const Icon(Icons.close_rounded))],
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        backgroundColor: AppC.appColor,
+        foregroundColor: Colors.white,
+      ),
+      body: BlocProvider(
+        create: (context) => FeedbackAddBloc(),
+        child: BlocListener<FeedbackAddBloc, FeedbackAddState>(
+          listener: (context, state) {
+            if (state is FeedbackAddLoadingState) {
+              if (!EasyLoading.isShow) EasyLoading.show();
+            } else {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is FeedbackAddCompletedState) {
+                Navigator.pop(context);
+              } else if (state is FeedbackAddCommonState) {
+                Utils.dismissKeyboard(context);
+              }
+            }
+          },
+          child: const _FeedbackAddBodyUI(),
+        ),
+      ),
+    );
+  }
 }
 
-class _FeedbackAddUIState extends State<FeedbackAddUI> {
+class _FeedbackAddBodyUI extends StatelessWidget {
+  const _FeedbackAddBodyUI();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<FeedbackAddBloc, FeedbackAddState>(
+        builder: (context, state) => ListView(
+              shrinkWrap: true,
+              padding: 10.padding,
+              children: [
+                Utils.getTextFormField(
+                  'Title',
+                  context.read<FeedbackAddBloc>().titleController,
+                  label: Utils.getText('Title', color: AppC.grey),
+                ),
+                10.height,
+                Utils.buildDropdownButton(
+                  'Select Priority',
+                  context.read<FeedbackAddBloc>().priority,
+                  context.watch<FeedbackAddBloc>().selectedPriority,
+                  (value) => context.read<FeedbackAddBloc>().add(FeedbackSelectedPriorityEvent(value)),
+                ),
+                10.height,
+                CustomQuillEditor(
+                    controller:
+                        context.read<FeedbackAddBloc>().descriptionController,
+                    hintText: "Description"),
+                ListTile(
+                  title: const Text("Attachments"),
+                  trailing: const Icon(Icons.add_rounded),
+                  titleTextStyle: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.sp),
+                  onTap: () => context
+                      .read<FeedbackAddBloc>()
+                      .add(FeedbackAddAttachmentEvent()),
+                ),
+                10.height,
+                GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.9,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10),
+                    itemBuilder: (context, index) {
+                      var model =
+                          context.read<FeedbackAddBloc>().attachments[index];
+                      return CloseBadge(
+                          onTapDelete: () => context
+                              .read<FeedbackAddBloc>()
+                              .add(FeedbackDeleteAttachmentEvent(model)),
+                          onTapView: () => context
+                              .read<FeedbackAddBloc>()
+                              .add(FeedbackViewAttachmentEvent(model)),
+                          child: Container(
+                            constraints: BoxConstraints(
+                              minHeight: MediaQuery.sizeOf(context).height,
+                              minWidth: MediaQuery.sizeOf(context).width,
+                            ),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: AppC.grey.withValues(alpha: 0.2)),
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            child: ImageViewer(
+                              fit: BoxFit.cover,
+                              imageInput: model,
+                              isNotImage: !((model as Object).isImage),
+                            ),
+                          ));
+                    },
+                    shrinkWrap: true,
+                    itemCount:
+                        context.watch<FeedbackAddBloc>().attachments.length),
+                10.height,
+                Utils.getFilledButton("Save", () => context.read<FeedbackAddBloc>().add(FeedbackSubmitEvent())),
+              ],
+            ));
+  }
+}
+
+class FeedbackAddUIState extends StatefulWidget {
+  const FeedbackAddUIState({super.key});
+
+  @override
+  State<FeedbackAddUIState> createState() => _FeedbackAddUIState();
+}
+
+class _FeedbackAddUIState extends State<FeedbackAddUIState> {
   TextEditingController titleController = TextEditingController();
   List<String> priority = ['High', 'Medium', 'Low'];
   String? selectedPriority;

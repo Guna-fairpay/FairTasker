@@ -275,7 +275,7 @@ class _HeaderViewState extends State<HeaderView> {
                     child: Utils.getText(
                       selectedValue?['city'] != null
                           ? selectedValue!['city'][0]
-                          : 'S',
+                          : 'D',
                       size: 20, // Reduced font size of the button text
                       weight: FontWeight.bold,
                       color: AppC.appColor,
