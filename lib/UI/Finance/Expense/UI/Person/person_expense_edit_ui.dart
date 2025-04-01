@@ -273,7 +273,11 @@ class PersonExpenseEditUI extends StatelessWidget {
                         if (state.selectedApproved.isEmpty) {
                           return Toaster.showError("Please select approved status");
                         }
-                        context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));})
+                        context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));
+                        Future.delayed(const Duration(seconds: 1),
+                              () => context.pop(),
+                        );
+                      })
                     ],
                   ),
                 ),

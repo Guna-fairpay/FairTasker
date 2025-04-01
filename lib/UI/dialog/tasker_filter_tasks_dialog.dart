@@ -96,7 +96,9 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
     return BlocBuilder<TFTDBloc, TFTDStates>(
         builder: (context, state) => SizedBox(
               width: context.width,
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
+              child: ListView(
+                shrinkWrap: true,
+                  children: [
                 CustomCheckboxListTile(
                   title: const Text("All Todo"),
                   value: context.watch<TFTDBloc>().isSelectedAll,

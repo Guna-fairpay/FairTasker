@@ -73,4 +73,10 @@ class AddToDoConfig {
     {"id" : 3, "title" : "Other"},
   ];
 
+  static const List<Map<String, dynamic>> sentiments = [
+    {"id" : 1, "name" : "Positive"},
+    {"id" : 2, "name" : "Neutral"},
+    {"id" : 3, "name" : "Negative"},
+  ];
+
 }

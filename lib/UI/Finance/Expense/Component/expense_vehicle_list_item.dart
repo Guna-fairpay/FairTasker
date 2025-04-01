@@ -110,6 +110,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
+                                fullscreenDialog: true,
                                 builder: (context) =>
                                      ExpenseVehicleEditUI(expenseId: "${expense['id']}",
                                      vehicleName: expense['vehicle']?['vehicle_name'],),

@@ -149,13 +149,14 @@ class Utils {
             bottomRight: Radius.circular(bottomRRadius))
       ),
       child: DropdownMenu<dynamic>(
-        //key: ValueKey(selectedKey),
+        key: ValueKey(selectedKey),
         initialSelection: initialSelection,
         hintText: hintText,
         menuHeight: 250,
         textStyle: const TextStyle(
           color: AppC.text,
             overflow: TextOverflow.ellipsis,
+          fontSize: 14
         ),
         inputDecorationTheme:  const InputDecorationTheme(
           hintStyle: TextStyle(color: AppC.grey),
@@ -581,6 +582,7 @@ class Utils {
       builder: (context, value, child) => TextFormField(
         key: key,
         validator: validator,
+        spellCheckConfiguration: const SpellCheckConfiguration(),
         autovalidateMode: autoValidate,
         textInputAction: inputAction ?? TextInputAction.next,
         onTap: onTapCallback,

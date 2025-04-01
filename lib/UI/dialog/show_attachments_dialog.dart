@@ -2,6 +2,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Component/attachment_slider_view.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 
 class ShowAttachmentsDialog {
@@ -12,6 +13,7 @@ class ShowAttachmentsDialog {
   void show(BuildContext context,{required List<dynamic> attachments, required String? title, dynamic currentAttachment, void Function(dynamic value)? onDeleted}) async {
     var allAttachments = attachments;
     allAttachments.removeWhere((element) => element == null);
+    Console.of.log(attachments);
     await showDialog(
       context: context,
       builder: (context) => _ShowAttachmentsDialogView(attachments: attachments, title: title, currentAttachment: currentAttachment, onDeleted: onDeleted),

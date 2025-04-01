@@ -15,6 +15,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,6 +75,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<dynamic> splitParts = [];
   List<Map<String, dynamic>>? expenseCategories =[];
   List <dynamic> apiResponse =[];
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   ExpenseBloc()
       : super(ExpenseState(
@@ -114,21 +116,15 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           expenseTo: const [],
           selectedExpenseTo: const {},
           pop: false,
+          categoriesPop: false,
+          popAddPagePop: false,
+          popEditPage: false,
         )) {
+    _registerBroadcast();
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
     });
 
-    // on<RefreshEvent>((event, emit) {
-    //   try{
-    //     emit(state.copyWith(isLoading: true));
-    //     Console.of.debug("REFRESHED");
-    //   }catch(e){
-    //
-    //   }
-    //   emit(state.copyWith(isLoading: true));
-    //   Console.of.debug("REFRESHED");
-    // } );
     on<GetVehicleExpenseData>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
@@ -197,26 +193,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       }
     });
 
-    on<GetVehicleExpenseAddData>((event, emit) async {
-      try {
-        emit(state.copyWith(isLoading: true));
-        var vehicleList = await _getVehicleList();
-        var paymentType = await _getPaymentType();
-        var expenseCategories = await _getCategoryData();
-        var categories = expenseCategories?.expenseData;
-        log(categories.toString(), name: 'categories');
-
-        emit(state.copyWith(
-          isLoading: false,
-          vehicleList: vehicleList,
-          paymentType: paymentType,
-          categories: categories,
-          cohorts: AddToDoConfig.expenseTo,
-        ));
-      } catch (e) {
-        log("$e", name: "Error In Bloc Value");
-        emit(state.copyWith(isLoading: false));
-      }
+    on<RefreshEvent>((event, emit) async {
+      _resetAll();
     });
 
     on<GetVehicleExpenseEditData>((event, emit) async {
@@ -225,9 +203,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var response = await _getEditVehicleExpenseDetails(event.id);
         var vehicleList = await _getVehicleList();
         var paymentType = await _getPaymentType();
-        var expenseCategories = await _getCategoryData();
-        var categoryList = expenseCategories?.expenseData;
-       // expenseCategories = await _getExpenseCategories();
+        var categoryList = await getIt<CommonService>().getExpenseCategories();
         var todoDetails = await _getTodoDetails(event.id);
         var usersList = await getIt<CommonService>().getUsers();
         var groupPerson = await _getGroupPerson();
@@ -429,6 +405,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           splitExpense: apiResponse?['split_expenses'],
           categoryName: categoryName,
           subCategoryName: subCategoryName,
+          popEditPage: false,
         ));
       } catch (e) {
         log("$e", name: "Error In Expense Edit Bloc Value");
@@ -580,6 +557,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           selectedSubCategory: selectedSubCategory,
           subCategories: subCategories,
           pop:false,
+          categoriesPop: false,
         ));
       }catch(e){
        log("$e", name: "Error In CategoryDialogEvent");
@@ -686,25 +664,25 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       _updateExpenseTotal();
     });
 
-    on<SaveExpenseEvent>((event, emit) async {
-      try {
-        emit(state.copyWith(isLoading: true));
-        log("${state.expenseAttachments.whereType<File>().toList()}",
-            name: 'EXPENSE_DATA');
-        var response = await apiRepository.expenseAddOrUpdateApi(
-            images: state.expenseAttachments.whereType<File>().toList(),
-            body: _saveExpenseData());
-        if (response?.isNotEmpty ?? false) {
-          Toaster.showSuccess(response?['message'] ?? "Success");
-        }
-        emit(state.copyWith(isLoading: false));
-        if (response?['status'] == 200) emit(state.copyWith());
-      } catch (e) {
-        Toaster.showError("$e");
-        log(e.toString(), name: 'ERROR');
-        emit(state.copyWith(isLoading: false));
-      }
-    });
+    // on<SaveExpenseEvent>((event, emit) async {
+    //   try {
+    //     emit(state.copyWith(isLoading: true));
+    //     log("${state.expenseAttachments.whereType<File>().toList()}",
+    //         name: 'EXPENSE_DATA');
+    //     var response = await apiRepository.expenseAddOrUpdateApi(
+    //         images: state.expenseAttachments.whereType<File>().toList(),
+    //         body: _saveExpenseData());
+    //     if (response?.isNotEmpty ?? false) {
+    //       Toaster.showSuccess(response?['message'] ?? "Success");
+    //     }
+    //     emit(state.copyWith(isLoading: false,popAddPagePop: true));
+    //     if (response?['status'] == 200) emit(state.copyWith());
+    //   } catch (e) {
+    //     Toaster.showError("$e");
+    //     log(e.toString(), name: 'ERROR');
+    //     emit(state.copyWith(isLoading: false));
+    //   }
+    // });
 
     on<UpdateExpenseEvent>((event, emit) async {
       try {
@@ -718,8 +696,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
-        emit(state.copyWith(isLoading: false));
-        if (response?['status'] == 200) emit(state.copyWith());
+        emit(state.copyWith(isLoading: false, popEditPage: true));
+        _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+        if (response?['status'] == 200) {
+          emit(state.copyWith());
+        }
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
@@ -730,24 +711,33 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     on<UpdateCategoryEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        log("${state.expenseAttachments.whereType<File>().toList()}",
-            name: 'EXPENSE_DATA');
-        var response = await apiRepository.expenseAddOrUpdateApi(
+        await apiRepository.expenseAddOrUpdateApi(
             expenseId: "${event.expenseData?['id']}",
             body: _updateCategorys(event.expenseData));
-        // if (response?.isNotEmpty ?? false) {
-        //   Toaster.showSuccess(response?['message'] ?? "Success");
-        // }
-        _resetAll();
-
-        //emit(state.copyWith(isLoading: false));
-        //if (response?['status'] == 200) emit(state.copyWith());
+        emit(state.copyWith(isLoading: false, categoriesPop: true));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
         emit(state.copyWith(isLoading: false));
       }
     });
+
+    on<UpdateCohortEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        await apiRepository.expenseAddOrUpdateApi(
+            expenseId: "${event.expenseData?['id']}",
+            body: _updateCategorys(event.expenseData));
+        emit(state.copyWith(isLoading: false, categoriesPop: true));
+        _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
+    });
+
+
 
     on<SaveSubcategory>((event, emit) async {
       try {
@@ -788,6 +778,13 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
   }
 
+  void _registerBroadcast() {
+    _broadcast.register("expense_vehicle_refresh", (value, callback) {
+      Console.of.log("expense_vehicle_refresh");
+      _resetAll();
+    });
+  }
+
   Map<String, String> _updateExpenseData() {
     dynamic splitLabor = {
       "labour": 1,
@@ -823,7 +820,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     baseBody['expense_description'] = descriptionController.text;
     baseBody['expense_date'] = state.selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['cohort_id'] = "${state.selectedVehicle["cohort_id"] ?? ''}";
-    baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
+    baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
     if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
     baseBody['platform'] = "TaskerApp";
     baseBody['sales_tax_percentage'] =
@@ -1087,7 +1084,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
   void _resetAll() async {
     try {
-      emit(state.copyWith(isLoading: true));
+      if(!isClosed) emit(state.copyWith(isLoading: true));
       Console.of.log("LOADING");
       var startDate = DateTime.now()
           .subtract(const Duration(days: 31))
@@ -1097,8 +1094,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       var expenseAmountResponse = await _getExpense(startDate, endDate);
       var response = await _getExpense(minDate, maxDate);
       var usersList = await getIt<CommonService>().getUsers();
-      var expenseCategories = await _getCategoryData();
-      var categories = expenseCategories?.expenseData;
+      var categories = await getIt<CommonService>().getExpenseCategories();
+      //var categories = expenseCategories?.expenseData;
 
       ExpenseResponse? expenseResponse = response;
       ExpenseResponse? expenseAmount = expenseAmountResponse;
@@ -1128,18 +1125,28 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
             .sum;
       }
-
-      emit(state.copyWith(
-        isLoading: false,
-        apiResponse: apiResponse,
-        filteredResponse: filteredResponse,
-        categories: categories,
-        approvedAmount: approvedAmount,
-        unApprovedAmount: unApprovedAmount,
-      ));
+      if (!isClosed) {
+        emit(state.copyWith(
+          isLoading: false,
+          apiResponse: apiResponse,
+          filteredResponse: filteredResponse,
+          categories: categories,
+          approvedAmount: approvedAmount,
+          unApprovedAmount: unApprovedAmount,
+        ));
+      } else {
+        state.copyWith(
+          isLoading: false,
+          apiResponse: apiResponse,
+          filteredResponse: filteredResponse,
+          categories: categories,
+          approvedAmount: approvedAmount,
+          unApprovedAmount: unApprovedAmount,
+        );
+      }
     } catch (e) {
       log("$e", name: "Error In Bloc Value");
-      emit(state.copyWith(isLoading: false));
+     if (!isClosed) emit(state.copyWith(isLoading: false));
     }
   }
 

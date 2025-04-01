@@ -240,6 +240,20 @@ class EditToDoDeleteVehicleEvent extends EditToDoEvent {
   List<Object?> get props => [vehicleId];
 }
 
+class EditToDoSelectSentimentsEvent extends EditToDoEvent {
+  final dynamic selectedSentiments;
+  EditToDoSelectSentimentsEvent(this.selectedSentiments);
+  @override
+  List<Object?> get props => [selectedSentiments];
+}
+
+class RemoveImageEvent extends EditToDoEvent {
+  final dynamic data;
+  RemoveImageEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
 class EditToDoStatesChangeEvent extends EditToDoEvent {}
 
 class EditToDoDeletePartsAndSuppliesEvent extends EditToDoEvent {}

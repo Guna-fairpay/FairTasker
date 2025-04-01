@@ -107,6 +107,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             List<Map<String, dynamic>>.from(value).map((e) => e['id']);
         partsList.removeWhere((element) => !currentIds.contains(element['id']));
       }
+
       _updateExpenseTotal();
       emit(state.copyWith(partsList: partsList));
     });
@@ -637,7 +638,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
+        allowedExtensions: ['jpg', 'jpeg', 'png']);
+       // allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
     return result?.paths
             .where((element) => (element?.isNotEmpty ?? false))
             .map((e) => File(e!))
@@ -680,6 +682,14 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   }
 
   void _updateExpenseTotal() {
+    if(partsList.isEmpty && suppliesList.isEmpty){
+      labourCostController.clear();
+      saleTaxController.clear();
+      shippingController.clear();
+      percentageOrAmountController.clear();
+      subTotalController.clear();
+      totalAmountController.clear();
+    }else{
     double totalSuppliesCost = 0;
     double totalParts = 0;
     totalParts = partsList.map((e) =>
@@ -706,5 +716,5 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     }
     double totalAmount = subTotal + saleTax + shippingCost;
     totalAmountController.text = totalAmount.toStringAsFixed(2);
-  }
+  }}
 }

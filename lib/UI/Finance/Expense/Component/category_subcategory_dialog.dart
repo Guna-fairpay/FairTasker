@@ -16,12 +16,14 @@ class CategorySubcategoryDialog {
   static void show(
     BuildContext context, {
     required dynamic expense,
+        VoidCallback? onCompleted,
   }) async {
     await showDialog(
         context: context,
         builder: (context) =>
             _CategorySubcategoryDialog(
               expense: expense,
+                onCompleted: onCompleted
             ),
           );
   }
@@ -29,9 +31,10 @@ class CategorySubcategoryDialog {
 
 class _CategorySubcategoryDialog extends StatelessWidget {
   final dynamic expense;
-
+final VoidCallback? onCompleted;
   const _CategorySubcategoryDialog({
     required this.expense,
+    this.onCompleted
   });
 
   @override
@@ -41,6 +44,10 @@ class _CategorySubcategoryDialog extends StatelessWidget {
       child: BlocListener<ExpenseBloc, ExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          if (state.categoriesPop) {
+            onCompleted?.call();
+            Navigator.pop(context);
+          }
         },
         child: BlocBuilder<ExpenseBloc, ExpenseState>(
             builder: (context, state) {
@@ -115,10 +122,7 @@ class _CategorySubcategoryDialog extends StatelessWidget {
                         text: 'Save',
                         () {
                           if (state.selectedSubCategory.isNotEmpty) {
-                            context
-                                .read<ExpenseBloc>()
-                                .add(UpdateCategoryEvent(expenseData: expense));
-                            Navigator.pop(context);
+                            context.read<ExpenseBloc>().add(UpdateCategoryEvent(expenseData: expense));
                           }else{
                             Toaster.showSuccess('Please select Sub Category');
                           }

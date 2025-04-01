@@ -64,9 +64,9 @@ extension StringExtension on String? {
 
   bool get isCustomLink => this?.toLowerCase() == "custom link";
 
-  bool get isGetAroundReservation => this?.toLowerCase() == "Getaround ReservationID";
+  bool get isGetAroundReservation => this?.toLowerCase() == "Getaround ReservationID".toLowerCase();
 
-  bool get isTuroReservation => this?.toLowerCase() == "Turo Reservation ID";
+  bool get isTuroReservation => this?.toLowerCase() == "Turo Reservation ID".toLowerCase();
 
   DateTime? toDateTime({String inputFormat = "yyyy-MM-dd"}) {
     var input = this;

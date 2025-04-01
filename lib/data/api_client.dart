@@ -77,7 +77,9 @@ class ApiClient {
     }
   }
 
-  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, List<Map<String, String?>>? infusedFiles}) async {
+  /// InfusedFiles must be one type "List<Map<String, String?>>" / Map<String, String?>
+  /// Value always file path
+  Future<http.Response?> callPostMethodWithBodyDynamic(String url, {Map<String, dynamic>? body, dynamic infusedFiles}) async {
     if (await Utils.connection()) {
       http.Response response = await compute(_postMultiPartComputeDynamic, {
         "url": Uri.parse(url),
@@ -222,17 +224,29 @@ class ApiClient {
   }
 
   Future<http.Response> _postMultiPartComputeDynamic(dynamic message) async {
-    var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
+    var infusedFiles = message['infusedFiles'];
+    Console.of.debug(infusedFiles);
     List<http.MultipartFile> multiPartFiles = [];
-    if (files.isNotEmpty) {
-      multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamic(files: files)) ?? [];
+    if (infusedFiles is List<Map<String, String?>>) {
+      var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
+      if (files.isNotEmpty) {
+        multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamic(files: files)) ?? [];
+      }
+    } else if (infusedFiles is Map<String, String?>) {
+      multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
     }
+
     var request = http.MultipartRequest("POST", message['url'])
       ..headers.addAll(message['token'])
       ..fields.addAll(message['fields'])
       ..files.addAll(multiPartFiles);
+    Console.of.debug(message['fields']);
+    multiPartFiles.forEach((element) {
+      Console.of.debug("${element.filename} ${element.field}");
+    });
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
+    Console.of.log(response);
     return http.Response(response, streamedResponse.statusCode);
   }
 

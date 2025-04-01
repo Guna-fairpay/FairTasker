@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as d;
 
@@ -11,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
@@ -51,7 +53,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         pageTitle = "${feedbackResponse['feedback']?['title']}";
         priority = "${feedbackResponse['feedback']?['priority']}";
         feedTitleController = TextEditingController(text: pageTitle);
-        feedDescriptionController = QuillController.basic()..document.insert(0, "${feedbackResponse['feedback']?['title']}");
+        feedDescriptionController = QuillController.basic()..document = Document.fromDelta(HtmlToDelta().convert(feedbackResponse['feedback']?['description']));
         emit(FBLoadedState());
         emit(FBFeedbackState(
           feedTitleController,

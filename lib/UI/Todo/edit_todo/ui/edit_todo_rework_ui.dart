@@ -34,7 +34,7 @@ class EditTodoReworkUI extends StatelessWidget {
                 (previous.attachments != current.attachments) ||
                 (previous.todoStatus != current.todoStatus),*/
             builder: (context, state) => Scaffold(
-              resizeToAvoidBottomInset: false, // Prevents widget rebuild
+              resizeToAvoidBottomInset: false,
               backgroundColor: Colors.white,
                   appBar: AppBar(
                     backgroundColor: state.todoStatus
@@ -55,7 +55,7 @@ class EditTodoReworkUI extends StatelessWidget {
                             .add(EditToDoEditAttachmentEvent()),
                         icon: const Icon(Icons.upload_rounded),
                         padding: EdgeInsets.zero,
-                        constraints: state.attachments.isNotEmpty
+                        constraints: state.todoAttachments.isNotEmpty
                             ? const BoxConstraints()
                             : null,
                         style: const ButtonStyle(
@@ -63,12 +63,14 @@ class EditTodoReworkUI extends StatelessWidget {
                               .shrinkWrap, // the '2023' part
                         ),
                       ),
-                      if (state.attachments.isNotEmpty)
+                      if (state.todoAttachments.isNotEmpty)
                         IconButton(
                           onPressed: () => ShowAttachmentsDialog.of.show(
                               context,
-                              attachments: state.attachments,
+                              attachments: state.todoAttachments,
+                              onDeleted: (val)=>context.read<EditToDoBloc>().add(RemoveImageEvent(data: val)),
                               title: "Edit ToDo"),
+
                           icon: const Icon(Icons.remove_red_eye_outlined),
                           padding: EdgeInsets.zero,
                           style: const ButtonStyle(
@@ -146,7 +148,6 @@ class EditTodoReworkUI extends StatelessWidget {
                       IconButton(
                           onPressed: () {
                             context.read<EditToDoBloc>().add(EditToDoSaveEvent());
-                            Navigator.pop(context);
                           },
                           icon: const Icon(Icons.save)
                       ),

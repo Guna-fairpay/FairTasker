@@ -7,13 +7,17 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 class SearchViewField<T extends Object> extends StatelessWidget {
   final List<T> suggestions;
   final T? selectedItem;
-  final ValueChanged<T>? onSelected;
+  final ValueChanged<T>? onSelected, onCleared;
   final ItemAsString<T> itemAsString;
   final TextEditingController controller;
   final bool showEmpty;
   final String? labelText, hintText;
   final ValueNotifier<bool> _showEmptyWidget = ValueNotifier(false);
   final VoidCallback? onEmptyTap;
+  final bool autoClear;
+  final Function(FocusNode focusNode)? onFieldFocusCreated;
+  final Function(TapDownDetails details)? onEmptyTapDetails;
+  final Function(T value, {FocusNode? focusNode})? onSelectedFocus;
 
   SearchViewField(
       {super.key,
@@ -23,9 +27,14 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       this.labelText,
       this.hintText,
       this.selectedItem,
+      this.onFieldFocusCreated,
       this.showEmpty = false,
+      this.autoClear = false,
       this.onEmptyTap,
-      this.onSelected}) {
+      this.onEmptyTapDetails,
+      this.onCleared,
+      this.onSelected,
+      this.onSelectedFocus}) {
     if (selectedItem != null) {
       controller.text = itemAsString(selectedItem!);
     }
@@ -39,11 +48,16 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               controller: controller,
               labelText: labelText,
               hintText: hintText,
+              autoClear: autoClear,
+              onSelectedFocus: onSelectedFocus,
+              onFieldFocusCreated: onFieldFocusCreated,
               optionsBuilder: _optionsBuilder,
+              onChanged: (value) => (value.isNullOrEmpty && (selectedItem != null)) ? onCleared?.call(selectedItem!) : null,
               itemAsString: itemAsString,
               onSelected: onSelected,
               showEmptyWidget: value,
               onEmptyWidgetTap: onEmptyTap,
+          onEmptyWidgetTapDown: onEmptyTapDetails,
             ));
   }
 

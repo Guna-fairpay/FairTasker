@@ -42,6 +42,16 @@ class Console {
       }
     }
   }
+
+  void warning(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
+    if (_isDebug) {
+      if ("$message".length > 120) {
+        developer.log("$message", error: error, stackTrace: stackTrace, name: name);
+      } else {
+        _logger.w("[$name] $message", error: error, stackTrace: stackTrace);
+      }
+    }
+  }
 }
 
 class MyConsoleOutput extends ConsoleOutput {

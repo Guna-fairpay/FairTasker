@@ -234,7 +234,7 @@ class _BottomNavigationForTaskViewState
               // size: 28,
             ),
             inactiveIcon: const Icon(
-              Icons.calendar_month_outlined,
+              Icons.calendar_today_rounded,
               color: AppC.grey,
               // size: 28,
             ),

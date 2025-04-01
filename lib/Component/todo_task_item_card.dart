@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart' show parse;
 
 class TodoTaskItemCard extends StatelessWidget {
   final Map<String, dynamic> model;
@@ -340,11 +341,11 @@ class TodoTaskItemCard extends StatelessWidget {
                                 Flexible(
                                   child: GestureDetector(
                                       onTapDown: onNotes,
-                                      child: Utils.getText(
-                                          "(${model['display']?['notes'] ?? ""})",
-                                          size: 11.sp,
-                                          overFlow: TextOverflow.ellipsis,
-                                          color: AppC().base)),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          text: "(${parse(model['display']?['notes'] ?? "").body?.text})",
+                                          style: context.textTheme.labelMedium?.copyWith(fontSize: 11.sp, overflow: TextOverflow.ellipsis, color: AppC.appColor)
+                                        ))),
                                 ),
                               if (model['display']?['hasAddress'] ?? false)
                                 Flexible(

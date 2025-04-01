@@ -5,6 +5,7 @@ import "package:fairpytasker/UI/Finance/Expense/Component/cohort_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Component/expense_vehicle_list_item.dart";
 import "package:fairpytasker/UI/Finance/Expense/UI/Vehicle/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/appC.dart";
+import "package:fairpytasker/core/app/helper/console.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_easyloading/flutter_easyloading.dart";
@@ -57,7 +58,9 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap:()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const ExpenseVehicleAddUI(),)),
+                        onTap:()=> Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => const ExpenseVehicleAddUI(),
+                            fullscreenDialog: true)),
                         child: Container(
                           height: 40,
                           width: 40,
@@ -132,6 +135,7 @@ class ExpenseVehicleViewUI extends StatelessWidget {
                               CategorySubcategoryDialog.show(
                                 context,
                                 expense: state.filteredResponse[index],
+                                onCompleted: () => context.read<ExpenseBloc>().add(RefreshEvent()),
                               );
                             },
                             onCohortTapEvent: () {

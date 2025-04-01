@@ -221,6 +221,7 @@ class AddDepartmentData extends VehicleDataEvent {
   @override
   List<Object?> get props => [name, id, head];
 }
+
 /*
 class GetSubCategory extends AddVehicleData {
   const GetSubCategory();

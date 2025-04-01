@@ -1,11 +1,11 @@
-import 'dart:developer';
-import 'dart:io';
 
+import 'dart:io';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -57,23 +57,31 @@ class TodoExpense extends StatelessWidget {
           children: [
             10.height,
             if (state.vehicleList.length == 1)
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VehicleExpenseHistoryUI(
-                                vin: state.vehicleList.firstOrNull['vin'],
-                                vehicleName: state
-                                    .vehicleList.firstOrNull['vehicle_name'],
-                            showTotalAmount: false,
-                              )));
-                },
-                child: Utils.getText(
-                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
-                  color: AppC().base,
-                  align: TextAlign.end,
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => VehicleExpenseHistoryUI(
+                                    vin: state.vehicleList.firstOrNull['vin'],
+                                    vehicleName: state
+                                        .vehicleList.firstOrNull['vehicle_name'],
+                                showTotalAmount: false,
+                                  )
+                          )
+                      );
+                    },
+                    child: Utils.getText(
+                      'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                      color: AppC().base,
+                      align: TextAlign.end,
+                    ),
+                  ),
+                ],
               ),
             if (state.vehicleList.length > 1)
               Utils.dropdownBox(
@@ -220,9 +228,6 @@ class TodoExpense extends StatelessWidget {
                                 context.read<TodoEditExpenseBloc>().add(
                                     RemoveImageEvent(
                                         data: state.expenseAttachments[index])));
-                       /* context.read<TodoEditExpenseBloc>().add(
-                            RemoveImageEvent(
-                                data: state.expenseAttachments[index]));*/
                       },
                       child: Stack(
                         children: [
@@ -300,15 +305,19 @@ class TodoExpense extends StatelessWidget {
               context
                   .read<TodoEditExpenseBloc>()
                   .add(CategoryListEvent(mainCategory: selectedValue));
+              Future.microtask(() => Utils.dismissKeyboard(context));
             },
                 selectedKey: state.selectedMainCategory,
                 initialSelection: state.selectedMainCategory,
                 labelKey: 'name'),
-            Utils.dropdownBox('Select SubCategory', state.subCategories,
+            Utils.dropdownBox(
+                'Select SubCategory',
+                state.subCategories,
                 (selectedValue) {
               context
                   .read<TodoEditExpenseBloc>()
                   .add(SubCategoryListEvent(subCategory: selectedValue));
+              Future.microtask(() => Utils.dismissKeyboard(context));
             },
                 selectedKey: state.selectedSubCategory,
                 initialSelection: state.selectedSubCategory,
@@ -331,9 +340,18 @@ class TodoExpense extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Utils.getElevatedButton(
-                  () => context
-                      .read<TodoEditExpenseBloc>()
-                      .add(const SaveExpenseEvent()),
+                  () {
+                    if((state.partsList.isEmpty && state.suppliesList.isEmpty) && context.read<TodoEditExpenseBloc>().amountController.text.isEmpty) {
+                      return Toaster.showError("Please enter amount");
+                    }
+                    if(state.selectedMainCategory.isEmpty) {
+                      return Toaster.showError("Please select category");
+                    }
+                    if(/*state.subCategories.isNotEmpty && */state.selectedSubCategory.isEmpty) {
+                      return Toaster.showError("Please select subCategory");
+                    }
+                    context.read<TodoEditExpenseBloc>().add(const SaveExpenseEvent());
+                    },
                 ),
                 Utils.getElevatedButton(
                   () {

@@ -36,7 +36,8 @@ class ExpensePersonListItem extends StatelessWidget {
     List<dynamic> expenseImages =
         images.map((e) => e['path'].toString().toStorageURL).toList();
 
-    dynamic user = employeeList.firstWhere((element) => element['id'].toString() == expense['employee_id'].toString());
+    dynamic user = employeeList.firstWhere((element) => element['id'].toString()
+        == expense['employee_id'].toString());
 
     return Dismissible(
       key: UniqueKey(),

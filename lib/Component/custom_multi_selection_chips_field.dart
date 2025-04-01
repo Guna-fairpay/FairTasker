@@ -19,6 +19,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
   final VoidCallback? onEmptyTap;
   final bool controllerAutoClear;
   final Suggestion suggestionState;
+  final bool showEmpty;
   final void Function(bool isChecked, T value)? onChanged;
 
   CustomMultiSelectionChipsField(
@@ -31,6 +32,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
       this.hintText,
       this.labelText,
       this.onEmptyTap,
+      this.showEmpty = true,
       this.controllerAutoClear = true,
       this.suggestionState = Suggestion.expand,
       this.onChanged});
@@ -106,6 +108,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
                 showEmptyWidget: value,
                 onSelected: (val) {
                   onChanged?.call(true, val);
+                  Future.microtask(() => Utils.dismissKeyboard(context));
                 },
                 itemAsString: itemAsString,
                 labelText: labelText,
@@ -137,12 +140,12 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
 
   Future<Iterable<T>> _onSearch(TextEditingValue editValue) async {
     var val = editValue.text.toLowerCase();
-    if (val.trim().isEmpty) {
+    if (val.isEmpty) {
       return [];
     }
     var data = suggestionsList.where((element) =>
         itemAsString?.call(element).toLowerCase().contains(val) ?? false);
-    _isShowEmptyNotifier.value = data.isEmpty;
+    _isShowEmptyNotifier.value = (showEmpty) ? data.isEmpty : false;
     return data;
   }
 }

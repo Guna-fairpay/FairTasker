@@ -1,5 +1,7 @@
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Component/custom_searcher_view.dart';
+import 'package:fairpytasker/Component/custom_type_head_search_view.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_add_ui.dart';
@@ -12,8 +14,7 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
 
-class CustomVehiclePersonField extends StatelessWidget {
-  final ValueNotifier<dynamic>? selectedVPersons;
+class CustomVehiclePersonField extends StatefulWidget {
   final List<dynamic> vehiclesList, personsList, groupVehicles;
   final List<Map<String, dynamic>>? selected;
   final void Function(dynamic val)? onSelected;
@@ -22,9 +23,8 @@ class CustomVehiclePersonField extends StatelessWidget {
   final bool updateWhileDelete;
   final String labelText;
 
-  CustomVehiclePersonField({
+  const CustomVehiclePersonField({
     super.key,
-    this.selectedVPersons,
     required this.vehiclesList,
     this.selected,
     this.onSelected,
@@ -34,49 +34,58 @@ class CustomVehiclePersonField extends StatelessWidget {
     this.groupVehicles = const [],
     this.controller,
     this.updateWhileDelete = true,
-  }) {
-    _prepareData();
-    _checkSelectedVData();
-  }
+  });
 
-  final ValueNotifier<List<Map<String, dynamic>>> commonList =
-      ValueNotifier([]);
+  @override
+  State<CustomVehiclePersonField> createState() =>
+      _CustomVehiclePersonFieldState();
+}
 
-  final ValueNotifier<List<Map<String, dynamic>>> selectedList =
-      ValueNotifier([]);
-
+class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
   ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
 
   List<Map<String, dynamic>> unfilteredList = [];
 
+  List<Map<String, dynamic>> selectedList = [];
+
+  FocusNode? _focusNode;
+
+  @override
+  void initState() {
+    _prepareData();
+    _checkSelectedVData();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomVehiclePersonField oldWidget) {
+    if (oldWidget.selected != widget.selected) {
+      _checkSelectedVData();
+    }
+    if ((oldWidget.vehiclesList != widget.vehiclesList) || (oldWidget.personsList != widget.personsList) ) {
+      _prepareData();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
   void _prepareData() {
     unfilteredList = CustomSearchDataConverter.convertVPerson(
-        vehicles: vehiclesList,
-        persons: personsList,
-        groupVehicles: groupVehicles);
-    commonList.value = unfilteredList;
+        vehicles: widget.vehiclesList,
+        persons: widget.personsList,
+        groupVehicles: widget.groupVehicles);
+    setState(() {});
   }
 
   void _checkSelectedVData() {
-    if ((selected != null)) {
-      selectedList.value = (selected as List<Map<String, dynamic>>?) ?? [];
-      selectedList.notifyListeners();
-    }
-    if (selectedVPersons?.value.isNotEmpty ?? false) {
-      selectedList.value = (selectedVPersons?.value ?? []);
-    }
-    selectedVPersons?.addListener(() {
-      var value = selectedVPersons?.value;
-      selectedList.value = (value ?? []);
-      selectedList.notifyListeners();
-    });
+    selectedList = widget.selected ?? [];
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.zero,
-      decoration: selectedList.value.isEmpty
+      decoration: selectedList.isEmpty
           ? null
           : const BoxDecoration(
               border: Border(
@@ -91,90 +100,88 @@ class CustomVehiclePersonField extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: selectedList.value.isEmpty ? 0 : 5,
+        spacing: selectedList.isEmpty ? 0 : 5,
         children: [
-          ValueListenableBuilder(
-              valueListenable: selectedList,
-              builder: (context, value, child) {
-                return Wrap(
-                  children: List<Widget>.generate(
-                    value.length,
-                    (int idx) {
-                      var model = value[idx];
-                      return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: Chip(
-                            onDeleted: () => _onDelete(model),
-                            side: const BorderSide(color: AppC.trans),
-                            deleteIcon: const Icon(
-                              Icons.close,
-                              color: AppC.red,
-                              size: 18,
-                            ),
-                            backgroundColor: const Color(0xffb5d2bb),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            // side: BorderSide(),
-                            label: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Utils.getText(model['name'] ?? '',
-                                    color: AppC.text),
-                              ],
-                            ),
-                          ));
-                    },
-                  ).toList(),
-                );
-              }),
-          if (controller != null)
-            ValueListenableBuilder(
-              valueListenable: showEmptyNotifier,
-              builder: (context, value, child) => CustomAutoSearchField(
-                  controller: controller!,
-                  labelText: labelText,
-                  onSelected: _onSuggested,
-                  showEmptyWidget: value,
-                  autoClear: true,
-                  itemAsString: (item) => formatMapData(item),
-                  onEmptyWidgetTapDown: (details) =>
-                      SimplePopUpMenu.instance.show(
-                        context,
-                        position: details.globalPosition,
-                        items: ["Vehicle", "Person"],
-                        onTap: (item) {
-                          item == "Vehicle"
-                              ? context.push(const VehicleAddUI())
-                              : context.push(const EmployeesAddUI());
-                        },
+          Wrap(
+            children: List<Widget>.generate(
+              selectedList.length,
+              (int idx) {
+                var model = selectedList[idx];
+                return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Chip(
+                      onDeleted: () => _onDelete(model),
+                      side: const BorderSide(color: AppC.trans),
+                      deleteIcon: const Icon(
+                        Icons.close,
+                        color: AppC.red,
+                        size: 18,
                       ),
-                  // onEmptyWidgetTap: () => context.push(const EmployeesAddUI()),
-                  optionsBuilder: (textEditingValue) =>
-                      onSearch(textEditingValue)),
-            ),
+                      backgroundColor: const Color(0xffb5d2bb),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      // side: BorderSide(),
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Utils.getText(model['name'] ?? '', color: AppC.text),
+                        ],
+                      ),
+                    ));
+              },
+            ).toList(),
+          ),
+          if (widget.controller != null)
+            SearchViewField<Map<String, dynamic>>(
+                controller: widget.controller!,
+                suggestions: unfilteredList,
+                onSelected: _onSuggested,
+                // onSelectedFocus: (value, {focusNode}) => Future.delayed(Durations.short1, () => FocusScope.of(context).requestFocus(focusNode)),
+                labelText: widget.labelText,
+                autoClear: true,
+                showEmpty: true,
+                onFieldFocusCreated: (focusNode) => _focusNode = focusNode,
+                onEmptyTapDetails: (details) => SimplePopUpMenu.instance.show(
+                  context,
+                  position: details.globalPosition,
+                  items: ["Vehicle", "Person"],
+                  onTap: (item) {
+                    item == "Vehicle"
+                        ? context.push(const VehicleAddUI())
+                        : context.push(const EmployeesAddUI());
+                  },
+                ),
+                itemAsString: formatMapData),
           /*ValueListenableBuilder(
-              valueListenable: commonList,
-              builder: (context, value, child) =>
-                  CustomSearchField<Map<String, dynamic>>(
-                    controller: controller,
-                    suggestions: value,
-                    autoControllerClear: true,
-                    isDense: true,
-                    style: context.textTheme.labelLarge
-                        ?.copyWith(fontFamily: "Lato"),
-                    labelText: "Vehicle/Person",
-                    itemAsString: (item) => formatMapData(item),
-                    suggestionState: Suggestion.hidden,
-                    onSuggestionTap: _onSuggested,
-                  )),*/
+            valueListenable: showEmptyNotifier,
+            builder: (context, value, child) => TypeHeadSearchView<Map<String, dynamic>>(
+                controller: widget.controller!,
+                labelText: widget.labelText,
+                onSelected: _onSuggested,
+                showEmptyWidget: value,
+                onFieldFocusCreated: (focusNode) => _focusNode = focusNode,
+                itemAsString: (item) => formatMapData(item),
+                onEmptyWidgetTapDown: (details) =>
+                    SimplePopUpMenu.instance.show(
+                      context,
+                      position: details.globalPosition,
+                      items: ["Vehicle", "Person"],
+                      onTap: (item) {
+                        item == "Vehicle"
+                            ? context.push(const VehicleAddUI())
+                            : context.push(const EmployeesAddUI());
+                      },
+                    ),
+                // onEmptyWidgetTap: () => context.push(const EmployeesAddUI()),
+                optionsBuilder: onSearch),
+          ),*/
         ],
       ),
     );
   }
 
-  Future<Iterable<Map<String, dynamic>>> onSearch(
-      TextEditingValue textEditingValue) async {
-    var val = textEditingValue.text.toLowerCase();
+  Future<List<Map<String, dynamic>>> onSearch(String textEditingValue) async {
+    var val = textEditingValue.toLowerCase();
     if (val.isEmpty) {
       return [];
     }
@@ -185,35 +192,29 @@ class CustomVehiclePersonField extends StatelessWidget {
   }
 
   void _onDelete(Map<String, dynamic> val) {
-    var value = selectedList.value;
+    var value = selectedList;
     value.remove(val);
-    onDeleted?.call(val);
-    selectedVPersons?.value.remove(val);
-    selectedVPersons?.value = value;
-    selectedList.value = value;
-    selectedList.notifyListeners();
-    selectedVPersons?.notifyListeners();
-    if (updateWhileDelete) onSelected?.call(selectedList.value);
+    widget.onDeleted?.call(val);
+    selectedList = value;
+    if (widget.updateWhileDelete) widget.onSelected?.call(selectedList);
   }
 
   void _onSuggested(Map<String, dynamic> val) {
-    List<Map<String, dynamic>> data = selectedVPersons?.value ?? [];
+    List<Map<String, dynamic>> data = [];
     if (["person", "g_vehicles"].contains(val['type'])) {
       data = [val];
     } else if (val['type'] == "vehicles") {
       data.removeWhere((element) =>
           element.containsKey('type') && element['type'] == "person");
       data = [
-        ...(data ?? []),
+        ...(data),
         ...[val]
       ];
     }
-    selectedList.value = (data);
-    onSelected?.call(selectedList.value);
-    selectedVPersons?.value = selectedList;
-    selectedList.notifyListeners();
-    selectedVPersons?.notifyListeners();
-    controller?.clear();
+    Future.microtask(() => Utils.dismissKeyboard(context));
+    selectedList = (data);
+    widget.onSelected?.call(selectedList);
+    widget.controller?.clear();
   }
 
   String formatMapData(Map<String, dynamic> e) {

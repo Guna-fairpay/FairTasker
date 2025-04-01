@@ -182,6 +182,13 @@ class UpdateCategoryEvent extends ExpenseEvent {
   List<Object?> get props => [expenseData,Random().nextDouble()];
 }
 
+class UpdateCohortEvent extends ExpenseEvent {
+  final dynamic expenseData;
+  const UpdateCohortEvent({required this.expenseData});
+  @override
+  List<Object?> get props => [expenseData,Random().nextDouble()];
+}
+
 class GetSubCategoryExpenseTo extends ExpenseEvent {
   const GetSubCategoryExpenseTo();
   @override
@@ -210,4 +217,6 @@ class GetCategoryDropDownData extends ExpenseEvent {
   List<Object?> get props => [];
 }
 
-class RefreshEvent extends ExpenseEvent {}
+class RefreshEvent extends ExpenseEvent {
+
+}

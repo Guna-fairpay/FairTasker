@@ -27,7 +27,7 @@ class FeedbackEditViewUI extends StatelessWidget {
   const FeedbackEditViewUI({super.key, required this.feedBackId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext _) {
     return BlocProvider<FBEditBloc>(
       create: (context) => FBEditBloc()..add(FBInitialEvent(feedBackId)),
       child: BlocListener<FBEditBloc, FBEditStates>(

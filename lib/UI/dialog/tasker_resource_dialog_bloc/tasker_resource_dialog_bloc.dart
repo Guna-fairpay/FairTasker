@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog_bloc/tasker_resource_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog_bloc/tasker_resource_dialog_states.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -16,14 +18,15 @@ class TRSDBloc extends Bloc<TRSDEvents, TRSDStates> {
     on<TRSDSelectedEvent>(_onSelectedEvent);
   }
 
-  Future<List<Map<String, dynamic>>> _getUsersList() async => await getIt<CommonService>().getUsers();
+  Future<List<Map<String, dynamic>>> _getUsersList() async => await getIt<CommonService>().getResources();
 
   void _onInitialEvent(TRSDInitialEvent event, Emitter<TRSDStates> emit) async {
     try {
       model = event.model;
       emit(TRSDLoadingState());
       var response = await _getUsersList();
-      apiResponse = response.where((element) => element['deleted_at'].toString().isNullOrEmpty).toList();
+      response.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['id'] == 2) || (element['branch_id'] != Session.of.getInt(Str.branchIdPrefText)));
+      apiResponse = response;
       selectedResourcesList = List<Map<String, dynamic>>.from(model?['display']?['resources'] ?? []);
       Console.of.log(selectedResourcesList);
       emit(TRSDCommonState());

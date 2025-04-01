@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/Feedback/feedback_view_bloc/feedback_view_states
 import 'package:fairpytasker/Response/feedback_status_response.dart';
 import 'package:fairpytasker/Response/feedback_view_response.dart';
 import 'package:fairpytasker/Repository/feedback_repository.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
@@ -14,7 +15,9 @@ class FeedBackViewBloc extends Bloc<FeedBackViewEvent, FeedBackViewState> {
   List<StatusList>? feedbackStatus = [];
   dynamic selectedStatus;
   bool isRefreshing = false;
+  final FBroadcast _broadcast = FBroadcast.instance();
   FeedBackViewBloc() : super(FeedBackViewLoadingState()) {
+    _broadcast.register("feedback_refresh", (value, callback) => add(FeedBackInitialEvent()));
     on<FeedBackInitialEvent>((event, emit) async {
       emit(FeedBackViewLoadingState());
       try {
