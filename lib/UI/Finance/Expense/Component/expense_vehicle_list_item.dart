@@ -154,7 +154,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Utils.getText(
-                        "\$${double.tryParse(expense['expense_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                        "\$${expense['expense_amount'].toString().toDoubleDigit}",
                         color: approveColor,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis,
