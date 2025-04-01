@@ -171,6 +171,8 @@ class APiRepository {
 
   String get _feedback => "feedback";
 
+  String get _getVoiceTextList => "getVoiceTextList";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1447,6 +1449,18 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleImages/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getVoiceToTextData({String? startDate, String? endDate}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getVoiceTextList?from=$startDate&to=$endDate';
+      Console.of.log(apiUrl);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
