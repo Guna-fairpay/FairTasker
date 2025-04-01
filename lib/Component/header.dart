@@ -17,61 +17,64 @@ class HeaderView extends StatelessWidget {
   const HeaderView({super.key});
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        padding: 10.horizontalPadding,
-        child: Row(
-          spacing: 10,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GestureDetector(
-              onTap: Scaffold.of(context).openDrawer,
-              child: SvgPicture.asset(
-                Assets.hamburgerIcon,
-                color: AppC().base,
-              ),
-              // tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+    return AppBar(
+      elevation: 0,
+      leadingWidth: 0,
+      backgroundColor: AppC.white,
+      centerTitle: true,
+      automaticallyImplyLeading: false,
+      title: Row(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          GestureDetector(
+            onTap: Scaffold.of(context).openDrawer,
+            child: SvgPicture.asset(
+              Assets.hamburgerIcon,
+              color: AppC().base,
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                      const BottomNavigationForTaskView(
-                        selectedIndex: 0,
-                        message: '',
-                      ),
+            // tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                    const BottomNavigationForTaskView(
+                      selectedIndex: 0,
+                      message: '',
                     ),
-                  );
-                },
-                child: Image.asset(
-                  Assets.favicon,
-                  width: 24.sp,
-                  height: 24.sp,
-                  fit: BoxFit.fitHeight,
-                ),
+                  ),
+                );
+              },
+              child: Image.asset(
+                Assets.favicon,
+                width: 24.sp,
+                height: 24.sp,
+                fit: BoxFit.fitHeight,
               ),
             ),
-            const Spacer(),
-            // if (userRole == 'Admin' || userId == '3')
-            //   GestureDetector(
-            //     onTap: () {
-            //       Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //               builder: (context) => const TasklistUi()));
-            //     },
-            //     child: const Icon(
-            //       Icons.pending_actions_rounded,
-            //       color: AppC.appColor,
-            //     ),
-            //   ),
-            // const SizedBox(width: 10),
-            /*InkWell(
+          ),
+          const Spacer(),
+          // if (userRole == 'Admin' || userId == '3')
+          //   GestureDetector(
+          //     onTap: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (context) => const TasklistUi()));
+          //     },
+          //     child: const Icon(
+          //       Icons.pending_actions_rounded,
+          //       color: AppC.appColor,
+          //     ),
+          //   ),
+          // const SizedBox(width: 10),
+          /*InkWell(
                       onTap: () {
                         Navigator.push(
                           context,
@@ -89,25 +92,25 @@ class HeaderView extends StatelessWidget {
                         color: AppC().base,
                       ),
                     ),*/
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                    const BottomNavigationForTaskView(selectedIndex: 2, message: '',),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: Utils.getBoxDecoration(),
-                child: Utils.getText(' 0/0 '),
-              ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                  const BottomNavigationForTaskView(selectedIndex: 2, message: '',),
+                ),
+              );
+            },
+            child: Container(
+              decoration: Utils.getBoxDecoration(),
+              child: Utils.getText(' 0/0 '),
             ),
-            GestureDetector(
-              // onTapDown: (details) => BranchPopupMenu.show(context, offset: details.globalPosition, onChanged: (value) => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0))),
-              onTapDown: (details) => BranchPopupMenu.show(context, offset: details.globalPosition, onChanged: (value) => Console.of.warning(value)),
-              /*onTap: () {
+          ),
+          GestureDetector(
+            // onTapDown: (details) => BranchPopupMenu.show(context, offset: details.globalPosition, onChanged: (value) => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0))),
+            onTapDown: (details) => BranchPopupMenu.show(context, offset: details.globalPosition, onChanged: (value) => Console.of.warning(value)),
+            /*onTap: () {
                         Utils.dismissKeyboard(context);
                         showMenu<Map<String, dynamic>>(
                           color: Colors.white,
@@ -172,12 +175,11 @@ class HeaderView extends StatelessWidget {
                           }
                         });
                       },*/
-              child: ValueListenableBuilder(valueListenable: getIt<CommonService>().updateBranch, builder: (context, value, child) => Utils.getText((Session.of.getString(Str.branchNamePrefText)?[0] ?? "D"),
-                style: context.textTheme.titleLarge?.copyWith(fontSize: 22.sp, fontWeight: FontWeight.w900, color: AppC.appColor),
-              )),
-            ),
-          ],
-        ),
+            child: ValueListenableBuilder(valueListenable: getIt<CommonService>().updateBranch, builder: (context, value, child) => Utils.getText((Session.of.getString(Str.branchNamePrefText)?[0] ?? "D"),
+              style: context.textTheme.titleLarge?.copyWith(fontSize: 22.sp, fontWeight: FontWeight.w900, color: AppC.appColor),
+            )),
+          ),
+        ],
       ),
     );
   }
