@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fairpytasker/UI/dialog/tasker_vehicls_dialog_bloc/tasker_vehicles_persons_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicls_dialog_bloc/tasker_vehicles_persons_dialog_states.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -32,7 +33,10 @@ class TVPDBloc extends Bloc<TVPDEvents, TVPDStates> {
     vehicles = response[0];
     groupVehicles = response[1];
     persons = response[2];
-    selectedVehicles = CustomSearchDataConverter.convertVPerson(vehicles: selectedModel?['display']?['vehicles']);
+    var selectedVehicle = selectedModel?['display']?['vehicles'];
+    var selectedPersons = (selectedModel?['display']?['personId'].toString().isNotNullOrEmpty ?? false) ? persons.where((element) => element['id'].toString() == selectedModel?['display']?['personId']).toList() : [];
+    var selectedGroupVehicles = (selectedModel?['display']?['vehicleGroupId'].toString().isNotNullOrEmpty ?? false) ? groupVehicles.where((element) => element['id'] == selectedModel?['display']?['vehicleGroupId']).toList() : [];
+    selectedVehicles = CustomSearchDataConverter.convertVPerson(vehicles: selectedVehicle, groupVehicles: selectedGroupVehicles, persons: selectedPersons);
     Console.of.log(selectedVehicles);
     emit(TVPDCommonState());
   }

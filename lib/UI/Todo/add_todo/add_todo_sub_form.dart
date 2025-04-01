@@ -89,8 +89,11 @@ class AddTodoSubForm extends StatelessWidget {
                       vin: state.selectedVPerson
                           .where((element) => element['type'] == "vehicles")
                           .lastOrNull?['value']?['vin'],
+                      groupId: state.selectedVPerson
+                          .where((element) => element['type'] == "g_vehicles")
+                          .lastOrNull?['id'],
                       vehicleName: state.selectedVPerson
-                          .where((element) => element['type'] == "vehicles")
+                          .where((element) => element['type'] != "person")
                           .lastOrNull?['name']), fullscreenDialog: true)),
                 textAlign: TextAlign.end,
                 style: context.textTheme.labelSmall?.copyWith(
