@@ -161,3 +161,10 @@ class FrontLicensePlateEvent extends EditVehicleEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class SaveUpdatedVehicle extends EditVehicleEvent {
+  final dynamic data;
+  SaveUpdatedVehicle({required this.data});
+  @override
+  List<Object?> get props => [data];
+}

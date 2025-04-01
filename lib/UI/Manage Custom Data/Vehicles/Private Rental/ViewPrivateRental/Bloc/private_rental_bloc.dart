@@ -4,7 +4,9 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/ViewPrivateRental/Bloc/private_rental_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/ViewPrivateRental/Bloc/private_rental_state.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,11 +16,14 @@ class PrivateRentalBloc extends Bloc<PrivateRentalEvent, PrivateRentalState>{
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
   List<int> selectedIds = [];
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   PrivateRentalBloc() : super(PrivateRentalLoadingState()){
 
+    _registerBroadcast();
+
     on<PrivateRentalInitialEvent>((event, emit) async {
-      try{
+      /*try{
         emit(PrivateRentalLoadingState());
         var response = await _getPrivateRentalVehicle();
         apiResponse =List.from(response?['vehicles'] ?? []);
@@ -29,7 +34,8 @@ class PrivateRentalBloc extends Bloc<PrivateRentalEvent, PrivateRentalState>{
         Toaster.showError(e.toString());
         emit(PrivateRentalLoadedState());
         log(e.toString(), name: "PrivateRentalBloc");
-      }
+      }*/
+      reFitchData();
     });
 
     on<SearchPrivateRentalEvent>((event, emit) {
@@ -72,5 +78,27 @@ class PrivateRentalBloc extends Bloc<PrivateRentalEvent, PrivateRentalState>{
   ///PRIVATE RENTAL VEHICLE API CALL
   Future<Map<String, dynamic>?> _getPrivateRentalVehicle() async =>
       await _apiRepository.getPrivateRentalVehicleList();
+
+  void reFitchData() async{
+    try{
+      emit(PrivateRentalLoadingState());
+      var response = await _getPrivateRentalVehicle();
+      apiResponse =List.from(response?['vehicles'] ?? []);
+      filteredResponse.clear();
+      filteredResponse = apiResponse;
+      emit(PrivateRentalLoadedState());
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(PrivateRentalLoadedState());
+      log(e.toString(), name: "PrivateRentalBloc");
+    }
+  }
+
+  void _registerBroadcast() {
+    _broadcast.register("PR_refresh", (value, callback) {
+      Console.of.log("PR_refresh");
+      reFitchData();
+    });
+  }
 
 }

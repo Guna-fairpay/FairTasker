@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 
 class ImageUploadSection extends StatelessWidget {
@@ -28,6 +29,7 @@ class ImageUploadSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Console.of.log(images);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

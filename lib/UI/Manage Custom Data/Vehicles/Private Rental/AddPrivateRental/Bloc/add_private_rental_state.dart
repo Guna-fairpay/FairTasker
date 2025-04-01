@@ -12,6 +12,8 @@ class AddPrivateRentalLoadedState extends AddPrivateRentalState {}
 
 class AddCustomerState extends AddPrivateRentalState {}
 
+class AddPrivateRentalCompleteState extends AddPrivateRentalState {}
+
 class AddPrivateRentalCommonState extends AddPrivateRentalState {
   @override
   List<Object?> get props => [Random().nextDouble()];

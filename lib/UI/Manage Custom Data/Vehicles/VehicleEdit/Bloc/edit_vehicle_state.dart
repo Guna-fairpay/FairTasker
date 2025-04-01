@@ -11,6 +11,8 @@ class EditVehicleLoadingState extends EditVehicleState {}
 
 class EditVehicleLoadedState extends EditVehicleState {}
 
+class EditCompletedState extends EditVehicleState {}
+
 class EditVehicleCommonState extends EditVehicleState {
   @override
   List<Object?> get props => [Random().nextDouble()];

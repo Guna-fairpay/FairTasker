@@ -21,12 +21,13 @@ class EditVehicleUI extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is EditCompletedState) Navigator.pop(context);
           }
         },
-        child: const Scaffold(
+        child:  Scaffold(
           body:  SafeArea(
-            minimum: EdgeInsets.symmetric(horizontal:15,vertical: 10),
-            child: EditVehicleBody(),
+            minimum: const EdgeInsets.symmetric(horizontal:15,vertical: 10),
+            child: EditVehicleBody(vehicleData: vehicleData),
           ),
         ),
       ),

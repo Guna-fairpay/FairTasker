@@ -22,6 +22,7 @@ class PrivateRentalEditUI extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is EditPrivateRentalCompletedState) Navigator.pop(context);
           }
         },
         child: Scaffold(

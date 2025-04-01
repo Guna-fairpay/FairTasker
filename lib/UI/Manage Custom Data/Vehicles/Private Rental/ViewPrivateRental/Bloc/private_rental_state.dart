@@ -43,4 +43,6 @@ class EditPrivateRentalState extends PrivateRentalState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class PrivateRentalCompleteState extends PrivateRentalState {}
+
 

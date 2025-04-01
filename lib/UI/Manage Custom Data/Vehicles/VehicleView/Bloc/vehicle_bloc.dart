@@ -4,8 +4,10 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,18 +19,21 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   List<Map<String, dynamic>> filteredResponse = [];
   Map<int, bool> selectedVehicles = {};
   List<int> selectedIds = [];
-
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   VehicleBloc() : super(VehicleLoadingState()){
 
+    _registerBroadcast();
+
     on<VehicleInitialEvent>((event, emit) async {
-      emit(VehicleLoadingState());
-     var response= await _getVehicle();
-     response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
-     apiResponse = response??[];
-     filteredResponse.clear();
-     filteredResponse = apiResponse;
-      emit(VehicleLoadedState());
+      reFitchData();
+     //  emit(VehicleLoadingState());
+     // var response= await _getVehicle();
+     // response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
+     // apiResponse = response??[];
+     // filteredResponse.clear();
+     // filteredResponse = apiResponse;
+     //  emit(VehicleLoadedState());
     });
 
     on<SearchVehicleEvent>((event, emit) {
@@ -65,10 +70,14 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     on<VehicleDeleteEvent>((event, emit) async {
       emit(VehicleLoadingState());
       var response = await _apiRepository.deleteActiveVehicle(event.vehicleId);
-      if (response != null) {
-        apiResponse.removeWhere((element) => element['id'] == event.vehicleId);
+      if (response?['success'] != null) {
+        apiResponse.removeWhere((element) => element['id'].toString() == event.vehicleId);
         filteredResponse = apiResponse;
+        Toaster.showSuccess(response?['success']??'');
         emit(VehicleCommonState());
+      }
+      else{
+        Toaster.showError(response?['error']??'');
       }
       emit(VehicleLoadedState());
     });
@@ -114,6 +123,23 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
 
   Future<List<Map<String, dynamic>>?> _getVehicle() async {
     return await getIt<CommonService>().getActiveVehicles(reset: true);
+  }
+
+  void reFitchData() async{
+    emit(VehicleLoadingState());
+    var response= await _getVehicle();
+    response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
+    apiResponse = response??[];
+    filteredResponse.clear();
+    filteredResponse = apiResponse;
+    emit(VehicleLoadedState());
+  }
+
+  void _registerBroadcast() {
+    _broadcast.register("vehicle_refresh", (value, callback) {
+      Console.of.log("vehicle_refresh");
+      reFitchData();
+    });
   }
 
 }

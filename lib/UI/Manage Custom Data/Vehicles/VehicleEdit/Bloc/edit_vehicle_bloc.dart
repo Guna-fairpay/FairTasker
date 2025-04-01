@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
@@ -7,7 +8,12 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,11 +29,17 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   List<dynamic> repairAndMaintenanceDetails = [];
   List<dynamic> activeStatus = [{'id': 1, 'category_name': 'Active'}, {'id': 0, 'category_name': 'Inactive'}];
   List<dynamic> vehicleImage = [];
+  List<dynamic> vehicleImageList = [];
   List<dynamic> receiptImage = [];
+  List<dynamic> receiptImageList = [];
   List<dynamic> tireImage = [];
+  List<dynamic> tireImageList = [];
   List<dynamic> tollImage = [];
+  List<dynamic> tollImageList = [];
   List<dynamic> uploadRegSticker = [];
+  List<dynamic> uploadRegStickerList = [];
   List<dynamic> insuranceImage = [];
+  List<dynamic> insuranceImageList = [];
 
 
   dynamic selectedCohort = {};
@@ -66,8 +78,8 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   TextEditingController maintenanceCheckController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  DateTime? selectedDate = DateTime.now();
-  DateTime? selectedRegStickerDate = DateTime.now();
+  DateTime? selectedPurchaseDate = DateTime.now();
+  DateTime? selectedRegStickerDate;
   int? branchId;
 
   bool showMore = false;
@@ -78,6 +90,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   bool spareTire = false;
   bool spareKey = false;
   bool frontLicensePlate = false;
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   EditVehicleBloc() : super(EditVehicleLoadingState()) {
 
@@ -121,7 +134,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       oilGradeController.text = "${event.vehicleData['oil_grade'] ?? ''}";
       frontTireController.text = "${event.vehicleData['front_tire'] ?? ''}";
       rearTireController.text = "${event.vehicleData['rear_tire'] ?? ''}";
-      renewalDateController.text = "${event.vehicleData['renewal_date'] ?? ''}";
+      renewalDateController.text = "${event.vehicleData['registration_renewal_date'] ?? ''}";
       numberPlateController.text = "${event.vehicleData['vehicle_number'] ?? ''}";
       tollTagsController.text = "${event.vehicleData['toll_tags_id'] ?? ''}";
       spareTireController.text = "${event.vehicleData['tire_size'] ?? ''}";
@@ -138,8 +151,26 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       spareKey = event.vehicleData['spare_key'] == 1 ? true : false;
       permanentPlate = event.vehicleData['permanent_plate'] == 1 ? true : false;
       frontLicensePlate = event.vehicleData['front_license_plate'] == 1 ? true : false;
+      selectedPurchaseDate = event.vehicleData?['purchase_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd');
+      selectedRegStickerDate = event.vehicleData?['registration_renewal_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd');
 
+      vehicleImageList=(event.vehicleData?['images']).where((element) => element['vehicle_image_type'] == 1).toList();
+      vehicleImage=vehicleImageList.map((e) => e['path'].toString().toStorageURL).toList();
 
+      tollImageList=(event.vehicleData?['images']).where((element) => element['vehicle_image_type'] == 5).toList();
+      tollImage=tollImageList.map((e) => e['path'].toString().toStorageURL).toList();
+
+      tireImageList=(event.vehicleData?['images']).where((element) => element['vehicle_image_type'] == 2).toList();
+      tireImage=tireImageList.map((e) => e['path'].toString().toStorageURL).toList();
+
+      uploadRegStickerList=(event.vehicleData?['images']).where((element) => element['vehicle_image_type'] == 3).toList();
+      uploadRegSticker=uploadRegStickerList.map((e) => e['path'].toString().toStorageURL).toList();
+
+      insuranceImageList=(event.vehicleData?['images']).where((element) => element['vehicle_image_type'] == 4).toList();
+      insuranceImage=insuranceImageList.map((e) => e['path'].toString().toStorageURL).toList();
+
+      receiptImageList=event.vehicleData?['expenses']['attachments']??[];
+      receiptImage=receiptImageList.map((e) => e['path'].toString().toStorageURL).toList();
 
       emit(EditVehicleLoadedState());
       }catch(e){
@@ -163,7 +194,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     // });
 
     on<DateChangeEvent>((event, emit) {
-      selectedDate = event.selectedDate;
+      selectedPurchaseDate = event.selectedDate;
       emit(EditVehicleCommonState());
     });
 
@@ -173,52 +204,68 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     });
 
     on<PurchaseReceiptImageEvent>((event, emit) async {
-      await _handleFileSelection(receiptImage, "receiptImageFile", emit);
+      receiptImage = await _handleFileSelection(receiptImage, "receiptImageFile");
       log("$receiptImage", name: "PurchaseReceiptImageEvent");
+      emit(EditVehicleCommonState());
     });
 
     on<VehicleImageEvent>((event, emit) async {
-      await _handleFileSelection(vehicleImage, "vehicleImageFile", emit);
+      vehicleImage = await _handleFileSelection(vehicleImage, "vehicleImageFile");
+      log("$vehicleImage", name: "VehicleImageEvent");
+
+      emit(EditVehicleCommonState());
     });
 
     on<TollImageEvent>((event, emit) async {
-      await _handleFileSelection(tollImage, "tollImageFile", emit);
+      tollImage = await _handleFileSelection(tollImage, "tollImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<TireImageEvent>((event, emit) async {
-      await _handleFileSelection(tireImage, "tireImageFile", emit);
+      tireImage = await _handleFileSelection(tireImage, "tireImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<UploadRegStickerImageEvent>((event, emit) async {
-      await _handleFileSelection(uploadRegSticker, "uploadRegStickerImageFile", emit);
+      uploadRegSticker = await _handleFileSelection(uploadRegSticker, "uploadRegStickerImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<InsuranceImageEvent>((event, emit) async {
-      await _handleFileSelection(insuranceImage, "insuranceImageFile", emit);
+      insuranceImage = await _handleFileSelection(insuranceImage, "insuranceImageFile");
+      emit(EditVehicleCommonState());
     });
 
     on<RemovePurchaseReceiptImageEvent>((event, emit) async {
-      _handleFileRemoval(receiptImage, event.data, emit);
+
+      var data = await _handleFileRemoval(fileList: receiptImage,fullImageList:receiptImageList,data:event.data);
+      //receiptImage.remove(data);
+      emit(EditVehicleCommonState());
     });
 
     on<RemoveVehicleImageEvent>((event, emit) async {
-      _handleFileRemoval(vehicleImage, event.data, emit);
+      var data = await _handleFileRemoval(fileList:  vehicleImage,fullImageList:vehicleImageList,data: event.data);
+      emit(EditVehicleCommonState());
     });
 
     on<RemoveTollImageEvent>((event, emit) async {
-      _handleFileRemoval(tollImage, event.data, emit);
+      var data = await _handleFileRemoval(fileList: tollImage,fullImageList:tollImageList,data:event.data);
+      emit(EditVehicleCommonState());
     });
 
     on<RemoveTireImageEvent>((event, emit) async {
-      _handleFileRemoval(tireImage, event.data, emit);
+      var data = await _handleFileRemoval(fileList: tireImage,fullImageList:tireImageList,data:event.data);
+      emit(EditVehicleCommonState());
     });
 
     on<RemoveRegStickerImageEvent>((event, emit) async {
-      _handleFileRemoval(uploadRegSticker, event.data, emit);
+      var data = await _handleFileRemoval(fileList:  uploadRegSticker,fullImageList:uploadRegStickerList,data:event.data);
+      emit(EditVehicleCommonState());
     });
 
     on<RemoveInsuranceImageEvent>((event, emit) async {
-      _handleFileRemoval(insuranceImage, event.data, emit);
+      var data = await _handleFileRemoval(fileList: insuranceImage,fullImageList:insuranceImageList,data:event.data);
+      emit(EditVehicleCommonState());
     });
 
     on<CohortDropDownEvent>((event, emit) {
@@ -271,6 +318,83 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       emit(EditVehicleCommonState());
     });
 
+    on<SaveUpdatedVehicle>((event, emit) async {
+      try {
+        emit(EditVehicleLoadingState());
+        List<Map<String, String?>> infusedFiles = [
+          ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),
+          ...receiptImage.whereType<File>().map((e) => {"files" : e.path}),
+          ...tireImage.whereType<File>().map((e) => {"tyre_images" : e.path}),
+          ...tollImage.whereType<File>().map((e) => {"toll_images" : e.path}),
+          ...uploadRegSticker.whereType<File>().map((e) => {"registration_documents" : e.path}),
+          ...insuranceImage.whereType<File>().map((e) => {"insurance_agent_images" : e.path}),
+        ];
+        Console.of.log(infusedFiles, name: "infusedFiles");
+        var response = await _apiRepository.vehicleAddOrUpdateApi(
+          infusedFiles: infusedFiles,
+          body: _save(),
+          id:"${event.data['id']}",
+        );
+        if (response?['message']?.isNotEmpty ?? false) {
+          Toaster.showSuccess(response?['message'] ?? []);
+          _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          emit(EditCompletedState());
+        } else {
+          Toaster.showError(response?['error'] ?? []);
+          emit(EditCompletedState());
+        }
+
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(EditCompletedState());
+      }
+    });
+
+  }
+
+  Map<String, String> _save() {
+    Map<String, String> baseBody = {};
+    baseBody['vin'] = vinController.text;
+    baseBody['vehicle_id'] = vehicleIdController.text;
+    baseBody['make'] = makeController.text;
+    baseBody['model'] = modelController.text;
+    baseBody['year'] =  yearController.text;
+    baseBody['cohort_id'] = '${selectedCohort['id'] ?? ''}';
+    baseBody['earnings'] = earningsController.text;
+    baseBody['utilization_rate'] = utilizationRateController.text;
+    baseBody['platform'] = platformController.text;
+    baseBody['mileage'] = mileageController.text;
+    baseBody['whole_sale_amount'] = wholeSaleAmountController.text;
+    baseBody['vehicle_status'] = "${selectedVehicleStatus['id'] ?? ''}";
+    baseBody['active'] = "${selectedActiveStatus['id'] ?? ''}";
+    baseBody['purchase_price'] = purchasePriceController.text;
+    baseBody['purchase_date'] = selectedPurchaseDate?.toFormat(format: 'yyyy-MM-dd')??'';
+    baseBody['vehicle_number'] = numberPlateController.text;
+    baseBody['address'] = addressController.text;
+    baseBody['bouncie'] = bouncie ? "1" : "0";
+    baseBody['air_tag'] = airTag ? "1" : "0";
+    baseBody['spare_tire'] = spareTire ? "1" : "0";
+    baseBody['spare_key'] = spareKey ? "1" : "0";
+    baseBody['permanent_plate'] = permanentPlate ? "1" : "0";
+    baseBody['car_number'] = carNumberController.text;
+    baseBody['oil_grade'] = oilGradeController.text;
+    baseBody['branch_code'] = '${selectedBranch['id'] ?? ''}';
+    baseBody['registration_renewal_date'] = selectedRegStickerDate?.toFormat(format: 'yyyy-MM-dd')??'';
+    baseBody['toll_tags'] = tollTags ? "1" : "0";
+    baseBody['toll_tags_id'] = tollTagsController.text;
+    baseBody['front_license_plate'] = frontLicensePlate ? "1" : "0";
+    baseBody['tire_size'] = spareTireController.text;
+    baseBody['front_tire'] = frontTireController.text;
+    baseBody['rear_tire'] = rearTireController.text;
+    baseBody['current_odometer'] = currentOdometerController.text;
+    baseBody['oil_change_odometer'] = oilChangeOdometerController.text;
+    baseBody['maintenance_check'] = maintenanceCheckController.text;
+    baseBody['insurance_agent'] = insuranceAgentController.text;
+    baseBody['insurance_cost'] = insuranceCostController.text;
+    baseBody['platform_from'] = 'tasker-app';
+    log(jsonEncode(baseBody), name: "Expense_Body");
+    return baseBody;
   }
 
   Future<List<File>> _pickFiles() async {
@@ -286,34 +410,61 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         [];
   }
 
-  Future<void> _handleFileSelection(
-      List<dynamic> fileList, String logName, Emitter emit) async {
+  Future<List<dynamic>> _handleFileSelection(
+      List<dynamic> fileList, String logName) async {
     var result = await _pickFiles();
     if (result.isNotEmpty) {
       var existingAttachments =
       fileList.whereType<File>().map((e) => e.path).toList();
+      var existingAttachmentString =
+      fileList.whereType<String>().map((e) => e).toList();
 
-      List<File> newFiles = [];
+      List<dynamic> newFiles = [];
       for (var element in result) {
         if (!existingAttachments.contains(element.path)) {
           newFiles.add(element);
         }
       }
-      fileList.clear();
-      fileList.addAll(existingAttachments.map((path) => File(path))); // Retain existing
+      Console.of.log(fileList);
+      Console.of.debug(existingAttachments);
+      Console.of.error(newFiles);
+      fileList = [];
+      List<dynamic> existing = existingAttachments.map((path) => File(path)).toList();
+      fileList.addAll(existingAttachmentString);
+      fileList.addAll(existing);
       fileList.addAll(newFiles);
 
       log("$fileList", name: logName);
-      emit(EditVehicleCommonState());
+      Console.of.warning(vehicleImage, name: "vehicleImage");
+      return fileList;
+      // emit(EditVehicleCommonState());
+    } else {
+      return [];
     }
   }
 
-  void _handleFileRemoval(List<dynamic> fileList, dynamic data, Emitter emit) {
+  Future<dynamic> _handleFileRemoval(
+      {required List<dynamic> fileList,
+      required List<dynamic> fullImageList,
+      required dynamic data}) async {
     if (data == null) return;
     if (data is File) {
       fileList.remove(data);
+      return data;
+    } else if(data is String){
+      log(data, name: "data");
+      log(fileList.toString(), name: "fileList");
+      log("$fullImageList", name: "fullImageList");
+      var path = fileList.firstWhereOrNull((element) => element == data.toString());
+      var imageId = fullImageList.firstWhereOrNull((element) => element['path'] == path.toString().removeStorageUrl)?['id'];
+      var response =  await _apiRepository.deleteVehicleImage(imageId);
+      if(response?['success'] != null){
+        Toaster.showSuccess(response?['success'] ?? []);
+        fileList.remove(data);
+        _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+        return data;
+      }
     }
-    emit(EditVehicleCommonState());
   }
 
   ///COHORT API CALL

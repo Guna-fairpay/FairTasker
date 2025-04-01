@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
@@ -7,7 +8,10 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +42,6 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   TextEditingController yearController = TextEditingController();
   TextEditingController makeController = TextEditingController();
   TextEditingController modelController = TextEditingController();
-  TextEditingController vehicleNoController = TextEditingController();
   TextEditingController purchasePriceController = TextEditingController();
   TextEditingController purchaseDateController = TextEditingController();
   TextEditingController vinController = TextEditingController();
@@ -64,7 +67,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   TextEditingController maintenanceCheckController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  DateTime? selectedDate = DateTime.now();
+  DateTime? selectedPurchaseDate = DateTime.now();
   DateTime? selectedRegStickerDate = DateTime.now();
   int? branchId;
 
@@ -76,6 +79,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   bool spareTire = false;
   bool spareKey = false;
   bool frontLicensePlate = false;
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   AddVehicleBloc() : super(AddVehicleLoadingState()) {
 
@@ -99,7 +103,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     });
 
     on<DateChangeEvent>((event, emit) {
-      selectedDate = event.selectedDate;
+      selectedPurchaseDate = event.selectedDate;
         emit(AddVehicleCommonState());
     });
 
@@ -207,6 +211,79 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
       emit(AddVehicleCommonState());
     });
 
+    on<SaveNewVehicleEvent>((event, emit) async {
+      try {
+        emit(AddVehicleLoadingState());
+        List<Map<String, String?>> infusedFiles = [
+          ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),
+          ...receiptImage.whereType<File>().map((e) => {"files" : e.path}),
+          ...tireImage.whereType<File>().map((e) => {"tyre_images" : e.path}),
+          ...tollImage.whereType<File>().map((e) => {"toll_images" : e.path}),
+          ...uploadRegSticker.whereType<File>().map((e) => {"registration_documents" : e.path}),
+          ...insuranceImage.whereType<File>().map((e) => {"insurance_agent_images" : e.path}),
+        ];
+        var response = await _apiRepository.vehicleAddOrUpdateApi(
+          infusedFiles: infusedFiles,
+          body: _save(),
+        );
+        if (response?.isNotEmpty ?? false) {
+          Toaster.showSuccess(response?['message'] ?? []);
+          _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          emit(AddCompletedState());
+        }
+        // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(AddCompletedState());
+      }
+
+    });
+
+  }
+
+  Map<String, String> _save() {
+    Map<String, String> baseBody = {};
+    baseBody['vin'] = vinController.text;
+    baseBody['vehicle_id'] = vehicleIdController.text;
+    baseBody['make'] = makeController.text;
+    baseBody['model'] = modelController.text;
+    baseBody['year'] =  yearController.text;
+    baseBody['cohort_id'] = '${selectedCohort['id'] ?? ''}';
+    baseBody['earnings'] = earningsController.text;
+    baseBody['utilization_rate'] = utilizationRateController.text;
+    baseBody['platform'] = platformController.text;
+    baseBody['mileage'] = mileageController.text;
+    baseBody['whole_sale_amount'] = wholeSaleAmountController.text;
+    baseBody['vehicle_status'] = "${selectedVehicleStatus['id'] ?? ''}";
+    baseBody['active'] = "${selectedActiveStatus['id'] ?? ''}";
+    baseBody['purchase_price'] = purchasePriceController.text;
+    baseBody['purchase_date'] = selectedPurchaseDate?.toFormat(format: 'yyyy-MM-dd')??'';
+    baseBody['vehicle_number'] = numberPlateController.text;
+    baseBody['address'] = addressController.text;
+    baseBody['bouncie'] = bouncie ? "1" : "0";
+    baseBody['air_tag'] = airTag ? "1" : "0";
+    baseBody['spare_tire'] = spareTire ? "1" : "0";
+    baseBody['spare_key'] = spareKey ? "1" : "0";
+    baseBody['permanent_plate'] = permanentPlate ? "1" : "0";
+    baseBody['car_number'] = carNumberController.text;
+    baseBody['oil_grade'] = oilGradeController.text;
+    baseBody['branch_code'] = '${selectedBranch['id'] ?? ''}';
+    baseBody['registration_renewal_date'] = selectedRegStickerDate?.toFormat(format: 'yyyy-MM-dd')??'';
+    baseBody['toll_tags'] = tollTags ? "1" : "0";
+    baseBody['toll_tags_id'] = tollTagsController.text;
+    baseBody['front_license_plate'] = frontLicensePlate ? "1" : "0";
+    baseBody['tire_size'] = spareTireController.text;
+    baseBody['front_tire'] = frontTireController.text;
+    baseBody['rear_tire'] = rearTireController.text;
+    baseBody['current_odometer'] = currentOdometerController.text;
+    baseBody['oil_change_odometer'] = oilChangeOdometerController.text;
+    baseBody['maintenance_check'] = maintenanceCheckController.text;
+    baseBody['insurance_agent'] = insuranceAgentController.text;
+    baseBody['insurance_cost'] = insuranceCostController.text;
+    baseBody['platform_from'] = 'tasker-app';
+    log(jsonEncode(baseBody), name: "Expense_Body");
+    return baseBody;
   }
 
   Future<List<File>> _pickFiles() async {

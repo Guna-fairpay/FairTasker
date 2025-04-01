@@ -167,6 +167,8 @@ class APiRepository {
 
   String get _editPrivateRental => "private_rental_update";
 
+  String get _vehicleImages => "vehicle_images";
+
   String get _feedback => "feedback";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -1275,12 +1277,12 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<GeneralResponse?> deleteActiveVehicle(dynamic id) async {
+  Future<Map<String, dynamic>?> deleteActiveVehicle(dynamic id) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -1376,9 +1378,11 @@ Future<Map<String, dynamic>?> getLocations() async {
           fieldName: "images",
           files: images?.map((e) => e.path).toList());
       if (response != null) {
-        if (response.isSuccess) {
+        var mapData = await response.mapData;
+        log(jsonEncode(mapData), name: "Response");
+        if (mapData?['success'] == true) {
           var mapData = await response.mapData;
-          Toaster.showSuccess(mapData?['message'] ?? "PR Added Successfully");
+          Toaster.showSuccess(mapData?['message']);
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
@@ -1400,6 +1404,52 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> vehicleAddOrUpdateApi(
+      {Map<String, dynamic>? body,
+        List<Map<String, String?>>? infusedFiles,
+        String? id}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi/$id";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehiclesApi";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(
+          apiUrl,
+          body: body,
+          infusedFiles: infusedFiles,
+      );
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          log("$mapData", name: "Success");
+          Toaster.showSuccess(mapData?['message'] ?? "");
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callPersonExpenseAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVehicleImage(dynamic id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleImages/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
       rethrow;
     }
   }

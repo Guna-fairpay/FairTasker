@@ -22,6 +22,7 @@ class PrivateRentalAddUI extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is AddPrivateRentalCompleteState) Navigator.pop(context);
           }
         },
         child: Scaffold(
