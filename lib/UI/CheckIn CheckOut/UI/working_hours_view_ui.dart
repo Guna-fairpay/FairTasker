@@ -15,9 +15,6 @@ import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import '../../dialog/tasker_check_in_out_completed_dialog.dart';
-//import '../../Todo/PopUp/checkin_completed_popup.dart';
-import '../../WorkingHours/houre_top_notification_popup.dart';
 import 'task_components-setting_ui.dart';
 import 'Popups/hours_top_notification_popup.dart';
 

@@ -40,6 +40,21 @@ class WorkingHoursState extends Equatable {
   final List<Map<String,dynamic>> comments;
   final List<Map<String,dynamic>> hoursData1;
   final List<Map<String,dynamic>> hoursData2;
+  final List<dynamic> reasonPopupDataList;
+  final String userName;
+  final int hrmID;
+  final String ReasonPopupSelectedDateRange;
+  final String HoursPopupSelectedDateRange;
+  final List<Map<String, dynamic>> categoryGroupData;
+  final List<Map<String, dynamic>> combinedHistory;
+  final Map<String, dynamic> extendedDetails;
+  final List<Map<String, dynamic>> cohortsData;
+  final List<dynamic>? lastSelectedCohortIds;
+  final String groupInitials;
+  final List<Map<String, dynamic>> punchListData;
+  final int totalAmount;
+  final List<Map<String, dynamic>> taskData;
+  final List<Map<String, dynamic>> amountData;
 
   const WorkingHoursState(
       {
@@ -75,6 +90,21 @@ class WorkingHoursState extends Equatable {
         this.comments = const [],
         this.hoursData1 = const [],
         this.hoursData2 = const [],
+        this.reasonPopupDataList = const [],
+        this.userName = '',
+        this.hrmID = 0,
+        this.ReasonPopupSelectedDateRange = '',
+        this.HoursPopupSelectedDateRange = '',
+        this.categoryGroupData = const [],
+        this.combinedHistory = const [],
+        this.extendedDetails = const {},
+        this.cohortsData = const [],
+        this.lastSelectedCohortIds,
+        this.groupInitials = '',
+        this.punchListData = const [],
+        this.totalAmount = 0,
+        this.taskData = const [],
+        this.amountData = const [],
       });
 
   WorkingHoursState copyWith({
@@ -110,6 +140,21 @@ class WorkingHoursState extends Equatable {
     List<Map<String,dynamic>>? comments,
     List<Map<String,dynamic>>? hoursData1,
     List<Map<String,dynamic>>? hoursData2,
+    List<dynamic>? reasonPopupDataList,
+    String? userName,
+    int? hrmID,
+    String? ReasonPopupSelectedDateRange,
+    String? HoursPopupSelectedDateRange,
+    List<Map<String, dynamic>>? categoryGroupData,
+    List<Map<String, dynamic>>? combinedHistory,
+    Map<String, dynamic>? extendedDetails,
+    List<Map<String, dynamic>>? cohortsData,
+    List<dynamic>? lastSelectedCohortIds,
+    String? groupInitials,
+    List<Map<String, dynamic>>? punchListData,
+    int? totalAmount,
+    List<Map<String, dynamic>>? taskData,
+    List<Map<String, dynamic>>? amountData,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -143,6 +188,21 @@ class WorkingHoursState extends Equatable {
     comments: comments ?? this.comments,
     hoursData1: hoursData1 ?? this.hoursData1,
     hoursData2: hoursData2 ?? this.hoursData2,
+    reasonPopupDataList: reasonPopupDataList ?? this.reasonPopupDataList,
+    userName: userName ?? this.userName,
+    hrmID: hrmID ?? this.hrmID,
+    ReasonPopupSelectedDateRange: ReasonPopupSelectedDateRange ?? this.ReasonPopupSelectedDateRange,
+    HoursPopupSelectedDateRange: HoursPopupSelectedDateRange ?? this.HoursPopupSelectedDateRange,
+    categoryGroupData: categoryGroupData ?? this.categoryGroupData,
+    combinedHistory: combinedHistory ?? this.combinedHistory,
+    extendedDetails: extendedDetails ?? this.extendedDetails,
+    cohortsData: cohortsData ?? this.cohortsData,
+    lastSelectedCohortIds: lastSelectedCohortIds ?? this.lastSelectedCohortIds,
+    groupInitials: groupInitials ?? this.groupInitials,
+    punchListData: punchListData ?? this.punchListData,
+    totalAmount: totalAmount ?? this.totalAmount,
+    taskData: taskData ?? this.taskData,
+    amountData: amountData ?? this.amountData,
   );
 
   @override
@@ -179,6 +239,21 @@ class WorkingHoursState extends Equatable {
     comments,
     hoursData1,
     hoursData2,
+    reasonPopupDataList,
+    userName,
+    hrmID,
+    ReasonPopupSelectedDateRange,
+    HoursPopupSelectedDateRange,
+    categoryGroupData,
+    combinedHistory,
+    extendedDetails,
+    cohortsData,
+    lastSelectedCohortIds,
+    groupInitials,
+    punchListData,
+    totalAmount,
+    taskData,
+    amountData,
     Random().nextDouble()
   ];
 }

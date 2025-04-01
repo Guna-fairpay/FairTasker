@@ -60,6 +60,7 @@ import '../Response/vehicle_status_response.dart';
 import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
+import '../UI/Todo/Private Rental Check/private_rental_check_response.dart';
 import '../UI/Todo/create_sparekey_data.dart';
 import '../UI/Todo/maintenance/get_todolist_Response.dart';
 
@@ -2301,6 +2302,25 @@ class TodoListRepo {
       log('getCheckList.exception : ${error.toString()}');
       return null;
     }
+  }
+
+  Future<PrivateRentalCheckResponse?> getPrivateRentalCheck() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getPrivateRentalCheck";
+      debugPrint("getPrivateRentalCheck apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,);
+      if (response != null) {
+        PrivateRentalCheckResponse privateRentalCheckResponse =
+        PrivateRentalCheckResponse.fromJson(jsonDecode(response.body));
+        return privateRentalCheckResponse;
+      } else {
+        return null;
+      }
+      } catch(e) {
+      log('privateRentalCheckResponse.exception : ${e.toString()}');
+      return null;
+      }
   }
 
   Future<MaintenanceCheckListResponse?> getMaintenanceCheckList() async {

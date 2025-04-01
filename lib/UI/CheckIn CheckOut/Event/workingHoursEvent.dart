@@ -88,29 +88,41 @@ class ResetDropdownEvent extends WorkingHoursEvent {
 }
 
 class fetchEmployeeCommentEvent extends WorkingHoursEvent {
-  final int hrmId;
+  final int? hrmId;
   final String fromDate;
   final String toDate;
+  final List<dynamic> dataList;
+  final String ReasonPopupSelectedDateRange;
   const fetchEmployeeCommentEvent({
     required this.hrmId,
     required this.fromDate,
     required this.toDate,
+    required this.dataList,
+    required this.ReasonPopupSelectedDateRange,
   });
   @override
-  List<Object?> get props => [hrmId, fromDate, toDate];
+  List<Object?> get props => [hrmId, fromDate, toDate, dataList, ReasonPopupSelectedDateRange];
 }
 
-class FetchCheckInoutReasonEvent extends WorkingHoursEvent {
+class HoursPopupEvent extends WorkingHoursEvent {
   final int hrmId;
+  final int empID;
   final String fromDate;
   final String toDate;
-  const FetchCheckInoutReasonEvent({
+  final List<dynamic> dataList;
+  final String userName;
+  final String HoursPopupSelectedDateRange;
+  const HoursPopupEvent({
     required this.hrmId,
     required this.fromDate,
     required this.toDate,
+    required this.dataList,
+    required this.userName,
+    required this.HoursPopupSelectedDateRange,
+    required this.empID,
   });
   @override
-  List<Object?> get props => [hrmId, fromDate, toDate];
+  List<Object?> get props => [hrmId, fromDate, toDate, dataList, userName, HoursPopupSelectedDateRange, empID];
 }
 
 class FetchTaskCountEvent extends WorkingHoursEvent {
@@ -124,6 +136,31 @@ class FetchTaskCountEvent extends WorkingHoursEvent {
   });
   @override
   List<Object?> get props => [userId, fromDate, toDate];
+}
+
+
+class TaskInitialEvent extends WorkingHoursEvent{
+  final String to;
+  final String from;
+  final int? userId;
+  final List<int> cohortIds;
+  TaskInitialEvent({
+    required this.to,
+    required this.from,
+    required this.userId,
+    required this.cohortIds,
+});
+  @override
+  List<Object?> get props => [to, from, userId, cohortIds];
+}
+
+class ExtendedDetailsTaskEvent extends WorkingHoursEvent{
+  final int id;
+  const ExtendedDetailsTaskEvent({
+    required this.id,
+});
+  @override
+  List<Object?> get props => [id,];
 }
 
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {

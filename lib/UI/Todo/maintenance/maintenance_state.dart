@@ -22,6 +22,9 @@ class MaintenanceState extends Equatable {
   final int? matchingTodoId;
   final Map<String, dynamic>? popupId;
   final List<String> middleValues;
+  final List<Map<String, dynamic>>? getPrivateRentalCheckData;
+  final Map<int, TextEditingController> privateRentalNoteControllers;
+  final bool pop;
 
   const MaintenanceState({
     this.maintenance,
@@ -44,6 +47,9 @@ class MaintenanceState extends Equatable {
     this.matchingTodoId,
     this.popupId = const {},
     this.middleValues = const [],
+    this.getPrivateRentalCheckData,
+    this.privateRentalNoteControllers = const {},
+    required this.pop,
   });
 
   MaintenanceState copyWith({
@@ -69,6 +75,9 @@ class MaintenanceState extends Equatable {
     Map<String, dynamic>? item,
     Map<String, dynamic>? popupId,
     List<String>? middleValues,
+    List<Map<String, dynamic>>? getPrivateRentalCheckData,
+    Map<int, TextEditingController>? privateRentalNoteControllers,
+    bool? pop,
   }) =>
     MaintenanceState(
       maintenance: maintenance ?? this.maintenance,
@@ -91,6 +100,9 @@ class MaintenanceState extends Equatable {
       matchingTodoId: matchingTodoId ?? this.matchingTodoId,
       popupId: popupId ?? this.popupId,
       middleValues: middleValues ?? this.middleValues,
+      getPrivateRentalCheckData: getPrivateRentalCheckData ?? this.getPrivateRentalCheckData,
+      privateRentalNoteControllers: privateRentalNoteControllers ?? this.privateRentalNoteControllers,
+      pop: pop ?? this.pop,
     );
 
 
@@ -116,5 +128,8 @@ class MaintenanceState extends Equatable {
     matchingTodoId,
     popupId,
     middleValues,
+    getPrivateRentalCheckData,
+    privateRentalNoteControllers,
+    pop,
   ];
 }

@@ -209,8 +209,7 @@ class PersonExpenseAddUI extends StatelessWidget {
                                   onPositivePressed: () => context
                                       .read<PersonExpenseBloc>()
                                       .add(RemoveImageEvent(
-                                          data: state
-                                              .expenseAttachments[index])));
+                                          data: state.expenseAttachments[index])));
                             },
                             child: Container(
                               constraints: BoxConstraints(

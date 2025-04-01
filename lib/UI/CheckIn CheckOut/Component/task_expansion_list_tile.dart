@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../UI/reason_employee_task_history.dart';
+import '../UI/extended_details.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 
@@ -10,11 +10,14 @@ class TaskExpansionListTile extends StatelessWidget {
   final String dateText;
   final String timeText;
   final Color timeTextColor;
+  final int id;
 
   const TaskExpansionListTile({Key? key,required this.leadingText,
     required this.dateText,
     required this.timeText,
-    this.timeTextColor = Colors.black,});
+    this.timeTextColor = Colors.black,
+    required this.id,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +34,13 @@ class TaskExpansionListTile extends StatelessWidget {
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         dense: true,
-        leading: Utils.getText(leadingText),
+        leading: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.6, // Adjust this value as needed
+          ),
+          child:
+          Text("$leadingText",maxLines: 2,overflow: TextOverflow.clip,style: TextStyle(fontSize: 14),),
+        ),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -47,7 +56,9 @@ class TaskExpansionListTile extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const ReasonEmployeeTaskHistory())
+                  builder: (context) => ExtendedDetailsTask(
+                    id: id,
+                  ))
           );
         },
       ),
