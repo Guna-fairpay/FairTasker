@@ -315,6 +315,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         log("$vinList",name: "vinLIST");
         log("$selectedIds",name: "selectedIds");
 
+        var selectedPerson = resources.where((element) => element['id'].toString() == todoResponse?.editTodos?['person_id'].toString()).toList();
+        var selectedGroupVehicles = groupVehiclesResponse.where((element) => element['id'].toString() == todoResponse?.editTodos?['vehicle_group_id'].toString()).toList();
 
         var selectedTask = taskResponse.firstWhereOrNull((element) => element['id']==todoResponse?.editTodos?['identifier_id']);
         vehicleData=todoResponse?.editTodos?['vehicles']??[];
@@ -330,7 +332,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           tasks: taskResponse,
           selectedTask: selectedTask,
           selectedVPerson:
-              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList,),
+              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList,persons: selectedPerson, groupVehicles: selectedGroupVehicles),
           selectedVLocations: CustomSearchDataConverter.convertVLocation(
               vendors: vendors, locations: locations)
               .firstOrNull ?? {},

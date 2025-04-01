@@ -378,7 +378,7 @@ class APiRepository {
   }
 
   Future<Map<String, dynamic>?> generateInvoice(
-      {Map<String, String>? body}) async {
+      {Map<String, dynamic>? body}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_generateInvoiceApi";
       final http.Response? response =
