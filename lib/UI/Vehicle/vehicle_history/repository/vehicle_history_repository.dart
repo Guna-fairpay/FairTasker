@@ -7,9 +7,8 @@ import 'package:fairpytasker/Response/vehicle_history_response.dart';
 class VehicleHistoryRepository {
   final APiRepository _aPiRepository = APiRepository();
 
-  Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
-          {int? currentPage, int itemsPerPage = 5, String? search}) async =>
-      await _aPiRepository.getVehicleHistoryList(vin,
+  Future<VehicleHistoryResponse?> getVehicleHistoryList({String? vin, dynamic groupId, int? currentPage, int itemsPerPage = 5, String? search}) async =>
+      await _aPiRepository.getVehicleHistoryList(vin : vin, groupId: groupId,
           currentPage: currentPage, itemsPerPage: itemsPerPage, search: search);
 
   Future<AssignedToResponse?> getResourcesList() async =>

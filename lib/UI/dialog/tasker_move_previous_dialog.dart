@@ -14,8 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class TaskerMovePreviousDialog {
-  TaskerMovePreviousDialog._();
+class TaskerMoveTomorrowDialog {
+  TaskerMoveTomorrowDialog._();
 
   static void show(BuildContext context, Map<String, dynamic>? model,
       List<Map<String, dynamic>>? models, {void Function(List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)? onChanged}) async {
@@ -24,19 +24,20 @@ class TaskerMovePreviousDialog {
         useSafeArea: true,
         barrierDismissible: true,
         builder: (context) =>
-            _TaskerMovePreviousDialogView(model: model, models: models, onChanged: onChanged));
+            _TaskerMoveTomorrowDialogView(model: model, models: models, onChanged: onChanged));
   }
 }
 
-class _TaskerMovePreviousDialogView extends StatelessWidget {
+class _TaskerMoveTomorrowDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
   final List<Map<String, dynamic>>? models;
   final Function(List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)? onChanged;
-  const _TaskerMovePreviousDialogView({this.model, this.models, this.onChanged});
+  const _TaskerMoveTomorrowDialogView({this.model, this.models, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       insetPadding: 10.padding,
@@ -64,15 +65,15 @@ class _TaskerMovePreviousDialogView extends StatelessWidget {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
               }
             },
-            child: _TaskerMovePreviousDialogContentView(onChanged: onChanged),
+            child: _TaskerMoveTomorrowDialogContentView(onChanged: onChanged),
           )),
     );
   }
 }
 
-class _TaskerMovePreviousDialogContentView extends StatelessWidget {
+class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
   final Function(List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)? onChanged;
-  const _TaskerMovePreviousDialogContentView({this.onChanged});
+  const _TaskerMoveTomorrowDialogContentView({this.onChanged});
 
   @override
   Widget build(BuildContext _) {

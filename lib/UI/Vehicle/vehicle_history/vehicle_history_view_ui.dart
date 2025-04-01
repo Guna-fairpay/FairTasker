@@ -24,13 +24,15 @@ import 'package:sticky_headers/sticky_headers.dart';
 
 class VehicleHistoryViewUI extends StatelessWidget {
   final String? vin;
+  final dynamic groupId;
   final String? vehicleName;
   final bool showHeader;
   final bool showSameTask;
   final String? title;
 
   const VehicleHistoryViewUI({super.key,
-    required this.vin,
+    this.vin,
+    this.groupId,
     required this.vehicleName,
     this.title,
     this.showHeader = true,
@@ -57,7 +59,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
       VehicleHistoryBloc()
-        ..add(VehicleInitialEvent(vin, vehicleName)),
+        ..add(VehicleInitialEvent(vin, vehicleName, groupId)),
       child: BlocListener<VehicleHistoryBloc, VehicleHistoryState>(
         listener: (context, state) {
           if (state.isLoading) {

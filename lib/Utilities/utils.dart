@@ -726,7 +726,7 @@ class Utils {
           focusNode: focusNode,
           readOnly: readOnly,
           controller: controller,
-
+          spellCheckConfiguration: const SpellCheckConfiguration(),
           keyboardType: TextInputType.text,
           validator: validator,
           autovalidateMode: autoValidate,

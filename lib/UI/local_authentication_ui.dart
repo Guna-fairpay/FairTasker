@@ -30,6 +30,7 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
     super.initState();
     authenticationBloc = LocalAuthenticationBloc();
     getIt<CommonService>().getUsers();
+    getIt<CommonService>().getBranches();
     checkBiometric();
   }
 
