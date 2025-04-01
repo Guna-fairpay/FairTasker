@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/expense_summary_response.dart';
@@ -32,10 +34,11 @@ class VehicleDataLoaded extends TodoViewState {
   @override
   List<Object?> get props => [vehicleData];
 }
+//
 
 class TodoListLoading extends TodoViewState {
   @override
-  List<Object> get props => [];
+  List<Object> get props => [Random().nextDouble()];
 }
 
 class TodoListLoaded extends TodoViewState {
@@ -84,8 +87,9 @@ class CreateExpenseLoaded extends TodoViewState {
 }
 
 class ExpenseTodoLoaded extends TodoViewState {
-  final List<Map<String, dynamic>>? expenseSummaryData;
+  final Map<String, dynamic>? expenseSummaryData;
   const ExpenseTodoLoaded({required this.expenseSummaryData});
+
   @override
   List<Object?> get props => [expenseSummaryData];
 }
@@ -286,7 +290,7 @@ class VendorLoaded extends TodoViewState {
 }
 
 class ExpenseSummaryLoaded extends TodoViewState {
-  final List<Map<String, dynamic>>? expenseSummaryList;
+  final Map<String,dynamic>? expenseSummaryList;
   const ExpenseSummaryLoaded({required this.expenseSummaryList});
   @override
   List<Object?> get props => [expenseSummaryList];
@@ -591,4 +595,74 @@ class EmployeeNameLoaded extends TodoViewState {
       {required this.EmployeeData});
   @override
   List<Object?> get props => [EmployeeData];
+}
+
+class CategoryConfigListLoaded extends TodoViewState {
+  final List<Map<String, dynamic>>? data;
+  const CategoryConfigListLoaded(
+      {required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class CategoryConfigLoaded extends TodoViewState {
+  final String message;
+  const CategoryConfigLoaded({required this.message,});
+  @override
+  List<Object> get props => [message];
+}
+
+
+class CategoryConfigError extends TodoViewState {
+  final String message;
+
+  const CategoryConfigError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class TaskListLoaded extends TodoViewState {
+  final List<Map<String, dynamic>>? data;
+  const TaskListLoaded(
+      {required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class TaskLoaded extends TodoViewState {
+  final String message;
+  const TaskLoaded(
+      {required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class TaskError extends TodoViewState {
+  final String message;
+  const TaskError(this.message);
+  @override
+  List<Object> get props => [message];
+}
+
+class TaskCategoryGroupLoaded extends TodoViewState{
+  final List<Map<String, dynamic>>? data;
+  const TaskCategoryGroupLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class TaskMilesLoaded extends TodoViewState{
+  final List<Map<String, dynamic>>? data;
+  const TaskMilesLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class PreviousOdometerLoaded extends TodoViewState{
+  final int? data;
+  final Map<String, dynamic>? todoData;
+  const PreviousOdometerLoaded({required this.data, this.todoData});
+  @override
+  List<Object?> get props => [data, todoData, Random().nextDouble()];
 }

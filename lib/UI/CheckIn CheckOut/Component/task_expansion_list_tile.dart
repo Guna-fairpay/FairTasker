@@ -1,0 +1,67 @@
+
+import 'package:flutter/material.dart';
+
+import '../UI/extended_details.dart';
+import '../../../Utilities/Utils.dart';
+import '../../../Utilities/appC.dart';
+
+class TaskExpansionListTile extends StatelessWidget {
+  final String leadingText;
+  final String dateText;
+  final String timeText;
+  final Color timeTextColor;
+  final int id;
+
+  const TaskExpansionListTile({Key? key,required this.leadingText,
+    required this.dateText,
+    required this.timeText,
+    this.timeTextColor = Colors.black,
+    required this.id,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white, // Background color
+        border: Border( // Use Border for specific sides
+          bottom: BorderSide( // Only bottom border
+            color: Color(0xFFD6D6D6), // Border color
+            width: 1, // Border width
+          ),
+        ),
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+        leading: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.6, // Adjust this value as needed
+          ),
+          child:
+          Text("$leadingText",maxLines: 2,overflow: TextOverflow.clip,style: TextStyle(fontSize: 14),),
+        ),
+        trailing: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Utils.getText(dateText),
+            Utils.getText(
+              timeText,
+              color: AppC.red,
+            ),
+          ],
+        ),
+        onTap: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ExtendedDetailsTask(
+                    id: id,
+                  ))
+          );
+        },
+      ),
+    );
+  }
+}

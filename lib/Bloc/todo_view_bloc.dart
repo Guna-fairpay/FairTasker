@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -34,6 +35,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
         emit(VehicleDataLoaded(vehicleData: value?.data ?? []));
       });
     });
+    //
 
     on<GetVehicleGroupingList>((event, emit) async {
       emit(TodoListLoading());
@@ -88,10 +90,11 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       if (event.expenseId != null) {
         emit(TodoListLoading());
         await todoListRepo.getAExpenseTodo(event.expenseId!).then((value) {
-          emit(ExpenseTodoLoaded(expenseSummaryData: value?.data ?? []));
+          emit(ExpenseTodoLoaded(expenseSummaryData: value?.expense ?? {}));
         });
       }
     });
+
 
     on<GetAssignedToList>((event, emit) async {
       emit(TodoListLoading());
@@ -336,7 +339,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
     on<GetExpenseSummaryData>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo.getExpenseSummary(event.vinNumber).then((value) {
-        emit(ExpenseSummaryLoaded(expenseSummaryList: value?.data ?? []));
+        emit(ExpenseSummaryLoaded(expenseSummaryList: value?.expense ?? {}));
       });
     });
 
@@ -375,6 +378,20 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
     on<EditTodoVehiclePerson>((event, emit) async {
       emit(TodoListLoading());
+      await todoListRepo.editAVehiclePerson(
+        event.todoId,
+        event.vehiclePersonData,
+        event.person,
+        event.personId,
+        event.vehicleGroupId,
+      )
+          .then((value) {
+        emit(EditTodoLoaded(result: value));
+      });
+    });
+
+/*    on<EditTodoVehiclePerson>((event, emit) async {
+      emit(TodoListLoading());
       await todoListRepo
           .editAVehiclePerson(
           event.todoId!,
@@ -385,11 +402,11 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           event.cohortName,
           event.vin,
           event.vehicleImage,
-          event.vehicleGroupId)
+          event.vehicleNumber)
           .then((value) {
         emit(EditTodoLoaded(result: value));
       });
-    });
+    });*/
 
     on<DeleteVehicles>((event, emit) async {
       emit(TodoListLoading());
@@ -417,13 +434,14 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       });
     });
 
-    on<DeleteExpenseImage>((event, emit) async {
+    on<DeleteExpenseTodoImage>((event, emit) async {
       emit(TodoListLoading());
       await vehicleDataRepo.deleteExpenseImages(event.id).then((value) {
         emit(TodoViewInitial());
       });
     });
 
+/*
     on<CreateExpenseTodo>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
@@ -432,6 +450,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           event.files,
           event.categoryId,
           event.subCategoryId,
+          event.paymentMethodId,
           event.expenseTo,
           event.expenseAmount,
           event.expenseDescription,
@@ -441,33 +460,67 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
           event.date,
           event.odometer)
           .then((expenseSummaryValue) async {
-        if (event.todoId == null) {
-          emit(const AddExpenseLoaded());
-        } else if (expenseSummaryValue != null &&
-            (event.isVehicleGroup ?? false)) {
-          emit(CreateExpenseLoaded(
-              expenseSummaryResponse: expenseSummaryValue,
-              isVehicleGroup: event.isVehicleGroup));
-        } else if (expenseSummaryValue != null) {
+        if ( event.expenseId == null) {
           await todoListRepo
-              .editATodoDate(
-              event.todoId.toString(),
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              expenseSummaryValue.data?[0]['id'].toString(),
-              null)
-              .then((value) {
+              .editExpenseTodo(
+            event.expenseId,
+            event.todoId,
+            event.paymentMethodId,
+            event.expenseAmount,
+            event.expenseDescription,
+            event.categoryId,
+            event.subCategoryId,
+            event.expenseTo,
+            event.cohortId,
+            event.vin,
+            event.date,
+          ).then((value) {
             emit(CreateTodoLoaded(result: value));
           });
-        } else if (event.dontUpdateTodosExpense != null &&
-            event.dontUpdateTodosExpense!) {
+        } else if (event.expenseId != null) {
           emit(const CreateTodoLoaded(result: true));
         }
       });
+    });
+*/
+
+
+    on<CreateExpenseTodo>((event, emit) async {
+      emit(TodoListLoading());
+        final response = await todoListRepo.createExpense(
+          event.expenseId,
+          event.files,
+          event.categoryId,
+          event.subCategoryId,
+          event.paymentMethodId,
+          event.expenseTo,
+          event.expenseAmount,
+          event.expenseDescription,
+          event.cohortId,
+          event.vin,
+          event.todoId,
+          event.date,
+          event.odometer,
+        );
+        final int? newExpenseId = (response?['data'] as List?)?.firstOrNull?['id'];
+        if (event.expenseId == null && newExpenseId != null) {
+          await todoListRepo.editExpenseTodo(
+            newExpenseId,
+            event.todoId,
+            event.paymentMethodId,
+            event.expenseAmount,
+            event.expenseDescription,
+            event.categoryId,
+            event.subCategoryId,
+            event.expenseTo,
+            event.cohortId,
+            event.vin,
+            event.date,
+          ).then((value) {
+          emit(CreateTodoLoaded(result: value));});
+        }else if (event.expenseId != null) {
+          emit(const CreateTodoLoaded(result: true));
+        }
     });
 
     on<UpdateExpenseInTodo>((event, emit) async {
@@ -487,10 +540,19 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       });
     });
 
-    on<DeletePartsOrSupplyEvent>((event, emit) async {
+    on<DeletePartsEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
-          .deletePartsOrSupplyForItem(event.id!, event.type!)
+          .deletePartsForItem(event.partsId)
+          .then((value) {
+        emit(DeletePartsOrSupplyLoaded(result: value));
+      });
+    });
+
+    on<DeleteSupplysEvent>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo
+          .deleteSuppliesForItem(event.suppliesId!)
           .then((value) {
         emit(DeletePartsOrSupplyLoaded(result: value));
       });
@@ -499,7 +561,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
     on<UpdatePartsForItemEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
-          .updatePartsForItem(event.todoId!, event.selectedPartsList as String)
+          .updatePartsForItem(event.todoId!, event.selectedPartsList)
           .then((value) {
         emit(EditTodoLoaded(result: value));
       });
@@ -508,7 +570,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
     on<UpdateSuppliesForItemEvent>((event, emit) async {
       emit(TodoListLoading());
       await todoListRepo
-          .updateSupplyForItem(event.todoId!, event.selectedSupplyList!)
+          .updateSupplyForItem(event.todoId, event.selectedSupplyList)
           .then((value) {
         emit(EditTodoLoaded(result: value));
       });
@@ -860,6 +922,163 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
         emit(GetWorkingHistoryLoaded(history: value!.history ?? []));
       });
     });
+
+    on<GetCategoryConfigData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getCategoryConfig()
+          .then((value) {
+        if (value != null) {
+          emit(CategoryConfigListLoaded(
+            data: (value.data ?? [])..sort((a, b) => DateTime.tryParse(b['created_at'])?.compareTo(DateTime.tryParse(a['created_at']) ?? DateTime.now()) ?? 0),
+          ));
+        }
+      });
+    });
+
+    on<AddCategoryConfigData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.createCategoryConfig(
+          id: event.id,
+          name: event.name,
+          userType: event.userType,
+          parentId: event.parentId
+      ).then((value) {
+        if (value != null) {
+          emit(CategoryConfigLoaded(
+            message: event.id != null ? "Category Updated Successfully" : "Category Added Successfully",
+          ));
+        }
+      });
+    });
+
+    on<DeleteCategoryConfig>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.deleteCategoryConfig(event.id)
+          .then((value) {
+        if (value) {
+          emit(const CategoryConfigLoaded(
+            message: "Category Deleted Successfully",
+          ));
+        }
+      });
+    });
+
+    on<GetTaskData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getTask()
+          .then((value) {
+        if (value != null) {
+          emit(TaskListLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<GetTaskExpense>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.getTaskExpense()
+          .then((value) {
+        if (value != null) {
+          emit(TaskExpenseLoaded(
+            resource: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<AddTaskData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.createTask(
+        id:event.id,
+        categoryId: event.categoryId,
+        subCategoryId:  event.subCategoryId,
+        task: event.name,
+        timeTaken:  event.timeTaken,
+        userType:  event.userType,
+      )
+          .then((value) {
+        if (value != null) {
+          emit(TaskLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+      });
+    });
+
+    on<DeleteTaskData>((event, emit) async {
+      emit(TodoListLoading());
+
+      await todoListRepo.deleteTask(event.id)
+          .then((value) {
+        if (value != null) {
+          emit(TaskLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+      });
+    });
+
+    on<GetTaskCategoryGroup>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.getTaskCategoryGroup()
+          .then((value) {
+        if (value != null) {
+          emit(TaskCategoryGroupLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<AddFixTask>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.createFixTask(event.createFixTaskData!
+      ).then((value) {
+        emit(CreateTodoLoaded(
+            result: value,));
+      });
+    });
+
+    on<AddSpareKeyTask>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.spareKeyTask(event.createSpareKeyTaskData!
+      ).then((value) {
+        emit(CreateTodoLoaded(
+          result: value,));
+      });
+    });
+
+    on<GetTaskMiles>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo.getTaskMiles()
+          .then((value) {
+        if (value != null) {
+          emit(TaskMilesLoaded(
+            data: value.data ?? [],
+          ));
+        }
+      });
+    });
+
+    on<GetPreviousOdometer>((event, emit) async {
+      emit(TodoListLoading());
+      await todoListRepo
+          .getPreviousOdometer(event.todoDate, event.identifierId,event.vin,)
+          .then((value) {
+        emit(PreviousOdometerLoaded(
+          data: value?.data,
+          todoData: event.todoData
+        ));
+      });
+    });
+
     //---
   }
 }

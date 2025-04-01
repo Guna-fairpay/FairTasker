@@ -18,11 +18,11 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       // TODO: implement event handler
     });
 
-    on<GetExpenseToData>((event, emit) async {
+    on<GetExpenseToDatas>((event, emit) async {
       if(event.expenseId != null) {
         emit(const VehicleDataLoading());
         await todoListRepo.getAExpenseDetailTodo(event.expenseId!).then((value) {
-          emit(ExpenseTodoLoaded(expensesData: value?.expenses??[]));
+          emit(ExpenseTodoDataLoaded(expensesData: value?.expenses??[]));
         });
       }
     });
@@ -65,15 +65,48 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     // });
 
     on<AddVehicleDataEvent>((event, emit) async {
-      if(event.createVehicleData != null) {
-        emit(const VehicleDataLoading());
-        await vehicleDataRepo
-            .createVehicle(event.createVehicleData!)
-            .then((value) {
-          emit(VehicleDataLoadedV(result: value?.data??[], vin: event.createVehicleData!.vin,
-              categoryId: event.createVehicleData!.categoryId));
-        });
+      if (event.createVehicleData != null) {
+        emit(const VehicleDataLoading()); // Start loading state
+        try {
+          final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          print("Bloc Triggered");
+          emit(VehicleDataLoadedV(
+            result: response?.data ?? [],
+            vin: event.createVehicleData!.vin,
+            categoryId: event.createVehicleData!.categoryId,
+          ));
+        } catch (error) {
+          emit(const VehicleDataError( errorMessage: ''));
+        }
       }
+    });
+    on<UpdateVehicleDataEvent>((event, emit) async {
+      if (event.createVehicleData != null) {
+        try {
+          final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          print("Bloc Triggered");
+          emit(VehicleDataLoadedV(
+            result: response?.data ?? [],
+            vin: event.createVehicleData!.vin,
+            categoryId: event.createVehicleData!.categoryId,
+          ));
+        } catch (error) {
+          emit(const VehicleDataError( errorMessage: ''));
+        }
+      }
+    });
+
+
+    //
+
+    on<MoveRentalData>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo
+          .moveRental(
+         rentalData: event.rentalData)
+          .then((value) {
+        emit(MoveRentalDataLoaded(result: value));
+      });
     });
 
     on<DeleteVehicleImage>((event, emit) async {
@@ -124,12 +157,19 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
-    // on<DeleteVehicleGroupEvent>((event, emit) async {
-    //   emit(const VehicleDataLoading());
-    //   await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {
-    //     emit(VehicleDataLoadedV(result: value.));
-    //   });
-    // });
+    on<GetVehicleGroupData>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo.getVehicleGroupData().then((value) {
+        emit(VehicleGroupDataLoaded(vehicleGroupDataList: value?.vehicleGroupData??[]));
+      });
+    });
+
+    on<DeleteVehicleGroupEvent>((event, emit) async {
+      emit(const VehicleDataLoading());
+      await vehicleDataRepo.deleteVehicleGroup(event.id).then((value) {
+        emit(VehicleGroupLoaded(result: value));
+      });
+    });
 
     on<GetVehicleHistoryEvent>((event, emit) async {
       emit(const VehicleDataLoading());
@@ -161,7 +201,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       });
     });
 
-    on<DeletePartsEvent>((event, emit) async {
+    on<DeletePartEvent>((event, emit) async {
       emit(const VehicleDataLoading());
       await vehicleDataRepo.deleteParts(event.id).then((value) {
         emit(PartsDataLoaded(result: value));

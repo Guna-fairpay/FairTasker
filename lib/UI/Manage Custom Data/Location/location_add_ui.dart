@@ -1,6 +1,8 @@
+
+import 'dart:developer';
+
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Bloc/location_data_bloc.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
@@ -17,17 +19,15 @@ class _LocationAddUIState extends State<LocationAddUI> {
   TextEditingController locationController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   List<Map<String, dynamic>> addressesList = [];
-  bool isTaskFieldEmpty = false;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   void _save() {
-    setState(() {
-      isTaskFieldEmpty = locationController.text.isEmpty;
-    });
+    formKey.currentState!.validate();
+    setState(() {});
 
     if (locationController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill the required field');
+      return ;
     }
-    //addressesList.add(Addresses(address: addressController.text));
     final newLocation = {
       'name': locationController.text,
       'addresses': addressesList,
@@ -36,12 +36,13 @@ class _LocationAddUIState extends State<LocationAddUI> {
   }
 
   void _deleteAddress(int index) {
-    if (addressesList[index]['id'] != null) {
+    /*if (addressesList[index]['id'] != null) {
       locationDataBloc.add(DeleteLocationEvent(
-          id: addressesList[index]['id'], isLocationAddress: true));
-    }
+          id: addressesList[index]['id']));
+    }*/
     setState(() {
       addressesList.removeAt(index);
+      print("addressesList\t$addressesList");
     });
   }
 
@@ -49,63 +50,38 @@ class _LocationAddUIState extends State<LocationAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text('Add Location'),
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              onPressed: ()=>Navigator.pop(context),
+              icon: const Icon(Icons.close)
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Add Location',
-                    size: 20, weight: FontWeight.bold),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                    '',
-                    locationController,
-                    label: Utils.getText('Location Name', color: AppC.grey),
-                    borderColor: isTaskFieldEmpty ? Colors.red : AppC.fieldBase,
-                  ),
-                  if (isTaskFieldEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(Icons.error_outline, color: Colors.red),
-                    ),
-                ],
+      body: SafeArea(
+        minimum: 15.padding,
+        child: Form(
+          key: formKey,
+          autovalidateMode: AutovalidateMode.onUnfocus,
+          child: ListView(
+            children: [
+              Utils.getTextFormField(
+                'Location Name',
+                locationController,
+                autoValidate: AutovalidateMode.onUserInteraction,
+                validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
               ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 40,
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                '',
+              const SizedBox(height: 10),
+              Utils.getTextFormField(
+                'Address',
                 addressController,
-                label: Utils.getText('Address', color: AppC.grey),
-                readOnly: false,
+                inputAction: TextInputAction.done,
                 suffixIcon: InkWell(
                   onTap: () {
-                    addressController.clear();
                     if (addressController.text.isNotEmpty) {
                       setState(() {
                         addressesList.add({
@@ -119,30 +95,24 @@ class _LocationAddUIState extends State<LocationAddUI> {
                   child: const Icon(Icons.add),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 8.0, // space between addresses
-              runSpacing: 4.0, // space between rows if wrapped
-
-              children: List.generate(addressesList.length, (address) {
-                return Chip(
-                  label: Utils.getText(addressesList[address]['address'] ?? ''),
-                  deleteIcon: const Icon(Icons.delete_outline),
-                  deleteIconColor: Colors.redAccent,
-                  backgroundColor: Colors.grey[100],
-                  onDeleted: () => _deleteAddress(address),
-                );
-              }),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
-                    () {
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8.0, // space between addresses
+                runSpacing: 4.0, // space between rows if wrapped
+                children: List.generate(addressesList.length, (address) {
+                  return Chip(
+                    label: Utils.getText(addressesList[address]['address'] ?? ''),
+                    deleteIcon: const Icon(Icons.close),
+                    deleteIconColor: Colors.redAccent,
+                    backgroundColor: AppC.lowGreen,
+                    onDeleted: () => _deleteAddress(address),
+                  );
+                }),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Utils.getElevatedButton((){
                       if (addressController.text.isNotEmpty) {
                         setState(() {
                           addressesList.add({
@@ -151,15 +121,13 @@ class _LocationAddUIState extends State<LocationAddUI> {
                         });
                       }
                       _save();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
+                    },),
+                ],
+              )
+            ],
+          ),
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

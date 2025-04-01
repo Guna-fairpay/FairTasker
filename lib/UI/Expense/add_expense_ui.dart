@@ -180,7 +180,7 @@ class _AddExpenseUIState extends State<AddExpenseUI>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Expense Date', todoDateController, readOnly: true,
             onTapCallback: () {
           Utils.datePicker(context, '', initial: DateTime.parse("2023-01-01"))
@@ -349,12 +349,12 @@ class _AddExpenseUIState extends State<AddExpenseUI>
           ),
         ),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Amount in dollars', amountController,
             label: Utils.getText('Enter Amount'),
             textType: TextInputType.number),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
           'Enter Description',
           expenseDescriptionController,
           label: Utils.getText('Enter Description'),
@@ -455,7 +455,7 @@ class _AddExpenseUIState extends State<AddExpenseUI>
                             if ((imageFile[index]['path'] ?? '').isEmpty) {
                               imageFile.removeAt(index);
                             } else {
-                              todoBloc!.add(DeleteExpenseImage(
+                              todoBloc!.add(DeleteExpenseTodoImage(
                                   id: imageFile[index]['id']));
                               imageFile.removeAt(index);
                             }
@@ -499,25 +499,26 @@ class _AddExpenseUIState extends State<AddExpenseUI>
           /*else if (amountController.text.isEmpty) {
               Utils.showMobileToast(Str.createTodoAlertText("Expense Amount"));
             } */
-          else {
+          /*else {
             todoBloc!.add(CreateExpenseTodo(
-                /*todoItem!.expenseId*/ null,
-                imageFile
+                *//*todoItem!.expenseId*//* null,
+                files: imageFile
                     .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
                     .where((element) => element != null)
                     .cast<File>()
                     .toList(),
-                selectedExpenseCategories!.id,
-                selectedExpenseSubCategories!.id,
-                selectedExpenseSubCategories!.expenseTo,
-                amountController.text,
-                expenseDescriptionController.text,
-                widget.vehicleStatusListData!['cohortId'].toString(),
-                widget.vehicleStatusListData!['vin'],
-                todoDateController.text,
-                null,
-                ''));
-          }
+                selectedExpenseCategories!.todoId,
+               todoId:  selectedExpenseSubCategories!.todoId,
+               expenseTo:  selectedExpenseSubCategories!.expenseTo,
+                expenseAmount:  amountController.text,
+                expenseDescription: expenseDescriptionController.text,
+               cohortId:  widget.vehicleStatusListData!['cohortId'].toString(),
+              vin:   widget.vehicleStatusListData!['vin'],
+               date:  todoDateController.text,
+               odometer:  null,
+              expenseId: '', categoryId: null, paymentMethodId: '', subCategoryId: null,
+            ));
+          }*/
         }),
         const SizedBox(height: 15),
       ],

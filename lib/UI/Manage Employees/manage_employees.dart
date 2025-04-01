@@ -24,7 +24,7 @@ class _ManageEmployeesState extends State<ManageEmployees> {
     Utils.getStringListPreference(Str.rolePrefText).then((role) {
       setState(() {
         userRole = role
-            .first; // Assuming role is a List<String> and fetching the first value
+            .first;
       });
     });
     super.initState();

@@ -1,16 +1,17 @@
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/UI/Finance/Finance/statement_filter_dropdown.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
-import '../../../Bloc/cohorts_bloc.dart';
-import '../../../Event/cohorts_event.dart';
+import 'package:intl/intl.dart';
 import '../../../Event/todo_view_event.dart';
-import '../../../State/cohorts_state.dart';
-import '../../../State/todo_view_state.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
+import 'Component/custom_ExpansionTile.dart';
+import 'Component/custom_ListTile.dart';
 
 class StatementUI extends StatefulWidget {
   const StatementUI({super.key});
@@ -24,24 +25,6 @@ class _StatementUIState extends State<StatementUI> {
   TextEditingController valueController = TextEditingController();
   TextEditingController CohortController = TextEditingController();
   late TodoViewBloc cohortsBloc;
-  late
-
-  List<Map<String, dynamic>> Cash_Flows_from_Operations = [
-    {'label': 'Customer payments', 'value': 200000},
-    {'label': 'Material Purchase', 'value': 64000},
-    {'label': 'Testing', 'value': 10000},
-  ];
-
-  List<Map<String, dynamic>> Statement_UI = [];
-  List<Map<String, dynamic>> Cash_Flows_from_Investing = [
-    {'label': 'Equipment purchase', 'value': 40000},
-  ];
-
-  List<Map<String, dynamic>> Loan_Payment = [
-    {'label': 'loan payment', 'value': 60000},
-  ];
-
-
   List<Map<String, dynamic>> cohortsData = [];
   List<Map<String, dynamic>> expenseData = [];
   dynamic selectedCohortsData;
@@ -49,35 +32,102 @@ class _StatementUIState extends State<StatementUI> {
   DateRange? selectedDateRange;
   bool loading = false;
   bool showInputFields = false;
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
 
   @override
   void initState() {
+    DateTime now = DateTime.now();
+    selectedDateRange = DateRange(
+      now.subtract(const Duration(days: 365)),
+      now,
+    );
     super.initState();
     cohortsBloc = TodoViewBloc();
   }
 
-  int calculateTotalCashFlows() {
-    return Cash_Flows_from_Operations.fold(0, (sum, item) => sum + (item['value'] as int));
-  }
+  void _showDatePickerDialog(BuildContext context) {
+    DateRange? tempDateRange = selectedDateRange;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 1,
+                  maxHeight: MediaQuery.of(context).size.height * 0.5,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: DateRangePickerWidget(
+                            doubleMonth: false,
+                            initialDateRange: selectedDateRange,
+                            disabledDates: const [],
+                            initialDisplayedDate:
+                                selectedDateRange?.start ?? DateTime.now(),
+                            onDateRangeChanged: (DateRange? value) {
+                              tempDateRange =
+                                  value; // Store temporary selection
+                            },
+                            height: 340,
+                            displayMonthsSeparator: true,
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Cancel Button - Closes the dialog without saving
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context); // Close dialog
+                              },
+                              child:
+                                  Utils.getText("Cancel", color: AppC.appColor),
+                            ),
+                            SizedBox(width: 10),
 
-  Widget datePickerBuilder(BuildContext context, dynamic Function(DateRange?) onDateRangeChanged, [bool doubleMonth = false]) {
-    return Container(
-      padding: const EdgeInsets.only(left: 10.0),
-      child: DateRangePickerWidget(
-        doubleMonth: doubleMonth,
-        initialDateRange: selectedDateRange,
-        disabledDates: const [],
-        initialDisplayedDate: selectedDateRange?.start ?? DateTime.now(),
-        onDateRangeChanged: onDateRangeChanged,
-        displayMonthsSeparator: true,
-      ),
+                            // Confirm Button - Saves the selected date range
+                            GestureDetector(
+                              onTap: () {
+                                if (tempDateRange != null) {
+                                  setState(() {
+                                    selectedDateRange =
+                                        tempDateRange; // Save selection
+                                  });
+                                }
+                                Navigator.pop(context); // Close dialog
+                              },
+                              child: Utils.getText("Confirm",
+                                  color: AppC.appColor),
+                            ),
+                            SizedBox(width: 10),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    int totalCashFlows = calculateTotalCashFlows();
-
     return Scaffold(
       backgroundColor: AppC.white,
       body: BlocProvider(
@@ -90,30 +140,18 @@ class _StatementUIState extends State<StatementUI> {
               loading = false;
               cohortsData.clear();
               cohortsData.addAll(state.statementData ?? []);
+              print("cohortsData ${cohortsData[0]['name']}");
             } else {
               cohortsBloc.add(const GetCohortsData());
               loading = true;
             }
-
-            (cohortsData as List).forEach((element) {
-              (element['items'] as List).forEach((item) {
-                if (element['id'] == item['statement_id']) {
-                  Statement_UI.add({
-                    'name': element['name'],
-                    'total_name': element['total_name'],
-                    'item_name': item['name'],
-                    'item_value': item['value']
-                  });
-                }
-              });
-            });
-
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
+            return SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                      child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Utils.getText(
@@ -124,193 +162,102 @@ class _StatementUIState extends State<StatementUI> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 40,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppC.fieldBase,
-                                    width: Num.borderWidthField,
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton)),
+                          SizedBox(
+                            height: 40,
+                            width: 140,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppC.fieldBase,
+                                  width: Num.borderWidthField,
                                 ),
-                                child: DropdownButton<Map<String, dynamic>>(
-                                  hint: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                    child: Utils.getText('Project Name', color: AppC.grey),
-                                  ),
-                                  value: selectedCohortsData,
-                                  isExpanded: true,
-                                  icon: const Icon(Icons.arrow_drop_down, color: AppC.appColor),
-                                  elevation: 3,
-                                  dropdownColor: AppC.white,
-                                  underline: Container(height: 0, color: Colors.transparent),
-                                  onChanged: (Map<String, dynamic>? value) {
-                                    setState(() {
-                                      selectedCohortsData = value;
-                                    });
-                                  },
-                                  items: cohortsData.map<DropdownMenuItem<Map<String, dynamic>>>(
-                                        (Map<String, dynamic> value) {
-                                      return DropdownMenuItem<Map<String, dynamic>>(
-                                        value: value,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                          child: Utils.getText(value['cohort'] ?? '', overFlow: TextOverflow.ellipsis),
-                                        ),
-                                      );
-                                    },
-                                  ).toList(),
-                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(Num.subradiusButton)),
+                              ),
+                              child: const SearchableMultiSelectDropdown(
+                                items: [
+                                  'Fair Returns LP LLC',
+                                  'Share Car',
+                                  'Personal Car',
+                                  'FairPY',
+                                  'Fair Returns Fall 2023',
+                                  'FairFund 2024',
+                                  'Fair Returns Prime LP',
+                                  'Abdullah khan 2024',
+                                  'TESTER'
+                                ],
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
-                          Flexible(
+                          Expanded(
                             child: SizedBox(
                               height: 40,
-                              child: DateRangeField(
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                                  border: OutlineInputBorder(
-                                    borderSide: const BorderSide(color: AppC.fieldBase, width: Num.borderWidthField),
-                                    borderRadius: BorderRadius.circular(Num.subradiusButton),
+                              child: GestureDetector(
+                                onTap: () => _showDatePickerDialog(context),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppC.fieldBase,
+                                      width: Num.borderWidthField,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                        Num.subradiusButton),
                                   ),
-                                  hintStyle: Utils.getTextStyle(color: AppC.grey),
-                                  hintText: 'Select Date',
+                                  child: Text(
+                                    selectedDateRange == null
+                                        ? 'Select Date'
+                                        : "${dateFormat.format(selectedDateRange!.start)} - ${dateFormat.format(selectedDateRange!.end)}",
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
-                                onDateRangeSelected: (DateRange? value) {
-                                  setState(() {
-                                    selectedDateRange = value;
-                                  });
-                                },
-                                selectedDateRange: selectedDateRange,
-                                pickerBuilder: datePickerBuilder,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      ListView.builder(shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: Statement_UI.length,itemBuilder: (context, index){
-                            return Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        offset: const Offset(0, 2),
-                                        blurRadius: 1,
-                                        spreadRadius: -1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Utils.getText("${Statement_UI[index]['name']}",weight: FontWeight.bold),
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            showInputFields = !showInputFields;
-                                          });
-                                        },
-                                        icon: Icon(
-                                          showInputFields ? Icons.remove : Icons.add,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: double.infinity,
-                                  color: Colors.white,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start, // Aligns rows to the top
-                                      crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures rows stretch to full width
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Utils.getText("${Statement_UI[index]['item_name']}",weight: FontWeight.bold),
-                                            Utils.getText("${Statement_UI[index]['item_value']}",weight: FontWeight.bold),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8), // Optional spacing between rows
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Label 2'),
-                                            Text("\$Value 2"),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Label 2'),
-                                            Text("\$Value 2"),
-                                          ],
-                                        ),
-                                        Visibility(
-                                          visible: showInputFields,
-                                          child: Column(
-                                            children: [
-                                              Utils.getBackgroundFilledTextFieldFirstLetterCaps('Enter Name', nameController),
-                                              SizedBox(height: 4,),
-                                              Utils.getBackgroundFilledTextFieldFirstLetterCaps('Enter Cohort', valueController),
-                                              SizedBox(height: 4,),
-                                              Utils.getBackgroundFilledTextFieldFirstLetterCaps('Cohort Dropdown', CohortController),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      // Handle adding new item logic
-                                                    },
-                                                    icon: const Icon(Icons.check,color: AppC.green,),
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        showInputFields = false;
-                                                      });
-                                                    },
-                                                    icon: const Icon(Icons.close,color: AppC.red),
-                                                  ),
-
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Label 2'),
-                                            Text("\$Value 2"),
-                                          ],
-                                        ),
-                                      ],
+                      10.height,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            for (var item in cohortsData)
+                              Column(
+                                children: [
+                                  // Check if 'total_name' is empty or null
+                                  if (item['total_name'] == "")
+                                    RoundedBorderListTile(
+                                      leadingText: item['name'],
+                                      trailingText: item['value'] != null
+                                          ? '\$${item['value']}'
+                                          : '\$0',
+                                    )
+                                  else
+                                    CustomExpansionTile(
+                                      title: item['name'],
+                                      nameController: nameController,
+                                      valueController: valueController,
+                                      cohortController: CohortController,
+                                      totalCash: item['value'] != null
+                                          ? item['value'].toString()
+                                          : null,
                                     ),
-                                  ),
-                                ),
-
-                              ],
-                            );
-
-                          }),
-                      const Divider()
+                                  10.height,
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ],
+                  )),
+                ],
+              ),
             );
           },
         ),

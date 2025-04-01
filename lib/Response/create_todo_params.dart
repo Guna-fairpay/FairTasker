@@ -1,5 +1,7 @@
 
-class CreateTodoParams{
+import 'dart:io';
+
+class  CreateTodoParams{
 String? todoTitle = '';
 String? todoDate = '';
 String? todoTime = '';
@@ -10,19 +12,24 @@ int? checklistId;
 int? categoryId;
 int? checkboxValue;
 int? configId;
+int? customLinkId;
+int? identifierId;
+String? customLink = '';
+String? referenceId = '';
 String? taskName = '';
 List<int?>? selectedUserGroupId = [];
 String? cohortId = '';
 String? cohortName = '';
 String? vehicleName = '';
+String? maintenanceTaskId = '';
 int? vehicleStatusId = 0;
 int? vehicleStatus = 0;
 String? vehicleImage = '';
 int? vehicleStatusChecklist;
 int? vehicleStatusCategory;
 String? customTask = '';
-List<Map<String, dynamic>> partList = [];
-List<Map<String, dynamic>> supplyList = [];
+List<dynamic> partList = [];
+List<dynamic> supplyList = [];
 String? vin = '';
 // 'repeatPeriod', eg : daily,weekly,monthly,yearly
 String? repeatPeriod = "Doesn't repeat";
@@ -51,7 +58,7 @@ String? repeatDateMonth = '';
   // end_after eg:1,2,3…
   String? endAfter = '';
   String? todoReminder='';
-String? userId = '';
+int? todoId;
 List<int>? multipleAddressList;
 int? existingUserGroupId;
 int? timeSensitive;
@@ -65,10 +72,13 @@ String? notes = '';
 String? vehicleGroupId = '';
 String? vehicleGroupVinNumbers = '';
 String? vehicleGroupName = '';
+String? vehicleNumber= '';
+List<dynamic>? vehicleList = [];
 List<VehicleTodoParam>? vehicleTodoParamList = [];
+List<File> todoImage = [];
 
 CreateTodoParams({
-  this.userId,
+  this.todoId,
   this.todoTitle,
   this.todoDate,
   this.todoTime,
@@ -101,7 +111,8 @@ CreateTodoParams({
   this.timeSensitive,
   this.vehicleStatusCategory,
   this.vehicleImage,
-  this.vehicleTodoParamList
+  this.vehicleTodoParamList,
+  this.maintenanceTaskId,
 });
 }
 
@@ -124,17 +135,16 @@ class VehicleTodoParam{
   String? vin = "";
   String? vehicleName = "";
   String? vehicleImage = "";
-  String? vehicleNumber = "";
-  VehicleTodoParam({this.cohortId, this.cohortName, this.vin, this.vehicleName, this.vehicleImage, this.vehicleNumber});
+  VehicleTodoParam({this.cohortId, this.cohortName, this.vin, this.vehicleName,this.vehicleImage});
 
   Map<String, dynamic> toJson() {
     return {
       'cohort_id': cohortId,
       'cohort_name': cohortName,
       'vin': vin,
+      "vehicle_image":vehicleImage,
       'vehicle_name': vehicleName,
-      'vehicle_image': vehicleImage,
-      'vehicle_number': vehicleNumber,
+
     };
   }
 

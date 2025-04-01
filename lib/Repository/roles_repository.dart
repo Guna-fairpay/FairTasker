@@ -36,7 +36,31 @@ class RolesRepository {
     }
   }
 
-  Future<RolesResponse?> createRole(int? id,String? name,String? permission) async {
+  Future<EditRoleResponse?> getEditRoles({int? id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}editRole/$id";
+      debugPrint("getEditRoles apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          EditRoleResponse editRoleResponse =
+          EditRoleResponse.fromJson(json.decode(response.body));
+          return editRoleResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getEditRoles.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<RolesResponse?> createRole(
+      {int? id, String? name, List<dynamic>? permission}) async {
     try {
       String body = jsonEncode({
         "name":name,
@@ -77,9 +101,9 @@ class RolesRepository {
     }
   }
 
-  Future<RolesResponse?> deleteDepartment(String? id) async {
+  Future<RolesResponse?> deleteRole(int? id) async {
     try {
-      String apiUrl = "${Str.BASE_URL}deleteDepartment/$id";
+      String apiUrl = "${Str.BASE_URL}deleteRole/$id";
 
       final http.Response? response = await apiClient.callDelete(apiUrl);
 
@@ -96,7 +120,7 @@ class RolesRepository {
         return null;
       }
     } catch (error) {
-      log('roles.exception : ${error.toString()}');
+      log('deleteRole.exception : ${error.toString()}');
       return null;
     }
   }

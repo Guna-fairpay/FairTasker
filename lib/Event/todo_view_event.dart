@@ -1,7 +1,11 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
+
+import '../Response/create_fix_task_data.dart';
+import '../UI/Todo/create_sparekey_data.dart';
 
 abstract class TodoViewEvent extends Equatable {
   const TodoViewEvent();
@@ -24,6 +28,7 @@ class GetVehicleListData extends TodoViewEvent {
   @override
   List<Object?> get props => [];
 }
+//
 
 class DeleteTodoEvent extends TodoViewEvent {
   final String? todoId;
@@ -405,7 +410,26 @@ class EditTodoDate extends TodoViewEvent {
 /*/task-expenses-data - task name
 /vendors and /locations - vendor/location
 /getresources and /getCohortsData - Vehicle/person*/
+
 class EditTodoVehiclePerson extends TodoViewEvent {
+  final int? todoId;
+  final List<dynamic> vehiclePersonData;
+  final String? person;
+  final String? personId;
+  final String? vehicleGroupId;
+
+  const EditTodoVehiclePerson({
+    required this.todoId,
+    required this.vehiclePersonData,
+    required this.person,
+    required this.personId,
+    required this.vehicleGroupId,
+  });
+  @override
+  List<Object?> get props => [todoId,vehiclePersonData,person,personId,vehicleGroupId];
+}
+
+/*class EditTodoVehiclePerson extends TodoViewEvent {
   final int? todoId;
   final int? todoUserId;
   final String? todoVehicleName;
@@ -414,18 +438,18 @@ class EditTodoVehiclePerson extends TodoViewEvent {
   final String? vehicleImage;
   final String? cohortName;
   final String? vin;
-  final int? vehicleGroupId;
+  final int? vehicleNumber;
 
-  const EditTodoVehiclePerson(
-      this.todoId,
-      this.todoUserId,
-      this.todoVehicleName,
-      this.selectedCohortId,
-      this.vehicleImage,
-      this.cohortName,
-      this.personName,
-      this.vin,
-      this.vehicleGroupId);
+  const EditTodoVehiclePerson({
+      required this.todoId,
+      required this.todoUserId,
+      required this.todoVehicleName,
+      required this.selectedCohortId,
+      required this.vehicleImage,
+      required this.cohortName,
+      required this.personName,
+      required this.vin,
+      required this.vehicleNumber});
   @override
   List<Object?> get props => [
     todoId,
@@ -436,9 +460,9 @@ class EditTodoVehiclePerson extends TodoViewEvent {
     cohortName,
     personName,
     vin,
-    vehicleGroupId
+    vehicleNumber
   ];
-}
+}*/
 
 class DeleteVehicle extends TodoViewEvent {
   final int? id;
@@ -500,10 +524,11 @@ class UpdateExpenseInTodo extends TodoViewEvent {
 
 class CreateExpenseTodo extends TodoViewEvent {
   final List<File>? files;
-  final String? expenseId;
+  final int? expenseId;
   final int? categoryId;
   final int? subCategoryId;
   final int? expenseTo;
+  final int? paymentMethodId;
   final String? expenseAmount;
   final String? expenseDescription;
   final String? cohortId;
@@ -511,54 +536,43 @@ class CreateExpenseTodo extends TodoViewEvent {
   final String? date;
   final String? odometer;
   final int? todoId;
-  final bool? isVehicleGroup;
-  final bool? dontUpdateTodosExpense;
 
-  const CreateExpenseTodo(
-      this.expenseId,
-      this.files,
-      this.categoryId,
-      this.subCategoryId,
-      this.expenseTo,
-      this.expenseAmount,
-      this.expenseDescription,
-      this.cohortId,
-      this.vin,
-      this.date,
-      this.todoId,
-      this.odometer,
-      {this.isVehicleGroup,
-        this.dontUpdateTodosExpense});
+  const CreateExpenseTodo({
+      required this.expenseId,
+      required this.files,
+      required this.categoryId,
+      required this.paymentMethodId,
+      required this.subCategoryId,
+      required this.expenseTo,
+      required this.expenseAmount,
+      required this.expenseDescription,
+      required this.cohortId,
+      required this.vin,
+      required this.date,
+      required this.todoId,
+      required this.odometer,
+      });
   @override
   List<Object?> get props => [
     files,
     categoryId,
     subCategoryId,
+    paymentMethodId,
     expenseTo,
     expenseAmount,
     expenseDescription,
     cohortId,
     vin,
     date,
-    isVehicleGroup,
-    dontUpdateTodosExpense,
     odometer
   ];
 }
 
-class DeleteExpenseImage extends TodoViewEvent {
+class DeleteExpenseTodoImage extends TodoViewEvent {
   final int? id;
-  const DeleteExpenseImage({required this.id});
+  const DeleteExpenseTodoImage({required this.id});
   @override
   List<Object?> get props => [id];
-}
-
-class DeletePartsOrSupplyEvent extends TodoViewEvent {
-  final int? id;
-  final String? type;
-  const DeletePartsOrSupplyEvent(this.id, this.type);
-  @override
-  List<Object?> get props => [id, type];
 }
 
 class GetPartsData extends TodoViewEvent {
@@ -569,7 +583,7 @@ class GetPartsData extends TodoViewEvent {
 
 class UpdatePartsForItemEvent extends TodoViewEvent {
   final int? todoId;
-  final List<Map<String, dynamic>>? selectedPartsList;
+  final List<dynamic> selectedPartsList;
   const UpdatePartsForItemEvent(
       {required this.todoId, required this.selectedPartsList});
   @override
@@ -577,8 +591,8 @@ class UpdatePartsForItemEvent extends TodoViewEvent {
 }
 
 class UpdateSuppliesForItemEvent extends TodoViewEvent {
-  final int? todoId;
-  final List<Map<String, dynamic>>? selectedSupplyList;
+  final int todoId;
+  final List<dynamic> selectedSupplyList;
   const UpdateSuppliesForItemEvent(
       {required this.todoId, required this.selectedSupplyList});
   @override
@@ -837,13 +851,26 @@ class GetPaymentData extends TodoViewEvent {
 
 class DeleteVehicles extends TodoViewEvent {
   final int id;
-
-  const DeleteVehicles({
-    required this.id,
-  });
-
+  const DeleteVehicles({required this.id,});
   @override
   List<Object> get props => [id];
+}
+
+
+class DeletePartsEvent extends TodoViewEvent {
+  final int partsId;
+
+  const DeletePartsEvent({required this.partsId,});
+  @override
+  List<Object> get props => [partsId];
+}
+
+class DeleteSupplysEvent extends TodoViewEvent {
+  final int? suppliesId;
+
+  const DeleteSupplysEvent({required this.suppliesId});
+  @override
+  List<Object?> get props => [suppliesId];
 }
 
 
@@ -859,15 +886,23 @@ class GetVoiceData extends TodoViewEvent {
   List<Object?> get props => [from,to];
 }
 
-class DeleteOtherData extends TodoViewEvent {
-  final int id;
+// class DeleteOtherData extends TodoViewEvent {
+//   final int id;
+//
+//   const DeleteOtherData({
+//     required this.id,
+//   });
+//
+//   @override
+//   List<Object> get props => [id];
+// }
 
-  const DeleteOtherData({
-    required this.id,
-  });
+class DeleteExpenseOtherEvent extends TodoViewEvent {
+  final int? id;
+  const DeleteExpenseOtherEvent({required this.id});
 
   @override
-  List<Object> get props => [id];
+  List<Object?> get props => [id];
 }
 
 
@@ -912,4 +947,123 @@ class GetEmployeeStatementData extends TodoViewEvent {
   @override
   List<Object> get props => [];
 }
+
+class GetCategoryConfigData extends TodoViewEvent {
+  const GetCategoryConfigData();
+  @override
+  List<Object> get props => [];
+}
+
+class AddCategoryConfigData extends TodoViewEvent {
+
+  final String name;
+  final int? userType;
+  final int? parentId;
+  final int? id;
+
+  const AddCategoryConfigData({
+    required this.name,required this.userType,required this.parentId, required this.id,
+  });
+  @override
+  List<Object?> get props => [name,userType,parentId,id];
+}
+
+class DeleteCategoryConfig extends TodoViewEvent {
+  final int? id;
+
+  const DeleteCategoryConfig({
+    required this.id,
+  });
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class GetTaskData extends TodoViewEvent {
+  const GetTaskData();
+  @override
+  List<Object> get props => [];
+}
+
+class GetTaskExpense extends TodoViewEvent {
+  const GetTaskExpense();
+  @override
+  List<Object> get props => [];
+}
+
+class AddTaskData extends TodoViewEvent {
+
+
+  final int? categoryId;
+  final int? subCategoryId;
+  final String? name;
+  final String? timeTaken;
+  final int? userType;
+  final int? id;
+
+  const AddTaskData({
+    required this.categoryId,
+    required this.subCategoryId,
+    required this.name,
+    required this.timeTaken,
+    required this.userType,
+    required this.id,
+  });
+  @override
+  List<Object?> get props => [categoryId, subCategoryId,name, timeTaken,userType, id];
+}
+
+class DeleteTaskData extends TodoViewEvent {
+  final String id;
+
+  const DeleteTaskData({
+    required this.id,
+  });
+
+  @override
+  List<Object> get props => [id];
+}
+
+class GetTaskCategoryGroup extends TodoViewEvent {
+  const GetTaskCategoryGroup();
+  @override
+  List<Object> get props => [];
+}
+
+class AddFixTask extends TodoViewEvent {
+  final CreateFixTaskData? createFixTaskData;
+  const AddFixTask({required this.createFixTaskData,});
+  @override
+  List<Object?> get props => [createFixTaskData];
+}
+
+class AddSpareKeyTask extends TodoViewEvent {
+  final CreateSpareKeyData? createSpareKeyTaskData;
+  const AddSpareKeyTask({required this.createSpareKeyTaskData,});
+  @override
+  List<Object?> get props => [createSpareKeyTaskData];
+}
+
+class GetTaskMiles extends TodoViewEvent {
+  const GetTaskMiles();
+  @override
+  List<Object> get props => [];
+}
+
+class GetPreviousOdometer extends TodoViewEvent {
+  final String? todoDate;
+  final String? vin;
+  final int? identifierId;
+  final Map<String, dynamic>? todoData;
+  const GetPreviousOdometer({
+    required this.todoDate,
+    required this.vin,
+    required this.identifierId,
+    this.todoData,
+  });
+  @override
+  List<Object?> get props => [todoDate,vin,identifierId, todoData, Random().nextDouble()];
+}
+
+
 //---

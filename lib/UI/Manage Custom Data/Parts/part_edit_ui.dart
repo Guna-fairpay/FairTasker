@@ -1,6 +1,5 @@
+
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -10,7 +9,7 @@ class PartEditUI extends StatefulWidget {
   const PartEditUI({super.key, required this.parts});
 
   @override
-  _PartEditUIState createState() => _PartEditUIState();
+  State<PartEditUI> createState() => _PartEditUIState();
 }
 
 class _PartEditUIState extends State<PartEditUI> {
@@ -32,11 +31,9 @@ class _PartEditUIState extends State<PartEditUI> {
   }
 
   void _save() {
-    setState(() {
-      isPartsFieldEmpty = partsController.text.isEmpty;
-    });
+    setState(() {});
     if (partsController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill the required field');
+      return;
     }
     final updatedParts = {
       'id': widget.parts['id'],
@@ -50,85 +47,43 @@ class _PartEditUIState extends State<PartEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar:AppBar(
+        title: const Text("Edit Parts"),
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: ()=>Navigator.pop(context))
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+        child: ListView(
           children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Edit Parts', size: 20, weight: FontWeight.bold),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                    'Parts Name',
-                    partsController,
-                    label: Utils.getText('Parts Name', color: AppC.grey),
-                    borderColor:
-                        isPartsFieldEmpty ? Colors.red : AppC.fieldBase,
-                  ),
-                  if (isPartsFieldEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(Icons.error_outline, color: Colors.red),
-                    ),
-                ],
+            Utils.getTextFormField(
+              'Parts Name',
+              partsController,
+             autoValidate: AutovalidateMode.onUserInteraction,
+              validator: (val) => val!.isEmpty ? 'Please enter parts name' : null,
               ),
+            const SizedBox(height: 10),
+            Utils.getTextFormField(
+              'Description',
+              descriptionController,
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                    '',
-                    descriptionController,
-                    label: Utils.getText('Description', color: AppC.grey),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
-                    () {
-                      _save();
-                    },
-                  ),
-                ),
+                Utils.getElevatedButton(
+                  () =>_save(),),
               ],
             ),
           ],
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

@@ -1,6 +1,6 @@
+
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -12,18 +12,15 @@ class PermissionsAddUI extends StatefulWidget {
 }
 
 class _PermissionsAddUIState extends State<PermissionsAddUI> {
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
 
   void _save() {
-    // Validate the form fields
-    if (nameController.text.isEmpty) {
-      // Show an alert dialog if fields are empty
-      return Utils.showMobileToast('Please fill in all required fields');
-    }
+    if (!formKey.currentState!.validate()) return;
     final newPermission = {
       'name': nameController.text,
     };
-
     Navigator.of(context).pop(newPermission);
   }
 
@@ -31,64 +28,40 @@ class _PermissionsAddUIState extends State<PermissionsAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
-      ),
-      body: Padding(
-        padding:
-            const EdgeInsets.only(left: 20.0, right: 20, bottom: 20, top: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(Icons.arrow_back)),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Add Permission',
-                    weight: FontWeight.bold, size: 20),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                      '', nameController,
-                      label:
-                          Utils.getText('Permission Name', color: AppC.grey)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
-                    () {
-                      _save();
-                    },
-                  ),
-                ),
-              ],
-            ),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: const Text('Add Permission'),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+          )
           ],
+      ),
+      body: Form(
+        key: formKey,
+        child: SafeArea(
+          minimum: 15.padding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Utils.getTextFormField(
+                'Permission Name',
+                nameController,
+                autoValidate: AutovalidateMode.onUserInteraction,
+                validator: (val)=>val!.isEmpty?'Enter Permission Name':null,
+              ),
+              const SizedBox(height: 15),
+              Utils.getElevatedButton( ()=>_save()),
+            ],
+          ),
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

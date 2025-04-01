@@ -1,8 +1,9 @@
-import 'package:fairpytasker/Component/header.dart';
+
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../../Component/drawer_ui.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../Utilities/str.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'category_add_ui.dart';
@@ -38,10 +39,10 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
     super.dispose();
   }
 
-  void _filtercategory(String query) {
+  void _filterCategory(String query) {
     setState(() {
-      filteredCategory = category.where((categorys) {
-        final name = categorys['name']?.toLowerCase() ?? '';
+      filteredCategory = category.where((category) {
+        final name = category['name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
         return name.contains(searchQuery);
       }).toList();
@@ -49,15 +50,15 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
   }
 
   void _navigateToCategoryAddUI() async {
-    final newcategorys = await Navigator.push<Map<String, dynamic>>(
+    final newCategory = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(builder: (context) => const AddCategoryPage()),
     );
-
-    if (newcategorys != null) {
+    if (newCategory != null) {
       setState(() {
         categoryDataBloc.add(AddCategoryData(
-            name: newcategorys['name'], id: newcategorys['id']));
+            name: newCategory['name'],
+            id: newCategory['id']));
       });
       categoryDataBloc.add(const GetCategory());
       Utils.showMobileToast('Category added successfully');
@@ -67,21 +68,21 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
   void _navigateToCategoryEditUI(int index) async {
     final updatedCategory = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(
-        builder: (context) =>
-            EditCategoryPage(category: filteredCategory[index]),
+      MaterialPageRoute(builder: (context) =>
+          EditCategoryPage(category: filteredCategory[index]),
       ),
     );
     if (updatedCategory != null) {
       categoryDataBloc.add(AddCategoryData(
-          name: updatedCategory['name'], id: updatedCategory['id']));
+          name: updatedCategory['name'],
+          id: updatedCategory['id']));
       categoryDataBloc.add(const GetCategory());
       Utils.showMobileToast('Category updated successfully');
     }
   }
 
   Future<void> _deleteCategory(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context,'Category');
     if (confirmed == true) {
       final category = filteredCategory[index];
       categoryDataBloc.add(DeleteCategory(id: category['id']));
@@ -90,52 +91,34 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content:
-            Utils.getText('Are you sure you want to delete this category?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Confirm the deletion
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cancel the deletion
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
-      ),
+      appBar: AppBar(
+          backgroundColor: AppC.appColor,
+          automaticallyImplyLeading: false,
+          foregroundColor: Colors.white,
+          title: const Text('Category'),
+          actions: [
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.close,
+              ),
+            ),
+          ]),
       body: BlocProvider(
         create: (_) => categoryDataBloc,
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) {
           if (state is VehicleDataLoading) {
-            loading = true;
+            EasyLoading.show();
           } else if (state is CategoryListLoaded) {
-            loading = false;
+            if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredCategory.clear();
             filteredCategory.addAll(state.categoryList ?? []);
-            List<Map<String, dynamic>> localList = [];
+            final List<Map<String, dynamic>> localList = [];
             localList.addAll(state.categoryList ?? []);
             localList.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
@@ -144,121 +127,69 @@ class _CategoryViewUiState extends State<CategoryViewUi> {
             filteredCategory = List.from(category);
           } else {
             categoryDataBloc.add(const GetCategory());
-            loading = true;
+            EasyLoading.show();
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              Column(children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Utils.getText('Category',
-                              size: 20, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 40,
-                              child: Utils.getSearchBarUI(
-                                () {},
-                                (value) {
-                                  _filtercategory(value);
-                                },
-                                searchController,
-                                searchFocusNode,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Add', () {
-                              _navigateToCategoryAddUI();
-                            }),
-                          ),
-                        ],
-                      ),
-                    ],
+          return SafeArea(
+            minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+            child: Column(
+              spacing: 10,
+              children: [
+              Row(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: Utils.getSearchBarUI(
+                      onChange:
+                      (value) {
+                        _filterCategory(value);
+                      },
+                      searchController:searchController,
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
-                    itemCount: filteredCategory.length,
-                    itemBuilder: (context, index) {
-                      final name = filteredCategory[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Slidable(
-                          key: ValueKey(name),
-                          endActionPane: ActionPane(
-                            motion: const DrawerMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed: (context) => _deleteCategory(index),
-                                backgroundColor: AppC.white,
-                                foregroundColor: AppC.red,
-                                icon: Icons.delete_outline,
-                                label: 'Delete',
-                              ),
-                            ],
-                          ),
-                          child: GestureDetector(
-                            onTap: () => _navigateToCategoryEditUI(index),
-                            child: Card(
-                              margin: const EdgeInsets.symmetric(vertical: 2),
-                              color: AppC.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                alignment: Alignment.centerLeft,
-                                height: 42,
-                                child: Utils.getText(
-                                  name['name'] ?? '',
-                                  weight: FontWeight.bold,
-                                ),
+                  Utils.getAddElevatedButton(_navigateToCategoryAddUI,),
+                ],
+              ),
+              Expanded(
+                child:filteredCategory.isEmpty && state is CategoryListLoaded
+                  ? const Center(child: Text(
+                  Str.noMatchFound,
+                ),): ListView.separated(
+                  separatorBuilder: (context, index) => const Divider(
+                    height: 0.5,
+                  ),
+                  itemCount: filteredCategory.length,
+                  itemBuilder: (context, index) {
+                    final name = filteredCategory[index];
+                    return InkWell(
+                      onTap: () => _navigateToCategoryEditUI(index),
+                      child: SafeArea(
+                        minimum: 10.padding,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Utils.getText(
+                                name['name'] ?? '',
                               ),
                             ),
-                          ),
+                            InkWell(
+                                onTap: ()=> _deleteCategory(index),
+                              child: const Icon(
+                                  Icons.delete_outline,
+                                  color: AppC.redAccent
+                              ),
+                            )
+                          ],
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              ]),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+              ),
+            ]),
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

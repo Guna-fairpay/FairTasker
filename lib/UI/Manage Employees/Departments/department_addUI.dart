@@ -1,4 +1,6 @@
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/users_bloc.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
@@ -17,34 +19,26 @@ class DepartmentAddUI extends StatefulWidget {
 }
 
 class _DepartmentAddUIState extends State<DepartmentAddUI> {
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController departmentNameController = TextEditingController();
-  late UsersBloc userBloc;
-  String? selectedHead;
+  final UsersBloc userBloc = UsersBloc();
+  dynamic selectedHead;
   List<Map<String, dynamic>> dropdownList = [];
-  bool isDepartmentNameFieldEmpty = false;
-  bool isSelectedHeadFieldEmpty = false;
 
   @override
   void initState() {
     super.initState();
-    userBloc = UsersBloc();
   }
 
   void _save() {
-    setState(() {
-      isDepartmentNameFieldEmpty = departmentNameController.text.isEmpty;
-      isSelectedHeadFieldEmpty = selectedHead == null;
-    });
-
-    if (isDepartmentNameFieldEmpty || isSelectedHeadFieldEmpty) {
-      return Utils.showMobileToast('Please fill in all required fields');
+    if(!formKey.currentState!.validate()){
+      return;
     }
-
     final updateDepartment = {
       'name': departmentNameController.text,
-      'head': selectedHead ?? '',
+      'head': selectedHead['id'].toString(),
     };
-
     Navigator.of(context).pop(updateDepartment);
   }
 
@@ -52,135 +46,66 @@ class _DepartmentAddUIState extends State<DepartmentAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text('Add Department'),
+        backgroundColor: AppC.appColor,
+        foregroundColor: AppC.white,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+              onPressed: ()=>Navigator.pop(context),
+              icon: const Icon(Icons.close)
+          ),
+        ],
       ),
       body: BlocProvider(
         create: (context) => userBloc..add(const GetUsersData()),
         child: BlocConsumer<UsersBloc, UsersState>(
           listener: (context, state) async {
-            if (state is UsersListLoaded) {
-              dropdownList.clear();
-              dropdownList.addAll(state.data ?? []);
+            if(state is UsersLoading){
+              EasyLoading.show();
+            }
+            else{
+              if(EasyLoading.isShow)EasyLoading.dismiss();
+              if (state is UsersListLoaded) {
+                  dropdownList.clear();
+                  dropdownList.addAll(state.data ?? []);
+              }
             }
           },
           builder: (context, state) {
-            return Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 20.0, right: 20, bottom: 20, top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back),
-                          ),
-                          const SizedBox(width: 10),
-                          Utils.getText('Add Department',
-                              size: 20, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              departmentNameController,
-                              label: Utils.getText('name', color: AppC.grey),
-                              borderColor: isDepartmentNameFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
-                            ),
-                            if (isDepartmentNameFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
-                        ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select Category',
-                                color: AppC.grey),
-                          ),
-                          value: selectedHead,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          menuMaxHeight: 250,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedHead = value;
-                            });
-                          },
-                          items: dropdownList.map<DropdownMenuItem<String>>(
-                            (value) {
-                              return DropdownMenuItem<String>(
-                                value: value['id'].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText(
-                                      '${value['first_name']} ${value['last_name']}'),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton(
-                              'Save',
-                              () {
-                                _save();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            return Form(
+              key: formKey,
+              child: SafeArea(
+                minimum:15.padding,
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Utils.getTextFormField(
+                      'Department Name',
+                      departmentNameController,
+                      autoValidate: AutovalidateMode.onUserInteraction,
+                      validator: (val)=>val!.isEmpty?'Department name is required':null,
+                      inputAction: TextInputAction.done,
+                    ),
+                    Utils.dropdownBox(
+                      'Select a Head',
+                      dropdownList ,
+                          (value){
+                        selectedHead=value;
+                      }, labelKey:'first_name',
+                      labelKey2: 'last_name',
+                      initialSelection: selectedHead,
+                    ),
+                    Utils.getElevatedButton(()=>_save())
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

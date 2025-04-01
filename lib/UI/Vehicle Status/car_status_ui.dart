@@ -1,8 +1,9 @@
+
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
 import 'package:fairpytasker/Response/create_todo_status_response.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
-import 'package:fairpytasker/UI/Vehicle/vehicle_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_notes_history_view_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config_ui.dart';
@@ -452,7 +453,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                       child: SizedBox(
                                     height: 30,
                                     child: Utils
-                                        .getBackgroundFilledTextFieldFirstLetterCaps(
+                                        .getTextFormField(
                                       'Search',
                                       // suffixIcon: Icon(Icons.search, color: AppC.grey),
                                       searchController,
@@ -1034,8 +1035,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                             },
                                                             child: const Icon(
                                                                 Icons.edit,
-                                                                color: AppC
-                                                                    .appColor,
+                                                                color: AppC.appColor,
                                                                 size: 16),
                                                           ),
                                                           InkWell(
@@ -1050,8 +1050,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                                         vehicleStatusListDataList[index]['vehicle_name'] ??
                                                                             '',
                                                                     vin: vehicleStatusListDataList[index]
-                                                                            [
-                                                                            'vin'] ??
+                                                                            ['vin'] ??
                                                                         '',
                                                                   ),
                                                                 ),
@@ -1487,7 +1486,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                           Visibility(
                               visible: selectedPresale == 1,
                               child: Utils
-                                  .getBackgroundFilledTextFieldFirstLetterCaps(
+                                  .getTextFormField(
                                       'Presale', presaleController)),
                           Visibility(
                             visible: selectedPresale == 2,
@@ -1745,7 +1744,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
       createTodoParams.vehicleStatusId = selectedChecklistForTodo!['id'];
       createTodoParams.vehicleStatus =
           vehicleStatusListDataList['vehicle_status'];
-      createTodoParams.userId = selectedResource!['id']!.toString();
+      createTodoParams.todoId = selectedResource!['id']!;
       createTodoParams.vehicleStatusChecklist =
           selectedChecklistForTodo!['checklist_id'];
       createTodoParams.vehicleStatusCategory =
@@ -1804,7 +1803,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                       Visibility(
                         visible: selectedPresale == 1,
                         replacement:
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                            Utils.getTextFormField(
                                 'Presale', presaleController),
                         child: SingleChildScrollView(
                             child:
@@ -1912,7 +1911,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
         const SizedBox(
           height: 15,
         ),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Custom Task', customTaskController),
         const SizedBox(
           height: 15,
@@ -1920,7 +1919,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
         Row(
           children: [
             Expanded(
-              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+              child: Utils.getTextFormField(
                   'Todo Date', todoDateController, readOnly: true,
                   onTapCallback: () {
                 Utils.datePicker(context, '').then((value) {
@@ -1989,7 +1988,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
         const SizedBox(
           height: 15,
         ),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
           'Vendor / Location',
           vendorLocationController,
           label: Utils.getText('Vendor / Location'),
@@ -2038,7 +2037,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
             const SizedBox(
               height: 15,
             ),
-            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+            Utils.getTextFormField(
                 'Notes', notesController),
             Visibility(
               visible: showVendorLocationList,

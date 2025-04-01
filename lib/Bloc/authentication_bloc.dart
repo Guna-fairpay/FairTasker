@@ -13,11 +13,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
     on<DoLoginEvent>((event, emit) async {
       emit(const AuthenticationLoading());
-      await authenticationRepo
-          .callLoginAPI(event.email, event.password)
-          .then((value) {
-        emit(AuthenticationLoaded(authenticationData: value?.user, userPermissions: value?.userPermissions));
-      });
+      var response = await authenticationRepo.callLoginAPI(event.email, event.password);
+      emit(AuthenticationLoaded(authenticationData: response?.user, userPermissions: response?.userPermissions));
     });
   }
 }

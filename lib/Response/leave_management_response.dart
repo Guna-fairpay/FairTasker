@@ -5,21 +5,16 @@ class LeaveManagementListResponse {
     this.status,
     this.message,
   });
-  LeaveManagementListResponse.fromJson(Map<String, dynamic> json) {
-
-    //data = List<Map<String, dynamic>>.from(json['data'] ?? []);
+  LeaveManagementListResponse.fromJson(dynamic json) {
     data = json['data']['data'] is Map<String, dynamic>
         ? [Map<String, dynamic>.from(json['data']['data'] ?? {})]
         : List<Map<String, dynamic>>.from(json['data']['data'] ?? []);
     message = json['message'] ?? "";
     status = json['status'];
-
   }
-
   List<Map<String, dynamic>>? data;
   bool? status;
   String? message;
-
 }
 
 class LeaveManagementResponse {
@@ -27,13 +22,10 @@ class LeaveManagementResponse {
     this.status,
     this.message,
   });
-  LeaveManagementResponse.fromJson(Map<String, dynamic> json) {
-
+  LeaveManagementResponse.fromJson(dynamic json) {
     message = json['message'] ?? "";
     status = json['status'];
   }
-
   bool? status;
   String? message;
-
 }

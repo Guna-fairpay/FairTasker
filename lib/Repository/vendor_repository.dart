@@ -13,16 +13,19 @@ import 'package:flutter/cupertino.dart';
 class VendorDataRepo {
   ApiClient apiClient = ApiClient();
 
-  Future<bool?> createVendor(
+  Future<Map<String, dynamic>?> createVendor({
     int? id,
-    String name,
-    String vendorTypeid,
-    String address,
-    String phone,
-    String expertise,
-    String description,
-    List<File> images,
-  ) async {
+    String? name,
+    String? vendorTypeId,
+    String? address,
+    String? phone,
+    String? expertise,
+    String? description,
+    String? latitude,
+    String? longitude,
+    String? website,
+    List<File>? images,
+  }) async {
     try {
       String apiUrl = '';
       if (id != null) {
@@ -30,44 +33,41 @@ class VendorDataRepo {
       } else {
         apiUrl = "${Str.LIST_BASE_URL}vendors";
       }
+      Map<String, String> reqMap ={
+        "name": name??'',
+        "type_id": vendorTypeId??'',
+        "address": address??'',
+        "phone": phone??'',
+        "expertise": expertise??'',
+        "description": description??'',
+        "latitude": latitude??'',
+        "longitude": longitude??'',
+        "website": website??'',
+        "platform": "TaskerApp",
+        "status": "1",
+      };
+      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
+      request.headers.addAll(Utils.getHeaders());
+      request.fields.addAll(reqMap);
 
-      // Create a multipart request
-      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-
-      // Add form fields
-      request.fields['name'] = name;
-      request.fields['type_id'] = vendorTypeid;
-      request.fields['address'] = address;
-      request.fields['phone'] = phone;
-      request.fields['expertise'] = expertise;
-      request.fields['description'] = description;
-      request.fields['platform'] = 'TaskerApp';
-      request.fields['status'] = '1';
-
-      // Add images to the request
-      for (File image in images) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'images[]', // Match your API field name for images
-            image.path,
-            contentType:
-                MediaType('image', 'jpeg'), // Change based on the file type
-          ),
+      for (int i = 0; i < (images?.length ?? 0); i++) {
+        var file = images![i];
+        var multipartFile = http.MultipartFile.fromBytes(
+          'images[$i]',
+          (await file.readAsBytes()).toList(),
+          filename: file.path.split('/').last,
         );
+        request.files.add(multipartFile);
       }
 
-      // Send the request
-      var response = await request.send();
+      http.StreamedResponse streamedResponse = await request.send();
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Parse the response body
-        var responseBody = await http.Response.fromStream(response);
-        GeneralResponse generalResponse =
-            GeneralResponse.fromJson(json.decode(responseBody.body));
-
-        Utils.showMobileToast(generalResponse.message!);
-        return true;
-      } else {
+      if(streamedResponse.statusCode == 200 || streamedResponse.statusCode == 201){
+        final http.Response response =
+        await http.Response.fromStream(streamedResponse);
+        return json.decode(response.body);
+      }
+       else {
         Utils.showSomethingWentWrong();
         return null;
       }
@@ -76,61 +76,6 @@ class VendorDataRepo {
       return null;
     }
   }
-  // Future<bool?> createVendor(
-  //     int? id,
-  //     String name,
-  //     String vendor_typeId,
-  //     String address,
-  //     String phone,
-  //     String expertise,
-  //     String description,
-  //     List<File> images,
-  //     ) async {
-  //   try {
-  //     String apiUrl = id != null
-  //         ? "${Str.LIST_BASE_URL}vendors/$id"
-  //         : "${Str.LIST_BASE_URL}vendors";
-  //
-  //     var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
-  //     request.headers.addAll(Utils.getHeaders());
-  //
-  //     // Add fields to the request
-  //     request.fields['name'] = name;
-  //     request.fields['type_id'] = vendor_typeId;
-  //     request.fields['address'] = address;
-  //     request.fields['phone'] = phone;
-  //     request.fields['expertise'] = expertise;
-  //     request.fields['description'] = description;
-  //     request.fields['platform'] = 'TaskerApp';
-  //     request.fields['status'] = '1';
-  //
-  //     // Add files to the request
-  //     for (int i = 0; i < images.length; i++) {
-  //       var file = images[i];
-  //       var multipartFile = http.MultipartFile.fromBytes(
-  //         'files[$i]',
-  //         await file.readAsBytes(),
-  //         filename: file.path.split('/').last,
-  //       );
-  //       request.files.add(multipartFile);
-  //     }
-  //
-  //     var streamedResponse = await request.send();
-  //     var response = await http.Response.fromStream(streamedResponse);
-  //     debugPrint('createVendor.statusCode: ${response.statusCode}');
-  //
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
-  //       return response.data;
-  //     } else {
-  //       Utils.showSomethingWentWrong();
-  //       return null;
-  //     }
-  //   } catch (error) {
-  //     log('createVendor.exception : ${error.toString()}');
-  //     return null;
-  //   }
-  // }
 
   Future<bool?> deleteVendor(int? vendorId) async {
     try {

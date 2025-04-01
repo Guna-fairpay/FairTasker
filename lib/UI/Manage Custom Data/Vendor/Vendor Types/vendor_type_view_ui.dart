@@ -5,7 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../../Bloc/vendor_data_bloc.dart';
 import '../../../../Component/drawer_ui.dart';
 import '../../../../Component/header.dart';
-import '../../../../Utilities/Utils.dart';
+import '../../../../Utilities/utils.dart';
 import '../../../../Utilities/appC.dart';
 import 'vendor_type_edit_ui.dart';
 import 'vendor_type_add_ui.dart';
@@ -176,9 +176,7 @@ class _VendorTypeUIState extends State<VendorTypeUI> {
                           Expanded(
                             child: SizedBox(
                               height: 40,
-                              child: Utils.getSearchBarUI(() {}, (value) {
-                                _filterVendorType(value);
-                              }, searchController, searchFocusNode),
+                              child: Utils.getSearchBarUI(onChange: _filterVendorType, searchController: searchController,),
                             ),
                           ),
                           const SizedBox(width: 8),

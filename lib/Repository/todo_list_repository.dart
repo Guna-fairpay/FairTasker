@@ -1,6 +1,8 @@
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Response/chat_message_response.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/Response/create_todo_params.dart';
@@ -9,11 +11,11 @@ import 'package:fairpytasker/Response/cumulative_cost_response.dart';
 import 'package:fairpytasker/Response/expense_summary_details_response.dart';
 import 'package:fairpytasker/Response/expense_summary_response.dart';
 import 'package:fairpytasker/Response/location_response.dart';
-import 'package:fairpytasker/Response/maintenance_check_list_response.dart';
+import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_response.dart';
 import 'package:fairpytasker/Response/parts_response.dart';
 import 'package:fairpytasker/Response/supplies_response.dart';
+import 'package:fairpytasker/Response/task_category_group_response.dart';
 import 'package:fairpytasker/Response/task_detail_response.dart';
-import 'package:fairpytasker/Response/task_expense_response.dart';
 import 'package:fairpytasker/Response/task_history_response.dart';
 import 'package:fairpytasker/Response/task_history_configuration_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
@@ -26,24 +28,30 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/categories_response.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/response_extension.dart';
+import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-
 import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/branch_response.dart';
-import '../Response/checklist_response.dart';
+import '../Response/category_config_response.dart';
+import '../UI/Todo/CheckList/checklist_response.dart';
 import '../Response/cohorts_response.dart';
+import '../Response/create_fix_task_data.dart';
 import '../Response/expense_other_categories.dart';
 import '../Response/expense_other_response.dart';
 import '../Response/expense_person_response.dart';
-import '../Response/expense_response.dart';
+import '../UI/Finance/Expense/Response/expense_response.dart';
 import '../Response/finance_statement_response.dart';
 import '../Response/payment_response.dart';
+import '../Response/task_miles.dart';
+import '../Response/task_response.dart';
 import '../Response/todo_list_response.dart';
 import '../Response/vehicle_list_response.dart';
 import '../Response/vehicle_miscellaneous_response.dart';
@@ -52,7 +60,9 @@ import '../Response/vehicle_status_response.dart';
 import '../Response/vehicle_status_response_list.dart';
 import '../Response/working_history_response.dart';
 import '../Response/working_hours_get_response.dart';
-import 'cohorts_repository.dart';
+import '../UI/Todo/Private Rental Check/private_rental_check_response.dart';
+import '../UI/Todo/create_sparekey_data.dart';
+import '../UI/Todo/maintenance/get_todolist_Response.dart';
 
 class TodoListRepo {
   ApiClient apiClient = ApiClient();
@@ -67,84 +77,19 @@ class TodoListRepo {
   List<Map<String, dynamic>> vehicleHistoryTempSearchList = [];
   int? branch;
 
-  Future<bool?> updatePartsForItem(int todoId, String name) async {
-    try {
-      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
 
-      String body = jsonEncode({"parts": name, "type": "inline"});
-      debugPrint("updatePartsForItem apiUrl: $body");
-      final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('updatePartsForItem api.response.body: ${response.body}');
-          // debugPrint('updatePartsForItem api.statusCode: ${response.statusCode}');
-
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      debugPrint('updatePartsForItem.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<bool?> updateSupplyForItem(
-      int todoId, List<Map<String, dynamic>> partList) async {
-    try {
-      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
-      // PartsData().toJsonList(partList);
-      String body = jsonEncode({"supplies": partList, "type": "inline"});
-      debugPrint("updateSupplyForItem apiUrl: $apiUrl");
-
-      final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('updateSupplyForItem api.response.body: ${response.body}');
-          // debugPrint('updateSupplyForItem api.statusCode: ${response.statusCode}');
-
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-
-          return true;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      debugPrint('updateSupplyForItem.exception : ${error.toString()}');
-      return null;
-    }
-  }
 
   Future<bool?> updateVehicleGroupForItem(
       int vehicleGroupId, List<String> vinList, String name) async {
     try {
-      String apiUrl = '${Str.BASE_URL}group-Vehicle/$vehicleGroupId';
+      String apiUrl = '${Str.BASE_URL}group-vehicle/$vehicleGroupId';
       // PartsData().toJsonList(partList);
       String body = jsonEncode({"name": name, "vin": vinList});
-      // debugPrint("updateSupplyForItem apiUrl: $apiUrl");
-      // debugPrint("updateSupplyForItem body: $body");
 
       final http.Response? response =
       await apiClient.callPutMethod(apiUrl, body: body);
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('updateSupplyForItem api.response.body: ${response.body}');
-          // debugPrint('updateSupplyForItem api.statusCode: ${response.statusCode}');
-
           GeneralResponse generalResponse =
           GeneralResponse.fromJson(json.decode(response.body));
 
@@ -162,27 +107,18 @@ class TodoListRepo {
     }
   }
 
-  Future<bool?> deletePartsOrSupplyForItem(
-      int partsOrSupplyId, String type) async {
+  Future<TodoListResponse?> editTodoData({dynamic id}) async {
     try {
-      String apiUrl;
-      if (type == 'part') {
-        apiUrl = '${Str.BASE_URL}delete-Vehicle-parts/$partsOrSupplyId';
-      } else {
-        apiUrl = '${Str.BASE_URL}delete-supplies/$partsOrSupplyId';
-      }
-      // debugPrint("deletePartsOrSupplyForItem apiUrl: $apiUrl");
+      String apiUrl = '${Str.BASE_URL}edit-todo/$id';
+      debugPrint("edit-todo apiUrl: $apiUrl");
 
-      final http.Response? response = await apiClient.callDelete(apiUrl);
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // debugPrint('deletePartsOrSupplyForItem api.response.body: ${response.body}');
-          // debugPrint('deletePartsOrSupplyForItem api.statusCode: ${response.statusCode}');
+        if (response.statusCode == 200) {
+          TodoListResponse todoListResponse =
+          TodoListResponse.fromJson(json.decode(response.body));
 
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-
-          return true;
+          return todoListResponse;
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -191,7 +127,7 @@ class TodoListRepo {
         return null;
       }
     } catch (error) {
-      debugPrint('deletePartsOrSupplyForItem.exception : ${error.toString()}');
+      debugPrint('edit-todo.exception : ${error.toString()}');
       return null;
     }
   }
@@ -226,12 +162,12 @@ class TodoListRepo {
 
   Future<VehicleGroupingResponse?> fetchVehicleGroupingList() async {
     try {
-      String apiUrl = '${Str.BASE_URL}group-Vehicle';
+      String apiUrl = '${Str.BASE_URL}group-vehicle';
       debugPrint("fetchVehicleGroupingList apiUrl: $apiUrl");
 
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
-        // debugPrint('fetchVehicleGroupingList api.statusCode: ${response.statusCode}');
+         debugPrint('fetchVehicleGroupingList api.statusCode: ${response.statusCode}');
         if (response.statusCode == 200 || response.statusCode == 201) {
           // debugPrint('fetchVehicleGroupingList api.response.body: ${response.body}');
 
@@ -340,18 +276,16 @@ class TodoListRepo {
 
       if (resourceId != null && resourceId != '') {
         resourceId.replaceAll('-1,', '');
-
+        //"${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
         apiUrl =
-        "${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
-
-        ///
-        // apiUrl = "${Str.BASE_URL}todo-data?date=${selectedDate ?? DateTime.now()}&status=$status";
-        // apiUrl = "${Str.BASE_URL}todo-data?resource=&date=2024-02-18&status=In+Progress";
+        "${Str.BASE_URL}todo-data?resource=&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
+        //$resourceId
+        "${Str.BASE_URL}todo-data?resource=&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
+       /// "${Str.BASE_URL}todo-data?resource=$resourceId&date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
       } else {
         apiUrl =
         "${Str.BASE_URL}todo-data?date=${selectedDate ?? DateTime.now()}&status=$status&branch_id=$branch";
 
-        ///+Progress&branch_id=$branch
       }
       debugPrint("callTodoListAPI apiUrl: $apiUrl");
       final http.Response? response = await apiClient.callGetMethod(
@@ -495,8 +429,9 @@ class TodoListRepo {
       );
       if (response != null) {
         // if (response.statusCode == 200) {
-        VehicleStatusResponseList assignedToResponse =
-        VehicleStatusResponseList.fromJson(json.decode(response.body));
+        VehicleStatusResponseList assignedToResponse = await parseString<VehicleStatusResponseList>(response.body, (json) => VehicleStatusResponseList.fromJson(json));
+        // VehicleStatusResponseList assignedToResponse =
+        // VehicleStatusResponseList.fromJson(json.decode(response.body));
 
         return assignedToResponse;
         /*  } else {
@@ -688,6 +623,15 @@ class TodoListRepo {
       log('getVehicleCreateStatusTodo.exception : ${error.toString()}');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> cleanCar({required Map<String, dynamic> body}) async {
+    String apiUrl = "${Str.BASE_URL}add-todo";
+    final http.Response? response = await apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+    if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
+      return response.mapData;
+    }
+    return null;
   }
 
   Future<bool?> addVehicleCreateTodo(
@@ -1200,39 +1144,36 @@ class TodoListRepo {
   Future<bool?> createATodo(CreateTodoParams createTodoParams) async {
     try {
       String apiUrl = '';
-      if (createTodoParams.userId != null &&
-          createTodoParams.userId!.isNotEmpty) {
-        apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.userId}";
+      if (createTodoParams.todoId != null) {
+        apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.todoId}";
       } else {
         apiUrl = "${Str.BASE_URL}add-todo";
       }
-      String body = jsonEncode({
-        "title": createTodoParams.todoTitle,
-        if (createTodoParams.userId != null &&
-            createTodoParams.userId!.isNotEmpty)
-          "todo_date": createTodoParams.todoDate
-        else
-          "start_at": createTodoParams.todoDate,
-        if (createTodoParams.userId != null &&
-            createTodoParams.userId!.isNotEmpty)
+      Map<String, String> body = {
+        "title": createTodoParams.todoTitle.toString(),
+        if (createTodoParams.todoId != null)
+          "todo_date": createTodoParams.todoDate.toString()
+        else "start_at": createTodoParams.todoDate.toString(),
+        if (createTodoParams.todoId != null)
           "type": "Inline",
         // if(createTodoParams.existingUserGroupId != null)
         //   "user_group_id": createTodoParams.existingUserGroupId!.toString(),
-        "todo_time": createTodoParams.todoTime,
-        "priority": createTodoParams.priority,
-        "assigned_to": createTodoParams.assignedTo,
-        "cohort_id": createTodoParams.cohortId,
-        "cohort_name": createTodoParams.cohortName,
-        "vin": createTodoParams.vin,
-        "vehicle_name": createTodoParams.vehicleName,
-        "vehicle_image": createTodoParams.vehicleImage,
+        "todo_time": createTodoParams.todoTime.toString(),
+        "priority": createTodoParams.priority.toString(),
+        "assigned_to": createTodoParams.assignedTo.toString(),
+        "cohort_id": createTodoParams.cohortId.toString(),
+        "cohort_name": createTodoParams.cohortName.toString(),
+        "vin": createTodoParams.vin.toString(),
+        "vehicle_name": createTodoParams.vehicleName.toString(),
+        "vehicle_image": createTodoParams.vehicleImage.toString(),
+        "maintenance_task_id":createTodoParams.maintenanceTaskId.toString(),
         "repeatPeriod":
         (createTodoParams.repeatPeriod ?? '').toString().toLowerCase(),
         "repeatDay":
         (createTodoParams.repeatDay ?? '').toString().toLowerCase(),
         "repeatWeek":
         (createTodoParams.repeatWeek ?? '').toString().toLowerCase(),
-        "weekDay": createTodoParams.weekDay,
+        "weekDay": createTodoParams.weekDay.toString(),
         "recur_monthly_type":
         (createTodoParams.recurMonthlyType ?? '').toString().toLowerCase(),
         "repeatDateMonth":
@@ -1250,38 +1191,42 @@ class TodoListRepo {
         "end_after": (createTodoParams.endAfter ?? '').toString().toLowerCase(),
         "reminder":
         (createTodoParams.todoReminder ?? '').toString().toLowerCase(),
-        "person": createTodoParams.person,
-        "person_id": createTodoParams.personId,
-        "time_sensitive": createTodoParams.timeSensitive,
-        "vendor_id": createTodoParams.vendorId,
-        "vendor_name": createTodoParams.vendorName,
-        "location": createTodoParams.location,
-        "location_id": createTodoParams.locationId,
+        "person": createTodoParams.person.toString(),
+        "person_id": createTodoParams.personId.toString(),
+        "time_sensitive":createTodoParams.timeSensitive.toString(),
+        "vendor_id": createTodoParams.vendorId.toString(),
+        "vendor_name": createTodoParams.vendorName.toString(),
+        "location": createTodoParams.location.toString(),
+        "location_id": createTodoParams.locationId.toString(),
         if (createTodoParams.multipleAddressList != null)
-          "address": createTodoParams.multipleAddressList,
-        "parts": createTodoParams.partList,
-        "supplies": createTodoParams.supplyList,
+          "address": createTodoParams.multipleAddressList.toString(),
+        "parts": createTodoParams.partList.toString(),
+        "supplies": createTodoParams.supplyList.toString(),
         "notes": createTodoParams.notes.toString(),
         "vehicle_group_id": createTodoParams.vehicleGroupId.toString(),
-        if (createTodoParams.userId != null &&
-            createTodoParams.userId!.isNotEmpty)
+        if (createTodoParams.todoId != null)
           "user_group_data": createTodoParams.selectedUserGroupId == null
               ? ''
               : (createTodoParams.selectedUserGroupId ?? []).toString(),
         "user_id": createTodoParams.selectedUserId == null
             ? ''
             : (createTodoParams.selectedUserId!).toString(),
-      });
-      debugPrint("createATodo apiUrl: $apiUrl");
-      debugPrint("createATodo body: $body");
+        "vehicles": "${(createTodoParams.vehicleList ?? []).distinct((element) => element['vin']).map((e) => jsonEncode(e)).toList()}",
+        "custom_link_id":"${createTodoParams.customLinkId ?? ""}",
+        "custom_link":createTodoParams.customLink.toString(),
+        "reference_id":createTodoParams.referenceId.toString(),
+        "platform": "TaskerApp",
+      };
+      // var todoImages = createTodoParams.todoImage.mapIndexed((index, element) => http.MultipartFile.fromString("images[$index]", element.path));
+      //debugPrint("createATodo apiUrl: $apiUrl");
+      log("${jsonEncode(body)}", name: "POST_BODY");
       final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
+      await apiClient.callPostMethodWithBody(apiUrl, body: body, files: createTodoParams.todoImage.map((e) => e.path).toList());
       if (response != null) {
-        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
-
+        log('createATodo api.response.body: ${response.body}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint('createATodo api.response.body: ${response.body}');
         debugPrint('createATodo api.statusCode: ${response.statusCode}');
-
         GeneralResponse generalResponse =
         GeneralResponse.fromJson(json.decode(response.body));
         if (generalResponse.status == 200 || generalResponse.status == 201) {
@@ -1291,10 +1236,10 @@ class TodoListRepo {
           Utils.showSomethingWentWrong();
           return false;
         }
-        /*  } else {
+          } else {
           Utils.showSomethingWentWrong();
           return null;
-        }*/
+        }
       } else {
         return null;
       }
@@ -1303,6 +1248,110 @@ class TodoListRepo {
       return null;
     }
   }
+
+ /* Future<bool?> createATodo(CreateTodoParams createTodoParams) async {
+    try {
+      String apiUrl = '';
+      if (createTodoParams.userId != null && createTodoParams.userId!.isNotEmpty) {
+        apiUrl = "${Str.BASE_URL}update-todo/${createTodoParams.userId}";
+      } else {
+        apiUrl = "${Str.BASE_URL}add-todo";
+      }
+      // Add fields to the request
+      Map<String, String> reqMap={
+        "title": createTodoParams.todoTitle ?? '',
+        if (createTodoParams.userId != null && createTodoParams.userId!.isNotEmpty)
+          "todo_date": createTodoParams.todoDate ?? '',
+        if (createTodoParams.userId == null || createTodoParams.userId!.isEmpty)
+          "start_at": createTodoParams.todoDate ?? '',
+        if (createTodoParams.userId != null && createTodoParams.userId!.isNotEmpty)
+          "type": "Inline",
+        "todo_time": createTodoParams.todoTime ?? '',
+        "priority": createTodoParams.priority ?? '',
+        "assigned_to": jsonEncode(createTodoParams.assignedTo ?? []),
+        "cohort_id": createTodoParams.cohortId ?? '',
+        "cohort_name": createTodoParams.cohortName ?? '',
+        "vin": createTodoParams.vin ?? '',
+        "vehicle_name": createTodoParams.vehicleName ?? '',
+        "vehicle_image": createTodoParams.vehicleImage ?? '',
+        "repeatPeriod": createTodoParams.repeatPeriod ?? '',
+        "repeatDay": createTodoParams.repeatDay ?? '',
+        "repeatWeek": createTodoParams.repeatWeek ?? '',
+        "weekDay": jsonEncode(createTodoParams.weekDay ?? []),
+        "recur_monthly_type": createTodoParams.recurMonthlyType ?? '',
+        "repeatDateMonth": createTodoParams.repeatDateMonth ?? '',
+        "repeatMonth": createTodoParams.repeatMonth ?? '',
+        "repeatDateYear": createTodoParams.repeatDateYear ?? '',
+        "repeatDayMonth": createTodoParams.repeatDayMonth ?? '',
+        "repeatMonthYear": createTodoParams.repeatMonthYear ?? '',
+        "end_type": createTodoParams.endType ?? '',
+        "end_at": createTodoParams.endAt ?? '',
+        "end_after": createTodoParams.endAfter ?? '',
+        "reminder": createTodoParams.todoReminder ?? '',
+        "time_sensitive": createTodoParams.timeSensitive?.toString() ?? '',
+        "person": createTodoParams.person ?? '',
+        "person_id": createTodoParams.personId ?? '',
+        "vendor_id": createTodoParams.vendorId ?? '',
+        "vendor_name": createTodoParams.vendorName ?? '',
+        "location": createTodoParams.location ?? '',
+        "location_id": createTodoParams.locationId ?? '',
+        if (createTodoParams.multipleAddressList != null)
+          "address": jsonEncode(createTodoParams.multipleAddressList ?? []),
+        "notes": createTodoParams.notes ?? '',
+        "parts": jsonEncode(createTodoParams.partList),
+        "supplies": jsonEncode(createTodoParams.supplyList),
+        "vehicle_group_id": createTodoParams.vehicleGroupId ?? '',
+        if (createTodoParams.userId != null &&
+            createTodoParams.userId!.isNotEmpty)
+          "user_group_data": createTodoParams.selectedUserGroupId == null
+              ? ''
+              : jsonEncode(createTodoParams.selectedUserGroupId ?? []),
+        "user_id": createTodoParams.selectedUserId?.toString() ?? '',
+        "vehicles": jsonEncode(createTodoParams.vehicleList ?? []),
+        "custom_link_id": createTodoParams.customLinkId?.toString() ?? '',
+        "custom_link": createTodoParams.customLink ?? '',
+        "reference_id": createTodoParams.referenceId ?? '',
+      };
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+      request.headers.addAll(Utils.getHeaders());
+      request.fields.addAll(reqMap);
+      for (int i = 0; i < (createTodoParams.todoImage.length); i++) {
+        var file = createTodoParams.todoImage[i];
+
+        var multipartFile = http.MultipartFile.fromBytes(
+          'todoimages[$i]',
+          (await file.readAsBytes()).toList(),
+          filename: file.path.split('/').last,
+        );
+        request.files.add(multipartFile);
+      }
+
+      // Send the request
+      var response = await request.send();
+      debugPrint('createTodoParams.statusCode: ${response.statusCode}');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseBody = await response.stream.bytesToString();
+        debugPrint('createATodo response.body: $responseBody');
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(responseBody));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return false;
+        }
+      } else {
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    } catch (error) {
+      log('createATodo.exception: ${error.toString()}');
+      return null;
+    }
+  }*/
+
+
 
   Future<ExpenseSummaryResponse?> getAExpenseTodo(String? expenseId) async {
     try {
@@ -1316,6 +1365,8 @@ class TodoListRepo {
 
         ExpenseSummaryResponse expenseSummaryResponse =
         ExpenseSummaryResponse.fromJson(json.decode(response.body));
+
+        debugPrint('getAExpenseTodo api.statusCode: $expenseSummaryResponse');
         if (response.statusCode == 200 || response.statusCode == 201) {
           // Utils.showMobileToast(generalResponse.message!);
           return expenseSummaryResponse;
@@ -1440,8 +1491,64 @@ class TodoListRepo {
     }
   }
 
-  // date: 2023-10-05
-  // time: 14:30:00
+  Future<bool?> editExpenseTodo(
+      int? expenseId,
+      int? todoId,
+      int? paymentMethodId,
+      String? expenseAmount,
+      String? expenseDescription,
+      int? categoryId,
+      int? subcategoryId,
+      int? expenseTo,
+      String? cohortId,
+      String? vin,
+      String? expenseDate,
+      ) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      body = jsonEncode({
+        "type": "Inline",
+        "expense_id": expenseId,
+        "payment_method_id": paymentMethodId,
+        "expense_amount": expenseAmount,
+        "expense_description": expenseDescription,
+        "category_id": categoryId,
+        "subcategory_id": subcategoryId,
+        "expense_to": expenseTo,
+        "cohort_id": cohortId,
+        "vin": vin,
+        "expense_date": expenseDate,
+      });
+      debugPrint("editExpenseTodo apiUrl: $apiUrl");
+      debugPrint("editExpenseTodo body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+          debugPrint('editExpenseTodo api.response.body: ${response.body}');
+          debugPrint('editExpenseTodo api.statusCode: ${response.statusCode}');
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+          if (generalResponse.status == 200 || generalResponse.status == 201) {
+            Utils.showMobileToast(generalResponse.message!);
+            return true;
+          } else {
+            Utils.showSomethingWentWrong();
+            return false;
+          }
+      }
+      else{
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    }catch(e){
+      log('editExpenseTodo.exception : ${e.toString()}');
+      return null;
+    }
+  }
+
+
+
   Future<bool?> editATodoDate(
       String todoId,
       String? todoDate,
@@ -1493,7 +1600,7 @@ class TodoListRepo {
           return true;
         } else {
           // debugPrint('---------------> ${TodoListResponse.status!}');
-          Utils.showSomethingWentWrong();
+         Utils.showSomethingWentWrong();
           return false;
         }
         /*  } else {
@@ -1509,7 +1616,7 @@ class TodoListRepo {
     }
   }
 
-  Future<bool?> editAVehiclePerson(
+ /* Future<bool?> editAVehiclePerson(
       int? todoId,
       int? todoUserId,
       String? todoVehicleName,
@@ -1518,7 +1625,7 @@ class TodoListRepo {
       String? cohortName,
       String? vin,
       String? vehicleImage,
-      int? vehicleGroupId) async {
+      int? vehicleNumber) async {
     try {
       String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
       String body;
@@ -1531,7 +1638,7 @@ class TodoListRepo {
         "cohort_name": cohortName ?? '',
         "vin": vin ?? '',
         "vehicle_image": vehicleImage ?? '',
-        "vehicle_group_id": vehicleGroupId ?? ''
+        "vehicle_number": vehicleNumber ?? ''
       });
 
       debugPrint("editAVehiclePerson apiUrl: $apiUrl");
@@ -1539,7 +1646,7 @@ class TodoListRepo {
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
       if (response != null) {
-        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+        *//*if (response.statusCode == 200 || response.statusCode == 201) {*//*
 
         debugPrint('editAVehiclePerson api.response.body: ${response.body}');
         debugPrint('editAVehiclePerson api.statusCode: ${response.statusCode}');
@@ -1554,11 +1661,50 @@ class TodoListRepo {
           Utils.showSomethingWentWrong();
           return false;
         }
-        /*  } else {
+          } else {
           Utils.showSomethingWentWrong();
           return null;
-        }*/
+        }
+    } catch (error) {
+      log('editAVehiclePerson.exception : ${error.toString()}');
+      return null;
+    }
+  }*/
+
+  Future<bool?> editAVehiclePerson(
+  int? todoId, List<dynamic> vehiclePersonData,String? person,String? personId,String? vehicleGroupId) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
+      String body;
+      body = jsonEncode({
+        "type": "Inline",
+        "vehicles":vehiclePersonData,
+        "person":person,
+        "person_id":personId,
+        "vehicle_group_id":vehicleGroupId
+      });
+      debugPrint("editAVehiclePerson apiUrl: $apiUrl");
+      debugPrint("editAVehiclePerson body: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        /*if (response.statusCode == 200 || response.statusCode == 201) {*/
+
+        /*debugPrint('editAVehiclePerson api.response.body: ${response.body}');
+        debugPrint('editAVehiclePerson api.statusCode: ${response.statusCode}');
+*/
+        GeneralResponse generalResponse =
+        GeneralResponse.fromJson(json.decode(response.body));
+        if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          Utils.showSomethingWentWrong();
+          return false;
+        }
       } else {
+        Utils.showSomethingWentWrong();
         return null;
       }
     } catch (error) {
@@ -1720,7 +1866,7 @@ class TodoListRepo {
         "title": createTodoParams.todoTitle,
         "start_at": createTodoParams.todoDate,
         "todo_time": createTodoParams.todoTime,
-        "user_id": createTodoParams.userId,
+        "user_id": createTodoParams.todoId,
         "cohort_id": createTodoParams.cohortId,
         "vin": createTodoParams.vin,
         "vehicle_name": createTodoParams.vehicleName,
@@ -1866,7 +2012,7 @@ class TodoListRepo {
         "config_id": createTodoParams.configId,
         "vin": createTodoParams.vin,
         "task_name": createTodoParams.taskName,
-        "user_id": createTodoParams.userId,
+        "user_id": createTodoParams.todoId,
         "cohort_id": createTodoParams.cohortId,
         "cohort_name": createTodoParams.cohortName,
         "vehicle_name": createTodoParams.vehicleName,
@@ -1973,7 +2119,7 @@ class TodoListRepo {
   Future<bool?> completeATodo(String? todoId, String? status) async {
     try {
       bool statusBool = status == "Completed" ? true : false;
-      String apiUrl = "${Str.BASE_URL}complete-todo/$todoId";
+      String apiUrl = "${Str.BASE_URL}complete-todo/${todoId.toString()}";
       debugPrint("completeATodo apiUrl: $apiUrl");
       String body = jsonEncode({"status": statusBool});
       debugPrint("completeATodo body: $body");
@@ -1985,15 +2131,6 @@ class TodoListRepo {
           debugPrint('completeATodo api.response.body: ${response.body}');
           debugPrint('completeATodo api.statusCode: ${response.statusCode}');
 
-          // GeneralResponse generalResponse =
-          // GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          // Utils.showNoResultFound();
-          // return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          // return false;
-          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -2008,82 +2145,12 @@ class TodoListRepo {
     return null;
   }
 
-/*
-  Future<bool?> createExpense(List<File>? files, int? categoryId, int? subCategoryId, int? expenseTo,
-      String? expenseAmount, String? expenseDescription, String? cohortId , String? vin) async{
-    try {
-      String apiUrl = "${Str.LIST_BASE_URL}expenses";
-      debugPrint("createExpenseData apiUrl: $apiUrl");
-      var body = jsonEncode({
-        "category_id": categoryId.toString(),
-        "subcategory_id": subCategoryId.toString(),
-        "expense_to": expenseTo.toString(),
-        "expense_amount": expenseAmount??'',
-        "expense_description": expenseDescription??'',
-        "expense_date": Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
-        "cohort_id": cohortId??'',
-        "vin": vin??'',
-        "platform ": 'TaskerApp'
-      });
-      Map<String, String> reqMap = {};
-      reqMap["category_id"] = "$categoryId";
-      reqMap["subcategory_id"] = "$subCategoryId";
-      reqMap["expense_to"] = "$expenseTo";
-      reqMap["expense_amount"] = "$expenseAmount";
-      reqMap["expense_description"] = "$expenseDescription";
-      reqMap["expense_date"] = Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now());
-      reqMap["cohort_id"] = cohortId??'';
-      reqMap["vin"] = vin??'';
-      reqMap["platform"] = "TaskerApp";
-
-      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
-      request.headers.addAll(Utils.getHeaders());
-      int i=0;
-        for (var element in (files??[])) {
-          i++;
-          request.files.add(await http.MultipartFile.fromPath('files$i', element.path));
-        }
-      request.fields.addAll(reqMap);
-      var response = await request.send();
-      // return GeneralResponse.fromJson(json.decode(responseString));
-      debugPrint('createExpense.statusCode: ${response.statusCode}');
-
-      if (response != null) {
-        if (response.statusCode == 200) {
-          var responseData = await response.stream.toBytes();
-          var responseString = String.fromCharCodes(responseData);
-          // debugPrint('createExpenseData api.response.body: ${response.body}');
-          // debugPrint('createExpenseData api.statusCode: ${response.statusCode}');
-
-          */
-/*CommonResponse commonResponse =
-          CommonResponse.fromJson(json.decode(responseString));*/ /*
-
-          // Utils.showMobileToast(commonResponse.message!);
-          debugPrint('returning true');
-          return true;
-        } else {
-          debugPrint('returning false');
-          Utils.showSomethingWentWrong();
-          return false;
-        }
-      } else {
-        debugPrint('returning null1');
-        return null;
-      }
-    } catch (error) {
-      debugPrint('returning null');
-      debugPrint('createExpenseData.exception : ${error.toString()}');
-      return null;
-    }
-  }
-*/
-
-  Future<ExpenseSummaryResponse?> createExpense(
-      String? expenseId,
+  Future<Map<String, dynamic>?> createExpense(
+      int? expenseId,
       List<File>? files,
       int? categoryId,
       int? subCategoryId,
+      int? paymentId,
       int? expenseTo,
       String? expenseAmount,
       String? expenseDescription,
@@ -2094,7 +2161,7 @@ class TodoListRepo {
       String? odometer) async {
     try {
       String apiUrl = '';
-      if (expenseId != null && expenseId.isNotEmpty) {
+      if (expenseId != null) {
         apiUrl = "${Str.LIST_BASE_URL}expenses_update/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}expenses";
@@ -2104,13 +2171,14 @@ class TodoListRepo {
       Map<String, String> reqMap = {
         "category_id": "$categoryId",
         "subcategory_id": "$subCategoryId",
+        "payment_method_id": "$paymentId",
         "expense_to": "$expenseTo",
-        if (expenseAmount!.isNotEmpty) "expense_amount": expenseAmount,
+        "expense_amount": "$expenseAmount",
         "expense_description": "$expenseDescription",
-        "expense_date": expenseId != null && expenseId.isNotEmpty
+        "expense_date": expenseId != null
             ? "$expenseDate"
-            : Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
-        "cohort_id": cohortId ?? '',
+            : Utils.convertDateToYearMonthDateFormat(DateTime.now().toString()),
+        "cohort_id": cohortId??'',
         "vin": vin ?? '',
         "odometer": odometer ?? '',
         "type": "inline",
@@ -2121,14 +2189,9 @@ class TodoListRepo {
 
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
-
-      // Add fields to the request
       request.fields.addAll(reqMap);
-
-      // Add files to the request
       for (int i = 0; i < (files?.length ?? 0); i++) {
         var file = files![i];
-
         var multipartFile = http.MultipartFile.fromBytes(
           'files[$i]',
           (await file.readAsBytes()).toList(),
@@ -2141,20 +2204,9 @@ class TodoListRepo {
       debugPrint('createExpense.statusCode: ${streamedResponse.statusCode}');
 
       if (streamedResponse.statusCode == 200) {
-        // Successful response handling
         final http.Response response =
         await http.Response.fromStream(streamedResponse);
-        ExpenseSummaryResponse expenseSummaryResponse =
-        ExpenseSummaryResponse.fromJson(json.decode(response.body));
-
-        /*'expense_attachment': jsonEncode({
-            for(int i=0; i<(expenseSummaryResponse.data?[0].attachments??[]).length; i++)
-            '${expenseSummaryResponse.data?[0].attachments?[i].id}': expenseSummaryResponse.data?[0].attachments?[i].path,
-          }),*/
-        // Prepare the payload
-        // return editATodoDate(todoId.toString(), null, null, null, null, null, null, expenseSummaryResponse.data?[0].id.toString());
-
-        return expenseSummaryResponse;
+        return json.decode(response.body);
       } else {
         // Handle error response
         Utils.showSomethingWentWrong();
@@ -2165,64 +2217,6 @@ class TodoListRepo {
       return null;
     }
   }
-
-  /*
-  Future<bool?> createExpense(List<File>? files, int? categoryId, int? subCategoryId, int? expenseTo,
-      String? expenseAmount, String? expenseDescription, String? cohortId , String? vin) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse("${Str.LIST_BASE_URL}expenses"),
-    );
-
-    // Add files to the request
-    for (int i = 0; i < (files??[]).length; i++) {
-      */
-/*var file = files![i];
-      var stream = http.ByteStream.fromBytes(await file.readAsBytes());
-      var length = await file.length();
-      var multipartFile = http.MultipartFile('files', stream, length,
-          filename: 'file$i.jpg'); // You can change the filename as needed
-      request.files.add(multipartFile);*/ /*
-
-      request.files.add(await http.MultipartFile.fromPath('file$i', files![i].path));
-    }
-
-    // Add body parameters to the request
-    Map<String, String> bodyParams =
-    {"category_id": categoryId.toString(),
-      "subcategory_id": subCategoryId.toString(),
-      "expense_to": expenseTo.toString(),
-      "expense_amount": expenseAmount??'',
-      "expense_description": expenseDescription??'',
-      "expense_date": Utils.convertCurrentDateTimeToTheStringFormat(DateTime.now()),
-      "cohort_id": cohortId??'',
-      "vin": vin??'',
-      "platform ": 'TaskerApp'
-    };
-
-    Map<String, String> headers = {
-      'accept': 'application/json',
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $accessTokenGlobal'};
-
-    request.headers.addAll(headers);
-    request.fields.addAll(bodyParams);
-
-    try {
-      var response = await request.send();
-      if (response.statusCode == 200) {
-        debugPrint('Upload success');
-        return true;
-      } else {
-        debugPrint('Upload failed with status: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      debugPrint('Error during upload: $e');
-      return false;
-    }
-  }
-*/
 
   Future<ChatMessageResponse?> getChatsList(int sender, int receiver) async {
     try {
@@ -2310,6 +2304,25 @@ class TodoListRepo {
     }
   }
 
+  Future<PrivateRentalCheckResponse?> getPrivateRentalCheck() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getPrivateRentalCheck";
+      debugPrint("getPrivateRentalCheck apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,);
+      if (response != null) {
+        PrivateRentalCheckResponse privateRentalCheckResponse =
+        PrivateRentalCheckResponse.fromJson(jsonDecode(response.body));
+        return privateRentalCheckResponse;
+      } else {
+        return null;
+      }
+      } catch(e) {
+      log('privateRentalCheckResponse.exception : ${e.toString()}');
+      return null;
+      }
+  }
+
   Future<MaintenanceCheckListResponse?> getMaintenanceCheckList() async {
     try {
       String apiUrl = "${Str.BASE_URL}getMaintanceCheckList";
@@ -2326,6 +2339,25 @@ class TodoListRepo {
       }
     } catch (error) {
       log('getMaintenanceCheckList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+  Future<GetTodoListResponse?> getTodoList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}todo";
+      debugPrint("getTodoList apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        GetTodoListResponse getTodoListResponse =
+        GetTodoListResponse.fromJson(json.decode(response.body));
+        return getTodoListResponse;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTodoList.exception : ${error.toString()}');
       return null;
     }
   }
@@ -2724,10 +2756,10 @@ class TodoListRepo {
 
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
-        print("=================================================${response.body}");
+
 
         if (response.statusCode == 200||response.statusCode ==202) {
-          print("=================================================${response.body}");
+
 
           VoiceResponse voiceResponse =
           VoiceResponse.fromJson(json.decode(response.body));
@@ -2807,16 +2839,19 @@ class TodoListRepo {
       String? amount,
       String? task) async {
     try {
-      String body = jsonEncode({"amount": amount, "task_name": name, "type":task, "id":id,"user_id": userId});
+      String body = jsonEncode({"amount": amount, "task_name": name, "type":task, "id":id, "user_id": userId});
       print("repository side $body");
       String apiUrl = '';
       http.Response? response;
-      if (id == null) {
+      if (id == null && userId==null) {
+        log("$task",name: "TaskBased");
         apiUrl = "${Str.BASE_URL}add-configuration";
         response = await apiClient.callPostMethod(apiUrl, body: body);
-      }else if(id == null && userId!=null)
+      }else if(id == null)
       {
+        log("$task",name: "HourBased");
         apiUrl = "${Str.BASE_URL}add-configuration";
+        response = await apiClient.callPostMethod(apiUrl, body: body);
       }
       else {
         apiUrl = "${Str.BASE_URL}update-configuration/$id";
@@ -2889,6 +2924,475 @@ class TodoListRepo {
       return null;
     }
   }
+
+  Future<CategoryConfigResponse?> getCategoryConfig() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}taskCategory";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+
+        if (response.statusCode == 200) {
+
+          CategoryConfigResponse categoryConfigResponse =
+          CategoryConfigResponse.fromJson(json.decode(response.body));
+          return categoryConfigResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getCategoryConfig.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CategoryConfigMessageResponse?> createCategoryConfig(
+      {int? id, String? name, int? parentId, int? userType}) async {
+    try {
+      String body = jsonEncode({
+        "name": name,
+        "parent_id":parentId,
+        "todo_user_type":userType,
+        "platform": "TaskerApp",
+        "status": "1"
+      });
+
+      String apiUrl = '';
+      http.Response? response;
+
+      if(id != null) {
+        apiUrl = "${Str.BASE_URL}updateTaskCategory/$id";
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else{
+        apiUrl = "${Str.BASE_URL}addTaskCategory";
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+      log('getTaskCategoryGroup.exception : ${response?.body}');
+      if (response != null) {
+        CategoryConfigMessageResponse categoryConfigResponse =
+        CategoryConfigMessageResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200) {
+          return categoryConfigResponse;
+        } else {
+          return categoryConfigResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('categoryConfig.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool> deleteCategoryConfig(int? id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}deleteTaskCategory/$id";
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      return response.isSuccess;
+    } catch (error) {
+      log('categoryConfig.exception : ${error.toString()}');
+      return false;
+    }
+  }
+
+  Future<TaskListResponse?> getTask() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          TaskListResponse taskListResponse =
+          TaskListResponse.fromJson(json.decode(response.body));
+
+          return taskListResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAssignedTo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskResponse?> createTask(
+      {int? id,
+      int? categoryId,
+      int? subCategoryId,
+      String? task,
+      String? timeTaken,
+      int? userType}) async {
+    try {
+      String body = jsonEncode({
+        "category_id": categoryId,
+        "subcategory_id": subCategoryId,
+        "task": task,
+        "time_taken":timeTaken,
+        "user_type":userType,
+        "platform": "TaskerApp",
+        "status": "1"
+      });
+
+      String apiUrl = '';
+      http.Response? response;
+      if(id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }else{
+        apiUrl = "${Str.LIST_BASE_URL}task-expenses-data";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
+        response = await apiClient.callPostMethod(apiUrl, body: body);
+      }
+
+      if (response != null) {
+        TaskResponse taskResponse =
+        TaskResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200) {
+          return taskResponse;
+        } else {
+          return taskResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('task.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskResponse?> deleteTask(String? id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+
+      if (response != null) {
+        TaskResponse taskResponse =
+        TaskResponse.fromJson(json.decode(response.body));
+
+        if (response.statusCode == 200) {
+          return taskResponse;
+        } else {
+          return taskResponse;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('task.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskCategoryGroupResponse?> getTaskCategoryGroup() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}taskCategoryGroup";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+
+        if (response.statusCode == 200) {
+
+          TaskCategoryGroupResponse taskCategoryGroupResponse =
+          TaskCategoryGroupResponse.fromJson(json.decode(response.body));
+          return taskCategoryGroupResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskCategoryGroup.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> updatePartsForItem(int todoId, List<dynamic> partsList) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
+      String body = jsonEncode({"parts": partsList, "type": "inline"});
+      debugPrint("updatePartsForItem apiUrl: $body");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updatePartsForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> updateSupplyForItem(
+      int todoId, List<dynamic> suppliesList) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}update-todo/$todoId';
+
+      String body = jsonEncode({"supplies": suppliesList, "type": "inline"});
+      debugPrint("updateSupplyForItem apiUrl: $apiUrl");
+
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('updateSupplyForItem.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deletePartsForItem(int partsId) async {
+    try {
+      String apiUrl;
+      apiUrl = '${Str.BASE_URL}delete-vehicle-parts/$partsId';
+      debugPrint("delete-Part apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('delete Parts For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deleteSuppliesForItem(int suppliesId) async {
+    try {
+      String apiUrl;
+      apiUrl = '${Str.BASE_URL}delete-supplies/$suppliesId';
+      debugPrint("delete-Supplies apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('delete Supply For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> allCheckInMainteance(CreateFixTaskData fixTask ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/${fixTask.id}";
+      String body = jsonEncode({
+        "type" : "inline",
+        "mandatory" : fixTask.mandatory
+      });
+      print("${fixTask}");
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('fixTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> completeTodo(int todoId) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}complete-todo/$todoId';
+      debugPrint("completeTodo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callPostMethod(apiUrl);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('fixTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
+  Future<bool?> spareKeyTask(CreateSpareKeyData sparekeyData ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+
+      //title branch_id cohort_id identifier_id location location_id notes start_at time_sensitive(false) title todo_time todo_user_type user_group_id user_id
+      //vehicle_name vehicles vendor_id vendor_name vin
+      String body = jsonEncode({
+        "title": sparekeyData.title,
+        "branch_id":sparekeyData.branchId,
+        "cohort_id":sparekeyData.cohortId,
+        "identifier_id":sparekeyData.identifierId,
+        "location":sparekeyData.location,
+        "location_id":sparekeyData.locationId,
+        "notes": sparekeyData.notes ,
+        "start_at": sparekeyData.startAt,
+        'time_sensitive': sparekeyData.timeSensitive,
+        "todo_time": sparekeyData.todoTime,
+        "todo_user_type": sparekeyData.todoUserType,
+        "user_group_id": sparekeyData.userGroupId,
+        "user_id": sparekeyData.userId,
+        "vehicle_name": sparekeyData.vehicleName,
+        "vehicles": sparekeyData.vehicles,
+        "vendor_id": sparekeyData.vendorId,
+         "vendor_name": sparekeyData.vendorName,
+        "vin": sparekeyData.vin
+      });
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('spareKeyTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createFixTask(CreateFixTaskData createFixTaskData ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}add-todo";
+
+      String body = jsonEncode({
+        "identifier_id":createFixTaskData.identifierId,
+        "user_group_id":createFixTaskData.userGroupId,
+        "user_id":createFixTaskData.userId,
+        "title": createFixTaskData.title,
+        "maintenance_task_id":createFixTaskData.maintenanceTaskId,
+        "notes":createFixTaskData.notes,
+        "todo_time": createFixTaskData.todoTime,
+        "start_at": createFixTaskData.startAt,
+        'vehicles': createFixTaskData.vehicleList,
+        "vendor_id": createFixTaskData.vendorId,
+        "vendor_name": createFixTaskData.vendorName,
+        "location": createFixTaskData.location,
+        "location_id": createFixTaskData.locationId,
+        "custom_link": createFixTaskData.customLink,
+        "custom_link_id": createFixTaskData.customLinkId,
+        "reference_id": createFixTaskData.referenceId,
+        "comments" : createFixTaskData.comments,
+        "vehicle_number": createFixTaskData.vehicleNumber,
+        "platform": "TaskerApp",
+      });
+      log("$body", name: "POST_BODY");
+      final http.Response? response =
+      await apiClient.callPostMethod(apiUrl, body: body);
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        return true;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('addVehicleCreateTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskMilesResponse?> getTaskMiles() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getTaskMiles";
+      debugPrint("getTaskMiles apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getTaskMiles api.response.body: ${response.body}');
+        debugPrint('getTaskMiles api.statusCode: ${response.statusCode}');
+        TaskMilesResponse taskMilesResponse =
+        TaskMilesResponse.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return taskMilesResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskMiles.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<PreviousOdometer?> getPreviousOdometer(String? todoDate, int? identifierId, String? vin) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getPreviousOdometer?todo_date=$todoDate&identifier_id=$identifierId&vin=$vin";
+      debugPrint("getPreviousOdometer apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        debugPrint('getPreviousOdometer api.response.body: ${response.body}');
+        debugPrint('getPreviousOdometer api.statusCode: ${response.statusCode}');
+        PreviousOdometer previousOdometer = PreviousOdometer.fromJson(json.decode(response.body));
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return previousOdometer;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getPreviousOdometer.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addTodo({required Map<String, dynamic> body, required List<File>? images}) async {
+    var url = "${Str.BASE_URL}add-todo";
+    var response = await apiClient.callPostMethodWithBody(url, fieldName: "images", autoIncrement: true, files: images?.map((e) => e.path).toList(), body: body);
+    return response.mapData;
+  }
+
+  ///---------
+
 }
 
 

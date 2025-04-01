@@ -16,30 +16,37 @@ class UsersInitial extends UsersState {
 class UsersLoading extends UsersState {}
 
 class UsersLoaded extends UsersState {
-  final String message; // Define DashboardData as a list
-
-  const UsersLoaded(
-      {required this.message}); // Define named parameter in constructor
-
+  final String message;
+  const UsersLoaded({required this.message});
   @override
   List<Object?> get props => [message];
 }
 
 class UsersListLoaded extends UsersState {
-  final List<Map<String, dynamic>>? data; // Define DashboardData as a list
+  final List<Map<String, dynamic>>? data;
+  const UsersListLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
 
-  const UsersListLoaded(
-      {required this.data}); // Define named parameter in constructor
+class PermissionForUsersLoaded extends UsersState {
+  final List<Map<String, dynamic>>? data;
+  const PermissionForUsersLoaded({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
 
+class EditUsersLoaded extends UsersState {
+  final List<int>? data;
+  final List<Map<String, dynamic>>? permission;
+  const EditUsersLoaded({required this.data,required this.permission});
   @override
   List<Object?> get props => [data];
 }
 
 class UsersError extends UsersState {
   final String message;
-
   const UsersError(this.message);
-
   @override
   List<Object> get props => [message];
 }

@@ -1,12 +1,11 @@
+
 import 'package:fairpytasker/State/todo_view_state.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../../Bloc/category_config_bloc.dart';
-import '../../../../Component/drawer_ui.dart';
-import '../../../../Component/header.dart';
-import '../../../../Event/category_config_event.dart';
-import '../../../../State/category_config_state.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../../Bloc/todo_view_bloc.dart';
+import '../../../../Event/todo_view_event.dart';
 import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/num.dart';
 import '../../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,30 +21,25 @@ class CategoryConfigEditUI extends StatefulWidget {
 }
 
 class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
-  late CategoryConfigBloc categoryConfigBloc;
+  late TodoViewBloc todoViewBloc;
   TextEditingController nameController = TextEditingController();
   List<Map<String, dynamic>> category = [];
-  String? selectedCategory;
-  List<String> userType = ['select', 'Support Task'];
-  String? selectedUserType;
+  List<Map<String, dynamic>> userType = [
+    {'id':1,'name':'select'},
+    {'id':2,'name':'Support Task'}];
+  dynamic selectedCategory;
+  dynamic selectedUserType;
   bool isFirstNameFieldEmpty = false;
   bool loading = true;
 
   @override
   void initState() {
     super.initState();
-    categoryConfigBloc = CategoryConfigBloc();
+    todoViewBloc = TodoViewBloc();
     nameController.text = widget.config['name'] ?? '';
-    if (widget.config['parent_id'] != null && widget.config['name'] != null) {
-      selectedCategory = widget.config['parent_id'].toString();
-    } else {
-      selectedCategory = null;
-    }
-    //  selectedCategory = widget.config['parent_id']?.toString() ?? '';
     selectedUserType = (widget.config['todo_user_type'] ?? userType[1]) == 1
         ? userType[1]
         : userType[0];
-    print(selectedCategory);
   }
 
   void _save() {
@@ -58,8 +52,8 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
     final updateConfig = {
       'id': widget.config['id'],
       'name': nameController.text,
-      'parent_id': selectedCategory ?? '',
-      'todo_user_type': selectedUserType == 'Support Task' ? 1 : 0,
+      'parent_id': selectedCategory['id'],
+      'todo_user_type': selectedUserType['id'] == 2 ? 1 : 0,
     };
     Navigator.of(context).pop(updateConfig);
   }
@@ -68,187 +62,90 @@ class _CategoryConfigEditUIState extends State<CategoryConfigEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: const Text('Edit Category Config',),
+        foregroundColor:AppC.white,
+        actions:  [
+          IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon:  const Icon(Icons.close,color: AppC.white,)),
+        ],
       ),
       body: BlocProvider(
         create: (context) =>
-            categoryConfigBloc..add(const GetCategoryConfigData()),
-        child: BlocConsumer<CategoryConfigBloc, CategoryConfigState>(
+            todoViewBloc..add(const GetCategoryConfigData()),
+        child: BlocConsumer<TodoViewBloc, TodoViewState>(
             listener: (context, state) {
           if (state is TodoListLoading) {
-            loading = true;
-          } else if (state is CategoryConfigListLoaded) {
-            loading = false;
-            category.clear();
-            category.addAll(state.data ?? []);
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is CategoryConfigListLoaded) {
+              category.clear();
+              final List<Map<String, dynamic>> list = [];
+              list.addAll(state.data ?? []);
+              category.addAll(list.where((item) => item['parent_id'] == null));
+              selectedCategory = category.firstWhere(
+                (cat) => cat['id'] == widget.config['parent_id'],
+                orElse: () => {},
+              );
+            }
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Icon(Icons.arrow_back)),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Utils.getText('Edit Category Config ',
-                              size: 20, weight: FontWeight.bold),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                              '',
-                              nameController,
-                              label: Utils.getText('Name', color: AppC.grey),
-                              borderColor: isFirstNameFieldEmpty
-                                  ? Colors.red
-                                  : AppC.fieldBase,
-                            ),
-                            if (isFirstNameFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline,
-                                    color: Colors.red),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton)),
-                        ),
-                        child: DropdownButton<String>(
-                          hint: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Utils.getText('Select Category',
-                                color: AppC.grey),
-                          ),
-                          value: selectedCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          elevation: 3,
-                          dropdownColor: AppC.white,
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCategory = value;
-                            });
-                          },
-                          items: category
-                              .where((item) =>
-                                  item['parent_id'] ==
-                                  null) // Filter where parent_id is null
-                              .map<DropdownMenuItem<String>>((value) {
-                            return DropdownMenuItem<String>(
-                              value: value['id'].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0),
-                                child: Utils.getText('${value['name']}'),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 40,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton)),
-                          ),
-                          child: DropdownButton<String>(
-                            hint: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Utils.getText('select', color: AppC.grey),
-                            ),
-                            value: selectedUserType,
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            elevation: 3,
-                            dropdownColor: AppC.white,
-                            underline: Container(
-                              height: 0,
-                              color: Colors.transparent,
-                            ),
-                            onChanged: (String? value) {
-                              // This is called when the user selects an item.
-                              setState(() {
-                                selectedUserType = value;
-                              });
-                            },
-                            items: userType
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Utils.getText(value),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            height: 40,
-                            child: Utils.getAddFilledButton('Save', () {
-                              _save();
-                            }),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+          return SafeArea(
+            minimum: 15.padding,
+            child: ListView(
+              children: [
+                Utils.getTextFormField(
+                  'Name',
+                  nameController,
+                  autoValidate: AutovalidateMode.onUserInteraction,
+                  validator: (val) => val!.isEmpty ? 'Please enter Name' : null,
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                const SizedBox(height: 10,),
+                Utils.dropdownBox(
+                    'Select Category',
+                    category,
+                        (value) {
+                      setState(() {
+                        selectedCategory = value;
+                      });
+                    },
+                    labelKey: 'name',
+                  initialSelection: selectedCategory,
+                  selectedKey: selectedCategory,
+                ),
+                const SizedBox(height: 10,),
+                Utils.dropdownBox(
+                    'Select',
+                    userType,
+                        (value) {
+                      setState(() {
+                        selectedUserType = value;
+                      });
+                    },
+                    labelKey: 'name',
+                  selectedKey: selectedUserType,
+                  initialSelection: selectedUserType,
+                ),
+                const SizedBox(height: 10,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Utils.getElevatedButton(
+                            () => _save(),
+                        text: 'Save',
+                        bgColor: AppC.green
+                    ),
+                  ],
+                ),
+              ],
+            ),
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

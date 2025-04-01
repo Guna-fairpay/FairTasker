@@ -19,16 +19,16 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     on<AddVendorData>((event, emit) async {
       emit(const VendorDataLoading());
       await vendorDataRepo.createVendor(
-          event.id,
-          event.name??'',
-          event.vendor_typeId??'',
-          event.address??'',
-          event.phone??'',
-          event.expertise??'',
-          event.description??'',
-          event.images.cast<File>(),
+         id : event.id,
+         name : event.name ??'',
+         vendorTypeId : event.vendorTypeId ??'',
+         address : event.address ??'',
+         phone : event.phone ??'',
+         expertise : event.expertise ??'',
+         description : event.description ??'',
+         images : event.images,
       ).then((value) {
-        emit(VendorDataLoaded(result: value));
+        emit(VendorDataLoaded(result: value.toString()));
       });
     });
 
@@ -46,7 +46,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       await vendorDataRepo
           .deleteVendor(event.id)
           .then((value) {
-        emit(VendorDataLoaded(result: value));
+        emit(VendorDataLoaded(result: value.toString()));
       });
     });
 
@@ -65,7 +65,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         event.id,
         event.name??'',
       ).then((value) {
-        emit(VendorDataLoaded(result: value));
+        emit(VendorDataLoaded(result: value.toString()));
       });
     });
 
@@ -74,7 +74,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       await vendorDataRepo
           .deleteVendorType(event.id)
           .then((value) {
-        emit(VendorDataLoaded(result: value));
+        emit(VendorDataLoaded(result: value.toString()));
       });
     });
 
@@ -83,7 +83,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       await vendorDataRepo
           .deleteImages(event.id)
           .then((value) {
-        emit(VendorDataLoaded(result: value));
+        emit(VendorDataLoaded(result: value.toString()));
       });
     });
 

@@ -1,11 +1,16 @@
-import 'package:flutter/material.dart';
 
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../Bloc/roles_bloc.dart';
+import '../../../Event/roles_event.dart';
+import '../../../State/roles_state.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
 class RoleAddUI extends StatefulWidget {
+
   const RoleAddUI({super.key});
 
   @override
@@ -13,43 +18,28 @@ class RoleAddUI extends StatefulWidget {
 }
 
 class _RoleAddUIState extends State<RoleAddUI> {
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController roleController = TextEditingController();
-  // List of permissions with their checked state
-  Map<String, bool> permissions = {
-    'Create Users': false,
-    'View Users': false,
-    'Edit Users': false,
-    'Delete Users': false,
-    'Create Roles': false,
-    'View Roles': false,
-    'Edit Roles': false,
-    'Delete Roles': false,
-    'Create Permission': false,
-    'View Permission': false,
-    'Edit Permission': false,
-    'Delete Permission': false,
-    'Create Department': false,
-    'View Department': false,
-    'Edit Department': false,
-    'Delete Department': false,
-    'Task Scheduler': false,
-    'Edit-expense': false,
-    'import-task': false,
-    'view-components-settings': false,
-    'edit-components-settings': false,
-    'working_hours_reason': false,
-    'checkinout_reason': false,
-    'private_rental': false,
-  };
+  List<Map<String, dynamic>> permissions = [];
+  RolesBloc rolesBloc = RolesBloc();
+  List<int>permissionsId = [];
+  Map<dynamic, bool> checked = {};
+
+
+  @override
+  void initState() {
+    rolesBloc.add(const GetPermissionDataForRole());
+    super.initState();
+  }
 
   void _save() {
-    if (roleController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill in all required fields');
+    if (!formKey.currentState!.validate()) {
+      return ;
     }
-
     final newRole = {
-      'role': roleController.text,
-      // 'permissions': permissions,
+      'name': roleController.text,
+      'permissions': permissionsId,
     };
     Navigator.of(context).pop(newRole);
   }
@@ -58,96 +48,84 @@ class _RoleAddUIState extends State<RoleAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: const Text('Add Role'),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(onPressed: ()=>Navigator.pop(context)
+              , icon: const Icon(Icons.close))
+        ],
       ),
-      body: Padding(
-        padding:
-            const EdgeInsets.only(left: 20.0, right: 20, bottom: 20, top: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(Icons.arrow_back)),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Add Role', size: 20, weight: FontWeight.bold),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                    '',
-                    roleController,
-                    label: Utils.getText('Role', color: AppC.grey),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-            Utils.getText('Permissions', size: 15, weight: FontWeight.bold),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  ...permissions.entries.map((entry) {
-                    return Container(
-                      height: 25,
-                      margin: const EdgeInsets.only(
-                          bottom: 8), // Adjust space between items
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: entry.value,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                permissions[entry.key] = value ?? false;
-                              });
-                            },
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Utils.getText(entry.key),
-                            ),
-                          ),
-                        ],
+      body: BlocProvider(
+        create: (context) => rolesBloc,
+        child: BlocConsumer<RolesBloc, RolesState>(
+          listener: (context, state) {
+            if(state is RolesLoading){
+              EasyLoading.show();
+            }else{
+              if(EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is PermissionDataForRoleLoaded){
+                permissions.clear();
+                permissions.addAll(state.data ?? []);
+              }
+            }
+            },
+          builder: (context, state) {
+            return SafeArea(
+              minimum: 15.padding,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Utils.getTextFormField(
+                      'Role',
+                      roleController,
+                      inputAction: TextInputAction.done,
+                      autoValidate: AutovalidateMode.onUserInteraction,
+                      validator: (val)=>val!.isEmpty?'Role is required':null,
+                    ),
+                    Utils.getText('Permissions', size: 15, weight: FontWeight.bold),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: permissions.length,
+                        itemBuilder: (context,  index) {
+                          final permission = permissions[index];
+                          return CheckboxListTile(
+                            dense: true,
+                              contentPadding: 0.padding,
+                              title: Text(permission['name'] ?? ''),
+                              value: checked[index] ?? false,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: AppC.blue,
+                              onChanged: (value){
+                                  setState(() {
+                                    checked[index] = value ?? false;
+                                    if(value == true){
+                                      permissionsId.add(permission['id']);
+                                    }else{
+                                      permissionsId.remove(permission['id']);
+                                    }
+                                  });
+                          });
+                        },
                       ),
-                    );
-                  }).toList(),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: Utils.getAddFilledButton(
-                    'Save',
-                    () {
-                      _save();
-                    },
-                  ),
+                    ),
+                    Row(
+                      children: [
+                        Utils.getElevatedButton(()=>_save()),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+            );
+          },
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

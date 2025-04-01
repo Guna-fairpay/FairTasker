@@ -1,8 +1,7 @@
 
 
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -17,80 +16,64 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
   TextEditingController categoryController = TextEditingController();
   bool isTaskFieldEmpty = false;
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   void _save() {
-    setState(() {
-      isTaskFieldEmpty = categoryController.text.isEmpty;
-    });
-    // Validate the form fields
-    if (categoryController.text.isEmpty ) {
-      return
-        Utils.showMobileToast('Please fill the required field');
-    }
+    setState(() {});
+    _formKey.currentState!.validate();
+    if (categoryController.text.isEmpty ) { return ;}
     final newCategory = {
       'name': categoryController.text,
     };
-
-    // Return the new rental data to the previous screen
     Navigator.pop(context, newCategory);
   }
+
+
+  @override
+  void dispose() {
+    categoryController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0), // Change the height here
-        child: HeaderView(),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: AppC.appColor,
+        foregroundColor: Colors.white,
+        title: const Text('Add Category'),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.close,
+            color: AppC.white,),
+          ),
+        ]
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal:  20.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: (){
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back),
-                ),
-                const SizedBox(width:10 ,),
-                Utils.getText('Add Category',size: 20,weight: FontWeight.bold),
-              ],
-            ),
-            const SizedBox(height: 10,),
-            SizedBox(height: 40,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                      '', categoryController,
-                    label: Utils.getText('Category',color: AppC.grey),
-                    borderColor: isTaskFieldEmpty ? Colors.red : AppC.fieldBase,
-
-                  ),
-                  if (isTaskFieldEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(Icons.error_outline, color: Colors.red),
-                    ),
-                ],
+      body: SafeArea(
+        minimum: 15.padding,
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Utils.getTextFormField(
+                'Category', categoryController,
+                autoValidate: AutovalidateMode.onUserInteraction,
+                validator: (val) => val!.isEmpty ? 'Please enter category' : null,
+                contentPadding: 10.padding,
+                isDense: true
               ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(height: 40,
-                  child: Utils.getAddFilledButton('Save', () {
-                   _save();
-                  }),
-                ),
-              ],
-            ),
-          ],
+              Utils.getElevatedButton( () => _save()),
+            ],
+          ),
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

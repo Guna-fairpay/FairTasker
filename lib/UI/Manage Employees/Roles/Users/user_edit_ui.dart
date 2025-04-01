@@ -1,9 +1,10 @@
+
+import 'package:fairpytasker/Event/users_event.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../../Bloc/permission_bloc.dart';
-import '../../../../Component/drawer_ui.dart';
-import '../../../../Component/header.dart';
-import '../../../../Event/permission_event.dart';
-import '../../../../State/permission_state.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../../Bloc/users_bloc.dart';
+import '../../../../State/user_state.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,182 +18,127 @@ class UserEditUI extends StatefulWidget {
 }
 
 class _UserEditUIState extends State<UserEditUI> {
-  late PermissionBloc permissionBloc;
+  late UsersBloc usersBloc = UsersBloc();
   TextEditingController userController = TextEditingController();
   List<Map<String, dynamic>> permissions = [];
   List<Map<String, dynamic>> filterPermissions = [];
-  List<String> userPermissions = [];
-  bool loading = false;
+  List<int> permissionsId=[];
+  Map<dynamic, bool> checked = {};
 
   @override
   void initState() {
     super.initState();
-    permissionBloc = PermissionBloc();
-    userController.text =
-        '${widget.users['first_name'] ?? ''} ${widget.users['last_name'] ?? ''}';
-
-    // Fetch user's permissions from widget
-    if (widget.users.containsKey('permissions') &&
-        widget.users['permissions']) {
-      userPermissions = (widget.users['permissions']['id']);
-    }
-    print('ID____________$userPermissions');
+    userController.text = '${widget.users['first_name'] ?? ''} ${widget.users['last_name'] ?? ''}';
   }
 
   void _save() {
-    if (userController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill in all required fields');
+    if (userController.text.isEmpty || permissionsId.isEmpty) {
+      return ;
     }
-
-    final newRole = {};
-    Navigator.pop(context);
+    final newRole = {
+      'user': widget.users['id'],
+      'permissions': permissionsId,
+    };
+    Navigator.pop(context, newRole);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        backgroundColor: AppC.appColor,
+        automaticallyImplyLeading: false,
+        title: const Text('Edit User'),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+          )
+        ],
       ),
       body: BlocProvider(
-        create: (context) => permissionBloc..add(const GetPermissionData()),
-        child: BlocConsumer<PermissionBloc, PermissionState>(
+        create: (context) => usersBloc..add(GetEditUsers(id: widget.users['id'])),
+        child: BlocConsumer<UsersBloc, UsersState>(
             listener: (context, state) {
-          if (state is PermissionLoading) {
-            setState(() {
-              loading = true;
-            });
-          } else if (state is PermissionListLoaded) {
-            setState(() {
-              loading = false;
+          if (state is UsersLoading) {
+            EasyLoading.show();
+          } else {
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is EditUsersLoaded){
+              permissionsId.clear();
               permissions.clear();
-              permissions.addAll(state.data ?? []);
-              filterPermissions = List.from(state.data ?? []);
-            });
-          } else if (state is PermissionLoaded) {
-            setState(() {
-              loading = false;
-              permissions.clear();
-              permissionBloc.add(const GetPermissionData());
-            });
-          } else if (state is PermissionError) {
-            setState(() {
-              loading = false;
-            });
-            Utils.showMobileToast('Error loading permissions');
+              permissionsId.addAll(state.data ?? []);
+              permissions.addAll(state.permission ?? []);
+              checked.clear();
+              for (int i = 0; i < permissions.length; i++) {
+                checked[i] = permissionsId.contains(permissions[i]['id']);
+              }
+            }
           }
         }, builder: (context, state) {
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 20.0, right: 20, bottom: 20, top: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back)),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Utils.getText('Edit User',
-                            size: 20, weight: FontWeight.bold),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 40,
-                      child: Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          Utils.getBackgroundFilledTextFieldFirstLetterCaps(
-                            '',
-                            userController,
-                            label: Utils.getText(
-                                '${widget.users['first_name'] ?? ''} ${widget.users['last_name'] ?? ''}',
-                                color: AppC.grey),
-                            readOnly: true,
-                          ),
-                        ],
+          return SafeArea(
+            minimum:15.padding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 40,
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      Utils.getTextFormField(
+                        '',
+                        userController,
+                        label: Utils.getText(
+                            '${widget.users['first_name'] ?? ''} ${widget.users['last_name'] ?? ''}',
+                            color: AppC.grey),
+                        readOnly: true,
                       ),
-                    ),
-                    const SizedBox(height: 15),
-                    Utils.getText('Permissions',
-                        size: 15, weight: FontWeight.bold),
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filterPermissions.length,
-                        itemBuilder: (context, index) {
-                          final permission = filterPermissions[index];
-                          bool isChecked = userPermissions
-                              .contains(permission['id'].toString());
-
-                          return Container(
-                            height: 25,
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: isChecked,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        if (!userPermissions
-                                            .contains(permission['id'])) {
-                                          userPermissions
-                                              .add(permission['id'].toString());
-                                        }
-                                      } else {
-                                        userPermissions.remove(
-                                            permission['id'].toString());
-                                      }
-                                    });
-                                  },
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Utils.getText(permission['name']),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(
-                        height: 15), // Reduced space between list and button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          child: Utils.getAddFilledButton('Save', () {
-                            _save();
-                          }),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Visibility(
-                  visible: loading,
-                  child: Center(child: Utils.getProgressIndicator(context)))
-            ],
+                const SizedBox(height: 15),
+                Utils.getText('Permissions',
+                    size: 15, weight: FontWeight.bold),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: permissions.length,
+                    itemBuilder: (context, index) {
+                      final permission = permissions[index];
+                      return CheckboxListTile(
+                        value: checked[index] ?? false,
+                        title: Text(permission['name'] ?? ''),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        activeColor: AppC.blue,
+                        contentPadding: 0.padding,
+                        dense: true,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            checked[index] = value ?? false;
+                            if(value == true){
+                              if(!permissionsId.contains(permission['id'])){
+                                permissionsId.add(permission['id']);
+                              }
+                            }else{
+                              permissionsId.remove(permission['id']);
+                            }
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ), // Reduced space between list and button
+                Utils.getElevatedButton(() =>
+                  _save(),),
+              ],
+            ),
           );
         }),
       ),
-      drawer: const DrawerView(),
     );
   }
 }

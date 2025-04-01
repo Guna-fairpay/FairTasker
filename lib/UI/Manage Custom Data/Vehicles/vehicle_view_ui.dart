@@ -1,64 +1,71 @@
-import 'package:fairpytasker/Bloc/todo_view_bloc.dart' as tvb;
-import 'package:fairpytasker/Event/todo_view_event.dart';
-import 'package:fairpytasker/State/todo_view_state.dart';
+/*
+
+import 'dart:developer';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/UI/vehicle_grouping_ui.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Response/create_expense_field_data.dart';
+import '../../../Utilities/assets.dart';
+import 'TabBarPages/Vehicle_edit_tab_bar.dart';
 import 'vehicle_add_ui.dart';
 import 'vehicle_edit_ui.dart';
-import 'Private Rental/private_rental_view_ui.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class VehicleUIs extends StatefulWidget {
-  const VehicleUIs({super.key});
+class VehicleViewUI extends StatefulWidget {
+  const VehicleViewUI({super.key});
 
   @override
-  State<VehicleUIs> createState() => _VehicleUIState();
+  State<VehicleViewUI> createState() => _VehicleUIState();
 }
 
-class _VehicleUIState extends State<VehicleUIs> {
+class _VehicleUIState extends State<VehicleViewUI> {
+
   final FocusNode searchFocusNode = FocusNode();
   late VehicleDataBloc vehicleDataBloc;
-  late tvb.TodoViewBloc todoViewBloc;
-  TextEditingController searchController = TextEditingController();
-  List<Map<String, dynamic>> vehiclename = [];
-  List<Map<String, dynamic>> filteredVehicle = [];
-  CreateVehicleData createVehicleData = CreateVehicleData();
-  List<Map<String, dynamic>>? vehicleData;
-  List<Map<String, dynamic>> cohortsData = [];
-  dynamic selectedCohortsData;
-  List<Map<String, dynamic>> categoriesData = [];
-  dynamic selectedCategoriesData;
   CreateExpenseFieldData? createExpenseFieldData;
+  CreateVehicleData createVehicleData = CreateVehicleData();
+  List<Map<String, dynamic>> vehicleName = [];
+  List<Map<String, dynamic>> filteredVehicle = [];
+  List<Map<String, dynamic>> vehicleData = [];
+  List<Map<String, dynamic>> cohortsData = [];
+  List<Map<String, dynamic>> categoriesData = [];
+  List<Map<String, dynamic>>? vehicleGroupData = [];
+  List<int> selectedVehicleIds = [];
+  TextEditingController searchController = TextEditingController();
+  dynamic selectedCohortsData;
+  dynamic selectedCategoriesData;
   bool loading = false;
   bool isSelected = false;
+  Map<int, bool> selectedVehicles = {};
+  String svgString = '';
+  bool isShow = EasyLoading.isShow;
 
   @override
   void initState() {
     super.initState();
-    todoViewBloc = tvb.TodoViewBloc();
     vehicleDataBloc = VehicleDataBloc();
     vehicleDataBloc.add(const GetAddedVehicleListData());
+    vehicleDataBloc.add(const GetVehicleGroupData());
     createVehicleData = CreateVehicleData();
   }
 
   @override
   void dispose() {
     vehicleDataBloc.close();
-    todoViewBloc.close();
     searchController.dispose();
     super.dispose();
   }
 
   void _filteredVehicle(String query) {
     setState(() {
-      filteredVehicle = vehiclename.where((vehicle) {
+      filteredVehicle = vehicleName.where((vehicle) {
         final name = vehicle['vehicle_name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
         return name.contains(searchQuery);
@@ -69,7 +76,8 @@ class _VehicleUIState extends State<VehicleUIs> {
   Future<void> _navigateToVehicleAddUI() async {
     final newVehicle = await Navigator.push<CreateVehicleData>(
       context,
-      MaterialPageRoute(builder: (context) => const VehicleAddUI()),
+      MaterialPageRoute(
+          builder: (context) => const VehicleAddUI(), fullscreenDialog: true),
     );
     if (newVehicle != null) {
       vehicleDataBloc.add(
@@ -80,15 +88,37 @@ class _VehicleUIState extends State<VehicleUIs> {
     }
   }
 
-  Future<void> _navigateToVehicleEditUI(int index) async {
-    final updateVehicle = await Navigator.push<CreateVehicleData>(
+  Future<void> _navigateVehicleEditTabBar(index) async {
+
+    final updatedVehicle = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-          builder: (context) => VehicleEditUI(vehicle: filteredVehicle[index])),
+        builder: (context) => VehicleEditTabBar(vehicle: index,),
+      ),
     );
-    if (updateVehicle != null) {
+    if (updatedVehicle != null) {
+      setState(() {filteredVehicle[index] = updatedVehicle;});
       vehicleDataBloc.add(
-        AddVehicleDataEvent(createVehicleData: updateVehicle),
+        AddVehicleDataEvent(createVehicleData: CreateVehicleData.fromJson(updatedVehicle)),
+      );
+      vehicleDataBloc.add(const GetAddedVehicleListData());
+      Utils.showMobileToast('Vehicle updated successfully');
+    }
+  }
+
+  Future<void> _navigateToVehicleEditUI(int index) async {
+
+    final Map<String, dynamic> selectedVehicle = Map<String, dynamic>.from(filteredVehicle[index]);
+    final updatedVehicle = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VehicleEditUI(vehicle: selectedVehicle, todoItems: {}),
+      ),
+    );
+    if (updatedVehicle != null) {
+      setState(() {filteredVehicle[index] = updatedVehicle;});
+      vehicleDataBloc.add(
+        AddVehicleDataEvent(createVehicleData: CreateVehicleData.fromJson(updatedVehicle)),
       );
       vehicleDataBloc.add(const GetAddedVehicleListData());
       Utils.showMobileToast('Vehicle updated successfully');
@@ -96,288 +126,175 @@ class _VehicleUIState extends State<VehicleUIs> {
   }
 
   Future<void> _deleteVehicle(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context, 'Vehicle?');
     if (confirmed == true) {
       final vehicle = filteredVehicle[index];
       vehicleDataBloc.add(DeleteVehicleEvent(id: vehicle['id']));
-      Utils.showMobileToast('vehicle deleted');
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure!'),
-        content: Utils.getText('Are you sure you want to delete this vehicle?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // Confirm the deletion
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // Cancel the deletion
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _rentalVehicle(index) async {
+    AskPermissionDialog.show(context, onPositivePressed: () {
+      index['rental_status'] = 3;
+      vehicleDataBloc.add(MoveRentalData(
+        rentalData: index
+      ));
+      log("$index", name: "index");
+    },
+        title: "Are you sure?",
+        description: "Do you want to change rental status?",
+        negativeText: "Cancel", positiveText: "Yes");
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: AppC.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(
-              100.0), // Adjusted height for HeaderView and TabBar
-          child: Column(
-            children: [
-              const HeaderView(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+    return Scaffold(
+      backgroundColor: AppC.white,
+      body: BlocProvider(
+        create: (context) => vehicleDataBloc..add(const GetActiveVehicleData()),
+        child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
+            listener: (context, state) async {
+          if (state is VehicleDataLoading) {
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is VehicleListLoaded) {
+              filteredVehicle.clear();
+              vehicleName.clear();
+              vehicleName.addAll(state.vehicleDataList ?? []);
+              vehicleName.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
+                  .compareTo(DateTime.parse(a['created_at'] ?? '')));
+              filteredVehicle = List.from(vehicleName);
+            }else {
+              vehicleDataBloc.add(const GetActiveVehicleData());
+            }
+          }
+        }, builder: (context, state) {
+          return SafeArea(
+            minimum: 15.padding,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Utils.getSearchBarUI(
+                        onChange: (value) {
+                          _filteredVehicle(value);
+                        },
+                        searchController: searchController,
                       ),
-                    ],
-                  ),
-                  child: TabBar(
-                    tabs: const [
-                      Tab(
-                        text: 'Vehicles',
-                        height: 30,
-                      ),
-                      Tab(text: 'Private Rental', height: 30),
-                    ],
-                    dividerColor: AppC.trans,
-                    labelStyle: const TextStyle(fontSize: 16),
-                    labelColor: AppC.white,
-                    unselectedLabelColor: AppC.appColor,
-                    indicator: BoxDecoration(
-                        color: AppC.appColor,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const []),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    // splashFactory: NoSplash.splashFactory, // Remove splash effect
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    Utils.getAddElevatedButton(
+                      () => _navigateToVehicleAddUI(),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ),
-        body: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (context) =>
-                  todoViewBloc..add(const TodoViewInitialEvent()),
-            ),
-            BlocProvider(
-              create: (context) =>
-                  vehicleDataBloc..add(const GetAddedVehicleListData()),
-            ),
-          ],
-          child: MultiBlocListener(
-            listeners: [
-              BlocListener<tvb.TodoViewBloc, TodoViewState>(
-                listener: (context, state) async {
-                  if (state is GetVehicleStatusCheckListLoaded) {
-                    // todoViewBloc.add(AddVehicleCreateTodo(
-                    //  checklistId: state.vehicleChecklistData?['categories']?[0].checklists?[0].checklistId,
-                    // title: '${state.vehicleChecklistData?['categories']?[0].categoryName}-${state.vehicleChecklistData?['categories']?[0].checklists?[0].checklistName}',
-                    // startAt: Utils.convertDateTimeToTheFormat(DateTime.now().toString()),
-                    // status: 'In Progress',
-                    // statusId: state.vehicleChecklistData?['categories']?[0].checklists?[0].id,
-                    // todoTime: DateFormat("HH:mm:ss").format(DateTime.now()),
-                    // categoryId: state.vehicleChecklistData?['categories']?[0].checklists?[0].categoryId,
-                    // cohortId: createVehicleData.selectedCohort??0,
-                    // userId: int.parse(userIdGlobal),
-                    // vehName: '${createVehicleData.year} ${createVehicleData.make} ${createVehicleData.model}',
-                    // vinNumber: state.vehicleChecklistData?['categories']?[0].checklists?[0].vin));
-                  }
-                },
-              ),
-              BlocListener<VehicleDataBloc, VehicleDataState>(
-                listener: (context, state) async {
-                  if (state is VehicleDataLoading) {
-                    loading = true;
-                  } else if (state is DropdownVehicleDataLoaded) {
-                    loading = true;
-                    createExpenseFieldData = state.createExpenseFieldData;
-                    if (state.createExpenseFieldData != null) {
-                      cohortsData =
-                          state.createExpenseFieldData!.cohortsData ?? [];
-                      for (Map<String, dynamic> c in cohortsData) {
-                        if (c['cohort'] == 'Unassigned') {
-                          selectedCohortsData = c;
-                        }
-                      }
-                      // categoriesData = state.createExpenseFieldData!.expenseCategories ?? [];
-                    }
-                  } else if (state is VehicleListLoaded) {
-                    loading = false;
-                    filteredVehicle.clear();
-                    filteredVehicle.addAll(state.vehicleDataList ?? []);
-                    List<Map<String, dynamic>> list = [];
-                    list.addAll(state.vehicleDataList ?? []);
-                    list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
-                        .compareTo(DateTime.parse(a['created_at'] ?? '')));
-                    vehiclename = list;
-                    filteredVehicle = List.from(vehiclename);
-                  } else if (state is VehicleDataLoadedV) {
-                    if (state.result != null) {
-                      vehicleData = state.result;
-                    }
-                    vehicleDataBloc.add(const GetAddedVehicleListData());
-                    vehicleDataBloc
-                        .add(SetDefaultVehicleConfig(vinNumber: state.vin));
-                  } else if (state is DefaultVehicleConfigLoaded) {
-                    todoViewBloc.add(GetVehicleStatusCheckList(
-                        vinNumber: state.vin, categoryName: null));
-                  } else if (state is VehicleStatusCategoryLoaded) {
-                    categoriesData.addAll(state.vehicleStatusDataList ?? []);
-                    isSelected = true;
-                    selectedCategoriesData = categoriesData[0];
-                  } else {
-                    vehicleDataBloc.add(const GetAddedVehicleListData());
-                    loading = true;
-                  }
-                },
-              ),
-            ],
-            child: BlocBuilder<VehicleDataBloc, VehicleDataState>(
-                builder: (context, state) {
-              return Stack(
-                children: [
-                  TabBarView(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 40,
-                                    child: Utils.getSearchBarUI(
-                                      () {},
-                                      (value) {
-                                        _filteredVehicle(value);
-                                      },
-                                      searchController,
-                                      searchFocusNode,
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: filteredVehicle.length,
+                    separatorBuilder: (context, index) => const Divider(
+                      height: 0.5,
+                    ),
+                    itemBuilder: (context, index) {
+                      final vehicle = filteredVehicle[index];
+                      final vehicleId = vehicle['id'];
+                      return InkWell(
+                        onTap: () {
+                          _navigateVehicleEditTabBar(vehicle);
+                        },
+                        child: SafeArea(
+                          minimum: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          child: Stack(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                spacing: 10,
+                                children: [
+                                  SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: Transform.scale(
+                                      scale: 0.8,
+                                      child: Checkbox(
+                                        activeColor: const Color(0xff4788ff),
+                                        value: selectedVehicles[vehicleId] ??
+                                            false,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            selectedVehicles[vehicleId] =
+                                                value ?? false;
+                                            if (value == true) {
+                                              if (!selectedVehicleIds
+                                                  .contains(vehicleId)) {
+                                                selectedVehicleIds.add(
+                                                    vehicleId);
+                                              }
+                                            } else {
+                                              selectedVehicleIds
+                                                  .remove(vehicleId);
+                                            }
+                                          });
+                                        },
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  height: 40,
-                                  child: Utils.getAddFilledButton('Add', () {
-                                    _navigateToVehicleAddUI();
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: filteredVehicle.length,
-                                itemBuilder: (context, index) {
-                                  final vehicle = filteredVehicle[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 2.0),
-                                    child: Slidable(
-                                      endActionPane: ActionPane(
-                                        motion: const ScrollMotion(),
-                                        children: [
-                                          SlidableAction(
-                                            onPressed: (context) =>
-                                                _deleteVehicle(index),
-                                            backgroundColor: AppC.white,
-                                            foregroundColor: AppC.red,
-                                            icon: Icons.delete_outline,
-                                            label: 'Delete',
-                                          ),
-                                        ],
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          _navigateToVehicleEditUI(index);
-                                        },
-                                        child: Card(
-                                          margin: const EdgeInsets.symmetric(
-                                              vertical: 4),
-                                          color: AppC.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Utils.getText(
-                                                      vehicle['vehicle_name'] ??
-                                                          '',
-                                                      weight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Utils.getText(
+                                        vehicle['vehicle_name'] ?? '',
+                                        weight: FontWeight.bold,
                                       ),
                                     ),
-                                  );
-                                },
+                                  ),
+                                  if(vehicle['rental_status']==0)
+                                  InkWell(
+                                    onTap: () => _rentalVehicle(vehicle),
+                                    child: SvgPicture.asset(
+                                      Assets.rentalCar,
+                                      height: 24,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                      onTap: () => _deleteVehicle(index),
+                                      child: const Icon(
+                                        Icons.delete_outline,
+                                        color: AppC.redAccent,
+                                      ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: RentalViewUI(),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                  Visibility(
-                      visible: loading,
-                      child: Center(child: Utils.getProgressIndicator(context)))
-                ],
-              );
-            }),
-          ),
-        ),
-        drawer: const DrawerView(),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(context,MaterialPageRoute(builder: (context)=>VehicleGroupingUI(
+          selectedVehicleIds: selectedVehicleIds,
+          vehicleList: vehicleName,
+        ),),),
+
+        extendedPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        elevation: 8,
+        backgroundColor: AppC.appColor,
+        label: Utils.getText('Vehicle Grouping',
+            color: AppC.white, weight: FontWeight.bold, size: 16),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
+*/

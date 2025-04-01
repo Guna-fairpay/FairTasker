@@ -65,7 +65,7 @@ class _EditExpenseUIState extends State<EditExpenseUI>
                 (widget.categoriesListData![i]['subcategories'] ?? []);
             for (var element1
                 in (widget.categoriesListData![i]['subcategories'] ?? [])) {
-              if (element1.id ==
+              if (element1.todoId ==
                   (widget.expenseSummaryData?['subcategory_id'] ?? 0)) {
                 selectedExpenseSubCategories = element1;
                 widget.expenseSummaryData?['subcategory_name'] = element1.name;
@@ -264,7 +264,7 @@ class _EditExpenseUIState extends State<EditExpenseUI>
                             if ((imageFile[index]['path'] ?? '').isEmpty) {
                               imageFile.removeAt(index);
                             } else {
-                              todoBloc!.add(DeleteExpenseImage(
+                              todoBloc!.add(DeleteExpenseTodoImage(
                                   id: imageFile[index]['id']));
                               imageFile.removeAt(index);
                             }
@@ -294,12 +294,12 @@ class _EditExpenseUIState extends State<EditExpenseUI>
           ),
         ),
         const SizedBox(height: 0),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Enter Amount', amountController,
             label: Utils.getText('Enter Amount'),
             textType: TextInputType.number),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
           'Enter Description',
           expenseDescriptionController,
           label: Utils.getText('Enter Description'),
@@ -387,7 +387,7 @@ class _EditExpenseUIState extends State<EditExpenseUI>
           ),
         ),
         const SizedBox(height: 15),
-        Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+        Utils.getTextFormField(
             'Expense Date', todoDateController, readOnly: true,
             onTapCallback: () {
           Utils.datePicker(context, '', initial: DateTime.parse("2023-01-01"))
@@ -408,26 +408,27 @@ class _EditExpenseUIState extends State<EditExpenseUI>
           /*else if (amountController.text.isEmpty) {
               Utils.showMobileToast(Str.createTodoAlertText("Expense Amount"));
             } */
-          else {
+          /*else {
             todoBloc!.add(CreateExpenseTodo(
-                widget.expenseSummaryData!['id']!.toString(),
-                imageFile
-                    .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
-                    .where((element) => element != null)
-                    .cast<File>()
-                    .toList(),
-                selectedExpenseCategories!.id,
-                selectedExpenseSubCategories!.id,
-                selectedExpenseSubCategories!.expenseTo,
-                amountController.text,
-                expenseDescriptionController.text,
-                widget.expenseSummaryData!['cohort_id']!.toString(),
-                widget.expenseSummaryData!['vin'],
-                todoDateController.text,
-                widget.todoId,
-                '' /*odometerController.text*/,
-                dontUpdateTodosExpense: true));
-          }
+              *//*todoItem!.expenseId*//*
+
+              files: imageFile
+                  .map((e) => (e['path'] ?? '').isEmpty ? e['file'] : null)
+                  .where((element) => element != null)
+                  .cast<File>()
+                  .toList(),
+              selectedExpenseCategories!.todoId,
+              todoId:  selectedExpenseSubCategories!.todoId,
+              expenseTo:  selectedExpenseSubCategories!.expenseTo,
+              expenseAmount:  amountController.text,
+              expenseDescription: expenseDescriptionController.text,
+              cohortId:  widget.expenseSummaryData!['cohortId'].toString(),
+              vin:   widget.expenseSummaryData!['vin'],
+              date:  todoDateController.text,
+              odometer:  null,
+              expenseId: '', categoryId: null, paymentMethodId: '', subCategoryId: null,
+            ));
+          }*/
         }),
         const SizedBox(height: 15),
       ],

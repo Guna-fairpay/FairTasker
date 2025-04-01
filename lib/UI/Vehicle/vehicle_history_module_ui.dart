@@ -177,9 +177,7 @@ class _VehicleHistoryModuleUIState extends State<VehicleHistoryModuleUI>
                         Visibility(
                           visible: widget.todoListRepo!
                               .vehicleHistoryTempSearchList.isNotEmpty,
-                          child: Utils.getSearchBarUI(() {
-                            //onTap
-                          }, (value) {
+                          child: Utils.getSearchBarUI(onChange: (value) {
                             //    onChange
                             todoList.clear();
                             if (value.isEmpty) {
@@ -195,7 +193,7 @@ class _VehicleHistoryModuleUIState extends State<VehicleHistoryModuleUI>
                               }
                             }
                             setState(() {});
-                          }, searchController, searchFocusNode),
+                          }, searchController: searchController,),
                         ),
                         const SizedBox(
                           height: 8,

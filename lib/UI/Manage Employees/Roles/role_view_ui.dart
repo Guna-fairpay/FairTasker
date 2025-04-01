@@ -1,10 +1,9 @@
+
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/roles_bloc.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Event/roles_event.dart';
-import '../../../State/department_state.dart';
 import '../../../State/roles_state.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
@@ -23,7 +22,6 @@ class RoleViewUI extends StatefulWidget {
 class _RoleViewUIState extends State<RoleViewUI> {
   late RolesBloc rolesBloc;
   final TextEditingController searchController = TextEditingController();
-  final FocusNode searchFocusNode = FocusNode();
   bool loading = false;
   List<Map<String, dynamic>> roles = [];
   List<Map<String, dynamic>> filterRoles = [];
@@ -37,7 +35,7 @@ class _RoleViewUIState extends State<RoleViewUI> {
   void _filterRoles(String query) {
     setState(() {
       filterRoles = roles.where((role) {
-        final roleName = role['role']?.toLowerCase() ?? '';
+        final roleName = role['name']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
         return roleName.contains(searchQuery);
       }).toList();
@@ -45,73 +43,47 @@ class _RoleViewUIState extends State<RoleViewUI> {
   }
 
   void _navigateToRoleAddUI() async {
-    final newRole = await Navigator.push<Map<String, String>>(
+    final newRole = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(builder: (context) => const RoleAddUI()),
     );
-
     if (newRole != null) {
-      setState(() {
-        //roles.add(newRole);
-        roles.insert(0, newRole);
-        _filterRoles(searchController.text); // Update filtered list
-      });
+      rolesBloc.add(AddRoleData(
+          name: newRole['name'],
+          id: newRole['id'],
+          permissions: newRole['permissions']));
+      rolesBloc.add(const GetRolesData());
     }
+
   }
 
   void _navigateToEditRoleUI(int index) async {
     final updatedRole = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-        builder: (context) => RoleEditUI(
-          roles: roles[index],
-        ),
+        builder: (context) => RoleEditUI(roles: filterRoles[index],),
       ),
     );
-
     if (updatedRole != null) {
-      setState(() {
-        roles[index] = updatedRole;
-        _filterRoles(searchController.text);
-      });
+     rolesBloc.add(AddRoleData(
+         name: updatedRole['name'],
+         id: updatedRole['id'],
+         permissions: updatedRole['permissions']));
+     rolesBloc.add(const GetRolesData());
     }
+
   }
 
   Future<void> _deleteRole(int index) async {
-    final confirmed = await _confirmDelete(context);
+    final confirmed = await Utils.showCustomDeleteDialog(context,'Role?');
     if (confirmed == true) {
       setState(() {
-        roles.removeAt(index);
-        _filterRoles(searchController.text);
+        rolesBloc.add(DeleteRole(id: filterRoles[index]['id']));
+        rolesBloc.add(const GetRolesData());
       });
     }
   }
 
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppC.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Utils.getText('Are you sure?'),
-        content: Utils.getText('Are you sure you want to delete this role?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: Utils.getText('Yes'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: Utils.getText('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -125,172 +97,109 @@ class _RoleViewUIState extends State<RoleViewUI> {
       length: 2,
       child: Scaffold(
         backgroundColor: AppC.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(100.0),
-          child: Column(
-            children: [
-              const HeaderView(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TabBar(
-                    tabs: const [
-                      Tab(text: 'Roles', height: 30),
-                      Tab(text: 'Users', height: 30),
-                    ],
-                    dividerColor: AppC.trans,
-                    labelStyle: const TextStyle(fontSize: 16),
-                    labelColor: AppC.white,
-                    unselectedLabelColor: AppC.appColor,
-                    indicator: BoxDecoration(
-                      color: AppC.appColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                ),
-              ),
+        appBar: AppBar(
+          backgroundColor: AppC.appColor,
+          automaticallyImplyLeading: true,
+          foregroundColor: Colors.white,
+          leadingWidth: 20,
+          title: TabBar(
+            tabs: const [
+              Tab(text: 'Role', height: 30),
+              Tab(text: 'Users', height: 30),
             ],
+            dividerColor: AppC.trans,
+            labelStyle: const TextStyle(fontSize: 16),
+            labelColor: AppC.appColor,
+            unselectedLabelColor: AppC.white,
+            indicator: BoxDecoration(
+                color: AppC.white,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: AppC.appColor)
+            ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),
         body: BlocProvider(
           create: (context) => rolesBloc..add(const GetRolesData()),
           child: BlocConsumer<RolesBloc, RolesState>(
               listener: (context, state) async {
-            if (state is DepartmentLoading) {
-              loading = true;
-            } else if (state is RolesListLoaded) {
-              setState(() {
-                loading = false;
-                roles.clear();
-                filterRoles.addAll(state.data ?? []);
-                roles.addAll(state.data ?? []);
-                filterRoles = List.from(roles);
-              });
-            } else if (state is RolesLoaded) {
-              setState(() {
-                loading = false;
-                roles.clear();
-                rolesBloc.add(const GetRolesData());
-              });
+            if (state is RolesLoading) {
+              EasyLoading.show();
             } else {
-              rolesBloc.add(const GetRolesData());
-              loading = true;
+              if(EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is RolesListLoaded) {
+                setState(() {
+                  roles.clear();
+                  filterRoles.clear();
+                  filterRoles.addAll(state.data ?? []);
+                  roles.addAll(state.data ?? []);
+                });
+              } else if (state is RolesLoaded) {
+                setState(() {
+                  Utils.showMobileToast(state.message);
+                  rolesBloc.add(const GetRolesData());
+                });
+              } else {
+                rolesBloc.add(const GetRolesData());
+              }
             }
           }, builder: (context, state) {
-            return Stack(
+            return TabBarView(
               children: [
-                TabBarView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
+                SafeArea(
+                  minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10,),
+                  child: Column(
+                    children: [
+                      Row(
+                        spacing: 10,
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 40,
-                                  child: Utils.getSearchBarUI(() {}, (value) {
-                                    _filterRoles(value);
-                                  }, searchController, searchFocusNode),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              SizedBox(
-                                height: 40,
-                                child: Utils.getAddFilledButton('Add', () {
-                                  // Implement add role functionality
-                                  _navigateToRoleAddUI();
-                                }),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
                           Expanded(
-                            child: ListView.builder(
-                              itemCount: filterRoles.length,
-                              itemBuilder: (context, index) {
-                                final role = filterRoles[index];
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 2.0),
-                                  child: Slidable(
-                                    endActionPane: ActionPane(
-                                      motion: const ScrollMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          onPressed: (context) =>
-                                              _deleteRole(index),
-                                          backgroundColor: AppC.white,
-                                          foregroundColor: AppC.red,
-                                          icon: Icons.delete_outline,
-                                          label: 'Delete',
-                                        ),
-                                      ],
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () => _navigateToEditRoleUI(index),
-                                      child: Card(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 4),
-                                        color: AppC.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Utils.getText(
-                                                  role['name'] ?? '',
-                                                  weight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                            child: Utils.getSearchBarUI(onChange: _filterRoles, searchController: searchController),
                           ),
+                          Utils.getAddElevatedButton(()=>
+                            _navigateToRoleAddUI()),
                         ],
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: UserViewUI(),
-                    ),
-                  ],
+                      Expanded(
+                        child: ListView.separated(
+                          separatorBuilder: (context, index) => const Divider(height: 0.5,),
+                          itemCount: filterRoles.length,
+                          itemBuilder: (context, index) {
+                            final role = filterRoles[index];
+                            return InkWell(
+                              onTap: () => _navigateToEditRoleUI(index),
+                              child: SafeArea(
+                                minimum:10.padding,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Utils.getText(
+                                        role['name'] ?? '',
+                                      ),
+                                    ),
+                                    InkWell(
+                                        onTap: () => _deleteRole(index),
+                                        child: const Icon(Icons.delete_outline,color: AppC.redAccent,)
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Visibility(
-                    visible: loading,
-                    child: Center(child: Utils.getProgressIndicator(context)))
+                const SafeArea(
+                  minimum: EdgeInsets.symmetric(horizontal: 15,vertical: 10,),
+                  child: UserViewUI(),
+                ),
               ],
             );
           }),
         ),
-        drawer: const DrawerView(),
       ),
     );
   }
