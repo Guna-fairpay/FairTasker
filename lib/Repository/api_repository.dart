@@ -1378,9 +1378,11 @@ Future<Map<String, dynamic>?> getLocations() async {
           fieldName: "images",
           files: images?.map((e) => e.path).toList());
       if (response != null) {
-        if (response.isSuccess) {
+        var mapData = await response.mapData;
+        log(jsonEncode(mapData), name: "Response");
+        if (mapData?['success'] == true) {
           var mapData = await response.mapData;
-          Toaster.showSuccess(mapData?['message'] ?? "PR Added Successfully");
+          Toaster.showSuccess(mapData?['message']);
           return mapData;
         } else {
           Utils.showSomethingWentWrong();

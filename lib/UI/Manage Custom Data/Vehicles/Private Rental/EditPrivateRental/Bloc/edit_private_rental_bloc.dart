@@ -11,6 +11,7 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,6 +40,7 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
   TextEditingController checkOutMileageController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   EditPrivateRentalBloc() : super(EditPrivateRentalLoadingState()) {
 
@@ -114,17 +116,18 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
           body: _saveRental(),
           id: rentalData['id'].toString(),
         );
-        if (response?.isNotEmpty ?? false) {
-          Toaster.showSuccess(response?['message'] ?? "Success");
+        if (response?['message'].isNotEmpty ?? false) {
+          Toaster.showSuccess(response?['message']);
+          _broadcast.stickyBroadcast("PR_refresh", value: true);
+        }else{
+          Toaster.showError(response?['error']);
         }
-        // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
-        emit(EditPrivateRentalLoadedState());
+        emit(EditPrivateRentalCompletedState());
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
-        emit(EditPrivateRentalLoadedState());
+        emit(EditPrivateRentalCompletedState());
       }
-      emit(EditPrivateRentalCommonState());
     });
 
   }

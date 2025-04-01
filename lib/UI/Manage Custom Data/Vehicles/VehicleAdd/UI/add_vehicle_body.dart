@@ -19,7 +19,7 @@ class AddVehicleBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AddVehicleBloc, AddVehicleState>(
       builder: (context, state) => Form(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+        //autovalidateMode: AutovalidateMode.onUserInteraction,
         key: context.read<AddVehicleBloc>().formKey,
         child: ListView(
           children: [

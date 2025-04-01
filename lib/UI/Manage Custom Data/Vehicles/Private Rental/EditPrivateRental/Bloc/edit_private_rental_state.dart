@@ -12,6 +12,9 @@ class EditPrivateRentalLoadedState extends EditPrivateRentalState {}
 
 class EditCustomerState extends EditPrivateRentalState {}
 
+class EditPrivateRentalCompletedState extends EditPrivateRentalState {}
+
+
 class EditPrivateRentalCommonState extends EditPrivateRentalState {
   @override
   List<Object?> get props => [Random().nextDouble()];

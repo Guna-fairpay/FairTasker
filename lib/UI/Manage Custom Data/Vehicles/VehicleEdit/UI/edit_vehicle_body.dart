@@ -1,12 +1,14 @@
-
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
+import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/UI/edit_vehicle_more_part_one.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +16,7 @@ import 'package:flutter/material.dart';
 
 class EditVehicleBody extends StatelessWidget {
   final dynamic vehicleData;
-  const EditVehicleBody({super.key,required this.vehicleData});
+  const EditVehicleBody({super.key, required this.vehicleData});
 
   @override
   Widget build(BuildContext context) {
@@ -24,26 +26,45 @@ class EditVehicleBody extends StatelessWidget {
         key: context.watch<EditVehicleBloc>().formKey,
         child: ListView(
           children: [
+            if (context.read<EditVehicleBloc>().vehicleImage.isNotEmpty)
+              SizedBox(
+                height: 200,
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.sizeOf(context).height,
+                    minWidth: MediaQuery.sizeOf(context).width,
+                  ),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: AppC.grey.withValues(alpha: 0.2)),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  child: ImageViewer(
+                    fit: BoxFit.cover,
+                    imageInput: context.read<EditVehicleBloc>().vehicleImage[0] ?? {},
+                    isNotImage: !(context.read<EditVehicleBloc>().vehicleImage[0] as Object).isImage,
+                  ),
+                ),
+              ),
             10.height,
             Utils.getTextFormField(
-              "Year",context.read<EditVehicleBloc>().yearController,
+              "Year",
+              context.read<EditVehicleBloc>().yearController,
               autoValidate: AutovalidateMode.onUserInteraction,
-              validator: (val) =>
-              val!.isEmpty ? 'Please enter year' : null,
+              validator: (val) => val!.isEmpty ? 'Please enter year' : null,
               textType: TextInputType.number,
-              textInputFormatter:[
-                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}'))
-              ],
+              textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}'))],
             ),
             10.height,
             Utils.getTextFormField(
-              "Make",context.read<EditVehicleBloc>().makeController,
+              "Make",
+              context.read<EditVehicleBloc>().makeController,
               autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter make' : null,
             ),
             10.height,
             Utils.getTextFormField(
-              "Model",context.read<EditVehicleBloc>().modelController,
+              "Model",
+              context.read<EditVehicleBloc>().modelController,
               autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter model' : null,
             ),
@@ -51,35 +72,35 @@ class EditVehicleBody extends StatelessWidget {
             Utils.dropdownBox(
               'Cohort',
               context.read<EditVehicleBloc>().cohort,
-                  (value)=>context.read<EditVehicleBloc>().add(CohortDropDownEvent(selectedCohort: value)),
+              (value) => context.read<EditVehicleBloc>().add(CohortDropDownEvent(selectedCohort: value)),
               labelKey: 'cohort',
-              initialSelection : context.read<EditVehicleBloc>().selectedCohort,
+              initialSelection: context.read<EditVehicleBloc>().selectedCohort,
             ),
             10.height,
             Utils.getTextFormField(
-              "Vin",context.read<EditVehicleBloc>().vinController,
+              "Vin",
+              context.read<EditVehicleBloc>().vinController,
               readOnly: true,
               fillColor: Colors.grey.shade200,
             ),
             10.height,
             Utils.getTextFormField(
-              "Vehicle Id",context.read<EditVehicleBloc>().vehicleIdController,
+              "Vehicle Id",
+              context.read<EditVehicleBloc>().vehicleIdController,
             ),
             10.height,
             CustomDateTimePicker<DateTime>(
-              controller:
-              context.read<EditVehicleBloc>().purchaseDateController,
+              controller: context.read<EditVehicleBloc>().purchaseDateController,
               format: "dd-MM-yyyy",
-              suffixIcon: Icon(Icons.calendar_month_rounded,
-                  size: 18, color: context.theme.hintColor),
+              suffixIcon: Icon(Icons.calendar_month_rounded, size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
               value: context.read<EditVehicleBloc>().selectedPurchaseDate,
-              onChanged: (value) => context
-                  .read<EditVehicleBloc>().add(DateChangeEvent(selectedDate: value)),
+              onChanged: (value) => context.read<EditVehicleBloc>().add(DateChangeEvent(selectedDate: value)),
             ),
             10.height,
             Utils.getTextFormField(
-              "Purchase Price",context.read<EditVehicleBloc>().purchasePriceController,
+              "Purchase Price",
+              context.read<EditVehicleBloc>().purchasePriceController,
               autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
             ),
@@ -87,7 +108,7 @@ class EditVehicleBody extends StatelessWidget {
             ImageUploadSection(
               title: 'Upload Purchase Receipt',
               borderColor: Colors.blue,
-              onUpload: () =>context.read<EditVehicleBloc>().add(PurchaseReceiptImageEvent()),
+              onUpload: () => context.read<EditVehicleBloc>().add(PurchaseReceiptImageEvent()),
               onRemove: (file) => context.read<EditVehicleBloc>().add(RemovePurchaseReceiptImageEvent(data: file)),
               images: context.watch<EditVehicleBloc>().receiptImage,
               logName: "PurchaseReceiptImageEvent",
@@ -105,7 +126,7 @@ class EditVehicleBody extends StatelessWidget {
             Utils.dropdownBox(
               'Select Branch',
               context.read<EditVehicleBloc>().branch,
-                  (value)=>context.read<EditVehicleBloc>().add(BranchDropDownEvent(selectedBranch: value)),
+              (value) => context.read<EditVehicleBloc>().add(BranchDropDownEvent(selectedBranch: value)),
               labelKey: 'city',
               initialSelection: context.read<EditVehicleBloc>().selectedBranch,
             ),
@@ -113,20 +134,18 @@ class EditVehicleBody extends StatelessWidget {
             const EditVehicleMorePartOne(),
             10.height,
             GestureDetector(
-              onTap: () =>
-                  context.read<EditVehicleBloc>().add(AddVehicleShowMoreEvent()),
-              child: Utils.getText(
-                  '${context.watch<EditVehicleBloc>().showMore ? "Less" : "More"}...',
+              onTap: () => context.read<EditVehicleBloc>().add(AddVehicleShowMoreEvent()),
+              child: Utils.getText('${context.watch<EditVehicleBloc>().showMore ? "Less" : "More"}...',
                   color: (context.watch<EditVehicleBloc>().showMore
                       ? Colors.lightBlue
-                      : Colors.lightGreen)
-                      .shade800),
+                      : Colors.lightGreen).shade800),
             ),
             10.height,
-            Utils.getElevatedButton((){
+            Utils.getElevatedButton(() {
               if (context.read<EditVehicleBloc>().formKey.currentState?.validate() ?? false) {
-              context.read<EditVehicleBloc>().add(SaveUpdatedVehicle(data:vehicleData));}
-              }),
+                context.read<EditVehicleBloc>().add(SaveUpdatedVehicle(data: vehicleData));
+              }
+            }),
           ],
         ),
       ),
