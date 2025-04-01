@@ -184,16 +184,16 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _reFetchToDos() async {
     try {
       toDos.clear();
-      emit(ToDoTaskerLoadingState());
+      if (!isClosed) emit(ToDoTaskerLoadingState());
       var response = await _fetchToDoList(resourceId: selectedUsers?.map((e) => e['id'].toString()).join(","));
       unfiltered = response ?? [];
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
-      emit(ToDoTaskerLoadedState());
+      if (!isClosed) emit(ToDoTaskerLoadedState());
     } catch (e) {
       Console.of.error("REFRESH_TODOS $e");
-      emit(ToDoTaskerErrorState(e));
+      if (!isClosed) emit(ToDoTaskerErrorState(e));
     }
   }
 
