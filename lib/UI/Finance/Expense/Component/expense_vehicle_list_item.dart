@@ -3,6 +3,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
@@ -240,7 +241,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                                       )));
                         },
                         child: Utils.getText(
-                          "\$${double.tryParse(expense['approved_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                          "\$${expense['approved_amount'].toString().toDoubleDigit}",
                           weight: FontWeight.bold,
                           overFlow: TextOverflow.ellipsis,
                         ),
