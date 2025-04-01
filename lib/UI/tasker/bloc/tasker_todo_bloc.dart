@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart' show TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,6 +88,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
+    getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
 
   /* BEGIN: API CALLS */

@@ -18,10 +18,10 @@ import '../Utilities/str.dart';
 
 class BottomNavigationForTaskView extends StatefulWidget {
   final int selectedIndex;
-  final String message;
+  final String? message;
 
   const BottomNavigationForTaskView(
-      {super.key, required this.selectedIndex, required this.message});
+      {super.key, required this.selectedIndex, this.message});
 
   @override
   State<BottomNavigationForTaskView> createState() =>
@@ -205,7 +205,7 @@ class _BottomNavigationForTaskViewState
       drawer: const DrawerView(),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(30.0),
-        child: HeaderView( ),
+        child: HeaderView(),
       ),
       backgroundColor: AppC.white,
       bottomNavigationBar: BottomNavigationBar(

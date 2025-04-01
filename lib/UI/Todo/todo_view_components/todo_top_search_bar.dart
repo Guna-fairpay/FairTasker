@@ -18,6 +18,7 @@ class TodoTopSearchBar extends StatelessWidget {
       tileColor: Colors.blue[50],
       leading: IconButton(onPressed: onAdd, icon: const Icon(Icons.add_rounded)),
       title: TextField(
+        autofocus: false,
         controller: controller ?? TextEditingController(),
         onChanged: onChanged,
         textInputAction: TextInputAction.search,
