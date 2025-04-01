@@ -2,18 +2,17 @@
 import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:fairpytasker/UI/Finance/Revenue/revenue_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_ui.dart';
-import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/car_status_ui.dart';
 import 'package:fairpytasker/Component/header.dart';
-import '../UI/CheckIn CheckOut/UI/resource_ui.dart';
-import '../UI/Finance/Expense/UI/expense_tap_ui.dart';
+import '../UI/Finance/Expense/Vehicle/vehicle_expense_view_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
+import '../UI/WorkingHours/working_hours_view_ui.dart';
 import '../Utilities/str.dart';
 
 class BottomNavigationForTaskView extends StatefulWidget {
@@ -35,7 +34,6 @@ class _BottomNavigationForTaskViewState
   final GlobalKey _financeIconKey = GlobalKey();
   String? userRole;
   bool isRoleLoading = true; // Add loading state
-  String? userId;
 
   @override
   void initState() {
@@ -48,14 +46,8 @@ class _BottomNavigationForTaskViewState
         isRoleLoading = false; // Set loading to false when data is ready
       });
     });
-    Utils.getStringPreference(Str.userIdPrefText).then((users) {
-      setState(() {
-        userId = users;
-        isRoleLoading = false; // Set loading to false when data is ready
-      });
-    });
-
   }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -64,13 +56,11 @@ class _BottomNavigationForTaskViewState
 
   // A Map for pages to avoid the switch case logic
   final Map<int, Widget> pages = {
-    // 0: const TodoViewUI(),
-    0: const TaskerMainUi(),
-    // 1: const CarStatusUI(resourceList: []),
-    1: const VehicleStatusListUi(),
-    2: WorkHoursViewUI(),
+    0: const TodoViewUI(),
+    1: const CarStatusUI(resourceList: []),
+    2: const WorkingHoursViewUI(),
     3: const FeedBackUI(),
-    4: const ExpenseTab(),
+    4: const ExpenseViewUI(),
     5: const InvoiceViewUI(),
     6: const RevenueViewUI(),
     7: const ProfitAndLossUI(),
@@ -201,111 +191,117 @@ class _BottomNavigationForTaskViewState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const DrawerView(),
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(30.0),
-        child: HeaderView( ),
-      ),
-      backgroundColor: AppC.white,
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppC.white,
-        currentIndex: index < 4 ? index : 0, // Show main tabs as active if index < 4
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedItemColor: AppC().base,
-        unselectedItemColor: AppC.grey,
-        onTap: (value) {
-          if (value == 4) {
-            showCustomMenu(context); // Show custom menu for Finance tab
-          } else {
-            setState(() {
-              index = value;
-            });
-          }
-        },
-        items: [
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.calendar_month_rounded,
-              color: AppC.appColor,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.calendar_today_rounded,
-              color: AppC.grey,
-              // size: 28,
-            ),
-            label: 'Tasker',
-            itemIndex: 0,
+    return Stack(
+      children: [
+        Scaffold(
+          drawer: const DrawerView(),
+          appBar: const PreferredSize(
+            preferredSize: Size.fromHeight(30.0),
+            child: HeaderView( ),
           ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.verified_rounded,
-              color: AppC.appColor,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.verified_outlined,
-              color: AppC.grey,
-              // size: 28,
-            ),
-            label: 'Asset',
-            itemIndex: 1,
-          ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.supervisor_account_rounded,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.supervisor_account_outlined,
-              // size: 28,
-            ),
-            label: 'Resource',
-            itemIndex: 2,
-          ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.sms_failed,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.sms_failed,
-              // size: 28,
-            ),
-            label: 'Feedback',
-            itemIndex: 3,
-          ),
-          if (!isRoleLoading && userRole == 'Admin' || userId=='3') // Show only after role is loaded
-            BottomNavigationBarItem(
-              icon: InkWell(
-                key: _financeIconKey,
-                onTap: () => showCustomMenu(context),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.monetization_on_rounded,
-                      // size: 28,
-                      color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
-                    ),
-                    Utils.getText(
-                      'Finance',
-                      color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
-                      weight: FontWeight.bold,
-                      size: 14,
-                    ),
-                  ],
+          backgroundColor: AppC.white,
+          body: callPage(index), // Dynamically calls the page based on selected index
+          bottomNavigationBar: BottomNavigationBar(
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: AppC.white,
+            currentIndex: index < 4 ? index : 0, // Show main tabs as active if index < 4
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            selectedItemColor: AppC().base,
+            unselectedItemColor: AppC.grey,
+            onTap: (value) {
+              if (value == 4) {
+                showCustomMenu(context); // Show custom menu for Finance tab
+              } else {
+                setState(() {
+                  index = value;
+                });
+              }
+            },
+            items: [
+              buildBottomNavItem(
+                activeIcon: const Icon(
+                  Icons.calendar_month_rounded,
+                  color: AppC.appColor,
+                  size: 28,
                 ),
+                inactiveIcon: const Icon(
+                    Icons.calendar_month_outlined,
+                  color: AppC.grey,
+                  size: 28,
+                ),
+                label: 'Tasker',
+                itemIndex: 0,
               ),
-              label: 'Finance',
-            ),
-        ],
-      ),
-      body: callPage(index),
+              buildBottomNavItem(
+                activeIcon: Image.asset(
+                  Assets.vehicleStatusIcon,
+                  height: 28,
+                  width: 28,
+                  color: AppC.appColor,
+                ),
+                inactiveIcon:Image.asset(
+                  Assets.vehicleStatusIcon,
+                  height: 28,
+                  width: 28,
+                  color: AppC.grey,
+                ),
+                label: 'Asset',
+                itemIndex: 1,
+              ),
+              buildBottomNavItem(
+                activeIcon: const Icon(
+                  Icons.supervisor_account_rounded,
+                  size: 28,),
+                inactiveIcon: const Icon(
+                    Icons.supervisor_account_outlined,
+                  size: 28,
+                ),
+                label: 'Resource',
+                itemIndex: 2,
+              ),
+              buildBottomNavItem(
+                activeIcon: const Icon(
+                  Icons.sms_failed,
+                  size: 28,
+                ),
+                inactiveIcon: const Icon(
+                    Icons.sms_failed,
+                  size: 28,
+                ),
+                label: 'Feedback',
+                itemIndex: 3,
+              ),
+              if (!isRoleLoading && userRole == 'Admin') // Show only after role is loaded
+                BottomNavigationBarItem(
+                  icon: InkWell(
+                    key: _financeIconKey,
+                    onTap: () => showCustomMenu(context),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          Icons.monetization_on_rounded,
+                          size: 28,
+                          color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
+                        ),
+                        Utils.getText(
+                          'Finance',
+                          color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
+                          weight: FontWeight.bold,
+                          size: 14,
+                        ),
+                      ],
+                    ),
+                  ),
+                  label: 'Finance',
+                ),
+            ],
+          ),
+
+        ),
+      ],
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../Component/drawer_ui.dart';
 import '../../../../Component/header.dart';
-import '../../../../Utilities/utils.dart';
+import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 
 class VendorTypeAddUI extends StatefulWidget {
@@ -66,7 +66,7 @@ class _VendorTypeAddUIState extends State<VendorTypeAddUI> {
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  Utils.getTextFormField(
+                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
                     '',
                     nameController,
                     label: Utils.getText('Vendor Name', color: AppC.grey),

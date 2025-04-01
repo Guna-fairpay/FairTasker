@@ -2,6 +2,8 @@ part of '../Bloc/vehicle_data_bloc.dart';
 
 abstract class VehicleDataState extends Equatable {
   const VehicleDataState();
+
+
 }
 
 class VehicleDataInitial extends VehicleDataState {
@@ -9,9 +11,9 @@ class VehicleDataInitial extends VehicleDataState {
   List<Object> get props => [];
 }
 
-class ExpenseTodoDataLoaded extends VehicleDataState {
+class ExpenseTodoLoaded extends VehicleDataState {
   final List<Map<String,dynamic>>? expensesData;
-  const ExpenseTodoDataLoaded({required this.expensesData});
+  const ExpenseTodoLoaded({required this.expensesData});
   @override
   List<Object?> get props => [expensesData];
 }
@@ -30,24 +32,10 @@ class VehicleListLoaded extends VehicleDataState {
   List<Object?> get props => [vehicleDataList];
 }
 
-class MoveRentalDataLoaded extends VehicleDataState {
-  final bool? result;
-  const MoveRentalDataLoaded({required this.result});
-  @override
-  List<Object?> get props => [result];
-}
-//
 
 class VehicleGroupListLoadedV extends VehicleDataState {
   final List<Map<String,dynamic>>? vehicleGroupDataList;
   const VehicleGroupListLoadedV({required this.vehicleGroupDataList});
-  @override
-  List<Object?> get props => [vehicleGroupDataList];
-}
-
-class VehicleGroupDataLoaded extends VehicleDataState {
-  final List<Map<String,dynamic>>? vehicleGroupDataList;
-  const VehicleGroupDataLoaded({required this.vehicleGroupDataList});
   @override
   List<Object?> get props => [vehicleGroupDataList];
 }
@@ -65,13 +53,6 @@ class VehicleDataLoadedV extends VehicleDataState {
 class AddVehicleGroupDataLoaded extends VehicleDataState {
   final bool? result;
   const AddVehicleGroupDataLoaded({required this.result});
-  @override
-  List<Object?> get props => [result];
-}
-
-class VehicleGroupLoaded extends VehicleDataState {
-  final bool? result;
-  const VehicleGroupLoaded({required this.result});
   @override
   List<Object?> get props => [result];
 }
@@ -201,16 +182,4 @@ class VehicleNotesHistoryLoaded extends VehicleDataState {
   @override
   List<Object?> get props => [data];
 }
-class VehicleDataError extends VehicleDataState {
-  final String errorMessage;
-  const VehicleDataError({required this.errorMessage});
-  @override
-  List<Object?> get props => [];
-}
 
-class VehicleDataUpdatedState extends VehicleDataState {
-  final dynamic updatedVehicle;
-  const VehicleDataUpdatedState({required this.updatedVehicle});
-  @override
-  List<Object?> get props => [updatedVehicle];
-}

@@ -15,36 +15,26 @@ class GetUsersData extends UsersEvent {
   @override
   List<Object> get props => [];
 }
-
-class GetPermissionForUsers extends UsersEvent {
-  const GetPermissionForUsers();
-  @override
-  List<Object> get props => [];
-}
-
-class GetEditUsers extends UsersEvent {
-  final int id;
-  const GetEditUsers({required this.id});
-  @override
-  List<Object> get props => [id];
-}
-
 class AddUsersData extends UsersEvent {
-  final int? user;
-  final List<int>? permissions;
+  final String name;
+  final int? id;
+
   const AddUsersData({
-    required this.user,
-    required this.permissions,
-    });
+
+    required this.name,
+    required this.id,
+  });
   @override
-  List<Object?> get props => [user,permissions];
+  List<Object?> get props => [name,id];
 }
 
 class DeleteUsersData extends UsersEvent {
-  final int id;
+  final String id;
+
   const DeleteUsersData({
     required this.id,
   });
+
   @override
   List<Object> get props => [id];
 }

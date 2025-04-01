@@ -7,6 +7,7 @@ class LeaveTypeListResponse {
   });
   LeaveTypeListResponse.fromJson(Map<String, dynamic> json) {
 
+    //data = List<Map<String, dynamic>>.from(json['data'] ?? []);
     data = json['data']['data'] is Map<String, dynamic>
         ? [Map<String, dynamic>.from(json['data']['data'] ?? {})]
         : List<Map<String, dynamic>>.from(json['data']['data'] ?? []);

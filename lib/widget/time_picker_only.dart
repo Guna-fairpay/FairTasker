@@ -8,10 +8,8 @@ import 'package:intl/intl.dart';
 class TimePickerViewOnly extends StatefulWidget {
   final TodoListRepo? todoListRepo;
   final VoidCallback? voidCallback;
-  final TextStyle? textStyle;
-  final EdgeInsets? padding;
 
-  const TimePickerViewOnly({super.key, this.todoListRepo, this.voidCallback, this.textStyle, this.padding});
+  const TimePickerViewOnly({super.key, this.todoListRepo, this.voidCallback});
 
   @override
   State<TimePickerViewOnly> createState() => _TimePickerViewOnlyState();
@@ -28,15 +26,20 @@ class _TimePickerViewOnlyState extends State<TimePickerViewOnly> {
             width: Num.borderWidthField,
           )),
       child: Padding(
-        padding:  widget.padding ?? EdgeInsets.symmetric(horizontal: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
         child: InkWell(
           onTap: () {
             _selectTime(context, TextEditingController());
           },
-          child: Text(
-            widget.todoListRepo?.chosenDateTimeString ?? '',
-            style: widget.textStyle ?? Utils.getTextStyle(
-                color: AppC.subText, weight: FontWeight.bold, size: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.todoListRepo?.chosenDateTimeString ?? '',
+                style: Utils.getTextStyle(
+                    color: AppC.subText, weight: FontWeight.bold, size: 12),
+              ),
+            ],
           ),
         ),
       ),

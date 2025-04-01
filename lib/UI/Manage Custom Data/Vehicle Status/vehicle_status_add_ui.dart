@@ -1,4 +1,3 @@
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
@@ -32,24 +31,30 @@ class _VehicleStatusAddUIState extends State<VehicleStatusAddUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Add Vehicle Status',),
-        actions: [
-          IconButton(
-              onPressed: ()=> Navigator.pop(context),
-              icon: const Icon(
-                Icons.close,
-                color: AppC.white,),)
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0), // Change the height here
+        child: HeaderView(),
       ),
-      body: SafeArea(
-        minimum: 15.padding,
-        child: ListView(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.arrow_back),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Utils.getText('Add Vehicle Status',
+                    size: 20, weight: FontWeight.bold),
+              ],
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -99,16 +104,16 @@ class _VehicleStatusAddUIState extends State<VehicleStatusAddUI> {
             const SizedBox(height: 20),
             SizedBox(
               height: 40,
-              child: Utils.getTextFormField(
-                  'Checklist Name', checklistController,
-              ),
+              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  '', checklistController,
+                  label: Utils.getText('Checklist Name', color: AppC.grey)),
             ),
             const SizedBox(height: 20),
             SizedBox(
               height: 40,
-              child: Utils.getTextFormField(
-                  'Task Name', taskNameController,
-              ),
+              child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  '', taskNameController,
+                  label: Utils.getText('Task Name', color: AppC.grey)),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -155,15 +160,33 @@ class _VehicleStatusAddUIState extends State<VehicleStatusAddUI> {
             ),
             const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Utils.getElevatedButton((){},bgColor: AppC.green,text: 'Save')
+                SizedBox(
+                  height: 40,
+                  child: Utils.getAddFilledButton('Save', () {
+                    if (checklistController.text.isNotEmpty ||
+                        taskNameController.text.isNotEmpty) {
+                      taskNameController.clear();
+                      checklistController.clear();
+                      // selectedVehicleStatus.;
+                      // selectedVehicleStatus?.clear();
+                      return Utils.showMobileToast(
+                          'Vehicle Status Added Successfully');
+                      // Navigator.of(context).pop(categoryController.text);
+                    } else {
+                      return Utils.showMobileToast(
+                          'Please fill in all required fields');
+                    } // Add your save logic here
+                  }),
+                ),
               ],
             ),
             // Add more widgets here if needed
           ],
         ),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

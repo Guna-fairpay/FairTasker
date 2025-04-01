@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/Response/vehicle_notes_history_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
@@ -11,10 +10,8 @@ import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 
 import '../Response/todo_list_response.dart';
-import '../Response/vehicle_grouping_response.dart';
 
 class VehicleDataRepo {
   ApiClient apiClient = ApiClient();
@@ -28,13 +25,13 @@ class VehicleDataRepo {
       } else {
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
       }
-      print("Repository side Triggered ${createVehicleData.model}");
       Map<String, String> reqMap = {
         "vehicle_id": createVehicleData.vehicleId,
         "vin": createVehicleData.vin,
         "make": createVehicleData.make,
         "model": createVehicleData.model,
         "year": createVehicleData.year,
+        "vehicle_number": createVehicleData.vehicleNumber,
         "cohort_id": createVehicleData.selectedCohort.toString(),
         "earnings": createVehicleData.earnings,
         "utilization_rate": createVehicleData.utilizationRate,
@@ -45,106 +42,49 @@ class VehicleDataRepo {
         "active": createVehicleData.isActive.toString(),
         "purchase_price": createVehicleData.purchasePrice.toString(),
         "purchase_date": createVehicleData.purchaseDate.toString(),
-        "vehicle_number": createVehicleData.vehicleNumber,
         "address": createVehicleData.address,
         "bouncie": createVehicleData.bouncie.toString(),
         "air_tag": createVehicleData.airTag.toString(),
-        "spare_tire": createVehicleData.spareTire.toString(),
-        "spare_key": createVehicleData.spareKey.toString(),
         "permanent_plate": createVehicleData.permanentPlate.toString(),
-        "car_number": createVehicleData.carNumber.toString(),
-        "oil_grade": createVehicleData.oilGrade.toString(),
-        "toll_tags": createVehicleData.tollTag.toString(),
-        "toll_tags_id": createVehicleData.tollTagsId.toString(),
-        "front_license_plate": createVehicleData.frontLicensePlate.toString(),
-        "tire_size": createVehicleData.tireSize.toString(),
+        "spare_tire": createVehicleData.spareTire.toString(),
+        "car_number": createVehicleData.carNumber,
+        "oil_grade": createVehicleData.oilGrade,
         "front_tire": createVehicleData.frontTire,
         "rear_tire": createVehicleData.rearTire,
-        "insurance_agent": createVehicleData.insuranceAgent.toString(),
-        "insurance_cost": createVehicleData.insuranceCost.toString(),
-        "platform_from": 'TaskerApp',
-        "current_odometer": createVehicleData.currentOdometer,
-        "oil_change_odometer": createVehicleData.oilChangeOdometer,
-        "maintenance_check": createVehicleData.maintenanceCheck,
-        "registration_renewal_date": createVehicleData.regStickerDate
-            .toString(),
+        "registration_renewal_date": createVehicleData.renewalDate.toString(),
+        "platform_from": 'TaskerApp'
       };
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
 
+      // Add fields to the request
       request.fields.addAll(reqMap);
 
-      // for (int i = 0;
-      // i < (createVehicleData.chosenPurchaseReceipts.length);
-      // i++) {
-      //   var file = createVehicleData.chosenPurchaseReceipts[i];
-      //
-      //   var multipartFile = http.MultipartFile.fromBytes(
-      //     'files[$i]',
-      //     (await file.readAsBytes()).toList(),
-      //     filename: file.path
-      //         .split('/')
-      //         .last,
-      //   );
-      //   request.files.add(multipartFile);
-      // }
+      // Add files to the request
+      for (int i = 0;
+          i < (createVehicleData.chosenPurchaseReceipts.length ?? 0);
+          i++) {
+        var file = createVehicleData.chosenPurchaseReceipts[i];
 
-      request.files.addAll(
-          createVehicleData.vehicleImage.whereType<File>().map((e) =>
-              http.MultipartFile.fromBytes(
-                  "images[]", e.readAsBytesSync(), filename: e.path
-                  .split('/')
-                  .last)).toList());
-      request.files.addAll(
-          createVehicleData.purchaseReceiptsImage.whereType<File>().map((e) =>
-              http.MultipartFile.fromBytes(
-                  "files[]", e.readAsBytesSync(), filename: e.path
-                  .split('/')
-                  .last)).toList());
-
-      request.files.addAll(
-          createVehicleData.tollImage.whereType<File>().map((e) =>
-              http.MultipartFile.fromBytes(
-                  "toll_images[]", e.readAsBytesSync(), filename: e.path
-                  .split('/')
-                  .last)).toList());
-
-      request.files.addAll(
-          createVehicleData.tireImage.whereType<File>().map((e) =>
-              http.MultipartFile.fromBytes(
-                  "tyre_images[]", e.readAsBytesSync(), filename: e.path
-                  .split('/')
-                  .last)).toList());
-
-      request.files.addAll(
-          createVehicleData.insuranceImage.whereType<File>().map((e) =>
-              http.MultipartFile.fromBytes(
-                  "insurance_agent_images[]", e.readAsBytesSync(), filename: e.path
-                  .split('/')
-                  .last)).toList());
-
-      request.files.addAll(createVehicleData.uploadRegSticker.whereType<File>().map((e) =>
-              http.MultipartFile.fromBytes(
-                "registration_documents[]", e.readAsBytesSync(), filename: e.path
-                  .split('/')
-                  .last
-              )
-        ).toList()
-      );
+        var multipartFile = http.MultipartFile.fromBytes(
+          'files[$i]',
+          (await file.readAsBytes()).toList(),
+          filename: file.path.split('/').last,
+        );
+        request.files.add(multipartFile);
+      }
 
       // Add files to the request
-      // for (int i = 0; i < (createVehicleData.chosenFiles.length); i++) {
-      //   var file = createVehicleData.chosenFiles[i];
-      //
-      //   var multipartFile = http.MultipartFile.fromBytes(
-      //     'toll_images[$i],tyre_images[$i],registration_documents[$i],insurance_agent_images[$i]',
-      //     (await file.readAsBytes()).toList(),
-      //     filename: file.path
-      //         .split('/')
-      //         .last,
-      //   );
-      //   request.files.add(multipartFile);
-      // }
+      for (int i = 0; i < (createVehicleData.chosenFiles.length ?? 0); i++) {
+        var file = createVehicleData.chosenFiles[i];
+
+        var multipartFile = http.MultipartFile.fromBytes(
+          'images[$i]',
+          (await file.readAsBytes()).toList(),
+          filename: file.path.split('/').last,
+        );
+        request.files.add(multipartFile);
+      }
 
       var response = await request.send();
       debugPrint('createVehicle.statusCode: ${response.statusCode}');
@@ -163,45 +103,68 @@ class VehicleDataRepo {
     }
   }
 
-  Future<bool?> moveRental({
-    dynamic rentalData
-  }
- ) async {
+/*
+  Future<bool?> createVehicle(CreateVehicleData createVehicleData) async {
     try {
+      String apiUrl = '';
+      if(createVehicleData.id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${createVehicleData.id}";
+      }else{
+        apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
+      }
+
       String body = jsonEncode({
-        "branch_code":rentalData['branch_code'],
-        "cohort_id":rentalData['cohort_id'],
-        "purchase_date":rentalData['purchase_date'],
-        "purchase_price":rentalData['purchase_price'],
-        "vehicle_status":rentalData['vehicle_status'],
-        "rental_status": rentalData['rental_status'],
-        "vehicle_number": rentalData['vehicle_number'],
-        "vehicle_id": rentalData['vehicle_id'],
-        "vin": rentalData['vin'],
-        "make": rentalData['make'],
-        "model": rentalData['model'],
-        "year": rentalData['year'],
-        "platform_from": "TaskerApp"
+      "vehicle_id": createVehicleData.vehicleId,
+      "vin": createVehicleData.vin,
+      "make": createVehicleData.make,
+      "model": createVehicleData.model,
+      "year": createVehicleData.year,
+      "cohort_id": createVehicleData.selectedCohort,
+      "earnings": createVehicleData.earnings,
+      "utilization_rate": createVehicleData.utilizationRate,
+      "platform": createVehicleData.platform,
+      "mileage": createVehicleData.mileage,
+      "wholesale_amount": createVehicleData.wholesaleAmount,
+      "vehicle_status": createVehicleData.selectedSourceType,
+      "active": createVehicleData.isActive,
+      "platform_from": 'TaskerApp',
       });
-      String apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${rentalData['id']}";
-      http.Response? response= await apiClient.callPostMethod(apiUrl, body: body);
-      debugPrint("vehiclesApi apiUrl: $apiUrl");
+      debugPrint("createVendor apiUrl: $apiUrl");
+      debugPrint("createVendor body: $body");
+      final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
       if (response != null) {
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-          Utils.showMobileToast(generalResponse.message.toString());
+        debugPrint('createVendor api.response.statusCode: ${response.statusCode}');
+        debugPrint('createVendor api.response: ${response!.body}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+
+          debugPrint('createVendor api.response.body: ${response.body}');
+          debugPrint('createVendor api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse = GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
+          Utils.showMobileToast(generalResponse.message!);
           return true;
+          // }else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          // Utils.showSomethingWentWrong();
+          // return false;
+          // }
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
       } else {
-        Utils.showMobileToast('Response Null');
         return null;
       }
     } catch (error) {
-      log('deleteVehicleImages.exception : ${error.toString()}');
+      log('createVendor.exception : ${error.toString()}');
       return null;
     }
   }
+*/
 
-  Future<bool?> createVehicleGroup(String? name,List<String>? list,int? id) async {
+  Future<bool?> createVehicleGroup(
+      String? name, List<String>? list, int? id) async {
     try {
       String body = jsonEncode({"name": name, "vin": list});
       String apiUrl = '';
@@ -213,13 +176,26 @@ class VehicleDataRepo {
         apiUrl = "${Str.BASE_URL}group-vehicle";
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
+
+      debugPrint("createVehicleGroup apiUrl: $apiUrl");
+      debugPrint("createVehicleGroup id: $id");
+      debugPrint("createVehicleGroup body: $body");
       if (response != null) {
+        debugPrint('createVehicleGroup api.response.body: ${response.body}');
         if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint(
+              'createVehicleGroup api.statusCode: ${response.statusCode}');
+
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
+              GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
           Utils.showMobileToast(generalResponse.message!);
           return true;
-
+          // }else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          // Utils.showSomethingWentWrong();
+          // return false;
+          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -274,13 +250,18 @@ class VehicleDataRepo {
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
           debugPrint('deleteExpenseImages api.response.body: ${response.body}');
-          debugPrint('deleteExpenseImages api.statusCode: ${response.statusCode}');
+          debugPrint(
+              'deleteExpenseImages api.statusCode: ${response.statusCode}');
 
-          GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-          if (generalResponse.status == 200 || generalResponse.status == 201) {
-          Utils.showNoResultFound();}
+          // GeneralResponse generalResponse =
+          // GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
+          // Utils.showNoResultFound();
           return true;
+          // }else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          return false;
+          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -337,7 +318,7 @@ class VehicleDataRepo {
           debugPrint('deleteVendor api.statusCode: ${response.statusCode}');
 
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
+              GeneralResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           // Utils.showNoResultFound();
           return true;
@@ -365,10 +346,19 @@ class VehicleDataRepo {
       final http.Response? response = await apiClient.callDelete(apiUrl);
       if (response != null) {
         if (response.statusCode == 200) {
+          debugPrint('deleteVehicleGroup api.response.body: ${response.body}');
+          debugPrint(
+              'deleteVehicleGroup api.statusCode: ${response.statusCode}');
+
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
-           Utils.showMobileToast(generalResponse.message??'');
+              GeneralResponse.fromJson(json.decode(response.body));
+          // if (generalResponse.status == 200 || generalResponse.status == 201) {
+          // Utils.showNoResultFound();
           return true;
+          // }else {
+          // debugPrint('---------------> ${TodoListResponse.status!}');
+          return false;
+          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -382,12 +372,14 @@ class VehicleDataRepo {
     }
   }
 
-  Future<VehicleHistoryResponse?> getVehicleHistoryList(String? pageNo,
-      String? vin,) async {
+  Future<VehicleHistoryResponse?> getVehicleHistoryList(
+    String? pageNo,
+    String? vin,
+  ) async {
     try {
       String apiUrl = '';
       apiUrl =
-      "${Str.BASE_URL}get-vehicle-history?page=$pageNo&vin=$vin&itemPerPage=20";
+          "${Str.BASE_URL}get-vehicle-history?page=$pageNo&vin=$vin&itemPerPage=5";
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
@@ -395,7 +387,7 @@ class VehicleDataRepo {
           //debugPrint('getVehicleHistoryList api.statusCode: ${response.statusCode}');
 
           VehicleHistoryResponse vehicleHistoryResponse =
-          VehicleHistoryResponse.fromJson(json.decode(response.body));
+              VehicleHistoryResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           // Utils.showNoResultFound();
           print(
@@ -419,8 +411,8 @@ class VehicleDataRepo {
     }
   }
 
-  Future<TodoListResponse?> getVehicleHistory(String? vin,
-      int? vehicleGroupId) async {
+  Future<TodoListResponse?> getVehicleHistory(
+      String? vin, int? vehicleGroupId) async {
     try {
       String apiUrl = '';
       if (vin != null) {
@@ -437,7 +429,7 @@ class VehicleDataRepo {
               'getVehicleHistory api.statusCode: ${response.statusCode}');
 
           TodoListResponse todoListResponse =
-          TodoListResponse.fromJson(json.decode(response.body));
+              TodoListResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           // Utils.showNoResultFound();
           return todoListResponse;
@@ -548,8 +540,8 @@ class VehicleDataRepo {
     }
   }
 
-  Future<bool?> createSubCategoryData(String? name, String? expenseTo,
-      String? parentId, int? id) async {
+  Future<bool?> createSubCategoryData(
+      String? name, String? expenseTo, String? parentId, int? id) async {
     try {
       String body = jsonEncode({
         "name": name,
@@ -618,7 +610,7 @@ class VehicleDataRepo {
           debugPrint('createPartsData api.statusCode: ${response.statusCode}');
 
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
+              GeneralResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           Utils.showMobileToast(generalResponse.message!);
           return true;
@@ -651,7 +643,7 @@ class VehicleDataRepo {
           debugPrint('deleteParts api.statusCode: ${response.statusCode}');
 
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
+              GeneralResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           // Utils.showNoResultFound();
           return true;
@@ -762,7 +754,7 @@ class VehicleDataRepo {
           debugPrint('deleteSupply api.statusCode: ${response.statusCode}');
 
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
+              GeneralResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           // Utils.showNoResultFound();
           return true;
@@ -791,14 +783,12 @@ class VehicleDataRepo {
       if (response != null) {
         if (response.statusCode == 200) {
           debugPrint(
-              'setDefaultVehicleStatusConfig api.response.body: ${response
-                  .body}');
+              'setDefaultVehicleStatusConfig api.response.body: ${response.body}');
           debugPrint(
-              'setDefaultVehicleStatusConfig api.statusCode: ${response
-                  .statusCode}');
+              'setDefaultVehicleStatusConfig api.statusCode: ${response.statusCode}');
 
           GeneralResponse generalResponse =
-          GeneralResponse.fromJson(json.decode(response.body));
+              GeneralResponse.fromJson(json.decode(response.body));
           if (generalResponse.message != null ||
               generalResponse.message!.isNotEmpty) {
             Utils.showMobileToast(generalResponse.message!);
@@ -833,6 +823,7 @@ class VehicleDataRepo {
       });
       String apiUrl = '';
       http.Response? response;
+      print('========================================================,$body');
       if (id != null) {
         apiUrl = "${Str.LIST_BASE_URL}vehicle_status_checklist_store/$id";
         response = await apiClient.callPutMethod(apiUrl, body: body);
@@ -879,7 +870,7 @@ class VehicleDataRepo {
       if (response != null) {
         if (response.statusCode == 200 || response.statusCode == 201) {
           VehicleNotesHistoryResponse vehicleNotesHistoryResponse =
-          VehicleNotesHistoryResponse.fromJson(json.decode(response.body));
+              VehicleNotesHistoryResponse.fromJson(json.decode(response.body));
           // if (generalResponse.status == 200 || generalResponse.status == 201) {
           // Utils.showNoResultFound();
           print(
@@ -902,29 +893,4 @@ class VehicleDataRepo {
       return null;
     }
   }
-
-  Future<VehicleGroupingResponse?> getVehicleGroupData() async {
-    try {
-      String apiUrl = '';
-      apiUrl = "${Str.BASE_URL}group-vehicle";
-      final http.Response? response = await apiClient.callGetMethod(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          VehicleGroupingResponse vehicleGroupingResponse =
-          VehicleGroupingResponse.fromJson(json.decode(response.body));
-          return vehicleGroupingResponse;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('VehicleGroupData.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-
 }

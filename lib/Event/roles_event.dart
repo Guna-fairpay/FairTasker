@@ -16,23 +16,10 @@ class GetRolesData extends RolesEvent {
   List<Object> get props => [];
 }
 
-class GetPermissionDataForRole extends RolesEvent {
-  const GetPermissionDataForRole();
-  @override
-  List<Object> get props => [];
-
-}
-
-class GetEditRoleData extends RolesEvent {
-  final int id;
-  const GetEditRoleData({required this.id});
-  @override
-  List<Object> get props => [id];
-}
-
 class AddRoleData extends RolesEvent {
+
   final String name;
-  final List<dynamic> permissions;
+  final String permissions;
   final int? id;
 
   const AddRoleData({
@@ -42,10 +29,10 @@ class AddRoleData extends RolesEvent {
   List<Object?> get props => [name,permissions,id];
 }
 
-class DeleteRole extends RolesEvent {
-  final int id;
+class DeleteDepartment extends RolesEvent {
+  final String id;
 
-  const DeleteRole({
+  const DeleteDepartment({
     required this.id,
   });
 

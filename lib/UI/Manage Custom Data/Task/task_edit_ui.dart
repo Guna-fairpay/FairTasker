@@ -1,18 +1,13 @@
-
 import 'package:fairpytasker/State/todo_view_state.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_view_ui.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/todo_view_bloc.dart';
 import '../../../Component/drawer_ui.dart';
+import '../../../Component/header.dart';
 import '../../../Event/todo_view_event.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../Sub Category/subcategory_view_ui.dart';
 
 class TaskEditUI extends StatefulWidget {
   final Map<String, dynamic> task;
@@ -24,31 +19,36 @@ class TaskEditUI extends StatefulWidget {
 }
 
 class _TaskEditUIState extends State<TaskEditUI> {
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TodoViewBloc cohortsBloc;
-  TextEditingController taskController=TextEditingController();
-  TextEditingController timeTakenController=TextEditingController();
-  List<Map<String, dynamic>> category = [];
-  List<dynamic> subCategory = [];
-  dynamic selectedCategory;
-  dynamic selectedSubCategory;
-  List<Map<String, dynamic>> userType = [
-    {'id': 1, 'name': 'Select'},
-    {'id': 2, 'name': 'Support Task'}
-  ];
-  dynamic selectedUserType;
+  late final TextEditingController taskController;
+  late final TextEditingController timeTakenController;
+  List<Map<String, dynamic>> categoryDropdownList = [];
+  List<dynamic> subCategoryDropdownList = [];
+  String? selectedCategory;
+  String? selectedSubCategory;
+  List<String> userType = ['select', 'Support Task'];
+  String? selectedUserType;
   bool isTaskFieldEmpty = false;
-  bool isTimeTakenEmpty = false;
   bool loading = false;
 
   @override
   void initState() {
     super.initState();
     cohortsBloc = TodoViewBloc();
-    taskController.text = widget.task['task'] ?? '';
-    timeTakenController.text = widget.task['time_taken'] ?? '';
-    selectedUserType = (widget.task['user_type'] == 1 ? userType[1] : userType[0]);
+    taskController = TextEditingController(text: widget.task['task']);
+    timeTakenController =
+        TextEditingController(text: widget.task['time_taken']);
+
+    if (widget.task['category_id'] != null &&
+        widget.task['category_name'] != null) {
+      selectedCategory = widget.task['category_id'].toString();
+    } else {
+      selectedCategory = null;
+    }
+    selectedSubCategory = widget.task['subcategory_id'].toString();
+    selectedUserType = (widget.task['user_type'] ?? userType[1]) == 1
+        ? userType[1]
+        : userType[0];
   }
 
   @override
@@ -58,213 +58,291 @@ class _TaskEditUIState extends State<TaskEditUI> {
   }
 
   void _save() {
-
-    _formKey.currentState!.validate();
-    setState(() { });
-    if (taskController.text.isEmpty || timeTakenController.text.isEmpty) {
-      return;
+    setState(() {
+      isTaskFieldEmpty = taskController.text.isEmpty;
+    });
+    if (taskController.text.isEmpty) {
+      return Utils.showMobileToast('Please fill in all required fields');
     }
     final updatedTask = {
       'id': widget.task['id'],
       'task': taskController.text,
-      'category_id': selectedCategory['id'],
-      'subcategory_id': selectedSubCategory['id'],
-      'time_taken': timeTakenController.text,
-      'user_type': selectedUserType['id'] == 2 ? 1 : 0,
+      'categoryId': selectedCategory ?? '',
+      'subcategoryId': selectedSubCategory ?? '',
+      'timeTaken': timeTakenController.text,
+      'userType': selectedUserType == 'Support Task' ? 1 : 0,
     };
-   Navigator.pop(context, updatedTask);
+
+    Navigator.pop(context, updatedTask);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar:AppBar(
-        backgroundColor: AppC.appColor,
-        title:const Text('Edit Task',),
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.close,
-                color: AppC.white,
-              ),
-          ),
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0),
+        child: HeaderView(),
       ),
       body: BlocProvider(
         create: (context) => cohortsBloc..add(const GetCohortsData()),
         child: BlocConsumer<TodoViewBloc, TodoViewState>(
           listener: (context, state) {
             if (state is TodoListLoading) {
-               EasyLoading.show();
-            } else {if (EasyLoading.isShow) EasyLoading.dismiss();
-              if (state is CohortsListLoaded) {
-                category.clear();
-                category.addAll(state.expenseData ?? []);
-                selectedCategory = category.firstWhere(
-                  (e) => e['id'] == widget.task['category_id'],
-                  orElse: () => {},
-                );
-                subCategory = state.expenseData!
+              loading = true;
+            } else if (state is CohortsListLoaded) {
+              loading = false;
+              categoryDropdownList.clear();
+              categoryDropdownList.addAll(state.expenseData ?? []);
+              if (widget.task['category_id'] != null) {
+                subCategoryDropdownList = state.expenseData!
                     .where((category) =>
                         category['id'].toString() ==
                         widget.task['category_id'].toString())
                     .map((category) => category['sub_categories'] ?? [])
                     .expand((subcategoryList) => subcategoryList)
                     .toList();
-                selectedSubCategory = subCategory.firstWhere(
-                  (e) => e['id'] == widget.task['subcategory_id'],
-                  orElse: () => {},
-                );
               }
             }
           },
           builder: (context, state) {
-            return SafeArea(
-              minimum:15.padding,
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    Utils.getTextFormField(
-                      'Task',
-                      taskController,
-                      autoValidate: AutovalidateMode.onUserInteraction,
-                      validator: (val) => val!.isEmpty ? 'Please enter task name' : null,
-                    ),
-                    const SizedBox(height: 10,),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Utils.dropdownBox(
-                            "Select Category",
-                            category,
-                                (selectedValue) {
-                              setState(() {
-                                selectedCategory = selectedValue;
-                                selectedSubCategory = "";
-                                subCategory.clear();
-                                if (selectedValue != null) {
-                                  subCategory = (state as CohortsListLoaded).expenseData!
-                                      .where((category) =>
-                                  category['id'].toString() ==
-                                      selectedValue['id'].toString())
-                                      .map((category) =>
-                                  category['sub_categories'] ?? [])
-                                      .expand((subcategoryList) => subcategoryList)
-                                      .toList();
-                                }
-                              });
-                              },
-                            labelKey: 'name',
-                            initialSelection: selectedCategory,
-                            selectedKey: selectedCategory,
-                            topRRadius: 0,
-                            bottomRRadius: 0,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const CategoryViewUi()),
-                            );
-                            },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(topRight: Radius.circular(4),bottomRight: Radius.circular(4)),
-                                color: AppC.blue50,
-                                border: Border.all(
-                                  color: AppC.fieldBase,
-                                  width: Num.borderWidthField,)
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 8,),
-                              child: Icon(Icons.add,color: AppC.blue,),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 10,),
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SubcategoryViewUI()),
-                        );
-                        },
-                      child: Row(
+            return Stack(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Expanded(
-                            child: Utils.dropdownBox( "Select SubCategory",
-                              subCategory,
-                                  (selectedValue) {
-                              setState(() {
-                                selectedSubCategory = selectedValue;
-                              });
+                          GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
                               },
-                              labelKey: 'name',
-                              initialSelection: selectedSubCategory,
-                              selectedKey: selectedSubCategory,
-                              topRRadius: 0,
-                              bottomRRadius: 0,
-                            ),
+                              child: const Icon(Icons.arrow_back)),
+                          const SizedBox(
+                            width: 10,
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(4),
-                                    bottomRight: Radius.circular(4)),
-                                color: AppC.blue50,
-                                border: Border.all(
-                                  color: AppC.fieldBase,
-                                  width: Num.borderWidthField,)
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 8,),
-                              child: Icon(Icons.add,color: AppC.blue,),
-                            ),
-                          )
+                          Utils.getText('Edit Task',
+                              size: 20, weight: FontWeight.bold),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 10,),
-                    Utils.getTextFormField(
-                      'Time taken to complete in minutes(eg: 30)',
-                      timeTakenController,
-                      autoValidate: AutovalidateMode.onUserInteraction,
-                      validator: (val) => val!.isEmpty ? 'Please enter time' : null,
-                    ),
-                    const SizedBox(height: 10,),
-                    Utils.dropdownBox(
-                      'select user type',
-                      userType,
-                          (value){
-                        setState(() {
-                          selectedUserType = value;
-                        });
-                        },
-                      labelKey: 'name',
-                      initialSelection: selectedUserType,
-                    ),
-                    const SizedBox(height: 10,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Utils.getElevatedButton(() => _save(),),
-                      ],
-                    ),
-                  ],
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        height: 40,
+                        child: Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              '',
+                              taskController,
+                              label: Utils.getText('Task', color: AppC.grey),
+                              borderColor: isTaskFieldEmpty
+                                  ? Colors.red
+                                  : AppC.fieldBase,
+                            ),
+                            if (isTaskFieldEmpty)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(Icons.error_outline,
+                                    color: Colors.red),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(Num.subradiusButton)),
+                        ),
+                        child: DropdownButton<String>(
+                          hint: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Utils.getText('Select Category',
+                                color: AppC.grey),
+                          ),
+                          value: selectedCategory,
+                          isExpanded: true,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          elevation: 3,
+                          dropdownColor: AppC.white,
+                          underline: Container(
+                            height: 0,
+                            color: Colors.transparent,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCategory = value;
+                              selectedSubCategory = null;
+                              subCategoryDropdownList.clear();
+
+                              if (value != null) {
+                                subCategoryDropdownList = (state
+                                        as CohortsListLoaded)
+                                    .expenseData!
+                                    .where((category) =>
+                                        category['id'].toString() ==
+                                        value.toString())
+                                    .map((category) =>
+                                        category['sub_categories'] ?? [])
+                                    .expand(
+                                        (subcategoryList) => subcategoryList)
+                                    .toList();
+                              }
+                            });
+                          },
+                          items: categoryDropdownList
+                              .map<DropdownMenuItem<String>>(
+                            (value) {
+                              return DropdownMenuItem<String>(
+                                value: value['id'].toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Utils.getText('${value['name']}'),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(Num.subradiusButton)),
+                        ),
+                        child: DropdownButton<String>(
+                          hint: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Utils.getText('Select SubCategory',
+                                color: AppC.grey),
+                          ),
+                          value: selectedSubCategory,
+                          isExpanded: true,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          elevation: 3,
+                          dropdownColor: AppC.white,
+                          underline: Container(
+                            height: 0,
+                            color: Colors.transparent,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedSubCategory = value;
+                            });
+                          },
+                          items: subCategoryDropdownList
+                              .map<DropdownMenuItem<String>>(
+                            (value) {
+                              return DropdownMenuItem<String>(
+                                value: value['id'].toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Utils.getText('${value['name']}'),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        height: 40,
+                        child:
+                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                          '',
+                          timeTakenController,
+                          label: Utils.getText('Time Taken', color: AppC.grey),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 40,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField,
+                            ),
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(Num.subradiusButton)),
+                          ),
+                          child: DropdownButton<String>(
+                            hint: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Utils.getText('select', color: AppC.grey),
+                            ),
+                            value: selectedUserType,
+                            isExpanded: true,
+                            icon: const Icon(Icons.arrow_drop_down),
+                            elevation: 3,
+                            dropdownColor: AppC.white,
+                            underline: Container(
+                              height: 0,
+                              color: Colors.transparent,
+                            ),
+                            onChanged: (String? value) {
+                              // This is called when the user selects an item.
+                              setState(() {
+                                selectedUserType = value;
+                              });
+                            },
+                            items: userType
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Utils.getText(value),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            child: Utils.getAddFilledButton('Save', () {
+                              _save();
+                            }),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Visibility(
+                    visible: loading,
+                    child: Center(child: Utils.getProgressIndicator(context)))
+              ],
             );
           },
         ),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

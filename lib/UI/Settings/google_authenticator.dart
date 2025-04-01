@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../Component/header.dart';
-import '../../Utilities/utils.dart';
+import '../../Utilities/Utils.dart';
 import '../../Utilities/appC.dart';
 
 class GoogleAuthenticatorUI extends StatefulWidget {
@@ -114,7 +114,7 @@ class _GoogleAuthenticatorUIState extends State<GoogleAuthenticatorUI> {
                         child: SizedBox(
                           height: 40,
                           child:
-                              Utils.getTextFormField(
+                              Utils.getBackgroundFilledTextFieldFirstLetterCaps(
                             'One time password',
                             otpController,
                             textType: TextInputType.number,

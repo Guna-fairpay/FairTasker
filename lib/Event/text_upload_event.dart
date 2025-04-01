@@ -5,20 +5,28 @@ abstract class TextUploadEvent extends Equatable {
   const TextUploadEvent();
 }
 
-class TextUpload extends TextUploadEvent {
-  final String text;
-
-  const TextUpload({required this.text});
+class GetTextUploadEvent extends TextUploadEvent {
+  const GetTextUploadEvent();
 
   @override
-  List<Object?> get props => [text];
+  List<Object> get props => [];
 }
 
-class TuroReservationEvent extends TextUploadEvent {
+class CreateTextUpload extends TextUploadEvent {
   final String text;
-  const TuroReservationEvent({required this.text,});
+  final int? id;
+
+  const CreateTextUpload({required this.text,required this.id});
 
   @override
-  List<Object?> get props => [text];
+  List<Object?> get props => [text, id];
 }
 
+class DeleteTextUploadEvent extends TextUploadEvent {
+  final int id;
+
+  const DeleteTextUploadEvent({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

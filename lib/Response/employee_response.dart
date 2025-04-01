@@ -6,43 +6,40 @@ class EmployeeListResponse {
     this.message,
   });
   EmployeeListResponse.fromJson(Map<String, dynamic> json) {
+
     data = List<Map<String, dynamic>>.from(json['role'] ?? []);
+    // data = json['department'] is Map<String, dynamic>
+    //     ? [Map<String, dynamic>.from(json['department'] ?? {})]
+    //     : List<Map<String, dynamic>>.from(json['department'] ?? []);
     message = json['message'] ?? "";
     status = json['status'];
+
+
   }
+
   List<Map<String, dynamic>>? data;
   int? status;
   String? message;
-}
 
-class EditEmployeeResponse {
-  EditEmployeeResponse({
-    this.status,
-    this.role,
-    this.user,
-    this.userRole,
-  });
-  EditEmployeeResponse.fromJson(Map<String, dynamic> json) {
-    status =json['status'];
-    role = List<Map<String, dynamic>>.from(json['role'] ?? []);
-    user = Map<String, dynamic>.from(json['user'] ?? {});
-    userRole = List<int>.from(json['userRole'] ?? []);
-  }
-  int? status;
-  List<Map<String, dynamic>>?role=[];
-  Map<String, dynamic>?user={};
-  List<int>?userRole=[];
 }
 
 class EmployeeResponse {
   EmployeeResponse({
+
     this.status,
     this.message,
+   // this.role,
   });
   EmployeeResponse.fromJson(Map<String, dynamic> json) {
+
     message = json['message'] ?? "";
     status =json['status'];
+   // role=json['role'] ?? "";
   }
+
   int? status;
   String? message;
-  }
+  //String? role;
+
+
+}

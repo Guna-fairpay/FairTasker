@@ -21,7 +21,6 @@ class GetLeaveManagementData extends LeaveManagementEvent {
 class AddLeaveManagementData extends LeaveManagementEvent {
 
   final String leaveTypeId;
-  final String leaveDuration;
   final String startDate;
   final String endDate;
   final String reason;
@@ -33,7 +32,6 @@ class AddLeaveManagementData extends LeaveManagementEvent {
 
   const AddLeaveManagementData({
     required this.leaveTypeId,
-    required this.leaveDuration,
     required this.startDate,
     required this.endDate,
     required this.reason,
@@ -47,7 +45,6 @@ class AddLeaveManagementData extends LeaveManagementEvent {
   List<Object?> get props =>
       [
         leaveTypeId,
-        leaveDuration,
         startDate,
         endDate,
         reason,
@@ -59,17 +56,15 @@ class AddLeaveManagementData extends LeaveManagementEvent {
       ];
 }
 
-class ApplyLeaveEvent extends LeaveManagementEvent {
-   final int? id;
-   final String? status;
-   final String? reason;
-  const ApplyLeaveEvent(
-  {
-  required this.id,
-  required this.status,
-  required this.reason,});
+class DeleteLeaveManagement extends LeaveManagementEvent {
+  final String id;
+
+  const DeleteLeaveManagement({
+    required this.id,
+  });
+
   @override
-  List<Object?> get props => [id,status,reason];
+  List<Object> get props => [id];
 }
 
 class GetLeaveManagementEmployeeListData extends LeaveManagementEvent {

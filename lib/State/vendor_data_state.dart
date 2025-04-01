@@ -10,7 +10,7 @@ class VendorDataInitial extends VendorDataState {
 }
 
 class VendorDataLoaded extends VendorDataState {
-  final String? result;
+  final bool? result;
   const VendorDataLoaded({required this.result});
   @override
   List<Object?> get props => [result];

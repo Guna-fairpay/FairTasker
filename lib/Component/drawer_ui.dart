@@ -1,21 +1,15 @@
 
 import 'package:fairpytasker/UI/Leave%20Management/leave_management_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/helper/authenticator.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
 import '../UI/authentication_ui.dart';
 import '../UI/Import Task/text_upload.dart';
 import '../UI/Manage Custom Data/manage_custom_data_menu_ui.dart';
 import '../UI/recurrence_Task.dart';
-import '../UI/Voice To Text/UI/voice_to_text_ui.dart';
+import '../UI/voice_to_text_ui.dart';
 import '../Utilities/str.dart';
 import '../Utilities/utils.dart';
 import 'bottom_nav_for_task.dart';
@@ -105,7 +99,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 _buildListTile(
                   icon: Icons.build,
                   title: "Manage Custom Data's",
-                  onTap: () => navigateToPage(const ManageCustomDataMenuUI()),
+                  onTap: () => navigateToPage(const ManageCustomdataMenuUI()),
                 ),
                 _buildDivider(),
                 _buildListTile(
@@ -121,12 +115,6 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 ),
                 _buildDivider(),
                 _buildListTile(
-                  icon: Icons.file_copy,
-                  title: "Reports",
-                  onTap: () => navigateToPage(const ReportsView()),
-                ),
-                _buildDivider(),
-                _buildListTile(
                   icon:  Icons.upload,
                   title: "Import Task",
                   onTap: () => navigateToPage(const UploadText()),
@@ -139,17 +127,17 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                     // =>navigateToPage(const UploadText())
                   },
                 ),
-                /*_buildDivider(),
+                _buildDivider(),
                 _buildListTile(
                   icon:  Icons.sync,
                   title: "Recurrence Task",
                   onTap: () => navigateToPage(const RecurrenceTask()),
-                ),*/
+                ),
                 _buildDivider(),
                 _buildListTile(
                   icon:  Icons.queue_music,
                   title: "Voice To Text",
-                  onTap: () => navigateToPage(const VoiceToTextUI()),
+                  onTap: () => navigateToPage(const VoiceToTextUi()),
                 ),
                 _buildDivider(),
                 _buildListTile(
@@ -180,7 +168,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Utils.getText(
-            "Version: 1.0.4",
+            "Version: 1.0",
             color: Colors.grey.withOpacity(0.99),
           ),
         ]),
@@ -212,16 +200,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 icon: Icons.power_settings_new,
                 label: "Logout",
                 onTap: () {
-                  AskPermissionDialog.show(context, title: "Confirm logout", description: "Are you sure you want to logout?", negativeText: "No", positiveText: "Yes", onPositivePressed: () async {
-                    await Authenticator.instance.logout();
-                    await getIt<CommonService>().clearAll();
-                    Utils.deletePreferences(key: Str.loginPrefText);
-                    Utils.deletePreferences(key: Str.accessTokenPrefText);
-                    Utils.deletePreferences(key: Str.userIdPrefText);
-                    Session.of.clear();
-                    context.pushAndRemoveUntil(const AuthenticationUI());
-                  });
-                  /*showDialog(
+                  showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -262,7 +241,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                         ],
                       );
                     },
-                  );*/
+                  );
                 },
               ),
             ],

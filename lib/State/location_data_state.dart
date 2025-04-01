@@ -1,4 +1,3 @@
-
 part of '../Bloc/location_data_bloc.dart';
 
 abstract class LocationDataState extends Equatable {
@@ -10,6 +9,13 @@ class LocationDataInitial extends LocationDataState {
   List<Object> get props => [];
 }
 
+class LocationDataLoaded extends LocationDataState {
+  final bool? result;
+  final bool? isDelete;
+  const LocationDataLoaded({required this.result, this.isDelete});
+  @override
+  List<Object?> get props => [result, isDelete];
+}
 
 class LocationDataLoading extends LocationDataState {
   const LocationDataLoading();
@@ -23,11 +29,3 @@ class LocationListLoaded extends LocationDataState {
   @override
   List<Object?> get props => [resource];
 }
-
-class LocationDataLoaded extends LocationDataState {
-  final String? message;
-  const LocationDataLoaded({required this.message});
-  @override
-  List<Object?> get props => [message];
-}
-

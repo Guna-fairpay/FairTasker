@@ -15,8 +15,11 @@ class UsersRepository {
     try {
       String apiUrl = "${Str.BASE_URL}userList";
       debugPrint("getAssignedTo apiUrl: $apiUrl");
+
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      print(response);
       if (response != null) {
+        print(response.body);
         if (response.statusCode == 200) {
           UsersListResponse usersListResponse =
           UsersListResponse.fromJson(json.decode(response.body));
@@ -35,73 +38,56 @@ class UsersRepository {
     }
   }
 
-  Future<PermissionUsersListResponse?> getEditUsers({int? id}) async {
-    try {
-      String apiUrl = "${Str.BASE_URL}editUserRole/$id";
-      debugPrint("editUserRole apiUrl: $apiUrl");
-      final http.Response? response = await apiClient.callGetMethod(apiUrl);
-      if (response != null) {
-        if (response.statusCode == 200) {
-          PermissionUsersListResponse permissionUsersListResponse =
-          PermissionUsersListResponse.fromJson(json.decode(response.body));
-          return permissionUsersListResponse;
-        } else {
-          Utils.showNoResultFound();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (error) {
-      log('getPermissionUsers.exception : ${error.toString()}');
-      return null;
-    }
-  }
-
-  Future<UsersResponse?> createUsers(
-      {int? user, List<int>? permissions}) async {
+  Future<UsersResponse?> createUsers(int? id,String? name) async {
     try {
       String body = jsonEncode({
-        "user": user,
-        "permission": permissions,
+        "name": name,
         "platform": "TaskerApp",
         "status": "1"
       });
+
       String apiUrl = '';
       http.Response? response;
-      if(user != null) {
-        apiUrl = "${Str.BASE_URL}updateRole/$user";
+      if(id != null) {
+        apiUrl = "${Str.BASE_URL}updateUser/$id";
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }else{
-        apiUrl = "${Str.BASE_URL}addRole";
-        debugPrint("addRole apiUrl: $apiUrl");
+        apiUrl = "${Str.BASE_URL}addUser";
+        debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
       }
       if (response != null) {
+
         UsersResponse usersResponse =
         UsersResponse.fromJson(json.decode(response.body));
+
         if (response.statusCode == 200) {
+
           return usersResponse;
         } else {
+
           return usersResponse;
         }
       } else {
         return null;
       }
     } catch (error) {
-      log('addRole.exception : ${error.toString()}');
+      log('department.exception : ${error.toString()}');
       return null;
     }
   }
 
-  Future<UsersResponse?> deleteUsers(int? id) async {
+  Future<UsersResponse?> deleteUsers(String? id) async {
     try {
-      String apiUrl = "${Str.BASE_URL}deleteRole/$id";
+      String apiUrl = "${Str.BASE_URL}deleteDepartment/$id";
+
       final http.Response? response = await apiClient.callDelete(apiUrl);
+
       if (response != null) {
         UsersResponse usersResponse =
         UsersResponse.fromJson(json.decode(response.body));
+
         if (response.statusCode == 200) {
           return usersResponse;
         } else {

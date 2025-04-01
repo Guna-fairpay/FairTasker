@@ -30,7 +30,7 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
   TodoViewBloc? todoBloc;
   // Color appBarColor = AppC.lowP;
   String appBarTitle = 'Expense Summary';
-  Map<String, dynamic>? expenseSummaryList;
+  List<Map<String, dynamic>> expenseSummaryList = [];
 
   @override
   void initState() {
@@ -64,7 +64,8 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
                 listener: (context, state) async {
               if (state is ExpenseSummaryLoaded) {
                 if (state.expenseSummaryList != null) {
-                  expenseSummaryList = state.expenseSummaryList??{};
+                  expenseSummaryList
+                      .addAll((state.expenseSummaryList ?? []).reversed);
                 }
               }
             }, builder: (context, state) {
@@ -82,7 +83,7 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
                         child: ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: expenseSummaryList?.length,
+                          itemCount: expenseSummaryList.length,
                           itemBuilder: (context, index) {
                             return Container(
                               padding: const EdgeInsets.symmetric(
@@ -115,7 +116,7 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
                                   Expanded(
                                       flex: 3,
                                       child: Utils.getText(
-                                          (expenseSummaryList?[index]
+                                          (expenseSummaryList[index]
                                                   ['expense_date'] ??
                                               ''))),
                                   Expanded(
@@ -124,7 +125,7 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
                                         padding:
                                             const EdgeInsets.only(left: 12.0),
                                         child: Utils.getText(
-                                            (expenseSummaryList?[index]
+                                            (expenseSummaryList[index]
                                                         ['expense_amount'] ??
                                                     0)
                                                 .toString()),
@@ -132,21 +133,21 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
                                   Expanded(
                                     flex: 5,
                                     child: Utils.getText(
-                                        expenseSummaryList?[index]
+                                        expenseSummaryList[index]
                                                 ['expense_description'] ??
                                             ''),
                                   ),
                                   Visibility(
-                                    visible: (expenseSummaryList?[index]
+                                    visible: (expenseSummaryList[index]
                                                 ['attachments'] ??
                                             [])
                                         .isNotEmpty,
                                     child: InkWell(
                                       onTap: () {
                                         debugPrint(
-                                            'attachments!.length: ${expenseSummaryList?[index]['attachments']!.length}');
+                                            'attachments!.length: ${expenseSummaryList[index]['attachments']!.length}');
                                         List<String> path =
-                                            (expenseSummaryList?[index]
+                                            (expenseSummaryList[index]
                                                     ['attachments']!
                                                 .map((e) => e.path ?? '')
                                                 .toList());
@@ -178,7 +179,7 @@ class _ExpenseSummaryUIState extends State<ExpenseSummaryUI> {
                                         builder: (context) =>
                                             ExpenseSummaryDetailUI(
                                                 expenseId:
-                                                    expenseSummaryList?[index]
+                                                    expenseSummaryList[index]
                                                             ['id']!
                                                         .toString(),
                                                 categoriesList:

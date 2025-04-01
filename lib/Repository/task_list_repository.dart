@@ -13,7 +13,7 @@ class TaskListRepository {
 
   Future<TaskListViewResponse?> getTaskList(String? startDate,String? endDate ) async {
     try {
-      print("startDate---->$startDate  endDate----->$endDate");
+
       String apiUrl = "${Str.BASE_URL}getCompletedTodo?from=$startDate&to=$endDate";
       debugPrint("getTaskList apiUrl: $apiUrl");
 
