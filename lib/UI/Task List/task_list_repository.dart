@@ -6,7 +6,7 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/cupertino.dart';
-import '../Response/task_list_response.dart';
+import '../../Response/task_list_response.dart';
 
 class TaskListRepository {
   ApiClient apiClient = ApiClient();

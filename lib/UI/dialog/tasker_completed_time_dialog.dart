@@ -46,7 +46,7 @@ class _TaskerCompletedTimeDialogView extends StatelessWidget {
         title: Utils.getText("Task Completed - Time", size: 16.sp, weight: FontWeight.bold, color: AppC.appColor, overFlow: TextOverflow.ellipsis),
         trailing: IconButton(onPressed: context.popDialog, icon: const Icon(Icons.close_rounded)),
       ),
-      content: Container(
+      content: SizedBox(
         width: context.width,
         child: ListView(
           shrinkWrap: true,
@@ -58,6 +58,7 @@ class _TaskerCompletedTimeDialogView extends StatelessWidget {
             ValueListenableBuilder(valueListenable: _selectedTimeTaken, builder: (context, value, child) {
              return Column(
                mainAxisSize: MainAxisSize.min,
+               spacing: 10,
                crossAxisAlignment: CrossAxisAlignment.start,
                children: [
                  Wrap(
@@ -130,22 +131,23 @@ class _TaskerCompletedTimeDialogView extends StatelessWidget {
                        ),
                      )),
                      const SizedBox(height: 10),
-                     Utils.getBorderedMultilineTextField('Reason', reasonController, minLines: 2),
-                     ValueListenableBuilder(valueListenable: reasonController, builder: (context, value, child) =>
-                         Visibility(
-                           visible: (value.text.trim().isNullOrEmpty),
-                           child: Utils.getText(
-                             'Please enter reason for extra time',
-                             color: AppC.red,
-                           ),
-                         )),
+                   ],
+                 if (value != (model?['display']?['completed_time'] ?? ""))
+                   ...[
+                     Utils.getBorderedMultilineTextField('Reason',
+                       reasonController,
+                       minLines: 2,
+                       autoValidate: AutovalidateMode.always,
+                       validator: (val) => (val?.trim().isNullOrEmpty ?? false) ? 'Please enter reason for extra time' : null,
+                     ),
                    ]
                ],
              );
             }),
             Utils.getFilledButton('Submit', () {
-              if (_selectedCompletedTime.contains(">") && timeTakenController.text.isEmpty && reasonController.text.isEmpty && !(timeTakenController.text.isValidCompletedTime)) return;
-              var reason = (_selectedCompletedTime.contains(">")) ? reasonController.text : null;
+              if (_selectedCompletedTime.contains(">") && timeTakenController.text.isEmpty && reasonController.text.trim().isEmpty && !(timeTakenController.text.isValidCompletedTime)) return;
+              if ((_selectedCompletedTime != (model?['display']?['completed_time'] ?? "")) && reasonController.text.trim().isNullOrEmpty) return;
+              var reason = (_selectedCompletedTime != (model?['display']?['completed_time'] ?? "")) ? reasonController.text : null;
               var completedTime = (_selectedCompletedTime.contains(">")) ? timeTakenController.text : _selectedCompletedTime;
               if (onChanged != null) {
                 onChanged?.call(completedTime, reason);

@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/private_rental_popup.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -148,6 +150,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state.pop) context.pop();
             log("${state.getPrivateRentalCheckData}" , name: "PrivateRentalCheckUi");
           }
         },
@@ -175,15 +178,14 @@ class PrivateRentalCheckUi extends StatelessWidget {
                             checkBoxWithSingleTextAndTexBox(
                               checkboxValue: item?['isChecked'],
                               onCheckboxChanged: (value) async {
-
                                 if (itemId != null) {
                                   final controller = state.privateRentalNoteControllers?[itemId];
                                   final hasExistingNotes = controller?.text.isNotEmpty ?? false;
 
                                   if (value == true && hasExistingNotes) {
                                     PrivateRentalDialog.show(context,onCompleted: () =>
-                                    context.read<MaintenanceBloc>().add(CompletePrivateRentalItemEvent(todoId: item?['id'])),
-                                    onDelete: () => context.read<MaintenanceBloc>().add(DeletePrivateRentalItemEvent(todoId: item?['id']))
+                                    context.read<MaintenanceBloc>().add(CompletePrivateRentalItemEvent(todoId: item?['todoId'])),
+                                    onDelete: () => context.read<MaintenanceBloc>().add(DeletePrivateRentalItemEvent(todoId: item?['todoId']))
                                     );
                                   } else {
                                     context.read<MaintenanceBloc>().add(

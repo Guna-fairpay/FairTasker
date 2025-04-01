@@ -29,6 +29,9 @@ class Str{
   static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
 
+    static const String branchNamePrefText = 'BranchNamePref';
+  static const String branchChange = 'branch_has_been_changed';
+
   static const String appName = "FairPYTasker";
   // static const String addExpense = "Add Expenses";
   // static const String expenseList = "Expense List";

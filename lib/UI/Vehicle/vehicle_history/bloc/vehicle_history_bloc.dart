@@ -19,6 +19,7 @@ class VehicleHistoryBloc
   final VehicleHistoryRepository vehicleHistoryRepository =
       VehicleHistoryRepository();
   dynamic vinNumber;
+  dynamic vehicleGroupId;
   dynamic vinName;
   int itemsPerPage = 10;
   List<Map<String, dynamic>> resources = [];
@@ -41,11 +42,12 @@ class VehicleHistoryBloc
         )) {
     on<VehicleInitialEvent>((event, emit) async {
       vinNumber = event.vin;
+      vehicleGroupId = event.groupId;
       vinName = event.vehicleName;
       try {
         emit(state.copyWith(isLoading: true));
         var response = await Future.wait([
-          _getVehicleHistory(vinNumber, currentPage: state.currentPage, search: searchController.text),
+          _getVehicleHistory(currentPage: state.currentPage, search: searchController.text),
           _getResourcesList(),
           _getGroupPersonList(),
         ]);
@@ -78,7 +80,7 @@ class VehicleHistoryBloc
       var pageCount = event.page;
       try{
           emit(state.copyWith(isLoading: true, vehicleDataList: {}));
-          var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
+          var response = await _getVehicleHistory(currentPage: pageCount, search: searchController.text);
           var vehicleDataList = _convertData(response?.data);
           emit(state.copyWith(
               isLoading: false,
@@ -95,7 +97,7 @@ class VehicleHistoryBloc
       var pageCount = 1;
       try{
         emit(state.copyWith(isLoading: true, vehicleDataList: {}));
-        var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: event.searchText);
+        var response = await _getVehicleHistory(currentPage: pageCount, search: event.searchText);
         var vehicleDataList = _convertData(response?.data);
         emit(state.copyWith(
             isLoading: false,
@@ -115,7 +117,7 @@ class VehicleHistoryBloc
         if (response?.status == 200) {
           emit(state.copyWith(vehicleDataList: {}));
           var pageCount = state.currentPage;
-          var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
+          var response = await _getVehicleHistory(currentPage: pageCount, search: searchController.text);
           var vehicleDataList = _convertData(response?.data);
           var selectedTask = state.selectedTask;
           if (selectedTask != null) {
@@ -144,7 +146,7 @@ class VehicleHistoryBloc
         if (response?.status == 200) {
           emit(state.copyWith(vehicleDataList: {}));
           var pageCount = state.currentPage;
-          var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
+          var response = await _getVehicleHistory(currentPage: pageCount, search: searchController.text);
           var vehicleDataList = _convertData(response?.data);
           emit(state.copyWith(
               isLoading: false,
@@ -170,7 +172,7 @@ class VehicleHistoryBloc
       var pageCount = 1;
       try{
         emit(state.copyWith(isLoading: true, vehicleDataList: {}, isSameTaskSelected: event.isChecked));
-        var response = await _getVehicleHistory(vinNumber, currentPage: pageCount, search: searchController.text);
+        var response = await _getVehicleHistory(currentPage: pageCount, search: searchController.text);
         var vehicleDataList = _convertData(response?.data);
         emit(state.copyWith(
             isLoading: false,
@@ -219,9 +221,8 @@ class VehicleHistoryBloc
       return map;
   }
 
-  Future<VehicleHistoryResponse?> _getVehicleHistory(dynamic vin,
-          {int? currentPage, String? search}) async =>
-      await vehicleHistoryRepository.getVehicleHistoryList(vin,
+  Future<VehicleHistoryResponse?> _getVehicleHistory({int? currentPage, String? search}) async =>
+      await vehicleHistoryRepository.getVehicleHistoryList(vin: vinNumber, groupId: vehicleGroupId,
           currentPage: currentPage, search: search, itemsPerPage: itemsPerPage);
 
   Future<AssignedToResponse?> _getResourcesList() async => await vehicleHistoryRepository.getResourcesList();

@@ -32,7 +32,8 @@ class TMPDBloc extends Bloc<TMPDEvents, TMPDStates> {
     model = event.model;
     models = event.models;
     selectedModels = [(model ?? {})];
-    hasByVehicle = (model?['display']?['vehicle_name'].toString().isNotNullOrEmpty ?? false);
+    Console.of.log(model);
+    hasByVehicle = (List.from(model?['display']?['vins']).isNotEmpty);
     selectedIndex = (hasByVehicle) ? 0 : 1;
     selectedDate = (model?['todo_date'].toString().toDateTime() ?? DateTime.now()).add(const Duration(days: 1));
     selectedTime = model?['todo_time'].toString().toTimeOfDay(inputFormat: "HH:mm:ss") ?? TimeOfDay.now();
