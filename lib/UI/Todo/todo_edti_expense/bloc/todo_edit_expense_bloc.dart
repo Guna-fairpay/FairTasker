@@ -481,7 +481,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<GenerateInvoiceEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        log(jsonEncode(_invoiceData()), name: 'INVOICE_DATA');
+        log("${_invoiceData()}", name: 'INVOICE_DATA');
         await Permission.storage.request();
         var status = await Permission.manageExternalStorage.status;
         if (status.isGranted) {
@@ -491,11 +491,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
           // if (response?.isNotEmpty ?? false)
           // Toaster.showSuccess(response?['message'] ?? "Success");
-          emit(state.copyWith(
-            isLoading: false,
-            expenseAttachments: state.expenseAttachments
-              ..add(File(response?['message'] ?? '')),
-          ));
+          if ((response != null) && (response['message'] != null)) {
+            emit(state.copyWith(
+              expenseAttachments: state.expenseAttachments
+                ..add(File(response['message'])),
+            ));
+          }
+          emit(state.copyWith(isLoading: false));
         }
         else if (status.isDenied) {
           await Permission.manageExternalStorage.request();
@@ -604,8 +606,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     return baseBody;
   }
 
-  Map<String, String> _invoiceData() {
-    Map<String, String> baseBody = {};
+  Map<String, dynamic> _invoiceData() {
+    Map<String, dynamic> baseBody = {};
     baseBody['car_plate'] = invoiceData?['plateNo'] ?? '';
     baseBody['company_address'] = "${invoiceData?['address'] ?? ''}";
     baseBody['company_name'] = invoiceData?['title'] ?? '';
@@ -622,23 +624,24 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         "Hasanath Mohammed,\n FairPY INC, \n 4443 Zahir Ct, \n Irving TX, 75061";
     baseBody['to_phone'] = "5025921994";
     baseBody['items'] = invoiceData?['itemList']?.isEmpty ?? true
-        ? ""
-        : "${invoiceData?['itemList']?.map((e) => {
-              "quantity": "1",
+        ? []
+        : invoiceData?['itemList']?.map((e) => <String, dynamic>{
+              "quantity": 1,
               "description": e['name'] ?? "",
-              "rate": e['rate'] ?? "0",
-              "total": e['rate'] ?? "0",
-            }).toList()}";
-    log(jsonEncode(baseBody), name: "Invoice_body");
+              "rate": e['rate'] ?? 0,
+              "total": e['rate'] ?? 0,
+            }).toList();
+    log("${jsonEncode(baseBody)}", name: "Invoice_body");
     return baseBody;
   }
 
   Future<List<File>> _pickFiles() async {
+
     var result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png']);
+        allowedExtensions: ['jpg', 'jpeg', 'png','pdf']);
        // allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
     return result?.paths
             .where((element) => (element?.isNotEmpty ?? false))
@@ -716,5 +719,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     }
     double totalAmount = subTotal + saleTax + shippingCost;
     totalAmountController.text = totalAmount.toStringAsFixed(2);
-  }}
+  }
+  }
 }

@@ -212,7 +212,7 @@ class _VoiceToTextUiState extends State<VoiceToTextUi> {
 
                                   children: [
                                     Utils.getText(
-                                      voiceData == null ? "TESTING MP3 AUDIO" : voiceData?['transcribed_text'] ?? '-NO TITLE-',
+                                      voiceData == null ? "TESTING MP3 AUDIO" : voiceData['transcribed_text'] ?? '-NO TITLE-',
                                       weight: FontWeight.bold,
                                     ),
                                     Container(
