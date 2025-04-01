@@ -282,6 +282,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           if (title == 'Maintenance Check') {"id": 4, "title": "Maintenance"},
           if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
             {"id": 5, "title": "Set Vehicle"},
+          if(title == 'Private Rental Check') {"id": 6, "title": "Private Rental Check"}, //Add by RDB
         ];
 
         selectionTaps = tabs.firstWhere(

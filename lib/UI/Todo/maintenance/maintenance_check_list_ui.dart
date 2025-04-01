@@ -326,10 +326,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                         (e) => e['name'] == state.selectedDropdownValues[item['id']],)['id']}',
                                                       notes:
                                                           '${maintenanceCheckListData['name']}-${item['name']}-${state.selectedDropdownValues[item['id']] ?? "Unknown"}',
-                                                      comments: state
-                                                          .notesControllers[
-                                                              item['id']]!
-                                                          .text,
+                                                      comments: state.notesControllers[item['id']]!.text,
                                                       item: item['id'],
                                                     ),
                                               );

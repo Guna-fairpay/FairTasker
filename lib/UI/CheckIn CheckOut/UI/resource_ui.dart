@@ -166,7 +166,7 @@ class WorkHoursViewUI extends StatelessWidget {
                               ],
                             ),
                             ...state.punchListData.map((item) => TableRow(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 borderRadius: BorderRadius.only(
                                   bottomLeft: Radius.circular(4),
                                   bottomRight: Radius.circular(4),

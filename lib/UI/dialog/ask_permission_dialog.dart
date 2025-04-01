@@ -80,9 +80,10 @@ class _AskPermissionDialogView extends StatelessWidget {
                         hintText: "Enter reason",
                         border: border,
                         enabledBorder: border,
-                      )),
+                      )
+                  ),
                 ],
-              ),
+            ),
           )
           : Text("$description",
               style: context.textTheme.labelLarge

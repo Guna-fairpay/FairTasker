@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:collection/collection.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Repository/todo_list_repository.dart';
@@ -25,6 +26,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
   List<int>? result;
   String? completeTodoID;
   String? deleteTodoID;
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   MaintenanceBloc()
       : super(const MaintenanceState(
@@ -35,6 +37,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
     checkboxStates: {},
     selectedDropdownValues: {},
     dropdownValue: null,
+    pop: false,
   ))
   {
 
@@ -79,8 +82,6 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         }
 
         Map<String, dynamic> todoItem = event.todoItem;
-        log("$todoItem",name: "TodoItems");
-        log("${event.vehicle}",name: "Vehicles");
         String? fixTasksJson = todoItem['fix_tasks'];
         if (fixTasksJson == null) {
           print("fix_tasks is null");
@@ -140,9 +141,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           }
         }
 
-        matchingTodos = todoList
-            .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
-            .map((todo) {
+        matchingTodos = todoList.where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed").map((todo) {
           String? maintenanceTaskId = todo["maintenance_task_id"];
           if (maintenanceTaskId == null) return null;
           String middleValue = maintenanceTaskId.split(" - ")[1];
@@ -153,8 +152,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
             "notes": todo["notes"],
             "comments": todo["comments"],
           };
-        })
-            .where((todo) => todo != null)
+        }).where((todo) => todo != null)
             .cast<Map<String, dynamic>>()
             .toList();
 
@@ -320,7 +318,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           ..vendorId = todoItemsCopy['vendor_id']
           ..vendorName = todoItemsCopy['vendor_name']
           ..vehicleNumber = vehiclesCopy['vehicle_number']);
-        add(const MaintenanceInitialEvent(todoItem: {}, vehicle: {}));
+        _broadcast.stickyBroadcast("todo_view", value: true);
       }
       catch(e){
         print("catch error ${e.toString()}");
@@ -407,6 +405,169 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
       }
     });
 
+    //Private Rental Check
+    on<PrivateRentalInitialEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      List<String> middleValues = [];
+      List<Map<String, dynamic>> parsedData = [];
+      final response = await todoListRepo.getPrivateRentalCheck();
+      final response1 = await todoListRepo.getTodoList();
+
+      try {
+        emit(state.copyWith(isLoading: false));
+        final todoList = response1?.data ?? [];
+        //log("${todoList}", name:'todoList');
+        //log("${response?.data ?? []}", name:'getPrivateRentalCheck');
+        //log("${event.todoItem}", name:'todoItem');
+        //log("${event.vehicle}", name:'vehicle');
+        Map<String, dynamic> todoItem = event.todoItem;
+        String? fixTasksJson = todoItem['fix_tasks'];
+
+
+        if (fixTasksJson == null) {
+          print("fix_tasks is null");
+          emit(state.copyWith(isLoading: false));
+          return;
+        }
+
+        Map<String, dynamic> fixTasksMap;
+        try {
+          fixTasksMap = jsonDecode(fixTasksJson);
+        } catch (e) {
+          print("Error decoding fixTasksJson: $e");
+          emit(state.copyWith(isLoading: false,getPrivateRentalCheckData: response?.data ?? []));
+          return;
+        }
+        log("${fixTasksMap}", name:'fixTasksMap');//{4: 43536, 5: 43537, 6: 43538}
+
+        List<dynamic> fixTaskValues = fixTasksMap.values.toList();
+        log("${fixTaskValues}", name:'fixTaskValues');//[43536, 43537, 43538]
+
+        matchingTodos = todoList.where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
+            .map((todo) {
+          String? maintenanceTaskId = todo["maintenance_task_id"];
+          //if (maintenanceTaskId == null) return null;
+          String middleValue = maintenanceTaskId?.split(" - ")[1] ?? '';
+          middleValues.add(middleValue);
+          return {
+            "id": todo['id'],
+            "maintenance_task_id": maintenanceTaskId,
+            "notes": todo["notes"],
+            "comments": todo["comments"],
+          };
+        }).where((todo) => todo != null)
+            .cast<Map<String, dynamic>>()
+            .toList();//{id: 43536, maintenance_task_id: null, notes: Odometer noted - <p>Testing-DB</p>, comments: null}
+        log("${matchingTodos}", name:'matchingTodos');
+
+        List<Map<String, dynamic>> mergeAndCleanData({
+          required List<Map<String, dynamic>> matchingTodos,
+          required List<Map<String, dynamic>> data,
+        }) {
+          // Create a map of matchingTodos by their 'notes' (without HTML tags) for easy lookup
+          final matchedDataMap = <String, Map<String, dynamic>>{};
+
+          for (final todo in matchingTodos) {
+            if (todo['notes'] != null) {
+              // Extract the base note text without HTML tags
+              final noteText = todo['notes'].toString().replaceAll(RegExp(r'<[^>]*>'), '').trim();
+              // Get the part before the HTML (the actual note)
+              final baseNote = noteText.split('-').first.trim();
+              // Get the comment after the HTML (the DB note)
+              final dbNote = noteText.split('-').length > 1 ? noteText.split('-')[1].trim() : '';
+
+              matchedDataMap[baseNote] = {
+                'dbNote': dbNote,
+                'todoId': todo['id'], // Include the ID from matchingTodos
+              };
+            }
+          }
+          // Process the main data list
+          return data.map((item) {
+            final title = item['title']?.toString() ?? '';
+            final matchedData = matchedDataMap[title];
+            final hasDbNote = matchedData != null;
+            final dbNote = hasDbNote ? matchedData['dbNote'] : null;
+            final todoId = hasDbNote ? matchedData['todoId'] : null;
+
+            return {
+              ...item,
+              'isChecked': dbNote == null,
+              'dbNote': dbNote,
+              'todoId': todoId, // Add the ID from matchingTodos
+            };
+          }).toList();
+        }
+        parsedData = mergeAndCleanData(matchingTodos: matchingTodos, data: response?.data ?? []);
+        log("${parsedData}", name:'parsedData');
+
+        final controllers  = <int, TextEditingController>{};
+        for (var item in parsedData) {
+          final itemId = item['id'] as int?;
+          if (itemId != null) {
+            controllers [itemId] = TextEditingController(
+              text: item['dbNote']?.toString() ?? '',
+            );
+          }
+        }
+        emit(state.copyWith(isLoading: false,
+            getPrivateRentalCheckData: event.todoItem['fix_tasks'].isNotEmpty ? parsedData : response?.data ?? [],
+          privateRentalNoteControllers: controllers,
+          pop: false,
+        ));
+      }
+      catch (e) {
+        emit(state.copyWith(isLoading: false));
+        print("Error fetching checklist: $e");
+      }
+    });
+
+    on<UpdateCheckboxEvent>((event, emit) {
+      final updatedData = state.getPrivateRentalCheckData?.map((item) {
+        if (item['id'] == event.itemId) {
+          return {...item, 'isChecked': event.isChecked};
+        }
+        return item;
+      }).toList();
+
+      emit(state.copyWith(getPrivateRentalCheckData: updatedData));
+    });
+
+    on<CompletePrivateRentalItemEvent>((event, emit) async {
+      await todoListRepo.completeATodo(event.todoId.toString(),"Completed");
+      _broadcast.stickyBroadcast("todo_view", value: true);
+      emit(state.copyWith(pop:true));
+    });
+
+    on<DeletePrivateRentalItemEvent>((event, emit) async {
+      await todoListRepo.deleteATodo(event.todoId.toString());
+      _broadcast.stickyBroadcast("todo_view", value: true);
+    });
+
+    on<createPrivateFixTaskEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      try{
+        await todoListRepo.createFixTask(CreateFixTaskData()
+          ..userId = event.todoItem['user_id']
+          ..userGroupId = int.tryParse(event.todoItem['user_group_id']?.toString() ?? '0') ?? 0
+          ..title = event.id == '1' ? 'Clean Car' : 'Fix'
+          ..notes = event.notes
+          ..todoTime = event.todoItem['todo_time']
+          ..startAt = event.todoItem['todo_date']
+          ..identifierId = event.id == 64 ? 126 : null
+          ..vehicleList = event.todoItem['vehicles']
+          ..location = event.todoItem['location']
+          ..locationId = event.todoItem['location_id']
+          ..vendorId = event.todoItem['vendor_id']
+          ..vendorName = event.todoItem['vendor_name']
+          ..vehicleNumber = event.vehicle['vehicle_number']);
+        emit(state.copyWith(isLoading: false));
+        _broadcast.stickyBroadcast("todo_view", value: true);
+      }
+      catch(e){
+        print("catch error ${e.toString()}");
+      }
+    });
 
   }
 

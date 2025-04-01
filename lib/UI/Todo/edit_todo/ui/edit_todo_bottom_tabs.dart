@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../Manage Custom Data/Vehicles/Vehicle Edit Page/vehicle_edit_pageUI.dart';
+import '../../Private Rental Check/private_rental_check_UI.dart';
 import '../../todo_edti_expense/ui/edit_todo_expense.dart';
 import '../../todo_edti_expense/ui/edit_todo_expense.dart';
 import '../bloc/edit_todo_bloc.dart';
@@ -62,6 +63,8 @@ class EditTodoBottomTabs extends StatelessWidget {
                   ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 5
                   ?VehicleEditUI(vehicle: state.taskHistory.first, todoItems: state.apiResponse, showHeader: false,)
+                  :state.selectedBottomTap['id'] == 6
+                  ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.taskHistory.first,) //Add by RDB
                   :const SizedBox(),
             ),
           ],
