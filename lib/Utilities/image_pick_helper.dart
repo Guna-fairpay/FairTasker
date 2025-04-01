@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
@@ -43,8 +42,7 @@ class MultiImagePickHelper {
       print("Error picking images: $e");
     }
 
-    return selectedFiles;
+    return selectedFiles; // Return the list of selected file paths
   }
 }
-
 

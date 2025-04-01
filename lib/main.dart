@@ -1,64 +1,55 @@
-import 'dart:async';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/core/app/extension/color_extension.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:fairpytasker/Component/custom_loader.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'UI/Splash/splash_ui.dart';
 import 'package:intl/intl.dart';
 
+import 'UI/Splash/splash_ui.dart';
 
+List<int> requestFrom = [0, 1];
 String accessTokenGlobal = '';
 String userIdGlobal = '';
 List<String>? userPermissionsGlobal;
+// List<String>? userRole;
 String? filterDate;
 String? formattedDate;
 DateTime selectedDate = DateTime.now();
 
+Future<bool> verifySSL(String url) async {
+  // Create an HttpClient instance
+  HttpClient client = HttpClient();
+  // Disable the certificate verification
+/*  client.badCertificateCallback =
+      (X509Certificate cert, String host, int port) => true;*/
 
-void main() {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
-    await Firebase.initializeApp();
-    await Session.of.init();
-    Initializer.of.init(); // GET_IT INITIALIZATION
-    if (kDebugMode) await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+  // Try to establish a connection to the API endpoint
+  try {
+    HttpClientRequest request = await client.getUrl(Uri.parse(url));
+    HttpClientResponse response = await request.close();
+    // Check if the connection was successful
+    if (response.statusCode == 200) {
+      // SSL certificate is valid
+      print('SSL certificate validation failed: true');
       return true;
-    };
-    runApp(const MyApp());
-    configEasyLoading();
-    filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-    formattedDate = DateFormat('MMM dd').format(selectedDate);
-  }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack, printDetails: true, fatal: true));
+    }
+  } catch (e) {
+    // Connection error or SSL certificate validation failed
+    print('SSL certificate validation failed: $e');
+  }
+  // SSL certificate is not valid
+  return false;
 }
 
-void configEasyLoading() {
-  EasyLoading.instance
-    ..backgroundColor = Colors.transparent
-    ..progressColor = Colors.transparent
-    ..indicatorWidget = const CustomLoading()
-    ..progressWidth = 0
-    ..radius = 5.0
-    ..indicatorColor = Colors.white
-    ..loadingStyle = EasyLoadingStyle.custom
-    ..textColor = Colors.transparent
-    ..indicatorColor = Colors.transparent
-    ..maskColor = Colors.black26
-    ..maskType = EasyLoadingMaskType.black
-    ..userInteractions = false
-    ..dismissOnTap = false
-    ..boxShadow = [];
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Required for the line below
+  runApp(const MyApp());
+  // selectedDate = DateTime.now();
+  filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+  // formattedDate = DateFormat('yyyy-MMM-dd').format(selectedDate!);
+  formattedDate = DateFormat('MMM dd').format(selectedDate);
+  // String apiUrl = Str.BASE_URL; // Replace with your API endpoint
+  // String apiUrl = 'https://dev.fairreturns.in/api/login'; // Replace with your API endpoint
+  // bool sslValid = await verifySSL(apiUrl);
+  // print('SSL certificate validation result: $sslValid');
 }
 
 class MyApp extends StatelessWidget {
@@ -67,44 +58,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Fair Returns',
-        theme: ThemeData(
-          cardColor: Colors.white,
-          appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
-          dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
-          searchBarTheme: SearchBarThemeData(
-            backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
-            textStyle: const WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.normal, fontFamily: "Lato", color: Colors.grey)),
-            padding: const WidgetStatePropertyAll(EdgeInsets.all(5)),
-            shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(16))),
-            elevation: const WidgetStatePropertyAll(0),
-            side: const WidgetStatePropertyAll(BorderSide.none),
-          ),
-          switchTheme: SwitchThemeData(
-            // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.grey),
-            thumbColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.white : AppC.lightGrey),
-          ),
-          dividerTheme: const DividerThemeData(
-              color: AppC.grey,
-              thickness: Num.borderWidthThinField
-          ),
-          primarySwatch: AppC.appColor.toMaterialColor,
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: AppC.appColor.toMaterialColor),
-          textTheme: GoogleFonts.poppinsTextTheme(
-              Typography.blackCupertino.copyWith()
-          ),
-        ),
-        builder: EasyLoading.init(),
-        home: const SplashScreen(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Fair Returns',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'Lato',
       ),
+      home: const SplashScreen(),
     );
   }
 }

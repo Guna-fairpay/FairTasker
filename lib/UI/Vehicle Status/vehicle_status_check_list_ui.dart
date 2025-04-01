@@ -132,11 +132,11 @@ class _VehicleStatusChecklistUIState extends State<VehicleStatusChecklistUI> {
                                                         item.checklistId,
                                                     categoryId: item.categoryId,
                                                     checkboxValue: item.checked,
-                                                    configId: item.todoId,
+                                                    configId: item.id,
                                                     vin: item.vin,
                                                     taskName: item.taskName ??
                                                         '${item.checklistName}-${categories!.elementAt(index)['category_name'] ?? ''}',
-                                                    todoId:int.parse(userIdGlobal),
+                                                    userId: userIdGlobal,
                                                     cohortId:
                                                         (widget.vehicleStatusListData?[
                                                                     'cohort_id'] ??

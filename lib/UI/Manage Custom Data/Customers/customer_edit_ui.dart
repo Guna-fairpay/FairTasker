@@ -1,34 +1,24 @@
-
 import 'dart:io';
-import 'package:fairpytasker/Event/private_rental_event.dart';
-import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../Bloc/private_rental_bloc.dart';
-import '../../../Component/close_badge.dart';
-import '../../../Component/image_viewer.dart';
-import '../../../State/private_rental_state.dart';
+import '../../../Component/drawer_ui.dart';
+import '../../../Component/header.dart';
 import '../../../Utilities/Str.dart';
 import '../../../Utilities/appC.dart';
+import '../../../Utilities/image_pick_helper.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
-import '../../dialog/show_attachments_dialog.dart';
 
 class CustomerEditUi extends StatefulWidget {
-  final int? id;
+  final Map<String, dynamic> customer;
 
-  const CustomerEditUi({super.key, required this.id});
+  const CustomerEditUi({super.key, required this.customer});
 
   @override
   State<CustomerEditUi> createState() => _CustomerEditUiState();
 }
 
 class _CustomerEditUiState extends State<CustomerEditUi> {
-
-  PrivateRentalBloc privateRentalBloc= PrivateRentalBloc();
   final TextEditingController firstnameController = TextEditingController();
   final TextEditingController lastnameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -38,36 +28,36 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
   final TextEditingController securityDepositController =
       TextEditingController();
   final TextEditingController notesController = TextEditingController();
+  List<Map<String, dynamic>> licenseImageFile = [];
+  List<Map<String, dynamic>> insuranceImageFile = [];
+  late ImagePickHelper imagePickHelper;
+  bool isFirstNameFieldEmpty = false;
+  bool isLastNameFieldEmpty = false;
+  bool isPhoneFieldEmpty = false;
+  bool isMonthlyRentalFieldEmpty = false;
+  bool isDateFieldEmpty = false;
+  bool isSecurityDepositEmpty = false;
   String? userRole;
-  String? userId;
-  int? id;
-   List<dynamic> licenseImages = [];
-  List<dynamic> insuranceImages = [];
-  Map<String,dynamic> customer = {};
-
 
   @override
   void initState() {
     super.initState();
-    id = widget.id;
-    privateRentalBloc.add(GetEditCustomerData(id:id ));
-   _loadUserRole();
-    _loadUserId();
-  }
-
-  Future<void> _loadUserRole() async {
-    final role = await Utils.getStringListPreference(Str.rolePrefText);
-    if (role.isNotEmpty) {
+    imagePickHelper = ImagePickHelper();
+    firstnameController.text = (widget.customer['first_name']);
+    lastnameController.text = (widget.customer['last_name']);
+    phoneController.text = (widget.customer['phone']);
+    monthlyRentalController.text =
+        (widget.customer['monthly_rental']).toString();
+    selectDateController.text = (widget.customer['rental_start_date']);
+    securityDepositController.text =
+        (widget.customer['security_deposit']).toString();
+    addressController.text = (widget.customer['address']);
+    // notesController .text = (widget.customer['note']);
+    Utils.getStringListPreference(Str.rolePrefText).then((role) {
       setState(() {
-        userRole = role[0];
+        userRole = role
+            .first; // Assuming role is a List<String> and fetching the first value
       });
-    }
-  }
-
-  Future<void> _loadUserId() async {
-    final id = await Utils.getStringPreference(Str.userIdPrefText);
-    setState(() {
-      userId = id;
     });
   }
 
@@ -85,7 +75,14 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
   }
 
   void _save() {
-    setState(() {});
+    setState(() {
+      isFirstNameFieldEmpty = firstnameController.text.isEmpty;
+      isLastNameFieldEmpty = lastnameController.text.isEmpty;
+      isPhoneFieldEmpty = phoneController.text.isEmpty;
+      isMonthlyRentalFieldEmpty = monthlyRentalController.text.isEmpty;
+      isDateFieldEmpty = selectDateController.text.isEmpty;
+      isSecurityDepositEmpty = securityDepositController.text.isEmpty;
+    });
 
     if (firstnameController.text.isEmpty ||
         lastnameController.text.isEmpty ||
@@ -93,7 +90,7 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
         monthlyRentalController.text.isEmpty ||
         selectDateController.text.isEmpty ||
         securityDepositController.text.isEmpty) {
-      return;
+      return Utils.showMobileToast('Please fill the required fields');
     }
 
     final updatedCustomer = {
@@ -105,305 +102,430 @@ class _CustomerEditUiState extends State<CustomerEditUi> {
       'rental_start_date': selectDateController.text,
       'security_deposit': securityDepositController.text,
       'note': notesController.text,
-      'licenceAttach':licenseImages.whereType<File>().map((e) => e).toList(),
-      'insuranceAttach':insuranceImages.whereType<File>().map((e) => e).toList(),
-      'id':id,
+      //'licenceAttach':licenseImageFile,
+      // 'insuranceAttach':insuranceImageFile,
+      'id': widget.customer['id'],
     };
+
     Navigator.of(context).pop(updatedCustomer);
   }
-
-  void _pickLicenseImages(ImageSource source) async {
-    List<File> selectedImages = await Utils.pickImages(source);
-    if (selectedImages.isNotEmpty) {
-      setState(() {
-        licenseImages.addAll(selectedImages);
-      });
-    }
-  }
-
-  void _pickInsuranceImages(ImageSource source) async {
-    List<File> selectedImages = await Utils.pickImages(source);
-    if (selectedImages.isNotEmpty) {
-      setState(() {
-        insuranceImages.addAll(selectedImages);
-      });
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        foregroundColor: Colors.white,
-        title: const Text('Edit Customer'),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.close,),)]
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0), // Change the height here
+        child: HeaderView(),
       ),
-      body: BlocProvider(
-        create: (context) => privateRentalBloc,
-          child: BlocConsumer<PrivateRentalBloc, PrivateRentalState>(
-            listener: (context, state)async {
-              if (state is PrivateRentalLoading) {
-                EasyLoading.show();
-              } else if (state is EditCustomerLoaded) {
-                if (EasyLoading.isShow) EasyLoading.dismiss();
-                customer = state.data?? {};
-                firstnameController.text = (customer['first_name']);
-                lastnameController.text = (customer['last_name']);
-                phoneController.text = (customer['phone']);
-                monthlyRentalController.text =
-                    (customer['monthly_rental']).toString();
-                selectDateController.text =
-                    customer['rental_start_date'];
-                securityDepositController.text =
-                    (customer['security_deposit']).toString();
-                addressController.text = (customer['address']);
-                licenseImages.addAll(customer['licenceAttach']?.map((e) => e['path'].toString().toStorageURL).toList());
-                insuranceImages.addAll(customer['insuranceAttach']?.map((e) => e['path'].toString().toStorageURL).toList());
-              }
-            },
-            builder: (context,state) {
-              return SafeArea(
-              minimum: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child:ListView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'First Name',
-                    firstnameController,
-                    autoValidate: AutovalidateMode.onUserInteraction,
-                    validator: (val) => val!.isEmpty ? 'Please enter first name' : null,
-                      inputAction: TextInputAction.done
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(Icons.arrow_back)),
+                  const SizedBox(
+                    width: 10,
                   ),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'Last Name',
-                    lastnameController,
-                    autoValidate: AutovalidateMode.onUserInteraction,
-                    validator: (val) => val!.isEmpty ? 'Please enter last name' : null,
-                  ),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                      'Phone', phoneController,
-                      autoValidate: AutovalidateMode.onUserInteraction,
-                      validator: (val) => val!.isEmpty ? 'Please enter phone number' : null,
-                      textType: TextInputType.phone),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'Address',
-                    addressController,
-                  ),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'Monthly Rental',
-                    monthlyRentalController,
-                    autoValidate: AutovalidateMode.onUserInteraction,
-                    validator: (val) => val!.isEmpty ? 'Please enter monthly rental' : null,
-                      inputAction: TextInputAction.done
-                  ),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'Rent Date',
-                    selectDateController,
-                    suffixIcon: const Icon(Icons.date_range, color: AppC.appColor),
-                    readOnly: true,
-                    onTapCallback: () {
-                      Utils.datePicker(context, '',
-                          initial: DateTime.tryParse(selectDateController.text)).then((value) {
-                          selectDateController.text =
-                              Utils.convertDateToYearMonthDateFormat(value.toString());
+                  Utils.getText('Edit Customer',
+                      size: 20, weight: FontWeight.bold),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      '',
+                      firstnameController,
+                      label: Utils.getText('First Name', color: AppC.grey),
+                      borderColor:
+                          isFirstNameFieldEmpty ? Colors.red : AppC.fieldBase,
+                    ),
+                    if (isFirstNameFieldEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      '',
+                      lastnameController,
+                      label: Utils.getText('Last Name', color: AppC.grey),
+                      borderColor:
+                          isLastNameFieldEmpty ? Colors.red : AppC.fieldBase,
+                    ),
+                    if (isLastNameFieldEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                        '', phoneController,
+                        label: Utils.getText('Phone', color: AppC.grey),
+                        borderColor:
+                            isPhoneFieldEmpty ? Colors.red : AppC.fieldBase,
+                        textType: TextInputType.number),
+                    if (isPhoneFieldEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  '',
+                  addressController,
+                  label: Utils.getText('Address', color: AppC.grey),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      '',
+                      monthlyRentalController,
+                      label: Utils.getText('Monthly Rental', color: AppC.grey),
+                      borderColor: isMonthlyRentalFieldEmpty
+                          ? Colors.red
+                          : AppC.fieldBase,
+                    ),
+                    if (isMonthlyRentalFieldEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      '',
+                      selectDateController,
+                      suffixIcon: Padding(
+                        padding: isDateFieldEmpty
+                            ? const EdgeInsets.only(right: 35)
+                            : const EdgeInsets.all(0),
+                        child:
+                            const Icon(Icons.date_range, color: AppC.appColor),
+                      ),
+                      readOnly: true,
+                      onTapCallback: () {
+                        Utils.datePicker(context, '',
+                                initial: DateTime.parse("1970-01-01"))
+                            .then((value) {
+                          if (value != null) {
+                            selectDateController.text =
+                                Utils.convertDateTimeToTheFormats(
+                                    value.toString());
+                          }
+                        });
+                      },
+                      label: Utils.getText('Select Date', color: AppC.grey),
+                      borderColor:
+                          isDateFieldEmpty ? Colors.red : AppC.fieldBase,
+                    ),
+                    if (isDateFieldEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                      '',
+                      securityDepositController,
+                      label:
+                          Utils.getText('Security Deposit', color: AppC.grey),
+                      borderColor:
+                          isSecurityDepositEmpty ? Colors.red : AppC.fieldBase,
+                    ),
+                    if (isSecurityDepositEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: Icon(Icons.error_outline, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 40,
+                child: Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                  '',
+                  notesController,
+                  label: Utils.getText('Notes', color: AppC.grey),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (userRole == 'Admin')
+                SizedBox(
+                  height: 40,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppC.fieldBase,
+                          width: Num.borderWidthField,
+                        ),
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(Num.subradiusButton))),
+                    child: Utils.getOutlinedButton('Upload License', () async {
+                      await imagePickHelper
+                          .getSingleImage(ImageSource.gallery)
+                          .then((value) {
+                        if (value != null) {
+                          debugPrint('value.path: ${value.path}');
+                          //Attachments ve = Attachments(file: value, path: '');
+                          licenseImageFile.add({'file': value, 'path': ''});
+                          setState(() {});
+                        } else {
+                          return;
+                        }
                       });
                     },
-                    autoValidate: AutovalidateMode.onUserInteraction,
-                    validator: (val) => val!.isEmpty ? 'Please select rent date' : null,
+                        iconData: const Icon(Icons.cloud_upload,
+                            color: AppC.appColor, size: 15),
+                        verticalPadding: 0,
+                        radius: BorderRadius.zero,
+                        bgColor: AppC.trans,
+                        borderColor: AppC.trans,
+                        textColor: AppC.grey),
                   ),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'Security Deposit',
-                    securityDepositController,
-                    autoValidate: AutovalidateMode.onUserInteraction,
-                    validator: (val) => val!.isEmpty ? 'Please enter security deposit' : null,
-                  ),
-                  const SizedBox(height: 10),
-                  Utils.getTextFormField(
-                    'Notes',
-                    notesController,
-                      inputAction: TextInputAction.done
-                  ),
-                  const SizedBox(height: 10),
-                  if (userRole == 'Admin'|| userId == '3')
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 10,
-                    children: [
-                      InkWell(
-                        onTap: () => _pickLicenseImages(ImageSource.gallery),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                ),
+              if (userRole == 'Admin')
+                const SizedBox(
+                  height: 15,
+                ),
+              if (userRole == 'Admin')
+                Visibility(
+                  visible: licenseImageFile.isNotEmpty,
+                  child: SizedBox(
+                    height: 80,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: licenseImageFile.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Stack(
+                            alignment: Alignment.topRight,
                             children: [
-                              const Icon(
-                                Icons.cloud_upload,
-                                color: AppC.blue,
+                              (licenseImageFile[index]['path'] ?? '').isNotEmpty
+                                  ? Utils.getOvalCachedImageNetworkDisplay(
+                                      context,
+                                      licenseImageFile[index]['path'] ?? '')
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: Image.file(
+                                        File(licenseImageFile[index]['file']
+                                                ?.path ??
+                                            ''),
+                                        width: 60.0,
+                                        height: 60.0,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                              SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: InkWell(
+                                  onTap: () {
+                                    if ((licenseImageFile[index]['path'] ?? '')
+                                        .isEmpty) {
+                                      licenseImageFile.removeAt(index);
+                                    } else {
+                                      // vehicleDataBloc.add(DeleteVehicleImage(id: imageFile[index]['id']));
+                                      // imageFile.removeAt(index);
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppC.red.shade400,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                        Icons.delete_outline_outlined,
+                                        color: AppC.white,
+                                        size: 16),
+                                  ),
+                                ),
                               ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Utils.getText('Upload License', color: AppC.blue),
                             ],
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              if (userRole == 'Admin')
+                SizedBox(
+                  height: 40,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppC.fieldBase,
+                          width: Num.borderWidthField,
                         ),
-                      ),
-                      if(licenseImages.isNotEmpty)
-                      SizedBox(
-                        height: 100,
-                        child: GridView.builder(
-                          shrinkWrap: true,
-                          itemCount: licenseImages.length,
-                          scrollDirection: Axis.horizontal,
-                          gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1, mainAxisSpacing: 10),
-                          itemBuilder: (context, index) => CloseBadge(
-                              onTapView: () {
-                                ShowAttachmentsDialog.of.show(context,
-                                    attachments: licenseImages,
-                                    title: "",
-                                    currentAttachment: licenseImages[index]);
-                              },
-                              onTapDelete: () {
-                              //   var model = _insuranceImages[index].toString().replaceAll(Str.STORAGE_BASE_URL, "");
-                              //   var data = (_insuranceImages['attachments'] as List?)?.where((element) => element['path'] == model).toList().firstOrNull;
-                              //   log("Data:\t${data['id']} : ${data['path'].toString().toStorageURL}", name: "REMOVE_DATA");
-                              //   if (data != null) _removeImage(data['id']);
-                                licenseImages.removeAt(index);
-                                setState(() {
-
-                                 });
-                               },
-                              child: Container(
-                                constraints: BoxConstraints(
-                                  minHeight: MediaQuery.sizeOf(context).height,
-                                  minWidth: MediaQuery.sizeOf(context).width,
-                                ),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: AppC.grey.withValues(alpha: 0.2)),
-                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                child:  ImageViewer(
-                                  fit: BoxFit.cover,
-                                  imageInput: licenseImages[index],
-                                  isNotImage:
-                                  !((licenseImages[index] as Object).isImage),
-                                ),
-                              )),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () => _pickInsuranceImages(ImageSource.gallery),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppC.fieldBase,
-                              width: Num.borderWidthField,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(Num.subradiusButton),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(Num.subradiusButton))),
+                    child: Utils.getOutlinedButton('Upload Insurance',
+                        () async {
+                      await imagePickHelper
+                          .getSingleImage(ImageSource.gallery)
+                          .then((value) {
+                        if (value != null) {
+                          debugPrint('value.path: ${value.path}');
+                          //Attachments ve = Attachments(file: value, path: '');
+                          insuranceImageFile.add({'file': value, 'path': ''});
+                          setState(() {});
+                        } else {
+                          return;
+                        }
+                      });
+                    },
+                        iconData: const Icon(Icons.cloud_upload,
+                            color: AppC.appColor, size: 15),
+                        verticalPadding: 0,
+                        radius: BorderRadius.zero,
+                        bgColor: AppC.trans,
+                        borderColor: AppC.trans,
+                        textColor: AppC.grey),
+                  ),
+                ),
+              if (userRole == 'Admin')
+                const SizedBox(
+                  height: 10,
+                ),
+              if (userRole == 'Admin')
+                Visibility(
+                  visible: insuranceImageFile.isNotEmpty,
+                  child: SizedBox(
+                    height: 80,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: insuranceImageFile.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Stack(
+                            alignment: Alignment.topRight,
                             children: [
-                              const Icon(
-                                Icons.cloud_upload,
-                                color: AppC.blue,
+                              (insuranceImageFile[index]['path'] ?? '')
+                                      .isNotEmpty
+                                  ? Utils.getOvalCachedImageNetworkDisplay(
+                                      context,
+                                      insuranceImageFile[index]['path'] ?? '')
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: Image.file(
+                                        File(insuranceImageFile[index]['file']
+                                                ?.path ??
+                                            ''),
+                                        width: 60.0,
+                                        height: 60.0,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                              SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: InkWell(
+                                  onTap: () {
+                                    if ((insuranceImageFile[index]['path'] ??
+                                            '')
+                                        .isEmpty) {
+                                      insuranceImageFile.removeAt(index);
+                                    } else {
+                                      // vehicleDataBloc.add(DeleteVehicleImage(id: imageFile[index]['id']));
+                                      // imageFile.removeAt(index);
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppC.red.shade400,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                        Icons.delete_outline_outlined,
+                                        color: AppC.white,
+                                        size: 16),
+                                  ),
+                                ),
                               ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Utils.getText('Upload Insurance', color: AppC.blue),
                             ],
                           ),
-                        ),
-                      ),
-                      if(insuranceImages.isNotEmpty)
-                      SizedBox(
-                        height: 100,
-                        child: GridView.builder(
-                          shrinkWrap: true,
-                          itemCount: insuranceImages.length,
-                          scrollDirection: Axis.horizontal,
-                          gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1, mainAxisSpacing: 10),
-                          itemBuilder: (context, index) => CloseBadge(
-                              onTapView: () {
-                                ShowAttachmentsDialog.of.show(context,
-                                    attachments: insuranceImages,
-                                    title: "",
-                                    currentAttachment: insuranceImages[index]);
-                              },
-                              onTapDelete: () {
-                              //   var model = _insuranceImages[index].toString().replaceAll(Str.STORAGE_BASE_URL, "");
-                              //   var data = (_insuranceImages['attachments'] as List?)?.where((element) => element['path'] == model).toList().firstOrNull;
-                              //   log("Data:\t${data['id']} : ${data['path'].toString().toStorageURL}", name: "REMOVE_DATA");
-                              //   if (data != null) _removeImage(data['id']);
-                                insuranceImages.removeAt(index);
-                                setState(() {
-
-                                });
-                              },
-                              child: Container(
-                                constraints: BoxConstraints(
-                                  minHeight: MediaQuery.sizeOf(context).height,
-                                  minWidth: MediaQuery.sizeOf(context).width,
-                                ),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: AppC.grey.withValues(alpha: 0.2)),
-                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                child:  ImageViewer(
-                                  fit: BoxFit.cover,
-                                  imageInput: insuranceImages[index],
-                                  isNotImage:
-                                  !((insuranceImages[index] as Object).isImage),
-                                ),
-                              )),
-                        ),
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                  const SizedBox(height: 10,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Utils.getElevatedButton( () =>  _save()),
-                    ],
+                ),
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: Utils.getAddFilledButton('Save', () {
+                      _save();
+                    }),
                   ),
                 ],
-              )
-              );
-            }
+              ),
+            ],
           ),
         ),
-      );
+      ),
+      drawer: const DrawerView(),
+    );
   }
 }

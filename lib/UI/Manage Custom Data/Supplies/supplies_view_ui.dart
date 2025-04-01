@@ -1,9 +1,9 @@
-
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart'; // Import the Slidable package
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+
+import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
@@ -90,7 +90,7 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
   }
 
   Future<void> _deleteSupply(int index) async {
-    final confirmed = await Utils.showCustomDeleteDialog(context,'supplies');
+    final confirmed = await _confirmDelete(context);
     if (confirmed == true) {
       final supplies = filteredSupplies[index];
       suppliesDataBloc.add(DeleteSupplyEvent(id: supplies['id']));
@@ -99,30 +99,48 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
     }
   }
 
+  Future<bool?> _confirmDelete(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppC.white,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        title: Utils.getText('Are you sure!'),
+        content: Utils.getText('Are you sure you want to delete this supply?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // Confirm the deletion
+            },
+            child: Utils.getText('Yes'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // Cancel the deletion
+            },
+            child: Utils.getText('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-        title: const Text('Supplies'),
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: ()=>Navigator.pop(context))
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0), // Change the height here
+        child: HeaderView(),
       ),
       body: BlocProvider(
         create: (_) => suppliesDataBloc,
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
             listener: (context, state) async {
           if (state is VehicleDataLoading) {
-            EasyLoading.show();
+            loading = true;
           } else if (state is SupplyListLoaded) {
-            if (EasyLoading.isShow) EasyLoading.dismiss();
+            loading = false;
             filteredSupplies.clear();
             filteredSupplies.addAll(state.supplyDataList ?? []);
             List<Map<String, dynamic>> list = [];
@@ -132,71 +150,126 @@ class _SuppliesViewUIState extends State<SuppliesViewUI> {
             supplies = list;
             filteredSupplies = List.from(supplies);
           } else {
-            EasyLoading.show();
+            loading = true;
             suppliesDataBloc.add(const GetSuppliesListV());
           }
         }, builder: (context, state) {
-          return SafeArea(
-            minimum: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15),
-            child: Column(
-              children: [
-                Row(
-                  spacing: 10,
+          return Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 40,
-                        child: Utils.getSearchBarUI(
-                          onChange:
-                            _filterSupplies,
-                          searchController:
-                          searchController,
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(Icons.arrow_back),
                         ),
-                      ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Utils.getText('Supplies',
+                            size: 20, weight: FontWeight.bold),
+                      ],
                     ),
-                    Utils.getAddElevatedButton(()=>
-                      _navigateToSuppliesAddUI(),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 40,
+                            child: Utils.getSearchBarUI(() {
+                              // onTap action for search bar if needed
+                            }, (value) {
+                              _filterSupplies(value);
+                            }, searchController, searchFocusNode),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          height: 40,
+                          child: Utils.getAddFilledButton('Add', () {
+                            _navigateToSuppliesAddUI();
+                          }),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredSupplies.length,
+                        itemBuilder: (context, index) {
+                          final supply = filteredSupplies[index];
+                          return Slidable(
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (context) => _deleteSupply(index),
+                                  backgroundColor: AppC.white,
+                                  foregroundColor: AppC.red,
+                                  icon: Icons.delete_outline,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                _navigateToEditSuppliesUI(index);
+                              },
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                color: AppC.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Utils.getText(
+                                                supply['name'] ?? '',
+                                                weight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: filteredSupplies.length,
-                    separatorBuilder: (context,index) => const Divider(height: 0.5,),
-                    itemBuilder: (context, index) {
-                      final supply = filteredSupplies[index];
-                      return InkWell(
-                        onTap: () {
-                          _navigateToEditSuppliesUI(index);
-                        },
-                        child: SafeArea(
-                          minimum: 10.padding,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Utils.getText(
-                                  supply['name'] ?? '',
-                                ),
-                              ),
-                              GestureDetector(
-                                  onTap: () =>_deleteSupply(index),
-                                  child: const Icon(
-                                    Icons.delete_outline,
-                                    color: AppC.redAccent,
-                                  ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Visibility(
+                  visible: loading,
+                  child: Center(child: Utils.getProgressIndicator(context)))
+            ],
           );
         }),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

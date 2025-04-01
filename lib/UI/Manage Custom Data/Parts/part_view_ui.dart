@@ -1,7 +1,7 @@
-
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import '../../../Component/drawer_ui.dart';
+import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +18,7 @@ class PartViewUI extends StatefulWidget {
 
 class _PartViewUIState extends State<PartViewUI> {
   final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
   late VehicleDataBloc partDataBloc;
   List<Map<String, dynamic>> parts = [];
   List<Map<String, dynamic>> filteredParts = [];
@@ -41,8 +42,10 @@ class _PartViewUIState extends State<PartViewUI> {
     setState(() {
       filteredParts = parts.where((part) {
         final partsName = part['name']?.toLowerCase() ?? '';
+        final description = part['note']?.toLowerCase() ?? '';
         final searchQuery = query.toLowerCase();
-        return partsName.contains(searchQuery);
+        return partsName.contains(searchQuery) ||
+            description.contains(searchQuery);
       }).toList();
     });
   }
@@ -87,10 +90,11 @@ class _PartViewUIState extends State<PartViewUI> {
   }
 
   Future<void> _deletePart(int index) async {
-    final confirmed = await Utils.showCustomDeleteDialog(context,'Vehicle Part?');
+    final confirmed = await Utils.showCustomDeleteDialog(context,
+    'Do you want to delete this Vehicle Part?',);
     if (confirmed == true) {
       final parts = filteredParts[index];
-      partDataBloc.add(DeletePartEvent(id: parts['id']));
+      partDataBloc.add(DeletePartsEvent(id: parts['id']));
       partDataBloc.add(const GetPartsListV());
     }
   }
@@ -99,27 +103,21 @@ class _PartViewUIState extends State<PartViewUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-        title: const Text("Parts"),
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: ()=>Navigator.pop(context))
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0), // Change the height here
+        child: HeaderView(),
       ),
       body: BlocProvider(
         create: (context) => partDataBloc..add(const GetPartsListV()),
         child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
-              listener: (context, state) async {
+            listener: (context, state) async {
           if (state is VehicleDataLoading) {
-            EasyLoading.show();
+            loading = true;
           } else if (state is PartsListLoaded) {
-            if (EasyLoading.isShow) EasyLoading.dismiss();
+            loading = false;
             filteredParts.clear();
-            final List<Map<String, dynamic>> list = [];
+            filteredParts.addAll(state.partsDataList ?? []);
+            List<Map<String, dynamic>> list = [];
             list.addAll(state.partsDataList ?? []);
             list.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
                 .compareTo(DateTime.parse(a['created_at'] ?? '')));
@@ -127,61 +125,113 @@ class _PartViewUIState extends State<PartViewUI> {
             filteredParts = List.from(parts);
           } else {
             partDataBloc.add(const GetPartsListV());
-            EasyLoading.show();
+            loading = true;
           }
-        },
-            builder: (context, state) {
-          return SafeArea(
-            minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
-            child: Column(
-              spacing: 10,
-              children: [
-                Row(
-                  spacing:10,
+        }, builder: (context, state) {
+          return Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Utils.getSearchBarUI(onChange:
-                        _filterParts, searchController: searchController),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(Icons.arrow_back),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Utils.getText('Parts',
+                            size: 20, weight: FontWeight.bold),
+                      ],
                     ),
-                    Utils.getAddElevatedButton(()=>
-                      _navigateToPartsAddUI()),
-                  ],
-                ),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: filteredParts.length,
-                    separatorBuilder: (context, index) => const Divider(height: 0.5,),
-                    itemBuilder: (context, index) {
-                      final part = filteredParts[index];
-                      return InkWell(
-                        onTap: ()=> _navigateToEditPartUI(index),
-                        child: SafeArea(
-                          minimum: 10.padding,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Utils.getText(
-                                  part['name'] ?? '',
-                                ),
-                              ),
-                              InkWell(
-                                onTap: ()=>_deletePart(index),
-                                  child: const Icon(
-                                    Icons.delete_outline,
-                                    color: AppC.redAccent,)
-                              ),
-                            ],
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 40,
+                            child: Utils.getSearchBarUI(() {}, (value) {
+                              _filterParts(value);
+                            }, searchController, searchFocusNode),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          height: 40,
+                          child: Utils.getAddFilledButton('Add', () {
+                            _navigateToPartsAddUI();
+                          }),
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredParts.length,
+                        itemBuilder: (context, index) {
+                          final part = filteredParts[index];
+                          return Slidable(
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (context) => _deletePart(index),
+                                  backgroundColor: AppC.white,
+                                  foregroundColor: AppC.red,
+                                  icon: Icons.delete_outline,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                _navigateToEditPartUI(index);
+                              },
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                color: AppC.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: Utils.getText(
+                                          part['name'] ?? '',
+                                          weight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Visibility(
+                  visible: loading,
+                  child: Center(child: Utils.getProgressIndicator(context)))
+            ],
           );
         }),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

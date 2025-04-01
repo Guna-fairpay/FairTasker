@@ -26,16 +26,16 @@ class LeaveManagementBloc extends Bloc<LeaveManagementEvent, LeaveManagementStat
       emit(LeaveManagementLoading());
 
       await leaveManagementRepository.createLeaveList(
-        id : event.id,
-        userId : event.userId,
-        leaveDuration : event.leaveDuration,
-        leaveTypeId : event.leaveTypeId,
-        startDate : event.startDate,
-        endDate : event. endDate,
-        reason : event.reason,
-        startTime : event.startTime,
-        endTime : event.endTime,
-        status : event.status).then((value) {
+          event.id,
+          event.userId,
+          event.leaveTypeId,
+          event.startDate,
+          event. endDate,
+          event.reason,
+          event.startTime,
+          event.endTime,
+          event.status)
+          .then((value) {
         if (value != null) {
           emit(LeaveManagementLoaded(
             message: value.message ?? [].toString(),
@@ -44,13 +44,11 @@ class LeaveManagementBloc extends Bloc<LeaveManagementEvent, LeaveManagementStat
       });
     });
 
-    on<ApplyLeaveEvent>((event, emit) async {
+    on<DeleteLeaveManagement>((event, emit) async {
       emit(LeaveManagementLoading());
 
-      await leaveManagementRepository.leaveApprove(
-          id : event.id,
-          reason : event.reason,
-          status : event.status).then((value) {
+      await leaveManagementRepository.deleteDepartment(event.id)
+          .then((value) {
         if (value != null) {
           emit(LeaveManagementLoaded(
             message: value.message ?? [].toString(),
@@ -58,7 +56,6 @@ class LeaveManagementBloc extends Bloc<LeaveManagementEvent, LeaveManagementStat
         }
       });
     });
-
 
     on<GetLeaveManagementEmployeeListData>((event, emit) async {
       emit(LeaveManagementLoading());

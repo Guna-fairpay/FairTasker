@@ -3,9 +3,9 @@
 // import 'package:fairpytasker/Response/task_history_configuration_response.dart';
 // import 'package:fairpytasker/UI/working_history_task_details_ui.dart';
 // import 'package:fairpytasker/Response/working_history_count_response.dart';
-// import 'package:fairpytasker/bloc/todo_view_bloc.dart';
-// import 'package:fairpytasker/event/todo_view_event.dart';
-// import 'package:fairpytasker/state/todo_view_state.dart';
+// import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
+// import 'package:fairpytasker/Event/todo_view_event.dart';
+// import 'package:fairpytasker/State/todo_view_state.dart';
 // import 'package:fairpytasker/Utilities/appC.dart';
 // import 'package:fairpytasker/Utilities/utils.dart';
 // import 'package:flutter/cupertino.dart';
@@ -26,12 +26,12 @@
 //       : super(key: key);
 //
 //   @override
-//   state<WorkingHistoryCategoryWiseUI> createState() =>
+//   State<WorkingHistoryCategoryWiseUI> createState() =>
 //       _WorkingHistoryCategoryWiseUIState();
 // }
 //
 // class _WorkingHistoryCategoryWiseUIState
-//     extends state<WorkingHistoryCategoryWiseUI> {
+//     extends State<WorkingHistoryCategoryWiseUI> {
 //   late TodoViewBloc todoDataBloc;
 //   TextEditingController dateController = TextEditingController();
 //   List<Map<String,dynamic>> resourceList = [];

@@ -1,4 +1,3 @@
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Component/header.dart';
@@ -11,10 +10,10 @@ class SuppliesEditUI extends StatefulWidget {
   const SuppliesEditUI({super.key, required this.supply});
 
   @override
-  State<SuppliesEditUI> createState() => SuppliesEditUIState();
+  _SuppliesEditUIState createState() => _SuppliesEditUIState();
 }
 
-class SuppliesEditUIState extends State<SuppliesEditUI> {
+class _SuppliesEditUIState extends State<SuppliesEditUI> {
   late final TextEditingController suppliesController;
   late final TextEditingController descriptionController;
   bool isSuppliesFieldEmpty = false;
@@ -35,9 +34,11 @@ class SuppliesEditUIState extends State<SuppliesEditUI> {
   }
 
   void _save() {
-    setState(() {});
+    setState(() {
+      isSuppliesFieldEmpty = suppliesController.text.isEmpty;
+    });
     if (suppliesController.text.isEmpty) {
-      return;
+      return Utils.showMobileToast('Please fill the required field');
     }
 
     final updatedSupplies = {
@@ -53,46 +54,79 @@ class SuppliesEditUIState extends State<SuppliesEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-        backgroundColor: AppC.appColor,
-        automaticallyImplyLeading: false,
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Edit Supplies',
-        ),
-        actions: [
-          IconButton(
-              onPressed: ()=> Navigator.pop(context),
-              icon: const Icon(
-                Icons.close,
-                color: AppC.white,
-              )),
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0), // Change the height here
+        child: HeaderView(),
       ),
-      body: SafeArea(
-        minimum: 15.padding,
-        child: ListView(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Utils.getTextFormField(
-              'Supplies Name',
-              suppliesController,
-              autoValidate: AutovalidateMode.onUserInteraction,
-              validator: (val) => val!.isEmpty ? 'Please enter supplies name' : null,),
-            const SizedBox(height: 10),
-            Utils.getTextFormField(
-              'Description',
-              descriptionController,
-            ),
-            const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Utils.getElevatedButton(
-                 text:  'Save',
-                  bgColor: AppC.green,
-                  () {
-                    _save();
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
                   },
+                  child: const Icon(Icons.arrow_back),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Utils.getText('Edit Supplies',
+                    size: 20, weight: FontWeight.bold),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 40,
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    '',
+                    suppliesController,
+                    label: Utils.getText('Supplies Name', color: AppC.grey),
+                    borderColor:
+                        isSuppliesFieldEmpty ? Colors.red : AppC.fieldBase,
+                  ),
+                  if (isSuppliesFieldEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 10),
+                      child: Icon(Icons.error_outline, color: Colors.red),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 40,
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    '',
+                    descriptionController,
+                    label: Utils.getText('Description', color: AppC.grey),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  height: 40,
+                  child: Utils.getAddFilledButton(
+                    'Save',
+                    () {
+                      _save();
+                    },
+                  ),
                 ),
               ],
             ),

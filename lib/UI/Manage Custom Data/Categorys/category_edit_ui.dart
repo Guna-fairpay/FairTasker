@@ -1,6 +1,6 @@
-
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import '../../../Component/drawer_ui.dart';
+import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -14,13 +14,13 @@ class EditCategoryPage extends StatefulWidget {
 }
 
 class _EditCategoryPageState extends State<EditCategoryPage> {
-   final TextEditingController categoryController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final TextEditingController categoryController;
+  bool isTaskFieldEmpty = false;
 
   @override
   void initState() {
     super.initState();
-    categoryController.text = widget.category['name'];
+    categoryController = TextEditingController(text: widget.category['name']);
   }
 
   @override
@@ -30,56 +30,91 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
   }
 
   void _save() {
-    _formKey.currentState!.validate();
     setState(() {
+      isTaskFieldEmpty = categoryController.text.isEmpty;
     });
     if (categoryController.text.isEmpty) {
-      return ;
+      return Utils.showMobileToast('Please fill the required field');
     }
-    final updatedCategory = {
+    final updatedcategory = {
       'id': widget.category['id'],
       'name': categoryController.text,
     };
-    Navigator.pop(context, updatedCategory);
+
+    Navigator.pop(context, updatedcategory);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar:AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: AppC.appColor,
-        foregroundColor: Colors.white,
-        title: const Text('Edit Category'),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.close,
-            ),
-          ),
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0), // Change the height here
+        child: HeaderView(),
       ),
-      body: SafeArea(
-        minimum: 15.padding,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Utils.getTextFormField(
-                'Category',
-                categoryController,
-                autoValidate: AutovalidateMode.always,
-                validator: (val) => val!.isEmpty ? 'Please enter category' : null,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.arrow_back),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Utils.getText('Edit Category',
+                    size: 20, weight: FontWeight.bold),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 40,
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                    '',
+                    categoryController,
+                    label: Utils.getText('Category', color: AppC.grey),
+                    borderColor: isTaskFieldEmpty ? Colors.red : AppC.fieldBase,
+                  ),
+                  if (isTaskFieldEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 10),
+                      child: Icon(Icons.error_outline, color: Colors.red),
+                    ),
+                ],
               ),
-              const SizedBox(height: 10),
-              Utils.getElevatedButton(()=>_save(),bgColor: AppC.green,text: 'Save')
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.of(context).pop(_controller.text);
+            //   },
+            //   child: Text('Save'),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  height: 40,
+                  child: Utils.getAddFilledButton('Save', () {
+                    _save();
+                  }),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

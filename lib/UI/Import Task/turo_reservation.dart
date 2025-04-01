@@ -1,10 +1,8 @@
-
 import 'package:fairpytasker/Bloc/text_upload_bloc.dart';
 import 'package:fairpytasker/Event/text_upload_event.dart';
+import 'package:fairpytasker/Response/text_upload_response.dart';
 import 'package:fairpytasker/State/text_upload_state.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Component/drawer_ui.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
@@ -20,29 +18,21 @@ class TuroReservation extends StatefulWidget {
 }
 
 class _TuroReservationState extends State<TuroReservation> {
-
-  final GlobalKey<FormState> _key = GlobalKey<FormState>();
-  final TextUploadBloc textUploadBloc = TextUploadBloc();
+  late TextUploadBloc textUploadBloc;
   final TextEditingController uploadTaskController = TextEditingController();
+  bool loading = false;
 
   @override
   void initState() {
+    textUploadBloc = TextUploadBloc();
     super.initState();
   }
 
   @override
   void dispose() {
-    textUploadBloc.close();
-    uploadTaskController.dispose();
+    textUploadBloc.close(); // Close the Bloc to prevent memory leaks
+    uploadTaskController.dispose(); // Dispose of the controller as well
     super.dispose();
-  }
-
-  void _uploadTask() {
-    _key.currentState!.validate();
-    if (uploadTaskController.text.isEmpty) {
-      return;
-    }
-    textUploadBloc.add(TuroReservationEvent(text: uploadTaskController.text));
   }
 
   @override
@@ -54,55 +44,93 @@ class _TuroReservationState extends State<TuroReservation> {
         child: BlocConsumer<TextUploadBloc, TextUploadState>(
           listener: (context, state) {
             if (state is TextUploadLoading) {
-              EasyLoading.show();
-            } else {
-              if(EasyLoading.isShow)EasyLoading.dismiss();
-              if (state is TextUploadLoaded) {
-                uploadTaskController.clear();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BottomNavigationForTaskView(
-                      selectedIndex: 1,
-                      message: '',
-                    ),
+              loading = true;
+            } else if (state is TextUploadLoaded) {
+              loading = false;
+              uploadTaskController.clear();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BottomNavigationForTaskView(
+                    selectedIndex: 0,
+                    message: '',
                   ),
-                );
-              }
+                ),
+              );
             }
           },
           builder: (context, state) {
-            return SafeArea(
-              child: Form(
-                key: _key,
-                child: ListView(
-                  children: [
-                    Utils.getBorderedMultilineTextField(
-                      'Paste your text here...',
-                      uploadTaskController,
-                      minLines: 22,
-                      maxLines: 22,
-                      inputAction: TextInputAction.done,
-                      autoValidate: AutovalidateMode.onUserInteraction,
-                      validator: (val)=>val!.isEmpty?'Please enter text to upload':null,
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Utils.getElevatedButton(
-                          text: 'Submit',
-                           ()=>_uploadTask()
+            return Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              Expanded(
+                                child: Utils.getBorderedMultilineTextField(
+                                  'Paste your text here...',
+                                  uploadTaskController,
+                                  minLines: 35,
+                                  fillColor: AppC.white,
+                                  autofocus: false,
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    height: 40,
+                                    child:
+                                        Utils.getAddFilledButton('Upload', () {
+                                      final task = UploadTextData(
+                                        text: uploadTaskController.text,
+                                      );
+                                      if (uploadTaskController.text.isEmpty) {
+                                        Utils.showMobileToast(
+                                            'Please Upload Data');
+                                      } else {
+                                        context
+                                            .read<TextUploadBloc>()
+                                            .add(CreateTextUpload(
+                                              text: uploadTaskController.text,
+                                              id: task
+                                                  .id, // Ensure `id` is correct
+                                            ));
+                                      }
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              )
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Visibility(
+                    visible: loading,
+                    child: Center(child: Utils.getProgressIndicator(context))),
+              ],
             );
           },
         ),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

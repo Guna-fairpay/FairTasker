@@ -42,13 +42,6 @@ class PrivateRentalBloc extends Bloc<PrivateRentalEvent, PrivateRentalState> {
       });
     });
 
-    on<GetEditCustomerData>((event, emit) async {
-      emit(PrivateRentalLoading());
-      await privateRentalRepository.getEditCustomerData(event.id).then((value) {
-        emit(EditCustomerLoaded(data:value?.editData));
-      });
-    });
-
     on<AddCustomerData>((event, emit) async {
       emit(PrivateRentalLoading());
       await privateRentalRepository.createCustomer(
@@ -61,20 +54,21 @@ class PrivateRentalBloc extends Bloc<PrivateRentalEvent, PrivateRentalState> {
         event.rentalStartDate,
         event.securityDeposit,
         event.note,
-        event.licenceAttach,
-        event.insuranceAttach,
+       // event.licenceAttach,
+       // event.insuranceAttach,
       ).then((value) {
-        emit(CustomerListLoaded(message:value.toString(),));
+        emit(CustomerListLoaded(message: value?.message));
       });
     });
 
     on<DeleteCustomer>((event, emit) async {
       emit(PrivateRentalLoading());
+
       await privateRentalRepository.deleteCustomer(event.id)
           .then((value) {
         if (value != null) {
           emit(CustomerListLoaded(
-            message: value.toString(),
+            message: value.message ?? [].toString(),
           ));
         }
       });

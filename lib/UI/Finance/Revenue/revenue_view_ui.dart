@@ -1,5 +1,5 @@
 import 'package:fairpytasker/Component/drawer_ui.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
@@ -131,10 +131,12 @@ class _RevenueViewUIState extends State<RevenueViewUI> {
                 SizedBox(
                   height: 40,
                   child: Utils.getSearchBarUI(
-                    onChange: (value) {
+                    () {},
+                    (value) {
                       //  _filtercategory(value);
                     },
-                    searchController: searchController,
+                    searchController,
+                    searchFocusNode,
                   ),
                 ),
               ],

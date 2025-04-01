@@ -9,15 +9,16 @@ class VehicleInitial extends VehicleDataEvent {
   @override
   List<Object?> get props => [];
 }
+
 class GetDropdownVehicleData extends VehicleDataEvent {
   const GetDropdownVehicleData();
   @override
   List<Object?> get props => [];
 }
 
-class GetExpenseToDatas extends VehicleDataEvent {
+class GetExpenseToData extends VehicleDataEvent {
   final String? expenseId;
-  const GetExpenseToDatas({required this.expenseId});
+  const GetExpenseToData({required this.expenseId});
   @override
   List<Object?> get props => [expenseId];
 }
@@ -56,35 +57,13 @@ class GetVehicleGroupingListV extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
-class GetVehicleGroupData extends VehicleDataEvent {
-  const GetVehicleGroupData();
-  @override
-  List<Object?> get props => [];
-}
-
-
 class AddVehicleDataEvent extends VehicleDataEvent {
   final CreateVehicleData? createVehicleData;
   const AddVehicleDataEvent({this.createVehicleData});
   @override
   List<Object?> get props => [createVehicleData];
 }
-class UpdateVehicleDataEvent extends VehicleDataEvent {
-  final CreateVehicleData? createVehicleData;
-  const UpdateVehicleDataEvent({this.createVehicleData});
-  @override
-  List<Object?> get props => [createVehicleData];
-}
 
-class MoveRentalData extends VehicleDataEvent {
-  final dynamic rentalData;
-  const MoveRentalData({
-    required this.rentalData});
-  @override
-  List<Object?> get props => [rentalData];
-}
-
-//
 class AddVehicleGroupingData extends VehicleDataEvent {
   final int? id;
   final String? name;
@@ -163,9 +142,9 @@ class GetPartsListV extends VehicleDataEvent {
   List<Object?> get props => [];
 }
 
-class DeletePartEvent extends VehicleDataEvent {
+class DeletePartsEvent extends VehicleDataEvent {
   final int? id;
-  const DeletePartEvent({required this.id});
+  const DeletePartsEvent({required this.id});
   @override
   List<Object?> get props => [id];
 }
@@ -221,7 +200,6 @@ class AddDepartmentData extends VehicleDataEvent {
   @override
   List<Object?> get props => [name, id, head];
 }
-
 /*
 class GetSubCategory extends AddVehicleData {
   const GetSubCategory();

@@ -1,8 +1,6 @@
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
-import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'dart:async';
@@ -10,7 +8,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/UI/Chat/chat_preview_list_ui.dart';
 import 'package:flutter/cupertino.dart';
 import '../State/todo_view_state.dart';
-import '../UI/Task List/TaskList_ViewUI.dart';
+import '../UI/TaskList_ViewUI.dart';
 import '../Utilities/str.dart';
 import '../main.dart';
 import 'bottom_nav_for_task.dart';
@@ -38,7 +36,6 @@ class _HeaderViewState extends State<HeaderView> {
   List<Map<String, dynamic>> branch = [];
   late TodoViewBloc todoViewBloc;
   int? branchNO;
-  String? userId;
 
   @override
   void initState() {
@@ -47,7 +44,6 @@ class _HeaderViewState extends State<HeaderView> {
     todoViewBloc.add(const GetBranchList());
     _loadUserRole();
     _loadBranchId();
-    _loadUserId();
   }
 
   Future<void> _loadUserRole() async {
@@ -65,14 +61,6 @@ class _HeaderViewState extends State<HeaderView> {
       branchNO = branchId;
     });
   }
-
-  Future<void> _loadUserId() async {
-    final id = await Utils.getStringPreference(Str.userIdPrefText);
-    setState(() {
-      userId = id;
-    });
-  }
-
 
   @override
   void dispose() {
@@ -102,7 +90,10 @@ class _HeaderViewState extends State<HeaderView> {
         backgroundColor: AppC.white,
         leadingWidth: 0,
         titleSpacing: 0,
-        automaticallyImplyLeading: false,
+        leading: const Padding(
+          padding: EdgeInsets.only(bottom: 8.0, left: 12),
+          child: Icon(Icons.sort_outlined, color: AppC.trans),
+        ),
         title: BlocBuilder<TodoViewBloc, TodoViewState>(
           builder: (context, state) {
             if (state is BranchListLoaded) {
@@ -114,6 +105,7 @@ class _HeaderViewState extends State<HeaderView> {
                   (item) => item['id'] == branchNO,
                   orElse: () => branch[0],
                 );
+                print("SELECT $selectedValue");
               }
             }
 
@@ -158,7 +150,7 @@ class _HeaderViewState extends State<HeaderView> {
                   ),
                   const SizedBox(width: 12),
                   const Spacer(),
-                  if (userRole == 'Admin' || userId == '3')
+                  if (userRole == 'Admin')
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -206,6 +198,16 @@ class _HeaderViewState extends State<HeaderView> {
                       child: Utils.getText(' 0/0 '),
                     ),
                   ),
+                  const SizedBox(width: 12),
+            Row(
+              children: [
+                Image.asset(
+                Assets.checkInIcon,
+                color: AppC.appColor,
+                  height: 20,
+                ),
+              ],
+            ),
                   const SizedBox(width: 12),
                   InkWell(
                     onTap: () {
@@ -255,9 +257,9 @@ class _HeaderViewState extends State<HeaderView> {
                         if (value != null) {
                           setState(() {
                             selectedValue = value;
+                            print('SELECTED VALUE+==+${selectedValue?['id']}');
                             Utils.setIntPreference(
                                 Str.branchIdPrefText, selectedValue?['id']!);
-                            Session.of.set(Str.branchIdPrefText, "${selectedValue?['id'] ?? 1}");
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -275,7 +277,7 @@ class _HeaderViewState extends State<HeaderView> {
                     child: Utils.getText(
                       selectedValue?['city'] != null
                           ? selectedValue!['city'][0]
-                          : 'D',
+                          : 'S',
                       size: 20, // Reduced font size of the button text
                       weight: FontWeight.bold,
                       color: AppC.appColor,

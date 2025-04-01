@@ -5,8 +5,8 @@ abstract class LocationDataEvent extends Equatable {
 }
 
 class AddLocationData extends LocationDataEvent {
-  final String name;
-  final List<dynamic>? address;
+  final String? name;
+  final List<String>? address;
   final int? id;
   const AddLocationData({required this.name, required this.address, required this.id});
   @override
@@ -25,17 +25,12 @@ class AddedLocationInitial extends LocationDataEvent {
   List<Object?> get props => [];
 }
 
+
 class DeleteLocationEvent extends LocationDataEvent {
   final int? id;
-  const DeleteLocationEvent({required this.id,});
+  final bool? isLocationAddress;
+  const DeleteLocationEvent({required this.id, this.isLocationAddress});
   @override
-  List<Object?> get props => [id];
-}
-
-class DeleteLocation extends LocationDataEvent {
-  final int id;
-  const DeleteLocation({required this.id});
-  @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, isLocationAddress];
 }
 

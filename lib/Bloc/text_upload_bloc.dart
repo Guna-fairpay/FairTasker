@@ -10,17 +10,14 @@ class TextUploadBloc extends Bloc<TextUploadEvent, TextUploadState> {
   TodoListRepo todoListRepo = TodoListRepo();
 
   TextUploadBloc() : super(TextUploadInitial()) {
-    on<TextUpload>((event, emit) async {
-      emit(TextUploadLoading());
-      await taskUploadRepository.uploadTask(event.text).then((value) {
-        emit(TextUploadLoaded(message: value));
-      });
+    on<TextUploadEvent>((event, emit) {
+      // TODO: implement event handler
     });
 
-    on<TuroReservationEvent>((event, emit) async {
+    on<CreateTextUpload>((event, emit) async {
       emit(TextUploadLoading());
-      await taskUploadRepository.uploadTuroReservation(event.text).then((value) {
-        emit(TextUploadLoaded(message: value));
+      await taskUploadRepository.uploadTask(event.id, event.text).then((value) {
+        emit(TextUploadLoaded(result: value));
       });
     });
   }

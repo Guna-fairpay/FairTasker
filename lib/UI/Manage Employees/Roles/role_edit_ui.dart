@@ -1,10 +1,9 @@
-
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../Bloc/roles_bloc.dart';
-import '../../../Event/roles_event.dart';
-import '../../../State/roles_state.dart';
+import '../../../Bloc/permission_bloc.dart';
+import '../../../Component/drawer_ui.dart';
+import '../../../Component/header.dart';
+import '../../../Event/permission_event.dart';
+import '../../../State/permission_state.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,30 +17,38 @@ class RoleEditUI extends StatefulWidget {
 }
 
 class _RoleEditUIState extends State<RoleEditUI> {
-  late RolesBloc rolesBloc= RolesBloc();
+  late PermissionBloc permissionBloc;
   TextEditingController roleController = TextEditingController();
   List<Map<String, dynamic>> permissions = [];
-  List<int>permissionsId = [];
-  Map<dynamic, bool> checked = {};
+  List<Map<String, dynamic>> filterPermissions = [];
+  bool loading = false;
 
   @override
   void initState() {
-    rolesBloc.add(const GetPermissionDataForRole());
-
+    permissionBloc = PermissionBloc();
     roleController.text = widget.roles['name'] ?? '';
-
+    if (widget.roles.containsKey('permissions') && widget.roles['permissions'] is List<String>) {
+      for (String perm in widget.roles['permissions']['id']) {
+        for (var permission in permissions) {
+          if (permission['name'] == perm) {
+            permission['permissions'] = true;
+          }
+        }
+      }
+    }
     super.initState();
   }
 
   void _save() {
     if (roleController.text.isEmpty) {
-      return ;
+      return Utils.showMobileToast('Please fill in all required fields');
     }
+
     final updatedRole = {
-      'id':widget.roles['id'],
-      'name': roleController.text,
-      'permissions': permissionsId,
+      'role': roleController.text,
+      'permissions': permissions,
     };
+
     Navigator.of(context).pop(updatedRole);
   }
 
@@ -49,90 +56,129 @@ class _RoleEditUIState extends State<RoleEditUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppC.white,
-      appBar: AppBar(
-      backgroundColor: AppC.appColor,
-      automaticallyImplyLeading: false,
-      title: const Text('Edit Role'),
-      foregroundColor: Colors.white,
-      actions: [
-        IconButton(onPressed: ()=>Navigator.pop(context)
-            , icon: const Icon(Icons.close))
-      ],
-    ),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(35.0),
+        child: HeaderView(),
+      ),
       body: BlocProvider(
-        create: (context) => rolesBloc..add(GetEditRoleData(id: widget.roles['id'])),
-        child: BlocConsumer<RolesBloc, RolesState>(
+        create: (context) => permissionBloc..add(const GetPermissionData()),
+        child: BlocConsumer<PermissionBloc, PermissionState>(
           listener: (context, state) {
-            if(state is RolesLoading){
-              EasyLoading.show();
-            }else{
-              if(EasyLoading.isShow) EasyLoading.dismiss();
-              if (state is EditRolesLoaded){
-                permissionsId.clear();
+            if (state is PermissionLoading) {
+              setState(() {
+                loading = true;
+              });
+            } else if (state is PermissionListLoaded) {
+              setState(() {
+                loading = false;
                 permissions.clear();
-                permissionsId.addAll(state.rolePermission ?? []);
                 permissions.addAll(state.data ?? []);
-                checked.clear();
-                for (int i = 0; i < permissions.length; i++) {
-                  checked[i] = permissionsId.contains(permissions[i]['id']);
-                }
-              }
+                filterPermissions = List.from(state.data ?? []);
+              });
+            } else if (state is PermissionLoaded) {
+              setState(() {
+                loading = false;
+                permissions.clear();
+                permissionBloc.add(const GetPermissionData());
+              });
+            } else if (state is PermissionError) {
+              setState(() {
+                loading = false;
+              });
+              Utils.showMobileToast('Error loading permissions');
             }
           },
           builder: (context, state) {
-            return SafeArea(
-              minimum: 15.padding,
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Utils.getTextFormField(
-                    'Role',
-                    roleController,
-                    inputAction: TextInputAction.done,
-                    autoValidate: AutovalidateMode.onUserInteraction,
-                    validator: (val)=>val!.isEmpty?'Role is required':null,
-                  ),
-                  Utils.getText('Permissions', size: 15, weight: FontWeight.bold),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: permissions.length,
-                      itemBuilder: (context,  index) {
-                        final permission = permissions[index];
-
-                        return CheckboxListTile(
-                            value: checked[index] ?? false,
-                            activeColor: AppC.blue,
-                            contentPadding: 0.padding,
-                            dense: true,
-                            title: Text(permission['name'] ?? ''),
-                            controlAffinity: ListTileControlAffinity.leading,
-                            onChanged: (value){
-                              setState(() {
-                                checked[index] = value ?? false;
-                                if(value == true){
-                                  if(!permissionsId.contains(permission['id'])){
-                                    permissionsId.add(permission['id']);
-                                  }
-                                }else{
-                                  permissionsId.remove(permission['id']);
-                                }
-                              });
-                            });
-                      },
-                    ),
-                  ),
-                  Row(
+            return Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20, top: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Utils.getElevatedButton(()=>_save()),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Icon(Icons.arrow_back),
+                          ),
+                          const SizedBox(width: 10),
+                          Utils.getText('Edit Role', size: 20, weight: FontWeight.bold),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 40,
+                        child: Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
+                              '',
+                              roleController,
+                              label: Utils.getText('Role', color: AppC.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Utils.getText('Permissions', size: 15, weight: FontWeight.bold),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: permissions.map((permission) {
+                              return Container(
+                                height: 25,
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: permission['permissions'] ?? false,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          permission['permissions'] = value ?? false;
+                                        });
+                                      },
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: Utils.getText(permission['name']),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        color: AppC.trans,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              height: 40,
+                              child: Utils.getAddFilledButton('Save', () {
+                                _save();
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Visibility(
+                    visible: loading,
+                    child: Center(child: Utils.getProgressIndicator(context)))
+              ],
             );
           },
         ),
       ),
+      drawer: const DrawerView(),
     );
   }
 }

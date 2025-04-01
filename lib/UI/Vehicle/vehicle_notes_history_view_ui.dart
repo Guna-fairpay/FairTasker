@@ -129,7 +129,7 @@ class _VehicleNotesHistoryViewUiState extends State<VehicleNotesHistoryViewUi> {
                       SizedBox(
                         height: 40,
                         child:
-                            Utils.getTextFormField(
+                            Utils.getBackgroundFilledTextFieldFirstLetterCaps(
                           'dd-mm-YYYY',
                           dateController,
                           suffixIcon: const Icon(Icons.date_range,
@@ -252,7 +252,10 @@ class _VehicleNotesHistoryViewUiState extends State<VehicleNotesHistoryViewUi> {
                   ),
                 ),
               ),
-              if (loading) Center(child: Utils.getProgressIndicator(context),),
+              if (loading)
+                Center(
+                  child: Utils.getProgressIndicator(context),
+                ),
             ],
           ),
         ),

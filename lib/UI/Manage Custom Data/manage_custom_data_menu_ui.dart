@@ -1,5 +1,3 @@
-
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
 import 'package:flutter/material.dart';
 import '../../Component/drawer_ui.dart';
 import '../../Component/header.dart';
@@ -13,11 +11,21 @@ import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
 import 'Task/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
-import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
+import 'Vehicles/vehicle_view_ui.dart';
 import 'Vendor/vendor_view_ui.dart';
 
-class ManageCustomDataMenuUI extends StatelessWidget {
-  const ManageCustomDataMenuUI({super.key});
+class ManageCustomdataMenuUI extends StatefulWidget {
+  const ManageCustomdataMenuUI({super.key});
+
+  @override
+  State<ManageCustomdataMenuUI> createState() => _ManageCustomdataMenuUIState();
+}
+
+class _ManageCustomdataMenuUIState extends State<ManageCustomdataMenuUI> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,44 +42,31 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(
-                    Icons.arrow_back,
-                    size: 16,
-                  ),
-                ),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 16,
+                    )),
                 const SizedBox(
                   width: 10,
                 ),
-                Utils.getText(
-                  'Manage CustomData Menu',
-                  size: 16,
-                  weight: FontWeight.bold,
-                ),
+                Utils.getText('Manage CustomData Menu',
+                    size: 16, weight: FontWeight.bold),
               ],
             ),
-            const SizedBox(height: 10),
-            /*_buildCard(
-              icon: Icons.file_copy_rounded,
-              title: 'Reports',
-              onTap: () async => await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const ReportsView())),
-            ),*/
-            _buildCard(
-              icon: Icons.calendar_month_rounded,
-              title: 'Attendance',
-              onTap: () async => await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const AttendanceView())),
+            const SizedBox(
+              height: 10,
             ),
             _buildCard(
               icon: Icons.assignment,
               title: 'Task',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const TaskViewUI(),
-                ));
+                    builder: (context) => const TaskViewUI()));
+
+                ///TaskViewUI//CreateTaskUI
               },
             ),
             _buildCard(
@@ -79,8 +74,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vehicle',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VehicleTabBar(),
-                ));
+                    builder: (context) => const VehicleUIs()));
+
+                ///VehicleUI///VehicleUIs
               },
             ),
             _buildCard(
@@ -88,17 +84,25 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vendor',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VendorViewUI(),
-                ));
+                    builder: (context) => const VendorViewUI()));
               },
             ),
+            // _buildCard(
+            //   icon: Icons.add_business,
+            //   title: 'Vendor Type',
+            //   onTap: () async {
+            //     await Navigator.of(context).push(MaterialPageRoute(
+            //         builder: (context) => const VendorTypeUI()));
+            //   },
+            // ),
             _buildCard(
               icon: Icons.location_on,
               title: 'Location',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LocationViewUI(),
-                ));
+                    builder: (context) => const LocationViewUI()));
+
+                ///LocationUI ///LocationViewUI
               },
             ),
             _buildCard(
@@ -106,8 +110,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Parts',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const PartViewUI(),///PartView() ?? PartViewUI()
-                ));
+                    builder: (context) => const PartViewUI()));
+
+                ///PartsUI///PartViewUI
               },
             ),
             _buildCard(
@@ -115,8 +120,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Supplies',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SuppliesViewUI(),
-                ));
+                    builder: (context) => const SuppliesViewUI()));
+
+                ///SupplyUI///SuppliesViewUI
               },
             ),
             _buildCard(
@@ -124,8 +130,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Category',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CategoryViewUi(),
-                ));
+                    builder: (context) => const CategoryViewUi()));
+
+                ///CategoryViewUi///CreateTaskUI
               },
             ),
             _buildCard(
@@ -133,8 +140,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'SubCategory',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SubcategoryViewUI(),
-                ));
+                    builder: (context) => const SubcategoryViewui()));
+
+                ///SubCategoryUI///SubcategoryViewui
               },
             ),
             _buildCard(
@@ -142,8 +150,9 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vehicle Status',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VehicleStatusAddUI(),
-                ));
+                    builder: (context) => const VehicleStatusAddUI()));
+
+                ///VehicleStatusAddUI///CreateTaskUI
               },
             ),
             _buildCard(
@@ -151,19 +160,11 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Customers',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CustomerViewUi(),
-                ));
+                    builder: (context) => const CustomerViewUi()));
+
+                ///CustomerViewUi
               },
             ),
-           /* _buildCard(
-              icon: Icons.telegram,
-              title: 'Customers',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const PartView(),
-                ));
-              },
-            ),*/
           ],
         ),
       ),
@@ -185,6 +186,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
           surfaceTintColor: Colors.white,
           color: Colors.white, // White card background
           shape: RoundedRectangleBorder(
+            // side: BorderSide(color: Colors.grey[200]!, width: 1.0),
             borderRadius: BorderRadius.circular(8), // Slightly rounded corners
           ),
           elevation: 2, // Slight elevation
@@ -192,25 +194,16 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
             child: Row(
               children: [
-                Icon(
-                  icon,
-                  color: AppC().base,
-                  size: 14,
-                ), // Darker grey-blue for icons
+                Icon(icon,
+                    color: AppC().base, size: 14), // Darker grey-blue for icons
                 const SizedBox(width: 18),
                 Expanded(
-                  child: Utils.getText(
-                    title,
-                    size: 12,
-                    weight: FontWeight.w400,
-                    color: Colors.black87,
-                  ),
+                  child: Utils.getText(title,
+                      size: 12, weight: FontWeight.w400, color: Colors.black87),
                 ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 12,
-                  color: Colors.grey[600],
-                ), // Lighter grey for arrow
+                Icon(Icons.arrow_forward_ios,
+                    size: 12,
+                    color: Colors.grey[600]), // Lighter grey for arrow
               ],
             ),
           ),

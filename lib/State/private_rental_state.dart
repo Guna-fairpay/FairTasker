@@ -42,13 +42,6 @@ class CustomerLoaded extends PrivateRentalState {
   List<Object?> get props => [data];
 }
 
-class EditCustomerLoaded extends PrivateRentalState {
-  final Map<String, dynamic>? data;
-  const EditCustomerLoaded({required this.data});
-  @override
-  List<Object?> get props => [data];
-}
-
 class CustomerListLoaded extends PrivateRentalState {
   final String? message;
   const CustomerListLoaded({required this.message});

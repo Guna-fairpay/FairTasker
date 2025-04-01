@@ -22,8 +22,6 @@ class PermissionBloc extends Bloc<PermissionEvent, PermissionState> {
       });
     });
 
-
-
     on<AddPermissionData>((event, emit) async {
       emit(PermissionLoading());
 
