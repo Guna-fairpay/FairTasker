@@ -9,6 +9,7 @@ import 'package:fairpytasker/UI/Finance/Expense/Event/expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/State/expense_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -783,6 +784,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       Console.of.log("expense_vehicle_refresh");
       _resetAll();
     });
+
+    getIt<CommonService>().branchUpdate(callback: _resetAll);
   }
 
   Map<String, String> _updateExpenseData() {
@@ -864,7 +867,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
   Map<String, String> _updateCategorys(dynamic expense) {
     Map<String, String> baseBody = {};
-    baseBody['approved'] ='';
+    baseBody['approved'] ="${expense['approved']}";
     baseBody['category_id'] = "${state.selectedCategory?['id'] ?? expense['category_id']??''}";
     baseBody['cohort_id'] = "${expense["cohort_id"] ?? ''}";
     baseBody['employee_id'] = resourceId ?? '';
@@ -1102,6 +1105,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
       var apiResponse = expenseResponse?.data;
       var amountResponse = expenseAmount?.data;
+
+      apiResponse?.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
+      amountResponse?.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
+      apiResponse?.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
+      amountResponse?.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
 
       apiResponse = calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
 
