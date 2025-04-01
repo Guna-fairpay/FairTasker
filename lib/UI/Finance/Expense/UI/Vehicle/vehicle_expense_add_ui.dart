@@ -1,7 +1,6 @@
 
 
 import 'dart:developer';
-
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
@@ -38,8 +37,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
           }
           log("${state.popAddPagePop}");
         },
-        child:
-            BlocBuilder<AddExpenseVehicleBloc, AddExpenseVehicleState>(builder: (context, state) {
+        child: BlocBuilder<AddExpenseVehicleBloc, AddExpenseVehicleState>(builder: (context, state) {
           return Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
@@ -66,9 +64,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           children: [
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => context
-                                    .read<AddExpenseVehicleBloc>()
-                                    .add(PickImageEvent()),
+                                onTap: () => context.read<AddExpenseVehicleBloc>().add(PickImageEvent()),
                                 child: Container(
                                   height: 40,
                                   decoration: BoxDecoration(
@@ -156,16 +152,11 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                                   onTapDelete: () {
                                     AskPermissionDialog.show(context,
                                         title: "Are you sure?",
-                                        description:
-                                            "Do you want to delete this Expense Image?",
+                                        description: "Do you want to delete this Expense Image?",
                                         positiveText: "Yes, delete it!",
                                         negativeText: "Cancel",
                                         isReasonRequired: false,
-                                        onPositivePressed: () => context
-                                            .read<AddExpenseVehicleBloc>()
-                                            .add(RemoveImageEvent(
-                                                data: state.expenseAttachments[
-                                                    index])));
+                                        onPositivePressed: () => context.read<AddExpenseVehicleBloc>().add(RemoveImageEvent(data: state.expenseAttachments[index])));
                                   },
                                   child: Stack(
                                     children: [
@@ -257,7 +248,9 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                                   state.paymentType,
                                   (value) => context.read<AddExpenseVehicleBloc>().add(
                                       SelectedPaymentEvent(paymentType: value)),
-                                  labelKey: 'name'),
+                                  labelKey: 'name',
+                                initialSelection: state.selectedPaymentType,
+                              ),
                             ),
                           ],
                         ),
@@ -275,6 +268,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               .read<AddExpenseVehicleBloc>()
                               .add(CategoryListEvent(selectedCategory: value)),
                           labelKey: 'name',
+                          initialSelection: state.selectedCategory,
                         ),
                         10.height,
                         Utils.dropdownBox(
