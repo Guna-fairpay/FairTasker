@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:flutter_video_thumbnail_plus/flutter_video_thumbnail_plus.dart';
@@ -19,6 +20,7 @@ class ImageViewer extends StatelessWidget {
       required this.imageInput,
       this.fit = BoxFit.contain,
       this.isNotImage = false}) {
+    Console.of.log(imageInput);
     if (isNotImage && !((imageInput as Object).isPDF)) _generateThumbnail();
   }
 
