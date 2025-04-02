@@ -2,9 +2,13 @@ import 'dart:developer';
 import 'dart:ui' show VoidCallback;
 
 import 'package:collection/collection.dart';
+import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/Repository/authentication_repository.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier;
@@ -44,6 +48,7 @@ class CommonService {
   List<Map<String, dynamic>> resourcesList = [];
   List<Map<String, dynamic>> branchList = [];
   List<Map<String, dynamic>> vehicleStatusList = [];
+  List<Map<String, dynamic>> _toDoList = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
@@ -54,6 +59,15 @@ class CommonService {
 
   void branchUpdate({VoidCallback? callback}) {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
+  }
+
+  Future<void> initialFetch() async {
+    await Future.wait([
+      getUsers(),
+      getCohorts(),
+      getBranches(),
+      Authenticator.instance.getBearerToken()
+    ]);
   }
 
   int get getUserId {
@@ -328,6 +342,18 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getToDos() async {
+    if (_toDoList.isNotEmpty) return _toDoList;
+    try {
+      var response = await _apiRepository.getToDoList(selectedDate: DateTime.now().toFormat(format: "yyyy-MM-dd"));
+      _toDoList = List<Map<String, dynamic>>.from(response?['todos'] ?? []);
+      return _toDoList;
+    }catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
   Future<void> clearAll() async {
     usersList.clear();
     cohortsList.clear();
@@ -346,6 +372,7 @@ class CommonService {
     resourcesList.clear();
     _vehicleStatus?.clear();
     branchList.clear();
+    _toDoList.clear();
   }
 
 }

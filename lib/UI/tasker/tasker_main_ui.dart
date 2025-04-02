@@ -48,7 +48,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerSuccessState(): Toaster.showSuccess("${state.message}"); break;
             case ToDoTaskerErrorState(): Toaster.showError("${state.message}"); break;
             case ToDoTaskerDatePickerState(): Utils.showPickerDate(context, value: context.read<ToDoTaskerBloc>().selectedDate, onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateFilterEvent(val))); break;
-            case ToDoTaskerAddToDoState(): context.push(const CreateTodoUI(),fullscreenDialog: true); break;
+            case ToDoTaskerAddToDoState(): context.push(CreateTodoUI(selectedDate: state.date), fullscreenDialog: true); break;
             case ToDoTaskerMicState(): Toaster.showInfo("MIC PRESSED"); break;
             case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoReworkUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
             case ToDoTaskerEditState(): context.push(EditTodoReworkUI(todoId: state.toDoId),fullscreenDialog: true); break;
@@ -78,6 +78,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
             case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
             case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['todoimages']).map((e) => e['path'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
+            case ToDoTaskerViewReasonAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['reason_images']).map((e) => e['images'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
             case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
             default: break;
           }

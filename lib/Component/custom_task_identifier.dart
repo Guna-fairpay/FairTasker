@@ -1,10 +1,9 @@
 import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
@@ -53,13 +52,7 @@ class TaskIdentifier extends StatelessWidget {
 
   void initState() {
     updateCommonList();
-    taskIdentifierController.addListener(_listenField);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _listenNotifiers());
-  }
-
-  void _listenField() {
-    var text = taskIdentifierController.text;
-    if (text.isEmpty) _requestFocus();
   }
 
   void _listenNotifiers() {
@@ -73,51 +66,13 @@ class TaskIdentifier extends StatelessWidget {
       _setValue(emit: false);
     } else {
       taskIdentifierController.clear();
-      _requestFocus();
     }
   }
 
   void updateCommonList() {
-    // vTasks =  tasks
-    //     .map((e) => {"id": e['id'], "name": e['task'], "type": "task", "partNumber" : 1, "value" : e})
-    //     .toList();
     vTasks = CustomSearchDataConverter.convertTasks(tasks: tasks);
-    var person =  persons.map((element) =>
-    {
-      "id": element['id'],
-      "name": [element['first_name'], element['last_name']].join(" "),
-      "type": "person",
-      "partNumber" : 2,
-      "value" : element
-    }).toList();
-    var vehicle =  vehicles.map((element) =>
-    {
-      "id": element['id'],
-      "name": element['vehicle_name'],
-      "subname" : element['vehicle_number'].toString().isNullOrEmpty ? "" : "\t(${element['vehicle_number']})",
-      "type": "vehicles",
-      "partNumber" : 2,
-      "value" : element
-    }).toList();
     vPersons = CustomSearchDataConverter.convertVPerson(vehicles: vehicles, persons: persons, groupVehicles: gVehicles);
-    // vPersons = [...vehicle, ...person];
-    var locations =  location.map((element) =>
-    {
-      "id": element['id'],
-      "name": element['name'],
-      "type": "location",
-      "partNumber" : 3,
-      "value" : element
-    }).toList();
-    var vendor = vendors.map((element) => {
-      "id": element['id'],
-      "name": element['name'],
-      "type": "vendors",
-      "partNumber" : 3,
-      "value" : element
-    }).toList();
     vLocations = CustomSearchDataConverter.convertVLocation(vendors: vendors, locations: location);
-    // vLocations = [...vendor, ...locations];
     commonList = vTasks;
   }
 
@@ -125,13 +80,12 @@ class TaskIdentifier extends StatelessWidget {
     Console.of.warning("SetValue:	$emit", name: "TaskIdentifier");
     if (emit) {
       onSelected?.call(selectedList);
-      _requestFocus();
     }
     Console.of.log(formatMapData(selectedList), name: "TaskIdentifier");
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  formatMapData(selectedList).length - 1));
      Console.of.log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
-     if (_isHavingHypen() || taskIdentifierController.text.isNullOrEmpty) _requestFocus();
+    // _onSearch(taskIdentifierController.value);
   }
 
   bool _isHavingHypen() {
@@ -173,14 +127,6 @@ class TaskIdentifier extends StatelessWidget {
     return result; // Default case
   }
 
-  void _requestFocus() {
-    // _focusNode.requestFocus();
-  }
-
-  void _unRequestFocus() {
-    _focusNode.unfocus();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
@@ -193,6 +139,7 @@ class TaskIdentifier extends StatelessWidget {
             selectedList[value['partNumber']] = value;
             log("onSelected:	$value", name: "TaskIdentifier");
             onSelected?.call(selectedList);
+            Utils.dismissKeyboard(context);
           },
           showEmptyWidget: value,
           itemAsString: (item) => (item.containsKey("subname")) ? "${item['name']}${item['subname']}" : item['name'].toString(),
@@ -305,20 +252,9 @@ class TaskIdentifier extends StatelessWidget {
     Console.of.error("${inputParts.length}");
     if (inputParts.length > 3) commonList.clear();
     log("$omitted ${omitted.length}", name: "OMITTED");
-    var omitLength = omitted.length;
-    // if (omitLength == 1) {
-    //   // SECOND
-    //   type = "vperson";
-    //   commonList = vPersons;
-    // } else if (omitLength == 2) {
-    //   // THIRD
-    //   type = "vlocation";
-    //   commonList = vLocations;
-    // }
     Console.of.error("${type} ${commonList.length}");
     var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
     Console.of.debug("SECOND ${list.length}");
-    // showEmptyNotifier.value = list.isEmpty;
     return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
 

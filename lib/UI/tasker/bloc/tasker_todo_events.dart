@@ -315,3 +315,10 @@ class ToDoTaskerViewAttachmentEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ToDoTaskerViewReasonAttachmentEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewReasonAttachmentEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}

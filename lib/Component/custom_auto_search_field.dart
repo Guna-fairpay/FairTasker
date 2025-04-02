@@ -121,8 +121,9 @@ class _CustomAutoSearchFieldState<T extends Object> extends State<CustomAutoSear
         fieldViewBuilder:
             (context, textEditingController, focusNode, onFieldSubmitted) {
           if ((textEditingController.text.contains("id:") && !widget.controller.text.contains("id:"))
-          || ( (widget.controller.text.isNotEmpty) && (textEditingController.text.isEmpty) )) {
+          || ( (widget.controller.text.isNotEmpty) && (textEditingController.text.isEmpty) ) || (textEditingController.text != widget.controller.text)) {
             textEditingController.value = widget.controller.value;
+            Console.of.log("Resetting value");
           }
           widget.controller.value = textEditingController.value;
           widget.controller.value.copyWith(selection: TextSelection.collapsed(offset: widget.controller.text.length - 1));

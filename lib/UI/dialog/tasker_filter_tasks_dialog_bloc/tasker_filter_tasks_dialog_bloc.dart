@@ -33,7 +33,7 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
       selected = event.selected ?? [];
       emit(TFTDLoadingState());
       taskCategoryGroup = await _fetchTaskCategoryGroup();
-      mainCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
+      mainCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty || element['subcategories'].toString().isNotNullOrEmpty).toList();
       subCategories = taskCategoryGroup?.where((element) => element['parent_id'].toString().isNotNullOrEmpty && (List.from(element['subcategories'] ?? []).isEmpty)).toList();
       subCategories = [
         ...(subCategories ?? []),

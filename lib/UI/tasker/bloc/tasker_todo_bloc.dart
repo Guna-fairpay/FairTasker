@@ -84,6 +84,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerTaskFilterEvent>(_onTaskFilterEvent);
     on<ToDoTaskerViewAttachmentEvent>(_onViewAttachmentEvent);
     on<ToDoTaskerViewCustomLinkEvent>(_onViewCustomLinkEvent);
+    on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
   }
 
   void _listenBroadCast() {
@@ -241,7 +242,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onAddToDoEvent(
       ToDoTaskerOnAddToDoEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ToDoTaskerAddToDoState());
+    emit(ToDoTaskerAddToDoState(selectedDate));
   }
 
   void _onMicEvent(ToDoTaskerOnMicEvent event, Emitter<ToDoTaskerState> emit) {
@@ -836,5 +837,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onViewCustomLinkEvent(ToDoTaskerViewCustomLinkEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerViewCustomLinkState(event.model));
+  }
+
+  void _onViewReasonAttachmentEvent(ToDoTaskerViewReasonAttachmentEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerViewReasonAttachmentState(event.model));
   }
 }

@@ -283,18 +283,18 @@ class _BottomNavigationForTaskViewState
             BottomNavigationBarItem(
               icon: InkWell(
                 key: _financeIconKey,
-                onTap: () => showCustomMenu(context),
+                onTap: () => setState(() => index = 4),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Icon(
                       Icons.monetization_on_rounded,
                       // size: 28,
-                      color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
+                      color: (index == 4) ? AppC.red : AppC.grey,
                     ),
                     Utils.getText(
-                      'Finance',
-                      color: index >= 4 && index <= 7 ? AppC.red : AppC.grey,
+                      'Expense',
+                      color: (index == 4) ? AppC.red : AppC.grey,
                       weight: FontWeight.bold,
                       size: 14,
                     ),

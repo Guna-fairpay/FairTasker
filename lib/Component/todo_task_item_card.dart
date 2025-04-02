@@ -16,9 +16,9 @@ class TodoTaskItemCard extends StatelessWidget {
   final bool? showCheckbox, value;
   final Future<bool?> Function()? onComplete, onPrevious, onInProgress;
   final Function(bool? value)? onChecked;
-  final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory;
+  final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory, onReasonAttachmentView;
   final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes;
-  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress});
+  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView});
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +162,19 @@ class TodoTaskItemCard extends StatelessWidget {
                                           text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model['display']?['hasTimeSensitive'])
                                           ? AppC.red
                                           : AppC.appColor, fontWeight: FontWeight.bold)),
+                                      if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
+                                        ...[
+                                          TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                          TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                          if (model['display']?['hasReasonAttachments'] ?? false)
+                                            WidgetSpan(child: 10.width),
+                                            if (model['display']?['hasReasonAttachments'] ?? false)
+                                            WidgetSpan(child: GestureDetector(
+                                              onTap: onReasonAttachmentView,
+                                              child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
+                                            )),
+                                          TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                        ],
                                       if (model['display']?['hasRelatedTask'] ?? false)
                                         ...[
                                           TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
@@ -169,6 +182,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                         ]
                                     ]
                                   ), maxLines: 1,
+                                      textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp)),
                                 ),

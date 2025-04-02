@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/location_response.dart';
@@ -76,7 +77,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> vehicles = [];
   List<Map<String, dynamic>> vendors = [];
+  List<Map<String, dynamic>> _toDoList = [];
   List<dynamic> attachments = [];
+
+  late DateTime addToDoDate;
+  dynamic existingRefId;
 
   AddToDoBloc()
       : super(AddToDoState(
@@ -119,7 +124,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedDate: DateTime.now(),
             selectedTime: TimeOfDay.now())) {
     on<AddToDoInitialEvent>((event, emit) async {
-      emit(state.copyWith(showAppBar: event.showAppBar));
+      addToDoDate = event.selectedDate ?? DateTime.now();
+      emit(state.copyWith(showAppBar: event.showAppBar, selectedDate: addToDoDate));
       // PROCEED API CALL
       try {
         emit(state.copyWith(isLoading: true));
@@ -131,7 +137,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           _getParts(),
           _getSupplies(),
           _getResources(),
-          _getGroupVehicles()
+          _getGroupVehicles(),
+          _getCurrentToDos(),
         ]);
         // var groupVehicles = await _getGroupVehicles();
         /*var tasks = response[0];
@@ -174,6 +181,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         persons = resources;
         locations = response[3] ?? [];
         vendors = response[2] ?? [];
+        _toDoList = response[8] ?? [];
         emit(state.copyWith(
             isLoading: false,
             tasks: response[0] ?? [],
@@ -186,6 +194,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             groupVehicles: response[7] ?? [],
             selectedTaskPersons: selectedUser,
             resources: resources,
+            selectedDate: addToDoDate,
             selectedLinkOption: AddToDoConfig.customOptions.first));
       } catch (e) {
         emit(state.copyWith(isLoading: false));
@@ -274,6 +283,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       if ((event.vPerson as List).isEmpty) {
         var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
         oldIdentifier.remove(2);
+        if (existingRefId.toString().isNotNullOrEmpty) customLinkController.clear();
+        existingRefId = null;
         emit(state.copyWith(
             selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
         return;
@@ -282,7 +293,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       var existingVPersons = List<Map<String, dynamic>>.from(state.selectedVPerson);
       log("$existingVPersons", name: "AddToDoBloc-Person-before");
       log("${event.vPerson}", name: "AddToDoBloc-Person-before-Add");
-      if (existingVPersons.where((element) => element['type'] == 'person').isNotEmpty && event.vPerson.first['type'] == 'person') {
+      if (existingVPersons.where((element) => ['person', 'g_vehicles'].contains(element['type']) ).isNotEmpty && ['person', 'g_vehicles'].contains(event.vPerson.first['type'])) {
         existingVPersons.clear();
       }
       existingVPersons.addAll(event.vPerson);
@@ -296,11 +307,14 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             2, () => (event.vPerson[0] as Map<String, dynamic>));
       }
       existingVPersons = existingVPersons.unique((element) => element['id']);
-      existingVPersons.removeWhere((element) =>
-          element['type'] ==
-          ((event.vPerson.first['type'] == 'person') ? 'vehicles' : 'person'));
+      existingVPersons.removeWhere((element) => (event.vPerson.first['type'] == 'person') ? ['g_vehicles', 'vehicles'].contains(element['type']) : (event.vPerson.first['type'] == 'g_vehicles') ? ['person', 'vehicles'].contains(element['type']) : ['person', 'g_vehicles'].contains(element['type']));
+      var vehicleVin = existingVPersons.where((element) => element['type'] == 'vehicles').map((e) => e['value']['vin']).firstOrNull;
+      existingRefId = _toDoList.where((element) => (element['vin'] == vehicleVin) || (List<Map<String, dynamic>>.from(element['vehicles']).map((e) => e['vin']).contains(vehicleVin))).map((e) => e['reference_id']).lastOrNull;
+      Console.of.debug("ReferenceId: $existingRefId");
+      if (existingRefId.toString().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
+          selectedLinkOption: AddToDoConfig.customOptions.firstWhereOrNull((element) => element['id'] == 2),
           selectedTaskIdentifier: oldIdentifier));
       log("$existingVPersons", name: "AddToDoBloc-Person");
     });
@@ -542,7 +556,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       if (state.selectedVPerson.isEmpty ||
           (state.selectedVPerson
-              .where((element) => element['type'] == 'vehicles')
+              .where((element) => ['vehicles', 'g_vehicles'].contains(element['type']))
               .isEmpty)) {
         Toaster.showError("Vehicle is required");
         return;
@@ -550,6 +564,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       try {
         emit(state.copyWith(isLoading: true));
         var response = await todoListRepo.cleanCar(body: _cleanCarBody());
+        _broadcast.stickyBroadcast("todo_view", value: true);
         if (response != null) Toaster.showSuccess(response['message'] ?? "Success");
         emit(state.copyWith(isLoading: false));
       } catch(e) {
@@ -647,7 +662,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       "person_id": "${person?['id'] ?? ""}",
       "vendor_id": "${vendor?['id'] ?? " "}",
       "vendor_name": "${vendor?['name'] ?? ""}",
-      "notes": notesController.text,
+      "notes": notesController.text.trim().isNullOrEmpty ? "" : notesController.text,
       "parts": "${state.selectedParts.isEmpty
           ? null
           : state.selectedParts
@@ -715,4 +730,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
   Future<List<Map<String, dynamic>>> _getGroupVehicles() async =>
       await getIt<CommonService>().groupVehicles();
+
+  Future<List<Map<String, dynamic>>> _getCurrentToDos() async =>
+      await getIt<CommonService>().getToDos();
 }

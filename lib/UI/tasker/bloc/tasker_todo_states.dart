@@ -35,8 +35,10 @@ class ToDoTaskerDatePickerState extends ToDoTaskerState {
 }
 
 class ToDoTaskerAddToDoState extends ToDoTaskerState {
+  final DateTime? date;
+  ToDoTaskerAddToDoState(this.date);
   @override
-  List<Object?> get props => [Random().nextDouble()];
+  List<Object?> get props => [date, Random().nextDouble()];
 }
 class ToDoTaskerMicState extends ToDoTaskerState {}
 
@@ -240,6 +242,13 @@ class ToDoTaskerViewCustomLinkState extends ToDoTaskerState {
 class ToDOTaskerViewAttachmentState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   ToDOTaskerViewAttachmentState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class ToDoTaskerViewReasonAttachmentState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewReasonAttachmentState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
