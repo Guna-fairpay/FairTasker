@@ -1,3 +1,4 @@
+
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -153,7 +154,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Utils.getText(
-                        "\$${double.tryParse(expense['expense_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                        "\$${expense['expense_amount'].toString().toDoubleDigit}",
                         color: approveColor,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis,
@@ -240,8 +241,9 @@ class ExpenseVehicleListItem extends StatelessWidget {
                                       )));
                         },
                         child: Utils.getText(
-                          "\$${double.tryParse(expense['approved_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                          "\$${expense['approved_amount'].toString().toDoubleDigit}",
                           weight: FontWeight.bold,
+                          color: AppC.grey,
                           overFlow: TextOverflow.ellipsis,
                         ),
                       ),

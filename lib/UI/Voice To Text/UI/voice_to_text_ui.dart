@@ -1,4 +1,50 @@
 
+import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_bloc.dart';
+import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_event.dart';
+import 'package:fairpytasker/UI/Voice%20To%20Text/Bloc/voice_to_text_state.dart';
+import 'package:fairpytasker/UI/Voice%20To%20Text/UI/voice_to_text_body.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+class VoiceToTextUI extends StatelessWidget {
+  const VoiceToTextUI({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<VoiceToTextBloc>(
+      create: (context) => VoiceToTextBloc()..add(VoiceToTextInitialEvent()),
+      child: BlocListener<VoiceToTextBloc, VoiceToTextState>(
+        listener: (context, state) {
+          if(state is VoiceToTextLoadingState){
+            if (!EasyLoading.isShow) EasyLoading.show();
+          }
+          else{
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Voice To Text'),
+            foregroundColor: AppC.white,
+            backgroundColor: AppC.appColor,
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close))
+            ],
+          ),
+          body: const VoiceToTextBody(),
+        ),
+      ),
+    );
+  }
+}
+
+
+/*
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
@@ -6,12 +52,12 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../Bloc/todo_view_bloc.dart';
-import '../../Component/audio_player_widget.dart';
-import '../../Utilities/Str.dart';
-import '../../Utilities/utils.dart';
-import '../../Utilities/appC.dart';
-import '../../Utilities/num.dart';
+import '../../../Bloc/todo_view_bloc.dart';
+import '../../../Component/audio_player_widget.dart';
+import '../../../Utilities/Str.dart';
+import '../../../Utilities/utils.dart';
+import '../../../Utilities/appC.dart';
+import '../../../Utilities/num.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -29,7 +75,6 @@ class _VoiceToTextUiState extends State<VoiceToTextUi> {
   DateRange? selectedDateRange;
   List<Map<String, dynamic>> voiceData = [];
   List<Map<String, dynamic>> filteredData = [];
-  String url='';
   Duration duration=const Duration();
   Duration position=const Duration();
   final AudioPlayer player = AudioPlayer();
@@ -271,3 +316,4 @@ class _VoiceToTextUiState extends State<VoiceToTextUi> {
   }
 
 }
+*/

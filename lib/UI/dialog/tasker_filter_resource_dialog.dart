@@ -126,23 +126,18 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 var model = e['users'][index];
-                                return ListTile(
-                                  dense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                  horizontalTitleGap: 2,
-                                  onTap: () => context.read<TFRDBloc>().add(TFRDSelectEvent(model)),
-                                  leading: Icon(
-                                      (context.watch<TFRDBloc>().selected?.contains(model) ?? false) ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                                    color: (context.watch<TFRDBloc>().selected?.contains(model) ?? false) ? AppC.appColor : null,
-                                  ),
-                                  title: Text(
-                                      "${model['first_name'] ?? ""} ${model['last_name'] ?? ""}"),
-                                  trailing: (model['from_time']
+                                return CustomCheckboxListTile(
+                                  title: Text("${model['first_name'] ?? ""} ${model['last_name'] ?? ""}"),
+                                  suffix: (model['from_time']
                                       .toString()
                                       .isNotNullOrEmpty)
                                       ? Text(
-                                      "${model['from_time'] ?? ""} - ${model['to_time'] ?? ""}")
+                                      "${model['from_time'] ?? ""} - ${model['to_time'] ?? ""}",
+                                    style: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+                                  )
                                       : null,
+                                  value: (context.watch<TFRDBloc>().selected?.contains(model) ?? false),
+                                  onChanged: (value) => context.read<TFRDBloc>().add(TFRDSelectEvent(model)),
                                 );
                               }),
                         ],

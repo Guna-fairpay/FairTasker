@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_bloc/tasker_filter_resource_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_bloc/tasker_filter_resource_states.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
@@ -40,9 +41,16 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
       departments = departments.unique((element) => element['name']);
       departments = departments?.map((e) => e..['users'] = (users?.where((element) => List.from(e['ids']).contains(element['departments']?['id'])).toList())).toList();
       departments?.sort((a, b) => a['name'].compareTo(b['name']));
+      var offshore = departments?.firstWhereOrNull((element) => element['name'] == "OffShore");
+      Console.of.log(offshore);
+      if((offshore != null) && (offshore.isNotEmpty)) {
+        departments?.removeWhere((element) => element['name'] == "OffShore");
+        departments?.add(offshore ?? {});
+      }
       isAllSelected = (selected?.length == users?.length);
       emit(TFRDCommonState());
     } catch (e) {
+      Console.of.error(e);
       emit(TFRDErrorState(e));
     }
   }

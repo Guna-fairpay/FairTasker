@@ -11,10 +11,11 @@ abstract class VehicleHistoryEvent extends Equatable {
 
 class VehicleInitialEvent extends VehicleHistoryEvent {
   final dynamic vin;
+  final dynamic groupId;
   final String? vehicleName;
-  const VehicleInitialEvent(this.vin, this.vehicleName);
+  const VehicleInitialEvent(this.vin, this.vehicleName, this.groupId);
   @override
-  List<Object?> get props => [vin];
+  List<Object?> get props => [vin, vehicleName, groupId];
 }
 
 class LoadVehicleInitialEvent extends VehicleHistoryEvent {

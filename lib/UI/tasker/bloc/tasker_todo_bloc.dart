@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart' show TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,6 +88,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
+    getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
 
   /* BEGIN: API CALLS */
@@ -257,7 +259,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onTapVehicleFilterEvent(
       ToDoTaskerTapVehicleFilterEvent event, Emitter<ToDoTaskerState> emit) {
-    isFilterSelected = !isFilterSelected;
     emit(ToDoTaskerTapVehicleFilterState(event.details));
   }
 
@@ -334,7 +335,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onPreviousEvent(
       ToDoTaskerPreviousEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ToDoTaskerPreviousState(event.model, toDos));
+    emit(ToDoTaskerMoveTomorrowState(event.model, toDos));
   }
 
   void  _onCompleteEvent(
@@ -786,12 +787,39 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _searchTasks() {
-    if (selectedTasks.isNotEmpty || searchController.text.isNotEmpty) {
-      var tasks = selectedTasks.map((e) => e.toString().toLowerCase()).toList();
-      toDos = unfiltered
-      .where((element) => element.toString().toLowerCase().contains(searchController.text.toLowerCase()))
-          .where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList();
-    }
+    var searchQuery = searchController.text;
+    var tasks = selectedTasks.map((e) => e.toString().toLowerCase()).toList();
+
+    toDos = (tasks.isNotEmpty) ? unfiltered.where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList() : unfiltered;
+    toDos = toDos
+        .where((element) => ((element['display']?['task_title']
+        .toString()
+        .toLowerCase()
+        .contains(searchQuery.toLowerCase()) ??
+        false) ||
+        (element['display']?['vehicle_name']
+            .toString()
+            .toLowerCase()
+            .contains(searchQuery.toLowerCase()) ??
+            false) ||
+        (element['display']?['person_name']
+            .toString()
+            .toLowerCase()
+            .contains(searchQuery.toLowerCase()) ??
+            false) ||
+        (element['display']?['vendor_location']
+            .toString()
+            .toLowerCase()
+            .contains(searchQuery.toLowerCase()) ??
+            false) ||
+        (element['display']?['notes'].toString().toLowerCase().contains(searchQuery.toLowerCase()) ??
+            false) ||
+        (element['display']?['notes']
+            .toString()
+            .toLowerCase()
+            .contains(searchQuery.toLowerCase()) ??
+            false)))
+        .toList();
   }
 
   void _onTaskFilterEvent(ToDoTaskerTaskFilterEvent event, Emitter<ToDoTaskerState> emit) {

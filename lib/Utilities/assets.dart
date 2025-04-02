@@ -48,5 +48,6 @@ class Assets{
 
 
   static const String assetVectors = "asset/vectors/reshot-icon.svg";
+  static const String hamburgerIcon = "asset/vectors/hamburger-icon.svg";
 
 }

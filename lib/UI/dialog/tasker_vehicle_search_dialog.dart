@@ -2,12 +2,14 @@ import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/UI/vehicle_expense_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/details/vehicle_details_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_bloc/tasker_vehicle_search_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_bloc/tasker_vehicle_search_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_bloc/tasker_vehicle_search_states.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +21,7 @@ class TaskerVehicleSearchDialog {
   TaskerVehicleSearchDialog._();
 
   static void show(BuildContext context) async {
-    context.push(_TaskerVehicleSearchDialogView(), fullscreenDialog: true);
+    context.push(const _TaskerVehicleSearchDialogView(), fullscreenDialog: true);
     // await showDialog(
     //     context: context,
     //     builder: (context) => const _TaskerVehicleSearchDialogView(),
@@ -45,7 +47,7 @@ class _TaskerVehicleSearchDialogView extends StatelessWidget {
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text("Search vehicle"),
+            title: const Text("Search vehicle"),
           ),
           body: Column(
             spacing: 10,
@@ -105,9 +107,12 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                       suggestions: context.watch<TVSBloc>().vehicleList,
                       itemAsString: (item) => item['vehicle_name'].toString(),
                       selectedItem: context.watch<TVSBloc>().selectedModel,
-                      onSelected: (value) => context
-                          .read<TVSBloc>()
-                          .add(TVSSelectedEvent(model: value)),
+                      onSelected: (value) {
+                        context
+                            .read<TVSBloc>()
+                            .add(TVSSelectedEvent(model: value));
+                        Utils.dismissKeyboard(context);
+                      },
                       showEmpty: false,
                     ),
                     if (context.watch<TVSBloc>().selectedModel?.isNotEmpty ??
@@ -167,7 +172,7 @@ class _TaskerVehicleSearchBodyView extends StatelessWidget {
                         child: (context.watch<TVSBloc>().pageIndex == 0)
                             ? VehicleHistoryViewUI(vin: context.watch<TVSBloc>().selectedModel?['vin'], vehicleName: context.watch<TVSBloc>().selectedModel?['vehicle_name'], showHeader: false)
                             : (context.watch<TVSBloc>().pageIndex == 1)
-                                ? const Placeholder()
+                                ? EditVehicleExpenseDetailsUI(vin: context.watch<TVSBloc>().selectedModel?['vin'])
                                 : VehicleDetailsUi(
                                         model: context
                                             .watch<TVSBloc>()

@@ -171,19 +171,22 @@ class APiRepository {
 
   String get _feedback => "feedback";
 
+  String get _getVoiceTextList => "getVoiceTextList";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
 
   int? get _hrmId => Session.of.getInt(Str.hrmIdPrefText);
 
-  Future<VehicleHistoryResponse?> getVehicleHistoryList(String vin,
-      {int? currentPage, int itemsPerPage = 5, String? search}) async {
+  Future<VehicleHistoryResponse?> getVehicleHistoryList(
+      {String? vin, dynamic groupId, int? currentPage, int itemsPerPage = 5, String? search}) async {
     try {
       String apiUrl = '${Str.BASE_URL}$_searchHistoryApi';
       final Map<String, dynamic> map = {};
       map['page'] = currentPage;
-      map['vin'] = vin;
+      if (vin.isNotNullOrEmpty) map['vin'] = vin;
+      if (groupId.toString().isNotNullOrEmpty) map['groupId'] = groupId;
       if (search?.isNotEmpty ?? false) map['search'] = search;
       map['itemsPerPage'] = itemsPerPage;
       map.removeWhere((key, value) => value == null);
@@ -1447,6 +1450,18 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleImages/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getVoiceToTextData({String? startDate, String? endDate}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getVoiceTextList?from=$startDate&to=$endDate';
+      Console.of.log(apiUrl);
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

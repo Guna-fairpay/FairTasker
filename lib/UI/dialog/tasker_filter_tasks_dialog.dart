@@ -50,7 +50,7 @@ class _TaskerFilterTasksDialogView extends StatelessWidget {
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       insetPadding: 10.padding.copyWith(top: 90),
       titlePadding: 10.horizontalPadding,
-      backgroundColor: AppC.blue50?.withValues(alpha: 0.9),
+      backgroundColor: const Color(0xFFf8f8ff).withValues(alpha: 0.95),
       title: ListTile(
         dense: true,
         minLeadingWidth: 0,
@@ -96,11 +96,11 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
     return BlocBuilder<TFTDBloc, TFTDStates>(
         builder: (context, state) => SizedBox(
               width: context.width,
-              child: ListView(
-                shrinkWrap: true,
-                  children: [
+              child: ListView(shrinkWrap: true, children: [
                 CustomCheckboxListTile(
                   title: const Text("All Todo"),
+                  mainAxisSize: MainAxisSize.min,
+                  padding: 10.horizontalPadding,
                   value: context.watch<TFTDBloc>().isSelectedAll,
                   onChanged: (value) =>
                       context.read<TFTDBloc>().add(TFTDAllSelectEvent()),
@@ -118,6 +118,7 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                         CustomCheckboxListTile(
                           isCheckboxOnRight: true,
                           mainAxisSize: MainAxisSize.min,
+                          padding: 10.padding,
                           title: Utils.getText(mainModel['name'] ?? '',
                               weight: FontWeight.w700, size: 12.sp),
                           suffix: Utils.getText(
@@ -137,6 +138,7 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                         ),
                         ...childTasks
                             .map((e) => CustomCheckboxListTile(
+                                  padding: 10.padding,
                                   title: Utils.getText(
                                       "${e['task_name'] ?? ""}",
                                       weight: FontWeight.w200,

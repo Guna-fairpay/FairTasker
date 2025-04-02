@@ -1,10 +1,13 @@
 import 'dart:developer';
+import 'dart:ui' show VoidCallback;
 
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fbroadcast/fbroadcast.dart';
+import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
@@ -23,6 +26,7 @@ class Initializer {
 class CommonService {
   final _apiRepository = APiRepository();
 
+  final FBroadcast _broadcast = FBroadcast.instance();
   List<Map<String, dynamic>> usersList = [];
   List<Map<String, dynamic>> cohortsList = [];
   List<Map<String, dynamic>> vendorsList = [];
@@ -44,8 +48,13 @@ class CommonService {
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
 
+  final ValueNotifier<bool> updateBranch = ValueNotifier(false);
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false);
+
+  void branchUpdate({VoidCallback? callback}) {
+    _broadcast.register(Str.branchChange, (value, _) => callback?.call());
+  }
 
   int get getUserId {
     if (isAdmin) {

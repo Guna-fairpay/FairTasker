@@ -119,10 +119,10 @@ class ToDoTaskerTaskCompletedState extends ToDoTaskerState {
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class ToDoTaskerPreviousState extends ToDoTaskerState {
+class ToDoTaskerMoveTomorrowState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   final List<Map<String, dynamic>>? models;
-  ToDoTaskerPreviousState(this.model, this.models);
+  ToDoTaskerMoveTomorrowState(this.model, this.models);
   @override
   List<Object?> get props => [model, models, Random().nextDouble()];
 }

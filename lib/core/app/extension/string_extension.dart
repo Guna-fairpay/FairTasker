@@ -129,4 +129,10 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
     var result = time != null;
     return result ? "" : (this?.contains(":") == false) ? "Please enter time in the format of 01:00" : "Please enter valid time taken";
   }
+
+  String get toDoubleDigit {
+    var doubleValue = double.tryParse(this ?? "0");
+    var numberFormat = NumberFormat("0.00");
+    return numberFormat.format(doubleValue);
+  }
 }

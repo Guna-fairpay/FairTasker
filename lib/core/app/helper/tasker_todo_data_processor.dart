@@ -171,6 +171,8 @@ class ToDoProcessor {
             "vehicleStatusCategoryName": _getVehicleStatusCategoryName(e),
             "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
             "relatedTaskName" : _getRelatedTaskName(e),
+            "personId" : e['person_id'],
+            "vehicleGroupId" : e['vehicle_group_id']
           })
         .toList();
   }
