@@ -8,6 +8,7 @@ import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart'
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,12 +49,13 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         commentResponse = response[1] ?? {};
         status = feedbackResponse['feedback']?['status'] ?? 0;
         comments = commentResponse['comments'] ?? [];
-        feedAttachments = (feedbackResponse['feedback']?['attachments'] ?? []).map((e) => e['path'].toString().toAttachmentURL).toList();
-        feedAttachments.insert(0, null);
-        pageTitle = "${feedbackResponse['feedback']?['title']}";
-        priority = "${feedbackResponse['feedback']?['priority']}";
+        feedAttachments = (List.from(feedbackResponse['feedback']?['attachments']).isEmpty) ? [] : List.from(feedbackResponse['feedback']?['attachments'] ?? []).map((e) => e['path'].toString().toAttachmentURL).toList();
+        feedAttachments.insert(0, "");
+        pageTitle = "${feedbackResponse['feedback']?['title'] ?? ""}";
+        priority = "${feedbackResponse['feedback']?['priority'] ?? "medium"}";
         feedTitleController = TextEditingController(text: pageTitle);
-        feedDescriptionController = QuillController.basic()..document = Document.fromDelta(HtmlToDelta().convert(feedbackResponse['feedback']?['description']));
+        feedDescriptionController = QuillController.basic();
+        if (feedbackResponse['feedback']?['description'].toString().isNotNullOrEmpty ?? false) feedDescriptionController.document = Document.fromDelta(HtmlToDelta().convert(feedbackResponse['feedback']?['description'] ?? ""));
         emit(FBLoadedState());
         emit(FBFeedbackState(
           feedTitleController,
@@ -62,6 +64,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
           status
         ));
       } catch (e) {
+        Console.of.error(e);
         emit(FBErrorState(e.toString()));
       }
     });

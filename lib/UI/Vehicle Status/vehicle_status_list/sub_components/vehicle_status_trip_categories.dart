@@ -1,6 +1,7 @@
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_events.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_states.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,10 +19,11 @@ class VehicleStatusTripCategories extends StatelessWidget {
           .selectedCategory?['id'] != 3))
           ? const SizedBox.shrink()
           : Wrap(
-              spacing: 0,
+              spacing: 5,
               clipBehavior: Clip.antiAliasWithSaveLayer,
               runAlignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
+              runSpacing: 5,
               children: context
                   .read<VehicleStatusBloc>()
                   . tripStatusCategories

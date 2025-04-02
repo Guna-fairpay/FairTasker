@@ -87,6 +87,10 @@ class MyApp extends StatelessWidget {
             elevation: const WidgetStatePropertyAll(0),
             side: const WidgetStatePropertyAll(BorderSide.none),
           ),
+          chipTheme: ChipThemeData(
+            color: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.appColor : AppC.white),
+            checkmarkColor: AppC.white
+          ),
           switchTheme: SwitchThemeData(
             // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             trackColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.green : AppC.grey),

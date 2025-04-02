@@ -46,6 +46,7 @@ class FeedBackTile extends StatelessWidget {
                   color: AppC.white,
                 )),
           ),
+          direction: (feedback?.attachments?.isEmpty ?? false) ? DismissDirection.endToStart : DismissDirection.horizontal,
           confirmDismiss: (direction) async {
             if (direction == DismissDirection.startToEnd) {
               onViewAttachment?.call();
