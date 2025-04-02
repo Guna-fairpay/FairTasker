@@ -59,7 +59,7 @@ class HeaderView extends StatelessWidget {
               ),
             ),
           ),
-          const Spacer()
+          const Spacer(),
           // if (userRole == 'Admin' || userId == '3')
           //   GestureDetector(
           //     onTap: () {
