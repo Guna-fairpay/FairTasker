@@ -5,6 +5,7 @@
 // import 'package:fairpytasker/Event/task_list_event.dart';
 // import 'package:fairpytasker/State/task_list_state.dart';
 // import 'package:fairpytasker/State/todo_view_state.dart';
+// import 'package:fairpytasker/UI/Task%20List/tasklist_bloc.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,7 +105,8 @@
 //   }
 //
 //   void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData,
-//       List<Map<String, dynamic>> filteredTasks) {
+//       List<Map<String, dynamic>> filteredTasks)
+//   {
 //     overtimeTakenData.clear();
 //     for (var item in filteredTasks) {
 //       if (item['complete_time_taken'] != null) {
@@ -139,7 +141,8 @@
 //   List<String> getUserInitials(
 //       int groupId,
 //       List<Map<String, dynamic>> groupList,
-//       List<Map<String, dynamic>> resource) {
+//       List<Map<String, dynamic>> resource)
+//   {
 //     List<String> userInitials = [];
 //
 //     // Find matching group safely
@@ -156,7 +159,6 @@
 //     if (userIdData is List) {
 //       userIds = List<int>.from(userIdData);
 //     } else if (userIdData is String) {
-//       // If userId is mistakenly a comma-separated string, split and convert to integers
 //       userIds = userIdData
 //           .split(',')
 //           .map((e) => int.tryParse(e.trim()) ?? 0)
@@ -166,7 +168,6 @@
 //       userIds = [];
 //     }
 //
-//     // Iterate over user IDs
 //     for (int userId in userIds) {
 //       // Find matching resource
 //       Map<String, dynamic>? user = resource.firstWhere(
@@ -182,7 +183,6 @@
 //         userInitials.add("$firstInitial$lastInitial");
 //       }
 //     }
-//
 //     return userInitials;
 //   }
 //
@@ -253,7 +253,8 @@
 //                 padding: const EdgeInsets.symmetric(
 //                   horizontal: 20.0,
 //                 ),
-//                 child: Column(
+//                 child:
+//                 Column(
 //                   children: [
 //                     Row(
 //                       mainAxisAlignment: MainAxisAlignment.start,
@@ -277,7 +278,8 @@
 //                         Expanded(
 //                           child: SizedBox(
 //                             height: 40,
-//                             child: DateRangeField(
+//                             child:
+//                             DateRangeField(
 //                               decoration: InputDecoration(
 //                                 contentPadding:
 //                                     const EdgeInsets.symmetric(horizontal: 10),
@@ -343,12 +345,10 @@
 //                                     onChanged: (bool? value) {
 //                                       setState(() {
 //                                         extraHours = value ?? false;
-//                                         overtimeTakenData
-//                                             .clear(); // Ensure old data is cleared
+//                                         overtimeTakenData.clear();
 //                                         if (extraHours) {
 //                                           // Recalculate overtime taken
-//                                           calculateOvertimeTaken(
-//                                               expenseData, tasks);
+//                                           calculateOvertimeTaken(expenseData, tasks);
 //
 //                                           // Use the updated overtimeTakenData
 //                                           filteredTasks.clear();
@@ -456,13 +456,14 @@
 //                             dynamic initials = getUserInitials(groupId, resourceGroupData, resourceData);
 //                             print("initials: $initials");
 //                           }
-//                           return Card(
-//                             margin: const EdgeInsets.symmetric(vertical: 4),
-//                             color: AppC.white,
-//                             shape: RoundedRectangleBorder(
+//                           return
+//                             Card(
+//                               margin: const EdgeInsets.symmetric(vertical: 4),
+//                               color: AppC.white,
+//                               shape: RoundedRectangleBorder(
 //                               borderRadius: BorderRadius.circular(4.0),
-//                             ),
-//                             child: Padding(
+//                               ),
+//                               child: Padding(
 //                               padding: const EdgeInsets.all(10.0),
 //                               child: Column(
 //                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,9 +553,7 @@
 //                                           onChanged: (bool? value) {
 //                                             setState(() {
 //                                               isChecked = value ?? false;
-//                                               taskList[
-//                                                       'complete_time_approved'] =
-//                                                   isChecked ? 1 : 0;
+//                                               taskList['complete_time_approved'] = isChecked ? 1 : 0;
 //                                             });
 //                                           },
 //                                         ),
@@ -600,9 +599,8 @@
 //                                     ),
 //                                   ),
 //                                 ],
-//                               ),
-//                             ),
-//                           );
+//                               ),),
+//                             );
 //                         },
 //                       ),
 //                     ),

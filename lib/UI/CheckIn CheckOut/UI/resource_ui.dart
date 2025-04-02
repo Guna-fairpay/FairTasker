@@ -319,7 +319,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                       }
                                     },
                                     pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, (newRange) {
-                                      temporarySelectedDateRange = newRange; // Track temporary changes
+                                      temporarySelectedDateRange = newRange;
                                       onDateRangeChanged(newRange);
                                     },),
                                   ),
@@ -401,7 +401,6 @@ class WorkHoursViewUI extends StatelessWidget {
                         if ((dataList ?? []).isEmpty) {
                           return const SizedBox.shrink();
                         }
-
                         return ListView.builder(
                           itemCount: dataList?.length ?? 0,
                           itemBuilder: (context, index) {
@@ -532,44 +531,3 @@ class WorkHoursViewUI extends StatelessWidget {
   }
 }
 
-// Reusable table header cell widget
-class _TableHeaderCell extends StatelessWidget {
-  final String text;
-
-  const _TableHeaderCell(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-}
-
-class _TableCell extends StatelessWidget {
-  final String text;
-
-  const _TableCell(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 13),
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-}

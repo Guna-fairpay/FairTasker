@@ -1,7 +1,10 @@
 
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 
+import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
+import '../../../Utilities/num.dart';
 
 class TextPopupTask {
   static void show(BuildContext context, String text) {
@@ -74,4 +77,16 @@ class TextPopupTask {
       },
     );
   }
+
+  // static void show(BuildContext context, String text){
+  //   AlertDialog(
+  //     alignment: Alignment.topCenter,
+  //     shape: ContinuousRectangleBorder(
+  //         borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
+  //     backgroundColor: AppC.white,
+  //     title: ListTile(leading: GestureDetector(
+  //         onTap: context.popDialog,child: Icon(Icons.close,color: AppC.appColor)),),
+  //     content: Utils.getText(text),
+  //   );
+  // }
 }

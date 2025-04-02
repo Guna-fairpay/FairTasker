@@ -10,16 +10,49 @@ abstract class TaskListEvent extends Equatable {
 }
 
 class TaskListInitial extends TaskListEvent {
-  const TaskListInitial();
+  final String startDate;
+  final String endDate;
+  const TaskListInitial(
+      this.startDate,
+      this.endDate,
+      );
   @override
   List<Object> get props => [];
 }
 
-class GetTaskListDataEvent extends TaskListEvent {
-  final String startDate;
-  final String endDate;
-  const GetTaskListDataEvent(
-      this.startDate,
-      this.endDate,
-      );
+class HideSupportEvent extends TaskListEvent {
+  final bool value;
+  const HideSupportEvent({required this.value});
+  @override
+  List<Object> get props => [value];
 }
+
+class ExtraHoursEvent extends TaskListEvent {
+  final bool value;
+  const ExtraHoursEvent({required this.value});
+  @override
+  List<Object> get props => [value];
+}
+
+class TaskIncompleteEvent extends TaskListEvent {
+  final bool value;
+  const TaskIncompleteEvent({required this.value});
+  @override
+  List<Object> get props => [value];
+}
+
+class OffShoreTeamEvent extends TaskListEvent {
+  final bool value;
+  const OffShoreTeamEvent({required this.value});
+  @override
+  List<Object> get props => [value];
+}
+
+class individualCheckEvent extends TaskListEvent {
+  final bool value;
+  final int id;
+  const individualCheckEvent({required this.value,required this.id});
+  @override
+  List<Object> get props => [value,id];
+}
+

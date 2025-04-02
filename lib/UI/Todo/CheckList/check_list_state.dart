@@ -12,6 +12,7 @@ class CheckListState extends Equatable {
   final Map<int, bool>? checkBoxStates;
   final Map<int,TextEditingController>? notesControllers;
   final List<String> notesValues;
+  final bool pop;
 
   const CheckListState({
     this.checkListData,
@@ -21,6 +22,7 @@ class CheckListState extends Equatable {
     this.checkBoxStates = const {},
     this.notesControllers = const {},
     this.notesValues = const [],
+    this.pop = false,
 });
   CheckListState copyWith({
     List<Map<String, dynamic>>? checkListData,
@@ -30,6 +32,7 @@ class CheckListState extends Equatable {
     Map<int, bool>? checkBoxStates,
     Map<int,TextEditingController>? notesControllers,
     List<String>? notesValues,
+    bool? pop,
 }) => CheckListState(
     checkListData: checkListData ?? this.checkListData,
     todoItems: todoItems ?? this.todoItems,
@@ -38,6 +41,7 @@ class CheckListState extends Equatable {
     checkBoxStates: checkBoxStates ?? this.checkBoxStates,
     notesControllers: notesControllers ?? this.notesControllers,
     notesValues: notesValues ?? this.notesValues,
+    pop: pop ?? this.pop,
 );
 
   @override
@@ -48,5 +52,6 @@ class CheckListState extends Equatable {
     checkBoxStates,
     notesControllers,
     notesValues,
+    pop,
   ];
 }
