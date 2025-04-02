@@ -21,11 +21,9 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   List<dynamic> userIDs=[];
   final TaskListRepository taskListRepo = TaskListRepository();
   List<Map<String,dynamic>> taskListData = [];
+  List<Map<String, dynamic>> overtimeTakenData = [];
 
   TaskListBloc() : super(const TaskListState(pop: false)) {
-
-
-
 
     on<TaskListInitial>((event, emit) async {
       emit(state.copyWith(isLoading: true));
@@ -33,16 +31,16 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         final value = await taskListRepo.getTaskList(event.startDate, event.endDate);
         final groupResource = await taskListRepo.fetchUserGroupingList();
         final resource = await taskListRepo.getAssignedTo();
-        
+        taskListData = value?.data ?? [];
         apiResponse=value?.data ?? [];
         userInitials = resource?.resource ?? [];
         groupUsers = groupResource?.data ?? [];
 
         apiResponse = apiResponse.map((e) => e..["usersList"] = _getUsers(userId: e['user_id'], userGroupId: e['user_group_id'])).toList();
         apiResponse = apiResponse.map((e) => e..["usersName"] = List.from(e['usersList']).map((e) => <String>[(e['first_name'] ?? ""), (e['last_name'] ?? "")].toInitial).join(", ")).toList();
-
+        taskListData = apiResponse;
         log("$userIDs",name: 'UsersID');
-        Console.of.log(jsonEncode(apiResponse));
+        // Console.of.log(jsonEncode(apiResponse));
         emit(state.copyWith(
           isLoading: false,
           data: apiResponse,
@@ -67,56 +65,16 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
               hideSupport: false
           ));
         }
-
       } catch (error) {
         log(error.toString());
       }
     });
 
     on<ExtraHoursEvent>((event, emit) async {
-      List<Map<String, dynamic>> overtimeTakenData = [];
       List<Map<String, dynamic>> extraHoursData = [];
       try {
         if(event.value) {
           final taskExpenseData = await taskListRepo.getTask();
-          int timeToMinutes(String timeString) {
-            List<String> parts = timeString.split(':');
-            int hours = int.parse(parts[0]);
-            int minutes = int.parse(parts[1]);
-            return hours * 60 + minutes;
-          }
-          void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData,
-              List<Map<String, dynamic>> filteredTasks)
-          {
-            for (var item in filteredTasks) {
-              if (item['complete_time_taken'] != null) {
-                String taskName = item['title'].contains('-')
-                    ? item['title'].split('-')[0].toLowerCase().replaceAll(' ', '')
-                    : item['title'].toLowerCase().replaceAll(' ', '');
-
-                dynamic matchingRecord = expenseData.firstWhere(
-                      (record) =>
-                  record['task'].toLowerCase().replaceAll(' ', '') == taskName,
-                  orElse: () => {},
-                );
-                if (matchingRecord == null) continue;
-
-                int timeTaken = matchingRecord['time_taken'] is String
-                    ? int.tryParse(matchingRecord['time_taken']) ?? 0
-                    : 0;
-                int completedTime = timeToMinutes(item['complete_time_taken']);
-                if (completedTime != timeTaken && item['complete_time_approved'] == 0) {
-                  int overtimeTaken = completedTime - timeTaken;
-                  int hours = overtimeTaken ~/ 60;
-                  int remainder_minutes = overtimeTaken % 60;
-                  Map<String, dynamic> fullRecord = Map<String, dynamic>.from(item);
-                  fullRecord['overtime'] =
-                  '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
-                  overtimeTakenData.add(fullRecord);
-                }
-              }
-            }
-          }
           calculateOvertimeTaken(taskExpenseData?.data ?? [], taskListData);
           extraHoursData.clear();
           extraHoursData = List.from(overtimeTakenData);
@@ -191,7 +149,7 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
     // userInitials; // RESOURCES
     // groupUsers; // GROUP PERSON
     // Console.of.log(userInitials);
-    Console.of.warning("USERID: \t $userId, USERGROUPID: 	 $userGroupId");
+    //Console.of.warning("USERID: \t $userId, USERGROUPID: 	 $userGroupId");
     var userIds = [];
     if (userId.toString().isNotNullOrEmpty) {
       userIds.add(userId);
@@ -199,7 +157,49 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
       var ids = List.from(jsonDecode(groupUsers.firstWhereOrNull((element) => element['id'] == userGroupId)?['userId'] ?? "")).map((e) => e.toString());
       userIds.addAll(ids);
     }
-    Console.of.log(jsonEncode(userIds));
+    //Console.of.log(jsonEncode(userIds));
     return userInitials.where((user) => userIds.contains(user['id'].toString())).toList();
   }
+
+  int timeToMinutes(String timeString) {
+    List<String> parts = timeString.split(':');
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    return hours * 60 + minutes;
+  }
+  void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData,
+      List<Map<String, dynamic>> filteredTasks)
+  {
+    for (var item in filteredTasks) {
+      if (item['complete_time_taken'] != null) {
+        String taskName = item['title'].contains('-')
+            ? item['title'].split('-')[0].toLowerCase().replaceAll(' ', '')
+            : item['title'].toLowerCase().replaceAll(' ', '');
+
+        dynamic matchingRecord = expenseData.firstWhere(
+              (record) =>
+          record['task'].toLowerCase().replaceAll(' ', '') == taskName,
+          orElse: () => {},
+        );
+        if (matchingRecord == null) continue;
+
+        int timeTaken = matchingRecord['time_taken'] is String
+            ? int.tryParse(matchingRecord['time_taken']) ?? 0
+            : 0;
+        int completedTime = timeToMinutes(item['complete_time_taken']);
+        if (completedTime != timeTaken && item['complete_time_approved'] == 0) {
+          int overtimeTaken = completedTime - timeTaken;
+          int hours = overtimeTaken ~/ 60;
+          int remainder_minutes = overtimeTaken % 60;
+          Map<String, dynamic> fullRecord = Map<String, dynamic>.from(item);
+          fullRecord['overtime'] =
+          '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          overtimeTakenData.add(fullRecord);
+        }
+      }
+    }
+  }
+
+
+
 }
