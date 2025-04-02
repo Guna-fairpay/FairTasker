@@ -85,7 +85,7 @@ class TaskIdentifier extends StatelessWidget {
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  formatMapData(selectedList).length - 1));
      Console.of.log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
-    _onSearch(taskIdentifierController.value);
+    // _onSearch(taskIdentifierController.value);
   }
 
   bool _isHavingHypen() {
