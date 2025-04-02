@@ -1,5 +1,6 @@
-import 'dart:convert';
 
+import 'dart:convert';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:fairpytasker/Response/create_fix_task_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,10 +21,12 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
   List<int>? result;
   String? completeTodoID;
   String? deleteTodoID;
+  final FBroadcast _broadcast = FBroadcast.instance();
   CheckListBloc() : super(const CheckListState(
     isLoading: false,
     todoItems: {},
     vehicle: {},
+    pop: false,
   )) {
 
     on<CheckListInitialEvent>((event, emit) async {
@@ -129,7 +132,6 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
     });
 
     on<AddFixTaskEvent>((event, emit) async {
-      //emit(state.copyWith(isLoading: true));
       try {
         await todoListRepo.createFixTask( CreateFixTaskData()
           ..userId = todoItemsCopy['user_id']
@@ -145,10 +147,9 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vendorName = todoItemsCopy['vendor_name']
             ..vehicleNumber = vehiclesCopy['vehicle_number']
         );
-        //emit(state.copyWith(isLoading: false));
-        add(const CheckListInitialEvent(todoItems: {}, vehicle: {}));
+        _broadcast.stickyBroadcast("todo_view", value: true);
       } catch (e) {
-       // emit(state.copyWith(isLoading: false));
+        print("Error: $e");
       }
     });
 
@@ -171,6 +172,8 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
         result = getMatchingIds(checkListData, matchingTodos);
         completeTodoID = result?.first.toString();
         await todoListRepo.completeATodo(completeTodoID,"Completed");
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        emit(state.copyWith(pop:true));
       }
       catch(e){
         print("catch error ${e.toString()}");
@@ -196,6 +199,8 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
         result = getMatchingIds(checkListData, matchingTodos);
         completeTodoID = result?.first.toString();
         await todoListRepo.deleteATodo(deleteTodoID!);
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        emit(state.copyWith(pop:true));
       }
       catch(e){
         print("catch error ${e.toString()}");

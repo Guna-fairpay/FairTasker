@@ -13,7 +13,6 @@ import '../Repository/workingHoursRepository.dart';
 import '../State/workingHoursState.dart';
 
 
-
 class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   final TaskRepository taskRepo = TaskRepository();
   final TodoListRepo todoListRepo = TodoListRepo();
