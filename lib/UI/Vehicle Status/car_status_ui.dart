@@ -4,7 +4,7 @@ import 'package:fairpytasker/Response/create_todo_params.dart';
 import 'package:fairpytasker/Response/create_todo_status_response.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
-import 'package:fairpytasker/UI/Vehicle/vehicle_notes_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_history_main_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_check_list_ui.dart';

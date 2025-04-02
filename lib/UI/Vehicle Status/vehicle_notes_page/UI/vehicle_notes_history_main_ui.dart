@@ -1,4 +1,71 @@
-import 'package:fairpytasker/Bloc/employee_bloc.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/Bloc/vehicle_notes_bloc.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/Bloc/vehicle_notes_event.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/Bloc/vehicle_notes_state.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_add.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_listing.dart';
+import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+class VehicleNotesHistoryViewUi extends StatelessWidget {
+  final String? vin;
+  final String? vehicleName;
+  const VehicleNotesHistoryViewUi(
+      {super.key, required this.vin, required this.vehicleName});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<VehicleNotesBloc>(
+      create: (context) =>
+          VehicleNotesBloc()..add(GetVehicleNotesData(vin: vin)),
+      child: BlocListener<VehicleNotesBloc, VehicleNotesState>(
+          listener: (context, state) {
+            if(state is VehicleNotesLoadingState){
+              EasyLoading.show();
+            }
+            else{
+              if(EasyLoading.isShow) EasyLoading.dismiss();
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(vehicleName??''),
+              foregroundColor: AppC.white,
+              backgroundColor: AppC.appColor,
+              automaticallyImplyLeading: false,
+              elevation: 2,
+              actions: [
+                IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.close,
+                      color: AppC.white,
+                    )
+                ),
+              ],
+            ),
+            body: SafeArea(
+              minimum: 20.padding,
+              child:  ListView(
+                shrinkWrap: true,
+                padding: 10.topPadding,
+                children: [
+                  const VehicleNotesAdd(),
+                  Utils.getText('History',weight: FontWeight.bold,size: 18,color: Colors.black54),
+                  const SizedBox(height: 10),
+                  const VehicleNotesListing(),
+                ],
+              ),
+            ),
+          )),
+    );
+  }
+}
+
+/*import 'package:fairpytasker/Bloc/employee_bloc.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
 import 'package:fairpytasker/Event/employee_event.dart';
 import 'package:fairpytasker/State/employee_state.dart';
@@ -111,6 +178,7 @@ class _VehicleNotesHistoryViewUiState extends State<VehicleNotesHistoryViewUi> {
           ],
           child: Stack(
             children: [
+              if (loading) Center(child: Utils.getProgressIndicator(context),),
               SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -252,11 +320,11 @@ class _VehicleNotesHistoryViewUiState extends State<VehicleNotesHistoryViewUi> {
                   ),
                 ),
               ),
-              if (loading) Center(child: Utils.getProgressIndicator(context),),
+
             ],
           ),
         ),
       ),
     );
   }
-}
+}*/

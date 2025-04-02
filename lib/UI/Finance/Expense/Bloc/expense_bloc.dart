@@ -844,26 +844,26 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return baseBody;
   }
 
-  Map<String, String> _saveExpenseData() {
-    Map<String, String> baseBody = {};
-    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
-    baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
-    baseBody['payment_method_id'] = "${state.selectedPaymentType?['id'] ?? ''}";
-    baseBody['expense_to'] = "${state.selectedCohorts?['id'] ?? ''}";
-    baseBody['expense_amount'] = amountController.text;
-    baseBody['expense_description'] = descriptionController.text;
-    baseBody['expense_date'] = state.selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
-    baseBody['cohort_id'] = "${state.selectedVehicle["cohort_id"] ?? ''}";
-    baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
-    if (odometerController.text.isNotEmpty &&
-        ((double.tryParse(odometerController.text) ?? 0) > 0))
-      baseBody['odometer'] = odometerController.text;
-    baseBody['platform'] = "TaskerApp";
-    baseBody['employee_id'] = resourceId ?? '';
-
-    log(jsonEncode(baseBody), name: "Expense_Body");
-    return baseBody;
-  }
+  // Map<String, String> _saveExpenseData() {
+  //   Map<String, String> baseBody = {};
+  //   baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
+  //   baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
+  //   baseBody['payment_method_id'] = "${state.selectedPaymentType?['id'] ?? ''}";
+  //   baseBody['expense_to'] = "${state.selectedCohorts?['id'] ?? ''}";
+  //   baseBody['expense_amount'] = amountController.text;
+  //   baseBody['expense_description'] = descriptionController.text;
+  //   baseBody['expense_date'] = state.selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
+  //   baseBody['cohort_id'] = "${state.selectedVehicle["cohort_id"] ?? ''}";
+  //   baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
+  //   if (odometerController.text.isNotEmpty &&
+  //       ((double.tryParse(odometerController.text) ?? 0) > 0))
+  //     baseBody['odometer'] = odometerController.text;
+  //   baseBody['platform'] = "TaskerApp";
+  //   baseBody['employee_id'] = resourceId ?? '';
+  //
+  //   log(jsonEncode(baseBody), name: "Expense_Body");
+  //   return baseBody;
+  // }
 
   Map<String, String> _updateCategorys(dynamic expense) {
     Map<String, String> baseBody = {};
