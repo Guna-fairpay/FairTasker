@@ -41,6 +41,7 @@ class ToDoProcessor {
       _fetchVendors(),
       _fetchLocations(),
       _fetchActiveVehiclesCount(),
+      _fetchCurrentToDos(),
     ]);
     _groupVehicle = response[0] ?? [];
     _activeVehicles = response[1] ?? [];
@@ -82,6 +83,9 @@ class ToDoProcessor {
 
   Future<List<Map<String, dynamic>>> _fetchTaskExpenseData() async =>
       await getIt<CommonService>().getTaskExpenseData();
+
+  Future<List<Map<String, dynamic>>> _fetchCurrentToDos() async =>
+      await getIt<CommonService>().getToDos();
 
   Future<List<Map<String, dynamic>>?> _fetchToDoList(
       DateTime selectedDate, bool isCompleted,
@@ -156,6 +160,8 @@ class ToDoProcessor {
             "hasCompleted": _hasCompleted(e),
             "hasRelatedTask": _hasRelatedTask(e),
             "hasVehiclePlate": _hasVehiclePlate(e),
+            "hasReason": _hasReason(e),
+            "hasReasonAttachments": _hasReasonAttachments(e),
             "vins": _getVehicleVins(e),
             "vehicle_image": _getVehicleImage(e),
             "vehicle_plate": _getVehiclePlate(e),
@@ -172,7 +178,8 @@ class ToDoProcessor {
             "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
             "relatedTaskName" : _getRelatedTaskName(e),
             "personId" : e['person_id'],
-            "vehicleGroupId" : e['vehicle_group_id']
+            "vehicleGroupId" : e['vehicle_group_id'],
+            "reason" : _reason(e),
           })
         .toList();
   }
@@ -303,6 +310,12 @@ class ToDoProcessor {
 
   bool _hasVendorInfo(Map<String, dynamic> model) =>
       model['vendor_name'].toString().isNotNullOrEmpty;
+
+  bool _hasReason(Map<String, dynamic> model) =>
+      model['reason'].toString().isNotNullOrEmpty;
+
+  bool _hasReasonAttachments(Map<String, dynamic> model) =>
+      model['reason_images'].toString().isNotNullOrEmpty && (List.from(model['reason_images']).isNotEmpty);
 
   bool _hasAttachments(Map<String, dynamic> model) =>
       List<Map<String, dynamic>>.from(model['todoimages'] ?? []).isNotEmpty;
@@ -492,4 +505,7 @@ class ToDoProcessor {
     var relatedTask = _relatedToDos.firstWhereOrNull((element) => element['id'] == model['related_task_id']);
     return relatedTask?['title'] ?? "";
   }
+
+  String _reason(Map<String, dynamic> model) =>
+      model['reason'] ?? "";
 }

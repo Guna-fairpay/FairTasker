@@ -28,7 +28,7 @@ extension StringExtension on String? {
     }
   }
 
-  bool get isImageFile => ((this?.endsWith('.jpg') ?? false) || (this?.endsWith('.png') ?? false) || (this?.endsWith('.jpeg') ?? false));
+  bool get isImageFile => ((this?.endsWith('.jpg') ?? false) || (this?.endsWith('.png') ?? false) || (this?.endsWith('.jpeg') ?? false) || (this?.endsWith('.svg') ?? false));
 
   bool get isPdf => ((this?.endsWith('.pdf') ?? false));
 

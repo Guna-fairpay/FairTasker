@@ -88,8 +88,9 @@ class MyApp extends StatelessWidget {
             side: const WidgetStatePropertyAll(BorderSide.none),
           ),
           chipTheme: ChipThemeData(
-            color: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.appColor : AppC.white),
-            checkmarkColor: AppC.white
+            color: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.appColor : AppC.lightGreen),
+            checkmarkColor: AppC.white,
+            side: BorderSide.none
           ),
           switchTheme: SwitchThemeData(
             // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

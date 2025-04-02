@@ -59,7 +59,7 @@ class AddTodoMoreForm extends StatelessWidget {
                         .add(AddToDoShowSuppliesEvent()),
                     state.isSuppliesEnable,
                     'Supplies'),
-                if (state.showCleanCar)
+                if (state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))
                   IconButton(
                     onPressed: () =>
                         context.read<AddToDoBloc>().add(AddToDoCleanCarEvent()),
@@ -69,7 +69,7 @@ class AddTodoMoreForm extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             side: const BorderSide()))),
                   ),
-                if (state.showCleanCar)
+                if (state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))
                   Flexible(
                     child: CustomDropdown<Map<String, dynamic>>(
                       items: List.from(state.clearDurations),

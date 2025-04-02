@@ -58,8 +58,8 @@ class _AuthenticationUIState extends State<AuthenticationUI> {
                           state.authenticationData!.hrmId ?? 0);
 
                       await getIt<CommonService>().clearAll();
+                      await getIt<CommonService>().initialFetch();
                       Utils.setBoolPreference(Str.loginPrefText, true);
-                      await Authenticator.instance.getBearerToken();
                       await Navigator.of(context)
                           .pushReplacement(MaterialPageRoute(
                         builder: (context) => const BottomNavigationForTaskView(

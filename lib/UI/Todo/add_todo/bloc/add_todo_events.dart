@@ -9,11 +9,11 @@ abstract class AddToDoEvent extends Equatable {
 
 class AddToDoInitialEvent extends AddToDoEvent {
   final bool showAppBar;
-
-  AddToDoInitialEvent(this.showAppBar);
+  final DateTime? selectedDate;
+  AddToDoInitialEvent(this.showAppBar, {this.selectedDate});
 
   @override
-  List<Object?> get props => [showAppBar];
+  List<Object?> get props => [showAppBar, selectedDate];
 }
 
 class AddToDoShowMoreEvent extends AddToDoEvent {

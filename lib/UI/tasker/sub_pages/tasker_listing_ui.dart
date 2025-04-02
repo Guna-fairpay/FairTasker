@@ -50,6 +50,7 @@ class TaskerListingUi extends StatelessWidget {
               onPlateNumTap: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewVehicleEvent(model)),
               onCustomLink: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewCustomLinkEvent(model)),
               onViewAttachment: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewAttachmentEvent(model)),
+              onReasonAttachmentView: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewReasonAttachmentEvent(model)),
             );
           },
           onReorder: (oldIndex, newIndex) {

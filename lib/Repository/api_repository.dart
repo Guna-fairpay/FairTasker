@@ -753,15 +753,15 @@ Future<Map<String, dynamic>?> getLocations() async {
   }
 
   Future<Map<String, dynamic>?> getToDoList(
-      {String? selectedDate, bool status = false, String? resourceId}) async {
+      {String? selectedDate, bool? status, String? resourceId}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getToDoList";
       Map<String, dynamic> params = {
         "resource": resourceId ?? "",
         "date": selectedDate,
-        "status": status ? "Completed" : "In Progress",
         "branch_id": _branchId ?? 1
       };
+      if (status != null) params["status"] = status ? "Completed" : "In Progress";
       Console.of.log(params);
       final http.Response? response =
           await _apiClient.callGetMethod(apiUrl, params: params);
