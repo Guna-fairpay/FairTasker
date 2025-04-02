@@ -9,7 +9,7 @@ import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicl
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_states.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_body.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
-import 'package:fairpytasker/UI/Vehicle/vehicle_notes_history_view_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_history_main_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/Utilities/utils.dart';

@@ -9,6 +9,7 @@ import 'package:fairpytasker/Response/todo_list_response.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -196,17 +197,23 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           linkSelection = [AddToDoConfig.customOptions[1]];
         }
 
-        if (todoResponse?.editTodos?['vin'] != null) {
-          vinList = [todoResponse?.editTodos?['vin']];
-        } else {
-          List<dynamic>? vehicles = todoResponse?.editTodos?['vehicles'];
-          if (vehicles is List && vehicles.isNotEmpty) {
-            vinList = vehicles
-                .map((v) => v['vin'])
-                .where((vin) => vin != null)
-                .toList();
-          }
-        }
+        vinList = [todoResponse?.editTodos?['vin']];
+        var vVins = List.from(todoResponse?.editTodos?['vehicles']).map((e) => e['vin']);
+        vinList.addAll(vVins);
+        vinList.removeWhere((element) => element.toString().isNullOrEmpty);
+        vinList = vinList.unique((element) => element);
+        Console.of.log("Vins $vinList");
+        // if (todoResponse?.editTodos?['vin'] != null) {
+        //   vinList = [todoResponse?.editTodos?['vin']];
+        // } else {
+        //   List<dynamic>? vehicles = todoResponse?.editTodos?['vehicles'];
+        //   if (vehicles is List && vehicles.isNotEmpty) {
+        //     vinList = vehicles
+        //         .map((v) => v['vin'])
+        //         .where((vin) => vin != null)
+        //         .toList();
+        //   }
+        // }
         if (vinList.isNotEmpty) {
           vehicleList = vehicleResponse
               .where((element) => vinList.contains(element['vin'].toString()))
@@ -673,7 +680,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
     baseBody['todo_date'] = dateController.text;
     baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
-    baseBody['notes'] = notesController.text;
+    baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['comments'] = commentsController.text;
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
