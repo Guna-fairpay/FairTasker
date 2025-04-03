@@ -34,6 +34,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   final ToDoProcessor _toDoProcessor = ToDoProcessor();
   final TaskerHoursProcessor _taskerHoursProcessor = TaskerHoursProcessor();
 
+  bool get isAdmin => getIt<CommonService>().isAdmin;
+  Map<String, dynamic>? get currentUser => getIt<CommonService>().user;
+  String? get _selectedUserIds => selectedUsers?.map((e) => e['id'].toString()).join(",");
+
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
     on<ToDoTaskerInitialEvent>(_onInitialEvent);
@@ -141,9 +145,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
+      if (!isAdmin) {
+        if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
+      }
       await _toDoProcessor.initialize();
       await _taskerHoursProcessor.initialize();
-      var response = await _fetchToDoList();
+      var response = (_selectedUserIds.isNotNullOrEmpty) ? await _fetchToDoList() : await _fetchToDoList(resourceId: _selectedUserIds);
       Console.of.log("LENGTH ${response?.length ?? -1}");
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = response ?? [];

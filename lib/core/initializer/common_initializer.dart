@@ -80,6 +80,11 @@ class CommonService {
     }
   }
 
+  Map<String, dynamic>? get user {
+    var userId = getUserId;
+    return usersList.firstWhereOrNull((element) => element['id'] == userId);
+  }
+
   Future<List<Map<String, dynamic>>> getUsers() async {
     if (usersList.isNotEmpty) return usersList;
     try {
