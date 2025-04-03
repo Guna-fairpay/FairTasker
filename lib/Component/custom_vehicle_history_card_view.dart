@@ -3,6 +3,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -110,7 +111,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                           ListTile(
                             dense: true,
                             contentPadding: 16.sp.topPadding,
-                            title: ((titleText?.length ?? 0) == 0)
+                            title: ((titleText?.isNullOrEmpty ?? false))
                                 ? null
                                 : Text.rich(
                                     TextSpan(
@@ -121,7 +122,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                     style: context.textTheme.labelLarge
                                         ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted ?? false) ? AppC.green : null),
                                   ),
-                            subtitle: ((cleanCarText?.length ?? 0) != 0)
+                            subtitle: (((cleanCarText?.length ?? 0) != 0) && cleanCarText.isNotNullOrEmpty)
                                 ? Text("(\t$cleanCarText\t)")
                                 : null,
                             subtitleTextStyle: context.textTheme.labelSmall
@@ -144,10 +145,10 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                             children: [
                               Expanded(
                                   child: ReadMoreText(
-                                    (notesText?.isNotEmpty ?? false)
+                                    (notesText?.isNotNullOrEmpty ?? false)
                                         ? '($notesText)'
                                         : '',
-                                    preDataText: locationText,
+                                    preDataText: locationText.isNotNullOrEmpty ? locationText : null,
                                     preDataTextStyle: context.textTheme.labelLarge
                                         ?.copyWith(color: AppC.appColor),
                                     trimLength: (((locationText?.length ?? 0) <= 10) || ((locationText?.length ?? 0) == 0)) ? 30 : 7,
@@ -197,7 +198,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 5),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(6.0),
                                   bottomRight: Radius.circular(6.0)),

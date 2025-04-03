@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier;
@@ -167,8 +168,9 @@ class CommonService {
     if (reset) activeVehicleCountList.clear();
     if (activeVehicleCountList.isNotEmpty) return activeVehicleCountList;
     try {
-      var response = await _getActiveVehicles(reset: reset);
-      activeVehicleCountList = List<Map<String, dynamic>>.from(response?['vehiclesCount'] ?? []);
+      var response = await _apiRepository.getVehicleCategories();
+      activeVehicleCountList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      Console.of.log(activeVehicleCountList);
       return activeVehicleCountList;
     } catch (e) {
       Toaster.showError(e.toString());
