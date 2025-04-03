@@ -179,6 +179,10 @@ class APiRepository {
 
   String get _deleteNote => "vehicle_status/delete_note/";
 
+  String get _vehicleConfig => "vehicle_config/categories";
+
+  String get _vehicleConfigCheckList => "vehicle_config/checklist";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1523,5 +1527,29 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> getVehicleStatusConfig({String? vin}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleConfig";
+      Map<String, dynamic> body = {"vin": vin};
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> vehicleConfigCheckList({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleConfigCheckList";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
 
 }

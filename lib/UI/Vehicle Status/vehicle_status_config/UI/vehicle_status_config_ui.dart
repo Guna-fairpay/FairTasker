@@ -1,11 +1,63 @@
-import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_bloc.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_status.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_body.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../../Utilities/utils.dart';
+
+class VehicleStatusConfigUI extends StatelessWidget {
+  final String? vin;
+  final String? vehicleName;
+  const VehicleStatusConfigUI(
+      {super.key, required this.vin, required this.vehicleName});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<VehicleStatusConfigBloc>(
+      create: (context) =>
+          VehicleStatusConfigBloc()..add(GetVehicleStatusConfigData(vin: vin)),
+      child: BlocListener<VehicleStatusConfigBloc, VehicleStatusConfigStatus>(
+        listener: (context, state) {
+          if (state is VehicleStatusConfigLoadingState) {
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppC.appColor,
+            title: Utils.getText('${vehicleName ?? ''} - \n${vin ?? ''}',
+                color: AppC.white, weight: FontWeight.bold, size: 18),
+            foregroundColor: Colors.white,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 70,
+            actions: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          body: const VehicleStatusConfigBody(),
+        ),
+      ),
+    );
+  }
+}
+
+/*import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';*/
 
+/*
 class VehicleStatusConfigUI extends StatefulWidget {
   final String? vehicleName;
   final String? vinNumber;
@@ -20,8 +72,9 @@ class VehicleStatusConfigUI extends StatefulWidget {
   @override
   State<VehicleStatusConfigUI> createState() => _VehicleStatusConfigUIState();
 }
+*/
 
-class _VehicleStatusConfigUIState extends State<VehicleStatusConfigUI> {
+/*class _VehicleStatusConfigUIState extends State<VehicleStatusConfigUI> {
   late TodoViewBloc todoViewBloc;
   bool showSearchRow = false;
   List<Map<String, dynamic>>? vehicleConfigData;
@@ -104,7 +157,7 @@ class _VehicleStatusConfigUIState extends State<VehicleStatusConfigUI> {
                     padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: Column(
                       children: [
-                        ExpansionTile(
+                        ExpansionTile(backgroundColor: AppC.blue50,
                           initiallyExpanded: true,
                           trailing: const Icon(Icons.arrow_drop_down_rounded,
                               color: AppC.subText),
@@ -161,8 +214,10 @@ class _VehicleStatusConfigUIState extends State<VehicleStatusConfigUI> {
                           child: ListView.builder(
                             itemBuilder: (context, index) => Visibility(
                               visible:
-                                  true /*vehicleConfigCategoriesList?.elementAt(index).checked == 1*/,
+                                  true */ /*vehicleConfigCategoriesList?.elementAt(index).checked == 1*/ /*,
                               child: ExpansionTile(
+
+                                backgroundColor: AppC.blue50,
                                 trailing: const Icon(
                                     Icons.arrow_drop_down_rounded,
                                     color: AppC.subText),
@@ -327,8 +382,8 @@ class _VehicleStatusConfigUIState extends State<VehicleStatusConfigUI> {
       builder: (context) => AlertDialog(
         title: Utils.getText(title, size: 18, weight: FontWeight.w500),
         content: SizedBox(
-            height: MediaQuery.of(context).size.height /*/1.2*/,
-            width: MediaQuery.of(context).size.width /*/1.2*/,
+            height: MediaQuery.of(context).size.height
+            width: MediaQuery.of(context).size.width
             child: ReorderableListView.builder(
               onReorder: (oldIndex, newIndex) {
                 // debugPrint('from,to: ${todoList![oldIndex].id.toString()}, ${todoList![newIndex].id.toString()}');
@@ -384,4 +439,4 @@ class _VehicleStatusConfigUIState extends State<VehicleStatusConfigUI> {
   void doSetState() {
     setState(() {});
   }
-}
+}*/

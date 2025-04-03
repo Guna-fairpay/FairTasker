@@ -6,7 +6,7 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_history_main_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_check_list_ui.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
@@ -995,15 +995,12 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                                   builder: (BuildContext
                                                                           context) =>
                                                                       VehicleStatusConfigUI(
-                                                                    vehicleStatusListData:
-                                                                        vehicleStatusListDataList[
-                                                                            index],
-                                                                    vehicleName:
-                                                                        vehicleStatusListDataList[index]['vehicle_name'] ??
-                                                                            '',
-                                                                    vinNumber:
-                                                                        vehicleStatusListDataList[index]['vin'] ??
-                                                                            '',
+
+                                                                    // vehicleStatusListData:
+                                                                    //     vehicleStatusListDataList[
+                                                                    //         index],
+                                                                    vehicleName: vehicleStatusListDataList[index]['vehicle_name'] ?? '',
+                                                                    vin: vehicleStatusListDataList[index]['vin'] ?? '',
                                                                   ),
                                                                 ),
                                                               );

@@ -10,8 +10,11 @@ class CustomCheckboxListTile extends StatefulWidget {
   final ValueChanged<bool?> onChanged;
   final bool isCheckboxOnRight;
   final bool useExpand;
+  final double spacing;
   final EdgeInsets? padding;
   final MainAxisSize mainAxisSize;
+  final Color? activeColor;
+  final double radius;
 
   const CustomCheckboxListTile({
     Key? key,
@@ -20,9 +23,12 @@ class CustomCheckboxListTile extends StatefulWidget {
     required this.onChanged,
     this.suffix,
     this.padding,
+    this.spacing = 3,
     this.useExpand = true,
     this.mainAxisSize = MainAxisSize.max,
     this.isCheckboxOnRight = false,
+    this.activeColor = AppC.appColor,
+    this.radius = Num.subradiusButton,
   }) : super(key: key);
 
   @override
@@ -39,7 +45,7 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
       child: Padding(
         padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
-          spacing: 3,
+          spacing: widget.spacing,
           mainAxisSize: widget.mainAxisSize,
           children: widget.isCheckboxOnRight
               ? [
@@ -50,10 +56,12 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
                 value: widget.value,
                 onChanged: widget.onChanged,
                 tristate: true,
+                activeColor:widget.activeColor,
                 shape: ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(Num.subradiusButton),
+                  borderRadius: BorderRadius.circular(widget.radius),
                 ),
                 side: const BorderSide(width: 1, color: AppC.borderColor),
+
               ),
             ),
             if (widget.suffix != null) widget.suffix ?? const SizedBox.shrink(),
@@ -65,8 +73,9 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
                 value: widget.value,
                 onChanged: widget.onChanged,
                 tristate: true,
+                activeColor:widget.activeColor,
                 shape: ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(Num.subradiusButton),
+                  borderRadius: BorderRadius.circular(widget.radius),
                 ),
                 side: const BorderSide(width: 1, color: AppC.borderColor),
               ),
