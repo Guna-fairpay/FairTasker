@@ -180,6 +180,8 @@ class ToDoProcessor {
             "personId" : e['person_id'],
             "vehicleGroupId" : e['vehicle_group_id'],
             "reason" : _reason(e),
+            "hasTimeChangeReason" : _hasTimeChangeReason(e),
+            "timeChangeReason" : _timeChangeReason(e),
           })
         .toList();
   }
@@ -482,7 +484,9 @@ class ToDoProcessor {
   String? _getVehicleStatusCategoryName(Map<String, dynamic> model) {
     var statusId = _getVehicleStatus(model);
     if (statusId != null) {
-      return _activeVehiclesCount.firstWhereOrNull((element) => element['id'] == statusId)?['name'];
+      var cate = _activeVehiclesCount.firstWhereOrNull((element) => element['id'] == statusId)?['category_name'];
+      Console.of.log("STATUS ID $statusId, CATEGORY: $cate ${_activeVehiclesCount.map((e) => e['id']).join(", ")} ${_activeVehiclesCount.isNotEmpty}");
+      return cate;
     } else {
       return null;
     }
@@ -490,12 +494,12 @@ class ToDoProcessor {
 
   Color? _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
     var statusId = _getVehicleStatus(model);
+    Console.of.log(statusId);
     if (statusId != null) {
-      (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
+      return (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
     } else {
       return AppC.appColor;
     }
-    return null;
   }
 
   bool _hasRelatedTask(Map<String, dynamic> model) => (model['related_task_id'].toString().isNullOrEmpty) ? false : ((model['related_task_id'] ?? 0) > 0);
@@ -508,4 +512,8 @@ class ToDoProcessor {
 
   String _reason(Map<String, dynamic> model) =>
       model['reason'] ?? "";
+
+  bool _hasTimeChangeReason(Map<String, dynamic> model) => model['time_change_reason'].toString().isNotNullOrEmpty;
+
+  String _timeChangeReason(Map<String, dynamic> model) => model['time_change_reason'] ?? "";
 }

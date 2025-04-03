@@ -358,6 +358,9 @@ class TodoTaskItemCard extends StatelessWidget {
                                       child: RichText(
                                         text: TextSpan(
                                           text: "(${parse(model['display']?['notes'] ?? "").body?.text})",
+                                          children: (model['display']?['hasTimeChangeReason'] ?? false) ? [
+                                            TextSpan(text: "${model['display']?['timeChangeReason'] ?? ""}")
+                                          ] : [],
                                           style: context.textTheme.labelMedium?.copyWith(fontSize: 11.sp, overflow: TextOverflow.ellipsis, color: AppC.appColor)
                                         ))),
                                 ),
