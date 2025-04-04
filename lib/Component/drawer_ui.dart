@@ -118,7 +118,8 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
                 _buildListTile(
                   icon:  Icons.work_history,
                   title: "Approve Page",
-                  onTap: () => navigateToPage(TasklistUi()),
+                  onTap: () => context.push(TasklistUi(), fullscreenDialog: true),
+                  // onTap: () => navigateToPage(TasklistUi()),
                 ),
                 _buildDivider(),
                 _buildListTile(
