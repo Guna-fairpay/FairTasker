@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/gestures.dart' show TapDownDetails;
+import 'package:flutter/material.dart' show TimeOfDay;
 
 abstract class ToDoTaskerState extends Equatable {
   @override
@@ -254,4 +255,13 @@ class ToDoTaskerViewReasonAttachmentState extends ToDoTaskerState {
   ToDoTaskerViewReasonAttachmentState(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class ToDoTaskerShowDropCheckInPopupState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  final TimeOfDay selectedTime;
+  final String type; // PICKUP / DROP
+  ToDoTaskerShowDropCheckInPopupState(this.model, this.selectedTime, this.type);
+  @override
+  List<Object?> get props => [model, selectedTime, type, Random().nextDouble()];
 }

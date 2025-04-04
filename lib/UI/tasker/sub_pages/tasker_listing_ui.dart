@@ -15,6 +15,7 @@ class TaskerListingUi extends StatelessWidget {
     return BlocBuilder<ToDoTaskerBloc, ToDoTaskerState>(
       builder: (context, state) => (context.watch<ToDoTaskerBloc>().toDos.isEmpty && (state is! ToDoTaskerLoadingState)) ? const EmptyWidget() :  Expanded(
         child: ReorderableListView.builder(
+          physics: const BouncingScrollPhysics(),
           itemCount: context.watch<ToDoTaskerBloc>().toDos.length,
           itemBuilder: (context, index) {
             var model = context.read<ToDoTaskerBloc>().toDos[index];

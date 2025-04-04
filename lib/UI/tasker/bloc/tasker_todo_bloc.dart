@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
+import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
@@ -480,14 +482,44 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       var model = event.model;
       var time = event.selectedTime;
+      var identifierId = model?['identifier_id'];
+      var taskDate = model?['todo_date'].toString().toDateTime();
+      var currentDate = DateTime.now().toFormat().toDateTime();
+      if (taskDate == currentDate) {
+        var selectedTime = Time.fromStr(time.toHMS());
+        if (ToDoConfig.dropCheckInCarRental.contains(identifierId) && ((model?['notes'].toString().isNotNullOrEmpty ?? false) && !(model?['notes'].toString().contains("/") ?? false))) {
+          var currentTime = model?['notes'].toString().toDateTime(inputFormat: "hh:mm a")?.time;
+          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          if (isAfter ?? false) {
+            emit(ToDoTaskerShowDropCheckInPopupState(model, time, "drop"));
+            return;
+          }
+          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+        } else {
+          Console.of.log("ELSE PART");
+        }
+        if (ToDoConfig.pickCheckOutCarRental.contains(identifierId) && ((model?['notes'].toString().isNotNullOrEmpty ?? false) && !(model?['notes'].toString().contains("/") ?? false))) {
+          var currentTime = model?['notes'].toString().toDateTime(inputFormat: "hh:mm a")?.time;
+          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          if (isBefore ?? false) {
+            emit(ToDoTaskerShowDropCheckInPopupState(model, time, "pickup"));
+            return;
+          }
+          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+        } else {
+          Console.of.log("ELSE PART");
+        }
+      }
       var mapData = {
         "todo_time": time.toHMS(),
       };
-      emit(ToDoTaskerLoadingState());
-      var response = await _updateToDo(body: mapData, todoId: model?['id']);
-      if (response != null) {
-        _reFetchToDos();
-      }
+      // emit(ToDoTaskerLoadingState());
+      // var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      // if (response != null) {
+      //   _reFetchToDos();
+      // }
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
     }
