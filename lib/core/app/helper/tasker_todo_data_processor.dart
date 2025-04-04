@@ -52,6 +52,7 @@ class ToDoProcessor {
     _vendorsList = response[6] ?? [];
     _locationList = response[7] ?? [];
     _activeVehiclesCount = response[8] ?? [];
+    return;
   }
 
   Future<List<Map<String, dynamic>>?> _fetchRelatedToDos({required List<dynamic> todoIds}) async =>

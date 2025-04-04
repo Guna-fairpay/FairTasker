@@ -99,10 +99,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   /* BEGIN: API CALLS */
-  Future<List<Map<String, dynamic>>?> _fetchToDoList(
-          {String? resourceId}) async =>
+  Future<List<Map<String, dynamic>>?> _fetchToDoList() async =>
       await _toDoProcessor.getToDoList(selectedDate, isCompleted,
-          resourceId: resourceId);
+          resourceId: _selectedUserIds);
 
   Future<Map<String, dynamic>?> _changeToMorrow({
     required List<String> todoIds,
@@ -152,13 +151,17 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
-      await _toDoProcessor.initialize();
-      await _taskerHoursProcessor.initialize();
-      var response = (_selectedUserIds.isNotNullOrEmpty) ? await _fetchToDoList() : await _fetchToDoList(resourceId: _selectedUserIds);
-      Console.of.log("LENGTH ${response?.length ?? -1}");
+      await Future.microtask(() async => await Future.wait([
+        _toDoProcessor.initialize(),
+        _taskerHoursProcessor.initialize()
+      ]));
+      // await _toDoProcessor.initialize();
+      // await _taskerHoursProcessor.initialize();
+      var response = await _fetchToDoList();
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = response ?? [];
       toDos = unfiltered;
+      isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       emit(ToDoTaskerLoadedState());
     } catch (e) {
       Console.of.error(e);
@@ -199,7 +202,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       toDos.clear();
       if (!isClosed) emit(ToDoTaskerLoadingState());
-      var response = await _fetchToDoList(resourceId: selectedUsers?.map((e) => e['id'].toString()).join(","));
+      var response = await _fetchToDoList();
       unfiltered = response ?? [];
       toDos = unfiltered;
       _searchTasks();
