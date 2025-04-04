@@ -168,6 +168,7 @@ class EditTodoMoreForm extends StatelessWidget {
                     .add(EditToDoSelectTaskHistoryEvent(val)),
                 labelKey: 'vehicle_name',
                 initialSelection: state.selectedVehicle),
+          if (state.selectedVPerson.isNotEmpty && state.selectedVPerson.firstOrNull?['type'] != 'person' )
           InkWell(
             onTap: () {
               Navigator.push(
@@ -182,13 +183,11 @@ class EditTodoMoreForm extends StatelessWidget {
                   )
               );
             },
-            child: state.selectedVehicle.isNotEmpty
-                ? Utils.getText(
+            child: Utils.getText(
                     'Task History - ${state.taskHistory.length == 1 ? state.selectedVehicle['vehicle_name'] ?? '' : state.selectedVehicle['vin'] ?? ''}',
                     color: AppC.appColor,
                     weight: FontWeight.w500,
-                  )
-                : const SizedBox(),
+                  ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,

@@ -6,8 +6,11 @@ import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/repository/vehicle_history_repository.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../event/vehicle_history_event.dart';
@@ -24,6 +27,9 @@ class VehicleHistoryBloc
   int itemsPerPage = 10;
   List<Map<String, dynamic>> resources = [];
   List<Map<String, dynamic>> userGroups = [];
+
+  bool get _isAdminRole => getIt<CommonService>().isAdmin;
+  bool get isAdmin => (Session.of.getString(Str.userIdPrefText) == "3") || _isAdminRole;
 
   VehicleHistoryBloc()
       : super(const VehicleHistoryState(
