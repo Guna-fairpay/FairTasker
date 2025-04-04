@@ -183,6 +183,14 @@ class APiRepository {
 
   String get _vehicleConfigCheckList => "vehicle_config/checklist";
 
+  String get _vehicleStatusCheckList => "vehicle_status_checklist_api";
+
+  String get _createChecklistTodo => "create-checklist-todo";
+
+  String get _vehicleStatusChecklist => "vehicle_status/checklist";
+
+  String get _vehicleStatusUpdate => "vehicleStatusUpdate";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1551,5 +1559,48 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> vehicleStatusCheckList({String? vin}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusCheckList/$vin";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> createChecklistTodo({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_createChecklistTodo";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> vehicleStatusChecklist({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusChecklist";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> vehicleStatusUpdate({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusUpdate";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
 
 }

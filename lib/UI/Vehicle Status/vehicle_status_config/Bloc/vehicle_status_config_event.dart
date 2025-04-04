@@ -22,7 +22,13 @@ class CheckListSelectedEvent extends  VehicleStatusConfigEvent {
   List<Object?> get props => [data,isChecked];
 }
 
-class AllCheckListSelectedEvent extends  VehicleStatusConfigEvent {}
+class AllCheckListSelectedEvent extends  VehicleStatusConfigEvent {
+  final dynamic data;
+  final dynamic isAllChecked;
+  const AllCheckListSelectedEvent({required this.data,required this.isAllChecked});
+  @override
+  List<Object?> get props => [data,isAllChecked];
+}
 
 class ReorderVehicleStatusCheckListEvent extends  VehicleStatusConfigEvent {}
 

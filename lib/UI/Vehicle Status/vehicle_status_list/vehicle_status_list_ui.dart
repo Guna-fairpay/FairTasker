@@ -1,7 +1,8 @@
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_check_list_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/UI/vehicle_status_check_list_body.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/UI/vehicle_status_checklist_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_config.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_events.dart';
@@ -47,10 +48,11 @@ class VehicleStatusListUi extends StatelessWidget {
 
                     case VehicleStatusOnPressed.last_checklist:
                       context.push(VehicleStatusChecklistUI(
-                          vehicleStatusListData: data,
                           vehicleName: data['vehicle_name'] ?? '',
-                          vinNumber: data['vin'] ?? '',
-                          percentage: (data['vehicle_status_value'] ?? 0.0).toString()));
+                          vin: data['vin'] ?? '',
+                        data:data,
+                      )
+                        );
                     case VehicleStatusOnPressed.vehicle_config:
                       context.push(VehicleStatusConfigUI(
                         // vehicleStatusListData: data,

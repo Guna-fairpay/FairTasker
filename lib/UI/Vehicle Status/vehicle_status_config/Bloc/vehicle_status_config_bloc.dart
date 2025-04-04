@@ -32,7 +32,6 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
 
     on<CheckListSelectedEvent>((event, emit) async{
       try {
-        //emit(VehicleStatusConfigLoadingState());
         _fBroadcast.broadcast("vehicleStatus",value: true);
         Console.of.debug('event.data: ${event.isChecked} ${event.data}');
         var response = await _apiRepository.vehicleConfigCheckList(body: {
@@ -56,6 +55,40 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
           });
         }
 
+        emit(VehicleStatusConfigCommonState());
+      }catch (e) {
+        Toaster.showError(e);
+        Console.of.error(e);
+      }
+    });
+
+    on<AllCheckListSelectedEvent>((event, emit) async{
+      try {
+        _fBroadcast.broadcast("vehicleStatus",value: true);
+        Console.of.debug('event.data: ${event.isAllChecked} ${event.data}');
+        var response = await _apiRepository.vehicleConfigCheckList(body: {
+          'category_id': event.data['id'],
+          'checkbox_value': event.isAllChecked,
+          'isApi': 1,
+          'type': 'all',
+          'vin': vin,
+        });
+        var ids = [];
+        if (event.data is Map) {
+          ids.add(event.data['id']);
+        } else {
+          ids = event.data.map((e) => e['id']).toList();
+        }
+       if(response != null) {
+          vehicleConfigData.forEach((element) {
+            if (ids.contains(element['id'])) {
+              element['checklists'].forEach((checklist) {
+                checklist['checked'] = event.isAllChecked ?? 0;
+              });
+              element['checked'] = event.isAllChecked ?? 0;
+            }
+          });
+        }
         emit(VehicleStatusConfigCommonState());
       }catch (e) {
         Toaster.showError(e);

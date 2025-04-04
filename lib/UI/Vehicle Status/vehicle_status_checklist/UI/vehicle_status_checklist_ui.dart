@@ -1,27 +1,29 @@
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_bloc.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_status.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_body.dart';
+
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/Bloc/vehicle_status_checklist_bloc.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/Bloc/vehicle_status_checklist_event.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/Bloc/vehicle_status_checklist_state.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/UI/vehicle_status_check_list_body.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Utilities/utils.dart';
 
-class VehicleStatusConfigUI extends StatelessWidget {
+class VehicleStatusChecklistUI extends StatelessWidget {
   final String? vin;
   final String? vehicleName;
-  const VehicleStatusConfigUI(
-      {super.key, required this.vin, required this.vehicleName});
+  final dynamic data;
+  const VehicleStatusChecklistUI(
+      {super.key, required this.vin, required this.vehicleName, this.data});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<VehicleStatusConfigBloc>(
+    return BlocProvider<VehicleStatusChecklistBloc>(
       create: (context) =>
-          VehicleStatusConfigBloc()..add(GetVehicleStatusConfigData(vin: vin)),
-      child: BlocListener<VehicleStatusConfigBloc, VehicleStatusConfigStatus>(
+      VehicleStatusChecklistBloc()..add(GetVehicleStatusCheckListData(vin: vin,data: data)),
+      child: BlocListener<VehicleStatusChecklistBloc, VehicleStatusChecklistState>(
         listener: (context, state) {
-          if (state is VehicleStatusConfigLoadingState) {
+          if (state is VehicleStatusChecklistLoadingState) {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
@@ -29,7 +31,7 @@ class VehicleStatusConfigUI extends StatelessWidget {
         },
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: AppC.appColor,
+            backgroundColor: const Color(0xff5B9565),
             title: Utils.getText('${vehicleName ?? ''} - \n${vin ?? ''}',
                 color: AppC.white, weight: FontWeight.bold, size: 18),
             foregroundColor: Colors.white,
@@ -42,7 +44,7 @@ class VehicleStatusConfigUI extends StatelessWidget {
               ),
             ],
           ),
-          body: const VehicleStatusConfigBody(),
+          body: const VehicleStatusCheckListBodyUI(),
         ),
       ),
     );

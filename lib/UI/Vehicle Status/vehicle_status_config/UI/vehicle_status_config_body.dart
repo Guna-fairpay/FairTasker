@@ -21,6 +21,7 @@ class VehicleStatusConfigBody extends StatelessWidget {
         builder: (context, state) {
           return ListView(
           shrinkWrap: true,
+          physics: const BouncingScrollPhysics(),
           children: [
             SafeArea(
               minimum: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
@@ -47,24 +48,25 @@ class VehicleStatusConfigBody extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
+                            /*Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                CustomCheckboxListTile(title: Text('Check All'),
+                                CustomCheckboxListTile(
+                                  title: Text('Check All'),
                                   mainAxisSize: MainAxisSize.min,
                                   useExpand: false,
                                   padding: 10.padding,
                                   spacing: 10,
-                                  value: false, onChanged: (value) {
-                                  },
+                                  value: context.watch<VehicleStatusConfigBloc>().vehicleConfigData.every((checklist) => checklist['checklists'].every((chk) => chk['checked'] == 1)),
+                                  onChanged: (value)=> context.read<VehicleStatusConfigBloc>().add(AllCheckListSelectedEvent(data:context.read<VehicleStatusConfigBloc>().vehicleConfigData,isAllChecked: (value==true)?1:0)),
                                   activeColor: AppC.blue,
                                   radius: 6,
                                 ),
                               ],
-                            ),
+                            ),*/
                             GridView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: context.watch<VehicleStatusConfigBloc>().vehicleConfigData.length,
                               itemBuilder: (context, index) {
                                 int row = index % crossAxisCount;
@@ -73,13 +75,10 @@ class VehicleStatusConfigBody extends StatelessWidget {
                                 var checklist = context.watch<VehicleStatusConfigBloc>().vehicleConfigData[newIndex];
                                 return CustomCheckboxListTile(
                                     title: Text(checklist['category_name']),
-                                    value: (checklist['checked'] == 1),
+                                    value: (checklist['checklists'].every((checklist) => checklist['checked'] == 1)),
                                     activeColor: AppC.blue,
                                     radius: 6,
-                                    onChanged: (value) {
-                                      context.read<VehicleStatusConfigBloc>().add(CheckListSelectedEvent(data:checklist,isChecked:(value==true)?1:0));
-                                      // Console.of.debug('value: ${value ?? false}');
-                                    });
+                                    onChanged: (value) => context.read<VehicleStatusConfigBloc>().add(AllCheckListSelectedEvent(data:checklist,isAllChecked: (value==true)?1:0)));
                               },
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: crossAxisCount,
@@ -98,7 +97,7 @@ class VehicleStatusConfigBody extends StatelessWidget {
             ListView.separated(
               padding: 10.padding,
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               separatorBuilder: (context, index) => 5.height,
               itemCount: context.watch<VehicleStatusConfigBloc>().vehicleConfigData.length,
               itemBuilder: (context, index) {
@@ -134,7 +133,10 @@ class VehicleStatusConfigBody extends StatelessWidget {
                                     useExpand: false,
                                     padding: 10.padding,
                                     spacing: 10,
-                                    value: data['checklists'].every((checklist) => checklist['checked'] == 1), onChanged: (value) {
+                                    value: data['checklists'].every((checklist) => checklist['checked'] == 1),
+                                    onChanged: (value) {
+                                    context.read<VehicleStatusConfigBloc>().add(AllCheckListSelectedEvent(data:data,isAllChecked: (value==true)?1:0));
+                                    //Console.of.debug('value: ${data['checklists'] ?? false}');
                                     },
                                     suffix: Icon(Icons.list_alt_outlined,color: AppC.redAccent),
                                     activeColor: AppC.blue,
