@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_in_out_completed_dialog.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
@@ -49,7 +50,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerErrorState(): Toaster.showError("${state.message}"); break;
             case ToDoTaskerDatePickerState(): Utils.showPickerDate(context, value: context.read<ToDoTaskerBloc>().selectedDate, onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateFilterEvent(val))); break;
             case ToDoTaskerAddToDoState(): context.push(CreateTodoUI(selectedDate: state.date), fullscreenDialog: true); break;
-            case ToDoTaskerMicState(): Toaster.showInfo("MIC PRESSED"); break;
+            case ToDoTaskerMicState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveRecordEvent(file))); break;
             case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoReworkUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
             case ToDoTaskerEditState(): context.push(EditTodoReworkUI(todoId: state.toDoId),fullscreenDialog: true); break;
             case ToDoTaskerTapUserFilterState(): TaskerFilterResourceDialog.show(context, selected: context.read<ToDoTaskerBloc>().selectedUsers, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerUserFilterEvent(value))); break;

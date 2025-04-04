@@ -175,6 +175,8 @@ class APiRepository {
 
   String get _vehicleNotesHistory => "vehicle_notes_history";
 
+  String get _saveAudio => "save-audio";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1476,6 +1478,18 @@ Future<Map<String, dynamic>?> getLocations() async {
       String apiUrl = '${Str.LIST_BASE_URL}$_vehicleNotesHistory/$vin';
       Console.of.log(apiUrl);
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> saveAudio({File? audio}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_saveAudio';
+      var infusedFile = {"audio" : audio?.path};
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, infusedFiles: infusedFile);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

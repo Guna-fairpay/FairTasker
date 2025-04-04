@@ -40,7 +40,10 @@ class ToDoTaskerAddToDoState extends ToDoTaskerState {
   @override
   List<Object?> get props => [date, Random().nextDouble()];
 }
-class ToDoTaskerMicState extends ToDoTaskerState {}
+class ToDoTaskerMicState extends ToDoTaskerState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
 
 class ToDoTaskerEditState extends ToDoTaskerState {
   final dynamic toDoId;

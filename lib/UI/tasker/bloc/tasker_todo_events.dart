@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/gestures.dart' show TapDownDetails;
 import 'package:flutter/material.dart';
@@ -321,4 +323,11 @@ class ToDoTaskerViewReasonAttachmentEvent extends ToDoTaskerEvent {
   ToDoTaskerViewReasonAttachmentEvent(this.model);
   @override
   List<Object?> get props => [model];
+}
+
+class ToDoTaskerSaveRecordEvent extends ToDoTaskerEvent {
+  final File? audio;
+  ToDoTaskerSaveRecordEvent(this.audio);
+  @override
+  List<Object?> get props => [audio];
 }

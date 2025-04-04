@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -89,6 +90,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewAttachmentEvent>(_onViewAttachmentEvent);
     on<ToDoTaskerViewCustomLinkEvent>(_onViewCustomLinkEvent);
     on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
+    on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
   }
 
   void _listenBroadCast() {
@@ -134,6 +136,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   Future<Map<String, dynamic>?> _addToDo({required Map<String, dynamic> body}) async => await _aPiRepository.addToDo(body: body);
 
   Future<Map<String, dynamic>?> _completeToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.completeTodo(todoId: todoId, body: body);
+
+  Future<Map<String, dynamic>?> _saveRecording({required File? file}) async => await _aPiRepository.saveAudio(audio: file);
 
   /* END: API CALLS */
 
@@ -848,5 +852,24 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onViewReasonAttachmentEvent(ToDoTaskerViewReasonAttachmentEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerViewReasonAttachmentState(event.model));
+  }
+
+  void _onSaveRecordEvent(ToDoTaskerSaveRecordEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      emit(ToDoTaskerLoadingState());
+      var file = event.audio;
+      if (file != null) {
+        var response = await _saveRecording(file: file);
+        if ((response != null) && (response.isNotEmpty)) {
+          var searchData = response['data'] ?? "";
+          searchController.text = searchData;
+          _searchTasks();
+        }
+      }
+      emit(ToDoTaskerCommonState());
+    } catch (e) {
+      Console.of.error(e);
+      emit(ToDoTaskerErrorState(e));
+    }
   }
 }
