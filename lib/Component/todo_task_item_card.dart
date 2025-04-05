@@ -126,7 +126,7 @@ class TodoTaskItemCard extends StatelessWidget {
               }
             },
             child: GestureDetector(
-              onTap: onTap,
+              // onTap: onTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                 decoration: BoxDecoration(

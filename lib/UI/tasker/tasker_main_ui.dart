@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_check_pickup_reason_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_completed_time_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_resource_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog.dart';
@@ -81,6 +82,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['todoimages']).map((e) => e['path'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
             case ToDoTaskerViewReasonAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['reason_images']).map((e) => e['images'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
             case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
+            case ToDoTaskerShowDropCheckInPopupState(): TaskerTimeChangeReasonDialog.show(context, type: state.type, onSubmitted: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeChangeEvent(state.selectedTime, state.model, type: state.type, reason: value))); break;
             default: break;
           }
         }

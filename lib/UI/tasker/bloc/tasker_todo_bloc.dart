@@ -485,7 +485,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var identifierId = model?['identifier_id'];
       var taskDate = model?['todo_date'].toString().toDateTime();
       var currentDate = DateTime.now().toFormat().toDateTime();
-      if (taskDate == currentDate) {
+      var reason = event.reason;
+      if ((taskDate == currentDate) && (reason.toString().isNullOrEmpty && event.type.toString().isNullOrEmpty)) {
         var selectedTime = Time.fromStr(time.toHMS());
         if (ToDoConfig.dropCheckInCarRental.contains(identifierId) && ((model?['notes'].toString().isNotNullOrEmpty ?? false) && !(model?['notes'].toString().contains("/") ?? false))) {
           var currentTime = model?['notes'].toString().toDateTime(inputFormat: "hh:mm a")?.time;
@@ -515,11 +516,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var mapData = {
         "todo_time": time.toHMS(),
       };
-      // emit(ToDoTaskerLoadingState());
-      // var response = await _updateToDo(body: mapData, todoId: model?['id']);
-      // if (response != null) {
-      //   _reFetchToDos();
-      // }
+      if (reason?.trim().isNotNullOrEmpty ?? false) mapData['time_change_reason'] = reason;
+      emit(ToDoTaskerLoadingState());
+      var response = await _updateToDo(body: mapData, todoId: model?['id']);
+      if (response != null) {
+        _reFetchToDos();
+      }
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
     }
