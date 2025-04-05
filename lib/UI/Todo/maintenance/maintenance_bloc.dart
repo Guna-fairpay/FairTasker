@@ -306,7 +306,6 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           ..userId = todoItemsCopy['user_id']
           ..userGroupId = int.tryParse(todoItemsCopy['user_group_id']?.toString() ?? '0') ?? 0
           ..title = event.item == 64 ? 'Oil Change' : 'Fix'
-          ..maintenanceTaskId = event.maintenanceTaskId
           ..notes = event.notes
           ..comments = event.comments
           ..todoTime = todoItemsCopy['todo_time']
