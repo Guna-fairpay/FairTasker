@@ -2993,7 +2993,9 @@ class TodoListRepo {
   Future<bool> deleteCategoryConfig(int? id) async {
     try {
       String apiUrl = "${Str.BASE_URL}deleteTaskCategory/$id";
+
       final http.Response? response = await apiClient.callDelete(apiUrl);
+      log("${response?.body}",name:"categoryconfig");
       return response.isSuccess;
     } catch (error) {
       log('categoryConfig.exception : ${error.toString()}');
@@ -3042,10 +3044,11 @@ class TodoListRepo {
         "platform": "TaskerApp",
         "status": "1"
       });
-
+      log("${body}  Category config  body");
       String apiUrl = '';
       http.Response? response;
       if(id != null) {
+        log("${id}  delete");
         apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
@@ -3058,6 +3061,7 @@ class TodoListRepo {
       if (response != null) {
         TaskResponse taskResponse =
         TaskResponse.fromJson(json.decode(response.body));
+
         if (response.statusCode == 200) {
           return taskResponse;
         } else {
@@ -3079,6 +3083,7 @@ class TodoListRepo {
       final http.Response? response = await apiClient.callDelete(apiUrl);
 
       if (response != null) {
+        log("${response.body}",name:"categoryconfig");
         TaskResponse taskResponse =
         TaskResponse.fromJson(json.decode(response.body));
 

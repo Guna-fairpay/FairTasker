@@ -43,18 +43,29 @@ class _LocationEditUIState extends State<LocationEditUI> {
   }
 
   void _save() {
-    setState(() {
-      isTaskFieldEmpty = locationController.text.isEmpty;
-    });
+    setState(() {});
+    log("addressesList	$addressesList");
     if (locationController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill the required field');
+      return;
     }
-    final updatedLocation = {
-      'id': widget.location['id'],
+    final newLocation = {
       'name': locationController.text,
       'addresses': addressesList,
+      if (widget.location?['id'] != null) 'id': widget.location!['id'],
     };
-    Navigator.pop(context, updatedLocation);
+    Navigator.pop(context, newLocation);
+  }
+
+  void _addAddress() {
+    if (addressController.text.isNotEmpty) {
+      setState(() {
+        addressesList.add({
+          'address': addressController.text,
+          if (widget.location?['id'] != null) 'location_id': widget.location!['id'],
+        });
+        addressController.clear();
+      });
+    }
   }
 
   void _deleteAddress(int index) {
@@ -107,6 +118,7 @@ class _LocationEditUIState extends State<LocationEditUI> {
                         var index = addressesList.indexOf(selectedAddress);
                         addressesList[index]['address'] = _editAddress;
                         selectedAddress = null;
+                        _addAddress;
                       }
                       else{
                         addressesList.add({
@@ -145,13 +157,14 @@ class _LocationEditUIState extends State<LocationEditUI> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Utils.getElevatedButton((){
+                  _save();
                   if (addressController.text.isNotEmpty) {
                     addressesList.add({
                       'address': addressController.text,
                     });
                     setState(() {});
                   }
-                  _save();
+
                 },),
               ],
             )
