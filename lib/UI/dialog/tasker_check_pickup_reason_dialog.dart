@@ -1,0 +1,71 @@
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+class TaskerTimeChangeReasonDialog {
+  TaskerTimeChangeReasonDialog._();
+
+  static void show(BuildContext context,
+      {String type = "pickup", ValueChanged<String>? onSubmitted}) async {
+    await showDialog(
+        context: context,
+        builder: (context) => _TaskerTimeChangeReasonDialogView(
+            type: type, onSubmitted: onSubmitted));
+  }
+}
+
+class _TaskerTimeChangeReasonDialogView extends StatelessWidget {
+  final String type;
+  final TextEditingController reasonController = TextEditingController();
+  final ValueChanged<String>? onSubmitted;
+
+  _TaskerTimeChangeReasonDialogView({this.type = "pickup", this.onSubmitted});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      insetPadding: 10.padding,
+      contentPadding: 16.padding,
+      titlePadding: 16.horizontalPadding,
+      shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+      title: ListTile(
+        dense: true,
+        contentPadding: EdgeInsets.zero,
+        trailing: GestureDetector(
+          onTap: context.popDialog,
+          child: const Icon(Icons.close_rounded),
+        ),
+      ),
+      alignment: Alignment.topCenter,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 10,
+        children: [
+          Utils.getText(
+              (type == "drop") ? "CheckIn/Drop Car is later than the time specified in booking *" : "Checkout/Pickup Car is earlier than the time specified in booking *",
+              size: 12.sp),
+          Utils.getTextFormField("Reason", reasonController,
+              inputAction: TextInputAction.done,
+              textType: TextInputType.text,
+              autoValidate: AutovalidateMode.onUserInteraction,
+              validator: (value) => (value?.trim().isNullOrEmpty ?? false)
+                  ? "Reason is required"
+                  : null),
+          Utils.getFilledButton(
+            "Submit",
+            () {
+              if (reasonController.text.trim().isEmpty) return;
+              onSubmitted?.call(reasonController.text);
+              context.popDialog();
+            },
+          )
+        ],
+      ),
+    );
+  }
+}

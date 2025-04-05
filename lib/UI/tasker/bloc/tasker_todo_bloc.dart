@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show File;
 import 'package:collection/collection.dart';
+import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
@@ -33,6 +36,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   Map<String, dynamic> processedWorkingHours = {};
   final ToDoProcessor _toDoProcessor = ToDoProcessor();
   final TaskerHoursProcessor _taskerHoursProcessor = TaskerHoursProcessor();
+
+  bool get isAdmin => getIt<CommonService>().isAdmin;
+  Map<String, dynamic>? get currentUser => getIt<CommonService>().user;
+  String? get _selectedUserIds => selectedUsers?.map((e) => e['id'].toString()).join(",");
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -85,6 +92,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewAttachmentEvent>(_onViewAttachmentEvent);
     on<ToDoTaskerViewCustomLinkEvent>(_onViewCustomLinkEvent);
     on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
+    on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
   }
 
   void _listenBroadCast() {
@@ -93,10 +101,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   /* BEGIN: API CALLS */
-  Future<List<Map<String, dynamic>>?> _fetchToDoList(
-          {String? resourceId}) async =>
+  Future<List<Map<String, dynamic>>?> _fetchToDoList() async =>
       await _toDoProcessor.getToDoList(selectedDate, isCompleted,
-          resourceId: resourceId);
+          resourceId: _selectedUserIds);
 
   Future<Map<String, dynamic>?> _changeToMorrow({
     required List<String> todoIds,
@@ -131,6 +138,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   Future<Map<String, dynamic>?> _completeToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.completeTodo(todoId: todoId, body: body);
 
+  Future<Map<String, dynamic>?> _saveRecording({required File? file}) async => await _aPiRepository.saveAudio(audio: file);
+
   /* END: API CALLS */
 
   // INITIAL EVENT PROCESSOR
@@ -141,13 +150,20 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
-      await _toDoProcessor.initialize();
-      await _taskerHoursProcessor.initialize();
+      if (!isAdmin) {
+        if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
+      }
+      await Future.microtask(() async => await Future.wait([
+        _toDoProcessor.initialize(),
+        _taskerHoursProcessor.initialize()
+      ]));
+      // await _toDoProcessor.initialize();
+      // await _taskerHoursProcessor.initialize();
       var response = await _fetchToDoList();
-      Console.of.log("LENGTH ${response?.length ?? -1}");
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = response ?? [];
       toDos = unfiltered;
+      isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       emit(ToDoTaskerLoadedState());
     } catch (e) {
       Console.of.error(e);
@@ -188,7 +204,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       toDos.clear();
       if (!isClosed) emit(ToDoTaskerLoadingState());
-      var response = await _fetchToDoList(resourceId: selectedUsers?.map((e) => e['id'].toString()).join(","));
+      var response = await _fetchToDoList();
       unfiltered = response ?? [];
       toDos = unfiltered;
       _searchTasks();
@@ -466,9 +482,41 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       var model = event.model;
       var time = event.selectedTime;
+      var identifierId = model?['identifier_id'];
+      var taskDate = model?['todo_date'].toString().toDateTime();
+      var currentDate = DateTime.now().toFormat().toDateTime();
+      var reason = event.reason;
+      if ((taskDate == currentDate) && (reason.toString().isNullOrEmpty && event.type.toString().isNullOrEmpty)) {
+        var selectedTime = Time.fromStr(time.toHMS());
+        if (ToDoConfig.dropCheckInCarRental.contains(identifierId) && ((model?['notes'].toString().isNotNullOrEmpty ?? false) && !(model?['notes'].toString().contains("/") ?? false))) {
+          var currentTime = model?['notes'].toString().toDateTime(inputFormat: "hh:mm a")?.time;
+          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          if (isAfter ?? false) {
+            emit(ToDoTaskerShowDropCheckInPopupState(model, time, "drop"));
+            return;
+          }
+          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+        } else {
+          Console.of.log("ELSE PART");
+        }
+        if (ToDoConfig.pickCheckOutCarRental.contains(identifierId) && ((model?['notes'].toString().isNotNullOrEmpty ?? false) && !(model?['notes'].toString().contains("/") ?? false))) {
+          var currentTime = model?['notes'].toString().toDateTime(inputFormat: "hh:mm a")?.time;
+          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          if (isBefore ?? false) {
+            emit(ToDoTaskerShowDropCheckInPopupState(model, time, "pickup"));
+            return;
+          }
+          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+        } else {
+          Console.of.log("ELSE PART");
+        }
+      }
       var mapData = {
         "todo_time": time.toHMS(),
       };
+      if (reason?.trim().isNotNullOrEmpty ?? false) mapData['time_change_reason'] = reason;
       emit(ToDoTaskerLoadingState());
       var response = await _updateToDo(body: mapData, todoId: model?['id']);
       if (response != null) {
@@ -841,5 +889,24 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onViewReasonAttachmentEvent(ToDoTaskerViewReasonAttachmentEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerViewReasonAttachmentState(event.model));
+  }
+
+  void _onSaveRecordEvent(ToDoTaskerSaveRecordEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      emit(ToDoTaskerLoadingState());
+      var file = event.audio;
+      if (file != null) {
+        var response = await _saveRecording(file: file);
+        if ((response != null) && (response.isNotEmpty)) {
+          var searchData = response['data'] ?? "";
+          searchController.text = searchData;
+          _searchTasks();
+        }
+      }
+      emit(ToDoTaskerCommonState());
+    } catch (e) {
+      Console.of.error(e);
+      emit(ToDoTaskerErrorState(e));
+    }
   }
 }

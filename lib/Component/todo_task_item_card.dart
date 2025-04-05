@@ -126,7 +126,7 @@ class TodoTaskItemCard extends StatelessWidget {
               }
             },
             child: GestureDetector(
-              onTap: onTap,
+              // onTap: onTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                 decoration: BoxDecoration(
@@ -359,7 +359,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                         text: TextSpan(
                                           text: "(${parse(model['display']?['notes'] ?? "").body?.text})",
                                           children: (model['display']?['hasTimeChangeReason'] ?? false) ? [
-                                            TextSpan(text: "${model['display']?['timeChangeReason'] ?? ""}")
+                                            TextSpan(text: "\t${(model['display']?['timeChangeReason'] ?? "").toString().toTitleCase()}", style: context.textTheme.labelMedium?.copyWith(color: null))
                                           ] : [],
                                           style: context.textTheme.labelMedium?.copyWith(fontSize: 11.sp, overflow: TextOverflow.ellipsis, color: AppC.appColor)
                                         ))),

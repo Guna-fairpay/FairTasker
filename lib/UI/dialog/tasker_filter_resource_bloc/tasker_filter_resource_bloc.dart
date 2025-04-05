@@ -19,6 +19,7 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
   List<Map<String, dynamic>>? selected = [];
   bool isAllSelected = false;
   int? branchId = Session.of.getInt(Str.branchIdPrefText);
+  bool get isAdmin => getIt<CommonService>().isAdmin;
   TFRDBloc() : super(TFRDLoadingState()) {
     on<TFRDInitialEvent>(_onInitialEvent);
     on<TFRDSelectEvent>(_onSelectEvent);
@@ -33,7 +34,9 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
       selected = event.selected;
       var response = (await _fetchUsers());
       users = List.from(response ?? []);
-      users?.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['branch_id'].toString().isNullOrEmpty) || ((element['branch_id'] != branchId)));
+      var acceptDepartmentIds = [isAdmin ? "8" : "", "7"];
+      acceptDepartmentIds.removeWhere((element) => element.isNullOrEmpty);
+      users?.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['branch_id'].toString().isNullOrEmpty) || ((element['branch_id'] != branchId) && (!acceptDepartmentIds.contains(element['department'])) && (element['id'] != 3)));
       departments = users?.map((e) => Map<String, dynamic>.from(e['departments'])).map((e) => e..['name'] = (['Admin Manager', 'Operations'].contains(e['name'])) ? "Core" : e['name']).toSet().toList();
       departments?.sort((a, b) => a['id'].compareTo(b['id']));
       departments = departments.unique((element) => element['id']);
