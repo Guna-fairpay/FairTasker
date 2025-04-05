@@ -51,7 +51,7 @@ class _LocationViewUIState extends State<LocationViewUI> {
   Future<void> _navigateToLocationAddUI() async {
     final newLocation = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) => const LocationAddUI()),
+      MaterialPageRoute(builder: (context) => LocationAddUI()),
     );
     if (newLocation != null) {
       setState(() {
@@ -75,13 +75,12 @@ class _LocationViewUIState extends State<LocationViewUI> {
         builder: (context) => LocationEditUI(location: filteredLocation[index]),
       ),
     );
+    log("updatedLocation	$updatedLocation");
     if (updatedLocation != null) {
+      log("updatedLocationIn	$updatedLocation");
       locationDataBloc.add(AddLocationData(
         name: updatedLocation['name'],
-        address: (updatedLocation['addresses'] as List?)
-            ?.where((e) => e['id'] == null)
-            .map((e) => e['address'] as String)
-            .toList(),
+        address: updatedLocation['addresses'],
         id: updatedLocation['id'],
       ));
       locationDataBloc.add(const GetAddedLocationListData());
