@@ -9,6 +9,7 @@ class TaskerHoursProcessor {
   Future<void> initialize() async {
     var response = await _fetchWorkingByHours();
     workingHours = (response ?? []);
+    return;
   }
 
   Map<String, dynamic> processWorkingHours() {

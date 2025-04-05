@@ -236,14 +236,10 @@ class ApiClient {
       multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
     }
 
-    var request = http.MultipartRequest("POST", message['url'])
-      ..headers.addAll(message['token'])
-      ..fields.addAll(message['fields'])
-      ..files.addAll(multiPartFiles);
-    Console.of.debug(message['fields']);
-    multiPartFiles.forEach((element) {
-      Console.of.debug("${element.filename} ${element.field}");
-    });
+    var request = http.MultipartRequest("POST", message['url']);
+    if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
+    if (message['fields'] != null) request.fields.addAll(message['fields']);
+    if (message['token'] != null) request.headers.addAll(message['token']);
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
     Console.of.log(response);
