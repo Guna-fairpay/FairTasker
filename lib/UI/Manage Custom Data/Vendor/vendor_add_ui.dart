@@ -131,12 +131,9 @@ class _VendorAddUIState extends State<VendorAddUI> {
     setState(() {
       isVendorFieldEmpty = nameController.text.isEmpty;
     });
-    if (nameController.text.isEmpty) {
-      return Utils.showMobileToast('Please fill the required field');
-    }
     final newVendor = {
       'name': nameController.text,
-      'vendor_type': selectedVendorType['id'],
+      'vendor_type': selectedVendorType?['id'] ?? null,
       'address': addressController.text,
       'phone': phoneController.text,
       'expertise': expertiseController.text,
