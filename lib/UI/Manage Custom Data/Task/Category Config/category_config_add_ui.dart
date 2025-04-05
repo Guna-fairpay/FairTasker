@@ -48,7 +48,7 @@ class _CategoryConfigAddUIState extends State<CategoryConfigAddUI> {
     }
     final newConfig = {
       'name': nameController.text,
-      'parent_id': selectedCategory['id'],
+      'parent_id': selectedCategory?['id'] ?? null,
       'todo_user_type': selectedUserType?['id'] == 2 ? 1 : 0,
     };
    Navigator.of(context).pop(newConfig);

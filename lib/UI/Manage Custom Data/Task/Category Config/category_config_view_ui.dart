@@ -85,8 +85,7 @@ class _CategoryConfigViewUIState extends State<CategoryConfigViewUI> {
     final confirmed = await Utils.showCustomDeleteDialog(context,'Category');
     if (confirmed == true) {
       final delete=filteredConfig[index];
-      todoViewBloc.add(DeleteCategoryConfig(id: delete['id'])
-      );
+      todoViewBloc.add(DeleteCategoryConfig(id: delete['id']));
       todoViewBloc.add(const GetCategoryConfigData());
     }
   }

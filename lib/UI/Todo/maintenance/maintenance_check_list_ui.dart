@@ -242,8 +242,13 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                               context.read<MaintenanceBloc>().add(
                                                     createFixTaskEvent(
                                                       maintenanceTaskId:
-                                                          '${maintenanceCheckListData['id']}-${item['id']}-${item['children'].firstWhereOrNull(
-                                                        (e) => e['name'] == state.selectedDropdownValues[item['id']],)?['id'] ?? 0}',
+                                                      '${maintenanceCheckListData['id']}-${item['id']}-${
+                                                          item['children'].where(
+                                                                  (e) => e['name'] == state.selectedDropdownValues[item['id']]
+                                                          ).isEmpty ? 0 : item['children'].firstWhere(
+                                                                  (e) => e['name'] == state.selectedDropdownValues[item['id']]
+                                                          )['id']
+                                                      }',
                                                       notes:
                                                           '${maintenanceCheckListData?['name'] ?? 'Other'}-${item?['name'] ?? ''}-${state.selectedDropdownValues[item['id']] ?? "Unknown"}',
                                                       comments: state.notesControllers[item['id']]!.text,
