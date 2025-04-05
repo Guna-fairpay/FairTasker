@@ -37,9 +37,10 @@ class _TaskerFilterResourceDialogView extends StatelessWidget {
     return AlertDialog(
       elevation: 5,
       surfaceTintColor: Colors.transparent,
+      alignment: Alignment.topCenter,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
-      insetPadding: 10.padding,
+      insetPadding: 10.padding.copyWith(top: 80),
       titlePadding: 10.horizontalPadding,
       backgroundColor: AppC.blue50?.withValues(alpha: 0.9),
       title: ListTile(
@@ -89,9 +90,11 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
   @override
   Widget build(BuildContext _) {
     return BlocBuilder<TFRDBloc, TFRDStates>(
-        builder: (context, state) => SizedBox(
+        builder: (context, state) => Container(
               width: context.width,
-              height: context.height * 0.7,
+              constraints: BoxConstraints(
+                maxHeight: context.height * 0.7,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -104,6 +107,7 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                   Flexible(
                     child: ListView(
                       shrinkWrap: true,
+                      padding: EdgeInsets.only(bottom: 30),
                       children: context
                           .watch<TFRDBloc>()
                           .departments

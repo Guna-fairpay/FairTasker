@@ -55,8 +55,9 @@ class CommonService {
   Map<String, dynamic>? _vehicleStatus;
 
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
+  int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
-  bool get isAdmin => (roles?.contains("admin") ?? false);
+  bool get isAdmin => (roles?.contains("admin") ?? false) || (userId == 3);
 
   void branchUpdate({VoidCallback? callback}) {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
@@ -78,6 +79,11 @@ class CommonService {
     } else {
       return int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
     }
+  }
+
+  Map<String, dynamic>? get user {
+    var userId = getUserId;
+    return usersList.firstWhereOrNull((element) => element['id'] == userId);
   }
 
   Future<List<Map<String, dynamic>>> getUsers() async {

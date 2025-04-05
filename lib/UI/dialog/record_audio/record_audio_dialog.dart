@@ -27,17 +27,21 @@ class RecordAudioDialog {
 
 class _RecordAudioDialogView extends StatelessWidget {
   final void Function(File? file)? onRecorded;
+
   const _RecordAudioDialogView({this.onRecorded});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       contentPadding: 10.padding,
+      insetPadding: 16.padding,
       title: ListTile(
         dense: true,
         minTileHeight: 0,
         contentPadding: EdgeInsets.zero,
         title: const Text("Record Audio"),
+        titleTextStyle:
+            context.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
         trailing: GestureDetector(
           onTap: context.popDialog,
           child: Padding(
@@ -53,14 +57,19 @@ class _RecordAudioDialogView extends StatelessWidget {
           child: BlocListener<RecordAudioBloc, RecordAudioState>(
             listener: (context, state) {
               switch (state) {
-                case RecordAudioPermissionState(): context.read<RecordAudioBloc>().add(RecordAudioRecordEvent()); break;
-                case RecordAudioSubmittedState(): onRecorded?.call(state.recorded); context.popDialog(); break;
+                case RecordAudioPermissionState():
+                  context.read<RecordAudioBloc>().add(RecordAudioRecordEvent());
+                  break;
+                case RecordAudioSubmittedState():
+                  onRecorded?.call(state.recorded);
+                  context.popDialog();
+                  break;
               }
             },
             child: const _RecordAudioDialogContentView(),
           )),
       shape: ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+          borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
     );
   }
 }
@@ -77,23 +86,51 @@ class _RecordAudioDialogContentView extends StatelessWidget {
                 spacing: 10,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (!context.watch<RecordAudioBloc>().isRecording)
-                  IconButton(
-                      onPressed: () => context.read<RecordAudioBloc>().add(RecordAudioRecordEvent()),
-                      icon: const Icon(Icons.keyboard_voice_outlined), color: context.watch<RecordAudioBloc>().isRecording ? Colors.red : null),
+                  if ((!context.watch<RecordAudioBloc>().isRecording) &&
+                      (context.watch<RecordAudioBloc>().audio == null))
+                    IconButton(
+                        onPressed: () => context
+                            .read<RecordAudioBloc>()
+                            .add(RecordAudioRecordEvent()),
+                        icon: const Icon(Icons.keyboard_voice_outlined),
+                        color: context.watch<RecordAudioBloc>().isRecording
+                            ? Colors.red
+                            : null),
                   if (context.watch<RecordAudioBloc>().isRecording)
                     IconButton(
-                        onPressed: () => context.read<RecordAudioBloc>().add(RecordAudioStopEvent()),
-                        icon: const Icon(Icons.mic_off_rounded), color: Colors.red),
+                        onPressed: () => context
+                            .read<RecordAudioBloc>()
+                            .add(RecordAudioStopEvent()),
+                        icon: const Icon(Icons.mic_off_rounded),
+                        color: Colors.red),
                   if (context.watch<RecordAudioBloc>().audio != null)
-                    AudioPlayerWidget(source: DeviceFileSource(context.watch<RecordAudioBloc>().audio?.path ?? "")),
+                    Transform.scale(
+                        scale: 0.8,
+                        filterQuality: FilterQuality.low,
+                        alignment: Alignment.topCenter,
+                        child: AudioPlayerWidget(
+                            source: DeviceFileSource(
+                                context.watch<RecordAudioBloc>().audio?.path ??
+                                    ""))),
                   if (context.watch<RecordAudioBloc>().audio != null)
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       spacing: 10,
                       children: [
-                        Expanded(child: Utils.getFilledButton("Reset", () => context.read<RecordAudioBloc>().add(RecordAudioResetEvent()), bgColor: Colors.red, textColor: Colors.white)),
-                        Expanded(child: Utils.getFilledButton("Submit", () => context.read<RecordAudioBloc>().add(RecordAudioSubmitEvent())))
+                        Expanded(
+                            child: Utils.getFilledButton(
+                                "Reset",
+                                () => context
+                                    .read<RecordAudioBloc>()
+                                    .add(RecordAudioResetEvent()),
+                                bgColor: Colors.red,
+                                textColor: Colors.white)),
+                        Expanded(
+                            child: Utils.getFilledButton(
+                                "Submit",
+                                () => context
+                                    .read<RecordAudioBloc>()
+                                    .add(RecordAudioSubmitEvent())))
                       ],
                     )
                 ],
