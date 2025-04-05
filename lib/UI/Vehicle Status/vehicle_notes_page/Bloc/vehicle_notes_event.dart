@@ -21,14 +21,28 @@ class DatePickEvent extends VehicleNotesEvent {
   List<Object?> get props => [selectedDate];
 }
 
-class SaveNotesEvent extends VehicleNotesEvent {}
+class SaveNotesEvent extends VehicleNotesEvent {
+  final String? vin;
+  const SaveNotesEvent({required this.vin,});
+  @override
+  List<Object?> get props => [vin,];
+}
 
-class DeleteNotesEvent extends VehicleNotesEvent {}
+class DeleteNotesEvent extends VehicleNotesEvent {
+  final String id;
+  const DeleteNotesEvent({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
 
-class UpdateNotesEvent extends VehicleNotesEvent {
+class UpdateNotesIsPressedEvent extends VehicleNotesEvent {
   final dynamic editData;
-  const UpdateNotesEvent({required this.editData});
+  const UpdateNotesIsPressedEvent({required this.editData});
   @override
   List<Object?> get props => [editData];
 }
+
+class UpdateNotesIsCancelledEvent extends VehicleNotesEvent {}
+
+class UpdateNotesEvent extends VehicleNotesEvent {}
 

@@ -11,7 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
 class VehicleNotesAdd extends StatelessWidget {
-  const VehicleNotesAdd({super.key});
+  final String? vin;
+  const VehicleNotesAdd({super.key,required this.vin});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,27 @@ class VehicleNotesAdd extends StatelessWidget {
                 .add(DatePickEvent(selectedDate: value)),
           ),
           10.height,
-          Utils.getElevatedButton((){},bgColor: AppC.appColor),
+          Row(
+            spacing: 10,
+            children: [
+              if(!context.read<VehicleNotesBloc>().isEdit)
+              Utils.getElevatedButton(
+                      ()=>context.read<VehicleNotesBloc>().add(SaveNotesEvent(vin: vin)),
+                  bgColor: AppC.appColor),
+              if(context.read<VehicleNotesBloc>().isEdit)
+              Utils.getElevatedButton(
+                      ()=>context.read<VehicleNotesBloc>().add(UpdateNotesEvent()),
+                  bgColor: AppC.green,
+                text: 'Update',
+              ),
+              if(context.read<VehicleNotesBloc>().isEdit)
+              Utils.getElevatedButton(
+                      ()=>context.read<VehicleNotesBloc>().add(UpdateNotesIsCancelledEvent()),
+                  bgColor: AppC.redAccent,
+                text: 'Cancel',
+              ),
+            ],
+          ),
           10.height,
         ],
       ),

@@ -74,7 +74,7 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
     final newLeave = {
       'start_date': startDateController.text,
       'end_date': endDateController.text,
-      'start_time':isSelected ? '${startTimeController.text} : 00':'',
+      'start_time':isSelected ? '${startTimeController.text}:00':'',
       'end_time':isSelected ? '${endTimeController.text}:00' : '',
       'reason': reasonController.text,
       'leave_type_id': selectedLeaveType['id'].toString(),
