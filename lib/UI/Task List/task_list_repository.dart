@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:fairpytasker/UI/Task%20List/user_list_response.dart';
+import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:http/http.dart' as http;
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -10,6 +12,8 @@ import '../../Response/assigned_to_response.dart';
 import '../../Response/task_list_response.dart';
 import '../../Response/task_response.dart';
 import '../../Response/user_group_response.dart';
+import '../../Response/vehicle_grouping_response.dart';
+import '../../Response/vehicle_list_response.dart';
 
 class TaskListRepository {
   ApiClient apiClient = ApiClient();
@@ -140,6 +144,75 @@ class TaskListRepository {
       return null;
     }
     return null;
+  }
+
+  Future<VehicleGroupingResponse?> getVehicleGroupData() async {
+    try {
+      String apiUrl = '';
+      apiUrl = "${Str.BASE_URL}group-vehicle";
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          VehicleGroupingResponse vehicleGroupingResponse =
+          VehicleGroupingResponse.fromJson(json.decode(response.body));
+          return vehicleGroupingResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('VehicleGroupData.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<UserListResponse?> getUsers() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}user-list";
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          UserListResponse userListResponse =
+          UserListResponse.fromJson(json.decode(response.body));
+          return userListResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<VehicleListResponse?> fetchVehicleList() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}active_vehicles';
+      debugPrint("fetchVehicleList apiUrl: $apiUrl");
+
+      final http.Response? response = await apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          VehicleListResponse vehicleListResponse =
+          VehicleListResponse.fromJson(json.decode(response.body));
+
+          return vehicleListResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      debugPrint('fetchVehicleList.exception : ${error.toString()}');
+      return null;
+    }
   }
 
 

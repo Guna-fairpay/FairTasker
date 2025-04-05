@@ -106,7 +106,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                         ),
                       );
                     },
-                    imageUrl: model?['display']?['vehicle_image'],
+                    imageUrl: model?['display']?['vehicle_image'] ?? "",
                     placeholder: (context, url) =>
                         Utils.getProgressIndicator(context),
                     errorWidget: (context, url, error) {
@@ -172,7 +172,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
             ),
             Flexible(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
+                // height: MediaQuery.of(context).size.height * 0.5,
                 child: VehicleHistoryViewUI(
                   vin: model?['display']?['vins']?[0],
                   vehicleName: model?['display']?['vehicle_name'] ?? '',
