@@ -3,11 +3,11 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dar
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_status.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Component/swap_index.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -134,11 +134,12 @@ class VehicleStatusConfigBody extends StatelessWidget {
                                     padding: 10.padding,
                                     spacing: 10,
                                     value: data['checklists'].every((checklist) => checklist['checked'] == 1),
-                                    onChanged: (value) {
-                                    context.read<VehicleStatusConfigBloc>().add(AllCheckListSelectedEvent(data:data,isAllChecked: (value==true)?1:0));
-                                    //Console.of.debug('value: ${data['checklists'] ?? false}');
-                                    },
-                                    suffix: Icon(Icons.list_alt_outlined,color: AppC.redAccent),
+                                    onChanged: (value) =>
+                                    context.read<VehicleStatusConfigBloc>().add(AllCheckListSelectedEvent(data:data,isAllChecked: (value==true)?1:0)),
+                                    suffix:IconButton(onPressed: ()=>SwapIndexPopUp.show(
+                                        data: data,context,onSwap: (){},onReorderUpdate: (v){}), icon: const Icon(Icons.list_alt_outlined,color: AppC.redAccent)) ,/*InkWell(
+                                      onTap: ()=>SwapIndexPopUp(),
+                                        child: Icon(Icons.list_alt_outlined,color: AppC.redAccent)),*/
                                     activeColor: AppC.blue,
                                     radius: 6,
                                   ),

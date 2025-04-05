@@ -32,5 +32,12 @@ class AllCheckListSelectedEvent extends  VehicleStatusConfigEvent {
 
 class ReorderVehicleStatusCheckListEvent extends  VehicleStatusConfigEvent {}
 
+class SwapIndexEvent extends  VehicleStatusConfigEvent {
+  final dynamic data;
+  final dynamic index;
+  const SwapIndexEvent({required this.data,required this.index});
+  @override
+  List<Object?> get props => [data,index];
+}
 
 
