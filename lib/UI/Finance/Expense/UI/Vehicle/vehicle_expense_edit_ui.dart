@@ -317,7 +317,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                         'Select Expense To',
                         state.cohorts,
                         (value) => context.read<ExpenseBloc>().add(
-                            SubCategoryListEvent(selectedSubCategory: value)),
+                            CohortListEvent(selectedCohort: value)),
                         labelKey: 'name',
                         selectedKey: state.selectedCohorts,
                         initialSelection: state.selectedCohorts,

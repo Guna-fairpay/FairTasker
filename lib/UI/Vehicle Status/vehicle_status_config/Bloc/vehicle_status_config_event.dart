@@ -30,14 +30,18 @@ class AllCheckListSelectedEvent extends  VehicleStatusConfigEvent {
   List<Object?> get props => [data,isAllChecked];
 }
 
-class ReorderVehicleStatusCheckListEvent extends  VehicleStatusConfigEvent {}
-
-class SwapIndexEvent extends  VehicleStatusConfigEvent {
-  final dynamic data;
-  final dynamic index;
-  const SwapIndexEvent({required this.data,required this.index});
+class SwapIndexSaveEvent extends  VehicleStatusConfigEvent {
+  final List<dynamic> data;
+  const SwapIndexSaveEvent({required this.data});
   @override
-  List<Object?> get props => [data,index];
+  List<Object?> get props => [data];
+}
+
+class InitialDialogData extends  VehicleStatusConfigEvent {
+  final dynamic data;
+  const InitialDialogData({required this.data});
+  @override
+  List<Object?> get props => [data];
 }
 
 

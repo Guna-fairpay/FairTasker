@@ -1,6 +1,7 @@
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_status.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_state.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Component/swap_popup.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_body.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +20,18 @@ class VehicleStatusConfigUI extends StatelessWidget {
     return BlocProvider<VehicleStatusConfigBloc>(
       create: (context) =>
           VehicleStatusConfigBloc()..add(GetVehicleStatusConfigData(vin: vin)),
-      child: BlocListener<VehicleStatusConfigBloc, VehicleStatusConfigStatus>(
+      child: BlocListener<VehicleStatusConfigBloc, VehicleStatusConfigState>(
         listener: (context, state) {
           if (state is VehicleStatusConfigLoadingState) {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            if(state is ShowSwapDialogState) {
+              SwapIndexPopUp.show(
+                /*data: state.data,*/
+                context,
+                onReorderUpdate: (value)=>context.read<VehicleStatusConfigBloc>().add(SwapIndexSaveEvent(data:value)));
+            }
           }
         },
         child: Scaffold(
