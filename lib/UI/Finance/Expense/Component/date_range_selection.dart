@@ -1,4 +1,5 @@
 import 'package:date_time/date_time.dart' hide DateRange;
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:intl/intl.dart';
@@ -38,7 +39,7 @@ class DateRangePicker extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Utils.getText(
-                "${DateFormat("yyyy-MM-dd").format(selectedDateRange!.start)} - ${DateFormat("yyyy-MM-dd").format(selectedDateRange!.end)}",
+                  ((selectedDateRange?.start) == (selectedDateRange?.end)) ? "${selectedDateRange?.start.toFormat()}" : "${DateFormat("yyyy-MM-dd").format(selectedDateRange!.start)} - ${DateFormat("yyyy-MM-dd").format(selectedDateRange!.end)}",
                 overFlow: TextOverflow.ellipsis,
               ),
             ),
@@ -56,6 +57,7 @@ class DateRangePicker extends StatelessWidget {
           initialDateRange: selectedDateRange,
           initialDisplayedDate: selectedDateRange?.start ?? DateTime.now(),
           onDateRangeChanged: onDateRangeChanged,
+          allowSingleTapDaySelection: true,
           height: 340,
           displayMonthsSeparator: true,
         );

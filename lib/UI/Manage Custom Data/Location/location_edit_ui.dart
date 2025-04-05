@@ -32,7 +32,7 @@ class _LocationEditUIState extends State<LocationEditUI> {
   void initState() {
     super.initState();
     locationController = TextEditingController(text: widget.location['name']);
-    addressesList.addAll(widget.location['addresses']??[]);
+    addressesList.addAll(widget.location['addresses'] ??[] );
   }
 
   @override
@@ -89,7 +89,7 @@ class _LocationEditUIState extends State<LocationEditUI> {
               locationController,
               autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
-               ),
+            ),
             const SizedBox(height: 10),
             Utils.getTextFormField(
               'Address',
@@ -97,7 +97,8 @@ class _LocationEditUIState extends State<LocationEditUI> {
               inputAction: TextInputAction.done,
               label: Utils.getText('', color: AppC.grey),
               readOnly: false,
-              suffixIcon: InkWell(
+              suffixIcon:
+              InkWell(
                 onTap: () {
                   if (addressController.text.isNotEmpty) {
                     setState(() {

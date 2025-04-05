@@ -179,12 +179,14 @@ class EditTodoMoreForm extends StatelessWidget {
                             title: state.apiResponse['title'],
                             vin: state.selectedVehicle['vin'],
                             vehicleName: state.selectedVehicle['vehicle_name'],
+                            groupId: state.selectedVPerson.first['id'],
                           )
                   )
               );
             },
-            child: Utils.getText(
-                    'Task History - ${state.taskHistory.length == 1 ? state.selectedVehicle['vehicle_name'] ?? '' : state.selectedVehicle['vin'] ?? ''}',
+            child:
+              Utils.getText(
+                    'Task History - ${state.selectedVPerson.length == 1 ? state.selectedVehicle['vehicle_name'] ?? state.selectedVPerson.first['name'] : state.selectedVehicle['vin'] ?? ''}',
                     color: AppC.appColor,
                     weight: FontWeight.w500,
                   ),

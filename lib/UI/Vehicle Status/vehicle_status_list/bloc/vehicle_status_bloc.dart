@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -34,8 +35,10 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
   List<Map<String, dynamic>> tripApiResponse = [];
   List<Map<String, dynamic>> filteredTrips = [];
   List<Map<String, dynamic>> filterBys = [];
+  final FBroadcast _fBroadcast = FBroadcast.instance();
 
   VehicleStatusBloc() : super(VehicleStatusLoadingState()) {
+    _fBroadcast.register("vehicleStatus", (value, callback) => add(VehicleStatusInitialEvent()));
     on<VehicleStatusInitialEvent>(_onInitialEvent);
     on<VehicleStatusShowHideSearcherEvent>(_onShowHideSearcher);
     on<VehicleStatusCohortChangeEvent>(_onCohortChange);
