@@ -53,7 +53,7 @@ class VehicleNotesHistoryViewUi extends StatelessWidget {
                 shrinkWrap: true,
                 padding: 10.topPadding,
                 children: [
-                  const VehicleNotesAdd(),
+                  VehicleNotesAdd(vin: vin,),
                   Utils.getText('History',weight: FontWeight.bold,size: 18,color: Colors.black54),
                   const SizedBox(height: 10),
                   const VehicleNotesListing(),
