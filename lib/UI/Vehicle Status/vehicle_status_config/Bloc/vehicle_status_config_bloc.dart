@@ -1,18 +1,21 @@
 
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_status.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_state.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStatusConfigStatus>{
+class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStatusConfigState>{
 
   final APiRepository _apiRepository = APiRepository();
   List<dynamic> vehicleConfigData = [];
   String? vin;
   final FBroadcast _fBroadcast = FBroadcast.instance();
+  List<int> categoryIdList = [];
+  dynamic matchedData={};
 
   VehicleStatusConfigBloc() : super(VehicleStatusConfigLoadingState()) {
 
@@ -94,6 +97,37 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
         Toaster.showError(e);
         Console.of.error(e);
       }
+    });
+
+    on<SwapIndexSaveEvent>((event, emit) async{
+      try {
+        emit(VehicleStatusConfigLoadingState());
+        categoryIdList=List.from(event.data.map((e) => e['id']).toList());
+        var id = event.data[0]['category_id'];
+        var response = await _apiRepository.vehicleCheckListSwap(body: {
+          'categoryId': id,
+          'orderChecklist':categoryIdList,
+          'vin':vin,
+        });
+        if(response?['checklists'] == "success"){
+          vehicleConfigData.where((element) => element['id'] == id).toList()
+              .first['checklists'] = event.data;
+        }else{
+          Toaster.showError(response?['message']);
+        }
+        emit(VehicleStatusConfigCommonState());
+      }catch (e) {
+        Toaster.showError(e);
+        Console.of.error(e);
+      }
+    });
+
+    on<InitialDialogData>((event, emit) async{
+      if(event.data != null ){
+        matchedData = vehicleConfigData.firstWhereOrNull((element) => element['id'] == event.data['id']);
+      }
+      Console.of.debug('matchedData: $matchedData');
+      emit(ShowSwapDialogState());
     });
 
   }

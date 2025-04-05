@@ -2,8 +2,7 @@
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_event.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_status.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Component/swap_index.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/Bloc/vehicle_status_config_state.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -17,7 +16,7 @@ class VehicleStatusConfigBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int crossAxisCount = 2; // Number of columns
-    return BlocBuilder<VehicleStatusConfigBloc, VehicleStatusConfigStatus>(
+    return BlocBuilder<VehicleStatusConfigBloc, VehicleStatusConfigState>(
         builder: (context, state) {
           return ListView(
           shrinkWrap: true,
@@ -136,10 +135,9 @@ class VehicleStatusConfigBody extends StatelessWidget {
                                     value: data['checklists'].every((checklist) => checklist['checked'] == 1),
                                     onChanged: (value) =>
                                     context.read<VehicleStatusConfigBloc>().add(AllCheckListSelectedEvent(data:data,isAllChecked: (value==true)?1:0)),
-                                    suffix:IconButton(onPressed: ()=>SwapIndexPopUp.show(
-                                        data: data,context,onSwap: (){},onReorderUpdate: (v){}), icon: const Icon(Icons.list_alt_outlined,color: AppC.redAccent)) ,/*InkWell(
-                                      onTap: ()=>SwapIndexPopUp(),
-                                        child: Icon(Icons.list_alt_outlined,color: AppC.redAccent)),*/
+                                    suffix:IconButton(
+                                        onPressed: ()=>context.read<VehicleStatusConfigBloc>().add(InitialDialogData(data:data)),
+                                        icon: const Icon(Icons.list_alt_outlined,color: AppC.redAccent)),
                                     activeColor: AppC.blue,
                                     radius: 6,
                                   ),
@@ -147,7 +145,7 @@ class VehicleStatusConfigBody extends StatelessWidget {
                               ),
                               GridView.builder(
                                 shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: data['checklists'].length,
                                 itemBuilder: (context, index) {
                                   int row = index % crossAxisCount;
@@ -155,20 +153,19 @@ class VehicleStatusConfigBody extends StatelessWidget {
                                   int newIndex = (row * ((List.from(data['checklists']).length) ~/ crossAxisCount) + col).ceil();
                                   var checklist = data['checklists'][newIndex];
                                   return CustomCheckboxListTile(
-                                      title: Text(checklist['label']),
+                                      title: Utils.getText(checklist['label'],overFlow: TextOverflow.visible),
                                       value: (checklist['checked'] == 1),
                                       activeColor: AppC.blue,
                                       radius: 6,
-                                      onChanged: (value) {
-                                        context.read<VehicleStatusConfigBloc>().add(CheckListSelectedEvent(data:checklist,isChecked:(value==true)?1:0));
-                                        // Console.of.debug('value: ${value ?? false}');
-                                      });
-                                },
+                                      onChanged: (value) =>
+                                        context.read<VehicleStatusConfigBloc>().add(
+                                            CheckListSelectedEvent(data:checklist,isChecked:(value==true)?1:0)));
+                                  },
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: crossAxisCount,
                                     childAspectRatio: 5,
                                     crossAxisSpacing: 5,
-                                    mainAxisSpacing: 5),
+                                    mainAxisSpacing: 10),
                               ),
                             ],
                           ),
