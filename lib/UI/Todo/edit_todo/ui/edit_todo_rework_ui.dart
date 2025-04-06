@@ -23,7 +23,7 @@ class EditTodoReworkUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: todoId)),
+          EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId")),
       child: BlocListener<EditToDoBloc, EditTodoState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
