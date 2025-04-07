@@ -12,6 +12,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Component/custom_date_time_picker.dart';
 import '../../../../Component/custom_multi_selection_chips_field.dart';
 import '../bloc/edit_todo_bloc.dart';
@@ -28,6 +29,8 @@ class EditTodoBody extends StatelessWidget {
     return BlocBuilder<EditToDoBloc, EditTodoState>(
         builder: (context, state) => Form(
                 child: ListView(
+                  shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,12 +39,13 @@ class EditTodoBody extends StatelessWidget {
                       controller: context.read<EditToDoBloc>().dateController,
                       format: "MM-dd-yyyy",
                       suffixIcon: Icon(Icons.calendar_month_rounded,
-                          size: 18, color: context.theme.hintColor),
+                          size: 15, color: context.theme.hintColor),
                       textAlign: TextAlign.center,
                       value: state.selectedDate,
                       onChanged: (value) => context
                           .read<EditToDoBloc>()
                           .add(EditToDoDateChangeEvent(value)),
+
                     ),
                     CustomDateTimePicker<TimeOfDay>(
                       controller: context.read<EditToDoBloc>().timeController,
@@ -49,7 +53,7 @@ class EditTodoBody extends StatelessWidget {
                       use24HourFormat: true,
                       format: "HH:mm",
                       suffixIcon: Icon(Icons.access_time_rounded,
-                          size: 18, color: context.theme.hintColor),
+                          size: 15, color: context.theme.hintColor),
                       onChanged: (value) => context
                           .read<EditToDoBloc>()
                           .add(EditToDoTimeChangeEvent(value)),
@@ -60,7 +64,7 @@ class EditTodoBody extends StatelessWidget {
                           .add(EditToDoTimeSensitiveEvent()),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        spacing: 10,
+                        spacing: 3,
                         children: [
                           SizedBox(
                             width: 20,
@@ -85,9 +89,7 @@ class EditTodoBody extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Utils.getText('Time', weight: FontWeight.bold),
-                              Utils.getText('Sensitive',
-                                  weight: FontWeight.bold),
+                              Utils.getText('Time\nSensitive', weight: FontWeight.bold,overFlow: TextOverflow.ellipsis,size: 12.sp),
                             ],
                           )
                         ],
@@ -120,31 +122,6 @@ class EditTodoBody extends StatelessWidget {
                         ],
                       ),
                     ),
-                    /*Expanded(
-                      child: InkWell(
-                        onTap: () =>
-                            TaskerResourceDialog.show(
-                            context,
-                            state.resources,
-                            state.selectedResource,
-                                (value, name) => context.read<EditToDoBloc>().add(
-                              UserSelectionEvent(
-                                  selectedResource: value,
-                                  resourceName: name),
-                            ),
-                          ),
-                        child: Column(
-                          children: [
-                            Utils.getText(
-                                state.resourceName.length > 1
-                                    ? "${state.resourceName.first}..."
-                                    : state.resourceName.join(', '),
-                                weight: FontWeight.bold,
-                                color: AppC.appColor),
-                          ],
-                        ),
-                      ),
-                    ),*/
                   ],
                 ),
                 10.height,
@@ -182,18 +159,7 @@ class EditTodoBody extends StatelessWidget {
                       .add(EditToDoVLocationEvent(val)),
                   controller: context.read<EditToDoBloc>().vLocationController,
                 ),
-                if (state.selectedVLocations['type'] == 'location')
-                10.height,
-                if (state.selectedVLocations['type'] == 'location')
-                  CustomMultiSelectionChipsField<Map<String, dynamic>>(
-                      selectedPartsList: state.addresses,
-                      suggestionsList: state.selectedVLocations['addresses'] ?? [],
-                      controller: TextEditingController(),
-                      labelText: "Address",
-                      onChanged: (isChecked, value) => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoAddressSelectionEvent(value, isChecked)),
-                      itemAsString: (item) => item['address'].toString()),
+
                 10.height,
                 Utils.getTextFormField(
                     'Notes', context.read<EditToDoBloc>().notesController,
