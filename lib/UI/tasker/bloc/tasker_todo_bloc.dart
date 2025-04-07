@@ -146,10 +146,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   /// FETCH TO-DO LISTING API
   void _onInitialEvent(
       ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
-    await CommonHelper.instance.waitForPostFrameCallback();
     try {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
+      await CommonHelper.instance.waitForPostFrameCallback();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
@@ -164,7 +164,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       unfiltered = response ?? [];
       toDos = unfiltered;
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
-      emit(ToDoTaskerLoadedState());
+      Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
+      emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error(e);
       emit(ToDoTaskerErrorState(e));
@@ -209,7 +210,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
-      if (!isClosed) emit(ToDoTaskerLoadedState());
+      if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("REFRESH_TODOS $e");
       if (!isClosed) emit(ToDoTaskerErrorState(e));
@@ -252,7 +253,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       emit(ToDoTaskerCommonState());
     } else {
       toDos = unfiltered;
-      emit(ToDoTaskerLoadedState());
+      emit(ToDoTaskerCommonState());
     }
   }
 

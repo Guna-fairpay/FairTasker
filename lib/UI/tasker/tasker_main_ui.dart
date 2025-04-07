@@ -30,6 +30,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,6 +43,7 @@ class TaskerMainUi extends StatelessWidget {
   Widget build(BuildContext _) {
     return BlocProvider<ToDoTaskerBloc>(create: (_) => ToDoTaskerBloc()..add(ToDoTaskerInitialEvent()),
       child: BlocListener<ToDoTaskerBloc, ToDoTaskerState>(listener: (context, state) {
+        Console.of.debug("${state}", name: "TASKER_STATE");
         if (state is ToDoTaskerLoadingState) {
           if (!EasyLoading.isShow) EasyLoading.show();
         } else {
