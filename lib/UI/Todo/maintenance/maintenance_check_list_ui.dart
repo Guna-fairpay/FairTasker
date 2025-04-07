@@ -164,19 +164,19 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                             Utils.dropdownBox(
                                               'Not Checked',
                                               List<Map<String, dynamic>>.from(
-                                                  item['children'])..addAll([
-                                                  {
-                                                    "id": m.Random().nextInt(99),
-                                                    "name": "Other"
-                                                  },
-                                                  {
-                                                    "id": 99,
-                                                    "name": "Not Checked"
-                                                  }
-                                                ]
-                                              ),
-                                              (value) {
-                                                context.read<MaintenanceBloc>().add(DropDownOptionEvent(value),);
+                                                  item['children']
+                                              )..addAll([
+                                                {
+                                                  "id": 99,
+                                                  "name": "Other"
+                                                },
+                                                {
+                                                  "id": m.Random().nextInt(99),
+                                                  "name": "Not Checked"
+                                                }
+                                              ]),
+                                                  (value) {
+                                                context.read<MaintenanceBloc>().add(DropDownOptionEvent(value));
                                                 state.selectedDropdownValues[item['id']] = value['name'];
                                                 if (state.selectedDropdownValues[item['id']] == "Good") {
                                                   state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] = true;
@@ -184,33 +184,23 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                   state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] = false;
                                                 }
                                                 ///
-                                                if (state.middleValues.where((element) => element == item['id'].toString()).isNotEmpty) {
+                                                if (state.dropdownValue.where((element) => element == item['id'].toString()).isNotEmpty) {
                                                   MaintenanceChecklistPopup.show(context,
-                                                      onCompleted: ()=> context.read<MaintenanceBloc>().add(const CompleteTodoItemEvent()),
-                                                      onDelete: ()=> context.read<MaintenanceBloc>().add(const DeleteTodoItemEvent())
+                                                      onCompleted: () => context.read<MaintenanceBloc>().add(const CompleteTodoItemEvent()),
+                                                      onDelete: () => context.read<MaintenanceBloc>().add(const DeleteTodoItemEvent())
                                                   );
                                                 }
 
-                                                log("value ${state.selectedDropdownValues}",
-                                                    name: "TESTING_SELECTED");
-                                                log("value ${state.initialDropDown}",
-                                                    name: "INITIAL_DROP_DOWN");
-                                                log("${(state.idList
-                                                    ?.contains(item['id']) ??
-                                                    false)} ${state.idList} ${item['id']}", name: "CHECKING_VALUE");
+                                                log("value ${state.selectedDropdownValues}", name: "TESTING_SELECTED");
+                                                log("value ${state.initialDropDown}", name: "INITIAL_DROP_DOWN");
+                                                log("${(state.idList?.contains(item['id']) ?? false)} ${state.idList} ${item['id']}", name: "CHECKING_VALUE");
                                               },
                                               labelKey: 'name',
-                                              initialSelection:
-                                              state.dropdownValue != null && state.dropdownValue['name'] != null
-                                                  ? state.dropdownValue
-                                                  : List.from(item['children']).firstWhere(
-                                                    (element) =>
-                                                state.initialDropDown?.map((e) => e['id'].toString()).contains(element['id'].toString()) ??
-                                                    false,
-                                                orElse: () => (List.from(item['children'])).firstWhere(
-                                                      (element) => element['name'].toString().toLowerCase() == "good",
-                                                ),
-                                              ),
+                                              initialSelection: state.dropdownValue ?? // Use the emitted dropdownValue
+                                                  (List.from(item['children']).firstWhere(
+                                                        (element) => element['name'].toString().toLowerCase() == "good",
+                                                    orElse: () => {"id": 99, "name": "Not Checked"},
+                                                  )),
                                             ),
                                           ),
                                       ],
@@ -236,7 +226,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                         children: [
                                           Utils.getBorderedMultilineTextField(
                                             'Notes',
-                                            state.notesControllers[item['id']]!,
+                                            state.notesControllers?[item['id']] ?? TextEditingController(),
                                             minLines: 2,
                                           ),
                                           Utils.getAddFilledButton(

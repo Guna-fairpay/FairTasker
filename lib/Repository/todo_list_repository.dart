@@ -3302,19 +3302,20 @@ class TodoListRepo {
     }
   }
 
-  Future<bool?> createFixTask(CreateFixTaskData createFixTaskData ) async {
+  static Map<String, dynamic> fixTasksMap = {};
+
+  Future<bool?> createFixTask(CreateFixTaskData createFixTaskData) async {
     try {
-      //apiUrl = "${Str.BASE_URL}update-todo/${}";
       String apiUrl = "${Str.BASE_URL}add-todo";
       String apiUrl1 = "${Str.BASE_URL}update-todo/${createFixTaskData.todoId}";
 
       String body = jsonEncode({
-        "identifier_id":createFixTaskData.identifierId,
-        "user_group_id":createFixTaskData.userGroupId,
-        "user_id":createFixTaskData.userId,
+        "identifier_id": createFixTaskData.identifierId,
+        "user_group_id": createFixTaskData.userGroupId,
+        "user_id": createFixTaskData.userId,
         "title": createFixTaskData.title,
-        "maintenance_task_id":createFixTaskData.maintenanceTaskId,
-        "notes":createFixTaskData.notes,
+        "maintenance_task_id": createFixTaskData.maintenanceTaskId,
+        "notes": createFixTaskData.notes,
         "todo_time": createFixTaskData.todoTime,
         "start_at": createFixTaskData.startAt,
         'vehicles': createFixTaskData.vehicleList,
@@ -3325,20 +3326,26 @@ class TodoListRepo {
         "custom_link": createFixTaskData.customLink,
         "custom_link_id": createFixTaskData.customLinkId,
         "reference_id": createFixTaskData.referenceId,
-        "comments" : createFixTaskData.comments,
+        "comments": createFixTaskData.comments,
         "vehicle_number": createFixTaskData.vehicleNumber,
         "platform": "TaskerApp",
       });
+
       log("$body", name: "POST_BODY");
       final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
       dynamic fixTaskId = json.decode(response?.body ?? '');
       log("${fixTaskId['todo'][0]['id']}", name: "fixTaskId");
 
       dynamic fixTaskId1 = createFixTaskData.maintenanceTaskId?.split('-')[1] ?? '';
+
+      // Add new entry to existing static map
+      fixTasksMap[fixTaskId1] = fixTaskId['todo'][0]['id'];
+
       final http.Response? response1 = await apiClient.callPostMethod(apiUrl1, body: jsonEncode({
-        'fix_tasks': {fixTaskId1 : fixTaskId['todo'][0]['id']},
-        'type' : "inline"
+        'fix_tasks': fixTasksMap,
+        'type': "inline"
       }));
+
       log("${response1?.body}", name: "apiresponse1");
       log("$fixTaskId", name: "apiresponse");
 
@@ -3353,6 +3360,7 @@ class TodoListRepo {
       return null;
     }
   }
+
 
   Future<TaskMilesResponse?> getTaskMiles() async {
     try {

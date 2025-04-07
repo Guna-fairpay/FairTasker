@@ -176,13 +176,14 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           try {
             if (data["maintenance_task_id"] != null) {
               String taskIdsStr = data["maintenance_task_id"];
-              List<String> taskIds = taskIdsStr.split(" - ").map((e) => e.trim()).toList();
+              List<String> taskIds = taskIdsStr.trim().split("-").map((e) => e.trim()).toList();
 
               if (taskIds.length >= 2) {
                 int secondTaskId = int.tryParse(taskIds[1]) ?? -1;
                 if (secondTaskId != -1 && notesControllers.containsKey(secondTaskId)) {
                   String commentsValue = data["comments"];
                   notesControllers[secondTaskId]!.text = commentsValue;
+                  log("${notesControllers[secondTaskId]!.text}", name:'notesControllers');
                 }
               }
             }else {
@@ -252,6 +253,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         itemCopy = event.item;
         var childrenData = event.item?['children'];
         var childrens = List<Map<String, dynamic>>.from(childrenData ?? []);
+        log("${event.status}", name: "CHILDREN_DATA");
         var goodData = childrens.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == ( (event.status) ? "good" : "bad"));
 
 
@@ -264,7 +266,11 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         }
         maintenanceTaskId = idListAsInt.map((id) => id.toString()).join('-'); //7-8-6
         print("Updated maintenanceTaskId: $maintenanceTaskId");
-        var dropDownData = goodData;
+        var dropDownData1 = goodData;
+        log("$dropDownData1", name: "GOOD_DATA1");
+        var dropDownData = event.status == false
+            ? {"id": 99, "name": "Not Checked"} // Set to "Not Checked" if event.status is false
+            : (goodData ?? {"id": childrens.first['id'], "name": "Good"});
         log("$dropDownData", name: "GOOD_DATA");
 
         List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
