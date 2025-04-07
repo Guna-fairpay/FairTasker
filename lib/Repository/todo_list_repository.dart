@@ -3304,7 +3304,9 @@ class TodoListRepo {
 
   Future<bool?> createFixTask(CreateFixTaskData createFixTaskData ) async {
     try {
+      //apiUrl = "${Str.BASE_URL}update-todo/${}";
       String apiUrl = "${Str.BASE_URL}add-todo";
+      String apiUrl1 = "${Str.BASE_URL}update-todo/${createFixTaskData.todoId}";
 
       String body = jsonEncode({
         "identifier_id":createFixTaskData.identifierId,
@@ -3328,13 +3330,24 @@ class TodoListRepo {
         "platform": "TaskerApp",
       });
       log("$body", name: "POST_BODY");
-      final http.Response? response =
-      await apiClient.callPostMethod(apiUrl, body: body);
+      final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
+      dynamic fixTaskId = json.decode(response?.body ?? '');
+      log("${fixTaskId['todo'][0]['id']}", name: "fixTaskId");
+
+      dynamic fixTaskId1 = createFixTaskData.maintenanceTaskId?.split('-')[1] ?? '';
+      final http.Response? response1 = await apiClient.callPostMethod(apiUrl1, body: jsonEncode({
+        'fix_tasks': {fixTaskId1 : fixTaskId['todo'][0]['id']},
+        'type' : "inline"
+      }));
+      log("${response1?.body}", name: "apiresponse1");
+      log("$fixTaskId", name: "apiresponse");
+
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         return true;
       } else {
         return null;
       }
+
     } catch (error) {
       log('addVehicleCreateTodo.exception : ${error.toString()}');
       return null;

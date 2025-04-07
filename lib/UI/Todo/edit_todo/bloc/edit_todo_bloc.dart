@@ -128,7 +128,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
         var partsResponse = await getIt<CommonService>().getPartsList();
         var suppliesResponse = await getIt<CommonService>().getSuppliesList();
-        var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
+        var vehicleResponse = await getIt<CommonService>().getActiveVehicles(reset: true);
         var vendorResponse = await getIt<CommonService>().getVendorsList();
         var locationResponse = await getIt<CommonService>().getLocationsList();
         var taskResponse = await getIt<CommonService>().getTaskExpenseData();

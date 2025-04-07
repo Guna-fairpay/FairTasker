@@ -6,12 +6,14 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Repository/vehicle_repository.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 part '../Event/vehicle_data_event.dart';
 part '../State/vehicle_data_state.dart';
 
 class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
   VehicleDataRepo vehicleDataRepo = VehicleDataRepo();
   TodoListRepo todoListRepo = TodoListRepo();
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   VehicleDataBloc() : super(VehicleDataInitial()) {
     on<VehicleDataEvent>((event, emit) {
@@ -80,10 +82,13 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         }
       }
     });
+
+//Set vehicle save bloc
     on<UpdateVehicleDataEvent>((event, emit) async {
       if (event.createVehicleData != null) {
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          _broadcast.stickyBroadcast("todo_view", value: true);
           print("Bloc Triggered");
           emit(VehicleDataLoadedV(
             result: response?.data ?? [],
@@ -96,8 +101,6 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       }
     });
 
-
-    //
 
     on<MoveRentalData>((event, emit) async {
       emit(const VehicleDataLoading());

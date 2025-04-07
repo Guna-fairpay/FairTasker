@@ -95,12 +95,16 @@ class MaintenanceCheckListUI extends StatelessWidget {
                       itemCount: state.maintenance?.length ?? 0,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
+                        //log("${state.maintenance![index]}", name: "MAINTENANCE_CHECKLIST");
                         final maintenanceCheckListData =
                             state.maintenance![index];
-                        var checkList =
-                            (maintenanceCheckListData['children'] as List?) ??
-                                [];
-                        log("${checkList.length}", name: "checklist length");
+                        var checkList = (maintenanceCheckListData['children'] as List?) ?? [];
+                        // for(var item in checkList){
+                        //   log("${item['name']}",name: "checkList");
+                        //   for(var e in item['children']){
+                        //     log("${e['name']}",name: "checkList");
+                        //   }
+                        // }
                         return
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,15 +125,18 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                           checkboxValue:
                                             state.individualCheckStates[item['id'].toString()] ??
                                               !(
-                                                  (state.initialDropDown is List ? (state.initialDropDown as List).any((element) =>
-                                                  element['name'].toString().toLowerCase() == "good") : false)
-                                                  ||
                                                   (state.dropdownValue is List ? (state.dropdownValue as List).any((element) =>
                                                   element['name'].toString().toLowerCase() == "good") : false)
-                                                  ||
+                                                      ||
+                                                  List.from(item['children']).any(
+                                                          (element) =>
+                                                      state.initialDropDown?.map((e) => e['id'].toString()).contains(element['id'].toString()) ??
+                                                          false) ||
+
                                                   ((state.idList?.contains(int.tryParse(item['id'].toString())) ?? false)
                                                   ||
                                                   (state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] == true ? false : true))
+
                                               ),
                                               onCheckboxChanged: (bool? value) async {
                                                 if (state.middleValues.where((element) => element == item['id'].toString()).isNotEmpty) {
@@ -176,6 +183,13 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                 } else {
                                                   state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] = false;
                                                 }
+                                                ///
+                                                if (state.middleValues.where((element) => element == item['id'].toString()).isNotEmpty) {
+                                                  MaintenanceChecklistPopup.show(context,
+                                                      onCompleted: ()=> context.read<MaintenanceBloc>().add(const CompleteTodoItemEvent()),
+                                                      onDelete: ()=> context.read<MaintenanceBloc>().add(const DeleteTodoItemEvent())
+                                                  );
+                                                }
 
                                                 log("value ${state.selectedDropdownValues}",
                                                     name: "TESTING_SELECTED");
@@ -189,10 +203,6 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                               initialSelection:
                                               state.dropdownValue != null && state.dropdownValue['name'] != null
                                                   ? state.dropdownValue
-                                                  : (state.idList?.contains(item['id']) ?? false)
-                                                  ? {
-                                                "id": 99,
-                                                "name": "Not Checked" }
                                                   : List.from(item['children']).firstWhere(
                                                     (element) =>
                                                 state.initialDropDown?.map((e) => e['id'].toString()).contains(element['id'].toString()) ??
@@ -208,15 +218,16 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                   ),
                                   Visibility(
                                     visible:
-                                    !(
-                                        (state.dropdownValue is List &&
+                                    (List.from(item['children']).any(
+                                            (element) =>
+                                        state.initialDropDown?.map((e) => e['id'].toString()).contains(element['id'].toString()) ??
+                                            false)) ||
+                                        ((state.dropdownValue is List &&
                                             (state.dropdownValue as List).any((element) =>
-                                                element['name'].toString().toLowerCase().trim() == "good")) ||
-                                            (state.selectedDropdownValues[item['id']]?.toString().toLowerCase() == "good") ||
-                                            (state.selectedDropdownValues[item['id']]?.toString().toLowerCase() == "Not Checked") ||
-                                            (state.initialDropDown?.any((element) =>
-                                            element['name'].toString().toLowerCase() == "good") ?? false)
-                                    ),
+                                            element['name'].toString().toLowerCase().trim() != "good")) ||
+                                            (state.selectedDropdownValues[item['id']]?.toString().toLowerCase() != "good")
+                                        )
+                                    ,
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 40.0),
                                       child: Column(
@@ -242,17 +253,17 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                               context.read<MaintenanceBloc>().add(
                                                     createFixTaskEvent(
                                                       maintenanceTaskId:
-                                                      '${maintenanceCheckListData['id']}-${item['id']}-${
-                                                          item['children'].where(
-                                                                  (e) => e['name'] == state.selectedDropdownValues[item['id']]
-                                                          ).isEmpty ? 0 : item['children'].firstWhere(
-                                                                  (e) => e['name'] == state.selectedDropdownValues[item['id']]
-                                                          )['id']
+                                                      '${maintenanceCheckListData['id']}-${item['id']}-${item['children'].where(
+                                                                  (e) => e['name'] == state.selectedDropdownValues[item['id']]).isEmpty
+                                                          ? 0
+                                                          : item['children'].firstWhere(
+                                                                  (e) => e['name'] == state.selectedDropdownValues[item['id']])['id']
                                                       }',
                                                       notes:
                                                           '${maintenanceCheckListData?['name'] ?? 'Other'}-${item?['name'] ?? ''}-${state.selectedDropdownValues[item['id']] ?? "Unknown"}',
                                                       comments: state.notesControllers[item['id']]!.text,
                                                       item: item['id'],
+                                                      todoId: todoItems['id'],
                                                     ),
                                               );
                                             },
