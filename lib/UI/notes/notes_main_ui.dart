@@ -2,11 +2,13 @@ import 'package:fairpytasker/Component/date_switcher.dart';
 import 'package:fairpytasker/Component/search_with_status_add_view.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/notes_task_edit_add_dialog.dart';
+import 'package:fairpytasker/UI/notes/add_edit_notes/alter_notes_ui.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
 import 'package:fairpytasker/UI/notes/notes_body_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +49,7 @@ class NotesMainUi extends StatelessWidget {
               case NotesAddTaskTapState(): NotesTaskAddEditDialog.show(context, model: state.data, onChanged: (value) => context.read<NotesBloc>().add(NotesAddTaskEvent(state.data, value))); break;
               case NotesEditTaskTapState(): NotesTaskAddEditDialog.show(context, model: state.data, onChanged: (value) => context.read<NotesBloc>().add(NotesUpdateTaskEvent(state.data, value)), isEdit: true); break;
               case NotesCheckTapState(): AskPermissionDialog.show(context, description: "Are you sure want to complete the task/notes", positiveText: "Yes", negativeText: "Cancel", onPositivePressed: () => context.read<NotesBloc>().add(NotesCheckEvent(state.data, isAll: state.isAll, status: state.status))); break;
+              case NotesAddNewState(): context.push(AlterNotesUi(noteId: state.noteId), fullscreenDialog: true); break;
             }
           }
         },

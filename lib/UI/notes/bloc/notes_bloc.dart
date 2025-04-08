@@ -34,8 +34,6 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
     on<NotesUpdateTaskEvent>(_onUpdateTaskEvent);
     on<NotesCheckTapEvent>(_onCheckTapEvent);
     on<NotesCheckEvent>(_onCheckSubmitEvent);
-    // on<NotesAddCommentEvent>(_onAddCommentEvent);
-    // on<NotesCheckTaskEvent>(_onCheckTaskEvent);
   }
 
   Future<Map<String, dynamic>?> _fetchNotes() async => await _apiRepository.getNotes(selectedDate: selectedDate, status: showCompletedStates);
@@ -81,7 +79,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
 
   void _onAddNewEvent(NotesAddNewEvent event, Emitter<NotesStates> emit) => emit(NotesAddNewState());
 
-  void _onEditEvent(NotesEditEvent event, Emitter<NotesStates> emit) => emit(NotesEditState(event.data));
+  void _onEditEvent(NotesEditEvent event, Emitter<NotesStates> emit) => emit(NotesAddNewState(noteId: event.data?['id']));
 
   void _onFilterEvent(NotesFilterEvent event, Emitter<NotesStates> emit) {
     showCompletedStates = event.status ?? false;
