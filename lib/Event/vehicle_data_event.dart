@@ -69,6 +69,8 @@ class AddVehicleDataEvent extends VehicleDataEvent {
   @override
   List<Object?> get props => [createVehicleData];
 }
+
+//Set vehicle save event
 class UpdateVehicleDataEvent extends VehicleDataEvent {
   final CreateVehicleData? createVehicleData;
   const UpdateVehicleDataEvent({this.createVehicleData});
