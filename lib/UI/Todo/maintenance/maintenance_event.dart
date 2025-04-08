@@ -45,12 +45,14 @@ class DropDownOptionEvent extends MaintenanceEvent {
 }
 
 class createFixTaskEvent extends MaintenanceEvent {
+  final int? todoId;
   final String? maintenanceTaskId;
   final String? notes;
   final String? comments;
   final dynamic item;
 
   const createFixTaskEvent({
+    required this.todoId,
     required this.maintenanceTaskId,
     required this.notes,
     required this.comments,
@@ -58,7 +60,7 @@ class createFixTaskEvent extends MaintenanceEvent {
   });
 
   @override
-  List<Object?> get props => [maintenanceTaskId, notes, comments];
+  List<Object?> get props => [maintenanceTaskId, notes, comments, item, todoId];
 }
 
 class createPrivateFixTaskEvent extends MaintenanceEvent {

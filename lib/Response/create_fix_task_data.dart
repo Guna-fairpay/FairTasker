@@ -3,6 +3,7 @@ class CreateFixTaskData
 {
   String? userId='';
   int? id;
+  int? todoId;
   int? userGroupId;
   int? identifierId;
   int? mandatory;

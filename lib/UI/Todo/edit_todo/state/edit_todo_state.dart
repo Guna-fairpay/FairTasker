@@ -37,7 +37,7 @@ class EditTodoState extends Equatable {
   final List<String> selectedResource;
   final List<dynamic> userGroup;
   final List<dynamic> resourceName;
-  final List<Map<String, dynamic>> addresses;
+  final List<dynamic> addresses;
   final String title;
   final List<dynamic>taskHistory;
   final dynamic selectedVehicle;
@@ -45,6 +45,10 @@ class EditTodoState extends Equatable {
   final List<dynamic> sentiments;
   final dynamic selectedSentiment;
   final bool popUpdatePage;
+  final String previousOdometer;
+  final bool showCleanCar;
+  final dynamic selectedClearDuration;
+  final bool isPop;
 
   const EditTodoState( {
     required this.isLoading,
@@ -88,6 +92,10 @@ class EditTodoState extends Equatable {
     required this.sentiments,
     required this.selectedSentiment,
     required this.popUpdatePage,
+    required this.previousOdometer,
+    required this.showCleanCar,
+    this.selectedClearDuration,
+    required this.isPop,
   });
 
   EditTodoState copyWith({
@@ -125,7 +133,7 @@ class EditTodoState extends Equatable {
     List<dynamic>? selectedSupplies,
     List<dynamic>? recurringTypes,
     List<dynamic>? todoAttachments,
-    List<Map<String, dynamic>>? addresses,
+    List<dynamic>? addresses,
     List<dynamic>? selectedRecurringDays,
     Map<String, dynamic>? apiResponse,
     dynamic selectedRecurring,
@@ -137,7 +145,6 @@ class EditTodoState extends Equatable {
     List<String>? selectedResource,
     List<dynamic>? userGroup,
     List<dynamic>? resourceName,
-    List<dynamic>? address,
     String? title,
     List<dynamic>? taskHistory,
     dynamic selectedVehicle,
@@ -145,6 +152,9 @@ class EditTodoState extends Equatable {
     List<dynamic>? sentiments,
     dynamic selectedSentiment,
     bool? popUpdatePage,
+    String? previousOdometer,
+    bool? isRecurring,
+    bool? isPop,
 
   }) =>
       EditTodoState(
@@ -190,7 +200,10 @@ class EditTodoState extends Equatable {
         sentiments: sentiments ?? this.sentiments,
         selectedSentiment: selectedSentiment ?? this.selectedSentiment,
         popUpdatePage: popUpdatePage ?? this.popUpdatePage,
-
+        previousOdometer: previousOdometer ?? this.previousOdometer,
+        showCleanCar: showCleanCar ?? this.showCleanCar,
+        selectedClearDuration:selectedClearDuration ?? this.selectedClearDuration,
+        isPop: isPop ?? this.isPop,
       );
 
   @override
@@ -237,7 +250,10 @@ class EditTodoState extends Equatable {
     sentiments,
     selectedSentiment,
     popUpdatePage,
-
+    previousOdometer,
+    showCleanCar,
+    selectedClearDuration,
+    isPop,
     Random().nextDouble()
   ];
 }

@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -14,10 +15,10 @@ import '../../../dialog/show_attachments_dialog.dart';
 import '../state/edit_todo_state.dart';
 import 'edit_todo_body.dart';
 
-class EditTodoReworkUI extends StatelessWidget {
+class EditTodoUI extends StatelessWidget {
   final dynamic todoId;
 
-  const EditTodoReworkUI({super.key, required this.todoId});
+  const EditTodoUI({super.key, required this.todoId});
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +28,9 @@ class EditTodoReworkUI extends StatelessWidget {
       child: BlocListener<EditToDoBloc, EditTodoState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          if(state.isPop) {
+           Navigator.pop(context);
+          }
         },
         child: BlocBuilder<EditToDoBloc, EditTodoState>(
             /*buildWhen: (previous, current) =>
@@ -70,7 +74,6 @@ class EditTodoReworkUI extends StatelessWidget {
                               attachments: state.todoAttachments,
                               onDeleted: (val)=>context.read<EditToDoBloc>().add(RemoveImageEvent(data: val)),
                               title: "Edit ToDo"),
-
                           icon: const Icon(Icons.remove_red_eye_outlined),
                           padding: EdgeInsets.zero,
                           style: const ButtonStyle(
@@ -90,8 +93,7 @@ class EditTodoReworkUI extends StatelessWidget {
                                   trackOutlineColor:
                                       WidgetStateColor.resolveWith(
                                     (states) {
-                                      if (states
-                                          .contains(WidgetState.selected)) {
+                                      if (states.contains(WidgetState.selected)) {
                                         return AppC.green;
                                       } else {
                                         return AppC.grey;
@@ -110,11 +112,13 @@ class EditTodoReworkUI extends StatelessWidget {
                                     context.read<EditToDoBloc>().add(
                                         TaskStatusChangeEvent(
                                             todoStatus: value,
-                                            todoId: state.apiResponse['id']
-                                                .toString(),
-                                            status:
-                                                state.apiResponse['status']));
-                                    Navigator.pop(context);
+                                            todoId: state.apiResponse['id'].toString(),
+                                            status: state.apiResponse['status']));
+                                    // Future.delayed(const Duration(seconds: 1), () {
+                                    //   if (value) {
+                                    //     Navigator.pop(context);
+                                    //   }
+                                    // });
                                   }),
                             ),
                           ),
@@ -137,9 +141,9 @@ class EditTodoReworkUI extends StatelessWidget {
                                       .add(
                                       DeleteTodoEvent(todoId: todoId, reason: reason)
                                    );
-                                  Future.delayed(const Duration(seconds: 1), () {
-                                    Navigator.pop(context);
-                                  });
+                                  // Future.delayed(const Duration(seconds: 1), () {
+                                  //   Navigator.pop(context);
+                                  // });
                               }
                             );
                           },
@@ -160,7 +164,7 @@ class EditTodoReworkUI extends StatelessWidget {
                     ],
                   ),
                   body: SafeArea(
-                    minimum: 20.padding,
+                    minimum: 16.padding,
                     child: const EditTodoBody(),
                   ),
                 )),

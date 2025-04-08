@@ -73,16 +73,15 @@ class ResourceSelection {
                               return GestureDetector(
                                 onTap: () {
                                   if (isSelected) {
-                                    selectedIdsNotifier.value.remove(resourceId);
-                                    name.remove(resourceList[index]);
-
+                                    if(value.length != 1) selectedIdsNotifier.value.remove(resourceId);
+                                   if(name.length != 1) name.remove(resourceList[index]);
                                   } else {
                                     selectedIdsNotifier.value.add(resourceId);
                                     name.add(resourceList[index]);
                                   }
                                   selectedIdsNotifier.notifyListeners();
                                   onSelectionChanged(selectedIdsNotifier.value,name);
-                                  log({name}.toString(),name: 'NAME');
+                                  log({name.length}.toString(),name: 'NAME');
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 2.0),

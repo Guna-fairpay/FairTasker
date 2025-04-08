@@ -4,6 +4,7 @@ import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
 import 'package:fairpytasker/Response/general_response.dart';
+import 'package:fairpytasker/UI/dialog/tasker_check_in_out_dialog_bloc/tasker_check_in_out_dialog_events.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -97,6 +98,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
+    _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
 

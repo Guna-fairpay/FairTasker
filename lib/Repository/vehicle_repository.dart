@@ -151,6 +151,7 @@ class VehicleDataRepo {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         CreateVehicleResponse createVehicleResponse = CreateVehicleResponse();
+        log('createVehicle.response.body: ${await response.stream.bytesToString()}');
         return createVehicleResponse;
       } else {
         // Handle error response
