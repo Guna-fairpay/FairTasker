@@ -279,17 +279,29 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     });
 
     on<AddToDoVPersonEvent>((event, emit) {
-      log("${(event.vPerson as List).isEmpty}", name: "AddToDoBloc-Person-before-check");
-      if ((event.vPerson as List).isEmpty) {
-        var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-        oldIdentifier.remove(2);
+      List<Map<String, dynamic>> input = List.from(event.vPerson);
+      var existingVPersons = List<Map<String, dynamic>>.from(state.selectedVPerson);
+      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
+      if (input.isEmpty) {
+        oldIdentifier[2] = {};
         if (existingRefId.toString().isNotNullOrEmpty) customLinkController.clear();
         existingRefId = null;
         emit(state.copyWith(
             selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
         return;
       }
-      var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
+      existingVPersons = input;
+      oldIdentifier[2] = input.last;
+      // if ((event.vPerson as List).isEmpty) {
+      //   var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
+      //   oldIdentifier.remove(2);
+      //   if (existingRefId.toString().isNotNullOrEmpty) customLinkController.clear();
+      //   existingRefId = null;
+      //   emit(state.copyWith(
+      //       selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
+      //   return;
+      // }
+      /*var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       var existingVPersons = List<Map<String, dynamic>>.from(state.selectedVPerson);
       log("$existingVPersons", name: "AddToDoBloc-Person-before");
       log("${event.vPerson}", name: "AddToDoBloc-Person-before-Add");
@@ -305,18 +317,17 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       if (!oldIdentifier.containsKey(2)) {
         oldIdentifier.putIfAbsent(
             2, () => (event.vPerson[0] as Map<String, dynamic>));
-      }
-      existingVPersons = existingVPersons.unique((element) => element['id']);
-      existingVPersons.removeWhere((element) => (event.vPerson.first['type'] == 'person') ? ['g_vehicles', 'vehicles'].contains(element['type']) : (event.vPerson.first['type'] == 'g_vehicles') ? ['person', 'vehicles'].contains(element['type']) : ['person', 'g_vehicles'].contains(element['type']));
+      }*/
+      // existingVPersons = existingVPersons.unique((element) => element['id']);
+      // existingVPersons.removeWhere((element) => (event.vPerson.first['type'] == 'person') ? ['g_vehicles', 'vehicles'].contains(element['type']) : (event.vPerson.first['type'] == 'g_vehicles') ? ['person', 'vehicles'].contains(element['type']) : ['person', 'g_vehicles'].contains(element['type']));
       var vehicleVin = existingVPersons.where((element) => element['type'] == 'vehicles').map((e) => e['value']['vin']).firstOrNull;
       existingRefId = _toDoList.where((element) => (element['vin'] == vehicleVin) || (List<Map<String, dynamic>>.from(element['vehicles']).map((e) => e['vin']).contains(vehicleVin))).map((e) => e['reference_id']).lastOrNull;
       Console.of.debug("ReferenceId: $existingRefId");
       if (existingRefId.toString().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
-          selectedLinkOption: AddToDoConfig.customOptions.firstWhereOrNull((element) => element['id'] == 2),
-          selectedTaskIdentifier: oldIdentifier));
-      log("$existingVPersons", name: "AddToDoBloc-Person");
+          selectedTaskIdentifier: oldIdentifier,
+          selectedLinkOption: AddToDoConfig.customOptions.firstWhereOrNull((element) => element['id'] == 2)));
     });
 
     on<AddToDoVLocationEvent>((event, emit) {

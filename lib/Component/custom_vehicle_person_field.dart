@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
@@ -47,8 +48,6 @@ class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
   List<Map<String, dynamic>> unfilteredList = [];
 
   List<Map<String, dynamic>> selectedList = [];
-
-  FocusNode? _focusNode;
 
   @override
   void initState() {
@@ -136,11 +135,9 @@ class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
                 controller: widget.controller!,
                 suggestions: unfilteredList,
                 onSelected: _onSuggested,
-                // onSelectedFocus: (value, {focusNode}) => Future.delayed(Durations.short1, () => FocusScope.of(context).requestFocus(focusNode)),
                 labelText: widget.labelText,
                 autoClear: true,
                 showEmpty: true,
-                onFieldFocusCreated: (focusNode) => _focusNode = focusNode,
                 onEmptyTapDetails: (details) => SimplePopUpMenu.instance.show(
                   context,
                   position: details.globalPosition,
@@ -187,7 +184,6 @@ class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
     }
     var list =
         unfilteredList.where((element) => isExist(element, val)).toList();
-    showEmptyNotifier.value = list.isEmpty;
     return list;
   }
 
@@ -200,21 +196,21 @@ class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
   }
 
   void _onSuggested(Map<String, dynamic> val) {
-    List<Map<String, dynamic>> data = [];
+    List<Map<String, dynamic>> data = List.from(selectedList);
     if (["person", "g_vehicles"].contains(val['type'])) {
-      data = [val];
-    } else if (val['type'] == "vehicles") {
-      data.removeWhere((element) =>
-          element.containsKey('type') && element['type'] == "person");
-      data = [
-        ...(data),
-        ...[val]
-      ];
+      data.clear();
+      data.add(val);
     }
+    if (val['type'] == "vehicles") {
+      data.removeWhere((element) => ["person", "g_vehicles"].contains(element['type']));
+      data.add(val);
+    }
+    Console.of.warning(data);
     Future.microtask(() => Utils.dismissKeyboard(context));
     selectedList = (data);
     widget.onSelected?.call(selectedList);
     widget.controller?.clear();
+    setState(() {});
   }
 
   String formatMapData(Map<String, dynamic> e) {
