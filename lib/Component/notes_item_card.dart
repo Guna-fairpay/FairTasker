@@ -116,11 +116,11 @@ class NotesItemCard extends StatelessWidget {
                             ?.copyWith(fontWeight: FontWeight.bold),
                         onTap: () => onEditTakPressed?.call(item),
                       ),
-                      if (item['description'].toString().isNotNullOrEmpty)
+                      if ((item['description'].toString().isNotNullOrEmpty) || (item['todos'] != null))
                       Padding(
                         padding: 16.leftPadding,
                         child: Text(
-                          "${item['description'] ?? ""}",
+                          item['todos']?['notes'] ?? item['description'],
                           style: context.textTheme.labelMedium,
                         ),
                       )

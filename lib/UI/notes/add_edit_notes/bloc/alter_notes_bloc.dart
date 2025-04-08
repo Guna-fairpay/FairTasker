@@ -95,7 +95,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
               ..['description'] = TextEditingController(
                   text: (e['todos']?['notes'] ?? e['description']) ?? "")
               ..['selectedUsers'] =
-                  (e['todos'].toString().isNullOrEmpty) ? [] : ([e['todos']?['users']]),
+                  ((e['todos'].toString().isNullOrEmpty) || (e['todos'] == null)) ? [] : ([e['todos']?['users']]),
           )
           .toList();
     }
@@ -143,7 +143,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
         .trim()
         .isNotNullOrEmpty;
     var hasNoteId = (event.model?['note_id'] ?? 0) != 0;
-    var hasToDoId = (event.model?['todo_id'] ?? 0) != 0;
+    var hasToDoId = ((event.model?['todos'] != null) && ((event.model?['todo_id'] ?? 0) != 0));
     if (event.type == "notes") {
       if (hasNoteId) {
         emit(AlterNotesLoadingState());
@@ -173,6 +173,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
         noteItems.remove(event.model);
       }
     }
+    FBroadcast.instance().broadcast("notes_view");
     if (noteItems.isEmpty) add(AlterNotesAddEvent());
     emit(AlterNotesCommonState());
   }
@@ -219,7 +220,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
             var id = event.model?['id'];
             Console.of.log("HAS NOTE ID $hasNoteId");
             if (hasNoteId) {
-              var updateToDoBody = {"complete_status": event.model?['complete_status'], "todo_id": id};
+              var updateToDoBody = {"complete_status": event.model?['complete_status'], "todo_id": toDo['id']};
               await _updateNoteItem(updateToDoBody, event.model?['id']);
             }
             for (var element in noteItems) {
@@ -243,6 +244,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
           emit(AlterNotesCommonState());
         }
       }
+      FBroadcast.instance().broadcast("notes_view");
     } catch (e) {
       Console.of.error(e);
       emit(AlterNotesErrorState(e));
