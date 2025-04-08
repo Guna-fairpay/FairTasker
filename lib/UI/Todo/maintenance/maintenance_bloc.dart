@@ -228,7 +228,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
       emit(state.copyWith(isLoading: true));
       try {
         await todoListRepo.allCheckInMainteance(CreateFixTaskData()
-          ..id = taskId
+          ..id = todoItemsCopy['id']
           ..mandatory = event.status==true ? 0 : 1);
         emit(state.copyWith(
           isAllCheck: event.status,

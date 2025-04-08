@@ -22,7 +22,6 @@ class WorkingHoursState extends Equatable {
   final List<Map<String, dynamic>> taskComponentsData;
   final List<Map<String, dynamic>> taskBased;
   final List<Map<String, dynamic>> hourlyBased;
-  final DateRange? selectedDateRange;
   final TextEditingController? taskNameController;
   final TextEditingController? amountController;
   final List<dynamic> selectedBase1;
@@ -55,6 +54,7 @@ class WorkingHoursState extends Equatable {
   final int totalAmount;
   final List<Map<String, dynamic>> taskData;
   final List<Map<String, dynamic>> amountData;
+  final DateRange? selectedDateRange;
 
   const WorkingHoursState(
       {
@@ -72,7 +72,6 @@ class WorkingHoursState extends Equatable {
         this.taskComponentsData = const [],
         this.taskBased = const [],
         this.hourlyBased = const [],
-        this.selectedDateRange,
         this.taskNameController,
         this.amountController,
         this.selectedBase1 = const [],
@@ -105,6 +104,7 @@ class WorkingHoursState extends Equatable {
         this.totalAmount = 0,
         this.taskData = const [],
         this.amountData = const [],
+        required this.selectedDateRange,
       });
 
   WorkingHoursState copyWith({
@@ -122,7 +122,6 @@ class WorkingHoursState extends Equatable {
     List<Map<String, dynamic>>? taskComponentsData,
     List<Map<String, dynamic>>? taskBased,
     List<Map<String, dynamic>>? hourlyBased,
-    DateRange? selectedDateRange,
     TextEditingController? taskNameController,
     TextEditingController? amountController,
     List<dynamic>? selectedBase1,
@@ -155,6 +154,7 @@ class WorkingHoursState extends Equatable {
     int? totalAmount,
     List<Map<String, dynamic>>? taskData,
     List<Map<String, dynamic>>? amountData,
+    DateRange? selectedDateRange,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -170,7 +170,6 @@ class WorkingHoursState extends Equatable {
     taskComponentsData: taskComponentsData ?? this.taskComponentsData,
     taskBased: taskBased ?? this.taskBased,
     hourlyBased: hourlyBased ?? this.hourlyBased,
-    selectedDateRange: selectedDateRange ?? this.selectedDateRange,
     taskNameController: taskNameController,
     amountController: amountController,
     selectedBase1: selectedBase1 ?? this.selectedBase1,
@@ -203,6 +202,7 @@ class WorkingHoursState extends Equatable {
     totalAmount: totalAmount ?? this.totalAmount,
     taskData: taskData ?? this.taskData,
     amountData: amountData ?? this.amountData,
+    selectedDateRange: selectedDateRange ?? this.selectedDateRange,
   );
 
   @override
@@ -221,7 +221,6 @@ class WorkingHoursState extends Equatable {
     taskComponentsData,
     taskBased,
     hourlyBased,
-    selectedDateRange,
     taskNameController,
     amountController,
     selectedBase1,
@@ -254,6 +253,7 @@ class WorkingHoursState extends Equatable {
     totalAmount,
     taskData,
     amountData,
+    selectedDateRange,
     Random().nextDouble()
   ];
 }

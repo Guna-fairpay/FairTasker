@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
+import '../../Finance/Expense/Component/date_range_selection.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
@@ -48,20 +49,7 @@ class WorkHoursViewUI extends StatelessWidget {
     }
   }
 
-  //needed function in UI
-  String removeSeconds(String totalHours) {
-    if(totalHours != '' && totalHours != null)
-      {
-        List<String> parts = totalHours.split(':');
-        if (parts.length >= 2) {
-          return '${parts[0]}:${parts[1]}';
-        } else {
-          throw FormatException("Invalid time format: $totalHours");
-        }
-      }else {
-      return '';
-    }
-  }
+
   String getFirstWord(String fullName) {
     return fullName.split(' ').first;
   }
@@ -81,6 +69,9 @@ class WorkHoursViewUI extends StatelessWidget {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             filteredData = state?.combinedData ?? [];
             dropDownResource = [{'id':'','full_name':'All'}, ...state?.resources ?? []];
+            startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
+            endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
+            dates = generateDateList(startDate, endDate);
           }
         },
         child:
@@ -272,62 +263,20 @@ class WorkHoursViewUI extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: SizedBox(
-                          height: 42,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppC.fieldBase, width: Num.borderWidthField),
-                              borderRadius: BorderRadius.circular(Num.subradiusButton),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child:
-                                  DateRangeField(
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.only(right: 10),
-                                      border: InputBorder.none, // Remove inner borders
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      hintStyle: Utils.getTextStyle(color: AppC.grey),
-                                      isDense: true,
-                                      // Reduce space
-                                    ),
-                                    childBuilder: (context, value)
-                                    {
-                                      return Row(
-                                        children: [
-                                          Expanded(child: Utils.getText("${selectedDateRange ?? state.selectedDateRange}",overFlow: TextOverflow.ellipsis,)),
-                                        ]
-                                      );
-                                    },
-                                    onDateRangeSelected: (DateRange? value) {
-                                      if (value != null) {
-                                        selectedDateRange = value; // Only update confirmed selection
-                                        startDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.start);
-                                        endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange!.end);
-                                        print("startDate $startDate endDate $endDate");
-
-                                        log("${startDate} ${endDate}", name: "startDateEndDate");
-                                        log("${selectedDateRange}", name: "selectedDateRange");
-
-                                        // Notify the Bloc
-                                        context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
-                                        dates = generateDateList(startDate, endDate);
-                                        log("${dates}", name: "dates");
-                                      }
-                                    },
-                                    pickerBuilder: (context, onDateRangeChanged) => datePickerBuilder(context, (newRange) {
-                                      temporarySelectedDateRange = newRange;
-                                      onDateRangeChanged(newRange);
-                                    },),
-                                  ),
-                                ),
-                                Icon(Icons.calendar_today, color: AppC.grey, size: 18), // Keep icon inline
-                              ],
-                            ),
-                          ),
+                        child:
+                        DateRangePicker(
+                          selectedDateRange: state.selectedDateRange,
+                          onDateRangeSelected: (range)
+                          {
+                            context.read<WorkingHoursBloc>().add(
+                                UpdateDateRangeEvent(selectedRange: range));
+                            startDate = DateFormat('yyyy-MM-dd').format(range.start);
+                            endDate = DateFormat('yyyy-MM-dd').format(range.end);
+                            context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
+                            dates.clear();
+                            dates = generateDateList(startDate, endDate);
+                            log("${dates}", name: "dates");
+                          },
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -443,7 +392,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                               context,
                                               dataList: employee?['list'],
                                               userName: employee?['first_name'],
-                                              selectedDateRange: selectedDateRange.toString(),
+                                              selectedDateRange: state.selectedDateRange.toString(),
                                               empID: employee?['user_id'],
                                               hrmID: employee?['hrm_id'],
                                               fromDate: startDate,
@@ -479,9 +428,9 @@ class WorkHoursViewUI extends StatelessWidget {
                                               ReasonTopNotificationPopup.show(
                                                 context,
                                                 dataList: employee?['list'],
-                                                userName: employee?['first_name'],
+                                                userName: "${employee?['first_name']} ${employee?['last_name']}",
                                                 taskComments: state.comments,
-                                                selectedDateRange: selectedDateRange.toString(),
+                                                selectedDateRange: state.selectedDateRange.toString(),
                                                 hrmId: employee?['hrm_id'],
                                                 startDate: startDate,
                                                 endDate: endDate,
@@ -510,23 +459,6 @@ class WorkHoursViewUI extends StatelessWidget {
         )
 
       ),
-    );
-  }
-  Widget datePickerBuilder(
-      BuildContext context, dynamic Function(DateRange?) onDateRangeChanged,
-      [bool doubleMonth = false]) {
-    temporarySelectedDateRange = selectedDateRange;
-    return DateRangePickerWidget(
-      doubleMonth: doubleMonth,
-      initialDateRange: selectedDateRange,
-      disabledDates: const [],
-      initialDisplayedDate: selectedDateRange?.start ?? DateTime.now(),
-      onDateRangeChanged: (newRange) {
-        temporarySelectedDateRange = newRange; // Store temporary selection
-        onDateRangeChanged(newRange);
-      },
-      height: 338,
-      displayMonthsSeparator: true,
     );
   }
 }

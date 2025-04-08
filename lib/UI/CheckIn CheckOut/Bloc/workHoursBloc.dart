@@ -1,7 +1,6 @@
 
 // working_hours_bloc.dart
 import 'dart:developer';
-import 'package:date_time/date_time.dart' hide DateRange;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,9 +36,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   List<Map<String,dynamic>>?selectedResources=[];
 
 
-  WorkingHoursBloc() : super(const WorkingHoursState (
-      userList: [],
-      selectedUser: {}
+  WorkingHoursBloc() : super(WorkingHoursState (
+      userList: const [],
+      selectedUser: const {},
+    selectedDateRange: DateRange(
+      DateTime.now().subtract(const Duration(days: 7)),
+      DateTime.now(),
+    ),
   )) {
 
     on<WorkingHoursInitialEvent>((event, emit) async {
@@ -1219,6 +1222,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           isLoading: false,
         ));
       }
+    });
+
+    on<UpdateDateRangeEvent>((event, emit) {
+      emit(state.copyWith(selectedDateRange: event.selectedRange));
     });
 
   }

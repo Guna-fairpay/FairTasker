@@ -114,223 +114,252 @@ class ReasonTopNotificationPopup {
         );
       }
     }
-
+    final ScrollController _tableScrollController = ScrollController();
     showGeneralDialog(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
-        return
-        BlocProvider(create: (context) => WorkingHoursBloc()..add(
-            fetchEmployeeCommentEvent(
+        return BlocProvider(
+          create: (context) => WorkingHoursBloc()
+            ..add(
+              fetchEmployeeCommentEvent(
                 hrmId: hrmId,
                 fromDate: startDate,
                 toDate: endDate,
                 dataList: dataList,
-                ReasonPopupSelectedDateRange: selectedDateRange)
-        ),
+                ReasonPopupSelectedDateRange: selectedDateRange,
+              ),
+            ),
           child: BlocListener<WorkingHoursBloc, WorkingHoursState>(
-            listener: (context,state) {
-              if(state.isLoading){
+            listener: (context, state) {
+              if (state.isLoading) {
                 EasyLoading.show();
               } else {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
               }
             },
-            child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(builder: (context, state) {
-              return Align(
-                alignment: Alignment.topCenter,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 50.0),
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header Section
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
+              builder: (context, state) {
+                final maxTableHeight = MediaQuery.of(context).size.height * 0.8 - 200;
+
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 50.0),
+                      padding: const EdgeInsets.all(20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.9,
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              userName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Utils.getText(convertDateToCustomFormat(selectedDateRange)),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        // Table for Header and Data
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: Column(
-                            children: [
-                              // Header Row
-                              Container(
-                                decoration: const BoxDecoration(
-                                  color: Color.fromRGBO(240, 240, 240, 1),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(4.0),
-                                    topRight: Radius.circular(4.0),
+                            // Header Section
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  userName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
                                   ),
                                 ),
-                                child:
-                                Table(
-                                  columnWidths: const {
-                                    0: FlexColumnWidth(3), // Date
-                                    1: FlexColumnWidth(2), // Total
-                                    2: FlexColumnWidth(3), // Reason
-                                    3: FlexColumnWidth(3), // Comments
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
                                   },
-                                  children: const [
-                                    TableRow(
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Text(
-                                            "Date",
-                                            style: TextStyle(fontWeight: FontWeight.bold),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Text(
-                                            "Total",
-                                            style: TextStyle(fontWeight: FontWeight.bold),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Text(
-                                            "Reason",
-                                            style: TextStyle(fontWeight: FontWeight.bold),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Text(
-                                            "Comments",
-                                            style: TextStyle(fontWeight: FontWeight.bold),
-                                            textAlign: TextAlign.center,
-                                          ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Utils.getText(convertDateToCustomFormat(selectedDateRange)),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            // Table for Header and Data
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              child: Column(
+                                children: [
+                                  // Header Row
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromRGBO(240, 240, 240, 1),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(4.0),
+                                        topRight: Radius.circular(4.0),
+                                      ),
+                                    ),
+                                    child: Table(
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(3), // Date
+                                        1: FlexColumnWidth(2), // Total
+                                        2: FlexColumnWidth(3), // Reason
+                                        3: FlexColumnWidth(3), // Comments
+                                      },
+                                      children: const [
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                                              child: Text(
+                                                "Date",
+                                                style: TextStyle(fontWeight: FontWeight.bold),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                                              child: Text(
+                                                "Total",
+                                                style: TextStyle(fontWeight: FontWeight.bold),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                                              child: Text(
+                                                "Reason",
+                                                style: TextStyle(fontWeight: FontWeight.bold),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                                              child: Text(
+                                                "Comments",
+                                                style: TextStyle(fontWeight: FontWeight.bold),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              const Divider(height: 1, thickness: 1),
-                              // Data Rows
-                              SizedBox(
-                                height: 200,
-                                child: SingleChildScrollView(
-                                  child: Table(
-                                    columnWidths: const {
-                                      0: FlexColumnWidth(3), // Date
-                                      1: FlexColumnWidth(2), // Total
-                                      2: FlexColumnWidth(3), // Reason
-                                      3: FlexColumnWidth(3), // Comments
-                                    },
-                                    children: List.generate(state.comments.length, (index) {
-                                      final item = state.comments[index];
-                                      return TableRow(
-                                        decoration: BoxDecoration(
-                                          color: AppC.white,
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: Colors.grey.shade300,
-                                              width: 0.5,
+                                  ),
+                                  const Divider(height: 1, thickness: 1),
+                                  // Data Rows
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight: maxTableHeight,
+                                    ),
+                                    child: ScrollbarTheme(
+                                      data: ScrollbarThemeData(
+                                        thumbColor: WidgetStateProperty.all(AppC.grey),
+                                        trackColor: WidgetStateProperty.all(const Color.fromRGBO(240, 240, 240, 1)),
+                                        minThumbLength: 5.0,
+                                        interactive: true,
+                                      ),
+                                      child: Scrollbar(
+                                        controller: _tableScrollController,
+                                        thumbVisibility: true,
+                                        trackVisibility: true,
+                                        thickness: 10.0,
+                                        interactive: true,
+                                        radius: const Radius.circular(3.0),
+                                        child: SingleChildScrollView(
+                                          controller: _tableScrollController,
+                                          child: Table(
+                                            columnWidths: const {
+                                              0: FlexColumnWidth(3), // Date
+                                              1: FlexColumnWidth(2), // Total
+                                              2: FlexColumnWidth(3), // Reason
+                                              3: FlexColumnWidth(3), // Comments
+                                            },
+                                            children: List.generate(state.comments.length, (index) {
+                                              final item = state.comments[index];
+                                              return TableRow(
+                                                decoration: BoxDecoration(
+                                                  color: AppC.white,
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color: Colors.grey.shade300,
+                                                      width: 0.5,
+                                                    ),
+                                                  ),
+                                                ),
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                    child: Utils.getText(
+                                                      item['date'],
+                                                      align: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                    child: buildTotalHoursWidget(formatTime(item['total_hours'].toString())),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                                    child: item['reason'].toString().length > 7
+                                                        ? GestureDetector(
+                                                      onTap: () {
+                                                        TextPopup.show(context, item['reason']);
+                                                      },
+                                                      child: Utils.getText(
+                                                        "${item['reason']}",
+                                                        overFlow: TextOverflow.ellipsis,
+                                                        align: TextAlign.center,
+                                                      ),
+                                                    )
+                                                        : Utils.getText(
+                                                      "${item['reason']}",
+                                                      align: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                                    child: item['comments'].toString().length > 7
+                                                        ? GestureDetector(
+                                                      onTap: () {
+                                                        TextPopup.show(context, item['comments']);
+                                                      },
+                                                      child: Utils.getText(
+                                                        "${item['comments']}",
+                                                        overFlow: TextOverflow.ellipsis,
+                                                        align: TextAlign.center,
+                                                      ),
+                                                    )
+                                                        : Utils.getText(
+                                                      "${item['comments']}",
+                                                      align: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }
                                             ),
                                           ),
                                         ),
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                            child: Utils.getText(
-                                              item['date'],
-                                              align: TextAlign.center,
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                            child: buildTotalHoursWidget(formatTime(item['total_hours'].toString()),),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                                            child: item['reason'].toString().length > 7
-                                                ? GestureDetector(
-                                              onTap: () {
-                                                TextPopup.show(context, item['reason']);
-                                              },
-                                              child: Utils.getText(
-                                                "${item['reason']}",
-                                                overFlow: TextOverflow.ellipsis,
-                                                align: TextAlign.center,
-                                              ),
-                                            )
-                                                : Utils.getText(
-                                              "${item['reason']}",
-                                              align: TextAlign.center,
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                                            child: item['comments'].toString().length > 7
-                                                ? GestureDetector(
-                                              onTap: () {
-                                                TextPopup.show(context, item['comments']);
-                                              },
-                                              child: Utils.getText(
-                                                "${item['comments']}",
-                                                overFlow: TextOverflow.ellipsis,
-                                                align: TextAlign.center,
-                                              ),
-                                            )
-                                                : Utils.getText(
-                                              "${item['comments']}",
-                                              align: TextAlign.center,
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            }),
-          )
+                );
+              },
+            ),
+          ),
         );
-
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return FadeTransition(
