@@ -28,6 +28,9 @@ class EditTodoUI extends StatelessWidget {
       child: BlocListener<EditToDoBloc, EditTodoState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+          if(state.isPop) {
+           Navigator.pop(context);
+          }
         },
         child: BlocBuilder<EditToDoBloc, EditTodoState>(
             /*buildWhen: (previous, current) =>
@@ -71,7 +74,6 @@ class EditTodoUI extends StatelessWidget {
                               attachments: state.todoAttachments,
                               onDeleted: (val)=>context.read<EditToDoBloc>().add(RemoveImageEvent(data: val)),
                               title: "Edit ToDo"),
-
                           icon: const Icon(Icons.remove_red_eye_outlined),
                           padding: EdgeInsets.zero,
                           style: const ButtonStyle(
@@ -112,11 +114,11 @@ class EditTodoUI extends StatelessWidget {
                                             todoStatus: value,
                                             todoId: state.apiResponse['id'].toString(),
                                             status: state.apiResponse['status']));
-                                    Future.delayed(const Duration(seconds: 1), () {
-                                      if (value) {
-                                        Navigator.pop(context);
-                                      }
-                                    });
+                                    // Future.delayed(const Duration(seconds: 1), () {
+                                    //   if (value) {
+                                    //     Navigator.pop(context);
+                                    //   }
+                                    // });
                                   }),
                             ),
                           ),
@@ -139,9 +141,9 @@ class EditTodoUI extends StatelessWidget {
                                       .add(
                                       DeleteTodoEvent(todoId: todoId, reason: reason)
                                    );
-                                  Future.delayed(const Duration(seconds: 1), () {
-                                    Navigator.pop(context);
-                                  });
+                                  // Future.delayed(const Duration(seconds: 1), () {
+                                  //   Navigator.pop(context);
+                                  // });
                               }
                             );
                           },

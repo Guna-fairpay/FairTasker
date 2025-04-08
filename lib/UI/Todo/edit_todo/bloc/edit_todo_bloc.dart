@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../Repository/todo_list_repository.dart';
-import '../../../../Utilities/Str.dart';
+import '../../../../Utilities/str.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/prefs.dart';
 import '../../../../core/app/helper/toaster.dart';
@@ -107,6 +107,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           previousOdometer: '',
           selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
           showCleanCar: false,
+          isPop: false,
       )) {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -347,7 +348,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           todoAttachments: todoImages,
           groupVehicles: groupVehiclesResponse,
           selectedSentiment: selectedSentiments,
-
+          isPop: false,
         ));
         await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
         await Future.delayed(Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
@@ -405,12 +406,26 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<TaskStatusChangeEvent>((event, emit) async {
       bool? status =  event.todoStatus;
       log(status.toString(),name: 'STATUS');
-      //int odoMeter= int.parse(odometerController.text);
         try {
-          emit(state.copyWith(isLoading: true));
-          await apiRepository.completeToDo(todoId, status: status!);
-          _broadcast.stickyBroadcast("todo_view", value:true);
-          emit(state.copyWith(todoStatus: !state.todoStatus, isLoading: false));
+          if((state.apiResponse['identifier_id'] == 257)){
+            if(odometerController.text.isEmpty){
+              return Toaster.showError("Please enter odometer");
+            }else if(state.apiResponse['mandatory'] == 1){
+              return Toaster.showError("is all maintenance check done is mandatory");
+            }else{
+              emit(state.copyWith(isLoading: true));
+              await apiRepository.completeToDo(todoId, status: status!);
+              _broadcast.stickyBroadcast("todo_view", value:true);
+              emit(state.copyWith(todoStatus: !state.todoStatus, isLoading: false,isPop: true));
+            }
+          }else{
+            var model = state.apiResponse;
+            model.putIfAbsent("display", () => {
+              "vins" : vinList
+            });
+            _broadcast.stickyBroadcast("show_completed_popup", value: model);
+            emit(state.copyWith(todoStatus: !state.todoStatus, isPop: true));
+          }
         } catch (e) {
           Toaster.showError("$e");
           log(e.toString(), name: 'ERROR');
@@ -561,7 +576,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
         _broadcast.stickyBroadcast("todo_view", value:true);
         if (response?['status'] == 200) Toaster.showSuccess(response?['message'] ?? "Success");
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isLoading: false,isPop: true));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(),name: 'ERROR');
@@ -604,6 +619,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("Platform check is required");
         return;
       }
+      if(state.selectedTask['id'] == 257){
+
+      }
       // API CALL
       try {
         emit(state.copyWith(isLoading: true));
@@ -611,7 +629,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
         _broadcast.stickyBroadcast("todo_view", value:true);
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isLoading: false,isPop: true));
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
       } catch (e) {
         Toaster.showError("$e");

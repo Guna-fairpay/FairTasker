@@ -48,6 +48,7 @@ class EditTodoState extends Equatable {
   final String previousOdometer;
   final bool showCleanCar;
   final dynamic selectedClearDuration;
+  final bool isPop;
 
   const EditTodoState( {
     required this.isLoading,
@@ -94,7 +95,7 @@ class EditTodoState extends Equatable {
     required this.previousOdometer,
     required this.showCleanCar,
     this.selectedClearDuration,
-
+    required this.isPop,
   });
 
   EditTodoState copyWith({
@@ -153,6 +154,7 @@ class EditTodoState extends Equatable {
     bool? popUpdatePage,
     String? previousOdometer,
     bool? isRecurring,
+    bool? isPop,
 
   }) =>
       EditTodoState(
@@ -201,7 +203,7 @@ class EditTodoState extends Equatable {
         previousOdometer: previousOdometer ?? this.previousOdometer,
         showCleanCar: showCleanCar ?? this.showCleanCar,
         selectedClearDuration:selectedClearDuration ?? this.selectedClearDuration,
-
+        isPop: isPop ?? this.isPop,
       );
 
   @override
@@ -251,6 +253,7 @@ class EditTodoState extends Equatable {
     previousOdometer,
     showCleanCar,
     selectedClearDuration,
+    isPop,
     Random().nextDouble()
   ];
 }
