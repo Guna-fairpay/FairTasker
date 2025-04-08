@@ -165,7 +165,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         employeeList = employeeResponse?.data;
         // employeeList
         //     ?.removeWhere((element) => element['user_id'].toString() == '1');
-        descriptionController.text = response?['description'] ?? '';
+        descriptionController.text = response?['expense_description'] ?? '';
 
         amountController.text = "${response?['expense_amount'] ?? ''}";
         dateController.text = response?['expense_date'] ?? '';
@@ -219,6 +219,8 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
     on<ChangeDateRangeEvent>((event, emit) {
       emit(state.copyWith(selectedDateRange: event.selectedRange));
     });
+
+
 
     on<PersonDropDownEvent>((event, emit) {
       emit(state.copyWith(selectedPerson: event.selectedPerson));
@@ -362,7 +364,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
-        _broadcast.stickyBroadcast("expense_person_refresh", value: true);
+        _broadcast.broadcast("expense_person_refresh");
         emit(state.copyWith(isLoading: false, popAddPage: true, popEditPage: true));
       } catch (e) {
         Toaster.showError("$e");
@@ -445,12 +447,6 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         [];
   }
 
-  Future<File?> _pickImages() async {
-    final XFile? pickedFiles =
-        await ImagePicker().pickImage(source: ImageSource.camera);
-    return (pickedFiles != null) ? File(pickedFiles.path) : null;
-  }
-
   /// API CALL: Expense Vehicle
   Future<ExpenseResponse?> _getPersonExpense(
       String? minDate, String? maxDate) async {
@@ -528,7 +524,8 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
   void _resetAll() async {
     try {
-      if(!isClosed) emit(state.copyWith(isLoading: true));
+      Console.of.debug("Reset");
+      /*if(!isClosed) */emit(state.copyWith(isLoading: true));
       var startDate = DateTime.now()
           .subtract(const Duration(days: 31))
           .toFormat(format: 'yyyy-MM-dd');
@@ -547,23 +544,27 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           .sum;
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
           .compareTo(DateTime.parse(a['created_at'] ?? '')));
-     if(!isClosed){ emit(state.copyWith(
+     /*if(!isClosed){ emit(state.copyWith(
         isLoading: false,
         apiResponse: apiResponse,
         approvedAmount: approvedAmount,
         persons: employeeList,
+       popAddPage: false,
+       popEditPage: false,
       ));}
-     else{
+     else{*/
        emit(state.copyWith(
          isLoading: false,
          apiResponse: apiResponse,
          approvedAmount: approvedAmount,
          persons: employeeList,
+         popAddPage: false,
+         popEditPage: false,
        ));
-     }
+     // }
     } catch (e) {
       log("$e", name: "Error In Bloc Value");
-      if(!isClosed) emit(state.copyWith(isLoading: false));
+      /*if(!isClosed)*/ emit(state.copyWith(isLoading: false));
     }
   }
 }
