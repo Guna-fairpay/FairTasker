@@ -170,7 +170,7 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
                                             ],
                                           ),
                                           Utils.getText(
-                                              (data['expense_description']).toString().toSentenceCase(),)
+                                              (data['expense_description'] ?? '').toString().toSentenceCase(),)
                                         ],
                                       ),
                                     ),

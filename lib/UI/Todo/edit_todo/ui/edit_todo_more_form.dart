@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
@@ -69,17 +70,18 @@ class EditTodoMoreForm extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             side: const BorderSide()))),
                   ),
-                // if (state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))
-                //   Flexible(
-                //     child: CustomDropdown<Map<String, dynamic>>(
-                //       items: List.from(state.clearDurations),
-                //       value: state.selectedClearDuration,
-                //       itemAsString: (item) => item['value'].toString(),
-                //       onChanged: (value) => context
-                //           .read<EditToDoBloc>()
-                //           .add(EtidToDoCleanCarDuration(value)),
-                //     ),
-                //   )
+                if (state.showCleanCar && (DateTime.now().compareTo(state.selectedDate??DateTime.now()) == 1))
+                  Flexible(
+                    child:    CustomDropdown<Map<String, dynamic>>(
+                      contentPadding: 4.padding,
+                      items: List.from(state.clearDurations),
+                      value: state.selectedClearDuration,
+                      itemAsString: (item) => item['value'].toString(),
+                      onChanged: (value) => context
+                          .read<EditToDoBloc>()
+                          .add(EditToDoCleanCarDuration(value)),
+                    ),
+                  )
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)
@@ -256,10 +258,7 @@ class EditTodoMoreForm extends StatelessWidget {
             children: [
               Utils.getElevatedButton(() {
                     context.read<EditToDoBloc>().add(EditToDoSaveEvent());
-                    //Navigator.pop(context);
-                    //context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0, message: '',));
-              },
-                  text: 'Update'),
+              }, text: 'Update'),
             ],
           ),
           if (state.apiResponse['recurring'] != null)
