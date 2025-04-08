@@ -10,6 +10,7 @@ import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
 import '../UI/authentication_ui.dart';
@@ -193,10 +194,10 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
     return Column(
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Utils.getText(
-            "Version: 1.0.4",
+          FutureBuilder(future: PackageInfo.fromPlatform(), builder: (context, snapshot) => Utils.getText(
+            "Version: ${snapshot.data?.version}",
             color: Colors.grey.withOpacity(0.99),
-          ),
+          ),),
         ]),
         Container(
           decoration: BoxDecoration(

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -7,10 +6,8 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/utilities/appC.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Color, Colors;
 
 class ToDoProcessor {
@@ -486,7 +483,6 @@ class ToDoProcessor {
     var statusId = _getVehicleStatus(model);
     if (statusId != null) {
       var cate = _activeVehiclesCount.firstWhereOrNull((element) => element['id'] == statusId)?['category_name'];
-      Console.of.log("STATUS ID $statusId, CATEGORY: $cate ${_activeVehiclesCount.map((e) => e['id']).join(", ")} ${_activeVehiclesCount.isNotEmpty}");
       return cate;
     } else {
       return null;
@@ -495,7 +491,6 @@ class ToDoProcessor {
 
   Color? _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
     var statusId = _getVehicleStatus(model);
-    Console.of.log(statusId);
     if (statusId != null) {
       return (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
     } else {

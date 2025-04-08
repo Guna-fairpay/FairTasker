@@ -10,7 +10,6 @@ abstract class ToDoTaskerState extends Equatable {
 }
 
 class ToDoTaskerLoadingState extends ToDoTaskerState {}
-class ToDoTaskerLoadedState extends ToDoTaskerState {}
 class ToDoTaskerCommonState extends ToDoTaskerState {
   @override
   List<Object?> get props => [Random().nextDouble()];

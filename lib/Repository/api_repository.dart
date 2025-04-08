@@ -195,6 +195,16 @@ class APiRepository {
 
   String get _checklistReorder => "vehicle_config/checklist_reorder";
 
+  String get _notes => "notes";
+
+  String get _updateNoteStatus => "updateNoteStatus";
+
+  String get _addNoteItem => "addNoteItem";
+
+  String get _updateNoteItem => "updateNoteItem";
+
+  String get _removeNoteItem => "removeNoteItem";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1196,7 +1206,7 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> completeTodo({required dynamic todoId, required Map<String, dynamic> body}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
-      body.putIfAbsent("type", () => "inline");
+      // body.putIfAbsent("type", () => "inline");
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
@@ -1620,6 +1630,116 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_checklistReorder";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getNotes({DateTime? selectedDate, bool status = false}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_notes";
+      var body = {
+        "date" : selectedDate?.toFormat(),
+        "branch_id" : _branchId,
+        "status" : status ? 1 : 0
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl,params: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getNote({required dynamic id}) async {
+    try {
+      if (id.toString().isNullOrEmpty) throw Exception("Invalid Note Id");
+      String apiUrl = "${Str.BASE_URL}$_notes/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> createNote({Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_notes";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> putNotes({Map<String, dynamic>? body, required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_notes/$id";
+      // body?['type'] = "inline";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "PUT");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateNoteStatus({Map<String, dynamic>? body, required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_updateNoteStatus/$id";
+      body?['type'] = "inline";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteNotes({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_notes/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addNoteItem({required dynamic id, Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_addNoteItem/$id";
+      body?['type'] = "inline";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateNoteItem({required dynamic id, Map<String, dynamic>? body}) async {
+    Console.of.debug(body);
+    try {
+      String apiUrl = "${Str.BASE_URL}$_updateNoteItem/$id";
+      // body?['type'] = "inline";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> removeNoteItem({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_removeNoteItem/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
