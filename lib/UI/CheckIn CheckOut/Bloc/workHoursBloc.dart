@@ -36,10 +36,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   TextEditingController amountCtrl=TextEditingController();
   final TextEditingController dateController = TextEditingController();
   List<Map<String,dynamic>>?selectedResources=[];
-  String? userRole;
+  dynamic userRole;
   String? userId;
   int? hrmId;
-
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -54,6 +53,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isLoading: true));
       try
       {
+
         DateTime now = DateTime.now();
         DateTime start = now.subtract(const Duration(days: 7));
         DateTime end = now;
@@ -79,17 +79,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
 
-              Utils.getStringListPreference(Str.rolePrefText).then((role) {
-                  userRole = role.first;
-              });
-              Utils.getStringPreference(Str.userIdPrefText).then((id) {
-                  userId = id;
-              });
-              Utils.getIntPreference(Str.hrmIdPrefText).then((id) {
-                  print('hrmId1 $id');
-                  hrmId = id;
-              });
-              log("${userRole} ${userId} ${hrmId}",name:"userRole");
+              userRole = await Utils.getStringListPreference(Str.rolePrefText);
+              userId = await Utils.getStringPreference(Str.userIdPrefText);
+              hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
+              log("${userRole[0]} ${userId} ${hrmId}",name:"userRole");
 
               formattedResources = resources.where((e)=>e['branch_id']==1 || e['branch_id']==null).map((resource) {
                 return {
@@ -256,7 +249,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
               combinedData.clear();
               combinedData = combineAndCalculateData(workHours, workingHistory, workActiveHours, formattedResources);
-              //log("${combinedData}",name:"CombinedData");
+              log("${combinedData}",name:"CombinedData");
 
               //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
@@ -351,6 +344,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 endDate: endDate,
                 selectedDateRange: selectedDateRange,
                 punchListData: formattedData,
+                loginUserId: userId,
+                loginUserRole: userRole[0]
               ));
             }
             else {
@@ -371,6 +366,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           startDate: startDate,
           endDate: endDate,
           selectedDateRange: selectedDateRange,
+            loginUserId: userId,
+            loginUserRole: userRole
         ));
       }
       catch (error)
@@ -401,9 +398,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isLoading: true));
       try{
         List<dynamic> resource;
-        emit(state.copyWith(isLoading: false));
         final response6 = await todoListRepo.getTaskHistoryConfiguration();
         final response3 = await authenticationRepo.getAssignedTo();
+        userRole = await Utils.getStringListPreference(Str.rolePrefText);
+        userId = await Utils.getStringPreference(Str.userIdPrefText);
         if(response6 != null && response3 != null){
           taskComponentsData = response6.data!;
           resources = response3.resource!;
@@ -433,6 +431,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           ];
           dynamic selectedBase = base[0];
           emit(state.copyWith(
+            isLoading: false,
             taskComponentsData: taskComponentsData,
             taskBased: taskBased,
             hourlyBased: hourlyBased,
@@ -441,6 +440,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             resources: formattedResources,
             resource: resource,
             userList: resources,
+            loginUserRole: userRole[0],
+              loginUserId: userId,
           ));
           // print("Emitting initial selectedBase1: $selectedBase1");
         } else {

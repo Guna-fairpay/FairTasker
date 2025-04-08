@@ -84,6 +84,7 @@ class WorkHoursViewUI extends StatelessWidget {
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
+              log("${state.loginUserRole}" , name: "login_role");
             }
           },
           child:
@@ -274,6 +275,7 @@ class WorkHoursViewUI extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+
                         Expanded(
                           child:
                           DateRangePicker(
@@ -292,6 +294,7 @@ class WorkHoursViewUI extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 10),
+                        if(state.loginUserId.toString() == '3')
                         Expanded(
                           child:
                           Utils.dropdownBox('All',dropDownResource,
@@ -303,6 +306,8 @@ class WorkHoursViewUI extends StatelessWidget {
                               labelKey: 'full_name'
                           ),
                         )
+                        else
+                        Expanded(child: SizedBox(),)
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -350,7 +355,8 @@ class WorkHoursViewUI extends StatelessWidget {
                       Builder(
                         builder: (context) {
                           //If dropdown has a selection, filter data, otherwise load state.combinedData
-                          final dataList = (selectedName == null || selectedName['full_name'] == 'All')
+                          final dataList =
+                          (selectedName == null || selectedName['full_name'] == 'All')
                               ? state.combinedData
                               : state.combinedData?.where((item) {
                             return getFirstWord(item['first_name']) ==

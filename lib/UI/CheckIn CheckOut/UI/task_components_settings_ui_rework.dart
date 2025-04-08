@@ -47,6 +47,7 @@ class TaskComponentsSettingView extends StatelessWidget {
           amountController.clear();
           taskNameController.text = state.taskNameController?.text ?? '';
           amountController.text = state.amountController?.text ?? '';
+          log("${state.loginUserRole}" , name: "login_role");
           FocusScope.of(context).unfocus();
         }
       },
@@ -75,7 +76,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                 ),
               ),
             ),
-            body: SafeArea(
+            body:
+            SafeArea(
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -86,6 +88,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
+                      if(state.loginUserId.toString() == '3')
                       Utils.dropdownBox(
                         'Task based',
                         state.selectedBase1,
@@ -98,6 +101,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                         initialSelection: state.selectedBase,
                       ),
                       const SizedBox(height: 16),
+                      if(state.loginUserId.toString() == '3')
                       if ((selectedBases != null && selectedBases['base'] == 'Task based') ||
                           (state.selectedBase != null &&
                               state.selectedBase['base'] == 'Task based')) ...[
@@ -111,6 +115,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                           }
                         ),
                         const SizedBox(height: 16),
+                        if(state.loginUserId.toString() == '3')
                         Utils.getTextFormField('Amount (\$)',
                           amountController,
                             validator: (value) {
@@ -121,6 +126,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             }),
                         const SizedBox(height: 16),
                       ] else...[
+                        if(state.loginUserId.toString() == '3')
                         Utils.dropdownBox(
                           'Select User',
                           state.userList,
@@ -134,6 +140,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                           initialSelection: state.selectedUser,
                         ),
                         const SizedBox(height: 16),
+                        if(state.loginUserId.toString() == '3')
                         Utils.getTextFormField(
                             'Amount per hour (\$)',
                             hourlyAmountController,
@@ -146,6 +153,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
                       ],
+                      if(state.loginUserId.toString() == '3')
                       Row(
                         children: [
                           if (!state.isEditMode)
@@ -244,6 +252,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                         hourlybased: state.hourlyBased,
                         selectedBases: selectedBases,
                         resource: state.resources,
+                          loginUserId: state.loginUserId,
+                          loginUserRole: state.loginUserRole,
                       ),
                     ],
                   ),
