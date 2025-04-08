@@ -7,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../Repository/job_list_repository.dart';
 import '../../../Repository/todo_list_repository.dart';
+import '../../../Utilities/Str.dart';
+import '../../../Utilities/Utils.dart';
 import '../Event/workingHoursEvent.dart';
 import '../Repository/workingHoursRepository.dart';
 import '../State/workingHoursState.dart';
@@ -34,6 +36,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   TextEditingController amountCtrl=TextEditingController();
   final TextEditingController dateController = TextEditingController();
   List<Map<String,dynamic>>?selectedResources=[];
+  String? userRole;
+  String? userId;
+  int? hrmId;
 
 
   WorkingHoursBloc() : super(WorkingHoursState (
@@ -73,6 +78,18 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               resources=response3.resource!;//3
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
+
+              Utils.getStringListPreference(Str.rolePrefText).then((role) {
+                  userRole = role.first;
+              });
+              Utils.getStringPreference(Str.userIdPrefText).then((id) {
+                  userId = id;
+              });
+              Utils.getIntPreference(Str.hrmIdPrefText).then((id) {
+                  print('hrmId1 $id');
+                  hrmId = id;
+              });
+              log("${userRole} ${userId} ${hrmId}",name:"userRole");
 
               formattedResources = resources.where((e)=>e['branch_id']==1 || e['branch_id']==null).map((resource) {
                 return {
