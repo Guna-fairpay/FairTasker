@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,7 +15,9 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   List<Map<String, dynamic>>? apiResponse = [], unfilteredResponse = [];
   DateTime selectedDate = DateTime.now();
   bool showCompletedStates = false;
+  final FBroadcast _fBroadcast = FBroadcast.instance();
   NotesBloc() : super(NotesLoadingState()) {
+    _fBroadcast.register("notes_view", (value, callback) => add(NotesInitialEvent()));
     on<NotesInitialEvent>(_onInitialEvent);
     on<NotesNextDayEvent>(_onNextDayEvent);
     on<NotesPreviousDayEvent>(_onPreviousDayEvent);
@@ -77,9 +80,9 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
 
   void _onDatePickerEvent(NotesDatePickerEvent event, Emitter<NotesStates> emit) => emit(NotesDatePickerState(selectedDate));
 
-  void _onAddNewEvent(NotesAddNewEvent event, Emitter<NotesStates> emit) => emit(NotesAddNewState());
+  void _onAddNewEvent(NotesAddNewEvent event, Emitter<NotesStates> emit) => emit(NotesAddNewState(selectedDate: selectedDate));
 
-  void _onEditEvent(NotesEditEvent event, Emitter<NotesStates> emit) => emit(NotesAddNewState(noteId: event.data?['id']));
+  void _onEditEvent(NotesEditEvent event, Emitter<NotesStates> emit) => emit(NotesAddNewState(noteId: event.data?['id'], selectedDate: selectedDate));
 
   void _onFilterEvent(NotesFilterEvent event, Emitter<NotesStates> emit) {
     showCompletedStates = event.status ?? false;

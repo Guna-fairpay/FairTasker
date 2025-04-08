@@ -33,9 +33,10 @@ class NotesDatePickerState extends NotesStates {
 
 class NotesAddNewState extends NotesStates {
   final dynamic noteId;
-  NotesAddNewState({this.noteId});
+  final DateTime selectedDate;
+  NotesAddNewState({this.noteId, required this.selectedDate});
   @override
-  List<Object?> get props => [noteId, Random().nextDouble()];
+  List<Object?> get props => [noteId, selectedDate, Random().nextDouble()];
 }
 
 class NotesDeletePermissionState extends NotesStates {
