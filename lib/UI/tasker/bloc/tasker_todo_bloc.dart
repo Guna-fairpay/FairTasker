@@ -4,6 +4,7 @@ import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
 import 'package:fairpytasker/Response/general_response.dart';
+import 'package:fairpytasker/UI/dialog/tasker_check_in_out_dialog_bloc/tasker_check_in_out_dialog_events.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -97,6 +98,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
+    _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
 
@@ -146,10 +148,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   /// FETCH TO-DO LISTING API
   void _onInitialEvent(
       ToDoTaskerInitialEvent event, Emitter<ToDoTaskerState> emit) async {
-    await CommonHelper.instance.waitForPostFrameCallback();
     try {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
+      await CommonHelper.instance.waitForPostFrameCallback();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
@@ -164,7 +166,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       unfiltered = response ?? [];
       toDos = unfiltered;
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
-      emit(ToDoTaskerLoadedState());
+      Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
+      emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error(e);
       emit(ToDoTaskerErrorState(e));
@@ -209,7 +212,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       toDos = unfiltered;
       _searchTasks();
       Console.of.debug("CHECK ${toDos.length}");
-      if (!isClosed) emit(ToDoTaskerLoadedState());
+      if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {
       Console.of.error("REFRESH_TODOS $e");
       if (!isClosed) emit(ToDoTaskerErrorState(e));
@@ -252,7 +255,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       emit(ToDoTaskerCommonState());
     } else {
       toDos = unfiltered;
-      emit(ToDoTaskerLoadedState());
+      emit(ToDoTaskerCommonState());
     }
   }
 

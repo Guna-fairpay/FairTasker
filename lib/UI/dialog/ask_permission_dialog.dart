@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 
@@ -59,7 +60,7 @@ class _AskPermissionDialogView extends StatelessWidget {
       borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
     );
     return AlertDialog(
-      title: Text("$title"),
+      title: (title.isNotNullOrEmpty) ? Text(title ?? "") : null,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
       backgroundColor: AppC.white,
@@ -70,7 +71,8 @@ class _AskPermissionDialogView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 spacing: 10,
                 children: [
-                  Text("$description",
+                  if (description.isNotNullOrEmpty)
+                  Text(description ?? "",
                       style: context.textTheme.labelLarge
                           ?.copyWith(fontWeight: FontWeight.normal)),
                   TextFormField(

@@ -97,6 +97,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                         onTap: onUserTap,
                         borderRadius: BorderRadius.circular(Num.borderRadiusXLarge),
                         child: CircleAvatar(
+                          backgroundColor: AppC.appColor,
                           child: Text("$userNameText",
                               style: context.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,

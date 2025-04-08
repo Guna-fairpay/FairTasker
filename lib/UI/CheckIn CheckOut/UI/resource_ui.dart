@@ -4,6 +4,7 @@
 import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -79,7 +80,7 @@ class WorkHoursViewUI extends StatelessWidget {
           builder: (context, state) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: 
+              child:
               Column(
                 children: [
                   const SizedBox(height: 7),

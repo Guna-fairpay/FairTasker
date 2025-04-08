@@ -2,7 +2,7 @@ import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_in_out_completed_dialog.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_vehicles_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_address_change_dialog.dart';
@@ -30,6 +30,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,6 +43,7 @@ class TaskerMainUi extends StatelessWidget {
   Widget build(BuildContext _) {
     return BlocProvider<ToDoTaskerBloc>(create: (_) => ToDoTaskerBloc()..add(ToDoTaskerInitialEvent()),
       child: BlocListener<ToDoTaskerBloc, ToDoTaskerState>(listener: (context, state) {
+        Console.of.debug("${state}", name: "TASKER_STATE");
         if (state is ToDoTaskerLoadingState) {
           if (!EasyLoading.isShow) EasyLoading.show();
         } else {
@@ -52,8 +54,8 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerDatePickerState(): Utils.showPickerDate(context, value: context.read<ToDoTaskerBloc>().selectedDate, onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateFilterEvent(val))); break;
             case ToDoTaskerAddToDoState(): context.push(CreateTodoUI(selectedDate: state.date), fullscreenDialog: true); break;
             case ToDoTaskerMicState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveRecordEvent(file))); break;
-            case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoReworkUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
-            case ToDoTaskerEditState(): context.push(EditTodoReworkUI(todoId: state.toDoId),fullscreenDialog: true); break;
+            case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
+            case ToDoTaskerEditState(): context.push(EditTodoUI(todoId: state.toDoId),fullscreenDialog: true); break;
             case ToDoTaskerTapUserFilterState(): TaskerFilterResourceDialog.show(context, selected: context.read<ToDoTaskerBloc>().selectedUsers, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerUserFilterEvent(value))); break;
             case ToDoTaskerTapVehicleFilterState(): TaskerVehicleSearchDialog.show(context); break;
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;

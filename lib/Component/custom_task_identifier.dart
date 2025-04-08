@@ -249,12 +249,9 @@ class TaskIdentifier extends StatelessWidget {
         ...(vLocations.map((e) => e['name']))
       ].contains(element));
     }
-    Console.of.error("${inputParts.length}");
     if (inputParts.length > 3) commonList.clear();
     log("$omitted ${omitted.length}", name: "OMITTED");
-    Console.of.error("${type} ${commonList.length}");
     var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
-    Console.of.debug("SECOND ${list.length}");
     return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
 

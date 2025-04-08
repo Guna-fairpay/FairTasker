@@ -1,7 +1,9 @@
 import 'package:fairpytasker/Bloc/header_bloc.dart';
 import 'package:fairpytasker/Event/header_events.dart';
 import 'package:fairpytasker/State/header_states.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/resource_ui.dart';
 import 'package:fairpytasker/UI/dialog/popup/branch_popup.dart';
+import 'package:fairpytasker/UI/resources_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -237,15 +239,7 @@ class HeaderView extends StatelessWidget {
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                        const BottomNavigationForTaskView(selectedIndex: 2, message: '',),
-                      ),
-                    );
-                  },
+                  onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
                   child: Container(
                     decoration: Utils.getBoxDecoration(),
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),

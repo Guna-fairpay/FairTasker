@@ -3,6 +3,7 @@ import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:fairpytasker/UI/Finance/Revenue/revenue_view_ui.dart';
 import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_ui.dart';
+import 'package:fairpytasker/UI/notes/notes_main_ui.dart';
 import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -67,8 +68,10 @@ class _BottomNavigationForTaskViewState
     // 0: const TodoViewUI(),
     0: const TaskerMainUi(),
     // 1: const CarStatusUI(resourceList: []),
-    1: const VehicleStatusListUi(),
-    2: WorkHoursViewUI(),
+    1: const NotesMainUi(),
+    // 1: const VehicleStatusListUi(),
+    // 2: WorkHoursViewUI(),
+    2: const VehicleStatusListUi(),
     3: const FeedBackUI(),
     4: const ExpenseTab(),
     5: const InvoiceViewUI(),
@@ -77,7 +80,7 @@ class _BottomNavigationForTaskViewState
   };
 
   Widget callPage(int current) {
-    return pages[current] ?? const TodoViewUI(); // Fallback
+    return pages[current] ?? const TaskerMainUi(); // Fallback
   }
 
   void showCustomMenu(BuildContext context) {
@@ -243,6 +246,20 @@ class _BottomNavigationForTaskViewState
           ),
           buildBottomNavItem(
             activeIcon: const Icon(
+              Icons.note_rounded,
+              color: AppC.appColor,
+              // size: 28,
+            ),
+            inactiveIcon: const Icon(
+              Icons.note_outlined,
+              color: AppC.grey,
+              // size: 28,
+            ),
+            label: 'Notes',
+            itemIndex: 1,
+          ),
+          buildBottomNavItem(
+            activeIcon: const Icon(
               Icons.verified_rounded,
               color: AppC.appColor,
               // size: 28,
@@ -253,20 +270,20 @@ class _BottomNavigationForTaskViewState
               // size: 28,
             ),
             label: 'Asset',
-            itemIndex: 1,
-          ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.supervisor_account_rounded,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.supervisor_account_outlined,
-              // size: 28,
-            ),
-            label: 'Resource',
             itemIndex: 2,
           ),
+          // buildBottomNavItem(
+          //   activeIcon: const Icon(
+          //     Icons.supervisor_account_rounded,
+          //     // size: 28,
+          //   ),
+          //   inactiveIcon: const Icon(
+          //     Icons.supervisor_account_outlined,
+          //     // size: 28,
+          //   ),
+          //   label: 'Resource',
+          //   itemIndex: 2,
+          // ),
           buildBottomNavItem(
             activeIcon: const Icon(
               Icons.sms_failed,
