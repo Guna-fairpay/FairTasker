@@ -333,15 +333,16 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoVLocationEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       if ((event.vLocation == existing[3]) || (event.vLocation == null)) {
-        existing.remove(3);
+        existing[3] = {};
       } else {
         existing[3] = event.vLocation;
       }
       Console.of.warning("${event.vLocation?['name']} ${existing.containsKey(3)} ${existing[3]}", name: "AddToDoBloc-Location");
-      if (existing.containsKey(3) && (existing[3] != null)) {
-        if ((selectedVLocation != existing[3])) selectedVLocation = existing[3];
+      if (existing.containsKey(3) && (existing[3] != null) && (Map.from(existing[3]).isNotEmpty)) {
+        if ((selectedVLocation != existing[3])) selectedVLocation = Map<String, dynamic>.from(existing[3]);
         if ((existing[3]?['name'] ?? "") != vLocationController.text) vLocationController.text = existing[3]?['name'] ?? "";
       } else {
+        selectedVLocation?.clear();
         vLocationController.clear();
       }
       emit(state.copyWith(selectedTaskIdentifier: existing, ));

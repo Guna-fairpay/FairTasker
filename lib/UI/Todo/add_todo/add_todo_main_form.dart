@@ -25,17 +25,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTodoMainForm extends StatelessWidget {
   final bool showHeader;
+
   const AddTodoMainForm({super.key, this.showHeader = true});
 
   @override
   Widget build(BuildContext context) {
-    return FocusTraversalGroup(
-      // descendantsAreFocusable: false,
-      policy: OrderedTraversalPolicy(),
+    return Expanded(
       child: ListView(
         shrinkWrap: !showHeader,
         padding: (showHeader) ? 10.topPadding : EdgeInsets.zero,
-        physics: (showHeader) ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
+        physics: (showHeader)
+            ? const BouncingScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
         children: [
           const AddTodoSubForm(),
           10.height,
@@ -52,18 +53,38 @@ class AddTodoMainForm extends StatelessWidget {
               builder: (context, state) => ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor:
-                      const WidgetStatePropertyAll(AppC.buttonColor),
+                          const WidgetStatePropertyAll(AppC.buttonColor),
                       textStyle: WidgetStatePropertyAll(context
                           .textTheme.labelLarge
                           ?.copyWith(fontWeight: FontWeight.bold)),
-                      foregroundColor:
-                      const WidgetStatePropertyAll(AppC.white),
+                      foregroundColor: const WidgetStatePropertyAll(AppC.white),
                       shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
                           borderRadius:
-                          BorderRadius.circular(Num.borderRadiusLarge)))),
+                              BorderRadius.circular(Num.borderRadiusLarge)))),
                   onPressed: () =>
                       context.read<AddToDoBloc>().add(AddToDoSaveEvent()),
-                  child: const Text("Save"))
+                  child: const Text("Save"))),
+          16.height,
+          BlocSelector<AddToDoBloc, AddToDoState, Map?>(
+            selector: (state) => state.selectedVPerson
+                .where((element) =>
+                    ["vehicles", "g_vehicles"].contains(element['type']))
+                .lastOrNull,
+            builder: (context, state) => ((state != null) &&
+                    (state.isNotEmpty ?? false))
+                ? SizedBox(
+              // height: context.height * 0.7,
+                  child: VehicleHistoryViewUI(
+                    additionalScroll: false,
+                      vin: ((state['type'] == "vehicles")
+                          ? (state['value']?['vin'])
+                          : null),
+                      vehicleName: state['name'],
+                      groupId:
+                          (state['type'] == "g_vehicles") ? state['id'] : null,
+                      showHeader: false),
+                )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
