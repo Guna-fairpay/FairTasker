@@ -1,18 +1,17 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_page.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo_ui.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_view_ui.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/auto_complete_widget.dart';
@@ -30,12 +29,9 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../Manage Custom Data/Parts/part_view_ui.dart';
-import '../Manage Custom Data/Vehicles/vehicle_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'edit_todo/ui/edit_todo_rework_ui.dart';
 
 
 List<Map<String, dynamic>?>? selectedResourceMain;
@@ -1529,7 +1525,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                 border: Border(
                   bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
                 ),
-               
+
               ),
               child: Row(
                 children: [
@@ -1554,7 +1550,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                         border: Border(
                           bottom: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1.2),
                         ),
-                        
+
                       ),
                       child: Row(
                         children: [
@@ -2640,7 +2636,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                               dynamic result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>EditTodoReworkUI(
+                                  builder: (context) =>EditTodoUI(
                                     todoId: todos['id'].toString(),
                                   ), /*EditTodoUI(
                                       todoItem: todos,

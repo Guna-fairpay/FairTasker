@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
@@ -9,6 +10,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import '../../../../Utilities/str.dart';
@@ -28,6 +30,19 @@ class EditTodoMoreForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         spacing: 5,
         children: [
+          if (state.selectedVLocations['type'] == 'location' && (state.isMoreEnable))
+            SearchViewField<Map<String, dynamic>>(
+                suggestions: List.from(state.selectedVLocations['value']['addresses'] ?? []),
+                selectedItem: state.addresses.lastOrNull,
+                controller: TextEditingController(),
+                labelText: "Address",
+                onCleared: (val) => context
+                    .read<EditToDoBloc>()
+                    .add(EditToDoAddressSelectionEvent(val, false)),
+                onSelected: (value) => context
+                    .read<EditToDoBloc>()
+                    .add(EditToDoAddressSelectionEvent(value, true)),
+                itemAsString: (item) => item['address'].toString()),
           if (state.isMoreEnable)
             Row(
               spacing: 10,
@@ -44,6 +59,27 @@ class EditTodoMoreForm extends StatelessWidget {
                         .add(EditToDoShowSuppliesEvent()),
                     state.isSuppliesEnable,
                     'Supplies'),
+                if (state.showCleanCar && (DateTime.now().compareTo(state.selectedDate??DateTime.now()) == 1))
+                  IconButton(
+                    onPressed: () =>
+                        context.read<EditToDoBloc>().add(EditToDoCleanCarEvent()),
+                    icon: const Icon(Icons.local_car_wash_sharp),
+                    style: ButtonStyle(
+                        shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide()))),
+                  ),
+                // if (state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))
+                //   Flexible(
+                //     child: CustomDropdown<Map<String, dynamic>>(
+                //       items: List.from(state.clearDurations),
+                //       value: state.selectedClearDuration,
+                //       itemAsString: (item) => item['value'].toString(),
+                //       onChanged: (value) => context
+                //           .read<EditToDoBloc>()
+                //           .add(EtidToDoCleanCarDuration(value)),
+                //     ),
+                //   )
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)
@@ -150,12 +186,36 @@ class EditTodoMoreForm extends StatelessWidget {
               && state.apiResponse['status']=="Completed")
               || (Str.unCompletedOdometer.contains(state.apiResponse['title'])))
             Column(
+              spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Utils.getText('Previous Odometer : ${state.apiResponse['mileage']??''}'),
+                RichText(text: TextSpan(
+                  text: 'Previous Odometer : ',
+                  style: context.textTheme.labelMedium?.copyWith(),
+                  children: [
+                    TextSpan(
+                      text: state.previousOdometer,
+                      style: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                )),
                 Utils.getTextFormField(
                   'Odometer',
                   context.read<EditToDoBloc>().odometerController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return null;
+                    }
+                    final inputValue = num.tryParse(value) ?? 0;
+                    final minMileage = num.tryParse(state.previousOdometer) ?? 0;
+                    return inputValue < minMileage
+                        ? "Can't enter lower than previous oil change odometer"
+                        : null;
+                  },
+                  autoValidate: AutovalidateMode.onUserInteraction,
+                  inputAction: TextInputAction.done,
+                  textType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputFormatter:[FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                 ),
               ],
             ),
@@ -186,10 +246,10 @@ class EditTodoMoreForm extends StatelessWidget {
             },
             child:
               Utils.getText(
-                    'Task History - ${state.selectedVPerson.length == 1 ? state.selectedVehicle['vehicle_name'] ?? state.selectedVPerson.first['name'] : state.selectedVehicle['vin'] ?? ''}',
-                    color: AppC.appColor,
-                    weight: FontWeight.w500,
-                  ),
+                'Task History - ${state.selectedVPerson.length == 1 ? state.selectedVehicle['vehicle_name'] ?? state.selectedVPerson.first['name'] : state.selectedVehicle['vin'] ?? ''}',
+                color: AppC.appColor,
+                weight: FontWeight.w500,
+              ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,

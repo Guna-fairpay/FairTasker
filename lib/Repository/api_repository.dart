@@ -539,15 +539,12 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteTodo({String? id, dynamic reason}) async {
+  Future<Map<String,dynamic>?> deleteTodo({String? id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl,
-          body: jsonEncode({
-            'reason': '$reason',
-          }));
+      final http.Response? response = await _apiClient.callDelete(apiUrl, body: {'reason': '$reason'});
       var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -1629,5 +1626,6 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
 
 }

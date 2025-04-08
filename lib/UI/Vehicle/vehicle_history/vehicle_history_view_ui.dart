@@ -1,7 +1,7 @@
 
 import 'package:fairpytasker/Component/custom_vehicle_history_card_view.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_rework_ui.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/bloc/vehicle_history_bloc.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/event/vehicle_history_event.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/state/vehicle_history_state.dart';
@@ -207,7 +207,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                                 VehicleHistoryDetailsUiDialog
                                                     .show(context);
                                               } else {
-                                                context.push(EditTodoReworkUI(todoId: model['id']),fullscreenDialog: true);
+                                                context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
                                               }
                                               // context.push(const VehicleHistoryDetailsUi(), fullscreenDialog: true);
                                             },
