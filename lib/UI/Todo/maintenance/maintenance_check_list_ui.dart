@@ -100,12 +100,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                         final maintenanceCheckListData =
                             state.maintenance![index];
                         var checkList = (maintenanceCheckListData['children'] as List?) ?? [];
-                        // for(var item in checkList){
-                        //   log("${item['name']}",name: "checkList");
-                        //   for(var e in item['children']){
-                        //     log("${e['name']}",name: "checkList");
-                        //   }
-                        // }
+
                         return
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

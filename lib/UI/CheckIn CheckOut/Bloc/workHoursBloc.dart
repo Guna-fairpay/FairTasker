@@ -1,13 +1,14 @@
 
 // working_hours_bloc.dart
 import 'dart:developer';
-import 'package:date_time/date_time.dart' hide DateRange;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../Repository/job_list_repository.dart';
 import '../../../Repository/todo_list_repository.dart';
+import '../../../Utilities/Str.dart';
+import '../../../Utilities/Utils.dart';
 import '../Event/workingHoursEvent.dart';
 import '../Repository/workingHoursRepository.dart';
 import '../State/workingHoursState.dart';
@@ -35,11 +36,18 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   TextEditingController amountCtrl=TextEditingController();
   final TextEditingController dateController = TextEditingController();
   List<Map<String,dynamic>>?selectedResources=[];
+  String? userRole;
+  String? userId;
+  int? hrmId;
 
 
-  WorkingHoursBloc() : super(const WorkingHoursState (
-      userList: [],
-      selectedUser: {}
+  WorkingHoursBloc() : super(WorkingHoursState (
+      userList: const [],
+      selectedUser: const {},
+    selectedDateRange: DateRange(
+      DateTime.now().subtract(const Duration(days: 7)),
+      DateTime.now(),
+    ),
   )) {
 
     on<WorkingHoursInitialEvent>((event, emit) async {
@@ -70,6 +78,18 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               resources=response3.resource!;//3
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
+
+              Utils.getStringListPreference(Str.rolePrefText).then((role) {
+                  userRole = role.first;
+              });
+              Utils.getStringPreference(Str.userIdPrefText).then((id) {
+                  userId = id;
+              });
+              Utils.getIntPreference(Str.hrmIdPrefText).then((id) {
+                  print('hrmId1 $id');
+                  hrmId = id;
+              });
+              log("${userRole} ${userId} ${hrmId}",name:"userRole");
 
               formattedResources = resources.where((e)=>e['branch_id']==1 || e['branch_id']==null).map((resource) {
                 return {
@@ -1219,6 +1239,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           isLoading: false,
         ));
       }
+    });
+
+    on<UpdateDateRangeEvent>((event, emit) {
+      emit(state.copyWith(selectedDateRange: event.selectedRange));
     });
 
   }

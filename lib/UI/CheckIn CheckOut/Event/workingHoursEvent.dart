@@ -1,6 +1,6 @@
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
 abstract class WorkingHoursEvent extends Equatable {
   const WorkingHoursEvent();
@@ -161,6 +161,13 @@ class ExtendedDetailsTaskEvent extends WorkingHoursEvent{
 });
   @override
   List<Object?> get props => [id,];
+}
+
+class UpdateDateRangeEvent extends WorkingHoursEvent {
+  final DateRange? selectedRange;
+  const UpdateDateRangeEvent({required this.selectedRange});
+  @override
+  List<Object?> get props => [selectedRange];
 }
 
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {

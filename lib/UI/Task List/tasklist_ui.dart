@@ -69,10 +69,6 @@ class TasklistUi extends StatelessWidget {
                   IconButton(onPressed: context.pop, icon: const Icon(Icons.close_rounded))
                 ],
               ),
-              // const PreferredSize(
-              //   preferredSize: Size.fromHeight(35.0),
-              //   child: HeaderView(),
-              // ),
               body:
               SafeArea(
                 child: Padding(
@@ -82,18 +78,11 @@ class TasklistUi extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title
-                      /*const Text(
-                        'Task List',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),*/
-                      // const SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
-                            child:DateRangePicker(
+                            child:
+                            DateRangePicker(
                               selectedDateRange: state.selectedDateRange,
                               onDateRangeSelected: (range) {
                                 Console.of.log("DATE_RANGE ${range}");
