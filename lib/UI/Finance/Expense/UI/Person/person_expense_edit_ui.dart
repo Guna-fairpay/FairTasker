@@ -30,6 +30,7 @@ class PersonExpenseEditUI extends StatelessWidget {
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+         if(state.popEditPage) Navigator.pop(context);
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {
@@ -165,8 +166,7 @@ class PersonExpenseEditUI extends StatelessWidget {
                         ],
                       ),
                       20.height,
-                      Utils.getTextFormField("Description",
-                          context.read<PersonExpenseBloc>().descriptionController),
+                      Utils.getTextFormField("Description", context.read<PersonExpenseBloc>().descriptionController),
                       15.height,
                       GestureDetector(
                         onTap: () =>
@@ -274,9 +274,9 @@ class PersonExpenseEditUI extends StatelessWidget {
                           return Toaster.showError("Please select approved status");
                         }
                         context.read<PersonExpenseBloc>().add(SavePersonExpenseEvent(id: id));
-                        Future.delayed(const Duration(seconds: 1),
+                        /*Future.delayed(const Duration(seconds: 1),
                               () => context.pop(),
-                        );
+                        );*/
                       })
                     ],
                   ),

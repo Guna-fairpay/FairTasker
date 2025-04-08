@@ -49,6 +49,7 @@ class EditTodoState extends Equatable {
   final bool showCleanCar;
   final dynamic selectedClearDuration;
   final bool isPop;
+  final List<dynamic>clearDurations;
 
   const EditTodoState( {
     required this.isLoading,
@@ -96,6 +97,7 @@ class EditTodoState extends Equatable {
     required this.showCleanCar,
     this.selectedClearDuration,
     required this.isPop,
+    required this.clearDurations,
   });
 
   EditTodoState copyWith({
@@ -204,11 +206,12 @@ class EditTodoState extends Equatable {
         showCleanCar: showCleanCar ?? this.showCleanCar,
         selectedClearDuration:selectedClearDuration ?? this.selectedClearDuration,
         isPop: isPop ?? this.isPop,
+        clearDurations: clearDurations ?? this.clearDurations,
+
       );
 
   @override
   List<Object?> get props => [
-    // showAppBar,
     selectedVPerson,
     selectedVLocations,
     isLoading,
@@ -254,6 +257,7 @@ class EditTodoState extends Equatable {
     showCleanCar,
     selectedClearDuration,
     isPop,
+    clearDurations,
     Random().nextDouble()
   ];
 }

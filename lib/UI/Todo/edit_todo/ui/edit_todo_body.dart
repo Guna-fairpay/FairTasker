@@ -6,6 +6,7 @@ import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -201,11 +202,9 @@ class EditTodoBody extends StatelessWidget {
                     readOnly: false,
                     onChangeCallback: (value) {}),
                 10.height,
-                if (state.showPlatformCheck)
-                  Utils.getCircleCheckWidget(
-                      () => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoPlatformCheckEvent()),
+                if (state.showPlatformCheck ||Str.platFormCheckIds.contains(state.selectedTask['id']))
+                  Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(
+                      EditToDoPlatformCheckEvent()),
                       state.isSelectedPlatformCheck,
                       'Platform Check'),
                 10.height,

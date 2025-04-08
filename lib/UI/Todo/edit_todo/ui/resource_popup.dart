@@ -1,8 +1,7 @@
 
-import 'dart:developer';
-
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import '../../../../utilities/appC.dart';
 
@@ -49,13 +48,9 @@ class ResourceSelection {
                             onTap: () {
                               Navigator.of(context).pop();
                             },
-                            child: const Padding(
-                              padding: EdgeInsets.only(bottom: 5.0),
-                              child: Icon(
-                                Icons.close_sharp,
-                                color: Colors.red,
-                                size: 20,
-                              ),
+                            child: const Icon(
+                              Icons.close_sharp,
+                              color: Colors.red,
                             ),
                           ),
                         ),
@@ -73,27 +68,33 @@ class ResourceSelection {
                               return GestureDetector(
                                 onTap: () {
                                   if (isSelected) {
-                                    if(value.length != 1) selectedIdsNotifier.value.remove(resourceId);
-                                   if(name.length != 1) name.remove(resourceList[index]);
+                                    if (name.length <= 1 && value.length <= 1) {
+                                      Toaster.showWarning("Cannot proceed without a resource selected");
+                                      return;
+                                    }
+                                    selectedIdsNotifier.value.remove(resourceId);
+                                    name.remove(resourceList[index]);
                                   } else {
                                     selectedIdsNotifier.value.add(resourceId);
                                     name.add(resourceList[index]);
                                   }
                                   selectedIdsNotifier.notifyListeners();
                                   onSelectionChanged(selectedIdsNotifier.value,name);
-                                  log({name.length}.toString(),name: 'NAME');
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 2.0),
                                   child: Container(
-                                    color: isSelected ? AppC.appColor : Colors.transparent,
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? AppC.appColor : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0,
-                                      vertical: 2.0,
+                                      vertical: 3.0,
                                     ),
                                     child: Utils.getText(
                                       <String>[(user?['first_name'] ?? ""), (user?['last_name'] ?? "")].toInitial,
-                                      size: 12,
                                       weight: FontWeight.bold,
                                       color: isSelected ? AppC.white : AppC.appColor,
                                     ),

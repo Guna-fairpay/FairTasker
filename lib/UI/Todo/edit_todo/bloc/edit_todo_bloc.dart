@@ -61,6 +61,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   late DateTime editToDoDate;
   bool showCleanCar = false;
 
+
   EditToDoBloc()
       : super(EditTodoState(
           isLoading: false,
@@ -108,6 +109,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
           showCleanCar: false,
           isPop: false,
+          clearDurations: AddToDoConfig.cleanCarDurations,
       )) {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -152,6 +154,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         tripDrivenController.text=todoResponse?.editTodos?['trip_driven'] ?? '';
         resolutionNotesController.text=todoResponse?.editTodos?['resolution_notes'] ?? '';
         commentsController.text=todoResponse?.editTodos?['comments'] ?? '';
+        odometerController.text= "${todoResponse?.editTodos?['mileage'] ?? ''}";
 
         if (todoResponse?.editTodos?['trip_review'] != null) {
           selectedSentiments= AddToDoConfig.sentiments.firstWhereOrNull(
@@ -613,24 +616,27 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("Task name is required");
         return;
       }
-
       var isPlatformRequired = Str.platFormCheckIds.contains(state.selectedTask['id']) && departmentId == '7' && !state.isSelectedPlatformCheck;
       if (isPlatformRequired) {
         Toaster.showError("Platform check is required");
         return;
       }
       if(state.selectedTask['id'] == 257){
-
+        final inputValue = num.tryParse(odometerController.text) ?? 0;
+        final minMileage = num.tryParse(state.previousOdometer) ?? 0;
+        if (odometerController.text.isNotEmpty && inputValue < minMileage) {
+          Toaster.showError("Can't enter lower than previous oil change odometer");
+          return;
+        }
       }
       // API CALL
       try {
         emit(state.copyWith(isLoading: true));
         var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
             images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
-        if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
+        if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message']);
         _broadcast.stickyBroadcast("todo_view", value:true);
         emit(state.copyWith(isLoading: false,isPop: true));
-        if (response?['status'] == 200) emit(state.copyWith(redirect: true));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(),name: 'ERROR');
@@ -656,7 +662,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       try {
         emit(state.copyWith(isLoading: true));
-        var response = await todoListRepo.cleanCar(body:{} /*_cleanCarBody()*/);
+        var response = await todoListRepo.cleanCar(body: _cleanCarBody());
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response != null) Toaster.showSuccess(response['message'] ?? "Success");
         emit(state.copyWith(isLoading: false));
@@ -670,11 +676,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
 
   Map<String, String> _editTodoBody() {
-
     state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
-
     Map<String, String> baseBody = {};
-
     baseBody['title'] = "${state.selectedTask['task']??''}";
     baseBody['identifier_id'] = "${state.selectedTask['id']??''}";
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
@@ -685,10 +688,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
-    baseBody['odometer'] = odometerController.text;
     baseBody['todo_user_type'] = "0";
     baseBody['comments'] = "";
-    baseBody['mileage'] = "";
+    baseBody['mileage'] = odometerController.text;
     baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
@@ -765,6 +767,100 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
 
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
+    return baseBody;
+  }
+
+  Map<String, String> _cleanCarBody() {
+   // state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
+    Map<String, String> baseBody = {};
+    baseBody['title'] = "Clean Car";
+    baseBody['identifier_id'] = "30";
+    baseBody['todo_time'] = state.selectedTime.toHMS().toString();
+    baseBody['start_at'] = dateController.text;
+   // baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
+    baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
+    // baseBody['comments'] = commentsController.text;
+    baseBody['resolution_notes'] = resolutionNotesController.text;
+    baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
+    baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
+    baseBody['todo_user_type'] = "0";
+    baseBody['comments'] = "";
+    baseBody['mileage'] = odometerController.text;
+    baseBody['resolution_notes'] = "";
+    baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
+    baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
+    baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
+    baseBody['trip_driven'] = tripDrivenController.text;
+    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1)
+        ? customLinkController.text
+        : "";
+    baseBody['reference_id'] = (state.selectedLinkOption?['id'] != 1)
+        ? customLinkController.text
+        : "";
+    if(state.selectedResource.isNotEmpty){
+      if (state.selectedResource.length == 1) {
+        baseBody['user_id'] = state.selectedResource.first.toString();
+        baseBody['assigned_to'] = state.selectedResource.first;
+      }
+      else if (state.selectedResource.length > 1) {
+        baseBody['user_group_data'] = "${state.selectedResource}";
+        baseBody['assigned_to'] = "${state.selectedResource}";
+      }
+    }
+
+    baseBody['parts']= "${state.selectedParts.isEmpty
+        ? null
+        : state.selectedParts.map((e)=>jsonEncode({
+      "parts_id": "${e['id']}",
+      "parts_name": "${e['name']}",
+    }) ).toList()}";
+
+    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
+        ? null
+        : state.selectedSupplies.map((e)=>jsonEncode({
+      "supplies_id": "${e['id']}",
+      "supplies_name": "${e['name']}",
+    }) ).toList()}";
+
+    if(state.selectedVLocations.isNotEmpty) {
+      if (state.selectedVLocations['type'] == "location") {
+        baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
+      }
+      if (state.selectedVLocations['type'] == "vendor") {
+        baseBody['vendor'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
+      }
+    }
+    baseBody['vehicles']= "${state.selectedVPerson
+        .where((element) => element['type'] == "vehicles")
+        .map((e) => e['value'])
+        .map((e) => jsonEncode({
+      "cohort_id": "${e['cohort']?['id'] ?? ""}",
+      "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+      "vin": e['vin'],
+      "vehicle_name": e['vehicle_name'],
+      "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
+      "vehicle_number": e['vehicle_number']
+    })).toList()}";
+    var personList = state.selectedVPerson
+        .where((element) => element['type'] == "person")
+        .toList();
+
+    var firstPerson = personList.isNotEmpty ? personList.first : null;
+
+    baseBody['person'] = firstPerson?['name']?.toString() ?? "";
+    baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+
+    var groupVehicleList = state.selectedVPerson
+        .where((element) => element['type'] == "g_vehicles")
+        .toList();
+
+    var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
+
+    baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
+
+    log(jsonEncode(baseBody), name: "CLEAN_CAR_JSON_BODY");
     return baseBody;
   }
 

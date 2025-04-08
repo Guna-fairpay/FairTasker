@@ -432,15 +432,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         }).toList();
         await apiRepository.expenseApprove(
             id: event.model['id'].toString(), approved: event.approved);
-
         _resetAll();
-
         /*List<dynamic> filteredResponse =
             filterApprovedResponse(existResponse, state.isExpenseApproved);
-
         approvedAmount = 0;
         unApprovedAmount = 0;
-
         if (state.isExpenseApproved) {
           approvedAmount = filteredResponse
               .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
@@ -451,7 +447,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
               .sum;
         }
-
         emit(state.copyWith(
           isLoading: false,
           filteredResponse: filteredResponse,
