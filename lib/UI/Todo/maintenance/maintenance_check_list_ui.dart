@@ -59,6 +59,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            log("${vehicle}", name: "VEHICLE_DATA");
           }
         },
         child:

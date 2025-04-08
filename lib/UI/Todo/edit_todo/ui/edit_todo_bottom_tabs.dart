@@ -48,9 +48,9 @@ class EditTodoBottomTabs extends StatelessWidget {
                       expenseId: state.apiResponse['expense_id'],
                       todoItem: state.apiResponse,
                       selectedParts: state.selectedParts,
-                selectedSupplies: state.selectedSupplies,
-                selectedVendor: state.selectedVLocations,
-                    )
+                      selectedSupplies: state.selectedSupplies,
+                      selectedVendor: state.selectedVLocations,
+                  )
                   : state.selectedBottomTap['id'] == 2
                       ? const CreateTodoUI(showHeader: false)
                   :state.selectedBottomTap['id'] == 3
@@ -58,7 +58,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                   :state.selectedBottomTap['id'] == 4
                   ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 5
-                  ?VehicleEditUI(vehicle: state.taskHistory.first, todoItems: state.apiResponse, showHeader: false,)
+                  ?VehicleEditUI(vehicle: state.taskHistory.first,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   :state.selectedBottomTap['id'] == 6
                   ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.taskHistory.first,) //Add by RDB
                   :const SizedBox(),

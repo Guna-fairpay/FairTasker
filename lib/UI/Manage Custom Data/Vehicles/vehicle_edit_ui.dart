@@ -6,6 +6,7 @@ import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../../../Bloc/todo_view_bloc.dart';
 import '../../../Component/close_badge.dart';
 import '../../../Component/header.dart';
@@ -24,19 +25,19 @@ import '../../dialog/show_attachments_dialog.dart';
 class VehicleEditUI extends StatefulWidget {
   final bool showHeader;
   late final Map<String, dynamic> vehicle;
-  final Map<String, dynamic>? data;
   final Map<String, dynamic> todoItems;
+  final dynamic selectedVehicle;
 
   VehicleEditUI({
     super.key,
     required this.vehicle,
     this.showHeader = true,
-    this.data,
     required this.todoItems,
+    required this.selectedVehicle,
   }) {
     d.log("${vehicle}", name: "VEHICLE_DATA");
     d.log("${todoItems}", name: "TODO_DATA");
-    d.log("${data}", name: "DATA");
+    d.log("${selectedVehicle}", name: "SELECTED_VEHICLE");
   }
   @override
   State<VehicleEditUI> createState() => _VehicleEditUIState();
@@ -111,7 +112,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   void didUpdateWidget(covariant VehicleEditUI oldWidget) {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.vehicle != widget.vehicle ||
+    if (oldWidget.selectedVehicle != widget.selectedVehicle ||
         oldWidget.todoItems != widget.todoItems) {
       d.log("DID UPDATED WIDGET", name:"UPDATE_WIDGET" );
       _reinitialize();
@@ -132,32 +133,33 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   void _reinitialize() {
     d.log("${widget.vehicle}", name: "VEHICLE_UPDATED");
     setState(() {
-      yearController.text = widget.vehicle['year'] ?? '';
-      makeController.text = widget.vehicle['make'] ?? '';
-      modelController.text = widget.vehicle['model']?.toString() ?? '';
-      vehicleNumberController.text = widget.vehicle['vehicle_number']?.toString() ?? '';
-      vinController.text = widget.vehicle['vin']?.toString() ?? '';
-      purchaseDateController.text = widget.vehicle['purchase_date']?.toString() ?? '';
-      vehicleIdController.text = widget.vehicle['vehicle_id']?.toString() ?? '';
-      purchasePriceController.text = widget.vehicle['purchase_price']?.toString() ?? '';
-      earningsController.text = widget.vehicle['earnings']?.toString() ?? '';
-      utilizationRateController.text = widget.vehicle['utilization_rate']?.toString() ?? '';
-      platformController.text = widget.vehicle['platform']?.toString() ?? '';
-      mileageController.text = widget.vehicle['mileage']?.toString() ?? '';
-      wholeSaleAmountController.text = widget.vehicle['wholesale_amount']?.toString() ?? '';
-      addressController.text = widget.vehicle['address']?.toString() ?? '';
-      carNumberController.text = widget.vehicle['car_number']?.toString() ?? '';
-      oilGradeController.text = widget.vehicle['oil_grade']?.toString() ?? '';
-      frontTireController.text = widget.vehicle['front_tire']?.toString() ?? '';
-      rearTireController.text = widget.vehicle['rear_tire']?.toString() ?? '';
-      renewalDateController.text = widget.vehicle['registration_renewal_date']?.toString() ?? '';
-      currentOdometerController.text = widget.vehicle['current_odometer']?.toString() ?? '';
-      oilChangeOdometerController.text =  widget.vehicle['oil_change_odometer']?.toString() ?? '';
-      maintenanceCheckController.text = widget.vehicle['maintenance_check']?.toString() ?? '';
-      tollTagsIdController.text = widget.vehicle['toll_tags_id']?.toString() ?? '';
-      spareTireController.text = widget.vehicle['tire_size']?.toString() ?? '';
-      insuranceCostController.text = widget.vehicle['insurance_cost']?.toString() ?? '';
-      insuranceAgentController.text = widget.vehicle['insurance_agent']?.toString() ?? '';
+      yearController.text = widget.selectedVehicle['year'] ?? '';
+      makeController.text = widget.selectedVehicle['make'] ?? '';
+      modelController.text = widget.selectedVehicle['model']?.toString() ?? '';
+      vehicleNumberController.text = widget.selectedVehicle['vehicle_number']?.toString() ?? '';
+      vinController.text = widget.selectedVehicle['vin']?.toString() ?? '';
+      purchaseDateController.text = widget.selectedVehicle['purchase_date']?.toString() ?? '';
+      vehicleIdController.text = widget.selectedVehicle['vehicle_id']?.toString() ?? '';
+      purchasePriceController.text = widget.selectedVehicle['purchase_price']?.toString() ?? '';
+      earningsController.text = widget.selectedVehicle['earnings']?.toString() ?? '';
+      utilizationRateController.text = widget.selectedVehicle['utilization_rate']?.toString() ?? '';
+      platformController.text = widget.selectedVehicle['platform']?.toString() ?? '';
+      mileageController.text = widget.selectedVehicle['mileage']?.toString() ?? '';
+      wholeSaleAmountController.text = widget.selectedVehicle['wholesale_amount']?.toString() ?? '';
+      addressController.text = widget.selectedVehicle['address']?.toString() ?? '';
+      carNumberController.text = widget.selectedVehicle['car_number']?.toString() ?? '';
+      oilGradeController.text = widget.selectedVehicle['oil_grade']?.toString() ?? '';
+      frontTireController.text = widget.selectedVehicle['front_tire']?.toString() ?? '';
+      rearTireController.text = widget.selectedVehicle['rear_tire']?.toString() ?? '';
+      renewalDateController.text = widget.selectedVehicle['registration_renewal_date']?.toString() ?? '';
+      //renewalDateController.text = DateFormat('dd-MM-yyyy').parse(widget.selectedVehicle['registration_renewal_date'].toString()).toString() ?? '';
+      currentOdometerController.text = widget.selectedVehicle['current_odometer']?.toString() ?? '';
+      oilChangeOdometerController.text =  widget.selectedVehicle['oil_change_odometer']?.toString() ?? '';
+      maintenanceCheckController.text = widget.selectedVehicle['maintenance_check']?.toString() ?? '';
+      tollTagsIdController.text = widget.selectedVehicle['toll_tags_id']?.toString() ?? '';
+      spareTireController.text = widget.selectedVehicle['tire_size']?.toString() ?? '';
+      insuranceCostController.text = widget.selectedVehicle['insurance_cost']?.toString() ?? '';
+      insuranceAgentController.text = widget.selectedVehicle['insurance_agent']?.toString() ?? '';
 
       vehicleImageFile.clear();
       tireImageFile.clear();
@@ -166,57 +168,57 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       insuranceImage.clear();
       receiptImageFile.clear();
       for (Map<String, dynamic> c in cohortsData) {
-        if (c['id'] == widget.vehicle['cohort_id']) {
+        if (c['id'] == widget.selectedVehicle['cohort_id']) {
           selectedCohortsData = c;
         }
       }
       for (Map<String, dynamic> c in categoriesData) {
-        if (c['id'] == widget.vehicle['vehicle_status']) {
+        if (c['id'] == widget.selectedVehicle['vehicle_status']) {
           selectedCategoriesData = c;
         }
       }
       selectedVehicleStatus =
-      (widget.vehicle['active'] ?? vehicleStatusList[1]) == 1
+      (widget.selectedVehicle['active'] ?? vehicleStatusList[1]) == 1
           ? vehicleStatusList[0]
           : vehicleStatusList[1];
 
-      vehicleImageFile = (widget.vehicle['images'] as List<dynamic>?)
+      vehicleImageFile = (widget.selectedVehicle['images'] as List<dynamic>?)
           ?.where((image) => image['vehicle_image_type'] == 1)
           .toList() ??
           [];
-      var tireImages = (widget.vehicle['images'] as List<dynamic>?)
+      var tireImages = (widget.selectedVehicle['images'] as List<dynamic>?)
           ?.where((image) => image['vehicle_image_type'] == 2)
           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
           .toList() ??
           [];
       tireImageFile.addAll(tireImages);
-      var tollImages = (widget.vehicle['images'] as List<dynamic>?)
+      var tollImages = (widget.selectedVehicle['images'] as List<dynamic>?)
           ?.where((image) => image['vehicle_image_type'] == 5)
           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
           .toList() ??
           [];
       tollImage.addAll(tollImages);
-      var uploadRegStickers = (widget.vehicle['images'] as List<dynamic>?)
+      var uploadRegStickers = (widget.selectedVehicle['images'] as List<dynamic>?)
           ?.where((image) => image['vehicle_image_type'] == 3)
           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
           .toList() ??
           [];
       uploadRegSticker.addAll(uploadRegStickers);
-      var insuranceImages = (widget.vehicle['images'] as List<dynamic>?)
+      var insuranceImages = (widget.selectedVehicle['images'] as List<dynamic>?)
           ?.where((image) => image['vehicle_image_type'] == 4)
           .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
           .toList() ??
           [];
       insuranceImage.addAll(insuranceImages);
-      receiptImageFile.addAll(widget.vehicle['expenses']?['attachments'] ?? []);
-      bouncie = (widget.vehicle['bouncie'] == 1);
-      airTag = (widget.vehicle['air_tag'] == 1);
-      permanentPlate = (widget.vehicle['permanent_plate'] == 1);
-      spareTire = (widget.vehicle['spare_tire'] == 1);
-      spareKey = (widget.vehicle['spare_key'] == 1);
-      permanentPlate = (widget.vehicle['permanent_plate'] == 1);
-      frontLicensePlate = (widget.vehicle['front_license_plate'] == 1);
-      tollTags = (widget.vehicle['toll_tags'] == 1);
+      receiptImageFile.addAll(widget.selectedVehicle['expenses']?['attachments'] ?? []);
+      bouncie = (widget.selectedVehicle['bouncie'] == 1);
+      airTag = (widget.selectedVehicle['air_tag'] == 1);
+      permanentPlate = (widget.selectedVehicle['permanent_plate'] == 1);
+      spareTire = (widget.selectedVehicle['spare_tire'] == 1);
+      spareKey = (widget.selectedVehicle['spare_key'] == 1);
+      permanentPlate = (widget.selectedVehicle['permanent_plate'] == 1);
+      frontLicensePlate = (widget.selectedVehicle['front_license_plate'] == 1);
+      tollTags = (widget.selectedVehicle['toll_tags'] == 1);
     });
     if (widget.showHeader == false) {
       showMore = true;
@@ -290,6 +292,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     imageCache.clearLiveImages();
 
   }
+
+
 
   Future<void> _fetchUpdatedImages() async {
     await Future.delayed(const Duration(seconds: 2));
@@ -494,7 +498,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         {
           EasyLoading.dismiss();
           print("vehicle data ${widget.vehicle['vehicle_name']}");
-          print("dropDownData ${widget.data}");
           createExpenseFieldData = state.createExpenseFieldData;
           if (state.createExpenseFieldData != null) {
             setState(() {
@@ -537,6 +540,14 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           setState(() {
             loading = false;
           });
+        }
+        if (renewalDateController.text.isNotEmpty) {
+          try {
+            final parsed = DateTime.parse(renewalDateController.text);
+            renewalDateController.text = DateFormat('dd-MM-yyyy').format(parsed);
+          } catch (e) {
+            // handle or ignore invalid date format
+          }
         }
       },
       builder: (context, state) {
@@ -932,48 +943,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                   ),
                                 ),
                               ),
-                              Utils.getTextFormField(
-                                '',
-                                earningsController,
-                                label: Utils.getText('Earnings', color: AppC.grey),
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.getTextFormField(
-                                '',
-                                utilizationRateController,
-                                label: Utils.getText('Utilization Rate', color: AppC.grey),
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.getTextFormField(
-                                '',
-                                platformController,
-                                label: Utils.getText('Platform', color: AppC.grey),
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.getTextFormField(
-                                '',
-                                mileageController,
-                                label: Utils.getText('Mileage', color: AppC.grey),
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.getTextFormField(
-                                '',
-                                wholeSaleAmountController,
-                                label: Utils.getText('Wholesale Amount', color: AppC.grey),
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.dropdownBox(
-                                'Select Category',
-                                categoriesData,
-                                    (selectedValue) {
-                                  setState(() {
-                                    selectedCategoriesData = selectedValue;
-                                  });
-                                },
-                                labelKey: 'category_name',
-                                initialSelection: selectedCategoriesData,
-                              ),
-                              const SizedBox(height: 10),
                               SizedBox(
                                 height: 35,
                                 child: Container(
@@ -1460,12 +1429,15 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
 
                                         readOnly: true,
                                         onTapCallback: () {
+                                          //d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
+                                          renewalDateController.text = DateFormat('dd-MM-yyyy').format(DateTime?.tryParse(renewalDateController.text) ?? DateTime.now());
+                                          d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
                                           Utils.datePicker(context, '',
-                                              initial: DateTime.tryParse(renewalDateController.text))
+                                              initial: DateFormat('dd-MM-yyyy').parse(renewalDateController.text))
                                               .then((value) {
                                             if (value != null) {
                                               renewalDateController.text =
-                                                  Utils.convertDateTimeToTheFormat(value.toString());
+                                                  DateFormat('dd-MM-yyyy').format(value);
                                             }
                                           });
                                         },

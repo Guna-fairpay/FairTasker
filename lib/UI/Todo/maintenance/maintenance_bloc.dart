@@ -268,10 +268,10 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         print("Updated maintenanceTaskId: $maintenanceTaskId");
         var dropDownData1 = goodData;
         log("$dropDownData1", name: "GOOD_DATA1");
-        var dropDownData = event.status == false
-            ? {"id": 99, "name": "Not Checked"} // Set to "Not Checked" if event.status is false
-            : (goodData ?? {"id": childrens.first['id'], "name": "Good"});
-        log("$dropDownData", name: "GOOD_DATA");
+        // var dropDownData = event.status == false
+        //     ? {"id": 99, "name": "Not Checked"}
+        //     : (goodData ?? {"id": childrens.first['id'], "name": "Good"});
+        log("$dropDownData1", name: "GOOD_DATA");
 
         List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
           List<int> matchingIds = [];
@@ -314,17 +314,18 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         emit(state.copyWith(
           popupId: popupId,
           individualCheckStates: updatedIndividualCheckStates,
-          dropdownValue: dropDownData,
+          dropdownValue: dropDownData1,
         ));
     });
 
     //Create Fix Task
     on<createFixTaskEvent>((event, emit) async {
-      print("${todoItemsCopy['user_id']} ${todoItemsCopy['user_group_id']} ${event.item} maintenanceTaskId ${event.maintenanceTaskId} ${event.notes}"
-          "${event.comments} ${todoItemsCopy['todo_time']} ${todoItemsCopy['todo_date']} ${event.item} ${todoItemsCopy['vehicles']}"
-          "${todoItemsCopy['location']} ${todoItemsCopy['location_id']} ${todoItemsCopy['vendor_id']} ${todoItemsCopy['vendor_name']}"
-          "${vehiclesCopy['vehicle_number']}");
-      try{
+      // print("${todoItemsCopy['user_id']} ${todoItemsCopy['user_group_id']} ${event.item} maintenanceTaskId ${event.maintenanceTaskId} ${event.notes}"
+      //     "${event.comments} ${todoItemsCopy['todo_time']} ${todoItemsCopy['todo_date']} ${event.item} ${todoItemsCopy['vehicles']}"
+      //     "${todoItemsCopy['location']} ${todoItemsCopy['location_id']} ${todoItemsCopy['vendor_id']} ${todoItemsCopy['vendor_name']}"
+      //     "${vehiclesCopy['vehicle_number']}");
+      try
+      {
         await todoListRepo.createFixTask(CreateFixTaskData()
           ..userId = todoItemsCopy['user_id']
           ..userGroupId = int.tryParse(todoItemsCopy['user_group_id']?.toString() ?? '0') ?? 0
@@ -344,7 +345,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           ..vehicleNumber = vehiclesCopy['vehicle_number']);
         _broadcast.stickyBroadcast("todo_view", value: true);
       }
-      catch(e){
+      catch(e)
+      {
         print("catch error ${e.toString()}");
       }
     });
@@ -369,8 +371,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
 
           for (var task in maintenanceTasks) {
             String maintenanceTaskId = task["maintenance_task_id"];
-            List<int> taskIds = maintenanceTaskId
-                .split(" - ")
+            List<int> taskIds = maintenanceTaskId.trim()
+                .split("-")
                 .map((id) => int.tryParse(id) ?? -1)
                 .where((id) => id != -1)
                 .toList();
@@ -405,8 +407,8 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
               .toList();
           for (var task in maintenanceTasks) {
             String maintenanceTaskId = task["maintenance_task_id"];
-            List<int> taskIds = maintenanceTaskId
-                .split(" - ")
+            List<int> taskIds = maintenanceTaskId.trim()
+                .split("-")
                 .map((id) => int.tryParse(id) ?? -1)
                 .where((id) => id != -1)
                 .toList();
@@ -487,10 +489,9 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         List<Map<String, dynamic>> mergeAndCleanData({
           required List<Map<String, dynamic>> matchingTodos,
           required List<Map<String, dynamic>> data,
-        }) {
-          // Create a map of matchingTodos by their 'notes' (without HTML tags) for easy lookup
+        })
+        {
           final matchedDataMap = <String, Map<String, dynamic>>{};
-
           for (final todo in matchingTodos) {
             if (todo['notes'] != null) {
               // Extract the base note text without HTML tags
@@ -502,7 +503,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
 
               matchedDataMap[baseNote] = {
                 'dbNote': dbNote,
-                'todoId': todo['id'], // Include the ID from matchingTodos
+                'todoId': todo['id'],
               };
             }
           }
@@ -518,7 +519,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
               ...item,
               'isChecked': dbNote == null,
               'dbNote': dbNote,
-              'todoId': todoId, // Add the ID from matchingTodos
+              'todoId': todoId,
             };
           }).toList();
         }

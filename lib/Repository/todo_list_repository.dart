@@ -3338,7 +3338,6 @@ class TodoListRepo {
 
       dynamic fixTaskId1 = createFixTaskData.maintenanceTaskId?.split('-')[1] ?? '';
 
-      // Add new entry to existing static map
       fixTasksMap[fixTaskId1] = fixTaskId['todo'][0]['id'];
 
       final http.Response? response1 = await apiClient.callPostMethod(apiUrl1, body: jsonEncode({
