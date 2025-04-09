@@ -29,9 +29,9 @@ class HeaderView extends StatelessWidget {
       child: BlocListener<HeaderBloc, HeaderState>(
         listener: (context, state) {
           if (state is HeaderLoadingState) {
-            if (!EasyLoading.isShow) EasyLoading.show();
+            // if (!EasyLoading.isShow) EasyLoading.show();
           } else {
-            if (EasyLoading.isShow) EasyLoading.dismiss();
+            // if (EasyLoading.isShow) EasyLoading.dismiss();
             if (state is HeaderErrorState) {
               Console.of.error(state.message);
             }

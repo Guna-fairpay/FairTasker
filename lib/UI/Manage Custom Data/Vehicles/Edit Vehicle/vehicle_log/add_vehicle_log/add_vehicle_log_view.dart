@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fairpytasker/Component/audio_player_widget.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Component/video_player_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/add_vehicle_log/add_vehicle_log_bloc/add_vehicle_log_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/add_vehicle_log/add_vehicle_log_bloc/add_vehicle_log_events.dart';
@@ -20,38 +21,37 @@ import 'package:video_player/video_player.dart';
 
 class AddVehicleLogView extends StatelessWidget {
   final dynamic vin;
-  const AddVehicleLogView({super.key, required this.vin});
+  final Widget? searchChild;
+  const AddVehicleLogView({super.key, required this.vin, this.searchChild});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: BlocProvider(
-        create: (context) => AddVehicleLogBloc()..add(AddVehicleLogInitialEvent(vin)),
-        child: BlocListener<AddVehicleLogBloc, AddVehicleLogState>(
-          listener: (context, state) {
-            if (state is AddVehicleLogLoadingState) {
-              EasyLoading.show();
-            } else {
-              if (EasyLoading.isShow) EasyLoading.dismiss();
-              switch (state) {
-                case AddVehicleLogErrorState() : Toaster.showError(state.message); break;
-                case AddVehicleLogSuccessState() : Toaster.showSuccess(state.message); break;
-                case AddVehicleLogCompletedState() : Navigator.pop(context); break;
-                case AddVehicleLogRecorderAudioState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<AddVehicleLogBloc>().add(AddVehicleLogAudioInsertEvent(file))); break;
-              }
+    return BlocProvider(
+      create: (context) => AddVehicleLogBloc()..add(AddVehicleLogInitialEvent(vin)),
+      child: BlocListener<AddVehicleLogBloc, AddVehicleLogState>(
+        listener: (context, state) {
+          if (state is AddVehicleLogLoadingState) {
+            EasyLoading.show();
+          } else {
+            if (EasyLoading.isShow) EasyLoading.dismiss();
+            switch (state) {
+              case AddVehicleLogErrorState() : Toaster.showError(state.message); break;
+              case AddVehicleLogSuccessState() : Toaster.showSuccess(state.message); break;
+              case AddVehicleLogCompletedState() : Navigator.pop(context); break;
+              case AddVehicleLogRecorderAudioState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<AddVehicleLogBloc>().add(AddVehicleLogAudioInsertEvent(file))); break;
             }
-          },
-          child: SafeArea(
-              minimum: 10.padding, child: const _AddVehicleLogBodyView()),
-        ),
+          }
+        },
+        child: SafeArea(
+            minimum: 10.padding, child: _AddVehicleLogBodyView(searchChild: searchChild)),
       ),
     );
   }
 }
 
 class _AddVehicleLogBodyView extends StatelessWidget {
-  const _AddVehicleLogBodyView();
+  final Widget? searchChild;
+  const _AddVehicleLogBodyView({this.searchChild});
 
   @override
   Widget build(BuildContext context) {
@@ -167,12 +167,16 @@ class _AddVehicleLogBodyView extends StatelessWidget {
                     textType: TextInputType.multiline,
                     inputAction: TextInputAction.done),
                 10.height,
-                Utils.getFilledButton(
-                  "Submit",
-                  () => context
-                      .read<AddVehicleLogBloc>()
-                      .add(AddVehicleLogSubmitEvent()),
-                )
+                Row(
+                  spacing: 10,
+                  children: [
+                    SuccessButton(text: "Save", onPressed: () => context
+                        .read<AddVehicleLogBloc>()
+                        .add(AddVehicleLogSubmitEvent())),
+                    const Spacer(flex: 1),
+                    (searchChild ?? const SizedBox.shrink())
+                  ],
+                ),
               ],
             ));
   }

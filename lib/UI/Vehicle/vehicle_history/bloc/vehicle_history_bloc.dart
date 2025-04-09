@@ -50,6 +50,7 @@ class VehicleHistoryBloc
       vinNumber = event.vin;
       vehicleGroupId = event.groupId;
       vinName = event.vehicleName;
+      itemsPerPage = event.itemPerPage;
       try {
         emit(state.copyWith(isLoading: true));
         var response = await Future.wait([

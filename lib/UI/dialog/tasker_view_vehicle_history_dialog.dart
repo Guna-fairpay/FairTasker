@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskerViewVehicleHistoryDialog {
   TaskerViewVehicleHistoryDialog._();
@@ -31,9 +32,10 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       contentPadding: EdgeInsets.zero,
       insetPadding: 10.padding,
+      backgroundColor: AppC.white,
       content: Container(
-        width: context.width,
-        height: context.height * 0.9,
+        width: double.maxFinite,
+        // height: context.height * 0.9,
         decoration: BoxDecoration(
             color: AppC.white,
             borderRadius: BorderRadius.circular(8)
@@ -62,67 +64,56 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
+                spacing: 10,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Utils.getText(
                       model?['display']?['vehicle_name'],
-                      size: 16,
+                      size: 12.sp,
+                      weight: FontWeight.bold
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: (model?['display']?['vehicleHistoryIconColorCode'] ?? AppC.trans),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Utils.getText(
-                      model?['display']?['vehicleStatusCategoryName'] ?? '',
-                      size: 16,
-                      color: AppC.white,
-                    ),
+                  Utils.getText(
+                    model?['display']?['vehicleStatusCategoryName'] ?? '',
+                    size: 12.sp,
+                    color: (model?['display']?['vehicleHistoryIconColorCode'] ?? AppC.trans),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InteractiveViewer(
-                  maxScale: 8.0,
-                  minScale: 0.01,
-                  child: CachedNetworkImage(
-                    imageBuilder: (context, imageProvider) {
-                      return Container(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: imageProvider,
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
-                      );
-                    },
-                    imageUrl: model?['display']?['vehicle_image'] ?? "",
-                    placeholder: (context, url) =>
-                        Utils.getProgressIndicator(context),
-                    errorWidget: (context, url, error) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 0),
-                        padding: const EdgeInsets.all(0),
-                        alignment: Alignment.center,
-                        child: Utils.getText("CT",
-                            size: 22,
-                            color: AppC.red,
-                            weight: FontWeight.bold),
-                      );
-                    },
-                  ),
-                ),
-              ],
+            InteractiveViewer(
+              maxScale: 8.0,
+              minScale: 0.01,
+              child: CachedNetworkImage(
+                imageBuilder: (context, imageProvider) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                  );
+                },
+                imageUrl: model?['display']?['vehicle_image'] ?? "",
+                placeholder: (context, url) =>
+                    Utils.getProgressIndicator(context),
+                errorWidget: (context, url, error) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 0),
+                    padding: const EdgeInsets.all(0),
+                    alignment: Alignment.center,
+                    child: Utils.getText("CT",
+                        size: 22,
+                        color: AppC.red,
+                        weight: FontWeight.bold),
+                  );
+                },
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -144,7 +135,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                       width: 24,
                     ),
                   ),
-                  const Icon(Icons.rotate_right_outlined),
+                  // const Icon(Icons.rotate_right_outlined),
                   GestureDetector(
                     onTap: () async {
                       String imageUrl = model?['display']?['vehicle_image'];
@@ -171,15 +162,12 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
               ),
             ),
             Flexible(
-              child: SizedBox(
-                // height: MediaQuery.of(context).size.height * 0.5,
-                child: VehicleHistoryViewUI(
-                  vin: model?['display']?['vins']?[0],
-                  vehicleName: model?['display']?['vehicle_name'] ?? '',
-                  title: model?['display']?['task_title'],
-                  showHeader: false,
-                  showSameTask: true,
-                ),
+              child: VehicleHistoryViewUI(
+                vin: model?['display']?['vins']?[0],
+                vehicleName: model?['display']?['vehicle_name'] ?? '',
+                title: model?['display']?['task_title'],
+                showHeader: false,
+                showSameTask: true,
               ),
             ),
           ],
