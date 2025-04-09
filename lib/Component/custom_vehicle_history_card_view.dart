@@ -1,6 +1,8 @@
 import 'package:fairpytasker/Component/readmore.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -16,10 +18,11 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
   final VoidCallback? onParts;
   final VoidCallback? onSupplies;
   final VoidCallback? onCustom;
-  final VoidCallback? onUserTap;
+  final GestureTapDownCallback? onUserTap;
   final VoidCallback? onDelete;
   final bool? isCompleted;
   final String? customText;
+  final String? dateText;
   final String? cleanCarText;
   final String? userNameText;
   final String? titleText;
@@ -39,6 +42,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
     this.onCustom,
     this.onUserTap,
     this.onDelete,
+    this.dateText,
     this.customText,
     this.cleanCarText,
     this.userNameText,
@@ -89,10 +93,13 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 10,
                   children: [
-                    Container(),
-                    if (userNameText?.isNotEmpty ?? false)
+                    const SizedBox.shrink(),
+                    // Container(),
+                    /*if (userNameText?.isNotEmpty ?? false)
                       InkWell(
                         onTap: onUserTap,
                         borderRadius: BorderRadius.circular(Num.borderRadiusXLarge),
@@ -103,7 +110,9 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white)),
                         ),
-                      ),
+                      ),*/
+                    if (dateText.isNotNullOrEmpty)
+                    Padding(padding: 16.sp.topPadding, child: Text.rich(TextSpan(text: "$dateText"))),
                     Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -130,12 +139,16 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                 ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppC.redAccent),
-                            trailing: (onDelete == null)
-                                ? null
-                                : InkWell(
-                                onTap: onDelete,
-                                child: const Icon(
-                                  Icons.delete_outline_rounded, color: Colors.red,)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (timeText?.isNotEmpty ?? false)
+                                  Text("$timeText",
+                                      style: context.textTheme.labelMedium),
+                                if ((onDelete != null) || (Session.of.getString(Str.userIdPrefText).toNumeric == 3))
+                                    InkWell(onTap: onDelete, child: const Icon(Icons.delete_outline_rounded, color: Colors.red)),
+                              ],
+                            ),
                             minVerticalPadding: 0,
                             horizontalTitleGap: 0,
                             minTileHeight: 0,
@@ -167,16 +180,23 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                     lessStyle: context.textTheme.labelLarge
                                         ?.copyWith(color: AppC.redAccent),
                                   )),
-                              if (timeText?.isNotEmpty ?? false)
-                                Text("$timeText",
-                                    style: context.textTheme.labelMedium)
+                              // TODO USER NAME
+                              if (userNameText?.isNotEmpty ?? false)
+                              GestureDetector(
+                                onTapDown: onUserTap,
+                                child: Text("$userNameText",
+                                    style: context.textTheme.labelLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13.sp,
+                                        color: (isCompleted ?? false) ? AppC.green :  AppC.appColor)),
+                              )
                             ],
                           ),
                           10.height,
                         ],
                       ),
                     ),
-                    Container(),
+                    const SizedBox.shrink(),
                   ],
                 ),
               ),
