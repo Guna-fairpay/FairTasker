@@ -57,6 +57,7 @@ class WorkingHoursState extends Equatable {
   final DateRange? selectedDateRange;
   final dynamic loginUserRole;
   final String loginUserId;
+  final int? branchID;
 
   const WorkingHoursState(
       {
@@ -109,6 +110,7 @@ class WorkingHoursState extends Equatable {
         required this.selectedDateRange,
         this.loginUserRole,
         this.loginUserId = '',
+        this.branchID
       });
 
   WorkingHoursState copyWith({
@@ -161,6 +163,7 @@ class WorkingHoursState extends Equatable {
     DateRange? selectedDateRange,
     dynamic loginUserRole,
     String? loginUserId,
+    int? branchID
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -211,6 +214,7 @@ class WorkingHoursState extends Equatable {
     selectedDateRange: selectedDateRange ?? this.selectedDateRange,
     loginUserRole: loginUserRole ?? this.loginUserRole,
     loginUserId: loginUserId ?? this.loginUserId,
+    branchID: branchID ?? this.branchID
   );
 
   @override
@@ -264,6 +268,7 @@ class WorkingHoursState extends Equatable {
     selectedDateRange,
     loginUserRole,
     loginUserId,
+    branchID,
     Random().nextDouble()
   ];
 }

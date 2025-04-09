@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../Utilities/Str.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
+import '../../../Utilities/prefs.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 
@@ -81,7 +83,7 @@ class TaskBasedTab extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                     child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  if(loginUserId.toString() == '3')
+                  if(Session.of.getString(Str.userIdPrefText) == '3')
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                     child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -124,7 +126,7 @@ class TaskBasedTab extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Utils.getText("\$${task['amount']}"),
                           ),
-                          if(loginUserId.toString() == '3')
+                          if(Session.of.getString(Str.userIdPrefText) == '3')
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -234,7 +236,7 @@ class HourlyBasedTab extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                       child: Text('Amount/hr', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    if(loginUserId.toString() == '3')
+                    if(Session.of.getString(Str.userIdPrefText) == '3')
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                       child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -278,7 +280,7 @@ class HourlyBasedTab extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Utils.getText("\$${task['amount']}"),
                           ),
-                          if(loginUserId.toString() == '3')
+                          if(Session.of.getString(Str.userIdPrefText) == '3')
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(

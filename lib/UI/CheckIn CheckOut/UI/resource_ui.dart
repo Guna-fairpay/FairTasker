@@ -4,11 +4,14 @@
 import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
@@ -29,6 +32,7 @@ class WorkHoursViewUI extends StatelessWidget {
   dynamic selectedName;
   DateRange? selectedDateRange;
   DateRange? temporarySelectedDateRange;
+  dynamic initialDropDown;
   String startDate='';
   String endDate='';
 
@@ -58,6 +62,7 @@ class WorkHoursViewUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppC.white,
         appBar: AppBar(
         leadingWidth: 0,
         title: const Text("Check In/Out"),
@@ -81,6 +86,7 @@ class WorkHoursViewUI extends StatelessWidget {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               filteredData = state?.combinedData ?? [];
               dropDownResource = [{'id':'','full_name':'All'}, ...state?.resources ?? []];
+              initialDropDown = {'id':'','full_name':'All'};
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
@@ -91,7 +97,7 @@ class WorkHoursViewUI extends StatelessWidget {
           BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
             builder: (context, state) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 5),
                 child:
                 Column(
                   children: [
@@ -243,39 +249,24 @@ class WorkHoursViewUI extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                child: Utils.getText('Working Hours History',
-                                    size: 15, weight: FontWeight.bold)),
-                            SizedBox(
-                              height: 30,
-                              child: Material(
-                                color: AppC.trans,
-                                child: IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => const TaskComponentsSettingsUI()));
-                                  },
-                                  icon: const Icon(Icons.settings),
-                                  iconSize: 20,
-                                ),
-                              ),
-                            ),
-                          ],
+                      child: ListTile(
+                        leading: Utils.getText("Working Hours History",size: 14.sp, weight: FontWeight.bold),
+                        trailing: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const TaskComponentsSettingsUI()));
+                          },
+                          child: const Icon(Icons.settings_rounded),
                         ),
                       ),
                     ),
                     const SizedBox(height: 15),
                     Row(
+                      spacing: 10,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         Expanded(
                           child:
                           DateRangePicker(
@@ -293,21 +284,20 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        if(state.loginUserId.toString() == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3')
                         Expanded(
                           child:
-                          Utils.dropdownBox('All',dropDownResource,
+                          Utils.dropdownBox('Select',dropDownResource,
                                   (value) {
                                   selectedName = value!;
                                   print("selectedName ${selectedName}");
+                                  print("initialDropDown ${initialDropDown}");
                                   context.read<WorkingHoursBloc>().add(ResourceDropDownEvent(selectedName));
                               },
+                              initialSelection: initialDropDown,
                               labelKey: 'full_name'
                           ),
                         )
-                        else
-                        Expanded(child: SizedBox(),)
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -354,45 +344,48 @@ class WorkHoursViewUI extends StatelessWidget {
                       child:
                       Builder(
                         builder: (context) {
-                          //If dropdown has a selection, filter data, otherwise load state.combinedData
-                          final dataList =
+                          final dataList = (Session.of.getString(Str.userIdPrefText) == '3'
+                              || Session.of.getString(Str.userIdPrefText) == '10'
+                              || Session.of.getString(Str.userIdPrefText) == '21'
+                              || Session.of.getString(Str.userIdPrefText) == '1'
+                          ) ?
                           (selectedName == null || selectedName['full_name'] == 'All')
                               ? state.combinedData
                               : state.combinedData?.where((item) {
-                            return getFirstWord(item['first_name']) ==
-                                getFirstWord(selectedName['full_name']);
-                          }).toList() ?? [];
-                          //final dataList = state.combinedData;
-                          //log("${state.combinedData}", name: "combinedData");
+                                return
+                                  item['user_id'] == selectedName['id'];}).toList() ?? []
+                              : state.combinedData?.where((item) {
+                                return
+                                  item['user_id'] == state.loginUserId;}).toList() ?? [];
 
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();
                           }
-                          return ListView.builder(
-                            itemCount: dataList?.length ?? 0,
-                            itemBuilder: (context, index) {
+                          return
+                            ListView.builder(
+                              itemCount: dataList?.length ?? 0,
+                              itemBuilder: (context, index) {
                               final employee = dataList?[index];
 
                               //final activeHours = employee?['Active'] ?? '00:00';
                               final taskCount = employee?['#']?.toString() ?? '0';
-                              if (taskCount != '0') {
+                              if (taskCount != '0')
+                              {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 2),
                                   child: Container(
                                     key: ValueKey(employee?['id']),
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                                     decoration: const BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey,
-                                          spreadRadius: 0.1,
-                                          blurRadius: 0.1,
-                                          offset: Offset(0, 1),
-                                        )
-                                      ],
-                                      color: AppC.white,
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: AppC.black,
+                                          width: 0.2,
+                                        ),
+                                      )
                                     ),
-                                    child: Row(
+                                    child:
+                                    Row(
                                       children: [
                                         Expanded(
                                           flex: 5,
@@ -464,8 +457,8 @@ class WorkHoursViewUI extends StatelessWidget {
                                 );
                               }
                               return const SizedBox.shrink();
-                            },
-                          );
+                              },
+                            );
                         },
                       ),
                     ),
