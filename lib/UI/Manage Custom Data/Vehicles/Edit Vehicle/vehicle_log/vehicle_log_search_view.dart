@@ -13,32 +13,33 @@ class VehicleLogSearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(color: AppC.text, width: Num.borderWidthThinField));
     return BlocBuilder<VehicleLogBloc, VehicleLogState>(
-        builder: (context, state) => Padding(
-          padding: 10.padding,
-          child: Expanded(
-            child: SearchBar(
-              controller: context.read<VehicleLogBloc>().searchController,
-              textInputAction: TextInputAction.search,
-              // maxLines: 1,
-              onChanged: (value) => context
-                  .read<VehicleLogBloc>()
-                  .add(VehicleLogSearchEvent(value)),
-              onSubmitted: (value) => context
-                  .read<VehicleLogBloc>()
-                  .add(VehicleLogSearchEvent(value)),
-              side: const WidgetStatePropertyAll(BorderSide.none),
-              elevation: const WidgetStatePropertyAll(2),
-              padding: WidgetStatePropertyAll(5.padding.copyWith(left: 10, right: 10)),
+        builder: (context, state) => Expanded(
+          flex: 3,
+          child: TextField(
+            controller: context.read<VehicleLogBloc>().searchController,
+            textInputAction: TextInputAction.search,
+            onChanged: (value) => context
+                .read<VehicleLogBloc>()
+                .add(VehicleLogSearchEvent(value)),
+            onSubmitted: (value) => context
+                .read<VehicleLogBloc>()
+                .add(VehicleLogSearchEvent(value)),
+            keyboardType: TextInputType.text,
+            maxLines: 1,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            style: context.textTheme.titleSmall?.copyWith(color: AppC.appColor),
+            decoration: InputDecoration(
+              isDense: true,
               hintText: "Search...",
-              keyboardType: TextInputType.text,
-              trailing: [GestureDetector(child: const Icon(Icons.add_circle_outline_rounded, color: AppC.appColor) ,onTap: () => context
-                  .read<VehicleLogBloc>()
-                  .add(AddVehicleLogEvent()),)],
-              leading: const Icon(Icons.search_rounded, color: AppC.text),
-              textStyle: WidgetStatePropertyAll(context.textTheme.titleSmall?.copyWith(color: AppC.text)),
-              shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(Num.borderRadiusXLarge))),
+              contentPadding: 7.padding,
+              prefixIconConstraints: const BoxConstraints(),
+              border: border,
+              enabledBorder: border,
+              focusedBorder: border,
+              hintStyle: context.textTheme.titleSmall?.copyWith(color: AppC.text),
+              prefixIcon: Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
             ),
           ),
         ));

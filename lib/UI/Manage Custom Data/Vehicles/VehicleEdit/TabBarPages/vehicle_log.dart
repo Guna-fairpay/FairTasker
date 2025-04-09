@@ -31,15 +31,16 @@ class VehicleLogUI extends StatelessWidget {
                 case VehicleLogSuccessState(): Toaster.showSuccess(state.message); break;
                 case VehicleLogDeleteTapState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this vehicle log?", negativeText: "No", positiveText: "Yes", isReasonRequired: false, onPositivePressed: () => context.read<VehicleLogBloc>().add(VehicleLogDeleteEvent(state.model))); break;
                 case VehicleLogViewAttachmentState(): ExpenseLogAttachmentDialog.show(context, model: state.model); break;
-                case VehicleLogAddState(): context.push(AddVehicleLogView(vin: state.vin,), fullscreenDialog: true); break;
+                case VehicleLogAddState(): context.push(AddVehicleLogView(vin: state.vin), fullscreenDialog: true); break;
               }
             }
           },
-          child: const SafeArea(
+          child: SafeArea(
               child: Column(
             children: [
-              VehicleLogSearchView(),
-              VehicleLogListingView(),
+              AddVehicleLogView(vin: vin, searchChild: const VehicleLogSearchView()),
+              // const VehicleLogSearchView(),
+              const VehicleLogListingView(),
             ],
           )),
         ));
