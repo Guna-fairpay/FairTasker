@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +19,7 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   final FBroadcast _fBroadcast = FBroadcast.instance();
   NotesBloc() : super(NotesLoadingState()) {
     _fBroadcast.register("notes_view", (value, callback) => add(NotesInitialEvent()));
+    getIt<CommonService>().branchUpdate(callback: () => add(NotesInitialEvent()));
     on<NotesInitialEvent>(_onInitialEvent);
     on<NotesNextDayEvent>(_onNextDayEvent);
     on<NotesPreviousDayEvent>(_onPreviousDayEvent);
