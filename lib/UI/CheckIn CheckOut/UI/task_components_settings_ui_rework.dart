@@ -4,7 +4,9 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_t
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../Utilities/Str.dart';
 import '../../../Utilities/appC.dart';
+import '../../../Utilities/prefs.dart';
 import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
@@ -82,13 +84,13 @@ class TaskComponentsSettingView extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                 child: Form(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  autovalidateMode: AutovalidateMode.onUnfocus,
                   key: formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-                      if(state.loginUserId.toString() == '3')
+                      if(Session.of.getString(Str.userIdPrefText) == '3')
                       Utils.dropdownBox(
                         'Task based',
                         state.selectedBase1,
@@ -101,7 +103,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                         initialSelection: state.selectedBase,
                       ),
                       const SizedBox(height: 16),
-                      if(state.loginUserId.toString() == '3')
+                      if(Session.of.getString(Str.userIdPrefText) == '3')
                       if ((selectedBases != null && selectedBases['base'] == 'Task based') ||
                           (state.selectedBase != null &&
                               state.selectedBase['base'] == 'Task based')) ...[
@@ -115,7 +117,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                           }
                         ),
                         const SizedBox(height: 16),
-                        if(state.loginUserId.toString() == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3')
                         Utils.getTextFormField('Amount (\$)',
                           amountController,
                             validator: (value) {
@@ -126,7 +128,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             }),
                         const SizedBox(height: 16),
                       ] else...[
-                        if(state.loginUserId.toString() == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3')
                         Utils.dropdownBox(
                           'Select User',
                           state.userList,
@@ -140,7 +142,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                           initialSelection: state.selectedUser,
                         ),
                         const SizedBox(height: 16),
-                        if(state.loginUserId.toString() == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3')
                         Utils.getTextFormField(
                             'Amount per hour (\$)',
                             hourlyAmountController,
@@ -153,7 +155,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
                       ],
-                      if(state.loginUserId.toString() == '3')
+                      if(Session.of.getString(Str.userIdPrefText) == '3')
                       Row(
                         children: [
                           if (!state.isEditMode)
@@ -210,8 +212,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                           if (state.isEditMode) const SizedBox(width: 16),
                           if (state.isEditMode)
                             Utils.getAddFilledButton("Cancel", () {
-                              //context.read<WorkingHoursBloc>().add(ResetResourceEvent());
-                              //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 0));
+                              context.read<WorkingHoursBloc>().add(ResetResourceEvent());
+                              //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 1));
                               context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                             }, bgColor: AppC.red),
                         ],

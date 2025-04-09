@@ -39,6 +39,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   dynamic userRole;
   String? userId;
   int? hrmId;
+  int? branchId;
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -53,7 +54,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isLoading: true));
       try
       {
-
         DateTime now = DateTime.now();
         DateTime start = now.subtract(const Duration(days: 7));
         DateTime end = now;
@@ -79,16 +79,20 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
 
+
+              branchId = await Utils.getIntPreference(Str.branchIdPrefText);
               userRole = await Utils.getStringListPreference(Str.rolePrefText);
               userId = await Utils.getStringPreference(Str.userIdPrefText);
-              hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
-              log("${userRole[0]} ${userId} ${hrmId}",name:"userRole");
+              //hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
 
-              formattedResources = resources.where((e)=>e['branch_id']==1 || e['branch_id']==null).map((resource) {
+              log("${userRole[0]} ${userId} ${hrmId} ${branchId}",name:"userRole");
+
+              formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
                   'id': resource['id'],
                   'full_name': "${resource['first_name']} ${resource['last_name']}",
                   'first_name': '${resource['first_name']}',
+                  'branch_id' : '${resource['branch_id']}',
                 };
               }).toList();
               print("formattedResources $formattedResources");
@@ -102,7 +106,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   List<Map<String, dynamic>> workhistory,
                   List<Map<String, dynamic>> workActivehours,
                   List<Map<String, dynamic>> formattedResource,
-                  ) {
+                  )
+              {
                 List<Map<String, dynamic>> combinedList = [];
 
                 // Helper function to convert time string to minutes
@@ -248,7 +253,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
 
               combinedData.clear();
-              combinedData = combineAndCalculateData(workHours, workingHistory, workActiveHours, formattedResources);
+              combinedData = combineAndCalculateData(
+                  workHours,
+                  workingHistory,
+                  workActiveHours,
+                  formattedResources,
+              );
               log("${combinedData}",name:"CombinedData");
 
               //Punch Card Calculation Start
