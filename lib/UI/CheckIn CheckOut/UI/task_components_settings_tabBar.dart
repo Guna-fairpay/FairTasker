@@ -9,14 +9,16 @@ class TaskTabsView extends StatelessWidget {
   final List<Map<String, dynamic>> taskbased;
   final List<Map<String, dynamic>> hourlybased;
   final List<Map<String, dynamic>>? resource;
+  String? loginUserId;
   dynamic selectedBases;
+  dynamic loginUserRole;
 
   TaskTabsView({
     super.key,
     required this.taskbased,
     required this.hourlybased,
     required this.selectedBases,
-    this.resource,
+    this.resource, required this.loginUserId, required this.loginUserRole,
   });
 
   @override
@@ -26,8 +28,8 @@ class TaskTabsView extends StatelessWidget {
       child: TabBarView(
         controller: tabController,
         children: [
-          TaskBasedTab(taskbased: taskbased, selectedBases: selectedBases),
-          HourlyBasedTab(hourlybased: hourlybased, resource: resource),
+          TaskBasedTab(taskbased: taskbased, selectedBases: selectedBases, loginUserId: loginUserId, loginUserRole: loginUserRole),
+          HourlyBasedTab(hourlybased: hourlybased, resource: resource, loginUserId: loginUserId, loginUserRole: loginUserRole),
         ],
       ),
     );
@@ -37,11 +39,15 @@ class TaskTabsView extends StatelessWidget {
 class TaskBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>> taskbased;
   dynamic selectedBases;
+  String? loginUserId;
+  dynamic loginUserRole;
 
   TaskBasedTab({
     super.key,
     required this.taskbased,
     required this.selectedBases,
+    this.loginUserId,
+    this.loginUserRole
   });
 
   @override
@@ -60,22 +66,23 @@ class TaskBasedTab extends StatelessWidget {
           child:
           Table(
             columnWidths: const {
-              0: FlexColumnWidth(8), // Task name
-              1: FlexColumnWidth(5), // Amount
+              0: FlexColumnWidth(5), // Task name
+              1: FlexColumnWidth(6), // Amount
               2: FlexColumnWidth(3), // Actions
             },
-            children: const [
+            children:[
               TableRow(
                 children: [
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                     child: Text('Task Name', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                     child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  Padding(
+                  if(loginUserId.toString() == '3')
+                  const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                     child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
@@ -93,9 +100,9 @@ class TaskBasedTab extends StatelessWidget {
                   child:
                   Table(
                     columnWidths: const {
-                      0: FlexColumnWidth(3.5), // Task name
-                      1: FlexColumnWidth(1), // Amount
-                      2: FlexColumnWidth(2), // Actions
+                      0: FlexColumnWidth(2), // Task name
+                      1: FlexColumnWidth(2), // Amount
+                      2: FlexColumnWidth(1), // Actions
                     },
                     border: const TableBorder(
                       bottom: BorderSide(color: Colors.black26, width: 0.2),
@@ -117,6 +124,7 @@ class TaskBasedTab extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Utils.getText("\$${task['amount']}"),
                           ),
+                          if(loginUserId.toString() == '3')
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -186,9 +194,11 @@ class TaskBasedTab extends StatelessWidget {
 class HourlyBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>> hourlybased;
   final List<Map<String, dynamic>>? resource;
+  String? loginUserId;
+  dynamic loginUserRole;
 
-  const HourlyBasedTab(
-      {super.key, required this.hourlybased, required this.resource});
+  HourlyBasedTab(
+      {super.key, required this.hourlybased, required this.resource, this.loginUserId, this.loginUserRole});
 
   @override
   Widget build(BuildContext context) {
@@ -213,18 +223,19 @@ class HourlyBasedTab extends StatelessWidget {
                 1: FlexColumnWidth(6), // Amount
                 2: FlexColumnWidth(3), // Actions
               },
-              children: const [
+              children: [
                 TableRow(
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                       child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                       child: Text('Amount/hr', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    Padding(
+                    if(loginUserId.toString() == '3')
+                    const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                       child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
@@ -267,6 +278,7 @@ class HourlyBasedTab extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Utils.getText("\$${task['amount']}"),
                           ),
+                          if(loginUserId.toString() == '3')
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
