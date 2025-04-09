@@ -97,7 +97,8 @@ class AddVehicleLogBloc extends Bloc<AddVehicleLogEvent, AddVehicleLogState> {
       emit(AddVehicleLogCommonState());
       if (response != null) {
         _broadcast.stickyBroadcast("vehicle_log", value: true);
-        emit(AddVehicleLogCompletedState());
+        _clearAll();
+        emit(AddVehicleLogCommonState());
       } else {
         emit(AddVehicleLogErrorState("Something went wrong"));
       }
@@ -105,6 +106,14 @@ class AddVehicleLogBloc extends Bloc<AddVehicleLogEvent, AddVehicleLogState> {
       Console.of.log(e);
       emit(AddVehicleLogErrorState(e));
     }
+  }
+
+  void _clearAll() {
+    titleController..clear()..clearComposing();
+    notesController..clear()..clearComposing();
+    video = null;
+    audio = null;
+    image = null;
   }
 
   void _onInitialEvent(
