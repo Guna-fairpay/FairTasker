@@ -42,7 +42,7 @@ class _ShowViewUsersDialog<T extends Object> extends StatelessWidget {
         titleTextStyle: context.textTheme.titleLarge,
       ),
       titlePadding: EdgeInsets.zero,
-      alignment: Alignment.topCenter,
+      alignment: Alignment.center,
       insetPadding: 10.horizontalPadding,
       contentPadding: 10.padding,
       content: Container(

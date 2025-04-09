@@ -13,9 +13,10 @@ class VehicleInitialEvent extends VehicleHistoryEvent {
   final dynamic vin;
   final dynamic groupId;
   final String? vehicleName;
-  const VehicleInitialEvent(this.vin, this.vehicleName, this.groupId);
+  final int itemPerPage;
+  const VehicleInitialEvent(this.vin, this.vehicleName, this.groupId, {this.itemPerPage = 10});
   @override
-  List<Object?> get props => [vin, vehicleName, groupId];
+  List<Object?> get props => [vin, vehicleName, groupId, itemPerPage];
 }
 
 class LoadVehicleInitialEvent extends VehicleHistoryEvent {

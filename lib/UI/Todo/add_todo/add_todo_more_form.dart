@@ -152,7 +152,7 @@ class AddTodoMoreForm extends StatelessWidget {
                   text: "${state.selectedLinkOption!['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
                   recognizer: TapGestureRecognizer()..onTap = () => context.read<AddToDoBloc>().add(AddToDoOpenCustomLinkEvent())),
               textAlign: TextAlign.end,
-              style: context.textTheme.labelSmall?.copyWith(
+              style: context.textTheme.labelLarge?.copyWith(
                 color: AppC.appColor,
                 decoration: TextDecoration.underline,
                 decorationColor: AppC.appColor

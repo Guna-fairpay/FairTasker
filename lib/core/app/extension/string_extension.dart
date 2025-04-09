@@ -135,4 +135,6 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
     var numberFormat = NumberFormat("0.00");
     return numberFormat.format(doubleValue);
   }
+
+  num get toNumeric => num.tryParse(this ?? "") ?? 0;
 }
