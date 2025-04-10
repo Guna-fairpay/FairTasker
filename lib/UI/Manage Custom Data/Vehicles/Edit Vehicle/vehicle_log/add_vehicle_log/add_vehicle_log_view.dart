@@ -42,8 +42,7 @@ class AddVehicleLogView extends StatelessWidget {
             }
           }
         },
-        child: SafeArea(
-            minimum: 10.padding, child: _AddVehicleLogBodyView(searchChild: searchChild)),
+        child: SafeArea(child: _AddVehicleLogBodyView(searchChild: searchChild)),
       ),
     );
   }
@@ -58,7 +57,7 @@ class _AddVehicleLogBodyView extends StatelessWidget {
     return BlocBuilder<AddVehicleLogBloc, AddVehicleLogState>(
         builder: (context, state) => ListView(
               shrinkWrap: true,
-              padding: 10.padding,
+              physics: const NeverScrollableScrollPhysics(),
               children: [
                 Utils.getTextFormField(
                     "Title", context.read<AddVehicleLogBloc>().titleController,
