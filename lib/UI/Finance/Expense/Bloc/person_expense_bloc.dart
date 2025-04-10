@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as m;
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Event/person_expense_event.dart';
@@ -62,6 +63,8 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
   String? resourceId;
   List<dynamic> splitSupplies = [];
   List<dynamic> splitParts = [];
+  String? _initialRun;
+  int pageId = 1;
   final FBroadcast _broadcast = FBroadcast.instance();
 
   PersonExpenseBloc()
@@ -70,7 +73,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           filteredResponse: const [],
           expenseAttachments: const [],
           editResponse: const {},
-          isLoading: true,
+          isLoading: false,
           selectedCategory: const {},
           selectedSubCategory: const {},
           categories: const [],
@@ -95,13 +98,17 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           popEditPage: false,
           popAddPage: false,
         )) {
+    Console.of.debug("$_initialRun", name: "PERSON_BLOC");
+    _initialRun ??= "TEST-${m.Random().nextInt(9999)}";
+    Console.of.debug("$_initialRun", name: "PERSON_BLOC");
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
     });
     _registerBroadcast();
     on<GetPersonExpenseData>((event, emit) async {
       try {
-        emit(state.copyWith(isLoading: true));
+        // emit(state.copyWith(isLoading: true));
+        pageId = event.pageId;
         if (event.minDate != null && event.maxDate != null) {
           minDate = event.minDate;
           maxDate = event.maxDate;
@@ -135,6 +142,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
     on<GetPersonExpenseAddData>((event, emit) async {
       try {
+        pageId = 2;
         emit(state.copyWith(isLoading: true));
         var employeeResponse = await _getEmployeeList();
         var paymentType = await _getPaymentType();
@@ -158,6 +166,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
     on<GetPersonExpenseEditData>((event, emit) async {
       try {
+        pageId = 3;
         emit(state.copyWith(isLoading: true));
         var response = await _editPersonExpense(event.id);
         var employeeResponse = await _getEmployeeList();
@@ -276,7 +285,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         }).toList();
         await apiRepository.approvePersonExpense(
             id: event.model['id'].toString(), approved: event.approved);
-
+        emit(state.copyWith(isLoading: false));
         _resetAll();
 
         // emit(state.copyWith(
@@ -292,11 +301,16 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
     on<DeletePersonExpenseEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        await apiRepository.deletePersonExpense(event.id);
-        if (event.isEditPage == false) {
-          _resetAll();
-        } else {
-          emit(state.copyWith(isLoading: false));
+       var response = await apiRepository.deletePersonExpense(event.id);
+       if(response?.message != null) {
+         if (event.isEditPage == false) {
+           _resetAll();
+         }
+         else {
+           _broadcast.broadcast("expense_person_refresh");
+           Toaster.showSuccess(response?.message);
+           emit(state.copyWith(popEditPage: true));
+         }
         }
       } catch (e) {
         emit(state.copyWith(isLoading: false));
@@ -364,8 +378,9 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
-        _broadcast.broadcast("expense_person_refresh");
+        Console.of.log("Exited", name: "PersonExpenseBloc");
         emit(state.copyWith(isLoading: false, popAddPage: true, popEditPage: true));
+        _broadcast.broadcast("expense_person_refresh");
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
@@ -423,9 +438,16 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
   void _registerBroadcast() {
     _broadcast.register("expense_person_refresh", (value, callback) {
-      Console.of.log("expense_person_refresh");
-      _resetAll();
+      Console.of.log("expense_person_refresh $_initialRun $isClosed $pageId");
+      if (pageId == 1) _resetAll();
     });
+  }
+
+  @override
+  Future<void> close() {
+    Console.of.log("Bloc Closed $pageId, $_initialRun");
+    _broadcast.unregister("expense_person_refresh");
+    return super.close();
   }
 
   Future<List<File>> _pickFiles() async {
@@ -433,13 +455,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: [
-          'jpg',
-          'jpeg',
-          'png',
-          'mp4',
-          'mov',
-        ]);
+      allowedExtensions: ['jpg','jpeg','png','pdf','doc','xls','xlsx','csv',]);
     return result?.paths
             .where((element) => (element?.isNotEmpty ?? false))
             .map((e) => File(e!))
@@ -525,7 +541,9 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
   void _resetAll() async {
     try {
       Console.of.debug("Reset");
-      /*if(!isClosed) */emit(state.copyWith(isLoading: true));
+      if (state.isLoading || isClosed || (pageId != 1)) return;
+      Console.of.debug("Running");
+      if(!isClosed) emit(state.copyWith(isLoading: true));
       var startDate = DateTime.now()
           .subtract(const Duration(days: 31))
           .toFormat(format: 'yyyy-MM-dd');
@@ -544,7 +562,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           .sum;
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
           .compareTo(DateTime.parse(a['created_at'] ?? '')));
-     /*if(!isClosed){ emit(state.copyWith(
+     if(!isClosed){ emit(state.copyWith(
         isLoading: false,
         apiResponse: apiResponse,
         approvedAmount: approvedAmount,
@@ -552,7 +570,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
        popAddPage: false,
        popEditPage: false,
       ));}
-     else{*/
+     else{
        emit(state.copyWith(
          isLoading: false,
          apiResponse: apiResponse,
@@ -561,10 +579,10 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
          popAddPage: false,
          popEditPage: false,
        ));
-     // }
+      }
     } catch (e) {
       log("$e", name: "Error In Bloc Value");
-      /*if(!isClosed)*/ emit(state.copyWith(isLoading: false));
+      if(!isClosed) emit(state.copyWith(isLoading: false));
     }
   }
 }

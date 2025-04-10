@@ -230,7 +230,7 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
                     height: 5,
                   ),
                 if (userRole == 'Admin' || userId == '3')
-                  Utils.dropdownBox('All',
+                  Utils.dropdownBox('Select Employee',
                       employeesList, (value){
                         setState(() {
                           _onFilterChanged(value);

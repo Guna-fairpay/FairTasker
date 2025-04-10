@@ -14,6 +14,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +31,10 @@ class PersonExpenseEditUI extends StatelessWidget {
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-         if(state.popEditPage) Navigator.pop(context);
+         if(state.popEditPage){
+          // FBroadcast.instance().broadcast("expense_person_refresh");
+           Navigator.pop(context);
+         }
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {
@@ -50,13 +54,7 @@ class PersonExpenseEditUI extends StatelessWidget {
                               negativeText: "Cancel",
                               isReasonRequired: false,
                               onPositivePressed: () {
-                                context
-                                    .read<PersonExpenseBloc>()
-                                    .add(DeletePersonExpenseEvent(id: id,isEditPage: true));
-                                // Future.delayed(
-                                //   const Duration(seconds: 1),
-                                //       () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 4, message: '',)),
-                                // );
+                                context.read<PersonExpenseBloc>().add(DeletePersonExpenseEvent(id: id,isEditPage: true));
                               });
                         },
                         icon: Icon(Icons.delete_outline)

@@ -12,9 +12,10 @@ abstract class PersonExpenseEvent extends Equatable {
 class GetPersonExpenseData extends PersonExpenseEvent {
   final String? minDate;
   final String? maxDate;
-  const GetPersonExpenseData({required this.minDate, required this.maxDate});
+  final int pageId;
+  const GetPersonExpenseData({required this.minDate, required this.maxDate, this.pageId = 1});
   @override
-  List<Object?> get props => [minDate, maxDate];
+  List<Object?> get props => [minDate, maxDate, pageId];
 }
 
 class GetPersonExpenseAddData extends PersonExpenseEvent {
