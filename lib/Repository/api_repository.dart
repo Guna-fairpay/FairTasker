@@ -205,6 +205,10 @@ class APiRepository {
 
   String get _removeNoteItem => "removeNoteItem";
 
+  String get _saveWorkingHour => "saveWorkingHour";
+
+  String get _updateWorkingHour => "updateWorkingHour";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1740,6 +1744,28 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_removeNoteItem/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveWorkingHour({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_saveWorkingHour";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateWorkingHour({required Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_updateWorkingHour/$_hrmId";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "PUT");
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

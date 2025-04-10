@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_bloc.dart';
@@ -16,7 +17,9 @@ import 'package:flutter/material.dart';
 
 class EditVehicleBody extends StatelessWidget {
   final dynamic vehicleData;
-  const EditVehicleBody({super.key, required this.vehicleData});
+  final Widget? searchChild;
+  final VoidCallback? onClear;
+  const EditVehicleBody({super.key, required this.vehicleData, this.searchChild, this.onClear});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +28,8 @@ class EditVehicleBody extends StatelessWidget {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         key: context.watch<EditVehicleBloc>().formKey,
         child: ListView(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
           children: [
             if (context.read<EditVehicleBloc>().vehicleImage.isNotEmpty)
               SizedBox(
@@ -141,11 +146,19 @@ class EditVehicleBody extends StatelessWidget {
                       : Colors.lightGreen).shade800),
             ),
             10.height,
-            Utils.getElevatedButton(() {
-              if (context.read<EditVehicleBloc>().formKey.currentState?.validate() ?? false) {
-                context.read<EditVehicleBloc>().add(SaveUpdatedVehicle(data: vehicleData));
-              }
-            }),
+            Row(
+              spacing: 5,
+              children: [
+                CompactIconButton(icon: Icons.save_rounded,
+                    backgroundColor: AppC.green,
+                    onPressed: () => context.read<EditVehicleBloc>().add(SaveUpdatedVehicle(data: vehicleData))),
+                CompactIconButton(icon: Icons.clear_rounded,
+                    backgroundColor: AppC.red,
+                    onPressed: onClear),
+                const Spacer(flex: 1),
+                (searchChild ?? const SizedBox.shrink()),
+              ],
+            )
           ],
         ),
       ),

@@ -6,8 +6,9 @@ import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ImageUploadSection extends StatelessWidget {
   final String title;
@@ -29,24 +30,23 @@ class ImageUploadSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Console.of.log(images);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
           onTap: () => onUpload(),
           child: Container(
-            height: 42,
+            padding: 5.sp.padding,
             decoration: BoxDecoration(
               border: Border.all(color: borderColor, width: 1.5),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
+              spacing: 5,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.cloud_upload, color: borderColor),
-                const SizedBox(width: 5),
-                Utils.getText(title, color: borderColor, weight: FontWeight.bold),
+                Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
+                Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
               ],
             ),
           ),
