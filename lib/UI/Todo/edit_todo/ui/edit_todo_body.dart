@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/task_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/backup/task_add_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -138,30 +138,33 @@ class EditTodoBody extends StatelessWidget {
                   hintText: "Select Task",
                 ),
                 10.height,
-                CustomVehiclePersonField(
-                  vehiclesList: state.vehicles,
-                  personsList: state.persons,
-                  groupVehicles: state.groupVehicles,
-                  selected: state.selectedVPerson,
-                 onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val?['value']?['vin'])),
-                  onSelected: (val) => context
-                      .read<EditToDoBloc>()
-                      .add(EditToDoVPersonEvent(val)),
-                  controller: context.read<EditToDoBloc>().vPersonController,
+                if(!["Check In", "Check Out"].contains(state.apiResponse['title']))
+                  ...[
+                    CustomVehiclePersonField(
+                      vehiclesList: state.vehicles,
+                      personsList: state.persons,
+                      groupVehicles: state.groupVehicles,
+                      selected: state.selectedVPerson,
+                      onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val?['value']?['vin'])),
+                      onSelected: (val) => context
+                          .read<EditToDoBloc>()
+                          .add(EditToDoVPersonEvent(val)),
+                      controller: context.read<EditToDoBloc>().vPersonController,
 
-                ),
-                10.height,
-                CustomVendorLocationField(
-                  vendorsList: state.vendors,
-                  locationsList: state.locations,
-                  selected: {3: state.selectedVLocations},
-                  onSelected: (val) => context
-                      .read<EditToDoBloc>()
-                      .add(EditToDoVLocationEvent(val)),
-                  controller: context.read<EditToDoBloc>().vLocationController,
-                ),
+                    ),
+                    10.height,
+                    CustomVendorLocationField(
+                      vendorsList: state.vendors,
+                      locationsList: state.locations,
+                      selected: {3: state.selectedVLocations},
+                      onSelected: (val) => context
+                          .read<EditToDoBloc>()
+                          .add(EditToDoVLocationEvent(val)),
+                      controller: context.read<EditToDoBloc>().vLocationController,
+                    ),
 
-                10.height,
+                    10.height,
+                  ],
                 Utils.getTextFormField(
                     'Notes', context.read<EditToDoBloc>().notesController,
                     isDense: true,
@@ -208,6 +211,7 @@ class EditTodoBody extends StatelessWidget {
                       state.isSelectedPlatformCheck,
                       'Platform Check'),
                 10.height,
+                if(!["Check In", "Check Out"].contains(state.apiResponse['title']))
                 const EditTodoMoreForm(),
                 10.height,
                  if (state.apiResponse.isNotEmpty)

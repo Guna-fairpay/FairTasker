@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Components/tab_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
 import 'package:flutter/material.dart';
 import '../../Component/drawer_ui.dart';
@@ -11,7 +12,7 @@ import 'Location/location_view_ui.dart';
 import 'Parts/part_view_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
-import 'Task/task_view_ui.dart';
+import 'Task/Task/backup/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
 import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
 import 'Vendor/vendor_view_ui.dart';
@@ -70,7 +71,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Task',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const TaskViewUI(),
+                  builder: (context) => const TaskTabBarUI(),
                 ));
               },
             ),

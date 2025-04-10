@@ -1,15 +1,16 @@
 
 
+
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../Event/todo_view_event.dart';
-import '../../../State/todo_view_state.dart';
-import '../../../Utilities/str.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/utils.dart';
+import '../../../../../Event/todo_view_event.dart';
+import '../../../../../State/todo_view_state.dart';
+import '../../../../../Utilities/str.dart';
+import '../../../../../Utilities/appC.dart';
+import '../../../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'Category Config/category_config_view_ui.dart';
+import '../../Category Config/category_config_view_ui.dart';
 import 'task_add_ui.dart';
 import 'task_edit_ui.dart';
 

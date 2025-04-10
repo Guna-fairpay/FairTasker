@@ -58,6 +58,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
               showEmptyWidget: value,
               onEmptyWidgetTap: onEmptyTap,
           onEmptyWidgetTapDown: onEmptyTapDetails,
+
             ));
   }
 
