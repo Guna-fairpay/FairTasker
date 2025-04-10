@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -147,7 +148,7 @@ class Utils {
             topLeft: Radius.circular(topLRadius),
             topRight: Radius.circular(topRRadius),
             bottomLeft: Radius.circular(bottomLRadius),
-            bottomRight: Radius.circular(bottomRRadius))
+            bottomRight: Radius.circular(bottomRRadius),),
       ),
       child:
       DropdownMenu<dynamic>(
@@ -166,6 +167,7 @@ class Utils {
           border: InputBorder.none,
           isCollapsed: false,
           isDense: true,
+          suffixIconConstraints: BoxConstraints(),
           constraints: BoxConstraints(maxHeight: 40)
         ),
         menuStyle: MenuStyle(
@@ -597,12 +599,12 @@ class Utils {
         obscureText: obscure,
         //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
         //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-        // onTapOutside: (event) {
-        //   focusNode?.unfocus();
-        //   Future.delayed(Duration(milliseconds: 100), () {
-        //     controller.selection = TextSelection.collapsed(offset: 0);
-        //   });
-        // },
+        onTapOutside: (event) {
+          FocusScope.of(context).requestFocus(FocusNode());
+          // Future.delayed(Duration(milliseconds: 100), () {
+          //   controller.selection = TextSelection.collapsed(offset: 0);
+          // });
+        },
         textCapitalization: TextCapitalization.sentences,
         inputFormatters: textInputFormatter,
         textAlign: textAlign,
@@ -2714,6 +2716,7 @@ class Utils {
   static Widget getCircleCheckWidget(
       VoidCallback voidCallback, bool isChecked, String label) {
     return GestureDetector(
+
       onTap: voidCallback,
       child: Row(
         children: [

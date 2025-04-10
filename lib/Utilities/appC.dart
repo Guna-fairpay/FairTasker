@@ -35,6 +35,7 @@ static const redAccent = Color(0xffd01601);
   Color bottomIconColor = const Color(0xFF374E8C);
   static const Color blue = Colors.blue;
   static Color? blue50 = Colors.blue[50];
+  static Color? blue100 = Colors.blue[100];
   static const Color violet = Color(0xff8060BC);
 
   static const Color lowP = Color(0xff276a9e);

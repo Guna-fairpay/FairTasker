@@ -1,18 +1,20 @@
-import 'dart:developer';
 import 'dart:ui' show VoidCallback;
-
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:collection/collection.dart';
-import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/Repository/authentication_repository.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/utilities/utils.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/foundation.dart' show ValueNotifier;
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
@@ -23,7 +25,8 @@ class Initializer {
 
   static final Initializer of = Initializer._();
 
-  void init() {
+  void init() async {
+    tz.initializeTimeZones();
     getIt.registerSingleton<CommonService>(CommonService());
   }
 }
@@ -31,6 +34,7 @@ class Initializer {
 class CommonService {
   final _apiRepository = APiRepository();
 
+  final _chicagoTime = tz.getLocation("America/Chicago");
   final FBroadcast _broadcast = FBroadcast.instance();
   List<Map<String, dynamic>> usersList = [];
   List<Map<String, dynamic>> cohortsList = [];
@@ -63,6 +67,11 @@ class CommonService {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
   }
 
+  String? get timeNow {
+    var now = tz.TZDateTime.now(_chicagoTime);
+    return now.toFormat(format: "HH:mm:ss");
+  }
+
   Future<void> initialFetch() async {
     await Future.wait([
       getUsers(),
@@ -70,6 +79,47 @@ class CommonService {
       getBranches(),
       Authenticator.instance.getBearerToken()
     ]);
+    Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
+  }
+
+  Future<Map<String, dynamic>?> getCurrentLocation() async {
+    if (await Geolocator.isLocationServiceEnabled()) {
+      if ([LocationPermission.denied, LocationPermission.deniedForever].contains(await Geolocator.checkPermission())) {
+        if ([LocationPermission.denied, LocationPermission.deniedForever].contains(await Geolocator.requestPermission())) {
+          await Geolocator.openLocationSettings();
+          return null;
+        } else {
+          return await getCurrentLocation();
+        }
+      } else {
+        Position position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.bestForNavigation));
+        var location = (await placemarkFromCoordinates(position.latitude, position.longitude)).firstOrNull;
+        List<String> address = {
+          location?.name ?? "",
+          location?.street ?? "",
+          location?.thoroughfare ?? "",
+          location?.subLocality ?? "",
+          location?.locality ?? "",
+          location?.administrativeArea ?? "",
+          location?.postalCode ?? "",
+          location?.country ?? "",
+        }.toList().unique((element) => element)..removeWhere((element) => element.isNullOrEmpty);
+        Console.of.log(address.join(", "), name: "ADDRESS");
+        return {
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+          'name': location?.name,
+          'subLocality': location?.subLocality,
+          'locality': location?.locality,
+          'postalCode': location?.postalCode,
+          'country': location?.country,
+          'address': address.join(", "),
+        };
+      }
+    } else {
+      await Geolocator.openLocationSettings();
+      return null;
+    }
   }
 
   int get getUserId {

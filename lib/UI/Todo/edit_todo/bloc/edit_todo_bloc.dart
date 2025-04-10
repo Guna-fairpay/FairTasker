@@ -60,6 +60,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic previousOdometer={};
   late DateTime editToDoDate;
   bool showCleanCar = false;
+  String? name=Session.of.getString("name");
 
 
   EditToDoBloc()

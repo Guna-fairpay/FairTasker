@@ -4,15 +4,15 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_view_u
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../Bloc/todo_view_bloc.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Event/todo_view_event.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/num.dart';
-import '../../../Utilities/utils.dart';
+import '../../../../../Bloc/todo_view_bloc.dart';
+import '../../../../../Component/drawer_ui.dart';
+import '../../../../../Event/todo_view_event.dart';
+import '../../../../../Utilities/appC.dart';
+import '../../../../../Utilities/num.dart';
+import '../../../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../Sub Category/subcategory_view_ui.dart';
+import '../../../Sub Category/subcategory_view_ui.dart';
 
 class TaskEditUI extends StatefulWidget {
   final Map<String, dynamic> task;

@@ -14,6 +14,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Utilities/str.dart';
 import '../../../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import '../bloc/edit_todo_bloc.dart';
@@ -163,27 +164,6 @@ class EditTodoMoreForm extends StatelessWidget {
                     ?.copyWith(color: context.theme.hintColor),
                 style:
                     context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")),
-          if (state.selectedLinkOption != null)
-            ValueListenableBuilder(
-              valueListenable:
-                  context.read<EditToDoBloc>().customLinkController,
-              builder: (context, value, child) => value.text.isEmpty
-                  ? Container()
-                  : Text.rich(
-                      TextSpan(
-                          text:
-                              "${state.selectedLinkOption!['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => context
-                                .read<EditToDoBloc>()
-                                .add(EditToDoOpenCustomLinkEvent())),
-                      textAlign: TextAlign.end,
-                      style: context.textTheme.labelSmall?.copyWith(
-                          color: AppC.appColor,
-                          decoration: TextDecoration.underline,
-                          decorationColor: AppC.appColor),
-                    ),
-            ),
           if ((Str.completedOdometer.contains(state.apiResponse['title'])
               && state.apiResponse['status']=="Completed")
               || (Str.unCompletedOdometer.contains(state.apiResponse['title'])))
@@ -253,6 +233,28 @@ class EditTodoMoreForm extends StatelessWidget {
                 weight: FontWeight.w500,
               ),
           ),
+          if (state.selectedLinkOption != null)
+            ValueListenableBuilder(
+              valueListenable:
+              context.read<EditToDoBloc>().customLinkController,
+              builder: (context, value, child) => value.text.isEmpty
+                  ? Container()
+                  : Text.rich(
+                TextSpan(
+                    text:
+                    "${state.selectedLinkOption!['label'].toString().isCustomLink ? "Link" : "Reservation No"} - ${value.text}",
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => context
+                          .read<EditToDoBloc>()
+                          .add(EditToDoOpenCustomLinkEvent())),
+                textAlign: TextAlign.end,
+                style: context.textTheme.labelMedium?.copyWith(
+                    color: AppC.appColor,
+                    fontSize: 12.sp,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppC.appColor),
+              ),
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

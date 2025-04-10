@@ -6,6 +6,20 @@ extension ListStringExtension on List<String?> {
   }
 }
 
+List<T> paginateList<T>({
+  required List<T> data,
+  required int currentPage,
+  required int itemsPerPage,
+}) {
+  final pageIndex = currentPage - 1; // 👈 Adjust here
+  final start = pageIndex * itemsPerPage;
+  final end = start + itemsPerPage;
+
+  if (start >= data.length) return [];
+
+  return data.sublist(start, end > data.length ? data.length : end);
+}
+
 extension Unique<E, Id> on List<E> {
   List<E> distinct([Id Function(E element)? id, bool inplace = true]) {
     final ids = <dynamic>{};

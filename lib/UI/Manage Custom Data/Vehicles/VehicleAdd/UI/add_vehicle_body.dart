@@ -1,5 +1,6 @@
 
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
@@ -13,15 +14,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
 class AddVehicleBody extends StatelessWidget {
-  const AddVehicleBody({super.key});
+  final Widget? searchChild;
+  const AddVehicleBody({super.key, this.searchChild});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AddVehicleBloc, AddVehicleState>(
       builder: (context, state) => Form(
-        //autovalidateMode: AutovalidateMode.onUserInteraction,
         key: context.read<AddVehicleBloc>().formKey,
         child: ListView(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
           children: [
             10.height,
             Utils.getTextFormField(
@@ -119,11 +122,18 @@ class AddVehicleBody extends StatelessWidget {
                       .shade800),
             ),
             10.height,
-            Utils.getElevatedButton(() {
-              if (context.read<AddVehicleBloc>().formKey.currentState?.validate() ?? false) {
-                context.read<AddVehicleBloc>().add(SaveNewVehicleEvent());
-              }
-            }),
+            Row(
+              children: [
+                SuccessButton(text: "Save", onPressed: () => context.read<AddVehicleBloc>().add(SaveNewVehicleEvent())),
+                const Spacer(flex: 1),
+                (searchChild ?? const SizedBox.shrink()),
+              ],
+            ),
+            // Utils.getElevatedButton(() {
+            //   if (context.read<AddVehicleBloc>().formKey.currentState?.validate() ?? false) {
+            //     context.read<AddVehicleBloc>().add(SaveNewVehicleEvent());
+            //   }
+            // }),
           ],
         ),
       ),

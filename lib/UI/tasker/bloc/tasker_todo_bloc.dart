@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
 import 'package:fairpytasker/Response/general_response.dart';
-import 'package:fairpytasker/UI/dialog/tasker_check_in_out_dialog_bloc/tasker_check_in_out_dialog_events.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -41,6 +39,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool get isAdmin => getIt<CommonService>().isAdmin;
   Map<String, dynamic>? get currentUser => getIt<CommonService>().user;
   String? get _selectedUserIds => selectedUsers?.map((e) => e['id'].toString()).join(",");
+
+  List<String> get _checkInOutTask => ["Check Out", "Check In"];
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -96,6 +96,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
   }
 
+  bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
+
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
@@ -134,6 +136,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       {required String? id}) async =>
       await _aPiRepository.deleteTodoVehicle(id : id);
 
+  Future<Map<String, dynamic>?> get _getLastKnownLocation async => await getIt<CommonService>().getCurrentLocation();
+
   Future<Map<String, dynamic>?> _addToDoOdometer({required dynamic toDoId, required dynamic currentOdometer, required dynamic nextOdometer, required dynamic nextMilesCheck}) async => await _aPiRepository.addToDoOdometer(toDoId: toDoId, currentOdometer: currentOdometer, nextOdometer: nextOdometer, nextMilesCheck: nextMilesCheck);
 
   Future<Map<String, dynamic>?> _addToDo({required Map<String, dynamic> body}) async => await _aPiRepository.addToDo(body: body);
@@ -141,6 +145,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   Future<Map<String, dynamic>?> _completeToDo({required Map<String, dynamic> body, required dynamic todoId}) async => await _aPiRepository.completeTodo(todoId: todoId, body: body);
 
   Future<Map<String, dynamic>?> _saveRecording({required File? file}) async => await _aPiRepository.saveAudio(audio: file);
+
+  Future<Map<String, dynamic>?> _saveWorkingHour({required Map<String, dynamic> body}) async => await _aPiRepository.saveWorkingHour(body: body);
+
+  Future<Map<String, dynamic>?> _updateWorkingHour({required Map<String, dynamic> body}) async => await _aPiRepository.updateWorkingHour(body: body);
 
   /* END: API CALLS */
 
@@ -152,6 +160,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       toDos.clear();
       emit(ToDoTaskerLoadingState());
       await CommonHelper.instance.waitForPostFrameCallback();
+      await getIt<CommonService>().getCurrentLocation();
       if (!isAdmin) {
         if ((currentUser != null) && (currentUser?.isNotEmpty ?? false)) selectedUsers?.add(currentUser ?? {});
       }
@@ -363,12 +372,24 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var model = event.model;
     var identifierId = model?['identifier_id'];
     var taskTitle = model?['title'];
+    var taskDate = model?['todo_date'].toString().toDateTime();
+    var currentDate = DateTime.now().toFormat().toDateTime();
     Console.of.log("TASK COMPLETE ${identifierId} $taskTitle");
     if (identifierId.toString().isNullOrEmpty) {
       /// CUSTOM TASK
       Console.of.log("CUSTOM TASK COMPLETE");
       /// CALL COMPLETE API
-      _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
+      /// IF CHECK IN / CHECK OUT THEN CHECK TODO DATE AND CURRENT DATE ARE SAME OR NOT
+      /// IF BOTH DATE AS SAME THEN COMPLETE THE TASK OTHERWISE NO NEED TO CALL THE API
+      if ((["Check Out", "Check In"].contains(taskTitle))) {
+        if ((taskDate == currentDate)) {
+          // CALL COMPLETE API
+          _callCompleteApi(model, showLoading: false);
+          (taskTitle == "Check In") ? _callSaveWorkingHour(model) : _callUpdateWorkingHour(model);
+        }
+      } else {
+        _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
+      }
       switch(taskTitle) {
         case "Check Out": emit(ToDoTaskerCompleteCheckOutState(event.model)); break;
         case "Check In": emit(ToDoTaskerCompleteCheckInState(event.model)); break;
@@ -795,9 +816,56 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     }
   }
 
+  void _callSaveWorkingHour(Map<String, dynamic>? model) async {
+    try {
+      // TODO: GET LAST KNOWN LOCATION
+      var lastLocation = await _getLastKnownLocation;
+      Map<String, dynamic> body = {
+        "address" : lastLocation?['address'],
+        "is_break" : 0,
+        "location" : lastLocation?['address'],
+        "start_date" : model?['todo_date'],
+        "start_time" : getIt<CommonService>().timeNow,
+        "start_time_device_type" : "Mobile",
+        "start_time_latitude" : lastLocation?['latitude'],
+        "start_time_longitude" : lastLocation?['longitude'],
+        "title" : "Todo",
+        "user_id" : _toDoProcessor.userId,
+      };
+      var response = await _saveWorkingHour(body : body);
+      Console.of.log(response, name: "SAVE_WORKING_HOUR");
+    } catch (e) {
+      Console.of.log(e, name: "SAVE_WORKING_HOUR");
+    }
+  }
+
+  void _callUpdateWorkingHour(Map<String, dynamic>? model) async {
+    try {
+      // TODO: GET LAST KNOWN LOCATION
+      var lastLocation = await _getLastKnownLocation;
+      Map<String, dynamic> body = {
+        "is_break" : 0,
+        "location" : lastLocation?['address'],
+        "end_date" : model?['todo_date'],
+        "end_time" : getIt<CommonService>().timeNow,
+        "end_time_device_type" : "Mobile",
+        "end_time_latitude" : lastLocation?['latitude'],
+        "end_time_longitude" : lastLocation?['longitude'],
+      };
+      var response = await _updateWorkingHour(body : body);
+      Console.of.log(response, name: "UPDATE_WORKING_HOUR");
+    } catch (e) {
+      Console.of.log(e, name: "SAVE_WORKING_HOUR");
+    }
+  }
+
+  // TODO: NEED_MODIFICATION
   void _onUndoCompleteEvent(ToDoTaskerUndoCompleteEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       var model = event.model;
+      var taskDate = model?['todo_date'].toString().toDateTime();
+      var currentDate = DateTime.now().toFormat().toDateTime();
+      if (_isCheckInOutTask(model) && (taskDate != currentDate)) return;
       emit(ToDoTaskerLoadingState());
       Map<String, dynamic> body = {
         "complete_time_approved" : model?['complete_time_approved'],
@@ -805,6 +873,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "status" : false
       };
       var response = await _completeToDo(body : body, todoId: model?['id']);
+      if (_isCheckInOutTask(model) && (taskDate == currentDate)) _callUpdateWorkingHour(model);
       if (response != null) _reFetchToDos();
       if (response == null) emit(ToDoTaskerCommonState());
     } catch (e) {

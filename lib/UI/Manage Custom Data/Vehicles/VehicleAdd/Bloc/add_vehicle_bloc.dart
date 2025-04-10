@@ -7,7 +7,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -69,7 +69,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   DateTime? selectedPurchaseDate = DateTime.now();
   DateTime? selectedRegStickerDate = DateTime.now();
-  int? branchId;
+  int? get branchId => Session.of.getInt(Str.branchIdPrefText);
 
   bool showMore = false;
   bool bouncie = false;
@@ -86,15 +86,18 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
     on<AddVehicleInitialEvent>((event, emit) async {
       emit(AddVehicleLoadingState());
-      var cohortResponse= await _getCohort();
-      var branchResponse= await _getBranch();
-      var vehicleStatusResponse= await _getVehicleStatusCategories();
-
-      branchId = await Utils.getIntPreference(Str.branchIdPrefText);
+      var response = await Future.wait([
+        _getCohort(),
+        _getBranch(),
+        _getVehicleStatusCategories(),
+      ]);
+      var cohortResponse= response[0];
+      var branchResponse= response[1];
+      var vehicleStatusResponse= response[2];
 
       cohort = cohortResponse??[];
       branch = branchResponse??[];
-      vehicleStatus = vehicleStatusResponse?['data']??[];
+      vehicleStatus = vehicleStatusResponse ?? [];
       selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == "13",);
       selectedBranch = branch.firstWhereOrNull((element) => element['id'].toString() == branchId.toString(),);
       selectedVehicleStatus = vehicleStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
@@ -212,6 +215,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     });
 
     on<SaveNewVehicleEvent>((event, emit) async {
+      if (formKey.currentState?.validate() == false) return;
       try {
         emit(AddVehicleLoadingState());
         List<Map<String, String?>> infusedFiles = [
@@ -340,7 +344,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   }
 
   /// VEHICLE STATUS API CALL
-  Future<Map<String, dynamic>?> _getVehicleStatusCategories() async =>
-      await _apiRepository.getVehicleCategories();
+  Future<List<Map<String, dynamic>>?> _getVehicleStatusCategories() async =>
+      await getIt<CommonService>().getActiveVehiclesCount();
 
 }

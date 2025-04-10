@@ -13,23 +13,30 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class PersonExpenseAddUI extends StatelessWidget {
-  const PersonExpenseAddUI({super.key});
+  final VoidCallback? onAdd;
+  const PersonExpenseAddUI({super.key, this.onAdd});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PersonExpenseBloc>(
       create: (context) =>
-          PersonExpenseBloc()..add(const GetPersonExpenseAddData()),
+          PersonExpenseBloc()..add(GetPersonExpenseAddData()),
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
-        listener: (context, state) {
+        listener: (_, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-          if(state.popAddPage) context.pop();
+          if(state.popAddPage) {
+            // context.read<PersonExpenseBloc>().close();
+            // FBroadcast.instance().broadcast("expense_person_refresh");
+            context.pop();
+            // onAdd?.call();
+          }
         },
         child: BlocBuilder<PersonExpenseBloc, PersonExpenseState>(
             builder: (context, state) {
@@ -247,9 +254,6 @@ class PersonExpenseAddUI extends StatelessWidget {
                     }
                     if (context.read<PersonExpenseBloc>().amountController.text.isEmpty) {
                       return Toaster.showError("Please enter amount");
-                    }
-                    if (state.selectedPaymentType.isEmpty) {
-                      return Toaster.showError("Please select payment type");
                     }
                     if (state.selectedApproved.isEmpty) {
                       return Toaster.showError("Please select approved status");
