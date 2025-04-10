@@ -6,7 +6,7 @@ import 'package:fairpytasker/Bloc/upcoming_task_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:date_picker_timeline/date_picker_timeline.dart';
+// import 'package:date_picker_timeline/date_picker_timeline.dart';
 
 class UpcomingTaskView extends StatefulWidget {
   const UpcomingTaskView({Key? key}) : super(key: key);
@@ -22,17 +22,17 @@ class _UpcomingTaskViewState extends State<UpcomingTaskView> {
   DateTime selectedDate = DateTime.now();
   String? formattedDate;
   String? filterDate;
-  DatePickerController? datePickerController;
+  // DatePickerController? datePickerController;
 
   @override
   void initState() {
     upcomingTaskBloc = UpcomingTaskBloc();
     formattedDate = DateFormat('yyyy-MMM-dd').format(selectedDate);
     filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-    datePickerController = DatePickerController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      datePickerController!.jumpToSelection();
-    });
+    // datePickerController = DatePickerController();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   datePickerController!.jumpToSelection();
+    // });
     super.initState();
   }
 
@@ -116,8 +116,8 @@ class _UpcomingTaskViewState extends State<UpcomingTaskView> {
                                           color: AppC().base),
                                       child: InkWell(
                                           onTap: () async {
-                                            datePickerController!
-                                                .jumpToSelection();
+                                            // datePickerController!
+                                            //     .jumpToSelection();
                                           },
                                           child: const Icon(
                                             Icons.select_all,
@@ -127,7 +127,7 @@ class _UpcomingTaskViewState extends State<UpcomingTaskView> {
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                DatePicker(
+                                /*DatePicker(
                                   DateTime(DateTime.now().year, 01, 01),
                                   controller: datePickerController,
                                   initialSelectedDate: DateTime.now(),
@@ -139,25 +139,25 @@ class _UpcomingTaskViewState extends State<UpcomingTaskView> {
                                       debugPrint('date: $date');
                                       // debugPrint('tempTaskList: ${tempTaskList.length}');
                                       selectedDate = date;
-                                      formattedDate = /*DateTime.parse*/
+                                      formattedDate = *//*DateTime.parse*//*
                                           (DateFormat("dd-MMM-yyyy")
                                               .format(date));
-                                      filterDate = /*DateTime.parse*/
+                                      filterDate = *//*DateTime.parse*//*
                                           (DateFormat("yyyy-MM-dd")
                                               .format(date));
                                       upcomingTaskBloc!.add(
                                           GetJobList(selectedDate: filterDate));
                                       debugPrint('filterDate: $filterDate');
-                                      /*taskList = [];
+                                      *//*taskList = [];
                                     for (var element in tempTaskList) {
                                     if(element.taskDate == filterDate) {
                                     taskList!.add(element);
                                     }
-                                    }*/
+                                    }*//*
                                       // debugPrint('taskList: ${taskList!.length}');
                                     });
                                   },
-                                ),
+                                ),*/
 
                                 /*CalenderPicker(
                                 DateTime.now(),

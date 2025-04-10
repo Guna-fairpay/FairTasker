@@ -5,7 +5,7 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:photo_view/photo_view.dart';
+// import 'package:photo_view/photo_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../Bloc/todo_view_bloc.dart';
@@ -162,7 +162,8 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                 ),
 
                 // Main Content: PageView with Image and Rotation
-                Expanded(
+                /// COMMENTED DUE TO LIBRARY REMOVED BY PRABHU CHANDRAN (NEED CLARIFICATION ON THIS LIBRARY photo_view)
+                /*Expanded(
                   child: PageView.builder(
                     controller: pageController,
                     itemCount: imagePaths.length,
@@ -190,7 +191,7 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                       );
                     },
                   ),
-                ),
+                ),*/
                 const SizedBox(height: 8,),
                 // Page Indicator
                 SmoothPageIndicator(
