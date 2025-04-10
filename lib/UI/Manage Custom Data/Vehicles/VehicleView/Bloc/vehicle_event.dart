@@ -45,3 +45,21 @@ class EditVehicleTabEvent extends VehicleEvent {
   @override
   List<Object?> get props => [vehicleData];
 }
+
+class VehiclePaginationEvent extends VehicleEvent {
+  final int page;
+  VehiclePaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
+
+class VehicleResetEvent extends VehicleEvent {}
+
+class VehicleTabChangeEvent extends VehicleEvent {
+  final int tabIndex;
+  VehicleTabChangeEvent({required this.tabIndex});
+  @override
+  List<Object?> get props => [tabIndex];
+}
+
+class VehicleClearEditEvent extends VehicleEvent {}

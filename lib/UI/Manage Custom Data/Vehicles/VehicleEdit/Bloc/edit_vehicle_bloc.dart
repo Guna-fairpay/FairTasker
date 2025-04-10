@@ -319,6 +319,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     });
 
     on<SaveUpdatedVehicle>((event, emit) async {
+      if (formKey.currentState?.validate() == false) return;
       try {
         emit(EditVehicleLoadingState());
         List<Map<String, String?>> infusedFiles = [

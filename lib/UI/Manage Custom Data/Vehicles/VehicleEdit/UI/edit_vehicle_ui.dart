@@ -9,7 +9,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class EditVehicleUI extends StatelessWidget {
   final dynamic vehicleData;
-  const EditVehicleUI({super.key,required this.vehicleData});
+  final Widget? searchChild;
+  final VoidCallback? onClear;
+  const EditVehicleUI({super.key,required this.vehicleData, this.searchChild, this.onClear});
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +26,8 @@ class EditVehicleUI extends StatelessWidget {
             if (state is EditCompletedState) Navigator.pop(context);
           }
         },
-        child:  Scaffold(
-          body:  SafeArea(
-            minimum: const EdgeInsets.symmetric(horizontal:15,vertical: 10),
-            child: EditVehicleBody(vehicleData: vehicleData),
-          ),
+        child: SafeArea(
+          child: EditVehicleBody(vehicleData: vehicleData, searchChild: searchChild, onClear: onClear),
         ),
       ),
     );
