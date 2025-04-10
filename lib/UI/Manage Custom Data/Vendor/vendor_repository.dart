@@ -10,10 +10,41 @@ import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../../Response/vendor_response.dart';
+
 class VendorDataRepo {
   ApiClient apiClient = ApiClient();
 
-  Future<Map<String, dynamic>?> createVendor({
+  Future<VendorResponse?> getVendor() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}vendors";
+      debugPrint("getAssignedTo apiUrl: $apiUrl");
+      final http.Response? response = await apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        // if (response.statusCode == 200) {
+        //   debugPrint('getAssignedTo api.response.body3: ${response.body}');
+        //   debugPrint('getAssignedTo api.statusCode: ${response.statusCode}');
+
+        VendorResponse assignedToResponse =
+        VendorResponse.fromJson(json.decode(response.body));
+        if (assignedToResponse.data != null) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAssignedTo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getAndCreateVendor({
     int? id,
     String? name,
     String? vendorTypeId,

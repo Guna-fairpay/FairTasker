@@ -14,6 +14,7 @@ import 'Supplies/supplies_view_ui.dart';
 import 'Task/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
 import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
+import 'Vendor/vendor_ui/vendor_view.dart';
 import 'Vendor/vendor_view_ui.dart';
 
 class ManageCustomDataMenuUI extends StatelessWidget {
@@ -83,12 +84,21 @@ class ManageCustomDataMenuUI extends StatelessWidget {
                 ));
               },
             ),
+            // _buildCard(
+            //   icon: Icons.business,
+            //   title: 'Vendor',
+            //   onTap: () async {
+            //     await Navigator.of(context).push(MaterialPageRoute(
+            //       builder: (context) => const VendorViewUI(),
+            //     ));
+            //   },
+            // ),
             _buildCard(
               icon: Icons.business,
               title: 'Vendor',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VendorViewUI(),
+                  builder: (context) => const VendorView(),
                 ));
               },
             ),

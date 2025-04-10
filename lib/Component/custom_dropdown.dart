@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class CustomDropdown<T extends Object> extends StatelessWidget {
   final List<T> items;
   final T? value;
+  final String? labelText, hintText;
   final ItemAsString<T>? itemAsString;
   final ValueChanged<T?>? onChanged;
   final EdgeInsetsGeometry? contentPadding;
@@ -15,6 +16,8 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
       {super.key,
       required this.items,
       this.value,
+      this.labelText = "Select",
+      this.hintText,
       this.contentPadding,
       this.itemAsString,
       this.onChanged});
@@ -24,16 +27,19 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
     var border = OutlineInputBorder(
         borderSide:
             const BorderSide(color: AppC.borderColor, width: Num.borderWidthField),
-        borderRadius: BorderRadius.circular(Num.borderRadius));
-    return DropdownButtonFormField<T>(
+        borderRadius: BorderRadius.circular(Num.borderRadius)
+    );
+    return
+      DropdownButtonFormField<T>(
         decoration: InputDecoration(
             labelStyle: context.textTheme.labelLarge,
             constraints: const BoxConstraints(),
             contentPadding: contentPadding ?? const EdgeInsets.all(10),
             isDense: true,
             border: border,
+            hintText: hintText,
             enabledBorder: border,
-            labelText: "Select"),
+            labelText: labelText),
         borderRadius: BorderRadius.circular(Num.borderRadius),
         padding: contentPadding ?? const EdgeInsets.all(5),
         isDense: true,
@@ -50,6 +56,7 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 )))
             .toList(),
-        onChanged: onChanged);
+        onChanged: onChanged
+      );
   }
 }

@@ -2,11 +2,14 @@
 
 // working_hours_view_ui.dart
 import 'dart:developer';
+import 'package:fairpytasker/Component/custom_dropdown.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/list_dropdown.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -27,12 +30,12 @@ import 'Popups/reason_top_notification_popup.dart';
 class WorkHoursViewUI extends StatelessWidget {
   WorkHoursViewUI({super.key});
   List<Map<String, dynamic>> filteredData=[];
-  List<Map<String, dynamic>> dropDownResource=[];
+  // List<Map<String, dynamic>> dropDownResource=[];
   Map<String, String> dates={};
-  dynamic selectedName;
+  // dynamic selectedName;
   DateRange? selectedDateRange;
   DateRange? temporarySelectedDateRange;
-  dynamic initialDropDown;
+  // dynamic initialDropDown;
   String startDate='';
   String endDate='';
 
@@ -85,8 +88,8 @@ class WorkHoursViewUI extends StatelessWidget {
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               filteredData = state?.combinedData ?? [];
-              dropDownResource = [{'id':'','full_name':'All'}, ...state?.resources ?? []];
-              initialDropDown = {'id':'','full_name':'All'};
+              // dropDownResource = [{'id':0,'full_name':'All'}, ...state?.resources ?? []];
+              // initialDropDown = {'id':'','full_name':'All'};
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
@@ -132,7 +135,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                     ],
                                     color: Color.fromRGBO(240, 240, 240, 1),
                                   ),
-                                children: [
+                                  children: [
                                   Padding(
                                     padding: EdgeInsets.symmetric(vertical: 8.0),
                                     child: Text(
@@ -284,20 +287,16 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                           ),
                         ),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
-                        Expanded(
-                          child:
-                          Utils.dropdownBox('Select',dropDownResource,
-                                  (value) {
-                                  selectedName = value!;
-                                  print("selectedName ${selectedName}");
-                                  print("initialDropDown ${initialDropDown}");
-                                  context.read<WorkingHoursBloc>().add(ResourceDropDownEvent(selectedName));
-                              },
-                              initialSelection: initialDropDown,
-                              labelKey: 'full_name'
-                          ),
+                        Expanded(child: ListDropDown<Map<String, dynamic>>(
+                          items: context.watch<WorkingHoursBloc>().dropDownResource,
+                          value: context.watch<WorkingHoursBloc>().initialDropDown,
+                          contentPadding: 5.padding,
+                          onChanged: (val) => context.read<WorkingHoursBloc>().add(ResourceDropDownEvent(val)),
+                          itemAsString: (item) => item['full_name'].toString(),
+                          labelText: null,
+                          hintText: "Select",
                         )
+                        ),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -344,6 +343,7 @@ class WorkHoursViewUI extends StatelessWidget {
                       child:
                       Builder(
                         builder: (context) {
+                          var selectedName = context.watch<WorkingHoursBloc>().initialDropDown;
                           final dataList = (Session.of.getString(Str.userIdPrefText) == '3'
                               || Session.of.getString(Str.userIdPrefText) == '10'
                               || Session.of.getString(Str.userIdPrefText) == '21'
@@ -361,8 +361,7 @@ class WorkHoursViewUI extends StatelessWidget {
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();
                           }
-                          return
-                            ListView.builder(
+                          return ListView.builder(
                               itemCount: dataList?.length ?? 0,
                               itemBuilder: (context, index) {
                               final employee = dataList?[index];

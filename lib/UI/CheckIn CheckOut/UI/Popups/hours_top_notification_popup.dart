@@ -197,6 +197,7 @@ class HoursPopup {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            log("${state.hoursData1}", name: "hoursData1");
           }
         },
           child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(builder: (context, state){
@@ -290,37 +291,38 @@ class HoursPopup {
                                     children: [
                                       Utils.getText(entry['date']),
                                       const SizedBox(width: 4,),
-                                      (((entry['checkin_reason'] is List) && (entry['checkin_reason'] as List).isNotEmpty)) ||
-                                          (((entry['checkout_reason'] is List) && (entry['checkout_reason'] as List).isNotEmpty))
-                                          ? GestureDetector(
-                                        onTap: () {
-                                          TextPopupReason.show(context, {
-                                            'date': entry['date'],
-                                            'checkin_reason': entry['checkin_reason'],
-                                            'checkout_reason': entry['checkout_reason'],
-                                          });
-                                        },
-                                        child: const Icon(
-                                          Icons.message_outlined,
-                                          color: AppC.red,
-                                          size: 12,
-                                        ),
-                                      )
-                                          : const SizedBox(width: 12),
-                                      const SizedBox(width: 15,),
+                                      // (((entry['checkin_reason'] is List) && (entry['checkin_reason'] as List).isNotEmpty)) ||
+                                      //     (((entry['checkout_reason'] is List) && (entry['checkout_reason'] as List).isNotEmpty))
+                                      //     ? GestureDetector(
+                                      //   onTap: () {
+                                      //     TextPopupReason.show(context, {
+                                      //       'date': entry['date'],
+                                      //       'checkin_reason': entry['checkin_reason'],
+                                      //       'checkout_reason': entry['checkout_reason'],
+                                      //     });
+                                      //   },
+                                      //   child: const Icon(
+                                      //     Icons.message_outlined,
+                                      //     color: AppC.red,
+                                      //     size: 12,
+                                      //   ),
+                                      // )
+                                      //     : const SizedBox(width: 12),
+                                      // const SizedBox(width: 15,),
                                       Expanded(
                                           flex: 2,
-                                          child: Utils.getText(entry['start_time'] != '' ? entry['start_time'].substring(0, 5) : '')
+                                          child: Utils.getText(entry['start_time'] != '' ? entry['start_time'].toString().substring(0, 5) : '')
                                       ),
                                       Expanded(
                                           flex: 2,
-                                          child: Utils.getText(entry['end_time'] != '' ? entry['end_time'].substring(0, 5) : '')
+                                          child: Utils.getText(entry['end_time'] != '' ? entry['end_time'].toString().substring(0, 5) : '')
                                       ),
                                       Expanded(
                                           flex: 2,
                                           child: Utils.getText(
                                               formatDurationToHM(
-                                                  entry['total_hours']))),
+                                                  entry['total_hours']))
+                                      ),
                                       Expanded(
                                           flex: 1, child: Utils.getText(entry['task_count'])
                                       ),

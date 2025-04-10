@@ -16,7 +16,7 @@ import '../../../Utilities/Str.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
-import '../../../Bloc/vendor_data_bloc.dart';
+import 'vendor_data_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../Utilities/image_pick_helper.dart';

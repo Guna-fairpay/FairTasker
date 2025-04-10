@@ -40,6 +40,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   String? userId;
   int? hrmId;
   int? branchId;
+  List<Map<String, dynamic>> dropDownResource=[];
+  Map<String, dynamic> initialDropDown = {'id':0,'full_name':'All'};
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -58,6 +60,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         DateTime start = now.subtract(const Duration(days: 7));
         DateTime end = now;
         selectedDateRange = DateRange(start, end);
+        initialDropDown = {'id':0,'full_name':'All'};
         String startDate =  event.minDate.toString();
         String endDate = event.maxDate.toString();
         if(startDate.isNotEmpty || endDate.isNotEmpty)
@@ -342,6 +345,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
               List<Map<String, dynamic>> formattedData = formatEmployeeData(response6?.data ?? [],workActiveHours);
               log("${formattedData}",name:"FormattedData");
+              dropDownResource = formattedResources;
+              dropDownResource.insert(0, initialDropDown);
               //Punch Card Calculation End
               emit(state.copyWith(
                 isLoading: false,
@@ -392,6 +397,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         String getFirstWord(String fullName) {
           return fullName.split(' ').first;
         }
+        initialDropDown = event.selectedName;
         dropDownData = (event.selectedName['full_name'] == 'All'
             ? state.combinedData
             : state.combinedData?.where((item) {
@@ -745,7 +751,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         toDate: event.toDate,
       );
         final response = await taskRepo.fetchEmployeeTaskCount(
-          userId: event.hrmId,
+          userId: event.empID,
           fromDate: event.fromDate,
           toDate: event.toDate,
         );
@@ -818,58 +824,44 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         List<Map<String, dynamic>> combineData(
             List<dynamic> dataList,
             List<Map<String, dynamic>> taskCounts,
-            List<Map<String, dynamic>> checkInout
             ) {
           List<Map<String, dynamic>> combinedList = [];
 
           // Map to organize task counts by date
           Map<String, int> taskCountsMap = {};
           for (var task in taskCounts) {
-            final date = DateFormat('yyyy-MM-dd')
-                .format(DateFormat('yyyy-MM-dd').parse(task['todo_date'].toString()));
+            try {
+              final date = DateFormat('yyyy-MM-dd')
+                  .format(DateFormat('yyyy-MM-dd').parse(task['todo_date'].toString()));
 
-            taskCountsMap[date] = (taskCountsMap[date] ?? 0) +
-                (int.tryParse(task['task_count'].toString()) ?? 0);
+              taskCountsMap[date] = (taskCountsMap[date] ?? 0) +
+                  (int.tryParse(task['task_count'].toString()) ?? 0);
+            } catch (e) {
+              continue;
+            }
           }
-          // Map to organize check-in/out reasons by date
-          Map<String, List<dynamic>> checkinReasonsMap = {};
-          Map<String, List<dynamic>> checkoutReasonsMap = {};
-          for (var entry in checkInout) {
-            final date = DateFormat('yyyy-MM-dd')
-                .format(DateFormat('yyyy-MM-dd').parse(entry['date'].toString()));
 
-            checkinReasonsMap.putIfAbsent(date, () => []);
-            checkoutReasonsMap.putIfAbsent(date, () => []);
-
-            checkinReasonsMap[date]?.add(entry['checkin_reason']);
-            checkoutReasonsMap[date]?.add(entry['checkout_reason']);
-          }
           // Combine data
           for (var item in dataList) {
             final String? date = item['date']?.toString();
             if (date == null) continue;
 
             final taskCount = taskCountsMap[date] ?? 0;
-            final List<dynamic> checkinReason = checkinReasonsMap[date] ?? [];
-            final List<dynamic> checkoutReason = checkoutReasonsMap[date] ?? [];
 
-            checkinReason.removeWhere((element) => ((element.toString().isEmpty) || (element == null)));
-            checkoutReason.removeWhere((element) => ((element.toString().isEmpty) || (element == null)));
-            // Combine into a single map
             combinedList.add({
               'date': DateFormat('MM-dd-yyyy').format(DateTime.parse(date)),
               'total_hours': item['total_hours'],
               'start_time': item['start_time'] ?? '',
               'end_time': item['end_time'] ?? '',
               'task_count': taskCount.toString(),
-              'checkin_reason': checkinReason,
-              'checkout_reason': checkoutReason,
             });
           }
+
           return combinedList;
         }
-        combinedData=combineData(event.dataList,hoursData,history);
 
+        combinedData=combineData(event.dataList,hoursData);
+        log("$combinedData",name:"Hours_popup");
         emit(state.copyWith(isLoading: false,hoursData1: combinedData));
     });
 

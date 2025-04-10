@@ -7,7 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
-import '../../../Bloc/vendor_data_bloc.dart';
+import 'vendor_data_bloc.dart';
 import '../../dialog/show_attachments_dialog.dart';
 import 'vendor_add_ui.dart';
 import 'vendor_edit_ui.dart';
@@ -150,7 +150,8 @@ class _VendorViewUIState extends State<VendorViewUI> {
               vendorDataBloc.add(const GetVendorList());
             }
           },
-          builder: (context, state) {
+          builder:
+              (context, state) {
             return SafeArea(
               minimum: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
               child: Column(
