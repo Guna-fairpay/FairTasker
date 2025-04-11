@@ -163,9 +163,9 @@ class Utils {
           hintStyle: TextStyle(color: AppC.grey),
           contentPadding: EdgeInsets.symmetric(horizontal: 10),
           border: InputBorder.none,
-          isCollapsed: false,
+          isCollapsed: true,
           isDense: true,
-          suffixIconConstraints: BoxConstraints(),
+          suffixIconConstraints: BoxConstraints.tightFor(),
           constraints: BoxConstraints(maxHeight: 40)
         ),
         menuStyle: MenuStyle(
