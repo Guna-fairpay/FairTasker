@@ -104,7 +104,7 @@ class PrivateRentalListingPage extends StatelessWidget {
                           .toList()
                     ],
                   ),
-                  Padding(
+                  /*Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
                     child: Container(
                       color: AppC.blue50,
@@ -133,7 +133,7 @@ class PrivateRentalListingPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
+                  ),*/
                   /*ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
