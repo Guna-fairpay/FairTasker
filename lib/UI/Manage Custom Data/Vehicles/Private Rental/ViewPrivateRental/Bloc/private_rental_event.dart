@@ -36,3 +36,12 @@ class EditPrivateRentalEvent extends PrivateRentalEvent {
   @override
   List<Object?> get props => [rentalData];
 }
+
+class PrivateRentalPaginationEvent extends PrivateRentalEvent {
+  final int page;
+  PrivateRentalPaginationEvent(this.page);
+  @override
+  List<Object?> get props => [page];
+}
+
+class PrivateRentalClearEditEvent extends PrivateRentalEvent {}

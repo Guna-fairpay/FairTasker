@@ -11,6 +11,7 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -54,9 +55,9 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
       var response = await _getPrivateRentalVehicle();
       var editResponse = await _getEditPrivateRentalData(id: event.rentalData['id'].toString());
 
-      customerList =List.from(customerResponse?['customers'] ??[]);
+      customerList = customerResponse;
       customerList = customerName(customerList);
-      vehicleList =List.from(response?['vehicles'] ?? []);
+      vehicleList = response;
       rentalData = editResponse ?? {};
 
       selectedVehicle = vehicleList.firstWhereOrNull((element) => element['vin'] == rentalData['vin'])??{};
@@ -196,12 +197,12 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
   }
 
   ///PRIVATE RENTAL VEHICLE API CALL
-  Future<Map<String, dynamic>?> _getPrivateRentalVehicle() async =>
-      await _apiRepository.getPrivateRentalVehicleList();
+  Future<List<Map<String, dynamic>>> _getPrivateRentalVehicle() async =>
+      await getIt<CommonService>().getPrivateRentalVehicleList();
 
   ///PRIVATE RENTAL CUSTOMER API CALL
-  Future<Map<String, dynamic>?> _getPrivateRentalCustomer() async =>
-      await _apiRepository.getPrivateRentalCustomersList();
+  Future<List<Map<String, dynamic>>> _getPrivateRentalCustomer() async =>
+      await getIt<CommonService>().getPrivateRentalCustomersList();
 
   ///EDIT PRIVATE RENTAL DATA API CALL
   Future<Map<String, dynamic>?> _getEditPrivateRentalData({String? id}) async =>

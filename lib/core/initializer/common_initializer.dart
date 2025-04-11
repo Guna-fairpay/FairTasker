@@ -54,6 +54,8 @@ class CommonService {
   List<Map<String, dynamic>> branchList = [];
   List<Map<String, dynamic>> vehicleStatusList = [];
   List<Map<String, dynamic>> _toDoList = [];
+  List<Map<String, dynamic>> _privateRentalVehicleList = [];
+  List<Map<String, dynamic>> _privateRentalCustomersList = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
@@ -406,6 +408,32 @@ class CommonService {
       var response = await _apiRepository.getToDoList(selectedDate: DateTime.now().toFormat(format: "yyyy-MM-dd"));
       _toDoList = List<Map<String, dynamic>>.from(response?['todos'] ?? []);
       return _toDoList;
+    }catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPrivateRentalVehicleList({bool reset = false}) async {
+    if (reset) _privateRentalVehicleList.clear();
+    if (_privateRentalVehicleList.isNotEmpty) return _privateRentalVehicleList;
+    try {
+      var response = await _apiRepository.getPrivateRentalVehicleList();
+      _privateRentalVehicleList = List<Map<String, dynamic>>.from(response?['vehicles'] ?? []);
+      return _privateRentalVehicleList;
+    }catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPrivateRentalCustomersList({bool reset = false}) async {
+    if (reset) _privateRentalCustomersList.clear();
+    if (_privateRentalCustomersList.isNotEmpty) return _privateRentalCustomersList;
+    try {
+      var response = await _apiRepository.getPrivateRentalCustomersList();
+      _privateRentalCustomersList = List<Map<String, dynamic>>.from(response?['customers'] ?? []);
+      return _privateRentalCustomersList;
     }catch (e) {
       Toaster.showError(e.toString());
       return [];
