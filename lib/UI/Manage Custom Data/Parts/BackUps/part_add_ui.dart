@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/utils.dart';
+import '../../../../Utilities/appC.dart';
+import '../../../../Utilities/utils.dart';
 
 class PartAddUI extends StatefulWidget {
   const PartAddUI({super.key});

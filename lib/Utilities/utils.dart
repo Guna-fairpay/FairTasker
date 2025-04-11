@@ -135,6 +135,7 @@ class Utils {
         double topRRadius = 4,
         double bottomLRadius = 4,
         double bottomRRadius = 4,
+        double height = 40,
       }) {
     //Console.of.log("initialSelection${initialSelection}");
     return Container(
@@ -159,14 +160,14 @@ class Utils {
             overflow: TextOverflow.ellipsis,
           fontSize: 14
         ),
-        inputDecorationTheme:  const InputDecorationTheme(
-          hintStyle: TextStyle(color: AppC.grey),
-          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        inputDecorationTheme:  InputDecorationTheme(
+          hintStyle: const TextStyle(color: AppC.grey),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           border: InputBorder.none,
           isCollapsed: true,
           isDense: true,
-          suffixIconConstraints: BoxConstraints.tightFor(),
-          constraints: BoxConstraints(maxHeight: 40)
+          suffixIconConstraints: const BoxConstraints.tightFor(width: 30),
+          constraints: BoxConstraints(maxHeight: height)
         ),
         menuStyle: MenuStyle(
           backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
@@ -597,12 +598,7 @@ class Utils {
         obscureText: obscure,
         //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
         //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-        onTapOutside: (event) {
-          FocusScope.of(context).requestFocus(FocusNode());
-          // Future.delayed(Duration(milliseconds: 100), () {
-          //   controller.selection = TextSelection.collapsed(offset: 0);
-          // });
-        },
+        onTapOutside: (event) => dismissKeyboard(context),
         textCapitalization: TextCapitalization.sentences,
         inputFormatters: textInputFormatter,
         textAlign: textAlign,

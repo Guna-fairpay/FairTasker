@@ -6,7 +6,12 @@ abstract class VehicleEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class VehicleInitialEvent extends VehicleEvent {}
+class VehicleInitialEvent extends VehicleEvent {
+  final dynamic vin;
+  VehicleInitialEvent({this.vin});
+  @override
+  List<Object?> get props => [vin];
+}
 
 class SearchVehicleEvent extends VehicleEvent {
   final String? query;

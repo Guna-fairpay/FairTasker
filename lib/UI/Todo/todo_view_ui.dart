@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/BackUps/supplies_view_ui.dart';
 import 'package:fairpytasker/Bloc/location_data_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_page.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
@@ -28,7 +28,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../Manage Custom Data/Parts/part_view_ui.dart';
+import '../Manage Custom Data/Parts/BackUps/part_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
 import 'package:url_launcher/url_launcher.dart';

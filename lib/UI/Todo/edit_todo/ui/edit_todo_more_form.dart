@@ -1,9 +1,9 @@
 
 import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/supplies_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/BackUps/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/part_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/BackUps/part_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';

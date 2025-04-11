@@ -7,9 +7,7 @@ class PopupWithIcons {
   static Future<void> show(
       BuildContext context,
       TapDownDetails? details,
-      VoidCallback onEditTap,
-      VoidCallback onDeleteTap
-      ) async {
+      {VoidCallback? onEditTap,VoidCallback? onDeleteTap}) async {
 
     if (details != null) {
       await showMenu(
@@ -18,7 +16,7 @@ class PopupWithIcons {
         context: context,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         menuPadding: EdgeInsets.zero,
-        constraints: BoxConstraints.tightFor(width: 60.sp),
+        constraints: BoxConstraints.tightFor(width: 70.sp),
         position: RelativeRect.fromLTRB(
           details.globalPosition.dx,
           details.globalPosition.dy,
@@ -33,26 +31,27 @@ class PopupWithIcons {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox.shrink(),
+                // IconButton(onPressed: onEditTap, icon: Icon(Icons.edit_outlined,color: AppC.blue,size: 16.sp,)),
                 GestureDetector(
                   onTap: () {
-                    onEditTap();
+                    onEditTap?.call();
                     Navigator.of(context).pop();
                   },
-                  child:  Icon(
+                  child:  const Icon(
                     Icons.edit_outlined,
                     color: AppC.blue,
-                    size: 16.sp,
+                    //size: 16.sp,
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
-                    onDeleteTap();
                     Navigator.of(context).pop();
+                    onDeleteTap?.call();
                   },
-                  child:  Icon(
+                  child:  const Icon(
                     Icons.delete_outline,
                     color: AppC.redAccent,
-                    size: 16.sp,
+                    //size: 16.sp,
                   ),
                 ),
               ],

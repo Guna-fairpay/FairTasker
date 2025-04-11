@@ -1,5 +1,8 @@
 
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Components/tab_bar.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/category_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -8,12 +11,10 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'Categorys/category_view_ui.dart';
 import 'Customers/customer_view_ui.dart';
 import 'Location/location_view_ui.dart';
-import 'Parts/part_view_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
-import 'Supplies/supplies_view_ui.dart';
+import 'Supplies/BackUps/supplies_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
 import 'Vendor/vendor_view_ui.dart';
 
@@ -70,11 +71,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.assignment,
               title: 'Task',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const TaskTabBarUI(),
-                ));
-              },
+              onTap:() => context.push(const TaskMainPage(),),
             ),
             _buildCard(
               icon: Icons.directions_car_rounded,
@@ -102,29 +99,17 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.construction,
               title: 'Parts',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const PartViewUI(),///PartView() ?? PartViewUI()
-                ));
-              },
+              onTap:() => context.push(const PartsMainUI(),),
             ),
             _buildCard(
               icon: Icons.shopping_cart,
               title: 'Supplies',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SuppliesViewUI(),
-                ));
-              },
+              onTap:() => context.push(const SuppliesMainUI(),),
             ),
             _buildCard(
               icon: Icons.category,
               title: 'Category',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CategoryViewUi(),
-                ));
-              },
+              onTap: () => context.push(const CategoryMainUi(), fullscreenDialog: true),
             ),
             _buildCard(
               icon: Icons.folder_open,

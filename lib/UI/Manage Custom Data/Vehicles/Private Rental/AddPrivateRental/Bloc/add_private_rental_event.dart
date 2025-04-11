@@ -65,3 +65,10 @@ class AddPrivateRentalSubmitEvent extends AddPrivateRentalEvent {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class InsertRentalDataEvent extends AddPrivateRentalEvent {
+  final dynamic rentalData;
+  InsertRentalDataEvent({required this.rentalData});
+  @override
+  List<Object?> get props => [rentalData];
+}
+

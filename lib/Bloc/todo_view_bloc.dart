@@ -972,7 +972,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
       await todoListRepo.getTask()
           .then((value) {
         if (value != null) {
-          emit(TaskListLoaded(
+          emit( TaskListLoaded(
             data: value.data ?? [],
           ));
         }

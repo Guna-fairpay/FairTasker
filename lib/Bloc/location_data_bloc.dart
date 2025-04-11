@@ -25,7 +25,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       });
     });
 
-    // In your bloc file
+    // In your Bloc file
     on<AddLocationData>((event, emit) async {
       emit(const LocationDataLoading());
 

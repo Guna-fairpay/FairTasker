@@ -25,6 +25,7 @@ class ToDoProcessor {
   final APiRepository _aPiRepository = APiRepository();
 
   String? get userId => Session.of.getString(Str.userIdPrefText);
+  int? get hrmId => Session.of.getInt(Str.hrmIdPrefText);
   int? branchId = Session.of.getInt(Str.branchIdPrefText);
 
   Future<void> initialize() async {

@@ -467,7 +467,7 @@ class _AddExpenseUIState extends State<AddExpenseUI>
                             decoration: BoxDecoration(
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(12)),
-                              color: AppC.red.shade400,
+                              color: AppC.red,
                             ),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 0, vertical: 0),
