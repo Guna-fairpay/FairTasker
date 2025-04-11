@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/ViewPrivateRental/UI/private_rental_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/UI/vehicle_expense_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/UI/vehicle_rm_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/TabBarPages/vehicle_log.dart';
@@ -25,7 +26,7 @@ class VehicleMainTabContentViewUi extends StatelessWidget {
         1 => EditVehicleExpenseDetailsUI(vin: context.watch<VehicleBloc>().selectedVehicle?['vin']),
         2 => VehicleRMUI(vin: context.watch<VehicleBloc>().selectedVehicle?['vin']),
         3 => VehicleLogUI(vin: context.watch<VehicleBloc>().selectedVehicle?['vin']),
-        4 => Container(padding: 10.padding, color: Colors.black),
+        4 => const PrivateRentalMainPage(),
         _ => Container(padding: 10.padding, color: Colors.blue),
       },
     ));

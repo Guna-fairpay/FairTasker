@@ -3,6 +3,7 @@ import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
 import 'package:fairpytasker/Response/general_response.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -830,9 +831,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "start_time_latitude" : lastLocation?['latitude'],
         "start_time_longitude" : lastLocation?['longitude'],
         "title" : "Todo",
-        "user_id" : _toDoProcessor.userId,
+        "user_id" : _toDoProcessor.hrmId,
       };
       var response = await _saveWorkingHour(body : body);
+      _fBroadcast.broadcast(Str.userPunchListRefresh);
       Console.of.log(response, name: "SAVE_WORKING_HOUR");
     } catch (e) {
       Console.of.log(e, name: "SAVE_WORKING_HOUR");
@@ -853,6 +855,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "end_time_longitude" : lastLocation?['longitude'],
       };
       var response = await _updateWorkingHour(body : body);
+      _fBroadcast.broadcast(Str.userPunchListRefresh);
       Console.of.log(response, name: "UPDATE_WORKING_HOUR");
     } catch (e) {
       Console.of.log(e, name: "SAVE_WORKING_HOUR");
