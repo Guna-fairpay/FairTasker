@@ -11,7 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
 class VehicleMainViewUi extends StatelessWidget {
-  const VehicleMainViewUi({super.key});
+  final dynamic vin;
+  const VehicleMainViewUi({super.key, this.vin});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +26,11 @@ class VehicleMainViewUi extends StatelessWidget {
         titleSpacing: 0,
       ),
       body: BlocProvider<VehicleBloc>(
-        create: (context) => VehicleBloc()..add(VehicleInitialEvent()),
+        create: (context) => VehicleBloc()..add(VehicleInitialEvent(vin: vin)),
         child: BlocListener<VehicleBloc, VehicleState>(
           listener: (context, state) {
             if (state is VehicleLoadingState) {
-              if (!EasyLoading.isShow) EasyLoading.show();
+              EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
             }

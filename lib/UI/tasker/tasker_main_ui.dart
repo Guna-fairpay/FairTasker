@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_in_out_completed_dialog.dart';
@@ -78,7 +79,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerCompleteDropCarState(): TaskerPickupTaskDialog.show(context, state.model, onSelected: (date, time, notes) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompleteDropCarEvent(state.model, date, time, notes))); break;
             case ToDoTaskerTaskCompletedState(): ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text("ToDo Completed"), action: SnackBarAction(label: "Undo", textColor: AppC.appColor, backgroundColor: AppC.blue50, onPressed: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerUndoCompleteEvent(state.model))))); break;
             case ToDoTaskerVehicleHistoryTapState(): TaskerViewVehicleHistoryDialog.show(context, state.model); break;
-            case ToDoTaskerViewVehicleState(): Toaster.showInfo("Under Development"); break;
+            case ToDoTaskerViewVehicleState(): context.push(VehicleMainViewUi(vin: List.from(state.model?['display']?['vins']).lastOrNull), fullscreenDialog: true); break;
             case ToDoTaskerVehicleGroupTapState(): TaskerGroupVehicleDialog.show(context, state.model); break;
             case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
             case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['todoimages']).map((e) => e['path'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
