@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -7,9 +6,10 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/AddPrivateRental/Bloc/add_private_rental_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/AddPrivateRental/Bloc/add_private_rental_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +28,7 @@ class AddPrivateRentalBloc extends Bloc<AddPrivateRentalEvent, AddPrivateRentalS
   dynamic selectedStatus = {};
   DateTime? selectedCheckInDate;
   DateTime? selectedCheckOutDate;
-  String? userId;
+  String? get userId => Session.of.getString(Str.userIdPrefText);
 
 
   TextEditingController vehicleController = TextEditingController();
@@ -42,22 +42,23 @@ class AddPrivateRentalBloc extends Bloc<AddPrivateRentalEvent, AddPrivateRentalS
   final FBroadcast _broadcast = FBroadcast.instance();
 
   AddPrivateRentalBloc() : super(AddPrivateRentalLoadingState()) {
-
-    Utils.getStringPreference(Str.userIdPrefText).then((id) {
-      userId = id;
-    });
-
+    _broadcast.register("selected_pr_model", (value, callback) => add(InsertRentalDataEvent(rentalData: value)));
     on<AddPrivateRentalInitialEvent>((event, emit) async {
       emit(AddPrivateRentalLoadingState());
       var customerResponse = await _getPrivateRentalCustomer();
       var response = await _getPrivateRentalVehicle();
 
-      customerList =List.from(customerResponse?['customers'] ??[]);
+      customerList = customerResponse;
       customerList = customerName(customerList);
-      vehicleList =List.from(response?['vehicles'] ?? []);
+      vehicleList = response;
       if(event.rentalData != null) selectedVehicle = vehicleList.firstWhereOrNull((element) => element['vin'] == event.rentalData['vin'],);
       selectedStatus = validation.first;
-      emit(AddPrivateRentalLoadedState());
+      emit(AddPrivateRentalCommonState());
+    });
+
+    on<InsertRentalDataEvent>((event, emit) {
+      if(event.rentalData != null) selectedVehicle = vehicleList.firstWhereOrNull((element) => element['vin'] == event.rentalData['vin'],);
+      emit(AddPrivateRentalCommonState());
     });
 
     on<CheckInDateEvent>((event, emit) {
@@ -104,6 +105,7 @@ class AddPrivateRentalBloc extends Bloc<AddPrivateRentalEvent, AddPrivateRentalS
         );
         if (response?['message']?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message']);
+          _clearAll();
           _broadcast.stickyBroadcast("PR_refresh", value: true);
         }else{
           Toaster.showError(response?['error']);
@@ -115,6 +117,21 @@ class AddPrivateRentalBloc extends Bloc<AddPrivateRentalEvent, AddPrivateRentalS
       }
     });
 
+  }
+
+  void _clearAll() {
+    selectedVehicle = {};
+    selectedCustomer = {};
+    selectedStatus = {};
+    selectedCheckInDate = null;
+    selectedCheckOutDate = null;
+    vehicleController.clear();
+    customerController.clear();
+    checkInController.clear();
+    checkOutController.clear();
+    checkInMileageController.clear();
+    checkOutMileageController.clear();
+    attachment.clear();
   }
 
   Map<String, String> _saveRental() {
@@ -181,11 +198,11 @@ class AddPrivateRentalBloc extends Bloc<AddPrivateRentalEvent, AddPrivateRentalS
   }
 
   ///PRIVATE RENTAL VEHICLE API CALL
-  Future<Map<String, dynamic>?> _getPrivateRentalVehicle() async =>
-      await _apiRepository.getPrivateRentalVehicleList();
+  Future<List<Map<String, dynamic>>> _getPrivateRentalVehicle() async =>
+      await getIt<CommonService>().getPrivateRentalVehicleList();
 
   ///PRIVATE RENTAL CUSTOMER API CALL
-  Future<Map<String, dynamic>?> _getPrivateRentalCustomer() async =>
-      await _apiRepository.getPrivateRentalCustomersList();
+  Future<List<Map<String, dynamic>>> _getPrivateRentalCustomer() async =>
+      await getIt<CommonService>().getPrivateRentalCustomersList();
 
 }

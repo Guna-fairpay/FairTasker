@@ -813,7 +813,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: AppC.red.shade400,
+                                                color: AppC.red,
                                               ),
                                               alignment: Alignment.center,
                                               child: const Icon(
@@ -929,7 +929,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: AppC.red.shade400,
+                                                  color: AppC.red,
                                                 ),
                                                 alignment: Alignment.center,
                                                 child: const Icon(Icons.delete_outline_outlined,

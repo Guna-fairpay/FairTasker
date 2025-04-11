@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
@@ -53,6 +54,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
     apiResponse = response ?? [];
     filteredResponse.clear();
+    if (event.vin.toString().isNotNullOrEmpty) selectedVehicle = apiResponse.firstWhereOrNull((element) => element['vin'] == event.vin);
     filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
     totalCount = apiResponse.length;
     emit(VehicleCommonState());

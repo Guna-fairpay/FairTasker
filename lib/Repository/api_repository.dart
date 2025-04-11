@@ -1773,5 +1773,57 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> getExpensesCategory() async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> saveExpensesCategory({String? name}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
+      var body = {
+        "name" : name ?? "",
+        "platform" : "tasker-app"
+      };
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateExpensesCategory({String? name, required dynamic id}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory/$id';
+      var body = {
+        "name" : name ?? "",
+        "platform" : "tasker-app"
+      };
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteExpensesCategory({required dynamic id}) async {
+    try {
+      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory/$id';
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, method: "DELETE");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
 
 }
