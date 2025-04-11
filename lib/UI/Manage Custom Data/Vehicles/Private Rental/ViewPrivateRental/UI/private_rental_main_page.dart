@@ -24,8 +24,8 @@ class PrivateRentalMainPage extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            if (state is AddPrivateRentalState) context.push(PrivateRentalAddUI(rentalData: state.rentalData));
-            if (state is EditPrivateRentalState) context.push(PrivateRentalEditUI(rentalData: state.rentalData,));
+            // if (state is AddPrivateRentalState) context.push(PrivateRentalAddUI(rentalData: state.rentalData));
+            // if (state is EditPrivateRentalState) context.push(PrivateRentalEditUI(rentalData: state.rentalData,));
           }
         },
         child: const PrivateRentalListingPage(),

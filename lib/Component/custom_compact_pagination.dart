@@ -10,7 +10,7 @@ class CompactPagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NumberPagination(
+    return (totalPages == 0) ? const SizedBox.shrink() : NumberPagination(
       onPageChanged: onPageChanged,
       totalPages: totalPages,
       currentPage: currentPage,

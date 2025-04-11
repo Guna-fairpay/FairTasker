@@ -12,7 +12,7 @@ class CompactSearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(color: AppC.text, width: Num.borderWidthThinField));
+    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(color: AppC.fieldBase, width: Num.borderWidthThinField));
     return TextField(
       key: key,
       controller: controller,

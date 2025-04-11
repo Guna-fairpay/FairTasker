@@ -29,6 +29,8 @@ class Str{
   static const String frBearerToken = 'fr_bearerToken';
   static const String accessTokenPrefText = 'AccessTokenPref';
 
+  static const String userPunchListRefresh = 'refresh_user_punch_list';
+
     static const String branchNamePrefText = 'BranchNamePref';
   static const String branchChange = 'branch_has_been_changed';
 

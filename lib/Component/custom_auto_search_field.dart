@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -142,9 +143,7 @@ class _CustomAutoSearchFieldState<T extends Object> extends State<CustomAutoSear
               textEditingController.value = widget.controller.value;
               widget.onChanged?.call(value);
             },
-            onTapUpOutside: (event){
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
+            onTapUpOutside: (event)=> Utils.dismissKeyboard(context),
             textInputAction: TextInputAction.done,
             style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
             decoration: InputDecoration(
