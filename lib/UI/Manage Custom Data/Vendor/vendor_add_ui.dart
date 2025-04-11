@@ -183,7 +183,8 @@ class _VendorAddUIState extends State<VendorAddUI> {
               child: Form(
                 autovalidateMode: AutovalidateMode.onUnfocus,
                 key: formKey,
-                child: ListView(
+                child:
+                ListView(
                   children: [
                     Utils.getTextFormField(
                       'Vendor Name',
@@ -283,7 +284,8 @@ class _VendorAddUIState extends State<VendorAddUI> {
                             if(onTap)GestureDetector(
                                 onTap: (){onTap=false;
                                 setState(() {});},
-                                child: const Icon(Icons.close,color: AppC.redAccent,)),
+                                child: const Icon(Icons.close,color: AppC.redAccent,)
+                            ),
                             const SizedBox(width: 3,)
                           ],
                         )
@@ -400,7 +402,8 @@ class _VendorAddUIState extends State<VendorAddUI> {
                                     isNotImage:
                                     !((businessCarImage[index] as Object).isImage),
                                   ),
-                                )),
+                                )
+                            ),
                           ),
                         ),
                       ),

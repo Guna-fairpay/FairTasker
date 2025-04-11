@@ -113,3 +113,29 @@ class FilterVendorTypeEvent extends VendorDataEvent {
   final String searchTerm;
   const FilterVendorTypeEvent({required this.searchTerm});
 }
+
+
+class VendorPaginationEvent extends VendorDataEvent {
+  final int page;
+  VendorPaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
+
+class VendorImageEvent extends VendorDataEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class RemoveVendorImageEvent extends VendorDataEvent {
+  final dynamic data;
+  RemoveVendorImageEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class ResetLocationEvent extends VendorDataEvent {
+  const ResetLocationEvent();
+  @override
+  List<Object?> get props => [];
+}

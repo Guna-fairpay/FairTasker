@@ -658,6 +658,133 @@ class Utils {
     );
   }
 
+  static Widget getTextFormFieldWithIcon(
+      String? labelText,
+      TextEditingController controller, {
+        Key? key,
+        FocusNode? focusNode,
+        Widget? label,
+        double textSize = 12,
+        Color textColor = AppC.text,
+        FontWeight fontWeight = FontWeight.w400,
+        bool readOnly = false,
+        bool autoFocus = false,
+        ValueChanged? onChangeCallback,
+        TextInputType textType = TextInputType.text,
+        TextInputAction? inputAction,
+        TextStyle? style,
+        int? maxLength,
+        Color borderColor = AppC.fieldBase,
+        Color hintTextColor = AppC.text,
+        String? hintText,
+        Widget? prefixIcon,
+        bool obscure = false,
+        bool isDense = true,
+        double? height,
+        TextStyle? hintTextStyle,
+        TextStyle? labelStyle,
+        Color fillColor = AppC.trans,
+        EdgeInsets contentPadding = const EdgeInsets.symmetric(horizontal: 9),
+        VoidCallback? onTapCallback,
+        String? Function(String?)? validator,
+        bool showErrorSuffix = false,
+        int minLines = 1,
+        int maxLines = 1,
+        bool isCollapsed = false,
+        AutovalidateMode autoValidate = AutovalidateMode.disabled,
+        List<TextInputFormatter>? textInputFormatter,
+        double borderRadius = Num.subradiusButton,
+        TextAlign textAlign = TextAlign.start,
+        double borderWidth = Num.borderWidthField,
+        VoidCallback? onSuffixTap,
+        IconData suffixIconData = Icons.add,
+      }) {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) => TextFormField(
+        key: key,
+        validator: validator,
+        spellCheckConfiguration: const SpellCheckConfiguration(),
+        autovalidateMode: autoValidate,
+        textInputAction: inputAction ?? TextInputAction.next,
+        onTap: onTapCallback,
+        focusNode: focusNode,
+        autofocus: autoFocus,
+        controller: controller,
+        keyboardType: textType,
+        readOnly: readOnly,
+        maxLength: maxLength,
+        obscureText: obscure,
+        onTapOutside: (event) {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        textCapitalization: TextCapitalization.sentences,
+        inputFormatters: textInputFormatter,
+        textAlign: textAlign,
+        minLines: minLines,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          contentPadding: contentPadding,
+          constraints: const BoxConstraints(),
+          isDense: isDense,
+          labelText: labelText,
+          hintText: hintText,
+          counterText: '',
+          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+          labelStyle: labelStyle ?? const TextStyle(color: AppC.grey, fontSize: 13),
+          filled: true,
+          isCollapsed: isCollapsed,
+          fillColor: fillColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
+          suffixIconConstraints: const BoxConstraints(),
+          suffixIcon: InkWell(
+            onTap: onSuffixTap,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(4),
+                  bottomRight: Radius.circular(4),
+                ),
+                color: AppC.blue50,
+                border: const Border(
+                  top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                  bottom: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                  right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                child: Icon(suffixIconData, color: AppC.appColor),
+              ),
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(),
+          prefixIcon: prefixIcon,
+        ),
+        style: style ??
+            TextStyle(
+              color: textColor,
+              fontWeight: fontWeight,
+            ),
+        onChanged: onChangeCallback,
+      ),
+    );
+  }
+
+
   static Widget buildDropdownButton(String hintText, List<String> items,
       String? selectedItem, ValueChanged<String?> onChanged) {
     return SizedBox(

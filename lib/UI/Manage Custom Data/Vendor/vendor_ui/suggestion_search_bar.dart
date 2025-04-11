@@ -135,9 +135,28 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(color: AppC.grey, fontSize: 14),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.add, color: AppC.appColor),
-            onPressed: widget.onIconTap,
+          suffixIcon:
+          // IconButton(
+          //   icon: const Icon(Icons.add, color: AppC.appColor),
+          //   onPressed: widget.onIconTap,
+          // ),
+          InkWell(
+            onTap: widget.onIconTap,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(4),bottomRight: Radius.circular(4)),
+                color: AppC.blue50,
+                border:  const Border(
+                  top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                  bottom: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                  right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                ),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 8,),
+                child: Icon(Icons.add,color: AppC.blue,),
+              ),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey.shade400, width: Num.borderWidthField),
@@ -147,7 +166,7 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
             borderSide: BorderSide(color: AppC.appColor, width: Num.borderWidthField),
             borderRadius: BorderRadius.circular(Num.subradiusButton),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
         ),
       ),
     );

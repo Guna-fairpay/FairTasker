@@ -42,3 +42,5 @@ class VendorDataCommonState extends VendorDataState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+
+

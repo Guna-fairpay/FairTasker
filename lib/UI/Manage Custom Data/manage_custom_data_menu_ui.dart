@@ -13,6 +13,7 @@ import 'Location/location_view_ui.dart';
 import 'Parts/part_view_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
+import 'Task/Components/tab_bar.dart';
 import 'Task/Task/backup/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
 import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
@@ -97,7 +98,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vendor',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VendorView(),
+                  builder: (context) => VendorView(),
                 ));
               },
             ),

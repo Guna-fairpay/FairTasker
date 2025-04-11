@@ -6,6 +6,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_repository.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 part '../../../Event/vendor_data_event.dart';
 part 'vendor_data_state.dart';
@@ -29,35 +31,81 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   bool isEditMode = false;
   int? vendorId;
   int? vendorTypeId;
+  int itemsPerPage = 10;
+  int currentIndex = 1;
+  int totalCount = 0;
   List<Map<String, dynamic>> filteredVendors = [];
   List<Map<String, dynamic>> vendorsData = [];
   List<Map<String, dynamic>> vendorTypeData = [];
   List<Map<String, dynamic>> filteredVendorType = [];
+  List<Map<String, dynamic>> filterPage = [];
+  List<dynamic> vendorImage = [];
 
   VendorDataBloc() : super(VendorDataInitial()) {
     on<VendorDataEvent>((event, emit) {
     });
 
+
+    List<T> paginateList<T>({
+      required List<T> data,
+      required int currentPage,
+      required int itemsPerPage,
+    }) {
+      final pageIndex = currentPage - 1; // 👈 Adjust here
+      final start = pageIndex * itemsPerPage;
+      final end = start + itemsPerPage;
+
+      if (start >= data.length) return [];
+
+      return data.sublist(start, end > data.length ? data.length : end);
+    }
+
+    //Initial Bloc
+    on<GetVendorList>((event, emit) async {
+      emit(const VendorDataLoading());
+      final vendor = await vendorDataRepo.getVendor();
+      final vendorType = await vendorDataRepo.getVendorType();
+      d.log("${vendorType?.data}", name: "vendor_type");
+      vendorTypeData = vendorType?.data ?? [];
+      filteredVendorType = vendorType?.data ?? [];
+      vendorsData = vendor?.data ?? [];
+      filteredVendors = vendor?.data ?? [];
+      filteredVendors.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
+      filteredVendorType.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
+
+      filterPage = paginateList(data: filteredVendors, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      totalCount = filteredVendors.length;
+      emit(VendorDataCommonState());
+    });
+
     on<AddVendorData>((event, emit) async {
       emit(const VendorDataLoading());
       await vendorDataRepo.getAndCreateVendor(
-         id : event.id,
+         id : event.id ?? null,
          name : event.name ??'',
          vendorTypeId : event.vendorTypeId ??'',
          address : event.address ??'',
          phone : event.phone ??'',
          expertise : event.expertise ??'',
          description : event.description ??'',
-         images : event.images,
+         images : event.images ?? [],
+        website: event.website ?? '',
+        latitude: event.latitude ?? '',
+        longitude: event.longitude ?? '',
       ).then((value) {
+        isEditMode = false;
         nameController.clear();
         addressController.clear();
         phoneController.clear();
         expertiseController.clear();
         descriptionController.clear();
         websiteController.clear();
-        emit(VendorDataLoaded(result: value.toString()));
+        vendorId = null;
+        vendorTypeId = null;
+        vendorImage.clear();
+        emit(VendorDataCommonState());
       });
+      add(const GetVendorList());
     });
 
     on<EnterEditModeEvent>((event, emit) {
@@ -70,6 +118,9 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       websiteController.text = event.vendor['website'] ?? '';
       vendorId = event.vendor['id'] ?? '';
       vendorTypeId = event.vendor['vendor_type']?['vendor_type_id'] ?? 0;
+      vendorImage = event.vendor['images'].map((e) => e['path'].toString().toStorageURL).toList();
+      latitude = double.tryParse(event.vendor['latitude'] ?? '');
+      longitude = double.tryParse(event.vendor['longitude'] ?? '');
       emit(VendorDataCommonState());
     });
 
@@ -83,30 +134,17 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       websiteController.clear();
       vendorId = null;
       vendorTypeId = null;
+      vendorImage.clear();
       emit(VendorDataCommonState());
     });
 
-    on<GetVendorList>((event, emit) async {
-      emit(const VendorDataLoading());
-      final vendor = await vendorDataRepo.getVendor();
-      final vendorType = await vendorDataRepo.getVendorType();
-      d.log("${vendorType?.data}", name: "vendor_type");
-      vendorTypeData = vendorType?.data ?? [];
-      filteredVendorType = vendorType?.data ?? [];
-      vendorsData = vendor?.data ?? [];
-      filteredVendors = vendor?.data ?? [];
-      filteredVendors.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
-      filteredVendorType.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
-      emit(VendorListLoaded(resource: filteredVendors));
-    });
+
 
     on<DeleteVendorEvent>((event, emit) async {
       emit(const VendorDataLoading());
-      await vendorDataRepo
-          .deleteVendor(event.id)
-          .then((value) {
-        emit(VendorDataLoaded(result: value.toString()));
-      });
+      await vendorDataRepo.deleteVendor(event.id);
+      add(const GetVendorList());
+      emit(VendorDataCommonState());
     });
 
     on<GetVendorTypeList>((event, emit) async {
@@ -124,7 +162,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         event.id,
         event.name??'',
       ).then((value) {
-        emit(VendorDataLoaded(result: value.toString()));
+        emit(VendorDataCommonState());
       });
     });
 
@@ -133,7 +171,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       await vendorDataRepo
           .deleteVendorType(event.id)
           .then((value) {
-        emit(VendorDataLoaded(result: value.toString()));
+        emit(VendorDataCommonState());
       });
     });
 
@@ -142,7 +180,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       await vendorDataRepo
           .deleteImages(event.id)
           .then((value) {
-        emit(VendorDataLoaded(result: value.toString()));
+        emit(VendorDataCommonState());
       });
     });
 
@@ -153,7 +191,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         return name.contains(event.searchTerm.toLowerCase());
       }).toList();
       filteredVendors = filtered;
-      emit(VendorListLoaded(resource: filtered));
+      emit(VendorDataCommonState());
     });
 
     on<FilterVendorTypeEvent>((event, emit) {
@@ -163,9 +201,74 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         return name.contains(event.searchTerm.toLowerCase());
       }).toList();
       filteredVendorType = filtered;
-      emit(VendorTypeListLoaded(resource: filtered));
+      emit(VendorDataCommonState());
     });
 
+    on<VendorPaginationEvent>((event, emit) {
+      emit(const VendorDataLoading());
+      currentIndex = event.page;
+      filterPage = paginateList(data: filteredVendors, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      emit(VendorDataCommonState());
+    });
+
+
+    Future<List<File>> _pickFiles() async {
+      var result = await FilePicker.platform.pickFiles(
+          allowMultiple: true,
+          allowCompression: true,
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
+      return result?.paths
+          .where((element) => (element?.isNotEmpty ?? false))
+          .map((e) => File(e!))
+          .toList() ??
+          [];
+    }
+
+
+    Future<void> _handleFileSelection(
+        List<dynamic> fileList, String logName, Emitter emit) async {
+      var result = await _pickFiles();
+      if (result.isNotEmpty) {
+        var existingAttachments =
+        fileList.whereType<File>().map((e) => e.path).toList();
+
+        List<File> newFiles = [];
+        for (var element in result) {
+          if (!existingAttachments.contains(element.path)) {
+            newFiles.add(element);
+          }
+        }
+        fileList.clear();
+        fileList.addAll(existingAttachments.map((path) => File(path))); // Retain existing
+        fileList.addAll(newFiles);
+
+        d.log("$fileList", name: logName);
+        emit(VendorDataCommonState());
+      }
+    }
+
+    on<VendorImageEvent>((event, emit) async {
+      await _handleFileSelection(vendorImage, "vendorImageFile", emit);
+    });
+
+    void _handleFileRemoval(List<dynamic> fileList, dynamic data, Emitter emit) {
+      if (data == null) return;
+      if (data is File) {
+        fileList.remove(data);
+      }
+      emit(VendorDataCommonState());
+    }
+
+    on<RemoveVendorImageEvent>((event, emit) async {
+      _handleFileRemoval(vendorImage, event.data, emit);
+    });
+
+    on<ResetLocationEvent>((event, emit) {
+      latitude = null;
+      longitude = null;
+      emit(VendorDataCommonState());
+    });
 
   }
 }

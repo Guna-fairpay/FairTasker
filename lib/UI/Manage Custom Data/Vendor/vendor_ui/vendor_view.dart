@@ -1,22 +1,40 @@
 import 'dart:developer';
+import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/suggestion_search_bar.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../Component/close_badge.dart';
+import '../../../../Component/custom_compact_pagination.dart';
 import '../../../../Component/header.dart';
-import '../../../../Utilities/Utils.dart';
+import '../../../../Component/image_viewer.dart';
+import '../../../../Utilities/num.dart';
+import '../../../../Utilities/utils.dart';
 import '../../../../Utilities/appC.dart';
+import '../../../dialog/ask_permission_dialog.dart';
+import '../../../dialog/show_attachments_dialog.dart';
+import '../../Vehicles/VehicleView/Components/image_upload_selection.dart';
+import '../vendor_add_ui.dart';
 import '../vendor_data_bloc.dart';
 
 class VendorView extends StatelessWidget {
-  const VendorView({super.key});
+  dynamic selectedVendorType;
+  List<dynamic> businessCarImage = [];
+  VendorView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +59,8 @@ class VendorView extends StatelessWidget {
                 EasyLoading.show();
               } else if (state is VendorListLoaded) {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
-              } else {
+              }
+              else {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
               }
             },
@@ -51,7 +70,7 @@ class VendorView extends StatelessWidget {
                   minimum: EdgeInsets.only(bottom: 10.sp, top: 10.sp),
                   child: Padding(
                     padding: EdgeInsets.only(
-                        left: 10.sp, right: 10.sp, bottom: 10.sp),
+                        left: 10.sp, right: 10.sp, bottom: 10.sp, top: 10.sp),
                     child: Column(
                       children: [
                         Expanded(
@@ -66,7 +85,8 @@ class VendorView extends StatelessWidget {
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: SuggestionSearchBar<Map<String, dynamic>>(
+                                      child:
+                                      SuggestionSearchBar<Map<String, dynamic>>(
                                         suggestions: context.read<VendorDataBloc>().vendorTypeData
                                             .where((item) => item['name']?.trim().isNotEmpty ?? false)
                                             .toList(),
@@ -80,21 +100,117 @@ class VendorView extends StatelessWidget {
                                           context.read<VendorDataBloc>().add(FilterVendorTypeEvent(searchTerm: val));
                                         },
                                         onSelected: (item) {
+                                          selectedVendorType = item;
                                           print('Selected item: $item');
                                         },
                                         onIconTap: () {
-                                          print('Add tapped!');
+                                          print("Triggered onIconTap");
+                                          Navigator.of(context).push(MaterialPageRoute(
+                                            builder: (context) => VendorAddUI(),
+                                          ));
                                         },
                                       ),
                                     ),
                                   ],
                                 ),
                                 5.height,
-                                Utils.getTextFormField(
-                                    'Address',
-                                    context.read<VendorDataBloc>().addressController
-                                ),
-                                5.height,
+                                if(context.watch<VendorDataBloc>().isEditMode)...[
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Utils.getTextFormFieldWithIcon(
+                                            'Address',
+                                            context.read<VendorDataBloc>().addressController,
+                                            suffixIconData: Icons.location_on_outlined,
+                                            onSuffixTap: (){
+                                              _getCurrentLocation(context);
+                                            }
+                                        ),
+                                      ),
+                                      if(context.watch<VendorDataBloc>().latitude != null
+                                          && context.watch<VendorDataBloc>().longitude != null)...[
+                                        GestureDetector(
+                                          onTap: ()async {
+                                            final Uri mapsUri = Uri(
+                                              scheme: 'https',
+                                              host: 'www.google.com',
+                                              path: '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
+                                              queryParameters: {'q': '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'},
+                                            );
+                                            if (await canLaunchUrl(mapsUri)) {
+                                              await launchUrl(mapsUri, mode: LaunchMode.externalApplication);
+                                            } else {
+                                              throw 'Could not open the map.';
+                                            }
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: const BorderRadius.only(
+                                                topRight: Radius.circular(4),
+                                                bottomRight: Radius.circular(4),
+                                              ),
+                                              color: AppC.blue50,
+                                              border: const Border(
+                                                top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                                                bottom: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                                                right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                                              ),
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+                                              child:
+                                              Transform(alignment: Alignment.center, transform: Matrix4.rotationZ(50 * math.pi / 180),
+                                                child: const Icon(Icons.navigation_outlined, color: AppC.green)),
+                                            ),
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: (){context.read<VendorDataBloc>().add(const ResetLocationEvent());},
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: const BorderRadius.only(
+                                                topRight: Radius.circular(4),
+                                                bottomRight: Radius.circular(4),
+                                              ),
+                                              color: AppC.blue50,
+                                              border: const Border(
+                                                top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                                                bottom: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                                                right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                                              ),
+                                            ),
+                                            child: const Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+                                              child: Icon(Icons.close, color: AppC.red),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ]
+                                  ),
+                                  if(context.watch<VendorDataBloc>().latitude != null
+                                      && context.watch<VendorDataBloc>().longitude != null)...[
+                                    ListTile(
+                                      trailing: Utils.getText(
+                                          "Lat : ${context.watch<VendorDataBloc>().latitude} "
+                                              "Long : ${context.watch<VendorDataBloc>().longitude}",
+                                          color: AppC.red),
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ] else ...[5.height,]
+                                ]
+                                else...[
+                                  Utils.getTextFormFieldWithIcon(
+                                      'Address',
+                                      context.read<VendorDataBloc>().addressController,
+                                      suffixIconData: Icons.location_on_outlined,
+                                      onSuffixTap: (){
+                                        _getCurrentLocation(context);
+                                      }
+                                  ),
+                                  5.height,
+                                ],
                                 Utils.getTextFormField(
                                     'Phone',
                                     context.read<VendorDataBloc>().phoneController,
@@ -110,7 +226,8 @@ class VendorView extends StatelessWidget {
                                     'Expertise',
                                     context.read<VendorDataBloc>().expertiseController,
                                     minLines: 2,
-                                    maxLines: 4),
+                                    maxLines: 4
+                                ),
                                 5.height,
                                 Utils.getBorderedMultilineTextField(
                                     'Description',
@@ -118,8 +235,88 @@ class VendorView extends StatelessWidget {
                                         .read<VendorDataBloc>()
                                         .descriptionController,
                                     minLines: 2,
-                                    maxLines: 4),
+                                    maxLines: 4
+                                ),
                                 5.height,
+                                // SuccessButton(text: 'Upload Business Card',backgroundColor: AppC.appColor,),
+                                // InkWell(
+                                //   onTap: () => _pickBusinessCardImages(ImageSource.gallery),
+                                //   child: Container(
+                                //     padding: const EdgeInsets.symmetric(vertical: 10),
+                                //     decoration: BoxDecoration(
+                                //       border: Border.all(
+                                //         color: AppC.fieldBase,
+                                //         width: Num.borderWidthField,
+                                //       ),
+                                //       borderRadius: const BorderRadius.all(
+                                //         Radius.circular(Num.subradiusButton),
+                                //       ),
+                                //     ),
+                                //     child: Row(
+                                //       mainAxisAlignment: MainAxisAlignment.center,
+                                //       children: [
+                                //         const Icon(
+                                //           Icons.cloud_upload,
+                                //           color: AppC.blue,
+                                //         ),
+                                //         const SizedBox(
+                                //           width: 5,
+                                //         ),
+                                //         Utils.getText('Upload Business Card', color: AppC.blue),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
+                                // if(businessCarImage.isNotEmpty)
+                                //   Padding(
+                                //     padding: const EdgeInsets.symmetric(vertical: 10),
+                                //     child: SizedBox(
+                                //       height: 100,
+                                //       child: GridView.builder(
+                                //         shrinkWrap: true,
+                                //         itemCount: businessCarImage.length,
+                                //         scrollDirection: Axis.horizontal,
+                                //         gridDelegate:
+                                //         const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1, mainAxisSpacing: 10),
+                                //         itemBuilder: (context, index) => CloseBadge(
+                                //             onTapView: () {
+                                //               ShowAttachmentsDialog.of.show(context,
+                                //                   attachments: businessCarImage,
+                                //                   title: "",
+                                //                   currentAttachment: businessCarImage[index]);
+                                //             },
+                                //             onTapDelete: () {
+                                //               businessCarImage.removeAt(index);
+                                //             },
+                                //             child: Container(
+                                //               constraints: BoxConstraints(
+                                //                 minHeight: MediaQuery.sizeOf(context).height,
+                                //                 minWidth: MediaQuery.sizeOf(context).width,
+                                //               ),
+                                //               decoration: BoxDecoration(
+                                //                   borderRadius: BorderRadius.circular(16),
+                                //                   color: AppC.grey.withValues(alpha: 0.2)),
+                                //               clipBehavior: Clip.antiAliasWithSaveLayer,
+                                //               child:  ImageViewer(
+                                //                 fit: BoxFit.cover,
+                                //                 imageInput: businessCarImage[index],
+                                //                 isNotImage:
+                                //                 !((businessCarImage[index] as Object).isImage),
+                                //               ),
+                                //             )
+                                //         ),
+                                //       ),
+                                //     ),
+                                //   ),
+                                ImageUploadSection(
+                                  title: 'Upload Business Card',
+                                  borderColor: Colors.blue,
+                                  onUpload: () =>context.read<VendorDataBloc>().add(VendorImageEvent()),
+                                  onRemove: (file) => context.read<VendorDataBloc>().add(RemoveVendorImageEvent(data: file)),
+                                  images: context.watch<VendorDataBloc>().vendorImage,
+                                  logName: "",
+                                ),
+                                10.height,
                                 Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -127,18 +324,32 @@ class VendorView extends StatelessWidget {
                                       if (!context
                                           .watch<VendorDataBloc>()
                                           .isEditMode)
-                                        const SuccessButton(
+                                        SuccessButton(
                                           text: 'Save',
+                                          onPressed: ()
+                                          {
+                                            context.read<VendorDataBloc>().add(AddVendorData(
+                                              name: context.read<VendorDataBloc>().nameController.text,
+                                              vendorTypeId: selectedVendorType?['id'].toString() ?? '',
+                                              address: context.read<VendorDataBloc>().addressController.text,
+                                              phone: context.read<VendorDataBloc>().phoneController.text,
+                                              expertise: context.read<VendorDataBloc>().expertiseController.text,
+                                              description: context.read<VendorDataBloc>().descriptionController.text,
+                                              latitude: context.read<VendorDataBloc>().latitude.toString(),
+                                              longitude: context.read<VendorDataBloc>().longitude.toString(),
+                                              website: context.read<VendorDataBloc>().websiteController.text,
+                                              images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
+                                              id: null,
+                                            ));
+                                          },
                                         ),
-                                      if (context
-                                          .watch<VendorDataBloc>()
-                                          .isEditMode) ...[
+                                      if (context.watch<VendorDataBloc>().isEditMode) ...[
                                         SuccessButton(
                                           text: 'Update',
                                           onPressed: () {
                                             context.read<VendorDataBloc>().add(AddVendorData(
                                                   name: context.read<VendorDataBloc>().nameController.text,
-                                                  vendorTypeId: '',
+                                                  vendorTypeId: context.read<VendorDataBloc>().vendorTypeId.toString(),
                                                   address: context.read<VendorDataBloc>().addressController.text,
                                                   phone: context.read<VendorDataBloc>().phoneController.text,
                                                   expertise: context.read<VendorDataBloc>().expertiseController.text,
@@ -146,9 +357,9 @@ class VendorView extends StatelessWidget {
                                                   latitude: context.read<VendorDataBloc>().latitude.toString(),
                                                   longitude: context.read<VendorDataBloc>().longitude.toString(),
                                                   website: context.read<VendorDataBloc>().websiteController.text,
-                                                  images: [],
-                                                  id: 0,
-                                                )
+                                                  images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
+                                                  id: context.read<VendorDataBloc>().vendorId,
+                                            )
                                             );
                                           },
                                         ),
@@ -156,12 +367,11 @@ class VendorView extends StatelessWidget {
                                           text: 'Cancel',
                                           backgroundColor: AppC.red,
                                           onPressed: () {
-                                            context
-                                                .read<VendorDataBloc>()
-                                                .add(ExitEditModeEvent());
+                                            context.read<VendorDataBloc>().add(ExitEditModeEvent());
                                           },
                                         ),
                                       ],
+
                                       SizedBox(
                                           width: MediaQuery.of(context).size.width * 0.5,
                                           child: Utils.getSearchBarUI(
@@ -197,9 +407,7 @@ class VendorView extends StatelessWidget {
                                                   fontWeight:
                                                   FontWeight.bold)),
                                         ),
-                                        Text(
-                                          '',
-                                        ),
+                                        Text('',),
                                         Padding(
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 0, vertical: 8.0),
@@ -210,16 +418,17 @@ class VendorView extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    ...context.read<VendorDataBloc>().filteredVendors.take(10).map((vendor) {
-                                      return TableRow(
-                                        decoration: BoxDecoration(
+                                    ...context.read<VendorDataBloc>().filterPage.map((vendor) {
+                                      return
+                                        TableRow(
+                                          decoration: BoxDecoration(
                                             border: Border(
                                               bottom: BorderSide(
                                                   color: Colors.grey.shade300,
                                                   width: 1),
                                             )
-                                        ),
-                                        children: [
+                                          ),
+                                          children: [
                                           Padding(
                                             padding:
                                             const EdgeInsets.symmetric(
@@ -232,9 +441,17 @@ class VendorView extends StatelessWidget {
                                             const EdgeInsets.symmetric(
                                                 vertical: 10),
                                             child: GestureDetector(
-                                              child:
-                                              // Icon(Icons.visibility, color: AppC.appColor, size: 20,),
-                                              Utils.getText(""),
+                                              child:vendor['images'].length > 0
+                                                  ? const Icon(
+                                                  Icons.visibility,
+                                                  color: AppC.appColor,
+                                                  size: 20,)
+                                                  : Utils.getText(""),
+                                              onTap: (){
+                                                ShowAttachmentsDialog.of.show(context,
+                                                    attachments: vendor['images']?.map((e) => e['path'].toString().toStorageURL).toList(),
+                                                    title: vendor['name'] ?? '');
+                                              },
                                             ),
                                           ),
                                           Padding(
@@ -255,6 +472,17 @@ class VendorView extends StatelessWidget {
                                                     ),
                                                   ),
                                                   GestureDetector(
+                                                    onTap: () {
+                                                      AskPermissionDialog.show(
+                                                        context,
+                                                        title: "Are you sure?",
+                                                        description: "Do you want to delete this vendor?",
+                                                        positiveText: "Yes, Delete it!",
+                                                        negativeText: "Cancel",
+                                                        isReasonRequired: false,
+                                                        onPositivePressed: () => context.read<VendorDataBloc>().add(DeleteVendorEvent(id: vendor['id'])),
+                                                      );
+                                                    },
                                                     child: const Icon(
                                                       Icons.delete_outline,
                                                       color: AppC.red,
@@ -263,10 +491,15 @@ class VendorView extends StatelessWidget {
                                                   ),
                                                 ],
                                               ))
-                                        ],
-                                      );
+                                          ],
+                                        );
                                     }).toList(),
                                   ],
+                                ),
+                                CompactPagination(
+                                    currentPage: context.watch<VendorDataBloc>().currentIndex,
+                                    totalPages: (context.watch<VendorDataBloc>().totalCount / context.watch<VendorDataBloc>().itemsPerPage).ceil(),
+                                    onPageChanged: (value) => context.read<VendorDataBloc>().add(VendorPaginationEvent(page: value)),
                                 ),
                               ],
                             ),
@@ -278,5 +511,65 @@ class VendorView extends StatelessWidget {
             }),
           )),
     );
+  }
+
+  // Location handling methods
+  Future<void> _getCurrentLocation(BuildContext context) async {
+    LocationPermission permission;
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    EasyLoading.show();
+    if (!serviceEnabled) {
+      if (EasyLoading.isShow) EasyLoading.dismiss();
+      Utils.showMobileToast("Location services are disabled. Please enable them.");
+      return;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (EasyLoading.isShow) EasyLoading.dismiss();
+        Utils.showMobileToast("Location permission denied.");
+        return;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      if (EasyLoading.isShow) EasyLoading.dismiss();
+      Utils.showMobileToast("Location permission is permanently denied.");
+      return;
+    }
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      if (EasyLoading.isShow) EasyLoading.dismiss();
+      // Update VendorDataBloc with latitude and longitude
+      context.read<VendorDataBloc>().latitude = position.latitude;
+      context.read<VendorDataBloc>().longitude = position.longitude;
+      // Fetch address
+      _getAddressFromLatLng(context, position.latitude, position.longitude);
+    } catch (e) {
+      if (EasyLoading.isShow) EasyLoading.dismiss();
+      Utils.showMobileToast("Failed to get location: $e");
+    }
+  }
+
+  Future<void> _getAddressFromLatLng(
+      BuildContext context, double lat, double lng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        String address =
+            '${place.street ?? ''}, ${place.locality ?? ''}, ${place.postalCode ?? ''}, ${place.country ?? ''}';
+        // Update addressController only if empty
+          context.read<VendorDataBloc>().addressController.clear();
+          context.read<VendorDataBloc>().addressController.text = address;
+
+      } else {
+        Utils.showMobileToast("No address found for the location.");
+      }
+    } catch (e) {
+      Utils.showMobileToast("Failed to get address: $e");
+    }
   }
 }

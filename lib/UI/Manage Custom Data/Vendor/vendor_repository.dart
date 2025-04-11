@@ -77,6 +77,7 @@ class VendorDataRepo {
         "platform": "TaskerApp",
         "status": "1",
       };
+      log('repository_side : $reqMap');
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
       request.fields.addAll(reqMap);
