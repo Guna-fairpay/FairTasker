@@ -68,6 +68,7 @@ class LocationDataRepo {
           addr is Map && addr.containsKey('id')).toList();
         }
       } else {
+        log("Block 4");
         apiUrl = "${Str.LIST_BASE_URL}locations";
         body["name"] = name;
         body["address"] = address?.map((a) =>

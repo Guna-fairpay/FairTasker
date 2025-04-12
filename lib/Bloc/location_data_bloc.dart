@@ -1,4 +1,4 @@
-
+import 'dart:developer' as d;
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -18,6 +18,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
   TextEditingController addressController = TextEditingController();
   List<Map<String, dynamic>> addressesList = [];
   List<Map<String, dynamic>> location = [];
+  List<Map<String, dynamic>> tempLocation = [];
   List<Map<String, dynamic>> filteredLocation = [];
   List<Map<String, dynamic>> filterPage = [];
   int itemsPerPage = 10;
@@ -69,21 +70,30 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
 
     on<AddLocationData>((event, emit) async {
       emit(const LocationDataLoading());
+      d.log("Event data: id=${event.id}, name=${event.name}, address=${event.address}");
+      // Format addresses: keep full map with id for updates, extract strings for new locations
+      final formattedAddresses = event.address?.map((addr) {
+        d.log("Processing addr: $addr");
+        if (event.id != null && addr is Map && addr.containsKey('id')) {
+          return addr; // Keep full map with id for updates
+        } else if (addr is Map && addr.containsKey('address') && !addr.containsKey('id')) {
+          return addr; // Extract address string for new locations
+        }
+        return addr['address']; // Fallback
+      }).toList() ?? [];
+      d.log("formattedAddresses: $formattedAddresses");
+
+      final locationId = event.id ?? (isEditMode && tempLocation.isNotEmpty ? tempLocation[0]['id'] : null);
+      d.log("Using locationId: $locationId");
       final success = await locationDataRepo.createLocation(
         id: locationId,
         name: event.name,
-        address: event.address,
-      ).then((value){
-        isEditMode = false;
-        selectedAddressIndex = null;
-        locationController.clear();
-        addressController.clear();
-        addressesList.clear();
-      });
+        address: formattedAddresses,
+      );
 
       if (success == true) {
         emit(LocationDataLoaded(
-          message: event.id == null
+          message: locationId == null
               ? 'Location added successfully'
               : 'Location updated successfully',
         ));
@@ -94,9 +104,12 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
           locationController.clear();
           addressController.clear();
           addressesList.clear();
+        } else {
+          isEditMode = false;
+          selectedAddressIndex = null;
         }
       } else {
-        print("Error in saving or updating location");
+        d.log("Update failed, address sent: $formattedAddresses, success: $success");
       }
     });
 
@@ -118,6 +131,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       print("${event.location} location_data");
       isEditMode = true;
       locationId = event.location['id'];
+      tempLocation = [event.location];
       print("${locationId} location_id");
       locationController.text = event.location['name'];
       addressesList = (event.location['addresses'] as List<dynamic>)
@@ -152,9 +166,10 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
 
     on<AddAddressEvent>((event, emit) {
       if (event.address.trim().isNotEmpty) {
+        //final locationid = isEditMode && tempLocation.isNotEmpty ? tempLocation[0]['id'] : null;
         addressesList.add({
           'address': event.address,
-          if (locationId != null) 'location_id': locationId, // Add location_id for new addresses
+          'location_id': -1,
         });
         addressController.clear();
         emit(LocationDataCommonState());
@@ -189,4 +204,3 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
 
   }
 }
-

@@ -115,11 +115,14 @@ class LocationView extends StatelessWidget {
                                       text: "Save",
                                       onPressed: () {
                                         final bloc = context.read<LocationDataBloc>();
+                                        final addresses = List<Map<String, dynamic>>.from(bloc.addressesList); // Create a copy to ensure data is passed
+                                        log("Saving new location with addresses: ${addresses}");
                                         bloc.add(AddLocationData(
                                           name: bloc.locationController.text,
-                                          address: bloc.addressesList.map((e) => e['address']).toList(),
+                                          address: addresses,
                                           id: null,
                                         ));
+                                        log("Saving new location with addresses: ${bloc.addressesList}");
                                         bloc.isEditMode = false;
                                         bloc.selectedAddressIndex = null;
                                         bloc.locationController.clear();
@@ -133,11 +136,14 @@ class LocationView extends StatelessWidget {
                                       text: "Update",
                                       onPressed: () {
                                         final bloc = context.read<LocationDataBloc>();
+                                        final addresses = List<Map<String, dynamic>>.from(bloc.addressesList);
                                         log("${context.read<LocationDataBloc>().locationId}", name: "location_id");
+                                        log("Updating location with addresses: ${bloc.addressesList}");
+                                        log("${bloc.tempLocation} tempLocation");
                                         context.read<LocationDataBloc>().add(AddLocationData(
                                           name: context.read<LocationDataBloc>().locationController.text,
-                                          address: context.read<LocationDataBloc>().addressesList,
-                                          id: context.read<LocationDataBloc>().locationId,
+                                          address: addresses,
+                                          id: bloc.tempLocation.isNotEmpty ? bloc.tempLocation[0]['id'] : null,
                                         ));
                                         bloc.isEditMode = false;
                                         bloc.selectedAddressIndex = null;
