@@ -76,6 +76,20 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       return data.sublist(start, end > data.length ? data.length : end);
     }
 
+    List<T> paginateList1<T>({
+      required List<T> data,
+      required int currentPage,
+      required int itemsPerPage,
+    }) {
+      final pageIndex = currentPage - 1;
+      final start = pageIndex * itemsPerPage;
+      final end = start + itemsPerPage;
+
+      if (start >= data.length) return [];
+
+      return data.sublist(start, end > data.length ? data.length : end);
+    }
+
 
     //Initial Bloc
     on<GetVendorList>((event, emit) async {
@@ -110,7 +124,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       final vendorType =  await vendorDataRepo.getVendorType();
       vendorTypes = vendorType?.data ?? [];
       vendorTypes.sort((a,b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
-      filterPage1 = paginateList(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+      filterPage1 = paginateList1(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       vendorTypeTotalCount = vendorTypes.length;
       emit(VendorDataCommonState());
     });
@@ -148,7 +162,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     on<VendorTypePaginationEvent>((event, emit) {
       emit(const VendorDataLoading());
       vendorTypeCurrentIndex = event.page;
-      filterPage1 = paginateList(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+      filterPage1 = paginateList1(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       emit(VendorDataCommonState());
     });
 

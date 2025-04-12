@@ -80,7 +80,8 @@ class _LocationAddUIState extends State<LocationAddUI> {
                 'Address',
                 addressController,
                 inputAction: TextInputAction.done,
-                suffixIcon: InkWell(
+                suffixIcon:
+                InkWell(
                   onTap: () {
                     if (addressController.text.isNotEmpty) {
                       setState(() {

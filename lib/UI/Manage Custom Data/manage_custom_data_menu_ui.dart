@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Categorys/category_view_ui.dart';
 import 'Customers/customer_view_ui.dart';
+import 'Location/location_view.dart';
 import 'Location/location_view_ui.dart';
 import 'Parts/part_view_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
@@ -100,7 +101,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Location',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LocationViewUI(),
+                  builder: (context) => LocationView(),
                 ));
               },
             ),

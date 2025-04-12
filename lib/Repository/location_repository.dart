@@ -13,13 +13,14 @@ class LocationDataRepo {
 
   Future<bool?> createLocation({int? id, String? name, List<dynamic>? address}) async {
     try {
-
+      log(" id - ${id} name - ${name} address - ${address}");
       Map<String, dynamic> body = {
         "platform": 'TaskerApp',
         "status": "1",
       };
 
       if (id != null && address != null) {
+        log("Block 1");
         final newAddresses = address.where((addr) =>
         addr is Map && !addr.containsKey('id')).toList();
 
@@ -56,12 +57,14 @@ class LocationDataRepo {
       }
 
       String apiUrl;
-      if (id != null) {
+      if (id != null && name != null) {
+        log("Block 2");
         apiUrl = "${Str.LIST_BASE_URL}locations/$id";
         body["name"] = name;
 
         if (address != null) {
-          body["addresses"] = address.where((addr) =>
+          log("Block 3");
+          body["address"] = address.where((addr) =>
           addr is Map && addr.containsKey('id')).toList();
         }
       } else {
@@ -77,13 +80,35 @@ class LocationDataRepo {
       );
 
       return response?.statusCode == 200 || response?.statusCode == 201;
-    } catch (error, stackTrace) {
+    } catch (error) {
       log('Error: $error');
-      log('StackTrace: $stackTrace');
       return null;
     }
   }
 
+  // Future<bool?> createLocation({int? id, String? name, List<dynamic>? address}) async {
+  //   try {
+  //     log("id - ${id}, name - ${name}, address - ${address}");
+  //     Map<String, dynamic> body = {
+  //       "platform": 'TaskerApp',
+  //       "status": "1",
+  //       "name": name,
+  //       "address": address ?? [], // Default to empty list if address is null
+  //     };
+  //
+  //     String apiUrl = id != null ? "${Str.LIST_BASE_URL}locations/$id" : "${Str.LIST_BASE_URL}locations";
+  //
+  //     final response = await apiClient.callPostMethod(
+  //       apiUrl,
+  //       body: jsonEncode(body),
+  //     );
+  //
+  //     return response?.statusCode == 200 || response?.statusCode == 201;
+  //   } catch (error) {
+  //     log('Error: $error');
+  //     return null;
+  //   }
+  // }
 
   /*Future<bool?> createLocation({int? id,  String? name, List<dynamic>? address}) async {
     try {

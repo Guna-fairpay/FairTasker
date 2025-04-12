@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
-
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/suggestion_search_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_image_upload.dart';
@@ -23,12 +22,12 @@ import '../../../../Utilities/utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
-import '../../Vehicles/VehicleView/Components/image_upload_selection.dart';
 import '../vendor_data_bloc.dart';
 
 class VendorView extends StatelessWidget {
   dynamic selectedVendorType;
   List<dynamic> businessCarImage = [];
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   VendorView({super.key});
 
@@ -55,7 +54,6 @@ class VendorView extends StatelessWidget {
                 EasyLoading.show();
               } else if (state is VendorListLoaded) {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
-                print("${context.read<VendorDataBloc>().vendorTypeId} vendorTypeId");
               } else {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
               }
@@ -72,11 +70,14 @@ class VendorView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Form(
+                            key: formKey,
                             child: ListView(
                               children: [
                                 Utils.getTextFormField(
                                   'Vendor Name',
                                   context.read<VendorDataBloc>().nameController,
+                                  autoValidate: AutovalidateMode.onUserInteraction,
+                                  validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
                                 ),
                                 5.height,
                                 Row(
@@ -294,6 +295,10 @@ class VendorView extends StatelessWidget {
                                         SuccessButton(
                                           text: 'Save',
                                           onPressed: () {
+                                            formKey.currentState!.validate();
+                                            if(context.read<VendorDataBloc>().nameController.text.isEmpty){
+                                              return ;
+                                            }
                                             context
                                                 .read<VendorDataBloc>()
                                                 .add(AddVendorData(
@@ -409,10 +414,7 @@ class VendorView extends StatelessWidget {
                                         ),
                                       ],
                                       SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.5,
+                                          width: MediaQuery.of(context).size.width * 0.5,
                                           child: Utils.getSearchBarUI(
                                             searchController: context
                                                 .read<VendorDataBloc>()
@@ -423,7 +425,8 @@ class VendorView extends StatelessWidget {
                                                   .add(FilterVendorsEvent(
                                                       searchTerm: val));
                                             },
-                                          ))
+                                          )
+                                      )
                                     ]),
                                 5.height,
                                 Table(
@@ -582,19 +585,9 @@ class VendorView extends StatelessWidget {
                                   ],
                                 ),
                                 CompactPagination(
-                                  currentPage: context
-                                      .watch<VendorDataBloc>()
-                                      .currentIndex,
-                                  totalPages: (context
-                                              .watch<VendorDataBloc>()
-                                              .totalCount /
-                                          context
-                                              .watch<VendorDataBloc>()
-                                              .itemsPerPage)
-                                      .ceil(),
-                                  onPageChanged: (value) => context
-                                      .read<VendorDataBloc>()
-                                      .add(VendorPaginationEvent(page: value)),
+                                  currentPage: context.watch<VendorDataBloc>().currentIndex,
+                                  totalPages: (context.watch<VendorDataBloc>().totalCount / context.watch<VendorDataBloc>().itemsPerPage).ceil(),
+                                  onPageChanged: (value) => context.read<VendorDataBloc>().add(VendorPaginationEvent(page: value)),
                                 ),
                               ],
                             ),
