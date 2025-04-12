@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +203,20 @@ class LocationView extends StatelessWidget {
                                     onEdit: () {
                                       context.read<LocationDataBloc>().add(EnterEditModeEvent(location: e));
                                     },
-                                    onDelete: () {},
+                                    onDelete: () {
+
+                                      AskPermissionDialog.show(
+                                        context,
+                                        title: "Are you sure?",
+                                        description:
+                                        "Do you want to delete this vendor?",
+                                        positiveText:
+                                        "Yes, Delete it!",
+                                        negativeText: "Cancel",
+                                        isReasonRequired: false,
+                                        onPositivePressed: () => context.read<LocationDataBloc>().add(DeleteLocation(id: e['id'])),
+                                      );
+                                    },
                                   )).toList(),
                                 ],
                               ),

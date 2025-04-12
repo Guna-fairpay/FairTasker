@@ -8,6 +8,7 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:flutter/cupertino.dart';
 
 part '../Event/location_data_event.dart';
+
 part '../State/location_data_state.dart';
 
 class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
@@ -45,17 +46,19 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
   }
 
   LocationDataBloc() : super(LocationDataInitial()) {
-    on<LocationDataEvent>((event, emit) {
-    });
-
+    on<LocationDataEvent>((event, emit) {});
 
     on<GetAddedLocationListData>((event, emit) async {
       emit(const LocationDataLoading());
       final locationData = await todoListRepo.getLocation();
       location = locationData?.data ?? [];
-      location.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
+      location.sort((a, b) => DateTime.parse(b['created_at'])
+          .compareTo(DateTime.parse(a['created_at'])));
 
-      filterPage = paginateList(data: location, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      filterPage = paginateList(
+          data: location,
+          currentPage: currentIndex,
+          itemsPerPage: itemsPerPage);
       totalCount = location.length;
       emit(LocationDataCommonState());
     });
@@ -63,27 +66,36 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
     on<LocationPaginationEvent>((event, emit) async {
       emit(const LocationDataLoading());
       currentIndex = event.page;
-      filterPage = paginateList(data: location, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      filterPage = paginateList(
+          data: location,
+          currentPage: currentIndex,
+          itemsPerPage: itemsPerPage);
       emit(LocationDataCommonState());
     });
 
-
     on<AddLocationData>((event, emit) async {
       emit(const LocationDataLoading());
-      d.log("Event data: id=${event.id}, name=${event.name}, address=${event.address}");
+      d.log(
+          "Event data: id=${event.id}, name=${event.name}, address=${event.address}");
       // Format addresses: keep full map with id for updates, extract strings for new locations
       final formattedAddresses = event.address?.map((addr) {
-        d.log("Processing addr: $addr");
-        if (event.id != null && addr is Map && addr.containsKey('id')) {
-          return addr; // Keep full map with id for updates
-        } else if (addr is Map && addr.containsKey('address') && !addr.containsKey('id')) {
-          return addr; // Extract address string for new locations
-        }
-        return addr['address']; // Fallback
-      }).toList() ?? [];
+            d.log("Processing addr: $addr");
+            if (event.id != null && addr is Map && addr.containsKey('id')) {
+              return addr; // Keep full map with id for updates
+            } else if (addr is Map &&
+                addr.containsKey('address') &&
+                !addr.containsKey('id')) {
+              return addr; // Extract address string for new locations
+            }
+            return addr['address']; // Fallback
+          }).toList() ??
+          [];
       d.log("formattedAddresses: $formattedAddresses");
 
-      final locationId = event.id ?? (isEditMode && tempLocation.isNotEmpty ? tempLocation[0]['id'] : null);
+      final locationId = event.id ??
+          (isEditMode && tempLocation.isNotEmpty
+              ? tempLocation[0]['id']
+              : null);
       d.log("Using locationId: $locationId");
       final success = await locationDataRepo.createLocation(
         id: locationId,
@@ -109,22 +121,24 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
           selectedAddressIndex = null;
         }
       } else {
-        d.log("Update failed, address sent: $formattedAddresses, success: $success");
+        d.log(
+            "Update failed, address sent: $formattedAddresses, success: $success");
       }
     });
 
-    on<DeleteLocationEvent>((event, emit) async {
-      emit(const LocationDataLoading());
-      await locationDataRepo.deleteLocation(event.id).then((value) {
-        emit(LocationDataLoaded(message: 'Location Added Successfully'));
-      });
-    });
+    // on<DeleteLocationEvent>((event, emit) async {
+    //   emit(const LocationDataLoading());
+    //   await locationDataRepo.deleteLocation(event.id).then((value) {
+    //     emit(LocationDataLoaded(message: 'Location Added Successfully'));
+    //   });
+    // });
 
     on<DeleteLocation>((event, emit) async {
       emit(const LocationDataLoading());
       await locationDataRepo.delete(event.id).then((value) {
         emit(LocationDataLoaded(message: 'test1 deleted successfully'));
       });
+      add(const GetAddedLocationListData());
     });
 
     on<EnterEditModeEvent>((event, emit) {
@@ -136,9 +150,10 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       locationController.text = event.location['name'];
       addressesList = (event.location['addresses'] as List<dynamic>)
           .map((addr) => {
-        'address': addr['address'],
-        'id': addr['id'],
-      }).toList();
+                'address': addr['address'],
+                'id': addr['id'],
+              })
+          .toList();
       selectedAddressIndex = null;
       addressController.clear();
       emit(LocationDataCommonState());
@@ -176,18 +191,38 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       }
     });
 
+    on<DeleteLocationEvent>((event, emit) async {
+      final success = await locationDataRepo.deleteLocation(event.id);
+      if (success == true) {
+        // If this was an address delete, remove it from addressesList
+        if (isEditMode) {
+          addressesList.removeWhere((addr) => addr['id'] == event.id);
+        } else {}
+        emit(LocationDataLoaded(
+            message: 'Item deleted successfully')); // Generic message
+      } else {}
+    });
+
     on<RemoveAddressEvent>((event, emit) {
       if (event.index >= 0 && event.index < addressesList.length) {
-        addressesList.removeAt(event.index);
-        emit(LocationDataCommonState());
+        if (isEditMode && addressesList[event.index].containsKey('id')) {
+          // Trigger server delete for existing address using its id
+          add(DeleteLocationEvent(id: addressesList[event.index]['id']));
+        } else {
+          // Remove locally for new (unsaved) addresses
+          addressesList.removeAt(event.index);
+          emit(LocationDataCommonState());
+        }
       }
     });
 
     on<UpdateAddressEvent>((event, emit) {
-      if (selectedAddressIndex != null && selectedAddressIndex! < addressesList.length) {
+      if (selectedAddressIndex != null &&
+          selectedAddressIndex! < addressesList.length) {
         addressesList[selectedAddressIndex!] = {
           'address': event.updatedAddress,
-          'id': addressesList[selectedAddressIndex!]['id'], // Preserve id for update
+          'id': addressesList[selectedAddressIndex!]['id'],
+          // Preserve id for update
         };
         selectedAddressIndex = null;
         addressController.clear();
@@ -200,7 +235,5 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       addressController.text = addressesList[event.index]['address'];
       emit(LocationDataCommonState());
     });
-
-
   }
 }
