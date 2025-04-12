@@ -30,7 +30,8 @@ class CategoryMainUi extends StatelessWidget {
               onPressed: context.pop, icon: const Icon(Icons.close_rounded))
         ],
       ),
-      body: BlocProvider(
+      body:
+      BlocProvider(
         create: (context) => CategoryBloc()..add(CategoryInitialEvent()),
         child: BlocListener<CategoryBloc, CategoryState>(
           listener: (context, state) {
@@ -51,7 +52,8 @@ class CategoryMainUi extends StatelessWidget {
                   10.height,
                   const CategoryListingUi(),
                 ],
-              )),
+              )
+          ),
         ),
       ),
     );

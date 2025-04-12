@@ -58,8 +58,15 @@ class EnterEditModeEvent extends VendorDataEvent {
   @override
   List<Object?> get props => [ vendor];
 }
+class EnterVendorTypeEditEvent extends VendorDataEvent {
+  dynamic vendor;
+  EnterVendorTypeEditEvent( {required this.vendor});
+  @override
+  List<Object?> get props => [ vendor];
+}
 
 class ExitEditModeEvent extends VendorDataEvent {}
+class ExitVendorTypeEditEvent extends VendorDataEvent {}
 
 class GetVendorList extends VendorDataEvent {
   const GetVendorList();
@@ -98,7 +105,7 @@ class DeleteVendorType extends VendorDataEvent {
 }
 
 class DeleteImage extends VendorDataEvent {
-  final int? id;
+  final dynamic id;
   const DeleteImage({required this.id});
   @override
   List<Object?> get props => [id];
@@ -114,10 +121,22 @@ class FilterVendorTypeEvent extends VendorDataEvent {
   const FilterVendorTypeEvent({required this.searchTerm});
 }
 
+class FilterVendorEvent extends VendorDataEvent {
+  final String searchTerm;
+  const FilterVendorEvent({required this.searchTerm});
+}
+
 
 class VendorPaginationEvent extends VendorDataEvent {
   final int page;
   VendorPaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
+
+class VendorTypePaginationEvent extends VendorDataEvent {
+  final int page;
+  VendorTypePaginationEvent({required this.page});
   @override
   List<Object?> get props => [page];
 }
@@ -128,10 +147,8 @@ class VendorImageEvent extends VendorDataEvent {
 }
 
 class RemoveVendorImageEvent extends VendorDataEvent {
-  final dynamic data;
-  RemoveVendorImageEvent({required this.data});
-  @override
-  List<Object?> get props => [data];
+  final int index;
+  RemoveVendorImageEvent({required this.index});
 }
 
 class ResetLocationEvent extends VendorDataEvent {

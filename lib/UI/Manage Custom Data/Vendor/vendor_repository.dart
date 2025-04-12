@@ -234,7 +234,7 @@ class VendorDataRepo {
           return false;
           // }
         } else {
-          Utils.showSomethingWentWrong();
+          // Utils.showSomethingWentWrong();
           return null;
         }
       } else {
@@ -267,7 +267,7 @@ class VendorDataRepo {
           return false;
           // }
         } else {
-          Utils.showSomethingWentWrong();
+          // Utils.showSomethingWentWrong();
           return null;
         }
       } else {
