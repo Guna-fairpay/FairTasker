@@ -68,3 +68,5 @@ class VehicleTabChangeEvent extends VehicleEvent {
 }
 
 class VehicleClearEditEvent extends VehicleEvent {}
+
+class VehicleGroupingTapEvent extends VehicleEvent {}

@@ -1,0 +1,43 @@
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
+import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/bloc/subcategory_bloc.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/bloc/subcategory_events.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/bloc/subcategory_states.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class SubcategoryAlterUi extends StatelessWidget {
+  const SubcategoryAlterUi({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SubCategoryBloc, SubCategoryState>(builder: (context, state) => Form(
+        child: Column(
+          spacing: 10,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Utils.getTextFormField(
+              'Name',
+              context.read<SubCategoryBloc>().nameController,
+              validator: (val) => val!.isEmpty ? 'Please enter sub category' : null,
+            ),
+            Utils.dropdownBox('Select Category', [], (selectedValue) {},
+                labelKey: 'name'),
+            Utils.dropdownBox('Select ExpenseTo', [], (selectedValue) {},
+                labelKey: 'expense_to'),
+            Row(
+              spacing: 10,
+              children: [
+                SuccessButton(onPressed: () => context.read<SubCategoryBloc>().add(SubCategorySaveEvent()), text: (context.watch<SubCategoryBloc>().selectedModel == null) ? "Save" : "Update"),
+                if (context.watch<SubCategoryBloc>().selectedModel != null)
+                SuccessButton(onPressed: () => context.read<SubCategoryBloc>().add(SubCategoryCancelEvent()), text: "Cancel", backgroundColor: AppC.redAccent),
+                const Spacer(flex: 1),
+                Expanded(flex: 8, child: CompactSearchView(controller:  context.read<SubCategoryBloc>().searchController, onChanged: (value) =>  context.read<SubCategoryBloc>().add(SubCategorySearchEvent(value))))
+              ],
+            )
+          ],
+        )));
+  }
+}
