@@ -112,30 +112,29 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
-    on<VendorPaginationEvent>((event, emit) {
-      emit(const VendorDataLoading());
-      currentIndex = event.page;
-      filterPage = paginateList(data: filteredVendors, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-      emit(VendorDataCommonState());
-    });
 
-    on<GetVendorTypeList>((event, emit) async {
-      emit(const VendorDataLoading());
-      final vendorType =  await vendorDataRepo.getVendorType();
-      vendorTypes = vendorType?.data ?? [];
-      vendorTypes.sort((a,b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
-      filterPage1 = paginateList1(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
-      vendorTypeTotalCount = vendorTypes.length;
-      emit(VendorDataCommonState());
-    });
 
+
+
+    //Filter vendor Search Event 2
     on<FilterVendorsEvent>((event, emit) {
       final allVendors = vendorsData;
       final filtered = allVendors.where((vendor) {
         final name = vendor['name']?.toLowerCase() ?? '';
         return name.contains(event.searchTerm.toLowerCase());
       }).toList();
-      filteredVendors = filtered;
+      filterPage = filtered;
+      totalCount = filtered.length;
+      currentIndex = 1;
+      filterPage = paginateList(data: filterPage, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      emit(VendorDataCommonState());
+    });
+
+    //Vendors Pagination
+    on<VendorPaginationEvent>((event, emit) {
+      emit(const VendorDataLoading());
+      currentIndex = event.page;
+      filterPage = paginateList(data: filteredVendors, currentPage: currentIndex, itemsPerPage: itemsPerPage);
       emit(VendorDataCommonState());
     });
 
@@ -149,6 +148,18 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
+    //Vendor Types Initial Bloc
+    on<GetVendorTypeList>((event, emit) async {
+      emit(const VendorDataLoading());
+      final vendorType =  await vendorDataRepo.getVendorType();
+      vendorTypes = vendorType?.data ?? [];
+      vendorTypes.sort((a,b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
+      filterPage1 = paginateList1(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+      vendorTypeTotalCount = vendorTypes.length;
+      emit(VendorDataCommonState());
+    });
+
+    //vendor type Search Event
     on<FilterVendorEvent>((event, emit) {
       final allVendors = vendorTypes;
       final filtered = allVendors.where((vendor) {
@@ -156,6 +167,9 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         return name.contains(event.searchTerm.toLowerCase());
       }).toList();
       filterPage1 = filtered;
+      vendorTypeTotalCount = filtered.length;
+      vendorTypeCurrentIndex = 1;
+      filterPage1 = paginateList1(data: filterPage1, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       emit(VendorDataCommonState());
     });
 

@@ -2,6 +2,7 @@
 
 
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/cupertino.dart';
@@ -91,12 +92,11 @@ class VendorTypeView extends StatelessWidget {
                                       ],
                                       SizedBox(
                                           width: MediaQuery.of(context).size.width * 0.5,
-                                          child: Utils.getSearchBarUI(
-                                            searchController: context.read<VendorDataBloc>().vendorTypeSearchController,
-                                            onChange: (val) {
-                                              context.read<VendorDataBloc>().add(FilterVendorEvent(searchTerm: val));
-                                            },
-                                          )
+                                          child:
+                                        CompactSearchView(
+                                          controller: context.read<VendorDataBloc>().vendorTypeSearchController,
+                                          onChanged: (value) => context.read<VendorDataBloc>().add(FilterVendorEvent(searchTerm: value)),
+                                        )
                                       ),
                                     ]
                                   ),

@@ -110,7 +110,7 @@ class DeleteImage extends VendorDataEvent {
   @override
   List<Object?> get props => [id];
 }
-
+//vendor view search 2
 class FilterVendorsEvent extends VendorDataEvent {
   final String searchTerm;
   const FilterVendorsEvent({required this.searchTerm});

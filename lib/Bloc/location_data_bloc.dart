@@ -66,10 +66,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
     on<LocationPaginationEvent>((event, emit) async {
       emit(const LocationDataLoading());
       currentIndex = event.page;
-      filterPage = paginateList(
-          data: location,
-          currentPage: currentIndex,
-          itemsPerPage: itemsPerPage);
+      filterPage = paginateList(data: location, currentPage: currentIndex, itemsPerPage: itemsPerPage);
       emit(LocationDataCommonState());
     });
 
@@ -176,6 +173,10 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
         return name.contains(searchTerm);
       });
       filterPage = filtered.toList();
+      currentIndex = 1;
+      totalCount = filtered.length;
+      //paginateList(data: location, currentPage: currentIndex, itemsPerPage: itemsPerPage)
+      filterPage = paginateList(data: filterPage, currentPage: currentIndex, itemsPerPage: itemsPerPage);
       emit(LocationDataCommonState());
     });
 

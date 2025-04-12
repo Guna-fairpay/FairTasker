@@ -17,8 +17,8 @@ import '../../../Utilities/appC.dart';
 import 'location_list_item.dart';
 
 class LocationView extends StatelessWidget {
-  const LocationView({super.key});
-
+  LocationView({super.key});
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,11 +56,15 @@ class LocationView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Form(
+                          key: formKey,
                           child: ListView(
                             children: [
                               Utils.getTextFormField(
                                   "Location Name",
-                                  context.read<LocationDataBloc>().locationController),
+                                  context.read<LocationDataBloc>().locationController,
+                                autoValidate: AutovalidateMode.onUserInteraction,
+                                validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
+                              ),
                               10.height,
                               Utils.getTextFormFieldWithIcon(
                                 "Address",
@@ -115,6 +119,10 @@ class LocationView extends StatelessWidget {
                                     SuccessButton(
                                       text: "Save",
                                       onPressed: () {
+                                        formKey.currentState!.validate();
+                                        if(context.read<LocationDataBloc>().locationController.text.isEmpty){
+                                          return ;
+                                        }
                                         final bloc = context.read<LocationDataBloc>();
                                         final addresses = List<Map<String, dynamic>>.from(bloc.addressesList); // Create a copy to ensure data is passed
                                         log("Saving new location with addresses: ${addresses}");
@@ -163,7 +171,8 @@ class LocationView extends StatelessWidget {
                                   ],
                                   SizedBox(
                                     width: MediaQuery.of(context).size.width * 0.5,
-                                    child: CompactSearchView(
+                                    child:
+                                    CompactSearchView(
                                       controller: context.read<LocationDataBloc>().searchController,
                                       onChanged: (value) => context.read<LocationDataBloc>().add(FilterLocationEvent(searchTerm: value)),
                                     ),

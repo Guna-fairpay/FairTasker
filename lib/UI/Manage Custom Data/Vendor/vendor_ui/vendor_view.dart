@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/suggestion_search_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_image_upload.dart';
@@ -407,28 +408,22 @@ class VendorView extends StatelessWidget {
                                           text: 'Cancel',
                                           backgroundColor: AppC.red,
                                           onPressed: () {
-                                            context
-                                                .read<VendorDataBloc>()
-                                                .add(ExitEditModeEvent());
+                                            context.read<VendorDataBloc>().add(ExitEditModeEvent());
                                           },
                                         ),
                                       ],
                                       SizedBox(
                                           width: MediaQuery.of(context).size.width * 0.5,
-                                          child: Utils.getSearchBarUI(
-                                            searchController: context
-                                                .read<VendorDataBloc>()
-                                                .vendorSearchController,
-                                            onChange: (val) {
-                                              context
-                                                  .read<VendorDataBloc>()
-                                                  .add(FilterVendorsEvent(
-                                                      searchTerm: val));
-                                            },
-                                          )
+                                          child:
+                                        CompactSearchView(
+                                          controller: context.read<VendorDataBloc>().vendorSearchController,
+                                          onChanged: (val) {
+                                            context.read<VendorDataBloc>().add(FilterVendorsEvent(searchTerm: val));
+                                          },
+                                        ),
                                       )
                                     ]),
-                                5.height,
+                                20.height,
                                 Table(
                                   columnWidths: const {
                                     0: FlexColumnWidth(5),
@@ -453,12 +448,8 @@ class VendorView extends StatelessWidget {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold)),
                                         ),
-                                        Text(
-                                          '',
-                                        ),
-                                        Text(
-                                          '',
-                                        ),
+                                        Text('',),
+                                        Text('',),
                                         Padding(
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 0, vertical: 8.0),
@@ -468,18 +459,16 @@ class VendorView extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    ...context
-                                        .read<VendorDataBloc>()
-                                        .filterPage
-                                        .map((vendor) {
-                                      return TableRow(
-                                        decoration: BoxDecoration(
+                                    ...context.read<VendorDataBloc>().filterPage.map((vendor) {
+                                      return
+                                        TableRow(
+                                          decoration: BoxDecoration(
                                             border: Border(
                                           bottom: BorderSide(
                                               color: Colors.grey.shade300,
                                               width: 1),
-                                        )),
-                                        children: [
+                                          )),
+                                          children: [
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 10),
@@ -493,16 +482,7 @@ class VendorView extends StatelessWidget {
                                                       onTap: () {
                                                         ShowAttachmentsDialog.of.show(
                                                             context,
-                                                            attachments: vendor[
-                                                                    'images']
-                                                                ?.map((e) => e[
-                                                                        'path']
-                                                                    .toString()
-                                                                    .toStorageURL)
-                                                                .toList(),
-                                                            title: vendor[
-                                                                    'name'] ??
-                                                                '');
+                                                            attachments: vendor['images']?.map((e) => e['path'].toString().toStorageURL).toList(), title: vendor['name'] ?? '');
                                                       },
                                                       child: const Icon(
                                                         Icons.visibility,
@@ -510,7 +490,8 @@ class VendorView extends StatelessWidget {
                                                         size: 20,
                                                       ),
                                                     )
-                                                  : Utils.getText("")),
+                                                  : Utils.getText("")
+                                          ),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(vertical: 10),
                                             child: (vendor['latitude'] != null && vendor['longitude'] != null)
@@ -542,7 +523,8 @@ class VendorView extends StatelessWidget {
                                           Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      vertical: 10),
+                                                      vertical: 10
+                                                  ),
                                               child: Row(
                                                 spacing: 20,
                                                 children: [
