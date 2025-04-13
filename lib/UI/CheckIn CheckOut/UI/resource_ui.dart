@@ -2,8 +2,6 @@
 
 // working_hours_view_ui.dart
 import 'dart:developer';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/list_dropdown.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -25,6 +23,7 @@ import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
 import 'Popups/hours_top_notification_popup.dart';
 import 'Popups/reason_top_notification_popup.dart';
+import 'Popups/resource_listing_dropdown.dart';
 
 
 class WorkHoursViewUI extends StatelessWidget {
@@ -76,10 +75,11 @@ class WorkHoursViewUI extends StatelessWidget {
     foregroundColor: Colors.white,
     backgroundColor: AppC.appColor,
         ),
-      body: BlocProvider(
+      body:
+      BlocProvider(
         create: (context) => WorkingHoursBloc()..add(WorkingHoursInitialEvent(
-          DateFormat('yyyy-MM-dd').format(selectedDateRange?.start ?? DateTime.now().subtract(const Duration(days: 7))),
-          DateFormat('yyyy-MM-dd').format(selectedDateRange?.end ?? DateTime.now()),
+            minDate: selectedDateRange?.start.toString() ?? DateTime.now().subtract(const Duration(days: 7)).toString(),
+            maxDate: selectedDateRange?.end.toString() ?? DateTime.now().toString()
         )),
         child: BlocListener<WorkingHoursBloc, WorkingHoursState>(
           listener: (context, state) {
@@ -268,7 +268,6 @@ class WorkHoursViewUI extends StatelessWidget {
                     const SizedBox(height: 15),
                     Row(
                       spacing: 10,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child:
@@ -280,14 +279,15 @@ class WorkHoursViewUI extends StatelessWidget {
                                   UpdateDateRangeEvent(selectedRange: range));
                               startDate = DateFormat('yyyy-MM-dd').format(range.start);
                               endDate = DateFormat('yyyy-MM-dd').format(range.end);
-                              context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(startDate, endDate));
+                              context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(minDate: startDate, maxDate: endDate));
                               dates.clear();
                               dates = generateDateList(startDate, endDate);
                               log("${dates}", name: "dates");
                             },
                           ),
                         ),
-                        Expanded(child: ListDropDown<Map<String, dynamic>>(
+                        Expanded(child:
+                        ResourceListingDropdown<Map<String, dynamic>>(
                           items: context.watch<WorkingHoursBloc>().dropDownResource,
                           value: context.watch<WorkingHoursBloc>().initialDropDown,
                           contentPadding: 5.padding,
@@ -362,10 +362,10 @@ class WorkHoursViewUI extends StatelessWidget {
                             return const SizedBox.shrink();
                           }
                           return ListView.builder(
+                            shrinkWrap: true,
                               itemCount: dataList?.length ?? 0,
                               itemBuilder: (context, index) {
                               final employee = dataList?[index];
-
                               //final activeHours = employee?['Active'] ?? '00:00';
                               final taskCount = employee?['#']?.toString() ?? '0';
                               if (taskCount != '0')

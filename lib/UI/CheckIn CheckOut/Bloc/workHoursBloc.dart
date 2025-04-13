@@ -34,6 +34,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   List<Map<String, dynamic>> hourlyBased = [];
   TextEditingController taskNameCtrl=TextEditingController();
   TextEditingController amountCtrl=TextEditingController();
+  TextEditingController hourlyAmountCtrl=TextEditingController();
   final TextEditingController dateController = TextEditingController();
   List<Map<String,dynamic>>?selectedResources=[];
   dynamic userRole;
@@ -42,6 +43,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   int? branchId;
   List<Map<String, dynamic>> dropDownResource=[];
   Map<String, dynamic> initialDropDown = {'id':0,'full_name':'All'};
+  dynamic selectedUser;
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -56,20 +58,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isLoading: true));
       try
       {
-        DateTime now = DateTime.now();
-        DateTime start = now.subtract(const Duration(days: 7));
-        DateTime end = now;
-        selectedDateRange = DateRange(start, end);
         initialDropDown = {'id':0,'full_name':'All'};
-        String startDate =  event.minDate.toString();
-        String endDate = event.maxDate.toString();
-        if(startDate.isNotEmpty || endDate.isNotEmpty)
+        if(event.minDate.isNotEmpty || event.maxDate.isNotEmpty)
           {
-            final response1 = await todoListRepo.getWorkingHistory(startDate, endDate);//no need
-            final response2 = await todoListRepo.getActiveHoursResponse(startDate, endDate);
+            final response1 = await todoListRepo.getWorkingHistory(event.minDate, event.maxDate);//no need
+            final response2 = await todoListRepo.getActiveHoursResponse(event.minDate, event.maxDate);
             final response3 = await authenticationRepo.getAssignedTo();
-            final response4 = await todoListRepo.getWorkingHoursData(startDate, endDate);
-            final response5 = await todoListRepo.getWorkingHistoryCount(startDate, endDate);
+            final response4 = await todoListRepo.getWorkingHoursData(event.minDate, event.maxDate);
+            final response5 = await todoListRepo.getWorkingHistoryCount(event.minDate, event.maxDate);
             final response6 = await taskRepo.fetchPunchList();
             log("${response6?.data}",name:"PunchList");
             if (response1 != null && response2 != null && response3 != null && response4 != null) {
@@ -355,8 +351,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 activeHours: activeHours,
                 totalHoursValue: totalHoursValue,
                 resources: formattedResources,
-                startDate: startDate,
-                endDate: endDate,
+                startDate: event.minDate,
+                endDate: event.maxDate,
                 selectedDateRange: selectedDateRange,
                 punchListData: formattedData,
                 loginUserId: userId,
@@ -368,7 +364,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           } else {
           emit(state.copyWith(isLoading: false));
-          print("Error: startDate ${startDate} or endDate ${endDate} is empty");
+          print("Error: startDate ${event.minDate} or endDate ${event.maxDate} is empty");
         }
 
         emit(state.copyWith(
@@ -378,8 +374,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           activeHours: activeHours,
           totalHoursValue: totalHoursValue,
           resources: formattedResources,
-          startDate: startDate,
-          endDate: endDate,
+          startDate: event.minDate,
+          endDate: event.maxDate,
           selectedDateRange: selectedDateRange,
             loginUserId: userId,
             loginUserRole: userRole
@@ -505,7 +501,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       ];
       final apiResponse = await authenticationRepo.getAssignedTo();
       var userListData = apiResponse?.resource;
-      dynamic selectedUser = userListData?.firstWhere(
+      selectedUser = userListData?.firstWhere(
             (resource) => resource['id'] == event.userId,
         orElse: () => {},
       );
@@ -526,13 +522,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           ));
         }
       else {
-        amountCtrl.text = event.amount ?? '';
+        hourlyAmountCtrl.text = event.amount ?? '';
         dynamic selectedBase = base[1];
         log("${selectedBase}", name: 'TEST1');
         emit(state.copyWith(
           taskId: event.id,
           userId: event.userId,
-          amountController: amountCtrl,
+          hourlyAmountController: hourlyAmountCtrl,
           selectedBase1: base,
           selectedBase: selectedBase,
           userList: userListData,
@@ -542,30 +538,97 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     });
 
     on<UpdateDropdownValueEvent>((event, emit) {
-      print("Emitting new selectedBase1: ${event.selectedBase}");
-      emit(state.copyWith(selectedBase: event.selectedBase));
+      hourlyAmountCtrl.clear(); // Clear hourly amount when dropdown changes
+      taskNameCtrl.clear();
+      amountCtrl.clear();
+      if (event.selectedBase['base'] == 'Hour based') {
+        emit(state.copyWith(
+          selectedBase: event.selectedBase,
+          selectedUser: null, // Reset selectedUser when switching to Hourly Based
+          userId: null,
+          hourlyAmountController: hourlyAmountCtrl,
+        ));
+      } else {
+        emit(state.copyWith(
+          selectedBase: event.selectedBase,
+          selectedUser: null, // Reset for Task Based as well to avoid carryover
+          userId: null,
+          taskNameController: taskNameCtrl,
+          amountController: amountCtrl,
+        ));
+      }
+    });
+
+    on<SwitchTabEvent>((event, emit) {
+      print("Switching to ${event.isHourly ? 'Hourly' : 'Task'} Based at ${DateTime.now()}");
+      if (event.isHourly) {
+        hourlyAmountCtrl.clear();
+        emit(state.copyWith(
+          selectedBase: {"id": 2, "base": "Hour based"},
+          selectedUser: null,
+          userId: null,
+          hourlyAmountController: hourlyAmountCtrl,
+          taskNameController: taskNameCtrl, // Clear task fields to avoid interference
+          amountController: amountCtrl,
+        ));
+      } else {
+        taskNameCtrl.clear();
+        amountCtrl.clear();
+        emit(state.copyWith(
+          selectedBase: {"id": 1, "base": "Task based"},
+          selectedUser: null,
+          userId: null,
+          taskNameController: taskNameCtrl,
+          amountController: amountCtrl,
+          hourlyAmountController: hourlyAmountCtrl,
+        ));
+      }
     });
 
     on<ResetDropdownEvent>((event, emit) {
+      taskNameCtrl.clear();
+      amountCtrl.clear();
+      hourlyAmountCtrl.clear();
       emit(state.copyWith(
         selectedBase: event.isTaskBased
-            ? {"base": "Task based"}
-            : {"base": "Hour based"},
+            ? {"id": 1, "base": "Task based"}
+            : {"id": 2, "base": "Hour based"},
+        selectedUser: null,
+        userId: null,
+        taskNameController: taskNameCtrl,
+        amountController: amountCtrl,
       ));
     });
 
     on<ResetResourceEvent>((event, emit) {
+      amountCtrl.clear();
+      hourlyAmountCtrl.clear();
       emit(state.copyWith(
-        selectedBase1: [],
-        selectedUser: [],
+        selectedUser: null,
+        amountController: amountCtrl,
+        userId: null,
       ));
     });
 
     on<EnterEditModeEvent>((event, emit) {
-      emit(state.copyWith(isEditMode: true,));
+      emit(state.copyWith(isLoading: true));
+      emit(state.copyWith(isEditMode: true,isLoading: false));
     });
+
     on<ExitEditModeEvent>((event, emit) {
-      emit(state.copyWith(isEditMode: false));
+      emit(state.copyWith(isLoading: true));
+      taskNameCtrl.clear();
+      amountCtrl.clear();
+      hourlyAmountCtrl.clear();
+      emit(state.copyWith(
+        isLoading: false,
+        isEditMode: false,
+        selectedBase: {"id": 1, "base": "Task based"}, // Force back to Task based
+        userId: null,
+        selectedUser: null,
+        taskNameController: taskNameCtrl,
+        amountController: amountCtrl,
+      ));
     });
 
 
@@ -744,125 +807,126 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           isLoading: false,comments: ReasonCombinedData));
     });
 
+    //Hours popup initial code
     on<HoursPopupEvent>((event, emit) async {
-        final data = await taskRepo.fetchCheckInoutReason(
+      final data = await taskRepo.fetchCheckInoutReason(
         hrmId: event.hrmId,
         fromDate: event.fromDate,
         toDate: event.toDate,
       );
-        final response = await taskRepo.fetchEmployeeTaskCount(
-          userId: event.empID,
-          fromDate: event.fromDate,
-          toDate: event.toDate,
-        );
-        List<Map<String, dynamic>> hoursData = [];
-        hoursData = data!.data!;
-        List<Map<String, dynamic>> history = [];
-        history = response?.history! ?? [];
-        print("hoursData $hoursData");
-        //print("history $history");
+      final response = await taskRepo.fetchEmployeeTaskCount(
+        userId: event.empID,
+        fromDate: event.fromDate,
+        toDate: event.toDate,
+      );
+      List<Map<String, dynamic>> hoursData = [];
+      hoursData = data!.data! ?? [];
+      List<Map<String, dynamic>> history = [];
+      history = response?.history! ?? [];
 
-        List<String> getFromDateAndToDate(String dateRange) {
-          try {
-            if (dateRange.isEmpty) {
-              throw Exception("Date range is empty");
-            }
+      print("hoursData $hoursData");
+      print("history $history");
 
-            dateRange = dateRange.trim();
-            if (!dateRange.contains(" - ")) {
-              throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
-            }
-
-            List<String> dates = dateRange.split(" - ").map((d) => d.trim()).toList();
-            if (dates.length != 2) {
-              throw Exception("Invalid date range format.");
-            }
-
-            String normalizeDate(String dateStr) {
-              if (dateStr.isEmpty) {
-                throw Exception("Date string is empty");
-              }
-
-              try {
-                if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateStr)) {
-                  return DateFormat("dd/MM/yyyy").format(DateFormat("yyyy-MM-dd").parse(dateStr));
-                } else if (RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(dateStr)) {
-                  return dateStr;
-                } else {
-                  throw Exception("Unrecognized date format: $dateStr");
-                }
-              } catch (e) {
-                throw Exception("Invalid date format: $dateStr");
-              }
-            }
-
-            String fromDateStr = normalizeDate(dates[0]);
-            String toDateStr = normalizeDate(dates[1]);
-
-            return [
-              DateFormat("yyyy-MM-dd").format(DateFormat("dd/MM/yyyy").parse(fromDateStr)),
-              DateFormat("yyyy-MM-dd").format(DateFormat("dd/MM/yyyy").parse(toDateStr))
-            ];
-          } catch (e) {
-            print("Error parsing date range: $e");
-            return [
-              DateFormat("yyyy-MM-dd").format(DateTime.now()),
-              DateFormat("yyyy-MM-dd").format(DateTime.now())
-            ];
-          }
-        }
-
-        List<String> result;
+      List<String> getFromDateAndToDate(String dateRange) {
         try {
-          result = getFromDateAndToDate(event.HoursPopupSelectedDateRange);
+          if (dateRange.isEmpty) {
+            throw Exception("Date range is empty");
+          }
+
+          dateRange = dateRange.trim();
+          if (!dateRange.contains(" - ")) {
+            throw Exception("Invalid date range format. Expected format: 'dd/MM/yyyy - dd/MM/yyyy'");
+          }
+
+          List<String> dates = dateRange.split(" - ").map((d) => d.trim()).toList();
+          if (dates.length != 2) {
+            throw Exception("Invalid date range format.");
+          }
+
+          String normalizeDate(String dateStr) {
+            if (dateStr.isEmpty) {
+              throw Exception("Date string is empty");
+            }
+
+            try {
+              if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateStr)) {
+                return DateFormat("dd/MM/yyyy").format(DateFormat("yyyy-MM-dd").parse(dateStr));
+              } else if (RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(dateStr)) {
+                return dateStr;
+              } else {
+                throw Exception("Unrecognized date format: $dateStr");
+              }
+            } catch (e) {
+              throw Exception("Invalid date format: $dateStr");
+            }
+          }
+
+          String fromDateStr = normalizeDate(dates[0]);
+          String toDateStr = normalizeDate(dates[1]);
+
+          return [
+            DateFormat("yyyy-MM-dd").format(DateFormat("dd/MM/yyyy").parse(fromDateStr)),
+            DateFormat("yyyy-MM-dd").format(DateFormat("dd/MM/yyyy").parse(toDateStr))
+          ];
         } catch (e) {
           print("Error parsing date range: $e");
-          result = [DateFormat("yyyy-MM-dd").format(DateTime.now()), DateFormat("yyyy-MM-dd").format(DateTime.now())];
+          return [
+            DateFormat("yyyy-MM-dd").format(DateTime.now()),
+            DateFormat("yyyy-MM-dd").format(DateTime.now())
+          ];
+        }
+      }
+
+      List<String> result;
+      try {
+        result = getFromDateAndToDate(event.HoursPopupSelectedDateRange);
+      } catch (e) {
+        print("Error parsing date range: $e");
+        result = [DateFormat("yyyy-MM-dd").format(DateTime.now()), DateFormat("yyyy-MM-dd").format(DateTime.now())];
+      }
+
+      List<Map<String, dynamic>> combineData(
+          List<dynamic> dataList,
+          List<Map<String, dynamic>> taskCounts,
+          ) {
+        List<Map<String, dynamic>> combinedList = [];
+
+        // Map to organize task counts by date
+        Map<String, int> taskCountsMap = {};
+        for (var task in taskCounts) {
+          try {
+            final date = DateFormat('yyyy-MM-dd')
+                .format(DateFormat('yyyy-MM-dd').parse(task['todo_date'].toString()));
+            taskCountsMap[date] = (taskCountsMap[date] ?? 0) +
+                (int.tryParse(task['task_count'].toString()) ?? 0);
+          } catch (e) {
+            continue;
+          }
         }
 
+        // Combine data
+        for (var item in dataList) {
+          final String? date = item['date']?.toString();
+          if (date == null) continue;
 
-        List<Map<String, dynamic>> combineData(
-            List<dynamic> dataList,
-            List<Map<String, dynamic>> taskCounts,
-            ) {
-          List<Map<String, dynamic>> combinedList = [];
+          final taskCount = taskCountsMap[date] ?? 0;
 
-          // Map to organize task counts by date
-          Map<String, int> taskCountsMap = {};
-          for (var task in taskCounts) {
-            try {
-              final date = DateFormat('yyyy-MM-dd')
-                  .format(DateFormat('yyyy-MM-dd').parse(task['todo_date'].toString()));
-
-              taskCountsMap[date] = (taskCountsMap[date] ?? 0) +
-                  (int.tryParse(task['task_count'].toString()) ?? 0);
-            } catch (e) {
-              continue;
-            }
-          }
-
-          // Combine data
-          for (var item in dataList) {
-            final String? date = item['date']?.toString();
-            if (date == null) continue;
-
-            final taskCount = taskCountsMap[date] ?? 0;
-
-            combinedList.add({
-              'date': DateFormat('MM-dd-yyyy').format(DateTime.parse(date)),
-              'total_hours': item['total_hours'],
-              'start_time': item['start_time'] ?? '',
-              'end_time': item['end_time'] ?? '',
-              'task_count': taskCount.toString(),
-            });
-          }
-
-          return combinedList;
+          combinedList.add({
+            'date': DateFormat('MM-dd-yyyy').format(DateTime.parse(date)),
+            'total_hours': item['total_hours'],
+            'start_time': item['start_time'] ?? '',
+            'end_time': item['end_time'] ?? '',
+            'task_count': taskCount.toString(),
+          });
         }
 
-        combinedData=combineData(event.dataList,hoursData);
-        log("$combinedData",name:"Hours_popup");
-        emit(state.copyWith(isLoading: false,hoursData1: combinedData));
+        return combinedList;
+      }
+
+      // Correctly pass history as taskCounts
+      combinedData = combineData(event.dataList, history);
+      log("$combinedData", name: "Hours_popup");
+      emit(state.copyWith(isLoading: false, hoursData1: combinedData));
     });
 
 
@@ -907,7 +971,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             'Operations',
             'Other'
           ];
-
           if (taskCategoryGroup.isNotEmpty) {
             for (var parentCategory in taskCategoryGroup) {
               if (parentCategory['name'] == 'Sales') continue;
