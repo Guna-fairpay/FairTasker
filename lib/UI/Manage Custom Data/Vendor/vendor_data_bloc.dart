@@ -59,9 +59,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   List<dynamic>? ogAttachments = [];
 
   VendorDataBloc() : super(VendorDataInitial()) {
-    //void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(GetVendorList()));
     on<VendorDataEvent>((event, emit) {
-      //_registerBroadcast();
     });
 
     List<T> paginateList<T>({
@@ -160,8 +158,9 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         description : event.description ??'',
         images : event.images ?? [],
         website: event.website ?? '',
-        latitude: event.latitude ?? '',
-        longitude: event.longitude ?? '',).then((value) {
+        latitude: event.latitude?.isNotEmpty == true ? event.latitude : null,
+        longitude: event.longitude?.isNotEmpty == true ? event.longitude : null,
+      ).then((value) {
         isEditMode = false;
         nameController.clear();
         addressController.clear();
@@ -199,8 +198,8 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       vendorTypeId = event.vendor['vendor_type']?['id'] ?? 0;
       vendorImage = event.vendor['images'].map((e) => e['path'].toString().toStorageURL).toList() ?? [];
       d.log("Images loaded in edit mode: $vendorImage", name: "edit_mode");
-      latitude = double.tryParse(event.vendor['latitude'] ?? '');
-      longitude = double.tryParse(event.vendor['longitude'] ?? '');
+      latitude = double.tryParse(event.vendor['latitude']?.toString() ?? '');
+      longitude = double.tryParse(event.vendor['longitude']?.toString() ?? '');
       searchController.text = event.vendor['vendor_type']?['name'] ?? '';
       emit(VendorDataCommonState());
     });
@@ -330,27 +329,6 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
           [];
     }
 
-    // Future<void> _handleFileSelection(
-    //     List<dynamic> fileList, String logName, Emitter emit) async {
-    //   var result = await _pickFiles();
-    //   if (result.isNotEmpty) {
-    //     var existingAttachments =
-    //     fileList.whereType<File>().map((e) => e.path).toList();
-    //
-    //     List<File> newFiles = [];
-    //     for (var element in result) {
-    //       if (!existingAttachments.contains(element.path)) {
-    //         newFiles.add(element);
-    //       }
-    //     }
-    //     fileList.clear();
-    //     fileList.addAll(existingAttachments.map((path) => File(path))); // Retain existing
-    //     fileList.addAll(newFiles);
-    //
-    //     d.log("$fileList", name: logName);
-    //     emit(VendorDataCommonState());
-    //   }
-    // }
 
     Future<void> _handleFileSelection(Emitter emit) async {
       final result = await _pickFiles();
@@ -386,31 +364,6 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         d.log("Failed to delete image: $e");
       }
     });
-
-    // Future<dynamic> _handleFileRemoval(
-    //     {required List<dynamic> fileList,
-    //       required List<dynamic> fullImageList,
-    //       required dynamic data}) async {
-    //   if (data == null) return;
-    //   if (data is File) {
-    //     fileList.remove(data);
-    //     return data;
-    //   } else if(data is String){
-    //     var path = fileList.firstWhereOrNull((element) => element == data.toString());
-    //     var imageId = fullImageList.firstWhereOrNull((element) => element['path'] == path.toString().removeStorageUrl)?['id'];
-    //     var response =  await vendorDataRepo.deleteImages(imageId);
-    //     // if(response?['success'] != null){
-    //     //   Toaster.showSuccess(response?['success'] ?? []);
-    //     //   fileList.remove(data);
-    //     //   _broadcast.stickyBroadcast("vehicle_refresh", value: true);
-    //     //   return data;
-    //     // }
-    //   }
-    // }
-    //
-    // on<RemoveVendorImageEvent>((event, emit) async {
-    //   _handleFileRemoval(fileList: [], fullImageList: [], data: null);
-    // });
 
     on<ResetLocationEvent>((event, emit) {
       latitude = null;

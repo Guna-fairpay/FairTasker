@@ -298,51 +298,18 @@ class VendorView extends StatelessWidget {
                                             if(context.read<VendorDataBloc>().nameController.text.isEmpty){
                                               return ;
                                             }
-                                            context
-                                                .read<VendorDataBloc>()
-                                                .add(AddVendorData(
-                                                  name: context
-                                                      .read<VendorDataBloc>()
-                                                      .nameController
-                                                      .text,
+                                            context.read<VendorDataBloc>().add(AddVendorData(
+                                                  name: context.read<VendorDataBloc>().nameController.text,
                                                   vendorTypeId:
-                                                      selectedVendorType?['id']
-                                                              .toString() ??
-                                                          '',
-                                                  address: context
-                                                      .read<VendorDataBloc>()
-                                                      .addressController
-                                                      .text,
-                                                  phone: context
-                                                      .read<VendorDataBloc>()
-                                                      .phoneController
-                                                      .text,
-                                                  expertise: context
-                                                      .read<VendorDataBloc>()
-                                                      .expertiseController
-                                                      .text,
-                                                  description: context
-                                                      .read<VendorDataBloc>()
-                                                      .descriptionController
-                                                      .text,
-                                                  latitude: context
-                                                      .read<VendorDataBloc>()
-                                                      .latitude
-                                                      .toString(),
-                                                  longitude: context
-                                                      .read<VendorDataBloc>()
-                                                      .longitude
-                                                      .toString(),
-                                                  website: context
-                                                      .read<VendorDataBloc>()
-                                                      .websiteController
-                                                      .text,
-                                                  images: context
-                                                      .read<VendorDataBloc>()
-                                                      .vendorImage
-                                                      .whereType<File>()
-                                                      .map((e) => e)
-                                                      .toList(),
+                                                      selectedVendorType?['id'].toString() ?? '',
+                                                  address: context.read<VendorDataBloc>().addressController.text,
+                                                  phone: context.read<VendorDataBloc>().phoneController.text,
+                                                  expertise: context.read<VendorDataBloc>().expertiseController.text,
+                                                  description: context.read<VendorDataBloc>().descriptionController.text,
+                                                  latitude: context.read<VendorDataBloc>().latitude?.toString(),
+                                                  longitude: context.read<VendorDataBloc>().longitude?.toString(),
+                                                  website: context.read<VendorDataBloc>().websiteController.text,
+                                                  images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
                                                   id: null,
                                                 ));
                                           },
@@ -354,51 +321,17 @@ class VendorView extends StatelessWidget {
                                           text: 'Update',
                                           onPressed: () {
                                             context.read<VendorDataBloc>().add(AddVendorData(
-                                                  name: context
-                                                      .read<VendorDataBloc>()
-                                                      .nameController
-                                                      .text,
-                                                  vendorTypeId: context
-                                                      .read<VendorDataBloc>()
-                                                      .vendorTypeId
-                                                      .toString(),
-                                                  address: context
-                                                      .read<VendorDataBloc>()
-                                                      .addressController
-                                                      .text,
-                                                  phone: context
-                                                      .read<VendorDataBloc>()
-                                                      .phoneController
-                                                      .text,
-                                                  expertise: context
-                                                      .read<VendorDataBloc>()
-                                                      .expertiseController
-                                                      .text,
-                                                  description: context
-                                                      .read<VendorDataBloc>()
-                                                      .descriptionController
-                                                      .text,
-                                                  latitude: context
-                                                      .read<VendorDataBloc>()
-                                                      .latitude
-                                                      .toString(),
-                                                  longitude: context
-                                                      .read<VendorDataBloc>()
-                                                      .longitude
-                                                      .toString(),
-                                                  website: context
-                                                      .read<VendorDataBloc>()
-                                                      .websiteController
-                                                      .text,
-                                                  images: context
-                                                      .read<VendorDataBloc>()
-                                                      .vendorImage
-                                                      .whereType<File>()
-                                                      .map((e) => e)
-                                                      .toList(),
-                                                  id: context
-                                                      .read<VendorDataBloc>()
-                                                      .vendorId,
+                                                  name: context.read<VendorDataBloc>().nameController.text,
+                                                  vendorTypeId: context.read<VendorDataBloc>().vendorTypeId.toString(),
+                                                  address: context.read<VendorDataBloc>().addressController.text,
+                                                  phone: context.read<VendorDataBloc>().phoneController.text,
+                                                  expertise: context.read<VendorDataBloc>().expertiseController.text,
+                                                  description: context.read<VendorDataBloc>().descriptionController.text,
+                                                  latitude: context.read<VendorDataBloc>().latitude?.toString(),
+                                                  longitude: context.read<VendorDataBloc>().longitude?.toString(),
+                                                  website: context.read<VendorDataBloc>().websiteController.text,
+                                                  images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
+                                                  id: context.read<VendorDataBloc>().vendorId,
                                                 ));
                                           },
                                         ),
