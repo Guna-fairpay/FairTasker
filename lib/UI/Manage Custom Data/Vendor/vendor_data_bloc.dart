@@ -17,7 +17,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   VendorDataRepo vendorDataRepo = VendorDataRepo();
   TodoListRepo todoListRepo = TodoListRepo();
 
-  final FBroadcast _broadcast = FBroadcast.instance();
+  //final FBroadcast _broadcast = FBroadcast.instance();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -52,14 +52,16 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   List<Map<String, dynamic>> vendorTypeData = [];
   List<Map<String, dynamic>> filteredVendorType = [];
   List<Map<String, dynamic>> filterPage = [];
+  List<File> localImages = []; // For locally picked files
+  List<String> remoteImages = []; // For server-stored image URLs
   List<dynamic> vendorImage = [];
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
 
   VendorDataBloc() : super(VendorDataInitial()) {
-    void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(GetVendorList()));
+    //void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(GetVendorList()));
     on<VendorDataEvent>((event, emit) {
-      _registerBroadcast();
+      //_registerBroadcast();
     });
 
     List<T> paginateList<T>({
@@ -91,7 +93,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     }
 
 
-    //Initial Bloc
+    //vendor Initial Bloc
     on<GetVendorList>((event, emit) async {
       emit(const VendorDataLoading());
       final vendor = await vendorDataRepo.getVendor();
@@ -111,10 +113,6 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       ogAttachments = attachments;
       emit(VendorDataCommonState());
     });
-
-
-
-
 
     //Filter vendor Search Event 2
     on<FilterVendorsEvent>((event, emit) {
@@ -138,6 +136,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
+    //Vendor Search 2 Event
     on<FilterVendorTypeEvent>((event, emit) {
       final allVendors = vendorTypeData;
       final filtered = allVendors.where((vendor) {
@@ -145,6 +144,80 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         return name.contains(event.searchTerm.toLowerCase());
       }).toList();
       filteredVendorType = filtered;
+      emit(VendorDataCommonState());
+    });
+
+    //vendor add and edit event
+    on<AddVendorData>((event, emit) async {
+      emit(const VendorDataLoading());
+      await vendorDataRepo.getAndCreateVendor(
+        id : event.id ?? null,
+        name : event.name ??'',
+        vendorTypeId : event.vendorTypeId ??'',
+        address : event.address ??'',
+        phone : event.phone ??'',
+        expertise : event.expertise ??'',
+        description : event.description ??'',
+        images : event.images ?? [],
+        website: event.website ?? '',
+        latitude: event.latitude ?? '',
+        longitude: event.longitude ?? '',).then((value) {
+        isEditMode = false;
+        nameController.clear();
+        addressController.clear();
+        phoneController.clear();
+        expertiseController.clear();
+        descriptionController.clear();
+        websiteController.clear();
+        vendorId = null;
+        vendorTypeId = null;
+        vendorImage.clear();
+        searchController.clear();
+        emit(VendorDataCommonState());
+      });
+      add(const GetVendorList());
+    });
+
+    //delete vendor event
+    on<DeleteVendorEvent>((event, emit) async {
+      emit(const VendorDataLoading());
+      await vendorDataRepo.deleteVendor(event.id);
+      add(const GetVendorList());
+      emit(VendorDataCommonState());
+    });
+
+    //vendor edit event
+    on<EnterEditModeEvent>((event, emit) {
+      isEditMode = true;
+      nameController.text = event.vendor['name'] ?? '';
+      addressController.text = event.vendor['address'] ?? '';
+      phoneController.text = event.vendor['phone'] ?? '';
+      expertiseController.text = event.vendor['expertise'] ?? '';
+      descriptionController.text = event.vendor['description'] ?? '';
+      websiteController.text = event.vendor['website'] ?? '';
+      vendorId = event.vendor['id'] ?? '';
+      vendorTypeId = event.vendor['vendor_type']?['id'] ?? 0;
+      vendorImage = event.vendor['images'].map((e) => e['path'].toString().toStorageURL).toList() ?? [];
+      d.log("Images loaded in edit mode: $vendorImage", name: "edit_mode");
+      latitude = double.tryParse(event.vendor['latitude'] ?? '');
+      longitude = double.tryParse(event.vendor['longitude'] ?? '');
+      searchController.text = event.vendor['vendor_type']?['name'] ?? '';
+      emit(VendorDataCommonState());
+    });
+
+    //vendor edit event
+    on<ExitEditModeEvent>((event, emit) {
+      isEditMode = false;
+      nameController.clear();
+      addressController.clear();
+      phoneController.clear();
+      expertiseController.clear();
+      descriptionController.clear();
+      websiteController.clear();
+      vendorId = null;
+      vendorTypeId = null;
+      vendorImage.clear();
+      searchController.clear();
       emit(VendorDataCommonState());
     });
 
@@ -173,6 +246,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
+    //Vendor type pagination
     on<VendorTypePaginationEvent>((event, emit) {
       emit(const VendorDataLoading());
       vendorTypeCurrentIndex = event.page;
@@ -180,53 +254,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
-    on<AddVendorData>((event, emit) async {
-      emit(const VendorDataLoading());
-      await vendorDataRepo.getAndCreateVendor(
-         id : event.id ?? null,
-         name : event.name ??'',
-         vendorTypeId : event.vendorTypeId ??'',
-         address : event.address ??'',
-         phone : event.phone ??'',
-         expertise : event.expertise ??'',
-         description : event.description ??'',
-         images : event.images ?? [],
-        website: event.website ?? '',
-        latitude: event.latitude ?? '',
-        longitude: event.longitude ?? '',).then((value) {
-        isEditMode = false;
-        nameController.clear();
-        addressController.clear();
-        phoneController.clear();
-        expertiseController.clear();
-        descriptionController.clear();
-        websiteController.clear();
-        vendorId = null;
-        vendorTypeId = null;
-        vendorImage.clear();
-        searchController.clear();
-        emit(VendorDataCommonState());
-      });
-      add(const GetVendorList());
-    });
-
-    on<EnterEditModeEvent>((event, emit) {
-      isEditMode = true;
-      nameController.text = event.vendor['name'] ?? '';
-      addressController.text = event.vendor['address'] ?? '';
-      phoneController.text = event.vendor['phone'] ?? '';
-      expertiseController.text = event.vendor['expertise'] ?? '';
-      descriptionController.text = event.vendor['description'] ?? '';
-      websiteController.text = event.vendor['website'] ?? '';
-      vendorId = event.vendor['id'] ?? '';
-      vendorTypeId = event.vendor['vendor_type']?['id'] ?? 0;
-      vendorImage = event.vendor['images'].map((e) => e['path'].toString().toStorageURL).toList();
-      latitude = double.tryParse(event.vendor['latitude'] ?? '');
-      longitude = double.tryParse(event.vendor['longitude'] ?? '');
-      searchController.text = event.vendor['vendor_type']?['name'] ?? '';
-      emit(VendorDataCommonState());
-    });
-
+    //vendor type edit event
     on<EnterVendorTypeEditEvent>((event, emit) {
       isVendorTypeEdit = true;
       vendorTypeNameController.text = event.vendor['name'] ?? '';
@@ -240,28 +268,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
-    on<ExitEditModeEvent>((event, emit) {
-      isEditMode = false;
-      nameController.clear();
-      addressController.clear();
-      phoneController.clear();
-      expertiseController.clear();
-      descriptionController.clear();
-      websiteController.clear();
-      vendorId = null;
-      vendorTypeId = null;
-      vendorImage.clear();
-      searchController.clear();
-      emit(VendorDataCommonState());
-    });
-
-    on<DeleteVendorEvent>((event, emit) async {
-      emit(const VendorDataLoading());
-      await vendorDataRepo.deleteVendor(event.id);
-      add(const GetVendorList());
-      emit(VendorDataCommonState());
-    });
-
+    //vendor type add and edit event
     on<AddVendorType>((event, emit) async {
       emit(const VendorDataLoading());
       await vendorDataRepo.createVendorType(event.id, event.name??'',).then((value) {
@@ -272,6 +279,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       add(const GetVendorTypeList());
     });
 
+    //vendor type delete event
     on<DeleteVendorType>((event, emit) async {
       emit(const VendorDataLoading());
       await vendorDataRepo.deleteVendorType(event.id);
@@ -279,47 +287,34 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
-    on<DeleteImage>((event, emit) async {
-      // emit(const VendorDataLoading());
-      print("${event.id} delete_image_event");
-      String imageUrl = "${event.id}";
 
-      String path = imageUrl.replaceFirst("https://phase1.fairreturns.in/storage/", "");
 
-      List allImages = vendorsData
-          .map((e) => e['images'])
-          .expand((images) => images)
-          .toList();
-
-      final matchedImage = allImages.firstWhere(
-      (img) => img['path'] == path,
-      orElse: () => null,
-      );
-
-      if (matchedImage != null) {
-      int imageId = matchedImage['id'];
-      await vendorDataRepo.deleteImages(imageId);
-      emit(VendorDataCommonState());
-      print("Image ID: $imageId");
-      } else {
-      print("Image not found");
-      }
-
-    });
-
-    // on<RemoveVendorImageEvent>((event, emit) {
-    //   final updatedList = List<String>.from(state.vendorImage)..removeAt(event.index);
-    // });
-
-    on<RemoveVendorImageEvent>((event, emit) {
-      if (event.index >= 0 && event.index < vendorImage.length) {
-        vendorImage = List<String>.from(vendorImage)..removeAt(event.index);
-        emit(VendorDataCommonState());
+    on<RemoveVendorImageEvent>((event, emit) async {
+      try {
+        if (event.index >= 0 && event.index < vendorImage.length) {
+          final image = vendorImage[event.index];
+          if (image is String) {
+            final path = image.replaceFirst("https://phase1.fairreturns.in/storage/", "");
+            final matchedImage = vendorsData
+                .map((e) => e['images'])
+                .expand((images) => images)
+                .firstWhere(
+                  (img) => img['path'] == path,
+              orElse: () => null,
+            );
+            if (matchedImage != null) {
+              await vendorDataRepo.deleteImages(matchedImage['id']);
+            }
+          }
+          vendorImage.removeAt(event.index);
+          d.log("Image removed: $image", name: "image_removal");
+          emit(VendorDataCommonState());
+          add(const GetVendorList());
+        }
+      } catch (e) {
+        d.log("Failed to remove image: $e");
       }
     });
-
-
-
 
 
     Future<List<File>> _pickFiles() async {
@@ -335,31 +330,61 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
           [];
     }
 
+    // Future<void> _handleFileSelection(
+    //     List<dynamic> fileList, String logName, Emitter emit) async {
+    //   var result = await _pickFiles();
+    //   if (result.isNotEmpty) {
+    //     var existingAttachments =
+    //     fileList.whereType<File>().map((e) => e.path).toList();
+    //
+    //     List<File> newFiles = [];
+    //     for (var element in result) {
+    //       if (!existingAttachments.contains(element.path)) {
+    //         newFiles.add(element);
+    //       }
+    //     }
+    //     fileList.clear();
+    //     fileList.addAll(existingAttachments.map((path) => File(path))); // Retain existing
+    //     fileList.addAll(newFiles);
+    //
+    //     d.log("$fileList", name: logName);
+    //     emit(VendorDataCommonState());
+    //   }
+    // }
 
-    Future<void> _handleFileSelection(
-        List<dynamic> fileList, String logName, Emitter emit) async {
-      var result = await _pickFiles();
+    Future<void> _handleFileSelection(Emitter emit) async {
+      final result = await _pickFiles();
       if (result.isNotEmpty) {
-        var existingAttachments =
-        fileList.whereType<File>().map((e) => e.path).toList();
-
-        List<File> newFiles = [];
-        for (var element in result) {
-          if (!existingAttachments.contains(element.path)) {
-            newFiles.add(element);
-          }
-        }
-        fileList.clear();
-        fileList.addAll(existingAttachments.map((path) => File(path))); // Retain existing
-        fileList.addAll(newFiles);
-
-        d.log("$fileList", name: logName);
+        final existingFiles = vendorImage.whereType<File>().map((e) => e.path).toList();
+        final newFiles = result.where((file) => !existingFiles.contains(file.path)).toList();
+        vendorImage.addAll(newFiles);
+        d.log("Images selected: $vendorImage", name: "vendorImageFile");
         emit(VendorDataCommonState());
       }
     }
 
     on<VendorImageEvent>((event, emit) async {
-      await _handleFileSelection(vendorImage, "vendorImageFile", emit);
+      await _handleFileSelection(emit);
+    });
+
+    on<DeleteImage>((event, emit) async {
+      try {
+        emit(const VendorDataLoading());
+        final imageId = event.id;
+        await vendorDataRepo.deleteImages(imageId);
+        // Remove the image from remoteImages by matching ID
+        remoteImages.removeWhere((url) {
+          final path = url.replaceFirst("https://phase1.fairreturns.in/storage/", "");
+          return vendorsData
+              .map((e) => e['images'])
+              .expand((images) => images)
+              .any((img) => img['path'] == path && img['id'] == imageId);
+        });
+        d.log("image deleted");
+        add(const GetVendorList()); // Refresh vendor list
+      } catch (e) {
+        d.log("Failed to delete image: $e");
+      }
     });
 
     // Future<dynamic> _handleFileRemoval(

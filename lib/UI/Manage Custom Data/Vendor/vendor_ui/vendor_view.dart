@@ -188,9 +188,7 @@ class VendorView extends StatelessWidget {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          context
-                                              .read<VendorDataBloc>()
-                                              .add(const ResetLocationEvent());
+                                          context.read<VendorDataBloc>().add(const ResetLocationEvent());
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
