@@ -496,35 +496,36 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<UpdateTaskEvent>((event, emit) async {
       print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ${event.userId}");
       List<Map<String, dynamic>> base = [
-        {"id":1,"base": "Task based"},
-        {"id":2,"base": "Hour based"}
+        {"id": 1, "base": "Task based"},
+        {"id": 2, "base": "Hour based"}
       ];
       final apiResponse = await authenticationRepo.getAssignedTo();
       var userListData = apiResponse?.resource;
-      selectedUser = userListData?.firstWhere(
+      dynamic selectedUser = userListData?.firstWhere(
             (resource) => resource['id'] == event.userId,
         orElse: () => {},
       );
-      log("${selectedUser}",name: 'TEST1');
-      if(event.userId == null)
-        {
-          taskNameCtrl.text = event.taskName ?? '';
-          amountCtrl.text = event.amount ?? '';
-          dynamic selectedBase = base[0];
-          log("${selectedBase}", name: 'TEST2');
-          print("event id ${event.id}");
-          emit(state.copyWith(
-            taskId: event.id,
-            taskNameController: taskNameCtrl,
-            amountController: amountCtrl,
-            selectedBase1: base,
-            selectedBase: selectedBase,
-          ));
-        }
-      else {
+      log("${selectedUser}", name: 'TEST1');
+      if (event.userId == null) {
+        taskNameCtrl.text = event.taskName ?? '';
+        amountCtrl.text = event.amount ?? '';
+        dynamic selectedBase = base[0];
+        log("${selectedBase}", name: 'TEST2');
+        print("Emitting task-based state: selectedUser=null, taskId=${event.id}");
+        emit(state.copyWith(
+          taskId: event.id,
+          taskNameController: taskNameCtrl,
+          amountController: amountCtrl,
+          selectedBase1: base,
+          selectedBase: selectedBase,
+          selectedUser: null, // Explicitly reset
+          userId: null,
+        ));
+      } else {
         hourlyAmountCtrl.text = event.amount ?? '';
         dynamic selectedBase = base[1];
         log("${selectedBase}", name: 'TEST1');
+        print("Emitting hourly state: selectedUser=$selectedUser, taskId=${event.id}");
         emit(state.copyWith(
           taskId: event.id,
           userId: event.userId,
@@ -532,7 +533,35 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           selectedBase1: base,
           selectedBase: selectedBase,
           userList: userListData,
-          selectedUser:selectedUser,
+          selectedUser: selectedUser,
+        ));
+      }
+    });
+
+    on<SwitchTabEvent>((event, emit) {
+      print("Switching to ${event.isHourly ? 'Hourly' : 'Task'} Based at ${DateTime.now()}");
+      if (event.isHourly) {
+        hourlyAmountCtrl.clear();
+        print("Emitting hourly state: selectedUser=null");
+        emit(state.copyWith(
+          selectedBase: {"id": 2, "base": "Hour based"},
+          selectedUser: null,
+          userId: null,
+          hourlyAmountController: hourlyAmountCtrl,
+          taskNameController: taskNameCtrl, // Clear task fields to avoid interference
+          amountController: amountCtrl,
+        ));
+      } else {
+        taskNameCtrl.clear();
+        amountCtrl.clear();
+        print("Emitting task-based state: selectedUser=null");
+        emit(state.copyWith(
+          selectedBase: {"id": 1, "base": "Task based"},
+          selectedUser: null,
+          userId: null,
+          taskNameController: taskNameCtrl,
+          amountController: amountCtrl,
+          hourlyAmountController: hourlyAmountCtrl,
         ));
       }
     });
@@ -559,31 +588,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
-    on<SwitchTabEvent>((event, emit) {
-      print("Switching to ${event.isHourly ? 'Hourly' : 'Task'} Based at ${DateTime.now()}");
-      if (event.isHourly) {
-        hourlyAmountCtrl.clear();
-        emit(state.copyWith(
-          selectedBase: {"id": 2, "base": "Hour based"},
-          selectedUser: null,
-          userId: null,
-          hourlyAmountController: hourlyAmountCtrl,
-          taskNameController: taskNameCtrl, // Clear task fields to avoid interference
-          amountController: amountCtrl,
-        ));
-      } else {
-        taskNameCtrl.clear();
-        amountCtrl.clear();
-        emit(state.copyWith(
-          selectedBase: {"id": 1, "base": "Task based"},
-          selectedUser: null,
-          userId: null,
-          taskNameController: taskNameCtrl,
-          amountController: amountCtrl,
-          hourlyAmountController: hourlyAmountCtrl,
-        ));
-      }
-    });
+
 
     on<ResetDropdownEvent>((event, emit) {
       taskNameCtrl.clear();
