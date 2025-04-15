@@ -1773,9 +1773,9 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getExpensesCategory() async {
+  Future<Map<String, dynamic>?> getExpensesCategory({dynamic id}) async {
     try {
-      String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
+      String apiUrl = ((id == null) || (id == 0)) ? '${Str.LIST_BASE_URL}$_expensesCategory' : '${Str.LIST_BASE_URL}$_expensesCategory/$id';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
@@ -1784,13 +1784,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> saveExpensesCategory({String? name}) async {
+  Future<Map<String, dynamic>?> saveExpensesCategory({String? name, dynamic expenseTo, dynamic parentId}) async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory';
       var body = {
         "name" : name ?? "",
         "platform" : "tasker-app"
       };
+      if ((expenseTo != null) && (expenseTo != 0)) body['expense_to'] = "$expenseTo";
+      if ((parentId != null) && (parentId != 0)) body['parent_id'] = "$parentId";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
@@ -1799,13 +1801,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> updateExpensesCategory({String? name, required dynamic id}) async {
+  Future<Map<String, dynamic>?> updateExpensesCategory({String? name, required dynamic id,  dynamic expenseTo, dynamic parentId}) async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory/$id';
       var body = {
         "name" : name ?? "",
         "platform" : "tasker-app"
       };
+      if ((expenseTo != null) && (expenseTo != 0)) body['expense_to'] = "$expenseTo";
+      if ((parentId != null) && (parentId != 0)) body['parent_id'] = "$parentId";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;

@@ -40,9 +40,9 @@ class SubCategoryCategorySelectEvent extends SubCategoryEvent {
   List<Object?> get props => [model];
 }
 
-class SubCategorySubCategorySelectEvent extends SubCategoryEvent {
+class SubCategoryExpenseToSelectEvent extends SubCategoryEvent {
   final dynamic model;
-  SubCategorySubCategorySelectEvent(this.model);
+  SubCategoryExpenseToSelectEvent(this.model);
   @override
   List<Object?> get props => [model];
 }

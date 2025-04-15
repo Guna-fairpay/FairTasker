@@ -23,7 +23,7 @@ class SubCategoryErrorState extends SubCategoryState {
   final dynamic message;
   SubCategoryErrorState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class SubCategoryShowDeleteDialogState extends SubCategoryState {

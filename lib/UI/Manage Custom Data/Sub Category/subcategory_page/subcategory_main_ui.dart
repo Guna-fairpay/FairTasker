@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategor
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,6 +38,8 @@ class SubcategoryMainUi extends StatelessWidget {
               if (state is SubCategoryShowDeleteDialogState) {
                 Utils.dismissKeyboard(context);
                 AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this Category?", onPositivePressed: () => context.read<SubCategoryBloc>().add(SubCategoryDeleteEvent(state.model)));
+              } else if (state is SubCategoryErrorState) {
+                Toaster.showError(state.message);
               }
             }
           },
