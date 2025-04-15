@@ -333,3 +333,10 @@ class ToDoTaskerSaveRecordEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [audio];
 }
+
+class ToDoTaskerTimeSensitiveEvent extends ToDoTaskerEvent {
+  final bool isTimeSensitive;
+  ToDoTaskerTimeSensitiveEvent(this.isTimeSensitive);
+  @override
+  List<Object?> get props => [isTimeSensitive];
+}

@@ -137,4 +137,31 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
   }
 
   num get toNumeric => num.tryParse(this ?? "") ?? 0;
+
+  int get parseDurationToMinutes {
+    final parts = this?.split(':').map(int.tryParse).toList();
+
+    if (parts?.contains(null) ?? false) return 0; // Invalid input
+
+    int hours = 0, minutes = 0, seconds = 0;
+
+    switch (parts?.length) {
+      case 3:
+        hours = parts?[0] ?? 0;
+        minutes = parts?[1] ?? 0;
+        seconds = parts?[2] ?? 0;
+        break;
+      case 2:
+        hours = parts?[0] ?? 0;
+        minutes = parts?[1] ?? 0;
+        break;
+      case 1:
+        minutes = parts?[0] ?? 0;
+        break;
+      default:
+        return 0;
+    }
+
+    return hours * 60 + minutes + (seconds / 60).round();
+  }
 }

@@ -138,7 +138,8 @@ class CommonService {
     return usersList.firstWhereOrNull((element) => element['id'] == userId);
   }
 
-  Future<List<Map<String, dynamic>>> getUsers() async {
+  Future<List<Map<String, dynamic>>> getUsers({bool reset = false}) async {
+    if (reset) usersList.clear();
     if (usersList.isNotEmpty) return usersList;
     try {
       var response = await _apiRepository.getUsers();
