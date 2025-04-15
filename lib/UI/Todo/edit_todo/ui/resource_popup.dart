@@ -3,6 +3,7 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../utilities/appC.dart';
 
 class ResourceSelection {
@@ -34,8 +35,8 @@ class ResourceSelection {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: SizedBox(
-                width: 70,
-                height: 200,
+                width: 70.sp,
+                height: 200.sp,
                 child: ValueListenableBuilder<List<String>>(
                   valueListenable: selectedIdsNotifier,
                   builder: (context, value, _) {

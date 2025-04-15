@@ -69,7 +69,7 @@ class TaskView extends StatelessWidget {
               Row(
                 //spacing: 10,
                 children: [
-                  SuccessButton(text: 'Save',),
+                  const SuccessButton(text: 'Save',),
                   Checkbox(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -77,37 +77,18 @@ class TaskView extends StatelessWidget {
                       activeColor: AppC.redAccent,
                       checkColor: AppC.white,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-
                       value: true,
                       onChanged: (value){}),
                   Utils.getText('No Category',weight: FontWeight.bold),
                   Expanded(
                     child: Utils.getSearchBarUI(
-                      onChange:
-                          (value) {
-                    
-                      },
+                      onChange: (value) {},
                       searchController:context.read<TaskBloc>().searchController,
                     ),
                   ),
-
-                  /*IconButton.filled(
-                    onPressed: (){},
-                    icon: Icon(Icons.close,color: AppC.white,),
-                    style: ButtonStyle(shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(Num.borderRadius),
-                  ),)),),
-                  10.sp.width,
-                  IconButton.filled(
-                    onPressed: (){},
-                    icon: Icon(Icons.close,color: AppC.white,),
-                    style: ButtonStyle(shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(Num.borderRadius),
-                    ),)),)*/
-
                 ],
               ),
-              //TaskListingPage(),
+              TaskListingPage(),
             ],
           ),
         );
