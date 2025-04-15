@@ -15,7 +15,8 @@ class MaintenanceCheckListUI extends StatelessWidget {
   final dynamic todoItems, vehicle;
 
   const MaintenanceCheckListUI(
-      {super.key, required this.todoItems, required this.vehicle});
+      {super.key, required this.todoItems, required this.vehicle}
+      );
 
 
   Widget checkBoxWithSingleTextAndTexBox({

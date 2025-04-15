@@ -231,7 +231,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     final combinedItem = {
                       'Employee': historyItem['users']?['first_name'] ?? empID['first_name'] ?? '',
                       'Active': calculatedActiveHours,
-                      'Hours': formattedHours, // Use formatted hours without seconds
+                      'Hours': formattedHours,
                       'Task': taskCount,
                       '#': totalHoursCount,
                       'hrm_id': historyItem['users']?['hrm_id'] ?? userId,

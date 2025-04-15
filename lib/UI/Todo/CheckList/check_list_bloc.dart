@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'dart:developer';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:fairpytasker/Response/create_fix_task_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -68,15 +69,37 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             print("fixTaskValues: $fixTaskValues");
 
 
+            // 1. First, find all matching todos that are in fixTasksMap and not completed
             matchingTodos = todoList
                 .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
-                .map((todo) {
-              String notes = todo["notes"];
-              String firstWord = notes.split(RegExp(r'[\s\-<]')).first;
-              notesValues.add(firstWord);
+                .map((todo)
+            {
+              // Get the checklist ID that corresponds to this todo ID
+              int? checklistId = int.tryParse(fixTasksMap.entries
+                  .firstWhere((entry) => entry.value == todo['id'])
+                  .key);
+
+              // Find the checklist item
+              var checklistItem = checkListData.firstWhere(
+                      (item) => item['id'] == checklistId,
+                  orElse: () => {});
+
+              // Get the checklist title
+              String checklistTitle = checklistItem['title'] ?? '';
+
+              // Extract just the custom note part (after the hyphen)
+              String noteContent = todo["notes"].toString().trim().contains('-')
+                  ? todo["notes"].toString().trim().split('-')[1]
+                  : todo["notes"].toString().trim();
+
+              // Store the checklist title in notesValues for reference
+              notesValues.add(checklistTitle);
+
               return {
                 "id": todo['id'],
-                "notes": todo["notes"],
+                "checklist_id": checklistId,
+                "checklist_title": checklistTitle,
+                "notes": noteContent, // Store just the custom note part
               };
             }).toList();
 
@@ -85,27 +108,23 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
 
             // Insert notes into corresponding TextEditingController
             for (var todo in matchingTodos) {
-              String notes = todo['notes']; // Example: "Lights - <p>Testfixdb</p>"
+              int checklistId = todo['checklist_id'];
+              String checklistTitle = todo['checklist_title'];
+              String noteContent = todo['notes'];
 
-              // Extract checklist title (e.g., "Lights")
-              String? matchingTitle = checkListData.firstWhere(
-                      (item) => notes.contains(item['title']), // Match by title keyword
-                  orElse: () => {}
-              )['title'];
+              if (controllers.containsKey(checklistId)) {
+                // Reconstruct the full note with checklist title
+                controllers[checklistId]!.text = '$checklistTitle - $noteContent';
 
-              if (matchingTitle != null) {
-                int? checklistId = checkListData.firstWhere(
-                        (item) => item['title'] == matchingTitle,
-                    orElse: () => {}
-                )['id'];
-
-                if (checklistId != null && controllers.containsKey(checklistId)) {
-                  controllers[checklistId]!.text = notes; // Assign notes
-                }
+                // Also update the checkbox state to unchecked since there's a task
+                checkBoxStates[checklistId] = false;
               }
             }
           }
         }
+        log("${checkBoxStates}" , name: "checkBoxStates");
+        log("${controllers.toString()}" , name: "controllers");
+        log("${notesValues}" , name: "notesValues");
 
         emit(state.copyWith(
           isLoading: false,
@@ -134,6 +153,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
     on<AddFixTaskEvent>((event, emit) async {
       try {
         await todoListRepo.createFixTask( CreateFixTaskData()
+        ..todoId = todoItemsCopy['id']
           ..userId = todoItemsCopy['user_id']
             ..userGroupId = todoItemsCopy['user_group_id']
             ..title = event.title
@@ -146,6 +166,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vendorId = todoItemsCopy['vendor_id']
             ..vendorName = todoItemsCopy['vendor_name']
             ..vehicleNumber = vehiclesCopy['vehicle_number']
+            ..maintenanceTaskId = event.checklistId.toString()
         );
         _broadcast.stickyBroadcast("todo_view", value: true);
       } catch (e) {
@@ -154,23 +175,26 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
     });
 
     on<CompleteEvent>((event,emit) async {
+      log("matchingTodos: $matchingTodos");
       try{
         List<int> getMatchingIds(
             Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
           List<int> matchingIds = [];
 
           for (var task in maintenanceTasks) {
-            String notes = task["notes"] ?? "";
-            String firstWord = notes.split(RegExp(r'[\s\-<]')).first; // Extract first word
+            String title = task['checklist_title'];
 
-            if (firstWord == checkEvent["title"]) {
+            if (title == checkEvent["title"]) {
               matchingIds.add(task["id"]); // Add matching ID
             }
           }
           return matchingIds;
         }
+        log("getMatchingIds: $getMatchingIds");
+
         result = getMatchingIds(checkListData, matchingTodos);
         completeTodoID = result?.first.toString();
+        log("completeTodoID: $completeTodoID");
         await todoListRepo.completeATodo(completeTodoID,"Completed");
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(pop:true));
@@ -187,10 +211,9 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
           List<int> matchingIds = [];
 
           for (var task in maintenanceTasks) {
-            String notes = task["notes"] ?? "";
-            String firstWord = notes.split(RegExp(r'[\s\-<]')).first; // Extract first word
+            String title = task['checklist_title'];
 
-            if (firstWord == checkEvent["title"]) {
+            if (title == checkEvent["title"]) {
               matchingIds.add(task["id"]); // Add matching ID
             }
           }

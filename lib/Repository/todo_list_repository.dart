@@ -3333,29 +3333,54 @@ class TodoListRepo {
 
       log("$body", name: "POST_BODY");
       final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
-      dynamic fixTaskId = json.decode(response?.body ?? '');
-      log("${fixTaskId['todo'][0]['id']}", name: "fixTaskId");
 
-      dynamic fixTaskId1 = createFixTaskData.maintenanceTaskId?.split('-')[1] ?? '';
-
-      fixTasksMap[fixTaskId1] = fixTaskId['todo'][0]['id'];
-
-      final http.Response? response1 = await apiClient.callPostMethod(apiUrl1, body: jsonEncode({
-        'fix_tasks': fixTasksMap,
-        'type': "inline"
-      }));
-
-      log("${response1?.body}", name: "apiresponse1");
-      log("$fixTaskId", name: "apiresponse");
-
-      if (response?.statusCode == 200 || response?.statusCode == 201) {
-        return true;
-      } else {
+      if (response == null) {
+        log("API call failed: ${response?.statusCode}");
         return null;
       }
 
+      // 3. Parse response safely
+      final dynamic responseData = json.decode(response.body);
+      log("Full response: $responseData", name: "API_RESPONSE");
+
+      // 4. Extract task ID safely
+      final int? newTaskId = _extractTaskId(responseData);
+      if (newTaskId == null) {
+        log("Failed to extract task ID from response");
+        return null;
+      }
+
+      // 5. Handle maintenance task ID
+      final String? maintenanceId = createFixTaskData.maintenanceTaskId?.split('-').lastOrNull;
+      if (maintenanceId != null) {
+        fixTasksMap[maintenanceId] = newTaskId;
+      }
+
+      // 6. Update todo with fix tasks
+      final updateResponse = await apiClient.callPostMethod(
+          apiUrl1,
+          body: jsonEncode({
+            'fix_tasks': fixTasksMap,
+            'type': "inline"
+          })
+      );
+
+      log("Update response: ${updateResponse?.body}", name: "UPDATE_RESPONSE");
+
     } catch (error) {
       log('addVehicleCreateTodo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+  // Helper function to safely extract task ID
+  int? _extractTaskId(dynamic responseData) {
+    try {
+      // Try multiple possible response formats
+      return responseData['todo']?[0]?['id'] as int?
+          ?? responseData['id'] as int?
+          ?? responseData['todo_id'] as int?;
+    } catch (e) {
+      log("ID extraction error: $e");
       return null;
     }
   }
