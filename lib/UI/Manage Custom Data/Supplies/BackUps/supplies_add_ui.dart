@@ -1,9 +1,9 @@
 
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/utils.dart';
+import '../../../../Component/drawer_ui.dart';
+import '../../../../Utilities/appC.dart';
+import '../../../../Utilities/utils.dart';
 
 class SuppliesAddUI extends StatefulWidget {
   const SuppliesAddUI({super.key});

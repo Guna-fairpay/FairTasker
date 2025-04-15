@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/utils.dart';
+import '../../../../Utilities/appC.dart';
+import '../../../../Utilities/utils.dart';
 
 class PartEditUI extends StatefulWidget {
   final Map<String, dynamic> parts;
