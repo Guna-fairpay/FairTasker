@@ -209,6 +209,14 @@ class APiRepository {
 
   String get _updateWorkingHour => "updateWorkingHour";
 
+  String get _getTaskCategory => "taskCategory";
+
+  String get _deleteTaskCategory => "deleteTaskCategory";
+
+  String get _addTaskCategory => "addTaskCategory";
+
+  String get _updateTaskCategory => "updateTaskCategory";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1845,6 +1853,199 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expensesCategory/$id';
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, method: "DELETE");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteTaskExpensesData(
+      dynamic id,
+      ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_taskExpenseData/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> taskAddOrUpdate(
+      {Map<String, dynamic>? body, dynamic id}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_taskExpenseData/$id";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_taskExpenseData";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(
+        apiUrl,
+        body: body,
+      );
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callTaskAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTaskCategory() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getTaskCategory';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteCategoryConfigData(
+      dynamic id,
+      ) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteTaskCategory/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> categoryConfigAddOrUpdate(
+      {Map<String, dynamic>? body, dynamic id}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.BASE_URL}$_updateTaskCategory/$id";
+      } else {
+        apiUrl = "${Str.BASE_URL}$_addTaskCategory";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(
+        apiUrl,
+        body: body,
+      );
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callCategoryConfigAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deletePartsData(
+      dynamic id,
+      ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehiclePartsList/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> partsAddOrUpdate(
+      {Map<String, dynamic>? body, dynamic id}) async {
+    try {
+      String apiUrl = '';
+      http.Response? response;
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehiclePartsList/$id";
+        response = await _apiClient.callPutMethod(
+          apiUrl,
+          body:jsonEncode(body),
+        );
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehiclePartsList";
+        response = await _apiClient.callPostMethodWithBodyDynamic(
+          apiUrl,
+          body: body,
+        );
+      }
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callPartsAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> suppliesAddOrUpdate(
+      {Map<String, dynamic>? body, dynamic id}) async {
+    try {
+      String apiUrl = '';
+      http.Response? response;
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehicleSupplies/$id";
+        response = await _apiClient.callPutMethod(
+          apiUrl,
+          body:jsonEncode(body),
+        );
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}$_vehicleSupplies";
+        response = await _apiClient.callPostMethodWithBodyDynamic(
+          apiUrl,
+          body: body,
+        );
+      }
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('callSuppliesAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteSuppliesData(
+      dynamic id,
+      ) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleSupplies/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
