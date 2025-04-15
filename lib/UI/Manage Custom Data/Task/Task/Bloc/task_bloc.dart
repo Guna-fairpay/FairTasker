@@ -226,6 +226,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     var itemModel = event.listModel;
     var dropDown = event.dropDownData;
     itemModel['category_id'] = dropDown['id'];
+    itemModel['subcategory_id'] = null;
+    emit(TaskCommonState());
     var data={
       'category_id': "${itemModel['category_id']}",
       'subcategory_id': "${null}",
@@ -234,7 +236,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       'user_type': "${itemModel['user_type']}",
       'platform':'tasker-app'};
     var response = await _apiRepository.taskAddOrUpdate(body: data,id: itemModel['id']);
-    emit(TaskCommonState());
+    // emit(TaskCommonState());
   }
 
   Future<void> _onListSubCategoryDropDownSelectionEvent(ListSubCategoryDropDownSelectionEvent event, Emitter<TaskState> emit) async {
@@ -243,6 +245,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     var itemModel = event.listModel;
     var dropDown = event.dropDownData;
     itemModel['subcategory_id'] = dropDown['id'];
+    emit(TaskCommonState());
     var data={
       'category_id': "${itemModel['category_id']}",
       'subcategory_id': "${itemModel['subcategory_id']}",
@@ -251,7 +254,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       'user_type': "${itemModel['user_type']}",
       'platform':'tasker-app'};
     var response = await _apiRepository.taskAddOrUpdate(body:data,id: itemModel['id']);
-    emit(TaskCommonState());
+    // emit(TaskCommonState());
   }
 
   void _onTabChangeEvent(TaskTabChangeEvent event, Emitter<TaskState> emit) {
