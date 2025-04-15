@@ -1,4 +1,5 @@
 import 'dart:ui' show VoidCallback;
+import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:collection/collection.dart';
@@ -28,6 +29,7 @@ class Initializer {
   void init() async {
     tz.initializeTimeZones();
     getIt.registerSingleton<CommonService>(CommonService());
+    getIt.registerSingleton<ToDoSupport>(ToDoSupport());
   }
 }
 
@@ -403,7 +405,9 @@ class CommonService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getToDos() async {
+  /// CURRENT DATE TODO LIST
+  Future<List<Map<String, dynamic>>> getToDos({bool reset = false}) async {
+    if (reset) _toDoList.clear();
     if (_toDoList.isNotEmpty) return _toDoList;
     try {
       var response = await _apiRepository.getToDoList(selectedDate: DateTime.now().toFormat(format: "yyyy-MM-dd"));
