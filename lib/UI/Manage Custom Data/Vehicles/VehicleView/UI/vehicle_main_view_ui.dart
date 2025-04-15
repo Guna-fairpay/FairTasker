@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_tab_content_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_tab_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_grouping/vehicle_grouping_dialog.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +34,9 @@ class VehicleMainViewUi extends StatelessWidget {
               EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is VehicleGroupingTapState) {
+                VehicleGroupingDialog.show(context, vids: state.vehiclesData);
+              }
             }
           },
           child: SafeArea(

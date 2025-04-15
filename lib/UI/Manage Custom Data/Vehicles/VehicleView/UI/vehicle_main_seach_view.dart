@@ -13,7 +13,6 @@ class VehicleMainSearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(color: AppC.text, width: Num.borderWidthThinField));
     return BlocBuilder<VehicleBloc, VehicleState>(
         builder: (context, state) => Expanded(
           flex: 3,
@@ -23,7 +22,7 @@ class VehicleMainSearchView extends StatelessWidget {
                 children: [
                   CompactIconButton(
                     icon: Icons.add_rounded,
-                    onPressed: () {},
+                    onPressed: () => context.read<VehicleBloc>().add(VehicleGroupingTapEvent()),
                   ),
                   Expanded(child: CompactSearchView(
                     controller: context.read<VehicleBloc>().searchController,

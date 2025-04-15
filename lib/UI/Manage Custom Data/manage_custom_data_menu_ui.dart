@@ -1,5 +1,6 @@
 
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/category_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/subcategory_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Components/tab_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
@@ -131,11 +132,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.folder_open,
               title: 'SubCategory',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SubcategoryViewUI(),
-                ));
-              },
+              onTap: () => context.push(const SubcategoryMainUi(), fullscreenDialog: true),
             ),
             _buildCard(
               icon: Icons.car_crash_sharp,
