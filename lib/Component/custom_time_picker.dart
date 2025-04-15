@@ -2540,6 +2540,7 @@ class _TimePickerDialogState extends State<TimePickerDialog> with RestorationMix
             ),
           Expanded(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 TextButton(
                   style: pickerTheme.cancelButtonStyle ?? defaultTheme.cancelButtonStyle,

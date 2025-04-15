@@ -15,6 +15,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final String? format;
   final Widget? suffixIcon;
   final Widget? prefixIcon;
+  final String? neutralText;
+  final String? confirmText;
   final void Function(T value)? onChanged;
   final void Function(TimeOfDay value)? onNeutral;
   final TextEditingController? controller;
@@ -24,6 +26,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   const CustomDateTimePicker(
       {super.key,
       this.labelText = "Select",
+      this.neutralText,
+      this.confirmText,
       this.format,
       this.value,
       required this.controller,
@@ -105,14 +109,13 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   Future<TimeOfDay?> _pickTimePicker(BuildContext context, {ValueChanged<TimeOfDay>? onNeutral}) async {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
     var result = await showTimerPicker(
-      confirmText: "Set time",
-      neutralText: "Set time and move task",
+      confirmText: confirmText,
+      neutralText: neutralText,
       context: context,
       onNeutral: onNeutral,
       initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
       initialEntryMode: TimerPickerEntryMode.dialOnly,
     );
-    Console.of.log("result: $result");
     return result;
   }
 
@@ -120,8 +123,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
     var result = await showTimerPicker(
       context: context,
-        confirmText: "Set time",
-        neutralText: "Set time and move task",
+        confirmText: confirmText,
+        neutralText: neutralText,
       onNeutral: onNeutral,
       initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
       initialEntryMode: TimerPickerEntryMode.dialOnly,
@@ -133,7 +136,6 @@ class CustomDateTimePicker<T> extends StatelessWidget {
           child: child!);
       }
     );
-    Console.of.log("result: $result");
     return result;
   }
 

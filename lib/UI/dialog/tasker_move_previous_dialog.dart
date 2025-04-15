@@ -115,6 +115,8 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                                   context.read<TMPDBloc>().timeController,
                               value: context.watch<TMPDBloc>().selectedTime,
                               format: "HH:mm",
+                              confirmText: "Set time",
+                              neutralText: "Set time and move task",
                               showAsExpanded: true,
                               textAlign: TextAlign.center,
                               suffixIcon: Icon(Icons.access_time_rounded,
