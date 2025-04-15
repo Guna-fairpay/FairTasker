@@ -104,7 +104,7 @@ class TaskBasedTab extends StatelessWidget {
                     columnWidths: const {
                       0: FlexColumnWidth(2), // Task name
                       1: FlexColumnWidth(2), // Amount
-                      2: FlexColumnWidth(1), // Actions
+                      2: FlexColumnWidth(2), // Actions
                     },
                     border: const TableBorder(
                       bottom: BorderSide(color: Colors.black26, width: 0.2),
@@ -128,9 +128,8 @@ class TaskBasedTab extends StatelessWidget {
                           ),
                           if(Session.of.getString(Str.userIdPrefText) == '3')
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 15),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 GestureDetector(
                                   onTap: () {
@@ -147,7 +146,7 @@ class TaskBasedTab extends StatelessWidget {
                                     color: Colors.blue,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 20),
                                 GestureDetector(
                                   onTap: () async {
                                     final confirm = await showCustomDeleteDialog(context);
@@ -238,7 +237,7 @@ class HourlyBasedTab extends StatelessWidget {
                     ),
                     if(Session.of.getString(Str.userIdPrefText) == '3')
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+                      padding: EdgeInsets.symmetric(horizontal: 9, vertical: 8.0),
                       child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -256,8 +255,8 @@ class HourlyBasedTab extends StatelessWidget {
                   child: Table(
                     columnWidths: const {
                       0: FlexColumnWidth(2), // Resource name
-                      1: FlexColumnWidth(2), // Amount/hr
-                      2: FlexColumnWidth(1), // Action
+                      1: FlexColumnWidth(1), // Amount/hr
+                      2: FlexColumnWidth(2), // Action
                     },
                     border: const TableBorder(
                       bottom: BorderSide(color: Colors.black26, width: 0.2),
@@ -301,7 +300,7 @@ class HourlyBasedTab extends StatelessWidget {
                                     color: Colors.blue,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 20),
                                 GestureDetector(
                                   onTap: () async {
                                     final confirm =

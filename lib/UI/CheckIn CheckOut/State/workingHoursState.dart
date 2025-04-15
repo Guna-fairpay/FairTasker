@@ -24,6 +24,7 @@ class WorkingHoursState extends Equatable {
   final List<Map<String, dynamic>> hourlyBased;
   final TextEditingController? taskNameController;
   final TextEditingController? amountController;
+  final TextEditingController? hourlyAmountController;
   final List<dynamic> selectedBase1;
   final dynamic selectedBase;
   final bool isEditMode;
@@ -77,6 +78,7 @@ class WorkingHoursState extends Equatable {
         this.hourlyBased = const [],
         this.taskNameController,
         this.amountController,
+        this.hourlyAmountController,
         this.selectedBase1 = const [],
         this.selectedBase,
         this.isEditMode = false,
@@ -130,6 +132,7 @@ class WorkingHoursState extends Equatable {
     List<Map<String, dynamic>>? hourlyBased,
     TextEditingController? taskNameController,
     TextEditingController? amountController,
+    TextEditingController? hourlyAmountController,
     List<dynamic>? selectedBase1,
     dynamic selectedBase,
     bool? isEditMode,
@@ -181,6 +184,7 @@ class WorkingHoursState extends Equatable {
     hourlyBased: hourlyBased ?? this.hourlyBased,
     taskNameController: taskNameController,
     amountController: amountController,
+    hourlyAmountController: hourlyAmountController,
     selectedBase1: selectedBase1 ?? this.selectedBase1,
     selectedBase: selectedBase,
     isEditMode: isEditMode ?? this.isEditMode,
@@ -235,6 +239,7 @@ class WorkingHoursState extends Equatable {
     hourlyBased,
     taskNameController,
     amountController,
+    hourlyAmountController,
     selectedBase1,
     selectedBase,
     isEditMode,
@@ -269,94 +274,8 @@ class WorkingHoursState extends Equatable {
     loginUserRole,
     loginUserId,
     branchID,
-    Random().nextDouble()
+    //Random().nextDouble()
   ];
 }
 
-//
-// import 'package:equatable/equatable.dart';
-// import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingHoursResponse.dart';
-// import 'package:fairpytasker/UI/CheckIn%20CheckOut/Response/workingReasonResponse.dart';
-//
-// import '../Response/checkInOutResponse.dart';
-//
-//
-// abstract class TaskState extends Equatable {
-//   @override
-//   List<Object?> get props => [];
-// }
-//
-// class TaskInitialState extends TaskState {}
-//
-// class TaskLoadingState extends TaskState {}
-//
-// class TaskErrorState extends TaskState {
-//   final String errorMessage;
-//
-//   TaskErrorState(this.errorMessage);
-//
-//   @override
-//   List<Object?> get props => [errorMessage];
-// }
-//
-// class TaskLoadedState extends TaskState {
-//   final WorkingHoursResponse history;
-//   TaskLoadedState(this.history);
-//   @override
-//   List<Object?> get props => [history];
-// }
-//
-// class CommentLoadedState extends TaskState
-// {
-//   final WorkingReasonResponse comment;
-//   CommentLoadedState(this.comment);
-//   @override
-//   List<Object?> get props => [comment];
-// }
-//
-// class CheckInoutReasonLoadedState extends TaskState
-// {
-//   final CheckInOutReasonResponse data;
-//   CheckInoutReasonLoadedState(this.data);
-//   @override
-//   List<Object?> get props => [data];
-// }
-//
-// class TaskHistoryLoadedState extends TaskState {
-//   final dynamic taskHistory;
-//   final List<Map<String, dynamic>> combinedList;
-//   TaskHistoryLoadedState({required this.taskHistory, required this.combinedList});
-//
-//   @override
-//   List<Object?> get props => [taskHistory];
-// }
-//
-// class GetConfigurationLoadedState extends TaskState {
-//   final dynamic data;
-//
-//   GetConfigurationLoadedState({required this.data});
-//
-//   @override
-//   List<Object?> get props => [data];
-// }
-//
-// class CategoryGroupLoadedState extends TaskState {
-//   final dynamic data;
-//
-//   CategoryGroupLoadedState({required this.data});
-//
-//   @override
-//   List<Object?> get props => [data];
-// }
-//
-// class CohortDataLoadedState extends TaskState {
-//   final dynamic data;
-//
-//   CohortDataLoadedState({required this.data});
-//
-//   @override
-//   List<Object?> get props => [data];
-// }
-
-// working_hours_state.dart
 

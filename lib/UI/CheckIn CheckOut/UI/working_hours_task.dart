@@ -175,7 +175,8 @@ class WorkingHoursTaskUI extends StatelessWidget {
                                   final workingHoursBloc = context.read<WorkingHoursBloc>();
                                   showDialog(
                                     context: context,
-                                    builder: (dialogContext) => FilterDialog(
+                                    builder: (dialogContext) =>
+                                        FilterDialog(
                                       workingHoursBloc: workingHoursBloc,
                                       filterOptions: state.cohortsData,
                                       selectedFilters: selectedFilters,

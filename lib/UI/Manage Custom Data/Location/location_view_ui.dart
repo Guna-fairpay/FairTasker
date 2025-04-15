@@ -112,7 +112,8 @@ class _LocationViewUIState extends State<LocationViewUI> {
               icon: const Icon(Icons.close))
         ],
       ),
-      body: BlocProvider(
+      body:
+      BlocProvider(
         create: (context) =>
             locationDataBloc..add(const GetAddedLocationListData()),
         child: BlocConsumer<LocationDataBloc, LocationDataState>(
@@ -146,7 +147,6 @@ class _LocationViewUIState extends State<LocationViewUI> {
                   children: [
                     Expanded(
                       child: Utils.getSearchBarUI(
-
                         onChange: (value) {
                           _filterLocation(value);
                         },

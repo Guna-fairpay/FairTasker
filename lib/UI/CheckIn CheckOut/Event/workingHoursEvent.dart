@@ -10,9 +10,9 @@ abstract class WorkingHoursEvent extends Equatable {
 }
 
 class WorkingHoursInitialEvent extends WorkingHoursEvent {
-  final String? minDate;
-  final String? maxDate;
-  const WorkingHoursInitialEvent(this.minDate, this.maxDate);
+  final String minDate;
+  final String maxDate;
+  const WorkingHoursInitialEvent({ required this.minDate, required this.maxDate});
   @override
   List<Object?> get props => [minDate, maxDate];
 }
@@ -168,6 +168,13 @@ class UpdateDateRangeEvent extends WorkingHoursEvent {
   const UpdateDateRangeEvent({required this.selectedRange});
   @override
   List<Object?> get props => [selectedRange];
+}
+
+class SwitchTabEvent extends WorkingHoursEvent {
+  final bool isHourly;
+  const SwitchTabEvent({required this.isHourly});
+  @override
+  List<Object?> get props => [isHourly];
 }
 
 // class GetWorkingHoursDataEvent extends WorkingHoursEvent {

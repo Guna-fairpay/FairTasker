@@ -20,7 +20,8 @@ class DateRangePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DateRangeField(
-      decoration: InputDecoration(
+      decoration:
+      InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(Num.subradiusButton),

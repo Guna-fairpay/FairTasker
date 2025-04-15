@@ -49,13 +49,18 @@ class TaskComponentsSettingView extends StatelessWidget {
           amountController.clear();
           taskNameController.text = state.taskNameController?.text ?? '';
           amountController.text = state.amountController?.text ?? '';
-          log("${state.loginUserRole}" , name: "login_role");
+          hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           FocusScope.of(context).unfocus();
         }
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
-         // log("${state.selectedResource}", name: 'TEST1');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (tabController.indexIsChanging) {
+              print("Tab changing to index ${tabController.index} at ${DateTime.now()}");
+              context.read<WorkingHoursBloc>().add(SwitchTabEvent(isHourly: tabController.index == 1));
+            }
+          });
           return Scaffold(
             backgroundColor: AppC.white,
             appBar: PreferredSize(
@@ -83,181 +88,186 @@ class TaskComponentsSettingView extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                child: Form(
-                  autovalidateMode: AutovalidateMode.onUnfocus,
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16),
-                      if(Session.of.getString(Str.userIdPrefText) == '3')
-                      Utils.dropdownBox(
-                        'Task based',
-                        state.selectedBase1,
-                        (value) {
-                          selectedBases = value;
-                          context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
-                          tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
-                        },
-                        labelKey: 'base',
-                        initialSelection: state.selectedBase,
-                      ),
-                      const SizedBox(height: 16),
-                      if(Session.of.getString(Str.userIdPrefText) == '3')
-                      if ((selectedBases != null && selectedBases['base'] == 'Task based') ||
-                          (state.selectedBase != null &&
-                              state.selectedBase['base'] == 'Task based')) ...[
-                        Utils.getTextFormField('Task Name',
-                            taskNameController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Task Name required';
-                            }
-                            return null;
-                          }
-                        ),
+                child: KeyedSubtree(
+                  key: ValueKey(tabController.index),
+                  child: Form(
+                    autovalidateMode: AutovalidateMode.onUnfocus,
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         const SizedBox(height: 16),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
-                        Utils.getTextFormField('Amount (\$)',
-                          amountController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Amount required';
-                              }
-                              return null;
-                            }),
-                        const SizedBox(height: 16),
-                      ] else...[
                         if(Session.of.getString(Str.userIdPrefText) == '3')
                         Utils.dropdownBox(
-                          'Select User',
-                          state.userList,
+                          'Task based',
+                          state.selectedBase1,
                           (value) {
-                            resource = value;
-                            //print("Selected Resource: $resource");
+                            selectedBases = value;
+                            context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
+                            tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
                           },
-                          labelKey: 'first_name',
-                          labelKey2: 'last_name',
-                          //selectedKey: state.selectedResource,
-                          initialSelection: state.selectedUser,
+                          labelKey: 'base',
+                          initialSelection: state.selectedBase,
                         ),
                         const SizedBox(height: 16),
                         if(Session.of.getString(Str.userIdPrefText) == '3')
-                        Utils.getTextFormField(
-                            'Amount per hour (\$)',
-                            hourlyAmountController,
+                        if (
+                        (selectedBases != null && selectedBases['base'] == 'Task based')
+                            || (state.selectedBase != null && state.selectedBase['base'] == 'Task based')
+                        ) ...[
+                          Utils.getTextFormField('Task Name',
+                              taskNameController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Amount required';
+                                return 'Task Name required';
                               }
                               return null;
                             }
-                        ),
-                        const SizedBox(height: 30),
-                      ],
-                      if(Session.of.getString(Str.userIdPrefText) == '3')
-                      Row(
-                        children: [
-                          if (!state.isEditMode)
-                            Utils.getAddFilledButton("Save", () {
-                              if (state.selectedBase['base'] == 'Task based' || selectedBases['base'] == 'Task based' ||
-                                  taskNameController.text.isNotEmpty) {
-                                FocusScope.of(context).unfocus();
-                                if(formKey.currentState!.validate() && taskNameController.text.isNotEmpty && amountController.text.isNotEmpty) {
-                                  context.read<WorkingHoursBloc>().add(CreateTaskEvent(
-                                      taskName: taskNameController.text.toString(),
-                                      amount: amountController.text.toString(),
-                                      task: 'task',
-                                    ));
-                                } else {
-                                  Utils.showMobileToast("Please fill all required fields");
+                          ),
+                          const SizedBox(height: 16),
+                          if(Session.of.getString(Str.userIdPrefText) == '3')
+                          Utils.getTextFormField('Amount (\$)',
+                            amountController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Amount required';
                                 }
-                              } else {
-                                if (formKey.currentState!.validate() && hourlyAmountController.text.isNotEmpty &&
-                                    resource != null) {
-                                  context.read<WorkingHoursBloc>().add(CreateTaskEvent(
-                                    taskName: '',
-                                    amount: hourlyAmountController.text,
-                                    task: 'hourly',
-                                    userId: resource['id'] ?? state.selectedUser['id'],
-                                  ));
-                                } else {
-                                  Utils.showMobileToast("Please fill all required fields");
+                                return null;
+                              }),
+                          const SizedBox(height: 16),
+                        ] else...[
+                          if(Session.of.getString(Str.userIdPrefText) == '3')
+                          Utils.dropdownBox(
+                            'Select User',
+                            state.userList,
+                            (value) {
+                              resource = value;
+                              //print("Selected Resource: $resource");
+                            },
+                            labelKey: 'first_name',
+                            labelKey2: 'last_name',
+                            //selectedKey: state.selectedResource,
+                            initialSelection: state.selectedUser ?? null,
+                          ),
+                          const SizedBox(height: 16),
+                          if(Session.of.getString(Str.userIdPrefText) == '3')
+                          Utils.getTextFormField(
+                              'Amount per hour (\$)',
+                              hourlyAmountController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Amount required';
                                 }
+                                return null;
                               }
-                            }, bgColor: AppC.green),
-                          if (state.isEditMode)
-                            Utils.getAddFilledButton("Update", () {
-                              FocusScope.of(context).unfocus();
-                              context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
-                              if(state.userId == null)
-                                {
+                          ),
+                          const SizedBox(height: 30),
+                        ],
+                        if(Session.of.getString(Str.userIdPrefText) == '3')
+                        Row(
+                          children: [
+                            if (!state.isEditMode)
+                              Utils.getAddFilledButton("Save", () {
+                                if (state.selectedBase['base'] == 'Task based' || selectedBases['base'] == 'Task based' ||
+                                    taskNameController.text.isNotEmpty) {
+                                  FocusScope.of(context).unfocus();
+                                  if(formKey.currentState!.validate() && taskNameController.text.isNotEmpty && amountController.text.isNotEmpty) {
+                                    context.read<WorkingHoursBloc>().add(CreateTaskEvent(
+                                        taskName: taskNameController.text.toString(),
+                                        amount: amountController.text.toString(),
+                                        task: 'task',
+                                      ));
+                                  } else {
+                                    Utils.showMobileToast("Please fill all required fields");
+                                  }
+                                } else {
+                                  if (formKey.currentState!.validate() && hourlyAmountController.text.isNotEmpty &&
+                                      resource != null) {
+                                    context.read<WorkingHoursBloc>().add(CreateTaskEvent(
+                                      taskName: '',
+                                      amount: hourlyAmountController.text,
+                                      task: 'hourly',
+                                      userId: resource['id'] ?? state.selectedUser['id'],
+                                    ));
+                                  } else {
+                                    Utils.showMobileToast("Please fill all required fields");
+                                  }
+                                }
+                              }, bgColor: AppC.green),
+                            if (state.isEditMode)
+                              Utils.getAddFilledButton("Update", () {
+                                FocusScope.of(context).unfocus();
+                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                                if(state.userId == null)
+                                  {
+                                    context.read<WorkingHoursBloc>().add(
+                                        CreateTaskEvent(
+                                            id: state.taskId,
+                                            taskName: taskNameController.text.toString(),
+                                            amount: amountController.text.toString(),
+                                            task: 'task')
+                                    );
+                                  } else {
                                   context.read<WorkingHoursBloc>().add(
                                       CreateTaskEvent(
                                           id: state.taskId,
-                                          taskName: taskNameController.text.toString(),
                                           amount: amountController.text.toString(),
-                                          task: 'task')
+                                          userId: resource['id'],
+                                          task: 'hourly')
                                   );
-                                } else {
-                                context.read<WorkingHoursBloc>().add(
-                                    CreateTaskEvent(
-                                        id: state.taskId,
-                                        amount: amountController.text.toString(),
-                                        userId: resource['id'],
-                                        task: 'hourly')
-                                );
-                              }
-                            }, bgColor: AppC.green),
-                          if (state.isEditMode) const SizedBox(width: 16),
-                          if (state.isEditMode)
-                            Utils.getAddFilledButton("Cancel", () {
-                              context.read<WorkingHoursBloc>().add(ResetResourceEvent());
-                              //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 1));
-                              context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
-                            }, bgColor: AppC.red),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                              bottom:
-                                  BorderSide(color: Colors.black26, width: 0.5)),
+                                }
+                              }, bgColor: AppC.green),
+                            if (state.isEditMode) const SizedBox(width: 16),
+                            if (state.isEditMode)
+                              Utils.getAddFilledButton("Cancel", () {
+                                FocusScope.of(context).unfocus();
+                                context.read<WorkingHoursBloc>().add(ResetResourceEvent());
+                                //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 1));
+                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                              }, bgColor: AppC.red),
+                          ],
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 10 * 9, 0),
-                          child: TabBar(
-                            controller: tabController,
-                            tabs: const [
-                              Tab(text: 'Task Based', height: 30),
-                              Tab(text: 'Hourly Based', height: 30),
-                            ],
-                            dividerColor: AppC.trans,
-                            labelStyle: const TextStyle(fontSize: 12),
-                            labelColor: AppC.appColor,
-                            unselectedLabelColor: AppC.black,
-                            indicator: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(width: 1, color: AppC.appColor),
+                        const SizedBox(height: 16),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                                bottom:
+                                    BorderSide(color: Colors.black26, width: 0.5)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 10 * 9, 0),
+                            child: TabBar(
+                              controller: tabController,
+                              tabs: const [
+                                Tab(text: 'Task Based', height: 30),
+                                Tab(text: 'Hourly Based', height: 30),
+                              ],
+                              dividerColor: AppC.trans,
+                              labelStyle: const TextStyle(fontSize: 12),
+                              labelColor: AppC.appColor,
+                              unselectedLabelColor: AppC.black,
+                              indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(width: 1, color: AppC.appColor),
+                              ),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              overlayColor:
+                                  WidgetStateProperty.all(Colors.transparent),
                             ),
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            overlayColor:
-                                WidgetStateProperty.all(Colors.transparent),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      TaskTabsView(
-                        taskbased: state.taskBased,
-                        hourlybased: state.hourlyBased,
-                        selectedBases: selectedBases,
-                        resource: state.resources,
-                          loginUserId: state.loginUserId,
-                          loginUserRole: state.loginUserRole,
-                      ),
-                    ],
+                        const SizedBox(height: 6),
+                        TaskTabsView(
+                          taskbased: state.taskBased,
+                          hourlybased: state.hourlyBased,
+                          selectedBases: selectedBases,
+                          resource: state.resources,
+                            loginUserId: state.loginUserId,
+                            loginUserRole: state.loginUserRole,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

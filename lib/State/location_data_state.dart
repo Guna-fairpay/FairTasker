@@ -31,3 +31,8 @@ class LocationDataLoaded extends LocationDataState {
   List<Object?> get props => [message];
 }
 
+class LocationDataCommonState extends LocationDataState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+

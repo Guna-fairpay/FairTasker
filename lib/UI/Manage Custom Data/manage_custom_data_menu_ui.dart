@@ -12,11 +12,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Categorys/category_view_ui.dart';
 import 'Customers/customer_view_ui.dart';
+import 'Location/location_view.dart';
 import 'Location/location_view_ui.dart';
 import 'Parts/part_view_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
 import 'Supplies/supplies_view_ui.dart';
+import 'Task/Components/tab_bar.dart';
+import 'Task/Task/backup/task_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
+import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
+import 'Vendor/vendor_ui/vendor_view.dart';
 import 'Vendor/vendor_view_ui.dart';
 
 class ManageCustomDataMenuUI extends StatelessWidget {
@@ -88,7 +93,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vendor',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VendorViewUI(),
+                  builder: (context) => VendorView(),
                 ));
               },
             ),
@@ -97,7 +102,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Location',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LocationViewUI(),
+                  builder: (context) => LocationView(),
                 ));
               },
             ),
