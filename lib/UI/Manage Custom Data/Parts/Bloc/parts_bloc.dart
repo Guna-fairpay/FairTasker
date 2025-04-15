@@ -1,0 +1,169 @@
+
+import 'dart:async';
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_event.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_state.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class PartsBloc extends Bloc<PartsEvent, PartsState>{
+
+  final APiRepository _apiRepository = APiRepository();
+  final TextEditingController searchController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController notesController = TextEditingController();
+  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
+  List<Map<String, dynamic>> apiResponse = [];
+  List<Map<String, dynamic>> filteredResponse = [];
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  int itemsPerPage = 10;
+  int currentIndex = 1;
+  int totalCount = 0;
+  bool isEdit = false;
+  dynamic selectedData;
+  int selectedTab = 0;
+
+  PartsBloc() : super(PartsLoadingState()){
+
+    on<PartsInitialEvent>(_onPartsInitialEvent);
+    on<DeletePartsEvent>(_onDeleteTaskEvent);
+    on<SavePartsEvent>(_onSaveTaskEvent);
+
+    on<PartsPaginationEvent>((event, emit) {
+      currentIndex = event.page;
+      filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      emit(PartsCommonState());
+    });
+
+    on<SearchPartsEvent>(_onSearchPartsEvent);
+
+    on<EditPartsEvent>((event, emit) {
+      Console.of.log(event.data);
+      isEdit = true;
+      selectedData = event.data;
+      nameController.text=event.data['name'];
+      emit(PartsCommonState());
+    });
+
+    on<EditCloseEvent>((event, emit) async {
+      isEdit = false;
+      selectedData = null;
+      nameController.clear();
+      emit(PartsCommonState());
+      await Future.delayed(Durations.short4);
+      nameController.addListener(_listener);
+      emit(PartsCommonState());
+    });
+
+  }
+
+  void _listener() {}
+
+  void _onDeleteTaskEvent(DeletePartsEvent event, Emitter<PartsState> emit) async {
+    try{
+      emit(PartsLoadingState());
+      var response = await _apiRepository.deletePartsData(event.data['id']);
+      if(response?['message']!=null){
+        apiResponse.removeWhere((element) => element['id'] == event.data['id']);
+        totalCount = apiResponse.length;
+        filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+        Toaster.showSuccess(response?['message']);
+        emit(PartsCommonState());
+      }
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(PartsCommonState());
+    }
+  }
+
+  void _onSaveTaskEvent(SavePartsEvent event, Emitter<PartsState> emit) async {
+    try{
+      if(nameController.text.isEmpty){
+        Toaster.showError('Please enter name');
+        return;
+      }
+      emit(PartsLoadingState());
+      var data = {
+        'name':nameController.text,
+        'notes':notesController.text,
+        "platform": "tasker-app",
+        "status": "1"
+      };
+      Console.of.log(data);
+      var response = await _apiRepository.partsAddOrUpdate(body: data,id: selectedData?['id']);
+      if (response?["data"] != null) {
+        final newData = response!["data"];
+        nameController.clear();
+        if (selectedData != null) {
+          isEdit = false;
+          selectedData = null;
+          apiResponse.removeWhere((e) => e['id'] == newData['id']);
+          apiResponse.add(newData);
+        } else {
+          apiResponse.add(newData);
+        }
+        apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
+        totalCount = apiResponse.length;
+        filteredResponse = paginateList(
+          data: apiResponse,
+          currentPage: currentIndex,
+          itemsPerPage: itemsPerPage,
+        );
+        Toaster.showSuccess("Parts added successfully");
+        emit(PartsCommonState());
+      }
+      else{
+        Console.of.log(response,name: 'TESTCASE0');
+        Toaster.showError(response);
+        emit(PartsCommonState());
+      }
+    }catch(e){
+      Toaster.showError(e.toString());
+      Console.of.log(e.toString(),name: 'TESTCASE1');
+      emit(PartsCommonState());
+    }
+  }
+
+  void _onPartsInitialEvent(PartsInitialEvent event, Emitter<PartsState> emit) async {
+    try{
+      emit(PartsLoadingState());
+      var response = await getIt<CommonService>().getPartsList(reset: true);
+      apiResponse =response;
+      apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
+      filteredResponse.clear();
+      filteredResponse = paginateList(
+          data: apiResponse,
+          currentPage: currentIndex,
+          itemsPerPage: itemsPerPage);
+      totalCount = apiResponse.length;
+      emit(PartsCommonState());
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(PartsCommonState());
+    }
+  }
+
+  void _onSearchPartsEvent(SearchPartsEvent event, Emitter<PartsState> emit) {
+    var query = event.query.toLowerCase();
+    List<Map<String, dynamic>> filteredData = [];
+
+    if (query.trim().isNotNullOrEmpty) {
+      filteredData = apiResponse.where((element) {
+        return [
+          element['name'],
+        ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
+      }).toList();
+    } else {
+      filteredData = apiResponse;
+    }
+    totalCount = filteredData.length;
+    filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
+    emit(PartsCommonState());
+  }
+
+}

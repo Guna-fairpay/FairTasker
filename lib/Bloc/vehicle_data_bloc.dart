@@ -83,7 +83,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       }
     });
 
-//Set vehicle save bloc
+//Set vehicle save Bloc
     on<UpdateVehicleDataEvent>((event, emit) async {
       if (event.createVehicleData != null) {
         try {
