@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -118,6 +119,19 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                               textAlign: TextAlign.center,
                               suffixIcon: Icon(Icons.access_time_rounded,
                                   size: 18, color: context.theme.hintColor),
+                              onNeutral: (value) async {
+                                context.read<TMPDBloc>().add(TMPDSelectTimeEvent(value));
+                                Console.of.log(value, name: "NEUTRAL_TIME");
+                                await Future.delayed(Durations.short1);
+                                Console.of.log("COMPLETING", name: "NEUTRAL_TIME");
+                                var selectedModels = (context.read<TMPDBloc>().selectedModels ?? []);
+                                var date = context.read<TMPDBloc>().selectedDate;
+                                var time = context.read<TMPDBloc>().selectedTime;
+                                if (selectedModels.isNotEmpty) {
+                                  onChanged?.call(selectedModels, date, time);
+                                  context.popDialog();
+                                }
+                              },
                               onChanged: (value) => context
                                   .read<TMPDBloc>()
                                   .add(TMPDSelectTimeEvent(value)),
