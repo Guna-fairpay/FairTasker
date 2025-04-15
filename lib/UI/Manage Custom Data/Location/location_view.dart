@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fairpytasker/utilities/Utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -12,7 +12,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../Bloc/location_data_bloc.dart';
 import '../../../Component/custom_compact_pagination.dart';
 import '../../../Component/success_button.dart';
-import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import 'location_list_item.dart';
 
