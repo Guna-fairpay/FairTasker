@@ -35,7 +35,7 @@ class VehicleMainViewUi extends StatelessWidget {
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               if (state is VehicleGroupingTapState) {
-                VehicleGroupingDialog.show(context);
+                VehicleGroupingDialog.show(context, vids: state.vehiclesData);
               }
             }
           },

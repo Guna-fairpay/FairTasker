@@ -150,6 +150,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   }
 
   void _onGroupingTapEvent(VehicleGroupingTapEvent event, Emitter<VehicleState> emit) {
-    emit(VehicleGroupingTapState());
+    var selectedVids = selectedVehicles.keys.toSet();
+    emit(VehicleGroupingTapState(vehiclesData: selectedVids));
   }
 }

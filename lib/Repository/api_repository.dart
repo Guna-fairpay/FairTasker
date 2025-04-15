@@ -1267,6 +1267,29 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> saveGroupVehicle({Map<String, dynamic>? body}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_groupVehicle";
+      body?.putIfAbsent("type", () => "inline");
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body, method: "POST");
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteGroupVehicle({required dynamic groupId}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_groupVehicle/$groupId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>?> expenseLogs({dynamic vin}) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs";

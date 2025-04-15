@@ -49,3 +49,12 @@ class VehicleGroupDeleteVehicleEvent extends VehicleGroupEvent {
   @override
   List<Object?> get props => [selectedModel];
 }
+
+class VehicleGroupDeleteTapVehicleEvent extends VehicleGroupEvent {
+  final Map<String, dynamic> selectedModel;
+  VehicleGroupDeleteTapVehicleEvent({required this.selectedModel});
+  @override
+  List<Object?> get props => [selectedModel];
+}
+
+class VehicleGroupSaveEvent extends VehicleGroupEvent {}

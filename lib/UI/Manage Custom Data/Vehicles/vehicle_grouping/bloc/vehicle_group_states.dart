@@ -27,3 +27,11 @@ class VehicleGroupErrorState extends VehicleGroupState {
   @override
   List<Object?> get props => [message];
 }
+
+class VehicleGroupDeleteTapVehicleState extends VehicleGroupState {
+  final Map<String, dynamic> selectedModel;
+  VehicleGroupDeleteTapVehicleState(this.selectedModel);
+  @override
+  List<Object?> get props => [selectedModel, Random().nextDouble()];
+
+}
