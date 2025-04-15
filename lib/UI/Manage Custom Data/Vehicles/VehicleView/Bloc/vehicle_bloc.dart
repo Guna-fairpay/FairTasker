@@ -40,6 +40,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     on<VehicleResetEvent>(_onResetEvent);
     on<VehicleTabChangeEvent>(_onTabChangeEvent);
     on<VehicleClearEditEvent>(_onClearEditEvent);
+    on<VehicleGroupingTapEvent>(_onGroupingTapEvent);
   }
   Future<List<Map<String, dynamic>>?> _getVehicle() async => await getIt<CommonService>().getActiveVehicles(reset: true);
   void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(VehicleInitialEvent()));
@@ -146,5 +147,10 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   void _onClearEditEvent(VehicleClearEditEvent event, Emitter<VehicleState> emit) {
     selectedVehicle = null;
     emit(VehicleCommonState());
+  }
+
+  void _onGroupingTapEvent(VehicleGroupingTapEvent event, Emitter<VehicleState> emit) {
+    var selectedVids = selectedVehicles.keys.toSet();
+    emit(VehicleGroupingTapState(vehiclesData: selectedVids));
   }
 }

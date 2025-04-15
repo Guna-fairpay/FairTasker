@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import '../../../../Bloc/vendor_data_bloc.dart';
+import '../vendor_data_bloc.dart';
 import '../../../../Component/drawer_ui.dart';
 import '../../../../Component/header.dart';
 import '../../../../Utilities/utils.dart';

@@ -22,7 +22,8 @@ class MaintenanceCheckListUI extends StatelessWidget {
     required bool checkboxValue,
     required ValueChanged<bool?> onCheckboxChanged,
     required String label,
-  }) {
+  })
+  {
     return Row(
       children: [
         SizedBox(
@@ -179,7 +180,6 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                 } else {
                                                   state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] = false;
                                                 }
-                                                ///
                                                 if (state.dropdownValue.where((element) => element == item['id'].toString()).isNotEmpty) {
                                                   MaintenanceChecklistPopup.show(context,
                                                       onCompleted: () => context.read<MaintenanceBloc>().add(const CompleteTodoItemEvent()),

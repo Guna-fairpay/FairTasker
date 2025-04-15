@@ -1,4 +1,4 @@
-part of '../Bloc/vendor_data_bloc.dart';
+part of 'vendor_data_bloc.dart';
 
 abstract class VendorDataState extends Equatable {
   const VendorDataState();
@@ -31,8 +31,18 @@ class VendorListLoaded extends VendorDataState {
 
 class VendorTypeListLoaded extends VendorDataState {
   final List<Map<String,dynamic>>? resource;
-  const VendorTypeListLoaded({required this.resource});
+  final List<Map<String,dynamic>>? vendorTypeData;
+  const VendorTypeListLoaded({required this.resource, this.vendorTypeData});
   @override
-  List<Object?> get props => [resource];
+  List<Object?> get props => [resource, vendorTypeData];
 }
+
+class VendorDataCommonState extends VendorDataState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+
+
+
 

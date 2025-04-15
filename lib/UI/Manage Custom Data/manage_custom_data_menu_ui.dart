@@ -1,8 +1,11 @@
 
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Components/tab_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/category_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/subcategory_main_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Components/tab_bar.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/attendance_view.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -12,10 +15,16 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Customers/customer_view_ui.dart';
+import 'Location/location_view.dart';
 import 'Location/location_view_ui.dart';
 import 'Sub Category/subcategory_view_ui.dart';
+import 'Supplies/supplies_view_ui.dart';
+import 'Task/Components/tab_bar.dart';
+import 'Task/Task/backup/task_view_ui.dart';
 import 'Supplies/BackUps/supplies_view_ui.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
+import 'Vehicles/VehicleView/Components/vehicle_tab_bar.dart';
+import 'Vendor/vendor_ui/vendor_view.dart';
 import 'Vendor/vendor_view_ui.dart';
 
 class ManageCustomDataMenuUI extends StatelessWidget {
@@ -83,7 +92,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Vendor',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const VendorViewUI(),
+                  builder: (context) => VendorView(),
                 ));
               },
             ),
@@ -92,7 +101,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
               title: 'Location',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LocationViewUI(),
+                  builder: (context) => LocationView(),
                 ));
               },
             ),
@@ -114,11 +123,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.folder_open,
               title: 'SubCategory',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SubcategoryViewUI(),
-                ));
-              },
+              onTap: () => context.push(const SubcategoryMainUi(), fullscreenDialog: true),
             ),
             _buildCard(
               icon: Icons.car_crash_sharp,

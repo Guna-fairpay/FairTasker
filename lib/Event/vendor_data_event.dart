@@ -1,7 +1,9 @@
-part of '../Bloc/vendor_data_bloc.dart';
+part of '../UI/Manage Custom Data/Vendor/vendor_data_bloc.dart';
 
 abstract class VendorDataEvent extends Equatable {
   const VendorDataEvent();
+  @override
+  List<Object?> get props => [];
 }
 
 /*class GetAddedVendorListData extends VendorDataEvent {
@@ -50,6 +52,22 @@ class AddVendorData extends VendorDataEvent {
   ];
 }
 
+class EnterEditModeEvent extends VendorDataEvent {
+  dynamic vendor;
+  EnterEditModeEvent( {required this.vendor});
+  @override
+  List<Object?> get props => [ vendor];
+}
+class EnterVendorTypeEditEvent extends VendorDataEvent {
+  dynamic vendor;
+  EnterVendorTypeEditEvent( {required this.vendor});
+  @override
+  List<Object?> get props => [ vendor];
+}
+
+class ExitEditModeEvent extends VendorDataEvent {}
+class ExitVendorTypeEditEvent extends VendorDataEvent {}
+
 class GetVendorList extends VendorDataEvent {
   const GetVendorList();
   @override
@@ -87,8 +105,54 @@ class DeleteVendorType extends VendorDataEvent {
 }
 
 class DeleteImage extends VendorDataEvent {
-  final int? id;
+  final dynamic id;
   const DeleteImage({required this.id});
   @override
   List<Object?> get props => [id];
+}
+//vendor view search 2
+class FilterVendorsEvent extends VendorDataEvent {
+  final String searchTerm;
+  const FilterVendorsEvent({required this.searchTerm});
+}
+
+class FilterVendorTypeEvent extends VendorDataEvent {
+  final String searchTerm;
+  const FilterVendorTypeEvent({required this.searchTerm});
+}
+
+class FilterVendorEvent extends VendorDataEvent {
+  final String searchTerm;
+  const FilterVendorEvent({required this.searchTerm});
+}
+
+
+class VendorPaginationEvent extends VendorDataEvent {
+  final int page;
+  VendorPaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
+
+class VendorTypePaginationEvent extends VendorDataEvent {
+  final int page;
+  VendorTypePaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
+
+class VendorImageEvent extends VendorDataEvent {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class RemoveVendorImageEvent extends VendorDataEvent {
+  final int index;
+  RemoveVendorImageEvent({required this.index});
+}
+
+class ResetLocationEvent extends VendorDataEvent {
+  const ResetLocationEvent();
+  @override
+  List<Object?> get props => [];
 }
