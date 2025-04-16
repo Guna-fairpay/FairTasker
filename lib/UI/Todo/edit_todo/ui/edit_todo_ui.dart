@@ -1,9 +1,11 @@
+
 import 'dart:developer';
 
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
+import 'package:fairpytasker/UI/dialog/tasker_check_pickup_reason_dialog.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
@@ -35,6 +37,11 @@ class EditTodoUI extends StatelessWidget {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           if(state.isPop) {
            Navigator.pop(context);
+          }
+          if(state.isTimeChange) {
+            TaskerTimeChangeReasonDialog.show(context,type: context.read<EditToDoBloc>().timeChangePopupType??'',onSubmitted: (value) {
+              context.read<EditToDoBloc>().add(EditTodoTimeChangeReasonEvent(reason: value,));
+              },);
           }
         },
         child: BlocBuilder<EditToDoBloc, EditTodoState>(
@@ -192,7 +199,6 @@ class EditTodoUI extends StatelessWidget {
                                           data: state.apiResponse,));
                                   }
                                 );
-
                               }
                             }
                             );

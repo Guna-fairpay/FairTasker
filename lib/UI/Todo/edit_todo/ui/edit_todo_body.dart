@@ -125,6 +125,9 @@ class EditTodoBody extends StatelessWidget {
                     ),
                   ],
                 ),
+                if(context.watch<EditToDoBloc>().reason != null)...[
+                  Utils.getText("Reason : ${context.watch<EditToDoBloc>().reason ?? ''}",size: 10.sp,overFlow: TextOverflow.visible,color: AppC.grey),
+                ],
                 10.height,
                 SearchViewField(
                     controller: context.read<EditToDoBloc>().taskNameController,

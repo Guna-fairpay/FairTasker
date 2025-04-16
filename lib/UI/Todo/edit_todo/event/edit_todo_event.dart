@@ -123,9 +123,7 @@ class EditToDoEndDateChangeEvent extends EditToDoEvent {
 
 class EditToDoTimeChangeEvent extends EditToDoEvent {
   final TimeOfDay selectedTime;
-
   EditToDoTimeChangeEvent(this.selectedTime);
-
   @override
   List<Object?> get props => [selectedTime];
 }
@@ -280,4 +278,10 @@ class EditToDoStatesChangeEvent extends EditToDoEvent {}
 
 class EditToDoDeletePartsAndSuppliesEvent extends EditToDoEvent {}
 
+class EditTodoTimeChangeReasonEvent extends EditToDoEvent {
+  final String? reason;
+  EditTodoTimeChangeReasonEvent({required this.reason});
+  @override
+  List<Object?> get props => [reason];
+}
 
