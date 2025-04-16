@@ -11,6 +11,7 @@ import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
+import 'Popups/resource_listing_dropdown.dart';
 
 class TaskComponentsSettingsUI extends StatelessWidget {
   const TaskComponentsSettingsUI({super.key});
@@ -55,12 +56,26 @@ class TaskComponentsSettingView extends StatelessWidget {
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
+          print("BlocBuilder state: selectedBase=${state.selectedBase}, selectedUser=${state.selectedUser}");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (tabController.indexIsChanging) {
-              print("Tab changing to index ${tabController.index} at ${DateTime.now()}");
-              context.read<WorkingHoursBloc>().add(SwitchTabEvent(isHourly: tabController.index == 1));
+              print("Tab index changing to: ${tabController.index} at ${DateTime.now()}");
+              final isHourly = tabController.index == 1;
+              print("Triggering SwitchTabEvent with isHourly: $isHourly");
+              context.read<WorkingHoursBloc>().add(SwitchTabEvent(isHourly: isHourly));
+              // Reset resource when switching to hourly tab
+              if (isHourly && (state.selectedUser == null || resource != null)) {
+                resource = null;
+                print("Reset resource to null for hourly tab");
+              }
             }
           });
+          final isHourlyBased = tabController.index == 1 || state.selectedBase?['base'] == 'Hour based';
+
+          if (isHourlyBased && state.selectedUser == null && resource != null) {
+            resource = null;
+            print("Force reset resource to null due to no selected user");
+          }
           return Scaffold(
             backgroundColor: AppC.white,
             appBar: PreferredSize(
@@ -111,10 +126,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         if(Session.of.getString(Str.userIdPrefText) == '3')
-                        if (
-                        (selectedBases != null && selectedBases['base'] == 'Task based')
-                            || (state.selectedBase != null && state.selectedBase['base'] == 'Task based')
-                        ) ...[
+                        if(!isHourlyBased) ...[
                           Utils.getTextFormField('Task Name',
                               taskNameController,
                             validator: (value) {

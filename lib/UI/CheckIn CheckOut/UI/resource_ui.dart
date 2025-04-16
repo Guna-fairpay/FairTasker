@@ -2,6 +2,7 @@
 
 // working_hours_view_ui.dart
 import 'dart:developer';
+import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -88,8 +89,6 @@ class WorkHoursViewUI extends StatelessWidget {
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               filteredData = state?.combinedData ?? [];
-              // dropDownResource = [{'id':0,'full_name':'All'}, ...state?.resources ?? []];
-              // initialDropDown = {'id':'','full_name':'All'};
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
@@ -293,8 +292,6 @@ class WorkHoursViewUI extends StatelessWidget {
                           contentPadding: 5.padding,
                           onChanged: (val) => context.read<WorkingHoursBloc>().add(ResourceDropDownEvent(val)),
                           itemAsString: (item) => item['full_name'].toString(),
-                          labelText: null,
-                          hintText: "Select",
                         )
                         ),
                       ],
@@ -315,7 +312,8 @@ class WorkHoursViewUI extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
-                        child: Row(
+                        child: 
+                        Row(
                           children: [
                             Expanded(
                                 flex: 5,
@@ -401,7 +399,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                               HoursPopup.show(
                                                 context,
                                                 dataList: employee?['list'],
-                                                userName: employee?['first_name'],
+                                                userName: "${employee?['first_name']} ${employee?['last_name']}",
                                                 selectedDateRange: state.selectedDateRange.toString(),
                                                 empID: employee?['user_id'],
                                                 hrmID: employee?['hrm_id'],

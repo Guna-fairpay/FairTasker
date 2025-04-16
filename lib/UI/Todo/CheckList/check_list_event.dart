@@ -31,9 +31,10 @@ class IndividualCheckEvent extends CheckListEvent {
 class AddFixTaskEvent extends CheckListEvent {
   final String? title;
   final String? notes;
-  const AddFixTaskEvent({ this.notes, this.title});
+  final int? checklistId;
+  const AddFixTaskEvent({ this.notes, this.title, this.checklistId});
   @override
-  List<Object?> get props => [notes, title];
+  List<Object?> get props => [notes, title, checklistId];
 }
 
 class CompleteEvent  extends CheckListEvent {
