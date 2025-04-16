@@ -12,6 +12,7 @@ class CustomTabButton<T> extends StatelessWidget {
   final BorderRadius? tapBorderRaius;
   final T value, selectedValue;
   final Decoration? decoration;
+  final Color? selectedBorderColor;
   final IconData? icon;
 
   const CustomTabButton(
@@ -22,6 +23,7 @@ class CustomTabButton<T> extends StatelessWidget {
       this.padding,
       this.tapBorderRaius,
       this.icon,
+      this.selectedBorderColor,
       required this.buttonText,
       required this.value,
       required this.selectedValue});
@@ -41,9 +43,9 @@ class CustomTabButton<T> extends StatelessWidget {
             : decoration ??
                 BoxDecoration(
                     border: BorderDirectional(
-                      top: BorderSide(width: width),
-                      start: BorderSide(width: width),
-                      end: BorderSide(width: width),
+                      top: BorderSide(width: width, color: selectedBorderColor ?? AppC.borderColor),
+                      start: BorderSide(width: width, color: selectedBorderColor ?? AppC.borderColor),
+                      end: BorderSide(width: width, color: selectedBorderColor ?? AppC.borderColor),
                     ),
                     borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(5),
