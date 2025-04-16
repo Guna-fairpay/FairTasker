@@ -32,12 +32,14 @@ class VehicleHistoryViewUI extends StatelessWidget {
   final String? title;
   final bool additionalScroll;
   final int itemPerPage;
+  final bool showLoading;
   const VehicleHistoryViewUI({super.key,
     this.vin,
     this.groupId,
     required this.vehicleName,
     this.title,
     this.itemPerPage = 10,
+    this.showLoading = true,
     this.showHeader = true,
     this.showSameTask = false,
     this.additionalScroll = true});
@@ -67,7 +69,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
       child: BlocListener<VehicleHistoryBloc, VehicleHistoryState>(
         listener: (context, state) {
           if (state.isLoading) {
-            EasyLoading.show();
+            if (showLoading) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
           }

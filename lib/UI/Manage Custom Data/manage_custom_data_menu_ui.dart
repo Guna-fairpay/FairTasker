@@ -64,8 +64,7 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.calendar_month_rounded,
               title: 'Attendance',
-              onTap: () async => await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const AttendanceView())),
+              onTap: () => context.push(const AttendanceView(), fullscreenDialog: true),
             ),
             _buildCard(
               icon: Icons.assignment,

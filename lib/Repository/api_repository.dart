@@ -217,6 +217,14 @@ class APiRepository {
 
   String get _updateTaskCategory => "updateTaskCategory";
 
+  String get _toDoDataRange => "todo-data-range";
+
+  String get _employeeActiveHours => "employeeActiveHours";
+
+  String get _employeeHistoryCount => "employeeHistoryCount";
+
+  String get _employeeWorkHours => "employeeWorkHours";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1239,11 +1247,11 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body}) async {
+  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body, List<dynamic>? infusedFiles}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
       body.putIfAbsent("type", () => "inline");
-      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
@@ -2046,6 +2054,66 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleSupplies/$id";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> toDoDataRange({DateTime? date, bool isCompleted = false}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_toDoDataRange";
+      Map<String, dynamic> params = {
+        "date" : date?.toFormat(),
+        "status" : isCompleted ? "Completed" : "Pending"
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> employeeActiveHours({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_employeeActiveHours";
+      Map<String, dynamic> params = {
+        "from" : fromDate?.toFormat(),
+        "to" : toDate?.toFormat()
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> employeeHistoryCount({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_employeeHistoryCount";
+      Map<String, dynamic> params = {
+        "from" : fromDate?.toFormat(),
+        "to" : toDate?.toFormat()
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> employeeWorkHours({DateTime? fromDate, DateTime? toDate}) async {
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_employeeWorkHours";
+      Map<String, dynamic> params = {
+        "startDate" : fromDate?.toFormat(),
+        "endDate" : toDate?.toFormat()
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
