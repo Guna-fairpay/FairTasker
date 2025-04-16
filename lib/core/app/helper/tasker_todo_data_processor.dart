@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart' show Color, Colors;
 
@@ -115,6 +116,7 @@ class ToDoProcessor {
   Future<List<Map<String, dynamic>>?> getToDoList(
       DateTime selectedDate, bool isCompleted,
       {String? resourceId}) async {
+    if (selectedDate.toFormat() == DateTime.now().toFormat()) getIt<ToDoSupport>().refresh();
     var response = await Future.wait([
       _fetchGroupPersons(),
       _fetchToDoList(selectedDate, isCompleted, resourceId: resourceId)
