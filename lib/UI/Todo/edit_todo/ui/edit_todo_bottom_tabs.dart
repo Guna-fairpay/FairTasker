@@ -8,6 +8,7 @@ import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_ui.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/appC.dart';
+import '../../Odometer/odometer_view.dart';
 import '../../Private Rental Check/private_rental_check_UI.dart';
 import '../../todo_edti_expense/ui/edit_todo_expense.dart';
 import '../../todo_edti_expense/ui/edit_todo_expense.dart';
@@ -61,6 +62,8 @@ class EditTodoBottomTabs extends StatelessWidget {
                   ?VehicleEditUI(vehicle: state.taskHistory.first,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   :state.selectedBottomTap['id'] == 6
                   ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.taskHistory.first,) //Add by RDB
+                  :state.selectedBottomTap['id'] == 7
+                  ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.first, selectedVehicle: state.selectedVehicle)
                   :const SizedBox(),
             ),
           ],

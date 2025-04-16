@@ -63,40 +63,10 @@ class createFixTaskEvent extends MaintenanceEvent {
   List<Object?> get props => [maintenanceTaskId, notes, comments, item, todoId];
 }
 
-class createPrivateFixTaskEvent extends MaintenanceEvent {
-  final String? notes;
-  final String? id;
-  final Map<String, dynamic> todoItem;
-  final Map<String, dynamic> vehicle;
-
-  const createPrivateFixTaskEvent({
-    required this.notes,
-    required this.id,
-    required this.todoItem,
-    required this.vehicle,
-  });
-
-  @override
-  List<Object?> get props => [notes, id, todoItem, vehicle];
-}
-
 class CompleteTodoItemEvent  extends MaintenanceEvent {
   const CompleteTodoItemEvent();
 }
 
-class CompletePrivateRentalItemEvent  extends MaintenanceEvent {
-  var todoId;
-  CompletePrivateRentalItemEvent({this.todoId});
-  @override
-  List<Object?> get props => [todoId];
-}
-
-class DeletePrivateRentalItemEvent  extends MaintenanceEvent {
-  var todoId;
-  DeletePrivateRentalItemEvent({this.todoId});
-  @override
-  List<Object?> get props => [todoId];
-}
 
 class DeleteTodoItemEvent  extends MaintenanceEvent {
   const DeleteTodoItemEvent();
@@ -109,23 +79,6 @@ class FetchTodoListEvent extends MaintenanceEvent {
   FetchTodoListEvent({this.selectedDate, this.status, this.resourceId});
 }
 
-//Private Rental Check
-class PrivateRentalInitialEvent extends MaintenanceEvent {
-  final Map<String, dynamic> todoItem;
-  final Map<String, dynamic> vehicle;
-  const PrivateRentalInitialEvent({
-    required this.todoItem,
-    required this.vehicle
-  });
-  @override
-  List<Object?> get props => [todoItem, vehicle];
-}
 
-class UpdateCheckboxEvent extends MaintenanceEvent {
-  final int itemId;
-  final bool isChecked;
-  const UpdateCheckboxEvent({required this.itemId, required this.isChecked});
-  @override
-  List<Object?> get props => [itemId, isChecked];
 
-}
+

@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/location_response.dart';
@@ -23,6 +25,7 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +33,7 @@ import 'package:image_picker/image_picker.dart';
 
 class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
+  final APiRepository _apiRepository = APiRepository();
   final TextEditingController taskIdentifierController =
       TextEditingController();
   final TextEditingController taskNameController = TextEditingController();
@@ -117,6 +121,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             showCleanCar: false,
             isRecurringEndDate: true,
             isRecurringMonthOccurrence: true,
+            showCleanTaskReassign: false,
+      recleanModel: const {},
+            isSaveEvent: false,
             recurringYearlySelectedMonth: AddToDoConfig.months.first,
             selectedLinkOption: AddToDoConfig.customOptions.first,
             selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
@@ -125,7 +132,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedTime: TimeOfDay.now())) {
     on<AddToDoInitialEvent>((event, emit) async {
       addToDoDate = event.selectedDate ?? DateTime.now();
-      emit(state.copyWith(showAppBar: event.showAppBar, selectedDate: addToDoDate));
+      emit(state.copyWith(
+          showAppBar: event.showAppBar, selectedDate: addToDoDate));
       // PROCEED API CALL
       try {
         emit(state.copyWith(isLoading: true));
@@ -175,7 +183,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             .toList();
         departmentId = selectedUser.firstOrNull?['department'].toString();
         Console.of.log(response.map((e) => e?.length).join(", "));
-        vendorLocations = CustomSearchDataConverter.convertVLocation(vendors: response[2], locations: response[3]);
+        vendorLocations = CustomSearchDataConverter.convertVLocation(
+            vendors: response[2], locations: response[3]);
         tasks = response[0] ?? [];
         vehicles = response[1] ?? [];
         persons = resources;
@@ -231,7 +240,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       //   existing.remove(3);
       // }
       log("${event.selectedTaskIdentifier.keys}", name: "AddToDoBloc-before");
-      existing.removeWhere((key, value) => !event.selectedTaskIdentifier.keys.contains(key));
+      existing.removeWhere(
+          (key, value) => !event.selectedTaskIdentifier.keys.contains(key));
       if (event.selectedTaskIdentifier.isEmpty) existing.clear();
       if (event.selectedTaskIdentifier.isNotEmpty) {
         existing.addAll(event.selectedTaskIdentifier);
@@ -251,8 +261,14 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             element['type'] !=
             ((existing[2]?['type'] == 'person') ? 'vehicles' : 'person'));
         log("$existingVPersons", name: "AddToDoBloc-Person-before");
-        if ((existing[2]?['type'] == 'person') && existingVPersons.where((element) => element['type'] == 'person').isNotEmpty) existingVPersons.clear();
-        if ((existingVPersons.where((element) => element['type'] == 'person').isNotEmpty) && (existing[2]?['type'] == 'person')) {
+        if ((existing[2]?['type'] == 'person') &&
+            existingVPersons
+                .where((element) => element['type'] == 'person')
+                .isNotEmpty) existingVPersons.clear();
+        if ((existingVPersons
+                .where((element) => element['type'] == 'person')
+                .isNotEmpty) &&
+            (existing[2]?['type'] == 'person')) {
           existingVPersons.clear();
         }
         existingVPersons.add(existing[2]);
@@ -280,11 +296,13 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoVPersonEvent>((event, emit) {
       List<Map<String, dynamic>> input = List.from(event.vPerson);
-      var existingVPersons = List<Map<String, dynamic>>.from(state.selectedVPerson);
+      var existingVPersons =
+          List<Map<String, dynamic>>.from(state.selectedVPerson);
       var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       if (input.isEmpty) {
         oldIdentifier[2] = {};
-        if (existingRefId.toString().isNotNullOrEmpty) customLinkController.clear();
+        if (existingRefId.toString().isNotNullOrEmpty)
+          customLinkController.clear();
         existingRefId = null;
         emit(state.copyWith(
             selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
@@ -320,14 +338,26 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }*/
       // existingVPersons = existingVPersons.unique((element) => element['id']);
       // existingVPersons.removeWhere((element) => (event.vPerson.first['type'] == 'person') ? ['g_vehicles', 'vehicles'].contains(element['type']) : (event.vPerson.first['type'] == 'g_vehicles') ? ['person', 'vehicles'].contains(element['type']) : ['person', 'g_vehicles'].contains(element['type']));
-      var vehicleVin = existingVPersons.where((element) => element['type'] == 'vehicles').map((e) => e['value']['vin']).firstOrNull;
-      existingRefId = _toDoList.where((element) => (element['vin'] == vehicleVin) || (List<Map<String, dynamic>>.from(element['vehicles']).map((e) => e['vin']).contains(vehicleVin))).map((e) => e['reference_id']).lastOrNull;
+      var vehicleVin = existingVPersons
+          .where((element) => element['type'] == 'vehicles')
+          .map((e) => e['value']['vin'])
+          .firstOrNull;
+      existingRefId = _toDoList
+          .where((element) =>
+              (element['vin'] == vehicleVin) ||
+              (List<Map<String, dynamic>>.from(element['vehicles'])
+                  .map((e) => e['vin'])
+                  .contains(vehicleVin)))
+          .map((e) => e['reference_id'])
+          .lastOrNull;
       Console.of.debug("ReferenceId: $existingRefId");
-      if (existingRefId.toString().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
+      if (existingRefId.toString().isNotNullOrEmpty)
+        customLinkController.text = "${existingRefId ?? ""}";
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier,
-          selectedLinkOption: AddToDoConfig.customOptions.firstWhereOrNull((element) => element['id'] == 2)));
+          selectedLinkOption: AddToDoConfig.customOptions
+              .firstWhereOrNull((element) => element['id'] == 2)));
     });
 
     on<AddToDoVLocationEvent>((event, emit) {
@@ -337,15 +367,23 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       } else {
         existing[3] = event.vLocation;
       }
-      Console.of.warning("${event.vLocation?['name']} ${existing.containsKey(3)} ${existing[3]}", name: "AddToDoBloc-Location");
-      if (existing.containsKey(3) && (existing[3] != null) && (Map.from(existing[3]).isNotEmpty)) {
-        if ((selectedVLocation != existing[3])) selectedVLocation = Map<String, dynamic>.from(existing[3]);
-        if ((existing[3]?['name'] ?? "") != vLocationController.text) vLocationController.text = existing[3]?['name'] ?? "";
+      Console.of.warning(
+          "${event.vLocation?['name']} ${existing.containsKey(3)} ${existing[3]}",
+          name: "AddToDoBloc-Location");
+      if (existing.containsKey(3) &&
+          (existing[3] != null) &&
+          (Map.from(existing[3]).isNotEmpty)) {
+        if ((selectedVLocation != existing[3]))
+          selectedVLocation = Map<String, dynamic>.from(existing[3]);
+        if ((existing[3]?['name'] ?? "") != vLocationController.text)
+          vLocationController.text = existing[3]?['name'] ?? "";
       } else {
         selectedVLocation?.clear();
         vLocationController.clear();
       }
-      emit(state.copyWith(selectedTaskIdentifier: existing, ));
+      emit(state.copyWith(
+        selectedTaskIdentifier: existing,
+      ));
     });
 
     on<AddToDoPersonTapEvent>((event, emit) {
@@ -489,7 +527,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         return;
       }
 
-      if (state.selectedRecurring?['label'].toString().isDoesNotRepeat == false) {
+      if (state.selectedRecurring?['label'].toString().isDoesNotRepeat ==
+          false) {
         if (state.isRecurringEndDate) {
           if (state.selectedRecurringEndDate == null) {
             Toaster.showError("End date is required");
@@ -501,25 +540,20 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           Toaster.showError("No of occurrences is required");
           return;
         }
-        if ((state.selectedRecurring?['label']
-            .toString()
-            .isDailyOrWeekly ?? false)) {
+        if ((state.selectedRecurring?['label'].toString().isDailyOrWeekly ??
+            false)) {
           if (recurringEveryDayWeekController.text.isEmpty) {
             Toaster.showError("Occurring count is required");
             return;
           }
         }
-        if (state.selectedRecurring?['label']
-            .toString()
-            .isWeekly ?? false) {
+        if (state.selectedRecurring?['label'].toString().isWeekly ?? false) {
           if (state.selectedRecurringDays.isEmpty) {
             Toaster.showError("Please choose at least one day to recur");
             return;
           }
         }
-        if (state.selectedRecurring?['label']
-            .toString()
-            .isMonthly ?? false) {
+        if (state.selectedRecurring?['label'].toString().isMonthly ?? false) {
           if (recurringMonthDateController.text.isEmpty) {
             Toaster.showError("Occurrence Date is required");
             return;
@@ -530,9 +564,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             return;
           }
         }
-        if (state.selectedRecurring?['label']
-            .toString()
-            .isYearly ?? false) {
+        if (state.selectedRecurring?['label'].toString().isYearly ?? false) {
           if (recurringYearDateController.text.isEmpty) {
             Toaster.showError("Occurrence Date is required");
             return;
@@ -545,9 +577,37 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       // API CALL
       try {
+        if (state.selectedDate?.toFormat() == DateTime.now().toFormat()) {
+          if (state.selectedVPerson.isNotEmpty) {
+            var lastVin = state.selectedVPerson
+                .where((element) => element['type'] == 'vehicles')
+                .map((e) => e['value']['vin'])
+                .lastOrNull;
+            if ((lastVin != null) &&
+                (state.selectedTaskIdentifier[1]['id'] == 30)) {
+              if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
+                var lastBody = getIt<ToDoSupport>().lastCleanCarTask(
+                    vin: lastVin);
+                emit(state.copyWith(
+                    showCleanTaskReassign: true,
+                    isSaveEvent: true,
+                    recleanModel: lastBody));
+                await Future.delayed(Durations.short2);
+                emit(state.copyWith(
+                    showCleanTaskReassign: false,
+                    isSaveEvent: false,
+                    recleanModel: {}));
+                return;
+              }
+            }
+          }
+        }
         emit(state.copyWith(isLoading: true));
-        var response = await todoListRepo.addTodo(body: _addTodoBody(), images: state.attachments.whereType<File>().toList());
-        if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message'] ?? "Success");
+        var response = await todoListRepo.addTodo(
+            body: _addTodoBody(),
+            images: state.attachments.whereType<File>().toList());
+        if (response?.isNotEmpty ?? false)
+          Toaster.showSuccess(response?['message'] ?? "Success");
         emit(state.copyWith(isLoading: false));
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
@@ -568,44 +628,95 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       if (state.selectedVPerson.isEmpty ||
           (state.selectedVPerson
-              .where((element) => ['vehicles', 'g_vehicles'].contains(element['type']))
+              .where((element) =>
+                  ['vehicles', 'g_vehicles'].contains(element['type']))
               .isEmpty)) {
         Toaster.showError("Vehicle is required");
         return;
       }
       try {
+        if (state.selectedDate?.toFormat() == DateTime.now().toFormat()) {
+          var lastVin = state.selectedVPerson
+              .where((element) => element['type'] == 'vehicles')
+              .map((e) => e['value']['vin'])
+              .lastOrNull;
+          if (lastVin != null) {
+            if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
+              var lastBody = getIt<ToDoSupport>().lastCleanCarTask(
+                  vin: lastVin);
+              emit(state.copyWith(
+                  showCleanTaskReassign: true,
+                  isSaveEvent: false,
+                  recleanModel: lastBody));
+              await Future.delayed(Durations.short2);
+              emit(state.copyWith(
+                  showCleanTaskReassign: false,
+                  isSaveEvent: false,
+                  recleanModel: {}));
+              return;
+            }
+          }
+        }
         emit(state.copyWith(isLoading: true));
         var response = await todoListRepo.cleanCar(body: _cleanCarBody());
         _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response != null) Toaster.showSuccess(response['message'] ?? "Success");
+        if (response != null)
+          Toaster.showSuccess(response['message'] ?? "Success");
         emit(state.copyWith(isLoading: false));
-      } catch(e) {
+      } catch (e) {
         Toaster.showError("$e");
         emit(state.copyWith(isLoading: false));
       }
-
     });
+
+    on<AddToDoReassignEvent>(_onReassignEvent);
   }
 
   Map<String, String> _addTodoBody() {
     var baseBody = _cleanCarBody();
     baseBody['title'] = taskNameController.text;
-    baseBody['identifier_id'] = ((taskNameController.text.isNotEmpty)
-        && (state.selectedTaskIdentifier[1]?['name'] == taskNameController.text))
+    baseBody['identifier_id'] = ((taskNameController.text.isNotEmpty) &&
+            (state.selectedTaskIdentifier[1]?['name'] ==
+                taskNameController.text))
         ? "${state.selectedTaskIdentifier[1]?['id'] ?? ""}"
         : "";
-    baseBody['repeatPeriod'] = ((state.selectedRecurring?['label'].toString().isDoesNotRepeat == false) ? (state.selectedRecurring?['label'].toString().toLowerCase()) : "")??'';
-    baseBody['repeatDay'] = (state.selectedRecurring?['label'].toString().isDaily ?? false) ? recurringEveryDayWeekController.text : "";
-    baseBody['repeatWeek'] = (state.selectedRecurring?['label'].toString().isWeekly ?? false) ? recurringEveryDayWeekController.text : "";
-    baseBody['weekDay'] = (state.selectedRecurring?['label'].toString().isWeekly ?? false) ? (state.selectedRecurringDays).toString() : "";
+    baseBody['repeatPeriod'] =
+        ((state.selectedRecurring?['label'].toString().isDoesNotRepeat == false)
+                ? (state.selectedRecurring?['label'].toString().toLowerCase())
+                : "") ??
+            '';
+    baseBody['repeatDay'] =
+        (state.selectedRecurring?['label'].toString().isDaily ?? false)
+            ? recurringEveryDayWeekController.text
+            : "";
+    baseBody['repeatWeek'] =
+        (state.selectedRecurring?['label'].toString().isWeekly ?? false)
+            ? recurringEveryDayWeekController.text
+            : "";
+    baseBody['weekDay'] =
+        (state.selectedRecurring?['label'].toString().isWeekly ?? false)
+            ? (state.selectedRecurringDays).toString()
+            : "";
     baseBody['recur_monthly_type'] = "${state.isRecurringMonthOccurrence}";
-    baseBody['repeatDateMonth'] = state.isRecurringMonthOccurrence ? recurringMonthDateController.text : "";
-    baseBody['repeatMonth'] = !state.isRecurringMonthOccurrence ? recurringMonthDateController.text : "";
-    baseBody['repeatDayMonth'] = !state.isRecurringMonthOccurrence ? recurringMonthMonthController.text : "";
-    baseBody['repeatDateYear'] = (state.selectedRecurring?['label'].toString().isYearly ?? false) ? recurringYearDateController.text : "";
-    baseBody['repeatMonthYear'] = state.recurringYearlySelectedMonth?['month'].toString() ?? "";
+    baseBody['repeatDateMonth'] = state.isRecurringMonthOccurrence
+        ? recurringMonthDateController.text
+        : "";
+    baseBody['repeatMonth'] = !state.isRecurringMonthOccurrence
+        ? recurringMonthDateController.text
+        : "";
+    baseBody['repeatDayMonth'] = !state.isRecurringMonthOccurrence
+        ? recurringMonthMonthController.text
+        : "";
+    baseBody['repeatDateYear'] =
+        (state.selectedRecurring?['label'].toString().isYearly ?? false)
+            ? recurringYearDateController.text
+            : "";
+    baseBody['repeatMonthYear'] =
+        state.recurringYearlySelectedMonth?['month'].toString() ?? "";
     baseBody['end_type'] = "${state.isRecurringEndDate}";
-    baseBody['end_after'] = (!state.isRecurringEndDate) ? (recurringEndDateController.text ?? "") : "";
+    baseBody['end_after'] = (!state.isRecurringEndDate)
+        ? (recurringEndDateController.text ?? "")
+        : "";
     baseBody['end_at'] = state.selectedRecurringEndDate.toFormat() ?? "";
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
     baseBody['platform_check'] = "${state.isSelectedPlatformCheck ? 1 : 0}";
@@ -614,8 +725,10 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     baseBody['mileage'] = "";
     baseBody['resolution_notes'] = "";
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id']}";
-    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
-    baseBody['reference_id'] = (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    baseBody['custom_link'] =
+        (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
+    baseBody['reference_id'] =
+        (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
     log("${jsonEncode(baseBody)}", name: "ADD_TODO_BODY");
     return baseBody;
   }
@@ -630,20 +743,23 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     var person = (state.selectedTaskIdentifier[2]?['type'] == "person")
         ? state.selectedTaskIdentifier[2]
         : null;
-    var vehicleGroup = (state.selectedTaskIdentifier[2]?['type'] == "g_vehicles")
-        ? state.selectedTaskIdentifier[2]
-        : null;
+    var vehicleGroup =
+        (state.selectedTaskIdentifier[2]?['type'] == "g_vehicles")
+            ? state.selectedTaskIdentifier[2]
+            : null;
     var isAdd = state.selectedTaskIdentifier[1]?['id'] == 210;
     var date = state.selectedDate ?? DateTime.now();
     var timeAt = state.selectedTime.toDateTime;
     var timeDay = state.selectedTime;
     if (timeAt != null) {
-      date = DateTime(date.year, date.month, date.day, timeAt.hour, timeAt.minute);
+      date =
+          DateTime(date.year, date.month, date.day, timeAt.hour, timeAt.minute);
       if (isAdd) {
-        timeAt = date.add(Duration(minutes: state.selectedClearDuration?['value']));
-      } else {
         timeAt =
-            date.subtract(Duration(minutes: state.selectedClearDuration?['value']));
+            date.add(Duration(minutes: state.selectedClearDuration?['value']));
+      } else {
+        timeAt = date
+            .subtract(Duration(minutes: state.selectedClearDuration?['value']));
       }
       timeDay = TimeOfDay.fromDateTime(timeAt);
     }
@@ -657,46 +773,37 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       "vin": "",
       "vehicle_name": "",
       "vehicle_image": "",
-      "vehicles": "${state.selectedVPerson
-          .where((element) => element['type'] == "vehicles")
-          .map((e) => e['value'])
-          .map((e) => jsonEncode({
-        "cohort_id": "${e['cohort']?['id'] ?? ""}",
-        "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
-        "vin": e['vin'],
-        "vehicle_name": e['vehicle_name'],
-        "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
-        "vehicle_number": e['vehicle_number']
-      }))
-          .toList()}",
+      "vehicles":
+          "${state.selectedVPerson.where((element) => element['type'] == "vehicles").map((e) => e['value']).map((e) => jsonEncode({
+                    "cohort_id": "${e['cohort']?['id'] ?? ""}",
+                    "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+                    "vin": e['vin'],
+                    "vehicle_name": e['vehicle_name'],
+                    "vehicle_image":
+                        (e['images'] as List?)?.firstOrNull?['path'],
+                    "vehicle_number": e['vehicle_number']
+                  })).toList()}",
       "start_at": "${date.toFormat(format: "yyyy-MM-dd")}",
       "person": "${person?['name'] ?? ""}",
       "person_id": "${person?['id'] ?? ""}",
       "vendor_id": "${vendor?['id'] ?? " "}",
       "vendor_name": "${vendor?['name'] ?? ""}",
-      "notes": notesController.text.trim().isNullOrEmpty ? "" : notesController.text,
-      "parts": "${state.selectedParts.isEmpty
-          ? null
-          : state.selectedParts
-          .map((e) =>
-      jsonEncode({
-        "parts_id": e['id'],
-        "parts_name": e['name'],
-      }))
-          .toList()}",
-      "supplies": "${
-        state.selectedSupplies.isEmpty
-            ? null
-            : state.selectedSupplies
-                .map((e) => jsonEncode({
-          "supplies_id": e['id'],
-          "supplies_name": e['name'],
-        }))
-                .toList()
-      }",
+      "notes":
+          notesController.text.trim().isNullOrEmpty ? "" : notesController.text,
+      "parts":
+          "${state.selectedParts.isEmpty ? null : state.selectedParts.map((e) => jsonEncode({
+                    "parts_id": e['id'],
+                    "parts_name": e['name'],
+                  })).toList()}",
+      "supplies":
+          "${state.selectedSupplies.isEmpty ? null : state.selectedSupplies.map((e) => jsonEncode({
+                    "supplies_id": e['id'],
+                    "supplies_name": e['name'],
+                  })).toList()}",
       "vehicle_group_id": "${vehicleGroup?['id'] ?? ""}",
       "address": "${state.addresses.map((e) => e['id']).toList()}",
-      "assigned_to": "${state.selectedTaskPersons.map((e) => e['id']).toList()}",
+      "assigned_to":
+          "${state.selectedTaskPersons.map((e) => e['id']).toList()}",
       "todo_time": "${timeDay.toHMS()}",
       "reason": reasonController.text,
       "time_sensitive": "${state.isTimeSensitive}",
@@ -745,4 +852,46 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
   Future<List<Map<String, dynamic>>> _getCurrentToDos() async =>
       await getIt<CommonService>().getToDos();
+
+  void _onReassignEvent(
+      AddToDoReassignEvent event, Emitter<AddToDoState> emit) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+      if (event.isSaveEvent ?? false) {
+        var body = _addTodoBody();
+        body['reason'] = event.reasonMessage ?? "";
+        var images =
+            state.attachments.whereType<File>().map((e) => {"images": e.path});
+        var reasonImages = event.reasonFiles
+            ?.whereType<File>()
+            .map((e) => {"reason_images": e.path})
+            .toList();
+        var attachments = [...images, ...(reasonImages ?? [])];
+        var response =
+            await _apiRepository.addToDo(body: body, infusedFiles: attachments);
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        if (response?.isNotEmpty ?? false)
+          Toaster.showSuccess(response?['message'] ?? "Success");
+        emit(state.copyWith(isLoading: false));
+        if (response?['status'] == 200) emit(state.copyWith(redirect: true));
+      } else {
+        var body = _cleanCarBody();
+        body['reason'] = event.reasonMessage ?? "";
+        var reasonImages = event.reasonFiles
+            ?.whereType<File>()
+            .map((e) => {"reason_images": e.path})
+            .toList();
+        var attachments = [...(reasonImages ?? [])];
+        var response =
+            await _apiRepository.addToDo(body: body, infusedFiles: attachments);
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        if (response != null)
+          Toaster.showSuccess(response['message'] ?? "Success");
+        emit(state.copyWith(isLoading: false));
+      }
+    } catch (e) {
+      Toaster.showError("$e");
+      emit(state.copyWith(isLoading: false));
+    }
+  }
 }

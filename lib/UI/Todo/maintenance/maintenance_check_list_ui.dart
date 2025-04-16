@@ -15,7 +15,8 @@ class MaintenanceCheckListUI extends StatelessWidget {
   final dynamic todoItems, vehicle;
 
   const MaintenanceCheckListUI(
-      {super.key, required this.todoItems, required this.vehicle});
+      {super.key, required this.todoItems, required this.vehicle}
+      );
 
 
   Widget checkBoxWithSingleTextAndTexBox({
@@ -212,8 +213,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                             (state.dropdownValue as List).any((element) =>
                                             element['name'].toString().toLowerCase().trim() != "good")) ||
                                             (state.selectedDropdownValues[item['id']]?.toString().toLowerCase() != "good")
-                                        )
-                                    ,
+                                        ),
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 40.0),
                                       child: Column(

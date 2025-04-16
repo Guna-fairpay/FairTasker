@@ -89,5 +89,7 @@ class Str{
 
     static const String noMatchFound = 'No data found. Please check your input and try again.';
 
+    static const String todayToDo = "fetch_todos_for_today";
+
 
 }

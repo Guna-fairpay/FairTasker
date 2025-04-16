@@ -118,8 +118,9 @@ class CheckListUI extends StatelessWidget {
             if (state.checkListData == null || state.checkListData!.isEmpty) {
               return const SizedBox();
             }
-            return SingleChildScrollView(
-              child: Column(
+            return
+              SingleChildScrollView(
+                child: Column(
                 children: [
                   const SizedBox(height: 10),
                   ListView.separated(
@@ -140,8 +141,8 @@ class CheckListUI extends StatelessWidget {
                   if (todoItems['title'] == 'Getaround Prechecks')
                     Utils.getText('Immobilizer Check'),
                 ],
-              ),
-            );
+                ),
+              );
           },
         ),
       ),
@@ -188,16 +189,18 @@ class CheckListUI extends StatelessWidget {
                 );
               },
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Utils.getText(checkListData['title']?.toString() ?? ''),
-                Utils.getText("(${checkListData['description']?.toString() ?? ''})"),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Utils.getText(checkListData['title']?.toString() ?? ''),
+                  Utils.getText("(${checkListData['description']?.toString() ?? ''})"),
+                ],
+              ),
             ),
           ],
         ),
-        if (!isChecked || hasNotes)
+        if (!isChecked)
           Padding(
             padding: const EdgeInsets.only(left: 50.0, right: 20),
             child: Column(
@@ -221,6 +224,7 @@ class CheckListUI extends StatelessWidget {
                       AddFixTaskEvent(
                         title: title,
                         notes: '${checkListData['title']}-${notesController.text}',
+                        checklistId: checkListData['id'],
                       ),
                     );
                     FocusScope.of(context).unfocus();

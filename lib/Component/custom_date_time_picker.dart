@@ -1,9 +1,11 @@
 
+import 'package:fairpytasker/Component/custom_time_picker.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:flutter/material.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:flutter/material.dart' hide showTimePicker;
 
 class CustomDateTimePicker<T> extends StatelessWidget {
   final T? value;
@@ -13,7 +15,10 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final String? format;
   final Widget? suffixIcon;
   final Widget? prefixIcon;
+  final String? neutralText;
+  final String? confirmText;
   final void Function(T value)? onChanged;
+  final void Function(TimeOfDay value)? onNeutral;
   final TextEditingController? controller;
   final bool use24HourFormat;
   final bool showAsExpanded;
@@ -21,6 +26,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   const CustomDateTimePicker(
       {super.key,
       this.labelText = "Select",
+      this.neutralText,
+      this.confirmText,
       this.format,
       this.value,
       required this.controller,
@@ -29,6 +36,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       this.textStyle,
       this.textAlign,
       this.onChanged,
+      this.onNeutral,
       this.showAsExpanded = false,
       this.use24HourFormat = false});
 
@@ -42,8 +50,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
         }
         else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
           result = use24HourFormat
-              ? await _pick24hTimePicker(context)
-              : await _pickTimePicker(context);
+              ? await _pick24hTimePicker(context, onNeutral: onNeutral)
+              : await _pickTimePicker(context, onNeutral: onNeutral);
         }
         if (result != null) onChanged?.call(result);
         controller?.text = Utils.formatDateTime(format: format, input: result);
@@ -98,22 +106,28 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     return result;
   }
 
-  Future<TimeOfDay?> _pickTimePicker(BuildContext context) async {
+  Future<TimeOfDay?> _pickTimePicker(BuildContext context, {ValueChanged<TimeOfDay>? onNeutral}) async {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
-    var result = await showTimePicker(
+    var result = await showTimerPicker(
+      confirmText: confirmText,
+      neutralText: neutralText,
       context: context,
+      onNeutral: onNeutral,
       initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
-      initialEntryMode: TimePickerEntryMode.dialOnly,
+      initialEntryMode: TimerPickerEntryMode.dialOnly,
     );
     return result;
   }
 
-  Future<TimeOfDay?> _pick24hTimePicker(BuildContext context) async {
+  Future<TimeOfDay?> _pick24hTimePicker(BuildContext context, {ValueChanged<TimeOfDay>? onNeutral}) async {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
-    var result = await showTimePicker(
+    var result = await showTimerPicker(
       context: context,
+        confirmText: confirmText,
+        neutralText: neutralText,
+      onNeutral: onNeutral,
       initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
-      initialEntryMode: TimePickerEntryMode.dialOnly,
+      initialEntryMode: TimerPickerEntryMode.dialOnly,
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(

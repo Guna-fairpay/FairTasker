@@ -1,5 +1,6 @@
 
 import 'package:fairpytasker/Bloc/text_upload_bloc.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Event/text_upload_event.dart';
 import 'package:fairpytasker/State/text_upload_state.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -47,61 +48,58 @@ class _TuroReservationState extends State<TuroReservation> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppC.white,
-      body: BlocProvider(
-        create: (context) => textUploadBloc,
-        child: BlocConsumer<TextUploadBloc, TextUploadState>(
-          listener: (context, state) {
-            if (state is TextUploadLoading) {
-              EasyLoading.show();
-            } else {
-              if(EasyLoading.isShow)EasyLoading.dismiss();
-              if (state is TextUploadLoaded) {
-                uploadTaskController.clear();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BottomNavigationForTaskView(
-                      selectedIndex: 1,
-                      message: '',
-                    ),
+    return BlocProvider(
+      create: (context) => TextUploadBloc(),
+      child: BlocConsumer<TextUploadBloc, TextUploadState>(
+        listener: (context, state) {
+          if (state is TextUploadLoading) {
+            EasyLoading.show();
+          } else {
+            if(EasyLoading.isShow)EasyLoading.dismiss();
+            if (state is TextUploadLoaded) {
+              uploadTaskController.clear();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BottomNavigationForTaskView(
+                    selectedIndex: 1,
+                    message: '',
                   ),
-                );
-              }
-            }
-          },
-          builder: (context, state) {
-            return SafeArea(
-              child: Form(
-                key: _key,
-                child: ListView(
-                  children: [
-                    Utils.getBorderedMultilineTextField(
-                      'Paste your text here...',
-                      uploadTaskController,
-                      minLines: 22,
-                      maxLines: 22,
-                      inputAction: TextInputAction.done,
-                      autoValidate: AutovalidateMode.onUserInteraction,
-                      validator: (val)=>val!.isEmpty?'Please enter text to upload':null,
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Utils.getElevatedButton(
-                          text: 'Submit',
-                           ()=>_uploadTask()
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
+              );
+            }
+          }
+        },
+        builder: (context, state) {
+          return SafeArea(
+            child: Form(
+              key: context.read<TextUploadBloc>().formKey,
+              child: ListView(
+                children: [
+                  Utils.getBorderedMultilineTextField(
+                    'Paste your text here...',
+                    context.read<TextUploadBloc>().controller,
+                    minLines: 22,
+                    maxLines: 22,
+                    inputAction: TextInputAction.done,
+                    autoValidate: AutovalidateMode.onUserInteraction,
+                    validator: (val)=>val!.isEmpty?'Please enter text to upload':null,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SuccessButton(
+                        text: "Submit",
+                        onPressed: () => context.read<TextUploadBloc>().add(TuroReservationEvent(text: '')),
+                      )
+                    ],
+                  ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

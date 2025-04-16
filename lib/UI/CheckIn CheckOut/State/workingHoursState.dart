@@ -27,6 +27,7 @@ class WorkingHoursState extends Equatable {
   final TextEditingController? hourlyAmountController;
   final List<dynamic> selectedBase1;
   final dynamic selectedBase;
+  final bool isHourlyBased;
   final bool isEditMode;
   final bool isHourEditMode;
   final int? taskId;
@@ -59,6 +60,7 @@ class WorkingHoursState extends Equatable {
   final dynamic loginUserRole;
   final String loginUserId;
   final int? branchID;
+  final String? uniqueId;
 
   const WorkingHoursState(
       {
@@ -81,6 +83,7 @@ class WorkingHoursState extends Equatable {
         this.hourlyAmountController,
         this.selectedBase1 = const [],
         this.selectedBase,
+        this.isHourlyBased = false,
         this.isEditMode = false,
         this.isHourEditMode = false,
         this.taskId,
@@ -112,7 +115,8 @@ class WorkingHoursState extends Equatable {
         required this.selectedDateRange,
         this.loginUserRole,
         this.loginUserId = '',
-        this.branchID
+        this.branchID,
+        this.uniqueId,
       });
 
   WorkingHoursState copyWith({
@@ -135,6 +139,7 @@ class WorkingHoursState extends Equatable {
     TextEditingController? hourlyAmountController,
     List<dynamic>? selectedBase1,
     dynamic selectedBase,
+    bool? isHourlyBased,
     bool? isEditMode,
     bool? isHourEditMode,
     int? taskId,
@@ -166,7 +171,8 @@ class WorkingHoursState extends Equatable {
     DateRange? selectedDateRange,
     dynamic loginUserRole,
     String? loginUserId,
-    int? branchID
+    int? branchID,
+    String? uniqueId,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -187,6 +193,7 @@ class WorkingHoursState extends Equatable {
     hourlyAmountController: hourlyAmountController,
     selectedBase1: selectedBase1 ?? this.selectedBase1,
     selectedBase: selectedBase,
+      isHourlyBased: isHourlyBased ?? this.isHourlyBased,
     isEditMode: isEditMode ?? this.isEditMode,
     isHourEditMode: isHourEditMode ?? this.isHourEditMode,
     taskId: taskId ?? this.taskId,
@@ -218,7 +225,8 @@ class WorkingHoursState extends Equatable {
     selectedDateRange: selectedDateRange ?? this.selectedDateRange,
     loginUserRole: loginUserRole ?? this.loginUserRole,
     loginUserId: loginUserId ?? this.loginUserId,
-    branchID: branchID ?? this.branchID
+    branchID: branchID ?? this.branchID,
+    uniqueId: uniqueId ?? this.uniqueId,
   );
 
   @override
@@ -242,6 +250,7 @@ class WorkingHoursState extends Equatable {
     hourlyAmountController,
     selectedBase1,
     selectedBase,
+    isHourlyBased,
     isEditMode,
     isHourEditMode,
     taskId,
@@ -274,7 +283,8 @@ class WorkingHoursState extends Equatable {
     loginUserRole,
     loginUserId,
     branchID,
-    //Random().nextDouble()
+    uniqueId,
+    Random().nextDouble()
   ];
 }
 

@@ -1,6 +1,7 @@
+import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
-import '../../Component/drawer_ui.dart';
-import '../../Component/header.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../Utilities/appC.dart';
 import '../../Utilities/str.dart';
 import '../../Utilities/utils.dart';
@@ -9,40 +10,28 @@ import 'Employees/employees_view_ui.dart';
 import 'Permissions/permissions_view_ui.dart';
 import 'Roles/role_view_ui.dart';
 
-class ManageEmployees extends StatefulWidget {
+class ManageEmployees extends StatelessWidget {
   const ManageEmployees({super.key});
-
-  @override
-  State<ManageEmployees> createState() => _ManageEmployeesState();
-}
-
-class _ManageEmployeesState extends State<ManageEmployees> {
-  String? userRole;
-
-  @override
-  void initState() {
-    Utils.getStringListPreference(Str.rolePrefText).then((role) {
-      setState(() {
-        userRole = role
-            .first;
-      });
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100], // Light grey background
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(35.0),
-        child: HeaderView(),
+      appBar: AppBar(
+        title: const Text("Manage Employees"),
+        titleTextStyle: context.textTheme.titleMedium?.copyWith(color: AppC.white),
+        automaticallyImplyLeading: false,
+        leadingWidth: 0,
+        backgroundColor: AppC.appColor,
+        foregroundColor: AppC.white,
+        actions: [
+          IconButton(onPressed: context.pop, icon: const Icon(Icons.close_rounded))
+        ],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           children: [
-            Row(
+            /*Row(
               children: [
                 GestureDetector(
                     onTap: () {
@@ -58,7 +47,7 @@ class _ManageEmployeesState extends State<ManageEmployees> {
                 Utils.getText('Manage Employees',
                     size: 16, weight: FontWeight.bold),
               ],
-            ),
+            ),*/
             const SizedBox(
               height: 5,
             ),
@@ -79,7 +68,7 @@ class _ManageEmployeesState extends State<ManageEmployees> {
                     builder: (context) => const DepartmentViewUI()));
               },
             ),
-            if (userRole == 'Admin')
+            if (Session.of.getStringList(Str.rolePrefText)?.firstOrNull == 'Admin')
               _buildCard(
                 icon: Icons.badge_outlined,
                 title: 'Roles',
@@ -88,7 +77,7 @@ class _ManageEmployeesState extends State<ManageEmployees> {
                       builder: (context) => const RoleViewUI()));
                 },
               ),
-            if (userRole == 'Admin')
+            if (Session.of.getStringList(Str.rolePrefText)?.firstOrNull == 'Admin')
               _buildCard(
                 icon: Icons
                     .lock_person, // or Icons.verified_user, Icons.supervisor_account
@@ -101,7 +90,6 @@ class _ManageEmployeesState extends State<ManageEmployees> {
           ],
         ),
       ),
-      drawer: const DrawerView(),
     );
   }
 
@@ -128,14 +116,14 @@ class _ManageEmployeesState extends State<ManageEmployees> {
             child: Row(
               children: [
                 Icon(icon,
-                    color: AppC().base, size: 14), // Darker grey-blue for icons
+                    color: AppC().base, size: 14.sp), // Darker grey-blue for icons
                 const SizedBox(width: 18),
                 Expanded(
                   child: Utils.getText(title,
-                      size: 12, weight: FontWeight.w400, color: Colors.black87),
+                      size: 12.sp, weight: FontWeight.w400, color: Colors.black87),
                 ),
                 Icon(Icons.arrow_forward_ios,
-                    size: 12,
+                    size: 12.sp,
                     color: Colors.grey[600]), // Lighter grey for arrow
               ],
             ),
