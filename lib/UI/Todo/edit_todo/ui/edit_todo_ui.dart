@@ -151,17 +151,22 @@ class EditTodoUI extends StatelessWidget {
                                       DeleteTodoEvent(
                                           todoId: todoId,
                                           reason: reason,
-                                          isExpenseDelete: state.apiResponse['expense_id']!=null?true:false)
+                                          isRecurring: false,
+                                          isExpenseDelete: state.apiResponse['expense_id']!=null?true:false,
+                                        data: state.apiResponse,
+                                      )
                                    );
                               },
                               onMultiSubmitted: (reason) async {
-
                                 if(state.apiResponse['expense_id']!=null) {
                                 context.read<EditToDoBloc>().add(
                                     DeleteTodoEvent(
                                         todoId: todoId,
                                         reason: reason,
-                                        isExpenseDelete: true));
+                                        isRecurring: false,
+                                        isExpenseDelete: false,
+                                      data: state.apiResponse,
+                                    ));
                               }
                             },
                             onSaveMultiPressed: () async {
@@ -170,17 +175,24 @@ class EditTodoUI extends StatelessWidget {
                                 AskDateRangePermissionDialog.show(context,
                                     isReasonRequired: true,
                                     endDate: state.selectedEndDate.toFormat(),
-                                    startDate:
-                                        state.selectedStartDate?.toFormat(),
+                                    startDate: state.selectedStartDate?.toFormat(),
                                     selectedEndDate: state.selectedEndDate,
                                     selectedStartDate: state.selectedStartDate,
-                                    onStartDate: (value) => context
-                                        .read<EditToDoBloc>()
+                                    onStartDate: (value) => context.read<EditToDoBloc>()
                                         .add(EditToDoStartDateChangeEvent(value)),
-                                    onEndDate: (value) => context
-                                        .read<EditToDoBloc>()
-                                        .add(
-                                            EditToDoEndDateChangeEvent(value)));
+                                    onEndDate: (value) => context.read<EditToDoBloc>()
+                                        .add(EditToDoEndDateChangeEvent(value)),
+                                  onReasonSubmitted: (reason) {
+                                    context.read<EditToDoBloc>().add(
+                                        DeleteTodoEvent(
+                                            todoId: todoId,
+                                            reason: reason,
+                                          isExpenseDelete: false,
+                                          isRecurring: true,
+                                          data: state.apiResponse,));
+                                  }
+                                );
+
                               }
                             }
                             );
@@ -204,25 +216,29 @@ class EditTodoUI extends StatelessWidget {
                                       await Future.delayed(Durations.short1);
                                       AskDateRangePermissionDialog.show(
                                         context,
-                                        endDate: state.selectedEndDate.toFormat(),
+                                        endDate: state.selectedEndDate?.toFormat(),
                                         startDate: state.selectedStartDate?.toFormat(),
                                         selectedEndDate: state.selectedEndDate,
                                         selectedStartDate: state.selectedStartDate,
                                         onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
                                         onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
+                                        onPositivePressed: (){
+                                          context.read<EditToDoBloc>().add(
+                                              EditToDoSaveEvent(isRecurring: true));
+                                        }
                                       );
                                     }
 
                                   },
                                   onPositivePressed: (){
                                     context.read<EditToDoBloc>().add(
-                                        EditToDoSaveEvent());
+                                        EditToDoSaveEvent(isRecurring: false));
                                   },
                               );
 
                             }else {
                               context.read<EditToDoBloc>().add(
-                                  EditToDoSaveEvent());
+                                  EditToDoSaveEvent(isRecurring: false));
                             }
                           },
                           icon: const Icon(Icons.save)

@@ -195,7 +195,12 @@ class EditToDoRecurringEndDateSelectionEvent extends EditToDoEvent {
 
 class EditToDoOpenCustomLinkEvent extends EditToDoEvent {}
 
-class EditToDoSaveEvent extends EditToDoEvent {}
+class EditToDoSaveEvent extends EditToDoEvent {
+  final bool? isRecurring;
+  EditToDoSaveEvent({required this.isRecurring});
+  @override
+  List<Object?> get props => [isRecurring];
+}
 
 class TaskStatusChangeEvent extends EditToDoEvent {
   final bool? todoStatus;
@@ -239,10 +244,12 @@ class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
 class DeleteTodoEvent extends EditToDoEvent {
   final String? todoId;
   final String? reason;
+  final dynamic data;
   final bool isExpenseDelete;
-  DeleteTodoEvent({required this.todoId,required this.reason,required this.isExpenseDelete});
+  final bool isRecurring;
+  DeleteTodoEvent({required this.todoId,required this.reason,required this.isExpenseDelete,required this.data,required this.isRecurring});
   @override
-  List<Object?> get props => [todoId,reason,isExpenseDelete];
+  List<Object?> get props => [todoId,reason,isExpenseDelete,data];
 }
 
 class EditToDoDeleteVehicleEvent extends EditToDoEvent {

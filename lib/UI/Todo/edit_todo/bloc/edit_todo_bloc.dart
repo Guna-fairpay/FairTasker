@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Response/todo_list_response.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
@@ -116,6 +117,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           clearDurations: AddToDoConfig.cleanCarDurations,
           selectedEndDate: null,
           selectedStartDate: null,
+          isRecurring: false,
       )) {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -603,9 +605,25 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<DeleteTodoEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
-        _broadcast.stickyBroadcast("todo_view", value:true);
-        if (response?['status'] == 200) Toaster.showSuccess(response?['message'] ?? "Success");
+        if(event.isExpenseDelete){
+          var responseExpense = await apiRepository.deleteVehicleExpense(event.data['expense_id']);
+          var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+          _broadcast.stickyBroadcast("todo_view", value:true);
+          if (response?['status'] == 200) Toaster.showSuccess(response?['message']);
+        }else if(event.isRecurring){
+          var response = await apiRepository.deleteRecurringTodo(
+            id: event.data['recurring_id'],
+            reason:state.selectedEndDate.toFormat(),
+            from:event.reason,
+            to:state.selectedStartDate.toFormat() ,);
+          _broadcast.stickyBroadcast("todo_view", value:true);
+        }else{
+          var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+          _broadcast.stickyBroadcast("todo_view", value:true);
+        }
+        // var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+        // _broadcast.stickyBroadcast("todo_view", value:true);
+
         emit(state.copyWith(isLoading: false,isPop: true));
       } catch (e) {
         Toaster.showError("$e");
@@ -658,12 +676,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       // API CALL
       try {
-        emit(state.copyWith(isLoading: true));
+        emit(state.copyWith(isLoading: true,isRecurring: event.isRecurring));
         var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
             images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message']);
         _broadcast.stickyBroadcast("todo_view", value:true);
-        emit(state.copyWith(isLoading: false,isPop: true));
+        emit(state.copyWith(isLoading: false,isPop: true,isRecurring: false));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(),name: 'ERROR');
@@ -703,12 +721,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
 
   Map<String, String> _editTodoBody() {
+    Console.of.log(state.isRecurring);
     state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
     Map<String, String> baseBody = {};
     baseBody['title'] = "${state.selectedTask['task']??''}";
     baseBody['identifier_id'] = "${state.selectedTask['id']??''}";
-    baseBody['todo_time'] = state.selectedTime.toHMS().toString();
-    baseBody['todo_date'] = dateController.text;
+    if(state.isRecurring == false){
+      baseBody['todo_time'] = state.selectedTime.toHMS().toString();
+      baseBody['todo_date'] = dateController.text;
+    }
     baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
     baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['comments'] = commentsController.text;
@@ -740,7 +761,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
     }
 
-      baseBody['parts']= "${state.selectedParts.isEmpty
+    baseBody['parts']= "${state.selectedParts.isEmpty
           ? null
           : state.selectedParts.map((e)=>jsonEncode({
         "parts_id": "${e['id']}",
@@ -783,6 +804,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+    baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
         .where((element) => element['type'] == "g_vehicles")
@@ -791,8 +813,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
 
     baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
-
-
+    if((state.isRecurring==true) && (state.selectedStartDate != null && state.selectedEndDate != null)){
+      baseBody['from_date'] = state.selectedStartDate.toFormat() ??'';
+      baseBody['to_date'] = state.selectedEndDate.toFormat() ??'';
+    }
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
   }
