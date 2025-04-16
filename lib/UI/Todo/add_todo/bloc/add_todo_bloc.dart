@@ -577,21 +577,28 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       // API CALL
       try {
-        if (state.selectedVPerson.isNotEmpty) {
-          var lastVin = state.selectedVPerson
-              .where((element) => element['type'] == 'vehicles')
-              .map((e) => e['value']['vin'])
-              .lastOrNull;
-          if ((lastVin != null) &&
-              (state.selectedTaskIdentifier[1]['id'] == 30)) {
-            if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
-              var lastBody = getIt<ToDoSupport>().lastCleanCarTask(vin: lastVin);
-              emit(state.copyWith(
-                  showCleanTaskReassign: true, isSaveEvent: true, recleanModel: lastBody));
-              await Future.delayed(Durations.short2);
-              emit(state.copyWith(
-                  showCleanTaskReassign: false, isSaveEvent: false, recleanModel: {}));
-              return;
+        if (state.selectedDate?.toFormat() == DateTime.now().toFormat()) {
+          if (state.selectedVPerson.isNotEmpty) {
+            var lastVin = state.selectedVPerson
+                .where((element) => element['type'] == 'vehicles')
+                .map((e) => e['value']['vin'])
+                .lastOrNull;
+            if ((lastVin != null) &&
+                (state.selectedTaskIdentifier[1]['id'] == 30)) {
+              if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
+                var lastBody = getIt<ToDoSupport>().lastCleanCarTask(
+                    vin: lastVin);
+                emit(state.copyWith(
+                    showCleanTaskReassign: true,
+                    isSaveEvent: true,
+                    recleanModel: lastBody));
+                await Future.delayed(Durations.short2);
+                emit(state.copyWith(
+                    showCleanTaskReassign: false,
+                    isSaveEvent: false,
+                    recleanModel: {}));
+                return;
+              }
             }
           }
         }
@@ -628,19 +635,26 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         return;
       }
       try {
-        var lastVin = state.selectedVPerson
-            .where((element) => element['type'] == 'vehicles')
-            .map((e) => e['value']['vin'])
-            .lastOrNull;
-        if (lastVin != null) {
-          if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
-            var lastBody = getIt<ToDoSupport>().lastCleanCarTask(vin: lastVin);
-            emit(state.copyWith(
-                showCleanTaskReassign: true, isSaveEvent: false, recleanModel: lastBody));
-            await Future.delayed(Durations.short2);
-            emit(state.copyWith(
-                showCleanTaskReassign: false, isSaveEvent: false, recleanModel: {}));
-            return;
+        if (state.selectedDate?.toFormat() == DateTime.now().toFormat()) {
+          var lastVin = state.selectedVPerson
+              .where((element) => element['type'] == 'vehicles')
+              .map((e) => e['value']['vin'])
+              .lastOrNull;
+          if (lastVin != null) {
+            if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
+              var lastBody = getIt<ToDoSupport>().lastCleanCarTask(
+                  vin: lastVin);
+              emit(state.copyWith(
+                  showCleanTaskReassign: true,
+                  isSaveEvent: false,
+                  recleanModel: lastBody));
+              await Future.delayed(Durations.short2);
+              emit(state.copyWith(
+                  showCleanTaskReassign: false,
+                  isSaveEvent: false,
+                  recleanModel: {}));
+              return;
+            }
           }
         }
         emit(state.copyWith(isLoading: true));
