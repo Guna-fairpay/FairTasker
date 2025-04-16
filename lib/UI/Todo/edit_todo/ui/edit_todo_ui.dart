@@ -1,9 +1,12 @@
 import 'dart:developer';
 
+import 'package:date_time/date_time.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -135,26 +138,92 @@ class EditTodoUI extends StatelessWidget {
                               description:
                               "${context.read<EditToDoBloc>().name}, are you sure you want to delete this revenue and task? Kindly enter a valid reason to confirm the deletion",
                               boldWords: [context.read<EditToDoBloc>().name??'',","],
-                              positiveText: "Yes, delete it!",
+                              positiveText:state.apiResponse['expense_id'] != null?"Yes,Delete" :"Yes, delete it!",
                               negativeText: "Cancel",
                               isReasonRequired: true,
+                              isExpense: state.apiResponse['expense_id']!=null?true:false,
+                              subPositiveText:state.apiResponse['expense_id']!=null?'Delete todo'
+                                  : state.apiResponse['recurring_id']!=null ?'Delete multiple'
+                                  : '',
+                              subDescription:state.apiResponse['expense_id']!=null?'': state.apiResponse['recurring'],
                               onReasonSubmitted: (reason) {
-                                  context
-                                      .read<EditToDoBloc>()
-                                      .add(
-                                      DeleteTodoEvent(todoId: todoId, reason: reason)
+                                  context.read<EditToDoBloc>().add(
+                                      DeleteTodoEvent(
+                                          todoId: todoId,
+                                          reason: reason,
+                                          isExpenseDelete: state.apiResponse['expense_id']!=null?true:false)
                                    );
-                                  // Future.delayed(const Duration(seconds: 1), () {
-                                  //   Navigator.pop(context);
-                                  // });
+                              },
+                              onMultiSubmitted: (reason) async {
+
+                                if(state.apiResponse['expense_id']!=null) {
+                                context.read<EditToDoBloc>().add(
+                                    DeleteTodoEvent(
+                                        todoId: todoId,
+                                        reason: reason,
+                                        isExpenseDelete: true));
                               }
+                            },
+                            onSaveMultiPressed: () async {
+                             if((state.apiResponse['recurring_id'] != null)&& (state.selectedStartDate!=null && state.selectedEndDate!=null)) {
+                                await Future.delayed(Durations.short1);
+                                AskDateRangePermissionDialog.show(context,
+                                    isReasonRequired: true,
+                                    endDate: state.selectedEndDate.toFormat(),
+                                    startDate:
+                                        state.selectedStartDate?.toFormat(),
+                                    selectedEndDate: state.selectedEndDate,
+                                    selectedStartDate: state.selectedStartDate,
+                                    onStartDate: (value) => context
+                                        .read<EditToDoBloc>()
+                                        .add(EditToDoStartDateChangeEvent(value)),
+                                    onEndDate: (value) => context
+                                        .read<EditToDoBloc>()
+                                        .add(
+                                            EditToDoEndDateChangeEvent(value)));
+                              }
+                            }
                             );
                           },
                           icon: const Icon(Icons.delete)
                       ),
                       IconButton(
                           onPressed: () {
-                            context.read<EditToDoBloc>().add(EditToDoSaveEvent());
+                            if(state.apiResponse['recurring_id']!=null){
+                              AskPermissionDialog.show(
+                                  context,
+                                  title:
+                                  "Do you want to Update this task only?",
+                                  description:state.apiResponse['recurring'],
+                                  positiveText:"Yes, Update it!",
+                                  negativeText: "Cancel",
+                                  isReasonRequired: false,
+                                  subPositiveText:"Update multiple",
+                                  onSaveMultiPressed: () async {
+                                    if(state.selectedEndDate != null && state.selectedStartDate != null){
+                                      await Future.delayed(Durations.short1);
+                                      AskDateRangePermissionDialog.show(
+                                        context,
+                                        endDate: state.selectedEndDate.toFormat(),
+                                        startDate: state.selectedStartDate?.toFormat(),
+                                        selectedEndDate: state.selectedEndDate,
+                                        selectedStartDate: state.selectedStartDate,
+                                        onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
+                                        onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
+                                      );
+                                    }
+
+                                  },
+                                  onPositivePressed: (){
+                                    context.read<EditToDoBloc>().add(
+                                        EditToDoSaveEvent());
+                                  },
+                              );
+
+                            }else {
+                              context.read<EditToDoBloc>().add(
+                                  EditToDoSaveEvent());
+                            }
                           },
                           icon: const Icon(Icons.save)
                       ),

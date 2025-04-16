@@ -15,6 +15,7 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../../../../Repository/todo_list_repository.dart';
 import '../../../../Utilities/str.dart';
 import '../../../../Utilities/Utils.dart';
@@ -61,6 +62,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   late DateTime editToDoDate;
   bool showCleanCar = false;
   String? name=Session.of.getString("name");
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
 
 
   EditToDoBloc()
@@ -111,6 +114,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           showCleanCar: false,
           isPop: false,
           clearDurations: AddToDoConfig.cleanCarDurations,
+          selectedEndDate: null,
+          selectedStartDate: null,
       )) {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -301,6 +306,18 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
          showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?.editTodos?['identifier_id']);
 
+        RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
+        if(todoResponse?.editTodos?['recurring'] != null){
+          final matches = dateRegExp.allMatches(todoResponse?.editTodos?['recurring']??[]).toList();
+          if (matches.length >= 2) {
+            String startDate = matches[0].group(0)!; // 12-31-2024
+            String endDate = matches[1].group(0)!;   // 03-31-2026
+            DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
+            DateTime parsedEnd = DateFormat('MM-dd-yyyy').parse(endDate);
+            selectedStartDate = parsedStart;
+            selectedEndDate = parsedEnd;
+          }
+        }
 
         emit(state.copyWith(
           isLoading: false,
@@ -352,6 +369,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           todoAttachments: todoImages,
           groupVehicles: groupVehiclesResponse,
           selectedSentiment: selectedSentiments,
+          clearDurations: AddToDoConfig.cleanCarDurations,
+          selectedEndDate: selectedEndDate,
+          selectedStartDate: selectedStartDate,
           isPop: false,
         ));
         await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
@@ -484,6 +504,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<EditToDoDateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
+
+    on<EditToDoStartDateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedStartDate: event.selectedDate)));
+
+    on<EditToDoEndDateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedEndDate: event.selectedDate)));
 
     on<EditToDoTimeChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedTime: event.selectedTime)));
