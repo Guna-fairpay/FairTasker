@@ -84,15 +84,25 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
               // Find the checklist item
               var checklistItem = checkListData.firstWhere(
                       (item) => item['id'] == checklistId,
-                  orElse: () => {});
+                  orElse: () => {}
+              );
 
               // Get the checklist title
               String checklistTitle = checklistItem['title'] ?? '';
 
               // Extract just the custom note part (after the hyphen)
-              String noteContent = todo["notes"].toString().trim().contains('-')
-                  ? todo["notes"].toString().trim().split('-')[1]
-                  : todo["notes"].toString().trim();
+              String rawNote = todo["notes"].toString().trim();
+              String noteContent = '';
+
+              if (rawNote.contains('-')) {
+                // Split by `-` and get the LAST non-empty trimmed part
+                noteContent = rawNote.split('-').reversed.firstWhere(
+                      (part) => part.trim().isNotEmpty,
+                  orElse: () => '',
+                ).trim();
+              } else {
+                noteContent = rawNote;
+              }
 
               // Store the checklist title in notesValues for reference
               notesValues.add(checklistTitle);
@@ -103,6 +113,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
                 "checklist_title": checklistTitle,
                 "notes": noteContent, // Store just the custom note part
               };
+
             }).toList();
 
             print("matchingTodos: $matchingTodos");

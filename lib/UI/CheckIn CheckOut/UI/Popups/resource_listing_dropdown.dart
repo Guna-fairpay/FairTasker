@@ -18,8 +18,8 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
     super.key,
     required this.items,
     this.value,
-    this.labelText = "Select",
-    this.hintText,
+    this.labelText = "",
+    this.hintText = "Select",
     this.contentPadding,
     this.itemAsString,
     this.onChanged,
@@ -51,7 +51,7 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
         decoration:
         InputDecoration(
           labelText: labelText,
-          hintText: "select",
+          hintText: hintText,
           contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 7),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Num.subradiusButton),
@@ -68,9 +68,9 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
           constraints: const BoxConstraints(maxHeight: 40),
           isDense: true,
         ),
-        hint: Align(
+        hint: const Align(
           alignment: Alignment.centerLeft,
-          child: Text("select",
+          child: Text("",
             style: TextStyle(color: AppC.grey),
           ),
         ),
@@ -108,7 +108,7 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
             ),
           );
         }).toList()
-            : [DropdownMenuItem<T>(value: null, child: Text(""))],
+            : [DropdownMenuItem<T>(value: null, child: Text("${hintText}", style: TextStyle(color: AppC.grey),))],
         onChanged: onChanged,
       ),
     );

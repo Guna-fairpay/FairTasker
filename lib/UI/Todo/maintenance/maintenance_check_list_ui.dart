@@ -213,8 +213,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                             (state.dropdownValue as List).any((element) =>
                                             element['name'].toString().toLowerCase().trim() != "good")) ||
                                             (state.selectedDropdownValues[item['id']]?.toString().toLowerCase() != "good")
-                                        )
-                                    ,
+                                        ),
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 40.0),
                                       child: Column(

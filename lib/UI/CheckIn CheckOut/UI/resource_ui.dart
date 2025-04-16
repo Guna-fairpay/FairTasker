@@ -2,6 +2,7 @@
 
 // working_hours_view_ui.dart
 import 'dart:developer';
+import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -291,8 +292,6 @@ class WorkHoursViewUI extends StatelessWidget {
                           contentPadding: 5.padding,
                           onChanged: (val) => context.read<WorkingHoursBloc>().add(ResourceDropDownEvent(val)),
                           itemAsString: (item) => item['full_name'].toString(),
-                          labelText: null,
-                          hintText: "Select",
                         )
                         ),
                       ],
@@ -313,7 +312,8 @@ class WorkHoursViewUI extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
-                        child: Row(
+                        child: 
+                        Row(
                           children: [
                             Expanded(
                                 flex: 5,
