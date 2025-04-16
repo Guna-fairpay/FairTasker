@@ -1,8 +1,11 @@
+import 'package:fairpytasker/Component/compact_text_field.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -29,13 +32,13 @@ class _TaskerTimeChangeReasonDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: 10.padding,
-      contentPadding: 16.padding,
-      titlePadding: 16.horizontalPadding,
+      contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
+      titlePadding: EdgeInsets.zero,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: ListTile(
         dense: true,
-        contentPadding: EdgeInsets.zero,
+        // contentPadding: EdgeInsets.zero,
         trailing: GestureDetector(
           onTap: context.popDialog,
           child: const Icon(Icons.close_rounded),
@@ -46,23 +49,31 @@ class _TaskerTimeChangeReasonDialogView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 10,
         children: [
-          Utils.getText(
-              (type == "drop") ? "CheckIn/Drop Car is later than the time specified in booking *" : "Checkout/Pickup Car is earlier than the time specified in booking *",
-              size: 12.sp),
-          Utils.getTextFormField("Reason", reasonController,
-              inputAction: TextInputAction.done,
-              textType: TextInputType.text,
-              autoValidate: AutovalidateMode.onUserInteraction,
+          Text((type == "drop") ? "CheckIn/Drop Car is later than the time specified in booking *" : "Checkout/Pickup Car is earlier than the time specified in booking *",
+              style: context.textTheme.labelLarge?.copyWith(
+                color: AppC.text
+              )
+          ),
+          CompactTextField(
+              hintText: "Reason for date/time change",
+              controller: reasonController,
+              textInputAction: TextInputAction.done,
+              keyboardType: TextInputType.text,
+              autoValidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) => (value?.trim().isNullOrEmpty ?? false)
                   ? "Reason is required"
                   : null),
-          Utils.getFilledButton(
-            "Submit",
-            () {
-              if (reasonController.text.trim().isEmpty) return;
-              onSubmitted?.call(reasonController.text);
-              context.popDialog();
-            },
+          Row(
+            children: [
+              SuccessButton(
+                text: "Submit",
+                onPressed: () {
+                  if (reasonController.text.trim().isEmpty) return;
+                  onSubmitted?.call(reasonController.text);
+                  context.popDialog();
+                },
+              )
+            ],
           )
         ],
       ),

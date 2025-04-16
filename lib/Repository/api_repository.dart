@@ -225,6 +225,10 @@ class APiRepository {
 
   String get _employeeWorkHours => "employeeWorkHours";
 
+  String get _importTuroVehicles => "importTuroVehicles";
+
+  String get _uploadTodo => "upload-todo";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -2114,6 +2118,30 @@ Future<Map<String, dynamic>?> getLocations() async {
         "endDate" : toDate?.toFormat()
       };
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> importTuroReservation({required String? text}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_importTuroVehicles";
+      Map<String, dynamic> body = { "data" : text};
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> uploadToDo({required String? text}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_uploadTodo";
+      Map<String, dynamic> body = { "reservation" : text};
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
