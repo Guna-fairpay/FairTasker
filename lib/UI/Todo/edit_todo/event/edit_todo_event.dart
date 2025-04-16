@@ -107,11 +107,23 @@ class EditToDoDateChangeEvent extends EditToDoEvent {
   List<Object?> get props => [selectedDate];
 }
 
+class EditToDoStartDateChangeEvent extends EditToDoEvent {
+  final DateTime selectedDate;
+  EditToDoStartDateChangeEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
+
+class EditToDoEndDateChangeEvent extends EditToDoEvent {
+  final DateTime selectedDate;
+  EditToDoEndDateChangeEvent(this.selectedDate);
+  @override
+  List<Object?> get props => [selectedDate];
+}
+
 class EditToDoTimeChangeEvent extends EditToDoEvent {
   final TimeOfDay selectedTime;
-
   EditToDoTimeChangeEvent(this.selectedTime);
-
   @override
   List<Object?> get props => [selectedTime];
 }
@@ -181,7 +193,12 @@ class EditToDoRecurringEndDateSelectionEvent extends EditToDoEvent {
 
 class EditToDoOpenCustomLinkEvent extends EditToDoEvent {}
 
-class EditToDoSaveEvent extends EditToDoEvent {}
+class EditToDoSaveEvent extends EditToDoEvent {
+  final bool? isRecurring;
+  EditToDoSaveEvent({required this.isRecurring});
+  @override
+  List<Object?> get props => [isRecurring];
+}
 
 class TaskStatusChangeEvent extends EditToDoEvent {
   final bool? todoStatus;
@@ -225,9 +242,12 @@ class EditToDoSelectTaskHistoryEvent extends EditToDoEvent {
 class DeleteTodoEvent extends EditToDoEvent {
   final String? todoId;
   final String? reason;
-  DeleteTodoEvent({required this.todoId,required this.reason});
+  final dynamic data;
+  final bool isExpenseDelete;
+  final bool isRecurring;
+  DeleteTodoEvent({required this.todoId,required this.reason,required this.isExpenseDelete,required this.data,required this.isRecurring});
   @override
-  List<Object?> get props => [todoId,reason];
+  List<Object?> get props => [todoId,reason,isExpenseDelete,data];
 }
 
 class EditToDoDeleteVehicleEvent extends EditToDoEvent {
@@ -258,4 +278,10 @@ class EditToDoStatesChangeEvent extends EditToDoEvent {}
 
 class EditToDoDeletePartsAndSuppliesEvent extends EditToDoEvent {}
 
+class EditTodoTimeChangeReasonEvent extends EditToDoEvent {
+  final String? reason;
+  EditTodoTimeChangeReasonEvent({required this.reason});
+  @override
+  List<Object?> get props => [reason];
+}
 

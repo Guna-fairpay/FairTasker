@@ -42,4 +42,9 @@ class ToDoSupport {
     Console.of.debug(response);
     return response;
   }
+
+  void refresh() {
+    Console.of.debug("Refreshing", name: "ToDoSupport");
+    _fetchTodosForToday();
+  }
 }

@@ -1,5 +1,6 @@
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import '../Event/text_upload_event.dart';
 import '../Repository/text_upload_repository.dart';
 import '../State/text_upload_state.dart';
@@ -7,6 +8,8 @@ import '../Repository/todo_list_repository.dart';
 
 class TextUploadBloc extends Bloc<TextUploadEvent, TextUploadState> {
   TaskUploadRepository taskUploadRepository = TaskUploadRepository();
+  final TextEditingController controller = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TodoListRepo todoListRepo = TodoListRepo();
 
   TextUploadBloc() : super(TextUploadInitial()) {

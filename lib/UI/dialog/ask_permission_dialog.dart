@@ -1,10 +1,9 @@
-import 'package:fairpytasker/Component/success_button.dart';
+
+ import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -24,7 +23,9 @@ class AskPermissionDialog {
       bool? isReasonRequired,
       void Function(String reason)? onReasonSubmitted,
       VoidCallback? onPositivePressed,
-      VoidCallback? onMultiSubmitted,
+      VoidCallback? onSaveMultiPressed,
+        bool? isExpense,
+        void Function(String reason)? onMultiSubmitted,
       }) async {
     await showDialog(
       context: context,
@@ -40,7 +41,9 @@ class AskPermissionDialog {
         onPositivePressed: onPositivePressed,
         isReasonRequired: isReasonRequired,
         onReasonSubmitted: onReasonSubmitted,
+        onSaveMultiPressed: onSaveMultiPressed,
         onMultiSubmitted: onMultiSubmitted,
+        isExpense: isExpense,
       ),
     );
   }
@@ -55,9 +58,11 @@ class _AskPermissionDialogView extends StatelessWidget {
   final String? positiveText;
   final String? subPositiveText;
   final VoidCallback? onPositivePressed;
+  final VoidCallback? onSaveMultiPressed;
   final bool? isReasonRequired;
+  final bool? isExpense;
   final void Function(String reason)? onReasonSubmitted;
-  final VoidCallback? onMultiSubmitted;
+  final void Function(String reason)? onMultiSubmitted;
   final TextEditingController _reasonController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -72,8 +77,10 @@ class _AskPermissionDialogView extends StatelessWidget {
       this.positiveText,
       this.subPositiveText,
       this.onPositivePressed,
+      this.onSaveMultiPressed,
       this.isReasonRequired,
-        this.onMultiSubmitted,
+      this.onMultiSubmitted,
+        this.isExpense,
       this.onReasonSubmitted});
 
   @override
@@ -94,7 +101,7 @@ class _AskPermissionDialogView extends StatelessWidget {
               Icon(Icons.help_outline_sharp,size: 40.sp,color: Colors.blue,),
               15.sp.height,
               Utils.getText(
-                  'Are you sure?',
+                  title ?? 'Are you sure?',
                   size: 18.sp,
                   weight: FontWeight.bold,
                   align: TextAlign.center),
@@ -129,7 +136,9 @@ class _AskPermissionDialogView extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 10,
                 children: [
-                  ValueListenableBuilder(valueListenable: _reasonController, builder: (context, value, child) => SuccessButton(
+                  ValueListenableBuilder(
+                      valueListenable: _reasonController,
+                      builder: (context, value, child) => SuccessButton(
                     text: positiveText??'Yas,delete it!',
                     backgroundColor: (value.text.trim().isNullOrEmpty && (isReasonRequired ?? false)) ? Colors.blue.shade100 : AppC.blue,
                     foregroundColor: AppC.white,
@@ -151,16 +160,16 @@ class _AskPermissionDialogView extends StatelessWidget {
                     backgroundColor: AppC.appColor,
                     foregroundColor: AppC.white,
                     onPressed: (){
-                      if (isReasonRequired ?? false) {
+                      if ((isReasonRequired ?? false) && (isExpense ?? false)) {
                         if (_formKey.currentState?.validate() ?? false) {
-                         // onReasonSubmitted?.call(_reasonController.text);
+                          onMultiSubmitted?.call(_reasonController.text);
                           Navigator.pop(context);
                         }
                       } else {
-                        onMultiSubmitted?.call();
+                        onSaveMultiPressed?.call();
                         Navigator.pop(context);
                       }
-                    },
+                      },
                   ),
                   SuccessButton(
                     text:  negativeText ??'Cancel',
@@ -175,7 +184,8 @@ class _AskPermissionDialogView extends StatelessWidget {
         ),
       ),
     );
-    /*AlertDialog(
+  }
+/*AlertDialog(
       title: (title.isNotNullOrEmpty) ? Text(title ?? "") : null,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
@@ -256,8 +266,6 @@ class _AskPermissionDialogView extends StatelessWidget {
         ),
       ],
     );*/
-  }
-
   Widget buildDynamicText(BuildContext context, {required String message, List<String>? boldWords}) {
     final words = message.split(' ');
     final boldChars = boldWords?.map((e) => e.split(" ")).expand((element) => element);

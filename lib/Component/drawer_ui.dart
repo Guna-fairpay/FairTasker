@@ -2,6 +2,7 @@ import 'package:fairpytasker/UI/Leave%20Management/leave_management_view_ui.dart
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Task%20List/tasklist_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/import_task/import_task_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
@@ -99,7 +100,7 @@ class DrawerView extends StatelessWidget {
                     context,
                     icon: Icons.manage_accounts,
                     title: "Manage Employees",
-                    onTap: () => navigateToPage(context, const ManageEmployees()),
+                    onTap: () => context.push(const ManageEmployees(), fullscreenDialog: true),
                   ),
                   _buildDivider(),
                   _buildListTile(
@@ -127,7 +128,8 @@ class DrawerView extends StatelessWidget {
                     context,
                     icon:  Icons.upload,
                     title: "Import Task",
-                    onTap: () => navigateToPage(context, const UploadText()),
+                    onTap: () => context.push(const ImportTaskMainUi(), fullscreenDialog: true),
+                    // onTap: () => navigateToPage(context, const UploadText()),
                   ),
                   _buildDivider(),
                   _buildListTile(

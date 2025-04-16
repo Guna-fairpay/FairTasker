@@ -217,6 +217,8 @@ class APiRepository {
 
   String get _updateTaskCategory => "updateTaskCategory";
 
+  String get _deleteRecurringTodo => "delete-recurring-todo";
+
   String get _toDoDataRange => "todo-data-range";
 
   String get _employeeActiveHours => "employeeActiveHours";
@@ -224,6 +226,10 @@ class APiRepository {
   String get _employeeHistoryCount => "employeeHistoryCount";
 
   String get _employeeWorkHours => "employeeWorkHours";
+
+  String get _importTuroVehicles => "importTuroVehicles";
+
+  String get _uploadTodo => "upload-todo";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -572,6 +578,17 @@ class APiRepository {
   Future<Map<String,dynamic>?> deleteTodo({String? id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl, body: {'reason': '$reason'});
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> deleteRecurringTodo({String? id, dynamic reason,String? from,String? to}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteRecurringTodo/$id?from=$from&to=$to&reason=$reason";
       final http.Response? response = await _apiClient.callDelete(apiUrl, body: {'reason': '$reason'});
       var mapData = await response.mapData;
       return mapData;
@@ -2114,6 +2131,30 @@ Future<Map<String, dynamic>?> getLocations() async {
         "endDate" : toDate?.toFormat()
       };
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> importTuroReservation({required String? text}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_importTuroVehicles";
+      Map<String, dynamic> body = { "data" : text};
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> uploadToDo({required String? text}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_uploadTodo";
+      Map<String, dynamic> body = { "reservation" : text};
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
