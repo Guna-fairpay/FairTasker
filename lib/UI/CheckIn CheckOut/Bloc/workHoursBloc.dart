@@ -54,6 +54,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     ),
   )) {
 
+    String extractDate(String datetime) {
+      return datetime.split(' ').first;
+    }
+
     on<WorkingHoursInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try
@@ -61,14 +65,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         initialDropDown = {'id':0,'full_name':'All'};
         if(event.minDate.isNotEmpty || event.maxDate.isNotEmpty)
           {
-            final response1 = await todoListRepo.getWorkingHistory(event.minDate, event.maxDate);//no need
-            final response2 = await todoListRepo.getActiveHoursResponse(event.minDate, event.maxDate);
+            log("${extractDate(event.minDate)} ${extractDate(event.maxDate)}", name: "date print");
+            final response1 = await todoListRepo.getWorkingHistory(extractDate(event.minDate), extractDate(event.maxDate));//no need
+            final response2 = await todoListRepo.getActiveHoursResponse(extractDate(event.minDate), extractDate(event.maxDate));
             final response3 = await authenticationRepo.getAssignedTo();
-            final response4 = await todoListRepo.getWorkingHoursData(event.minDate, event.maxDate);
-            final response5 = await todoListRepo.getWorkingHistoryCount(event.minDate, event.maxDate);
+            final response4 = await todoListRepo.getWorkingHoursData(extractDate(event.minDate), extractDate(event.maxDate));
+            final response5 = await todoListRepo.getWorkingHistoryCount(extractDate(event.minDate), extractDate(event.maxDate));
             final response6 = await taskRepo.fetchPunchList();
-            log("${response6?.data}",name:"PunchList");
-            if (response1 != null && response2 != null && response3 != null && response4 != null) {
+            if (response1 != null && response2 != null && response3 != null && response4 != null && response5 != null && response6 != null) {
               workingHistory.clear();
               workingHistory = response5!.history!;//1
               workHours.clear();
@@ -84,7 +88,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               userId = await Utils.getStringPreference(Str.userIdPrefText);
               //hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
 
-              log("${userRole[0]} ${userId} ${hrmId} ${branchId}",name:"userRole");
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
@@ -94,11 +97,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   'branch_id' : '${resource['branch_id']}',
                 };
               }).toList();
-              print("formattedResources $formattedResources");
+              //print("formattedResources $formattedResources");
               //Helper Function
-              String getFirstWord(String fullName) {
-                return fullName.split(' ').first;
-              }
 
               List<Map<String, dynamic>> combineAndCalculateData(
                   List<Map<String, dynamic>> workhours,
@@ -215,7 +215,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
                     // Calculate active hours
                     final relevantHours = workActivehours.where(
-                          (activeHour) => activeHour['hrm_id']?.toString() == userId?.toString(),
+                          (activeHour) => activeHour['hrm_id']?.toString() == userId.toString(),
                     );
                     final int totalMinutes = relevantHours.fold(
                       0,
@@ -229,7 +229,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
                     // Combine data into a single item formatted for the table
                     final combinedItem = {
-                      'Employee': historyItem['users']?['first_name'] ?? empID['first_name'] ?? '',
+                      'Employee': historyItem['users']?['first_name'] ?? empID['first_name'] ?? getFirstWord(userName),
                       'Active': calculatedActiveHours,
                       'Hours': formattedHours,
                       'Task': taskCount,
@@ -540,30 +540,27 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     on<SwitchTabEvent>((event, emit) {
       print("Switching to ${event.isHourly ? 'Hourly' : 'Task'} Based at ${DateTime.now()}");
-      if (event.isHourly) {
-        hourlyAmountCtrl.clear();
-        print("Emitting hourly state: selectedUser=null");
-        emit(state.copyWith(
-          selectedBase: {"id": 2, "base": "Hour based"},
-          selectedUser: null,
-          userId: null,
-          hourlyAmountController: hourlyAmountCtrl,
-          taskNameController: taskNameCtrl, // Clear task fields to avoid interference
-          amountController: amountCtrl,
-        ));
-      } else {
-        taskNameCtrl.clear();
-        amountCtrl.clear();
-        print("Emitting task-based state: selectedUser=null");
-        emit(state.copyWith(
-          selectedBase: {"id": 1, "base": "Task based"},
-          selectedUser: null,
-          userId: null,
-          taskNameController: taskNameCtrl,
-          amountController: amountCtrl,
-          hourlyAmountController: hourlyAmountCtrl,
-        ));
-      }
+      final newState = event.isHourly
+          ? state.copyWith(
+        isHourlyBased: true,
+        selectedBase: {"id": 2, "base": "Hour based"},
+        selectedUser: null,
+        userId: null,
+        hourlyAmountController: hourlyAmountCtrl..clear(),
+        taskNameController: taskNameCtrl,
+        amountController: amountCtrl,
+      )
+          : state.copyWith(
+        isHourlyBased: false,
+        selectedBase: {"id": 1, "base": "Task based"},
+        selectedUser: null,
+        userId: null,
+        taskNameController: taskNameCtrl..clear(),
+        amountController: amountCtrl,
+        hourlyAmountController: hourlyAmountCtrl,
+      );
+      print("Emitting ${event.isHourly ? 'hourly' : 'task-based'} state: isHourlyBased=${event.isHourly}");
+      emit(newState);
     });
 
     on<UpdateDropdownValueEvent>((event, emit) {
@@ -588,8 +585,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
-
-
     on<ResetDropdownEvent>((event, emit) {
       taskNameCtrl.clear();
       amountCtrl.clear();
@@ -612,6 +607,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         selectedUser: null,
         amountController: amountCtrl,
         userId: null,
+        selectedBase: state.selectedBase ?? (state.isHourlyBased ? {"id": 2, "base": "Hour based"} : {"id": 1, "base": "Task based"}),
+        isHourlyBased: state.isHourlyBased,
+        uniqueId: UniqueKey().toString(),
       ));
     });
 
@@ -628,11 +626,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(
         isLoading: false,
         isEditMode: false,
-        selectedBase: {"id": 1, "base": "Task based"}, // Force back to Task based
+        selectedBase: state.selectedBase ?? (state.isHourlyBased ? {"id": 2, "base": "Hour based"} : {"id": 1, "base": "Task based"}), // Force back to Task based
+        isHourlyBased: state.isHourlyBased,
         userId: null,
         selectedUser: null,
         taskNameController: taskNameCtrl,
         amountController: amountCtrl,
+        uniqueId: UniqueKey().toString(),
       ));
     });
 
@@ -893,7 +893,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       List<Map<String, dynamic>> combineData(
           List<dynamic> dataList,
           List<Map<String, dynamic>> taskCounts,
-          ) {
+          )
+      {
         List<Map<String, dynamic>> combinedList = [];
 
         // Map to organize task counts by date

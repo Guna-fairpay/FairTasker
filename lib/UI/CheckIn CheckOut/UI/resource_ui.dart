@@ -88,8 +88,6 @@ class WorkHoursViewUI extends StatelessWidget {
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               filteredData = state?.combinedData ?? [];
-              // dropDownResource = [{'id':0,'full_name':'All'}, ...state?.resources ?? []];
-              // initialDropDown = {'id':'','full_name':'All'};
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
@@ -401,7 +399,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                               HoursPopup.show(
                                                 context,
                                                 dataList: employee?['list'],
-                                                userName: employee?['first_name'],
+                                                userName: "${employee?['first_name']} ${employee?['last_name']}",
                                                 selectedDateRange: state.selectedDateRange.toString(),
                                                 empID: employee?['user_id'],
                                                 hrmID: employee?['hrm_id'],

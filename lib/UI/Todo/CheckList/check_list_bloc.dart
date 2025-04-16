@@ -28,7 +28,9 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
     todoItems: {},
     vehicle: {},
     pop: false,
-  )) {
+  )
+  )
+  {
 
     on<CheckListInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));

@@ -51,7 +51,7 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
         decoration:
         InputDecoration(
           labelText: labelText,
-          hintText: hintText ?? "select",
+          hintText: "select",
           contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 7),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Num.subradiusButton),
@@ -70,8 +70,7 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
         ),
         hint: Align(
           alignment: Alignment.centerLeft,
-          child: Text(
-            hintText ?? "select",
+          child: Text("select",
             style: TextStyle(color: AppC.grey),
           ),
         ),
