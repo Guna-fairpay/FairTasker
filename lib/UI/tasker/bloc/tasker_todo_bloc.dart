@@ -43,6 +43,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   List<String> get _checkInOutTask => ["Check Out", "Check In"];
 
+  bool isTimeSensitive = false;
+
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
     on<ToDoTaskerInitialEvent>(_onInitialEvent);
@@ -95,12 +97,16 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewCustomLinkEvent>(_onViewCustomLinkEvent);
     on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
     on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
+    on<ToDoTaskerTimeSensitiveEvent>(_onTimeSensitiveEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
 
   void _listenBroadCast() {
-    _fBroadcast.register("todo_view", (value, callback) => _reFetchToDos());
+    _fBroadcast.register("todo_view", (value, callback) {
+      _reFetchToDos();
+      _fBroadcast.broadcast(Str.todayToDo);
+    });
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
@@ -232,8 +238,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _onSearchEvent(
       ToDoTaskerSearchEvent event, Emitter<ToDoTaskerState> emit) {
     var searchQuery = event.search;
+    List<Map<String, dynamic>> results = [];
+    if (isTimeSensitive) {
+      results = unfiltered.where((element) => element['time_sensitive'] == 1).toList();
+    } else {
+      results = unfiltered;
+    }
     if (searchQuery.isNotNullOrEmpty) {
-      toDos = unfiltered
+      toDos = results
           .where((element) => ((element['display']?['task_title']
                       .toString()
                       .toLowerCase()
@@ -264,7 +276,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           .toList();
       emit(ToDoTaskerCommonState());
     } else {
-      toDos = unfiltered;
+      toDos = results;
       emit(ToDoTaskerCommonState());
     }
   }
@@ -910,11 +922,24 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     emit(ToDoTaskerFilterTaskState());
   }
 
+  void _filterTimeSensitiveTasks() {
+    if (isTimeSensitive) {
+      unfiltered = unfiltered.where((element) => (element['time_sensitive'] == ((isTimeSensitive ?? false) ? 1 : 0))).toList();
+    } else {
+      unfiltered = unfiltered;
+    }
+  }
+
   void _searchTasks() {
     var searchQuery = searchController.text;
     var tasks = selectedTasks.map((e) => e.toString().toLowerCase()).toList();
-
-    toDos = (tasks.isNotEmpty) ? unfiltered.where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList() : unfiltered;
+    List<Map<String, dynamic>> results = [];
+    if (isTimeSensitive) {
+      results = unfiltered.where((element) => element['time_sensitive'] == 1).toList();
+    } else {
+      results = unfiltered;
+    }
+    toDos = (tasks.isNotEmpty) ? results.where((element) => tasks.contains(element['title'].toString().toLowerCase())).toList() : results;
     toDos = toDos
         .where((element) => ((element['display']?['task_title']
         .toString()
@@ -983,5 +1008,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       Console.of.error(e);
       emit(ToDoTaskerErrorState(e));
     }
+  }
+
+  void _onTimeSensitiveEvent(ToDoTaskerTimeSensitiveEvent event, Emitter<ToDoTaskerState> emit) {
+    isTimeSensitive = event.isTimeSensitive;
+    _searchTasks();
+    emit(ToDoTaskerCommonState());
   }
 }

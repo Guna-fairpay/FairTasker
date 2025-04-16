@@ -183,3 +183,12 @@ class AddToDoDeleteAttachment extends AddToDoEvent {
   @override
   List<Object?> get props => [attachment];
 }
+
+class AddToDoReassignEvent extends AddToDoEvent {
+  final String? reasonMessage;
+  final List<dynamic>? reasonFiles;
+  final bool? isSaveEvent;
+  AddToDoReassignEvent({this.reasonMessage, this.reasonFiles, this.isSaveEvent});
+  @override
+  List<Object?> get props => [reasonMessage, reasonFiles, isSaveEvent];
+}

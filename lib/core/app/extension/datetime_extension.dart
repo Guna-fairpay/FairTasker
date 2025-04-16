@@ -1,3 +1,4 @@
+import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:timeagoago/timeagoago.dart' as timeago;
 
@@ -15,6 +16,15 @@ extension DatetimeExtension on DateTime? {
     if (input == null) return null;
     var dateFormat = DateFormat(format);
     return dateFormat.format(input);
+  }
+
+  String get formatDateWithOrdinal {
+    final day = (this?.day ?? 0);
+    final suffix = day.getDaySuffix;
+    final month = DateFormat('MMM').format(this ?? DateTime.now()); // "Apr"
+    final year = this?.year ?? 0;
+
+    return '$month $day$suffix $year';
   }
 
 }

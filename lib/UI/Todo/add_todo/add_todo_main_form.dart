@@ -96,6 +96,7 @@ class AddTodoMainForm extends StatelessWidget {
                 ? VehicleHistoryViewUI(
                     itemPerPage: 5,
                     additionalScroll: false,
+                    showLoading: false,
                     vin: ((state['type'] == "vehicles")
                         ? (state['value']?['vin'])
                         : null),
