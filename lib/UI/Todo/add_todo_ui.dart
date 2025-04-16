@@ -2,10 +2,12 @@ import 'package:fairpytasker/UI/Todo/add_todo/add_todo_main_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/UI/dialog/reclean/reclean_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -35,6 +37,12 @@ class CreateTodoUI extends StatelessWidget {
             }
             if (state.redirect){
               context.pop();
+            }
+            if (state.showCleanTaskReassign) {
+              RecleanDialog.show(context, isSaveEvent: state.isSaveEvent, onPressed: ({isSaveEvent, reasonFiles, reasonMessage}) {
+                context.read<AddToDoBloc>().add(AddToDoReassignEvent(isSaveEvent: isSaveEvent, reasonFiles: reasonFiles, reasonMessage: reasonMessage));
+                Utils.dismissKeyboard(context);
+              });
             }
           },
           child: Scaffold(

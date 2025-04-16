@@ -1247,11 +1247,11 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body}) async {
+  Future<Map<String, dynamic>?> addToDo({required Map<String, dynamic> body, List<dynamic>? infusedFiles}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
       body.putIfAbsent("type", () => "inline");
-      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

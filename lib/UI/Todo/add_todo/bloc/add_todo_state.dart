@@ -43,6 +43,8 @@ class AddToDoState extends Equatable {
   final TimeOfDay? selectedTime;
   final dynamic selectedRecurring;
   final dynamic recurringYearlySelectedMonth;
+  final bool showCleanTaskReassign;
+  final bool isSaveEvent;
 
   const AddToDoState({
     required this.showAppBar,
@@ -84,6 +86,8 @@ class AddToDoState extends Equatable {
     required this.isRecurringMonthOccurrence,
     required this.isRecurringEndDate,
     required this.recurringYearlySelectedMonth,
+    required this.showCleanTaskReassign,
+    required this.isSaveEvent,
   });
 
   AddToDoState copyWith({
@@ -126,55 +130,59 @@ class AddToDoState extends Equatable {
     bool? isRecurringMonthOccurrence,
     bool? isRecurringEndDate,
     DateTime? selectedRecurringEndDate,
+    bool? showCleanTaskReassign,
+    bool? isSaveEvent,
   }) =>
       AddToDoState(
-        showAppBar: showAppBar ?? this.showAppBar,
-        isLoading: isLoading ?? this.isLoading,
-        redirect: redirect ?? this.redirect,
-        isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
-        selectedVPerson: selectedVPerson ?? this.selectedVPerson,
-        isSelectedPlatformCheck:
-            isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
-        showPlatformCheck: showPlatformCheck ?? this.showPlatformCheck,
-        isMoreEnable: isMoreEnable ?? this.isMoreEnable,
-        isPartServiceEnable: isPartServiceEnable ?? this.isPartServiceEnable,
-        isSuppliesEnable: isSuppliesEnable ?? this.isSuppliesEnable,
-        showCleanCar: showCleanCar ?? this.showCleanCar,
-        selectedDate: selectedDate ?? this.selectedDate,
-        selectedTime: selectedTime ?? this.selectedTime,
-        clearDurations: clearDurations ?? this.clearDurations,
-        vehicles: vehicles ?? this.vehicles,
-        persons: persons ?? this.persons,
-        groupVehicles: groupVehicles ?? this.groupVehicles,
-        vendors: vendors ?? this.vendors,
-        locations: locations ?? this.locations,
-        linkOptions: linkOptions ?? this.linkOptions,
-        partServices: partServices ?? this.partServices,
-        resources: resources ?? this.resources,
-        supplies: supplies ?? this.supplies,
-        tasks: tasks ?? this.tasks,
-        selectedTaskIdentifier:
-            selectedTaskIdentifier ?? this.selectedTaskIdentifier,
-        selectedClearDuration:
-            selectedClearDuration ?? this.selectedClearDuration,
-        selectedLinkOption: selectedLinkOption ?? this.selectedLinkOption,
-        selectedTaskPersons: selectedTaskPersons ?? this.selectedTaskPersons,
-        selectedSupplies: selectedSupplies ?? this.selectedSupplies,
-        selectedParts: selectedParts ?? this.selectedParts,
-        recurringTypes: recurringTypes ?? this.recurringTypes,
-        selectedRecurring: selectedRecurring ?? this.selectedRecurring,
-        attachments: attachments ?? this.attachments,
-        addresses: addresses ?? this.addresses,
-        selectedRecurringDays:
-            selectedRecurringDays ?? this.selectedRecurringDays,
-        recurringYearlySelectedMonth:
-            recurringYearlySelectedMonth ?? this.recurringYearlySelectedMonth,
-        isRecurringMonthOccurrence:
-            isRecurringMonthOccurrence ?? this.isRecurringMonthOccurrence,
-        isRecurringEndDate: isRecurringEndDate ?? this.isRecurringEndDate,
-        selectedRecurringEndDate:
-            selectedRecurringEndDate ?? this.selectedRecurringEndDate,
-      );
+          showAppBar: showAppBar ?? this.showAppBar,
+          isLoading: isLoading ?? this.isLoading,
+          redirect: redirect ?? this.redirect,
+          isTimeSensitive: isTimeSensitive ?? this.isTimeSensitive,
+          selectedVPerson: selectedVPerson ?? this.selectedVPerson,
+          isSelectedPlatformCheck:
+              isSelectedPlatformCheck ?? this.isSelectedPlatformCheck,
+          showPlatformCheck: showPlatformCheck ?? this.showPlatformCheck,
+          isMoreEnable: isMoreEnable ?? this.isMoreEnable,
+          isPartServiceEnable: isPartServiceEnable ?? this.isPartServiceEnable,
+          isSuppliesEnable: isSuppliesEnable ?? this.isSuppliesEnable,
+          showCleanCar: showCleanCar ?? this.showCleanCar,
+          selectedDate: selectedDate ?? this.selectedDate,
+          selectedTime: selectedTime ?? this.selectedTime,
+          clearDurations: clearDurations ?? this.clearDurations,
+          vehicles: vehicles ?? this.vehicles,
+          persons: persons ?? this.persons,
+          groupVehicles: groupVehicles ?? this.groupVehicles,
+          vendors: vendors ?? this.vendors,
+          locations: locations ?? this.locations,
+          linkOptions: linkOptions ?? this.linkOptions,
+          partServices: partServices ?? this.partServices,
+          resources: resources ?? this.resources,
+          supplies: supplies ?? this.supplies,
+          tasks: tasks ?? this.tasks,
+          selectedTaskIdentifier:
+              selectedTaskIdentifier ?? this.selectedTaskIdentifier,
+          selectedClearDuration:
+              selectedClearDuration ?? this.selectedClearDuration,
+          selectedLinkOption: selectedLinkOption ?? this.selectedLinkOption,
+          selectedTaskPersons: selectedTaskPersons ?? this.selectedTaskPersons,
+          selectedSupplies: selectedSupplies ?? this.selectedSupplies,
+          selectedParts: selectedParts ?? this.selectedParts,
+          recurringTypes: recurringTypes ?? this.recurringTypes,
+          selectedRecurring: selectedRecurring ?? this.selectedRecurring,
+          attachments: attachments ?? this.attachments,
+          addresses: addresses ?? this.addresses,
+          selectedRecurringDays:
+              selectedRecurringDays ?? this.selectedRecurringDays,
+          recurringYearlySelectedMonth:
+              recurringYearlySelectedMonth ?? this.recurringYearlySelectedMonth,
+          isRecurringMonthOccurrence:
+              isRecurringMonthOccurrence ?? this.isRecurringMonthOccurrence,
+          isRecurringEndDate: isRecurringEndDate ?? this.isRecurringEndDate,
+          selectedRecurringEndDate:
+              selectedRecurringEndDate ?? this.selectedRecurringEndDate,
+          showCleanTaskReassign:
+              showCleanTaskReassign ?? this.showCleanTaskReassign,
+          isSaveEvent: isSaveEvent ?? this.isSaveEvent);
 
   @override
   List<Object?> get props => [
@@ -217,6 +225,8 @@ class AddToDoState extends Equatable {
         isRecurringMonthOccurrence,
         isRecurringEndDate,
         selectedRecurringEndDate,
+        showCleanTaskReassign,
+        isSaveEvent,
         Random().nextDouble()
       ];
 }
