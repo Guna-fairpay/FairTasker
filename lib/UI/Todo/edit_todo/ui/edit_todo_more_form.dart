@@ -1,13 +1,17 @@
 
 import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/BackUps/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/BackUps/part_view_ui.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
@@ -258,9 +262,47 @@ class EditTodoMoreForm extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Utils.getElevatedButton(() {
-                    context.read<EditToDoBloc>().add(EditToDoSaveEvent());
-              }, text: 'Update'),
+              SuccessButton(text: 'Update',onPressed: () {
+                if(state.apiResponse['recurring_id']!=null){
+                  AskPermissionDialog.show(
+                    context,
+                    title:
+                    "Do you want to Update this task only?",
+                    description:state.apiResponse['recurring'],
+                    positiveText:"Yes, Update it!",
+                    negativeText: "Cancel",
+                    isReasonRequired: false,
+                    subPositiveText:"Update multiple",
+                    onSaveMultiPressed: () async {
+                      if(state.selectedEndDate != null && state.selectedStartDate != null){
+                        await Future.delayed(Durations.short1);
+                        AskDateRangePermissionDialog.show(
+                            context,
+                            endDate: state.selectedEndDate?.toFormat(),
+                            startDate: state.selectedStartDate?.toFormat(),
+                            selectedEndDate: state.selectedEndDate,
+                            selectedStartDate: state.selectedStartDate,
+                            onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
+                            onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
+                            onPositivePressed: (){
+                              context.read<EditToDoBloc>().add(
+                                  EditToDoSaveEvent(isRecurring: true));
+                            }
+                        );
+                      }
+
+                    },
+                    onPositivePressed: (){
+                      context.read<EditToDoBloc>().add(
+                          EditToDoSaveEvent(isRecurring: false));
+                    },
+                  );
+
+                }else {
+                  context.read<EditToDoBloc>().add(
+                      EditToDoSaveEvent(isRecurring: false));
+                }
+              },),
             ],
           ),
           if (state.apiResponse['recurring'] != null)

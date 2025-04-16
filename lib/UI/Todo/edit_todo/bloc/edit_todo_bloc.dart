@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Response/todo_list_response.dart';
+import 'package:fairpytasker/core/app/config/todo_config.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
@@ -15,6 +18,7 @@ import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../../../../Repository/todo_list_repository.dart';
 import '../../../../Utilities/str.dart';
 import '../../../../Utilities/Utils.dart';
@@ -61,56 +65,65 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   late DateTime editToDoDate;
   bool showCleanCar = false;
   String? name=Session.of.getString("name");
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
+  String? reason;
+  String? timeChangePopupType;
+  dynamic selectedDate;
 
 
-  EditToDoBloc()
-      : super(EditTodoState(
-          isLoading: false,
-          isTimeSensitive: false,
-          tasks: const [],
-          vehicles: const [],
-          persons: const [],
-          vendors: const [],
-          locations: const [],
-          partServices: const [],
-          supplies: const [],
-          resources: const [],
-          selectedTaskPersons: const [],
-          selectedVPerson: const [],
-          selectedVLocations: const {},
-          selectedParts: const [],
-          selectedSupplies: const [],
-          todoAttachments: const [],
-          selectedTask: const {},
-          linkOptions: AddToDoConfig.customOptions,
-          bottomTapData: const [],
-          selectedBottomTap: const {},
-          isSelectedPlatformCheck: false,
-          showPlatformCheck: false,
-          isMoreEnable: false,
-          isPartServiceEnable: false,
-          isSuppliesEnable: false,
-          selectedLinkOption: AddToDoConfig.customOptions[1],
-          selectedDate: DateTime.now(),
-          selectedTime: TimeOfDay.now(),
-          apiResponse: const {},
-          todoStatus: false,
-          selectedResource: const [],
-          userGroup: const [],
-          resourceName: const [],
-          addresses: const [],
-          title: '',
-          taskHistory: const [],
-          selectedVehicle: const{},
-          groupVehicles: const [],
-          sentiments: AddToDoConfig.sentiments,
-          selectedSentiment: const {},
-          popUpdatePage: false,
-          previousOdometer: '',
-          selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
-          showCleanCar: false,
-          isPop: false,
-          clearDurations: AddToDoConfig.cleanCarDurations,
+  EditToDoBloc() : super(
+      EditTodoState(
+        isLoading: false,
+        isTimeSensitive: false,
+        tasks: const [],
+        vehicles: const [],
+        persons: const [],
+        vendors: const [],
+        locations: const [],
+        partServices: const [],
+        supplies: const [],
+        resources: const [],
+        selectedTaskPersons: const [],
+        selectedVPerson: const [],
+        selectedVLocations: const {},
+        selectedParts: const [],
+        selectedSupplies: const [],
+        todoAttachments: const [],
+        selectedTask: const {},
+        linkOptions: AddToDoConfig.customOptions,
+        bottomTapData: const [],
+        selectedBottomTap: const {},
+        isSelectedPlatformCheck: false,
+        showPlatformCheck: false,
+        isMoreEnable: false,
+        isPartServiceEnable: false,
+        isSuppliesEnable: false,
+        selectedLinkOption: AddToDoConfig.customOptions[1],
+        selectedDate: DateTime.now(),
+        selectedTime: TimeOfDay.now(),
+        apiResponse: const {},
+        todoStatus: false,
+        selectedResource: const [],
+        userGroup: const [],
+        resourceName: const [],
+        addresses: const [],
+        title: '',
+        taskHistory: const [],
+        selectedVehicle: const{},
+        groupVehicles: const [],
+        sentiments: AddToDoConfig.sentiments,
+        selectedSentiment: const {},
+        popUpdatePage: false,
+        previousOdometer: '',
+        selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
+        showCleanCar: false,
+        isPop: false,
+        clearDurations: AddToDoConfig.cleanCarDurations,
+        selectedEndDate: null,
+        selectedStartDate: null,
+        isRecurring: false,
+        isTimeChange: false,
       )) {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
@@ -302,6 +315,18 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
          showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?.editTodos?['identifier_id']);
 
+        RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
+        if(todoResponse?.editTodos?['recurring'] != null){
+          final matches = dateRegExp.allMatches(todoResponse?.editTodos?['recurring']??[]).toList();
+          if (matches.length >= 2) {
+            String startDate = matches[0].group(0)!; // 12-31-2024
+            String endDate = matches[1].group(0)!;   // 03-31-2026
+            DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
+            DateTime parsedEnd = DateFormat('MM-dd-yyyy').parse(endDate);
+            selectedStartDate = parsedStart;
+            selectedEndDate = parsedEnd;
+          }
+        }
 
         emit(state.copyWith(
           isLoading: false,
@@ -353,6 +378,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           todoAttachments: todoImages,
           groupVehicles: groupVehiclesResponse,
           selectedSentiment: selectedSentiments,
+          clearDurations: AddToDoConfig.cleanCarDurations,
+          selectedEndDate: selectedEndDate,
+          selectedStartDate: selectedStartDate,
           isPop: false,
         ));
         await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
@@ -486,8 +514,59 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoDateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
 
-    on<EditToDoTimeChangeEvent>((event, emit) =>
-        emit(state.copyWith(selectedTime: event.selectedTime)));
+    on<EditToDoStartDateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedStartDate: event.selectedDate)));
+
+    on<EditToDoEndDateChangeEvent>((event, emit) =>
+        emit(state.copyWith(selectedEndDate: event.selectedDate)));
+
+    on<EditToDoTimeChangeEvent>((event, emit) async {
+
+      var model = state.apiResponse;
+      var time = event.selectedTime;
+      var identifierId = state.selectedTask['id'];
+      var taskDate = state.selectedDate;
+      var notes = notesController.text;
+      var currentDate = DateTime.now().toFormat().toDateTime();
+      if ((taskDate == currentDate) && (reason.toString().isNullOrEmpty/* && event.type.toString().isNullOrEmpty*/)) {
+        var selectedTime = Time.fromStr(time.toHMS());
+        if (ToDoConfig.dropCheckInCarRental.contains(identifierId) && ((notes.isNotNullOrEmpty ?? false) && !(notes.contains("/") ?? false))) {
+          var currentTime = notes.toDateTime(inputFormat: "hh:mm a")?.time;
+          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          if (isAfter ?? false) {
+            timeChangePopupType='drop';
+            selectedDate=event.selectedTime;
+            emit(state.copyWith(isTimeChange: true));
+            await Future.delayed(Durations.short1, () => emit(state.copyWith(isTimeChange: false)));
+            return ;
+          }
+          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+        } else {
+          Console.of.log("ELSE PART");
+        }
+        if (ToDoConfig.pickCheckOutCarRental.contains(identifierId) && ((notes.isNotNullOrEmpty ?? false) && !(notes.contains("/") ?? false))) {
+          var currentTime = notes.toDateTime(inputFormat: "hh:mm a")?.time;
+          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          if (isBefore ?? false) {
+            timeChangePopupType='pickup';
+            emit(state.copyWith(isTimeChange: true));
+            await Future.delayed(Durations.short1, () => emit(state.copyWith(isTimeChange: false)));
+            return;
+          }
+          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+        } else {
+          Console.of.log("ELSE PART");
+        }
+      }
+        emit(state.copyWith(selectedTime: event.selectedTime)
+        );});
+
+    on<EditTodoTimeChangeReasonEvent>((event, emit){
+      reason=event.reason;
+      emit(state.copyWith(selectedDate: selectedDate));
+    });
 
     on<EditToDoTimeSensitiveEvent>((event, emit) =>
         emit(state.copyWith(isTimeSensitive: !state.isTimeSensitive)));
@@ -578,9 +657,25 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<DeleteTodoEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
-        _broadcast.stickyBroadcast("todo_view", value:true);
-        if (response?['status'] == 200) Toaster.showSuccess(response?['message'] ?? "Success");
+        if(event.isExpenseDelete){
+          var responseExpense = await apiRepository.deleteVehicleExpense(event.data['expense_id']);
+          var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+          _broadcast.stickyBroadcast("todo_view", value:true);
+          if (response?['status'] == 200) Toaster.showSuccess(response?['message']);
+        }else if(event.isRecurring){
+          var response = await apiRepository.deleteRecurringTodo(
+            id: event.data['recurring_id'],
+            reason:state.selectedEndDate.toFormat(),
+            from:event.reason,
+            to:state.selectedStartDate.toFormat() ,);
+          _broadcast.stickyBroadcast("todo_view", value:true);
+        }else{
+          var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+          _broadcast.stickyBroadcast("todo_view", value:true);
+        }
+        // var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
+        // _broadcast.stickyBroadcast("todo_view", value:true);
+
         emit(state.copyWith(isLoading: false,isPop: true));
       } catch (e) {
         Toaster.showError("$e");
@@ -633,12 +728,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       // API CALL
       try {
-        emit(state.copyWith(isLoading: true));
+        emit(state.copyWith(isLoading: true,isRecurring: event.isRecurring));
         var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
             images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
         if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message']);
         _broadcast.stickyBroadcast("todo_view", value:true);
-        emit(state.copyWith(isLoading: false,isPop: true));
+        emit(state.copyWith(isLoading: false,isPop: true,isRecurring: false));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(),name: 'ERROR');
@@ -672,18 +767,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("$e");
         emit(state.copyWith(isLoading: false));
       }
-
     });
-
   }
 
   Map<String, String> _editTodoBody() {
+    Console.of.log(state.isRecurring);
     state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
     Map<String, String> baseBody = {};
     baseBody['title'] = "${state.selectedTask['task']??''}";
     baseBody['identifier_id'] = "${state.selectedTask['id']??''}";
-    baseBody['todo_time'] = state.selectedTime.toHMS().toString();
-    baseBody['todo_date'] = dateController.text;
+    if(state.isRecurring == false){
+      baseBody['todo_time'] = state.selectedTime.toHMS().toString();
+      baseBody['todo_date'] = dateController.text;
+    }
     baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
     baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['comments'] = commentsController.text;
@@ -715,7 +811,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
     }
 
-      baseBody['parts']= "${state.selectedParts.isEmpty
+    baseBody['parts']= "${state.selectedParts.isEmpty
           ? null
           : state.selectedParts.map((e)=>jsonEncode({
         "parts_id": "${e['id']}",
@@ -758,6 +854,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     baseBody['person'] = firstPerson?['name']?.toString() ?? "";
     baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
+    baseBody['type'] = "inline";
 
     var groupVehicleList = state.selectedVPerson
         .where((element) => element['type'] == "g_vehicles")
@@ -766,39 +863,68 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
 
     baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
-
-
+    if((state.isRecurring==true) && (state.selectedStartDate != null && state.selectedEndDate != null)){
+      baseBody['from_date'] = state.selectedStartDate.toFormat() ??'';
+      baseBody['to_date'] = state.selectedEndDate.toFormat() ??'';
+    }
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
   }
 
   Map<String, String> _cleanCarBody() {
-   // state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
+    var isAdd = state.selectedTask['id'] == 210;
+    var date = state.selectedDate ?? DateTime.now();
+    var timeAt = state.selectedTime.toDateTime;
+    var timeDay = state.selectedTime;
+    if (timeAt != null) {
+      date = DateTime(date.year, date.month, date.day, timeAt.hour, timeAt.minute);
+      if (isAdd) {
+        timeAt = date.add(Duration(minutes: state.selectedClearDuration?['value']));
+      } else {
+        timeAt =
+            date.subtract(Duration(minutes: state.selectedClearDuration?['value']));
+      }
+      timeDay = TimeOfDay.fromDateTime(timeAt);
+    }
     Map<String, String> baseBody = {};
     baseBody['title'] = "Clean Car";
     baseBody['identifier_id'] = "30";
+    if(state.selectedVLocations.isNotEmpty) {
+      if (state.selectedVLocations['type'] == "location") {
+        baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
+      }
+      if (state.selectedVLocations['type'] == "vendor") {
+        baseBody['vendor'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
+      }
+    }
+    baseBody['cohort_id'] = "";
+    baseBody['cohort_name'] = "";
+    baseBody['vin'] = "";
+    baseBody['vehicle_name'] = "";
+    baseBody['vehicle_image'] = "";
+    baseBody['vehicle_name'] = "";
+    baseBody['vehicles']= "${state.selectedVPerson
+        .where((element) => element['type'] == "vehicles")
+        .map((e) => e['value'])
+        .map((e) => jsonEncode({
+      "cohort_id": "${e['cohort']?['id'] ?? ""}",
+      "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+      "vin": e['vin'],
+      "vehicle_name": e['vehicle_name'],
+      "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
+      "vehicle_number": e['vehicle_number']
+    })).toList()}";
+
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
     baseBody['start_at'] = dateController.text;
-   // baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
     baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
-    // baseBody['comments'] = commentsController.text;
-    baseBody['resolution_notes'] = resolutionNotesController.text;
-    baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['todo_user_type'] = "0";
-    baseBody['comments'] = "";
     baseBody['mileage'] = odometerController.text;
     baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
-    baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
-    baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
-    baseBody['trip_driven'] = tripDrivenController.text;
-    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1)
-        ? customLinkController.text
-        : "";
-    baseBody['reference_id'] = (state.selectedLinkOption?['id'] != 1)
-        ? customLinkController.text
-        : "";
     if(state.selectedResource.isNotEmpty){
       if (state.selectedResource.length == 1) {
         baseBody['user_id'] = state.selectedResource.first.toString();
@@ -824,27 +950,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       "supplies_name": "${e['name']}",
     }) ).toList()}";
 
-    if(state.selectedVLocations.isNotEmpty) {
-      if (state.selectedVLocations['type'] == "location") {
-        baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
-        baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
-      }
-      if (state.selectedVLocations['type'] == "vendor") {
-        baseBody['vendor'] = "${state.selectedVLocations['name'] ?? ''}";
-        baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
-      }
-    }
-    baseBody['vehicles']= "${state.selectedVPerson
-        .where((element) => element['type'] == "vehicles")
-        .map((e) => e['value'])
-        .map((e) => jsonEncode({
-      "cohort_id": "${e['cohort']?['id'] ?? ""}",
-      "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
-      "vin": e['vin'],
-      "vehicle_name": e['vehicle_name'],
-      "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
-      "vehicle_number": e['vehicle_number']
-    })).toList()}";
+
+
     var personList = state.selectedVPerson
         .where((element) => element['type'] == "person")
         .toList();

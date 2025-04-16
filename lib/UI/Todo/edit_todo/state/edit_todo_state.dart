@@ -50,6 +50,10 @@ class EditTodoState extends Equatable {
   final dynamic selectedClearDuration;
   final bool isPop;
   final List<dynamic>clearDurations;
+  final DateTime? selectedEndDate;
+  final DateTime? selectedStartDate;
+  final bool isRecurring;
+  final bool isTimeChange;
 
   const EditTodoState( {
     required this.isLoading,
@@ -98,6 +102,10 @@ class EditTodoState extends Equatable {
     this.selectedClearDuration,
     required this.isPop,
     required this.clearDurations,
+    required this.selectedEndDate,
+    required this.selectedStartDate,
+    required this.isRecurring,
+    required this.isTimeChange,
   });
 
   EditTodoState copyWith({
@@ -157,6 +165,9 @@ class EditTodoState extends Equatable {
     String? previousOdometer,
     bool? isRecurring,
     bool? isPop,
+    DateTime? selectedEndDate,
+    DateTime? selectedStartDate,
+    bool? isTimeChange,
 
   }) =>
       EditTodoState(
@@ -207,7 +218,10 @@ class EditTodoState extends Equatable {
         selectedClearDuration:selectedClearDuration ?? this.selectedClearDuration,
         isPop: isPop ?? this.isPop,
         clearDurations: clearDurations ?? this.clearDurations,
-
+        selectedEndDate: selectedEndDate ?? this.selectedEndDate,
+        selectedStartDate: selectedStartDate ?? this.selectedStartDate,
+        isRecurring: isRecurring ?? this.isRecurring,
+        isTimeChange: isTimeChange ?? this.isTimeChange,
       );
 
   @override
@@ -258,6 +272,10 @@ class EditTodoState extends Equatable {
     selectedClearDuration,
     isPop,
     clearDurations,
+    selectedEndDate,
+    selectedStartDate,
+    isRecurring,
+    isTimeChange,
     Random().nextDouble()
   ];
 }

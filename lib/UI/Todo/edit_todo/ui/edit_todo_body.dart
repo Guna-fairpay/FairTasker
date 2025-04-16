@@ -4,7 +4,7 @@ import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/backup/task_add_ui.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/ui/resource_popup.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -125,6 +125,9 @@ class EditTodoBody extends StatelessWidget {
                     ),
                   ],
                 ),
+                if(context.watch<EditToDoBloc>().reason != null)...[
+                  Utils.getText("Reason : ${context.watch<EditToDoBloc>().reason ?? ''}",size: 10.sp,overFlow: TextOverflow.visible,color: AppC.grey),
+                ],
                 10.height,
                 SearchViewField(
                     controller: context.read<EditToDoBloc>().taskNameController,
