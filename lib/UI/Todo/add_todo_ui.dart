@@ -39,7 +39,7 @@ class CreateTodoUI extends StatelessWidget {
               context.pop();
             }
             if (state.showCleanTaskReassign) {
-              RecleanDialog.show(context, isSaveEvent: state.isSaveEvent, onPressed: ({isSaveEvent, reasonFiles, reasonMessage}) {
+              RecleanDialog.show(context, model: state.recleanModel, isSaveEvent: state.isSaveEvent, onPressed: ({isSaveEvent, reasonFiles, reasonMessage}) {
                 context.read<AddToDoBloc>().add(AddToDoReassignEvent(isSaveEvent: isSaveEvent, reasonFiles: reasonFiles, reasonMessage: reasonMessage));
                 Utils.dismissKeyboard(context);
               });

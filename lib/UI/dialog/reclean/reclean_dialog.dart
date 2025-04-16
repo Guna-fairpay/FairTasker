@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/dialog/reclean/bloc/reclean_bloc.dart';
 import 'package:fairpytasker/UI/dialog/reclean/bloc/reclean_events.dart';
 import 'package:fairpytasker/UI/dialog/reclean/bloc/reclean_states.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Component/compact_file_picker.dart';
 import 'package:fairpytasker/Component/compact_text_field.dart';
@@ -18,10 +19,10 @@ import 'package:flutter/material.dart';
 class RecleanDialog {
   RecleanDialog._();
 
-  static void show(BuildContext context, {void Function({String? reasonMessage, List<dynamic>? reasonFiles, bool? isSaveEvent})? onPressed, bool isSaveEvent = false}) async {
+  static void show(BuildContext context, {Map<String, dynamic>? model, void Function({String? reasonMessage, List<dynamic>? reasonFiles, bool? isSaveEvent})? onPressed, bool isSaveEvent = false}) async {
     await showDialog(
       context: context,
-      builder: (context) => _RecleanDialogView(onPressed: onPressed, isSaveEvent: isSaveEvent),
+      builder: (context) => _RecleanDialogView(onPressed: onPressed, isSaveEvent: isSaveEvent, model: model,),
     );
   }
 }
@@ -29,7 +30,8 @@ class RecleanDialog {
 class _RecleanDialogView extends StatelessWidget {
   final void Function({String? reasonMessage, List<dynamic>? reasonFiles, bool? isSaveEvent})? onPressed;
   final bool isSaveEvent;
-  const _RecleanDialogView({this.onPressed, this.isSaveEvent = false});
+  final Map<String, dynamic>? model;
+  const _RecleanDialogView({this.onPressed, this.isSaveEvent = false, this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class _RecleanDialogView extends StatelessWidget {
             icon: const Icon(Icons.close_rounded)),
       ),
       content: BlocProvider(
-        create: (context) => RecleanBloc()..add(RecleanInitialEvent()),
+        create: (context) => RecleanBloc()..add(RecleanInitialEvent(model: model)),
         child: BlocListener<RecleanBloc, RecleanState>(
           listener: (_, state) {
             switch (state) {
@@ -91,10 +93,12 @@ class _RecleanDialogContentView extends StatelessWidget {
                   spacing: 10.sp,
                   children: [
                     Text(
-                      "Already assigned to IA",
+                      "Already assigned to ${<String>[(context.watch<RecleanBloc>().model?['users']?['first_name'] ?? ""), (context.watch<RecleanBloc>().model?['users']?['last_name'] ?? "")].toInitial}",
                       style: context.textTheme.labelLarge?.copyWith(
                           color: AppC.redAccent, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.start,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     if (context.watch<RecleanBloc>().isReasonEnabled) ...[
                       Text.rich(

@@ -38,7 +38,8 @@ class ToDoSupport {
 
   Map<String, dynamic>? lastCleanCarTask({String? vin}) {
     if (!isClearCarTaskExist(vin: vin)) return null;
-    var response = _todos.firstWhereOrNull((element) => (element['identifier_id'] == _cleanCarTaskId) && (List.from(element["vehicles"]).map((e) => e['vin']).contains(vin)));
+    var response = _todos.lastWhereOrNull((element) => (element['identifier_id'] == _cleanCarTaskId) && (List.from(element["vehicles"]).map((e) => e['vin']).contains(vin)));
+    Console.of.debug(response);
     return response;
   }
 }

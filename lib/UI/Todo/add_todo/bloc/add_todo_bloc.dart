@@ -122,6 +122,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             isRecurringEndDate: true,
             isRecurringMonthOccurrence: true,
             showCleanTaskReassign: false,
+      recleanModel: const {},
             isSaveEvent: false,
             recurringYearlySelectedMonth: AddToDoConfig.months.first,
             selectedLinkOption: AddToDoConfig.customOptions.first,
@@ -584,11 +585,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           if ((lastVin != null) &&
               (state.selectedTaskIdentifier[1]['id'] == 30)) {
             if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
+              var lastBody = getIt<ToDoSupport>().lastCleanCarTask(vin: lastVin);
               emit(state.copyWith(
-                  showCleanTaskReassign: true, isSaveEvent: true));
+                  showCleanTaskReassign: true, isSaveEvent: true, recleanModel: lastBody));
               await Future.delayed(Durations.short2);
               emit(state.copyWith(
-                  showCleanTaskReassign: false, isSaveEvent: false));
+                  showCleanTaskReassign: false, isSaveEvent: false, recleanModel: {}));
               return;
             }
           }
@@ -632,11 +634,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             .lastOrNull;
         if (lastVin != null) {
           if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
+            var lastBody = getIt<ToDoSupport>().lastCleanCarTask(vin: lastVin);
             emit(state.copyWith(
-                showCleanTaskReassign: true, isSaveEvent: false));
+                showCleanTaskReassign: true, isSaveEvent: false, recleanModel: lastBody));
             await Future.delayed(Durations.short2);
             emit(state.copyWith(
-                showCleanTaskReassign: false, isSaveEvent: false));
+                showCleanTaskReassign: false, isSaveEvent: false, recleanModel: {}));
             return;
           }
         }

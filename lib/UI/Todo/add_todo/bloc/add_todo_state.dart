@@ -45,6 +45,7 @@ class AddToDoState extends Equatable {
   final dynamic recurringYearlySelectedMonth;
   final bool showCleanTaskReassign;
   final bool isSaveEvent;
+  final Map<String, dynamic>? recleanModel;
 
   const AddToDoState({
     required this.showAppBar,
@@ -88,6 +89,7 @@ class AddToDoState extends Equatable {
     required this.recurringYearlySelectedMonth,
     required this.showCleanTaskReassign,
     required this.isSaveEvent,
+    required this.recleanModel,
   });
 
   AddToDoState copyWith({
@@ -132,6 +134,7 @@ class AddToDoState extends Equatable {
     DateTime? selectedRecurringEndDate,
     bool? showCleanTaskReassign,
     bool? isSaveEvent,
+    Map<String, dynamic>? recleanModel,
   }) =>
       AddToDoState(
           showAppBar: showAppBar ?? this.showAppBar,
@@ -182,7 +185,8 @@ class AddToDoState extends Equatable {
               selectedRecurringEndDate ?? this.selectedRecurringEndDate,
           showCleanTaskReassign:
               showCleanTaskReassign ?? this.showCleanTaskReassign,
-          isSaveEvent: isSaveEvent ?? this.isSaveEvent);
+          isSaveEvent: isSaveEvent ?? this.isSaveEvent,
+          recleanModel: recleanModel ?? this.recleanModel);
 
   @override
   List<Object?> get props => [
@@ -227,6 +231,7 @@ class AddToDoState extends Equatable {
         selectedRecurringEndDate,
         showCleanTaskReassign,
         isSaveEvent,
+        recleanModel,
         Random().nextDouble()
       ];
 }
