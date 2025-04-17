@@ -58,6 +58,15 @@ class EnterEditModeEvent extends VendorDataEvent {
   @override
   List<Object?> get props => [ vendor];
 }
+
+class locationEvent extends VendorDataEvent {
+  dynamic latitude;
+  dynamic longitude;
+  locationEvent( {required this.latitude, required this.longitude});
+  @override
+  List<Object?> get props => [ latitude, longitude];
+}
+
 class EnterVendorTypeEditEvent extends VendorDataEvent {
   dynamic vendor;
   EnterVendorTypeEditEvent( {required this.vendor});

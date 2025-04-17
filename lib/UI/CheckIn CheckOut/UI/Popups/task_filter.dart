@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../Utilities/Utils.dart';
+import '../../../../Utilities/appC.dart';
 import '../../Bloc/workHoursBloc.dart';
 import '../../Event/workingHoursEvent.dart';
 
@@ -35,22 +36,32 @@ class _FilterDialogState extends State<FilterDialog> {
   bool isAllSelected = false;
 
   final Map<String, dynamic> otherFilter = {
-    'id': -1, // Assuming -1 is unused and safe for "Other"
+    'id': -1,
     'cohort': 'Other',
   };
 
   @override
   void initState() {
     super.initState();
-    tempSelectedFilters = {...widget.selectedFilters};
 
     // Add 'Other' to options if not already present
     if (!widget.filterOptions.any((e) => e['id'] == -1)) {
       widget.filterOptions.add(otherFilter);
     }
 
+    // Select all by default if nothing is selected
+    if (widget.selectedFilters.isEmpty) {
+      tempSelectedFilters = widget.filterOptions.map((e) => e['id'] as int).toSet();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _applyFilters(); // Trigger the first fetch with all selected
+      });
+    } else {
+      tempSelectedFilters = {...widget.selectedFilters};
+    }
+
     isAllSelected = tempSelectedFilters.length == widget.filterOptions.length;
   }
+
 
   void _toggleAllSelection(bool? value) {
     setState(() {
@@ -90,6 +101,7 @@ class _FilterDialogState extends State<FilterDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppC.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       insetPadding: const EdgeInsets.all(16),
       child: Container(
@@ -106,8 +118,6 @@ class _FilterDialogState extends State<FilterDialog> {
                 ),
               ],
             ),
-
-            // "All" Checkbox Row (checkbox on right)
             Row(
               children: [
                 Padding(
@@ -123,7 +133,6 @@ class _FilterDialogState extends State<FilterDialog> {
 
             const Divider(height: 0),
 
-            // Filter List
             Expanded(
               child: ListView.builder(
                 itemCount: widget.filterOptions.length,

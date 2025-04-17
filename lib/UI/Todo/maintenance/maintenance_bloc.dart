@@ -173,6 +173,19 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         parsedData = parseMaintenanceData(matchingTodos);
         log("${parsedData}", name:'parsedData');
 
+        // Update selectedDropdownValues and checkboxStates based on parsedData
+        for (var data in parsedData) {
+          final itemId = data['itemId'];
+          final status = data['name'].toString().toLowerCase();
+          if (itemId != null) {
+            selectedDropdownValues[itemId] = status == "bad" ? "Bad" : status; // Handle "Bad" explicitly
+            checkboxStates[data['maintenanceId']]?[itemId] = status != "bad"; // Uncheck if "Bad"
+            if (status != "good") {
+              notesControllers[itemId]?.text = data['comments'] ?? "";
+            }
+          }
+        }
+
         for (var data in matchingTodos) {
           try {
             if (data["maintenance_task_id"] != null) {
@@ -244,70 +257,39 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
 
     //Multiple Checkbox
     on<IndividualCheckEvent>((event, emit) {
-        final updatedIndividualCheckStates = Map<String, bool>.from(state.individualCheckStates);
-        print("updatedIndividualCheckStates ${state.individualCheckStates}");
-        updatedIndividualCheckStates[event.itemId] = event.status;//{Oil: false, Coolant: false, Front : false, Rear: false, Front: false,}
-        print("Updated maintenanceTaskId: $updatedIndividualCheckStates");
-        print("IndividualCheckEvent ${event.item}");
-        Map<String, dynamic> popupId = event.item ?? {};
-        itemCopy = event.item;
-        var childrenData = event.item?['children'];
-        var childrens = List<Map<String, dynamic>>.from(childrenData ?? []);
-        log("${event.status}", name: "CHILDREN_DATA");
-        var goodData = childrens.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == ( (event.status) ? "good" : "bad"));
-        log("$goodData", name: "GOOD_DATA");
+      final updatedIndividualCheckStates = Map<String, bool>.from(state.individualCheckStates);
+      updatedIndividualCheckStates[event.itemId] = event.status;
+      log("Updated individualCheckStates: $updatedIndividualCheckStates", name: "INDIVIDUAL_CHECK");
 
+      final updatedCheckboxStates = Map<int, Map<int, bool>>.from(state.checkboxStates);
+      final maintenanceId = event.item?['id'] ?? 0;
+      if (!updatedCheckboxStates.containsKey(maintenanceId)) {
+        updatedCheckboxStates[maintenanceId] = {};
+      }
+      updatedCheckboxStates[maintenanceId]![int.parse(event.itemId)] = event.status;
 
-        newItemId = int.parse(event.itemId);
-        if (event.status == true && !idListAsInt.contains(newItemId)) {
-          idListAsInt.add(newItemId!);
-        }
-        if (event.status == false && idListAsInt.contains(newItemId)) {
-          idListAsInt.remove(newItemId);
-        }
-        maintenanceTaskId = idListAsInt.map((id) => id.toString()).join('-'); //7-8-6
-        var dropDownData = goodData;
+      final updatedSelectedDropdownValues = Map<dynamic, String>.from(state.selectedDropdownValues);
+      final childrenData = event.item?['children'];
+      var childrens = List<Map<String, dynamic>>.from(childrenData ?? []);
 
-        List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
-          List<int> matchingIds = [];
+      // Determine dropdown value based on checkbox state
+      var badData = childrens.firstWhereOrNull(
+            (element) => element['name'].toString().toLowerCase() == "bad",
+      );
+      log("$badData", name: "BAD_DATA");
 
-          int parentId = checkEvent["id"];
-          List<int> childIds = (checkEvent["children"] as List)
-              .map((child) => child["id"] as int)
-              .toList();
+      final newDropdownValue = event.status
+          ? {"id": childrens.firstWhere((e) => e['name'].toString().toLowerCase() == "good", orElse: () => {"id": 99, "name": "Good"})['id'], "name": "Good"}
+          : (badData ?? {"id": 51, "name": "Bad"}); // Use id 51 for "Bad" as per your data
+      updatedSelectedDropdownValues[event.itemId] = newDropdownValue['name'];
 
-          for (var task in maintenanceTasks) {
-            String maintenanceTaskId = task["maintenance_task_id"];
-            List<int> taskIds = maintenanceTaskId
-                .split(" - ")
-                .map((id) => int.tryParse(id) ?? -1)
-                .where((id) => id != -1)
-                .toList();
-
-            if (taskIds.contains(parentId) && taskIds.any((id) => childIds.contains(id))) {
-              matchingIds.add(task["id"]);
-            }
-          }
-          return matchingIds;
-        }
-
-        for (var task in matchingTodos) {
-          String maintenanceTaskId = task['maintenance_task_id'];
-          List<String> taskIdParts = maintenanceTaskId.split(' - ');
-          int parentId = int.tryParse(taskIdParts[1]) ?? 0;
-          int childId = int.tryParse(taskIdParts[2]) ?? 0;
-
-          print('Parent ID: $parentId, Child ID: $childId');
-        }
-
-        List<int> result = getMatchingIds(itemCopy, matchingTodos);
-
-
-        emit(state.copyWith(
-          popupId: popupId,
-          individualCheckStates: updatedIndividualCheckStates,
-          dropdownValue: dropDownData,
-        ));
+      // Emit the updated state
+      emit(state.copyWith(
+        individualCheckStates: updatedIndividualCheckStates,
+        checkboxStates: updatedCheckboxStates,
+        selectedDropdownValues: updatedSelectedDropdownValues,
+        dropdownValue: newDropdownValue,
+      ));
     });
 
     //Create Fix Task
