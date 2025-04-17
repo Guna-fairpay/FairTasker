@@ -1,6 +1,7 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
+import 'package:fairpytasker/UI/dialog/tasker_bouncie/tasker_bouncie_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_in_out_completed_dialog.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_ui.dart';
@@ -31,7 +32,6 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,7 +44,6 @@ class TaskerMainUi extends StatelessWidget {
   Widget build(BuildContext _) {
     return BlocProvider<ToDoTaskerBloc>(create: (_) => ToDoTaskerBloc()..add(ToDoTaskerInitialEvent()),
       child: BlocListener<ToDoTaskerBloc, ToDoTaskerState>(listener: (context, state) {
-        Console.of.debug("${state}", name: "TASKER_STATE");
         if (state is ToDoTaskerLoadingState) {
           if (!EasyLoading.isShow) EasyLoading.show();
         } else {
@@ -86,6 +85,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerViewReasonAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['reason_images']).map((e) => e['images'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
             case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
             case ToDoTaskerShowDropCheckInPopupState(): TaskerTimeChangeReasonDialog.show(context, type: state.type, onSubmitted: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeChangeEvent(state.selectedTime, state.model, type: state.type, reason: value))); break;
+            case ToDoTaskerViewBouncieState(): TaskerBouncieDialog.show(context, state.model); break;
             default: break;
           }
         }

@@ -98,6 +98,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerViewReasonAttachmentEvent>(_onViewReasonAttachmentEvent);
     on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
     on<ToDoTaskerTimeSensitiveEvent>(_onTimeSensitiveEvent);
+    on<ToDoTaskerViewBouncieEvent>(_onViewBouncieEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
@@ -1014,5 +1015,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     isTimeSensitive = event.isTimeSensitive;
     _searchTasks();
     emit(ToDoTaskerCommonState());
+  }
+
+  void _onViewBouncieEvent(ToDoTaskerViewBouncieEvent event, Emitter<ToDoTaskerState> emit) {
+    emit(ToDoTaskerViewBouncieState(event.model));
   }
 }

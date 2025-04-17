@@ -51,5 +51,9 @@ static const redAccent = Color(0xffd01601);
 
   static const blueButtonColor = Color(0xFF41a5d4);
   static const fileButtonColor = Color(0xFFeff2f7);
+  static const bouncieButtonColor = Color(0xFF4788ff);
+  static const bouncieBgColor = Color(0xFFf8dcd9);
+  static const bouncieFontColor = Color(0xFF9c1101);
+  static const bouncieBgBorderColor = Color(0xFFf1b9b3);
 
 }

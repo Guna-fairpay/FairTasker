@@ -52,6 +52,7 @@ class TaskerListingUi extends StatelessWidget {
               onCustomLink: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewCustomLinkEvent(model)),
               onViewAttachment: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewAttachmentEvent(model)),
               onReasonAttachmentView: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewReasonAttachmentEvent(model)),
+              onBouncie: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerViewBouncieEvent(model)),
             );
           },
           onReorder: (oldIndex, newIndex) {
