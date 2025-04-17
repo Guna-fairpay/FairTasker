@@ -32,7 +32,7 @@ class PartsTextFieldPage extends StatelessWidget {
                               : null,
                     ),
                     Utils.getTextFormField(
-                      "Notes",
+                      "Description",
                       context.read<PartsBloc>().notesController,
                     ),
                     Row(

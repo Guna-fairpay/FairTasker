@@ -34,6 +34,7 @@ class CategoryConfigTextFieldPage extends StatelessWidget {
                       (v)=>context.read<CategoryConfigBloc>().add(UserTypeDropDownEvent(data: v)),
                   labelKey: 'name',
                 initialSelection: context.read<CategoryConfigBloc>().selectedUserType,
+                selectedKey: context.read<CategoryConfigBloc>().selectedUserType,
               ),
               Row(
                 //spacing: 10,

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/backup/task_add_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
@@ -35,6 +36,8 @@ class EditTodoBody extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 5,
                   children: [
                     CustomDateTimePicker<DateTime>(
                       controller: context.read<EditToDoBloc>().dateController,
@@ -48,6 +51,7 @@ class EditTodoBody extends StatelessWidget {
                           .add(EditToDoDateChangeEvent(value)),
 
                     ),
+                    5.width,
                     CustomDateTimePicker<TimeOfDay>(
                       controller: context.read<EditToDoBloc>().timeController,
                       value: state.selectedTime,
@@ -59,69 +63,43 @@ class EditTodoBody extends StatelessWidget {
                           .read<EditToDoBloc>()
                           .add(EditToDoTimeChangeEvent(value)),
                     ),
-                    GestureDetector(
-                      onTap: () => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoTimeSensitiveEvent()),
-                      child: Row(
+                    Expanded(
+                      child: CustomCheckboxListTile(
                         mainAxisSize: MainAxisSize.min,
-                        spacing: 3,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            child: Checkbox(
-                              value: state.isTimeSensitive,
-                              checkColor: AppC.white,
-                              shape: ContinuousRectangleBorder(
-                                  side: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(10)),
-                              side:
-                                  const BorderSide(color: AppC.grey, width: 2),
-                              fillColor: WidgetStateProperty.resolveWith<Color>(
-                                  (states) =>
-                                      (states.contains(WidgetState.selected))
-                                          ? AppC.blue
-                                          : AppC.white),
-                              onChanged: (value) => context
-                                  .read<EditToDoBloc>()
-                                  .add(EditToDoTimeSensitiveEvent()),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Utils.getText('Time\nSensitive', weight: FontWeight.bold,overFlow: TextOverflow.ellipsis,size: 12.sp),
-                            ],
-                          )
-                        ],
+                        useExpand: true,
+                        title: Utils.getText('Time Sensitive', weight: FontWeight.bold,overFlow: TextOverflow.visible,size: 12.sp),
+                        value: state.isTimeSensitive,
+                        activeColor: AppC.grey,
+                        onChanged: (value) => context
+                            .read<EditToDoBloc>()
+                            .add(EditToDoTimeSensitiveEvent()),
                       ),
                     ),
-                    GestureDetector(
-                      onTapDown: (TapDownDetails details) {
-                        ResourceSelection.showResourceSelection(
-                          context,
-                          details,
-                          state.resources,
-                          state.selectedResource,
-                          (value, name) => context.read<EditToDoBloc>().add(
-                            UserSelectionEvent(
-                                selectedResource: value,
-                                resourceName: name
-                            ),
-                          ),
-                        );
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Utils.getText(
+                    Column(
+                      children: [
+                        GestureDetector(
+                          onTapDown: (TapDownDetails details) {
+                            ResourceSelection.showResourceSelection(
+                              context,
+                              details,
+                              state.resources,
+                              state.selectedResource,
+                              (value, name) => context.read<EditToDoBloc>().add(
+                                UserSelectionEvent(
+                                    selectedResource: value,
+                                    resourceName: name
+                                ),
+                              ),
+                            );
+                          },
+                          child: Utils.getText(
                               state.resourceName.length > 1
-                                  ? "${state.resourceName.first}..."
+                                  ? state.resourceName.join(',\n')
                                   : state.resourceName.join(', '),
                               weight: FontWeight.bold,
                               color: AppC.appColor),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

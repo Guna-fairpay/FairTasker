@@ -10,6 +10,8 @@ import 'package:fairpytasker/Response/payment_response.dart';
 import 'package:fairpytasker/Response/task_response.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -66,6 +68,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   dynamic selectedVendor={};
   String? userId;
 
+
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
           taskList: [],
@@ -83,6 +86,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           partsList: [],
           suppliesList: [],
           vendorList: {},
+          odometerMessage: '',
         )) {
 
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
@@ -152,30 +156,42 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         expenseId = event.expenseId;
-        var response = await Future.wait([
-          _getTaskLists(),
-          _getPaymentMethods(),
-          _getExpenseCategories(),
-          _getExpenseDetails(expenseId),
-          _getVehicles(),
-        ]);
-        TaskExpenseResponse? taskExpenseResponse =
-            (response[0] is TaskExpenseResponse)
-                ? (response[0] as TaskExpenseResponse)
-                : null;
-        PaymentResponse? paymentResponse = (response[1] is PaymentResponse)
-            ? (response[1] as PaymentResponse)
-            : null;
-        CohortsResponse? cohortsResponse = (response[2] is CohortsResponse)
-            ? (response[2] as CohortsResponse)
-            : null;
-        ExpenseSummaryResponse? expenseDetailResponse =
-            (response[3] is ExpenseSummaryResponse)
-                ? (response[3] as ExpenseSummaryResponse)
-                : null;
-        VehicleListResponse? vehicleResponse =
+        // var response = await Future.wait([
+        //   _getTaskLists(),
+        //   _getPaymentMethods(),
+        //   _getExpenseCategories(),
+        //   _getExpenseDetails(expenseId),
+        //   _getVehicles(),
+        // ]);
+        // TaskExpenseResponse? taskExpenseResponse =
+        //     (response[0] is TaskExpenseResponse)
+        //         ? (response[0] as TaskExpenseResponse)
+        //         : null;
+        // PaymentResponse? paymentResponse = (response[1] is PaymentResponse)
+        //     ? (response[1] as PaymentResponse)
+        //     : null;
+        // CohortsResponse? cohortsResponse = (response[2] is CohortsResponse)
+        //     ? (response[2] as CohortsResponse)
+        //     : null;
+        // ExpenseSummaryResponse? expenseDetailResponse =
+        //     (response[3] is ExpenseSummaryResponse)
+        //         ? (response[3] as ExpenseSummaryResponse)
+        //         : null;
+       /* VehicleListResponse? vehicleResponse =
             ((response[4] is VehicleListResponse) ? response[4] : null)
-                as VehicleListResponse?;
+                as VehicleListResponse?;*/
+
+        var response = await apiRepository.getEditVehicleExpense(id:expenseId);
+
+        var expenseDetailResponse = response?.expenses;
+
+        var taskExpenseResponse = await getIt<CommonService>().getTaskExpenseData();
+
+        var paymentResponse = await getIt<CommonService>().getPaymentTypes();
+
+        var cohortsResponse = await getIt<CommonService>().getExpenseCategories();
+
+        var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
 
         partsCostController.addListener(_updateExpenseTotal);
         labourCostController.addListener(_updateExpenseTotal);
@@ -184,13 +200,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         percentageOrAmountController.addListener(_updateExpenseTotal);
         totalAmountController.addListener(_updateExpenseTotal);
 
-
         saleTaxController.text =
             ((double.tryParse(partsCostController.text) ?? 0) +
                     (double.tryParse(labourCostController.text) ?? 0))
                 .toString();
 
-        ogAttachments = expenseDetailResponse?.expense?['attachments'];
+        ogAttachments = expenseDetailResponse?['attachments'];
         attachments?.clear();
 
         attachments?.addAll(ogAttachments
@@ -198,38 +213,35 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             .toList() ?? []);
 
         amountController.text =
-            expenseDetailResponse?.expense?['expense_amount'].toString() ?? '';
-        descriptionController.text =
-            expenseDetailResponse?.expense?['expense_description'] ?? '';
+        "${expenseDetailResponse?['expense_amount'] ?? ''}";
+        descriptionController.text = expenseDetailResponse?['expense_description'] ?? '';
 
-        selectedPaymentId = paymentResponse?.data
-            ?.where((e) =>
-                e['id'] == expenseDetailResponse?.expense?['payment_method_id'])
+        selectedPaymentId = paymentResponse
+            .where((e) =>
+                e['id'] == expenseDetailResponse?['payment_method_id'])
             .toList();
         if (selectedPaymentId!.isEmpty) {
-          selectedPaymentId = [paymentResponse?.data?.firstOrNull];
+          selectedPaymentId = [paymentResponse.firstOrNull];
         }
 
-        categoryId =
-            expenseDetailResponse?.expense?['category_id'].toString() ?? '';
-        subcategoryId =
-            expenseDetailResponse?.expense?['subcategory_id'].toString() ?? '';
+        categoryId = "${expenseDetailResponse?['category_id'] ?? ''}";
+        subcategoryId = "${expenseDetailResponse?['subcategory_id']?? ''}";
 
         if (categoryId!.isEmpty) {
-          final Map<String, dynamic>? task =
-              taskExpenseResponse?.data?.firstWhere(
+          final Map<String, dynamic> task =
+              taskExpenseResponse.firstWhere(
             (element) =>
                 element['id'] == todoItem['identifier_id'] ||
                 element['task'] == todoItem['title'],
             orElse: () => {},
           );
-          categoryId = task?['category_id'].toString();
-          subcategoryId = task?['subcategory_id'].toString();
+          categoryId = task['category_id'].toString();
+          subcategoryId = task['subcategory_id'].toString();
         }
 
-        categories = cohortsResponse?.expenseData;
-        subCategories = cohortsResponse?.expenseData
-            ?.where((category) => category['id'].toString() == categoryId)
+        categories = cohortsResponse;
+        subCategories = cohortsResponse
+            .where((category) => category['id'].toString() == categoryId)
             .map((category) => category['sub_categories'] ?? [])
             .expand((subcategoryList) => subcategoryList)
             .toList();
@@ -255,28 +267,28 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           }
         }
         if (vinList.isNotEmpty) {
-          vehicleList = vehicleResponse!.data!
+          vehicleList = vehicleResponse
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
 
         String laborAmount =
-            (expenseDetailResponse?.expense?['split_expenses'] ?? [])
+            (expenseDetailResponse?['split_expenses'] ?? [])
                     .firstWhere((element) => element['labour'] == 1,
                       orElse: () => null,)?['amount']
-                    ?.toString() ?? "0";
+                    ?.toString() ?? "";
 
         labourCostController.text = laborAmount;
 
-        taxIsTapped = expenseDetailResponse?.expense?['sales_tax_type'] == "\$"
+        taxIsTapped = expenseDetailResponse?['sales_tax_type'] == "\$"
             ? true
             : false;
 
         percentageOrAmountController.text = taxIsTapped
-            ? "${expenseDetailResponse?.expense?['sales_tax']??''}"
-            : "${expenseDetailResponse?.expense?['sales_tax_percentage'] ?? ''}";
+            ? "${expenseDetailResponse?['sales_tax']??''}"
+            : "${expenseDetailResponse?['sales_tax_percentage'] ?? ''}";
 
-        shippingController.text = "${expenseDetailResponse?.expense?['shipping_and_handling'] ?? ''}";
+        shippingController.text = "${expenseDetailResponse?['shipping_and_handling'] ?? ''}";
 
             if (partsList.isEmpty) {
               partsList = selectedPart
@@ -312,8 +324,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             suppliesList.removeWhere((element) =>
             !suppliesIds.contains(element['id']));
 
-            if(expenseDetailResponse?.expense?['split_expenses'] != null){
-              var splitExpenses = expenseDetailResponse?.expense?['split_expenses'];
+            if(expenseDetailResponse?['split_expenses'] != null){
+              var splitExpenses = expenseDetailResponse?['split_expenses'];
               if (splitExpenses is List) {
                 for (var expense in splitExpenses) {
                   if (expense['parts_id'] != null) {
@@ -346,9 +358,9 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
         emit(state.copyWith(
           isLoading: false,
-          apiResponse: expenseDetailResponse?.expense,
-          taskList: taskExpenseResponse?.data,
-          paymentMethods: paymentResponse?.data,
+          apiResponse: expenseDetailResponse,
+          taskList: taskExpenseResponse,
+          paymentMethods: paymentResponse,
           mainCategories: categories,
           expenseAttachments: attachments ?? [],
           selectedPayment: selectedPaymentId?.firstOrNull,
@@ -407,6 +419,18 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         attachments?.remove(event.data);
       }
       emit(state.copyWith(expenseAttachments: attachments));
+    });
+
+    on<GetOdometerEvent>((event, emit) async {
+      try {
+        var response = await apiRepository.getOdometerValue(vin: event.vin);
+        if (response?.isNotEmpty ?? false) {
+          emit(state.copyWith(odometerMessage: response?['message']));
+        }
+      }catch(e){
+        emit(state.copyWith(odometerMessage: e.toString()));
+      }
+
     });
 
     on<TaxIconEvent>((event, emit) {

@@ -1,7 +1,9 @@
 
 import 'dart:io';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -57,31 +59,17 @@ class TodoExpense extends StatelessWidget {
           children: [
             10.height,
             if (state.vehicleList.length == 1)
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => VehicleExpenseHistoryUI(
-                                    vin: state.vehicleList.firstOrNull['vin'],
-                                    vehicleName: state
-                                        .vehicleList.firstOrNull['vehicle_name'],
-                                showTotalAmount: false,
-                                  )
-                          )
-                      );
-                    },
-                    child: Utils.getText(
-                      'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
-                      color: AppC().base,
-                      align: TextAlign.end,
-                    ),
-                  ),
-                ],
+              InkWell(
+                onTap: () =>context.push(VehicleExpenseHistoryUI(
+                  vin: state.vehicleList.firstOrNull['vin'],
+                  vehicleName: state
+                      .vehicleList.firstOrNull['vehicle_name'],
+                  showTotalAmount: false,
+                )),
+                child: Utils.getText(
+                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                  color: AppC().base,
+                ),
               ),
             if (state.vehicleList.length > 1)
               Utils.dropdownBox(
@@ -92,6 +80,7 @@ class TodoExpense extends StatelessWidget {
                       SelectedVehicleEvent(selectedVehicle: selectedValue));
                 },
                 labelKey: 'vehicle_name',
+                initialSelection: state.selectedVehicle,
               ),
             Row(
               spacing: 10,
@@ -326,39 +315,45 @@ class TodoExpense extends StatelessWidget {
               'Odometer',
               context.read<TodoEditExpenseBloc>().odometerController,
               textType: TextInputType.number,
-              suffixIcon: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.0),
-                child: Icon(
-                  Icons.speed,
-                  color: Colors.red,
+              suffixIcon: InkWell(
+                onTap:()=>context.read<TodoEditExpenseBloc>().add(GetOdometerEvent(vin: state.vehicleList.firstOrNull['vin'])),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Icon(
+                    Icons.speed,
+                    color: Colors.red,
+                  ),
                 ),
               ),
               inputAction: TextInputAction.done,
             ),
+            if(state.odometerMessage!.isNotEmpty)
+            Utils.getText(state.odometerMessage??'',color: AppC.redAccent),
             Row(
               spacing: 10,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Utils.getElevatedButton(
-                  () {
+                SuccessButton(
+                  onPressed:() {
                     if((state.partsList.isEmpty && state.suppliesList.isEmpty) && context.read<TodoEditExpenseBloc>().amountController.text.isEmpty) {
-                      return Toaster.showError("Please enter amount");
+                      Toaster.showError("Please enter amount");
+                      return;
                     }
                     if(state.selectedMainCategory.isEmpty) {
-                      return Toaster.showError("Please select category");
+                      Toaster.showError("Please select category");
+                      return;
                     }
-                    if(/*state.subCategories.isNotEmpty && */state.selectedSubCategory.isEmpty) {
-                      return Toaster.showError("Please select subCategory");
+                    if(state.selectedSubCategory.isEmpty) {
+                      Toaster.showError("Please select subCategory");
+                      return;
                     }
                     context.read<TodoEditExpenseBloc>().add(const SaveExpenseEvent());
                     },
                 ),
-                Utils.getElevatedButton(
-                  () {
-                    // _save();
-                  },
+                SuccessButton(
                   text: 'Save Category',
-                  bgColor: AppC.green,
+                  onPressed: (){},
+                  backgroundColor: AppC.appColor,
                 ),
               ],
             ),

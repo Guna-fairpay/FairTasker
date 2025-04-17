@@ -47,6 +47,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
       isEdit = true;
       selectedData = event.data;
       nameController.text=event.data['name'];
+      notesController.text=event.data['note']??'';
       emit(PartsCommonState());
     });
 
@@ -54,6 +55,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
       isEdit = false;
       selectedData = null;
       nameController.clear();
+      notesController.clear();
       emit(PartsCommonState());
       await Future.delayed(Durations.short4);
       nameController.addListener(_listener);
@@ -73,6 +75,11 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         totalCount = apiResponse.length;
         filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
         Toaster.showSuccess(response?['message']);
+        isEdit = false;
+        selectedData = null;
+        nameController.clear();
+        notesController.clear();
+        _search();
         emit(PartsCommonState());
       }
     }catch(e){
@@ -99,6 +106,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
       if (response?["data"] != null) {
         final newData = response!["data"];
         nameController.clear();
+        notesController.clear();
         if (selectedData != null) {
           isEdit = false;
           selectedData = null;
@@ -115,16 +123,19 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
           itemsPerPage: itemsPerPage,
         );
         Toaster.showSuccess("Parts added successfully");
+        _search();
         emit(PartsCommonState());
       }
       else{
         Console.of.log(response,name: 'TESTCASE0');
         Toaster.showError(response);
+        _search();
         emit(PartsCommonState());
       }
     }catch(e){
       Toaster.showError(e.toString());
       Console.of.log(e.toString(),name: 'TESTCASE1');
+      _search();
       emit(PartsCommonState());
     }
   }
@@ -148,10 +159,9 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
     }
   }
 
-  void _onSearchPartsEvent(SearchPartsEvent event, Emitter<PartsState> emit) {
-    var query = event.query.toLowerCase();
+  void _search(){
+    var query = searchController.text.toLowerCase();
     List<Map<String, dynamic>> filteredData = [];
-
     if (query.trim().isNotNullOrEmpty) {
       filteredData = apiResponse.where((element) {
         return [
@@ -161,9 +171,14 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
     } else {
       filteredData = apiResponse;
     }
+    currentIndex=1;
     totalCount = filteredData.length;
     filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
-    emit(PartsCommonState());
+  }
+
+  void _onSearchPartsEvent(SearchPartsEvent event, Emitter<PartsState> emit) {
+    _search();
+     emit(PartsCommonState());
   }
 
 }

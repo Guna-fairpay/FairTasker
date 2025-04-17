@@ -148,7 +148,7 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
                     inputAction: TextInputAction.done,
                   ),
                   const SizedBox(height: 10,),
-                  Utils.dropdownBox('', rolesDropdownList,
+                  Utils.dropdownBox('Select a role', rolesDropdownList,
                           (selectedValue) {
                     setState(() {
                       selectedRole = selectedValue;
@@ -157,7 +157,7 @@ class _EmployeesEditUIState extends State<EmployeesEditUI> {
                       initialSelection: selectedRole,
                       labelKey: 'name'),
                   const SizedBox(height: 10,),
-                  Utils.dropdownBox('', departmentDropdownList,
+                  Utils.dropdownBox('Select a department', departmentDropdownList,
                       (selectedValue) {
                     setState(() {
                       selectedDepartment = selectedValue;
