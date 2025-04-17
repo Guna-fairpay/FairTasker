@@ -205,7 +205,7 @@ class _EmployeesViewUIState extends State<EmployeesViewUI> {
                                     weight: FontWeight.bold,
                                   ),
                                   Utils.getText(
-                                    '${employee['departments']['name'] ?? ''}',
+                                    '${employee['departments']?['name'] ?? ''}',
                                     weight: FontWeight.bold,
                                     color: AppC.subText,
                                   ),

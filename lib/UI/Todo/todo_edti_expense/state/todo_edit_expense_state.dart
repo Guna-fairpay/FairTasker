@@ -18,6 +18,7 @@ class TodoExpenseState extends Equatable {
   final List<dynamic> partsList;
   final List<dynamic> suppliesList;
   final dynamic vendorList;
+  final String? odometerMessage;
 
   const TodoExpenseState({
     required this.taskList,
@@ -35,6 +36,7 @@ class TodoExpenseState extends Equatable {
     required this.partsList,
     required this.suppliesList,
     required this.vendorList,
+    required this.odometerMessage,
 
   });
 
@@ -54,6 +56,7 @@ class TodoExpenseState extends Equatable {
     List<dynamic>? partsList,
     List<dynamic>? suppliesList,
     dynamic vendorList,
+    String? odometerMessage,
 
   }) => TodoExpenseState(
     taskList: taskList ?? this.taskList,
@@ -71,6 +74,7 @@ class TodoExpenseState extends Equatable {
         partsList: partsList ?? this.partsList,
         suppliesList: suppliesList ?? this.suppliesList,
         vendorList: vendorList ?? this.vendorList,
+        odometerMessage: odometerMessage ?? this.odometerMessage,
   );
   @override
   List<Object?> get props =>
@@ -87,6 +91,11 @@ class TodoExpenseState extends Equatable {
         selectedSubCategory,
         vehicleList,
         selectedVehicle,
+        partsList,
+        suppliesList,
+        vendorList,
+        odometerMessage,
+
         Random().nextDouble(),
       ];
 }

@@ -52,8 +52,11 @@ class PartsListingPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Expanded(
-                          child: Utils.getText(item['name'] ?? '',
-                              size: 12.sp, overFlow: TextOverflow.visible),
+                          child: GestureDetector(
+                            onTap: () => context.read<PartsBloc>().add(EditPartsEvent(data: item)),
+                            child: Utils.getText(item['name'] ?? '',
+                                size: 12.sp, overFlow: TextOverflow.visible),
+                          ),
                         ),
                         Row(
                           spacing: 5,

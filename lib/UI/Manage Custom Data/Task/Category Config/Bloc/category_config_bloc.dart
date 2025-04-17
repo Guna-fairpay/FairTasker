@@ -62,7 +62,7 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
       selectedData = {};
       nameController.clear();
       selectedCategory={};
-      selectedUserType=null;
+      selectedUserType=usersType[0];
       emit(CategoryConfigCommonState());
       await Future.delayed(Durations.short4);
       nameController.addListener(_listener);
@@ -94,6 +94,7 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
       var response = await _apiRepository.deleteCategoryConfigData(event.data['id']);
       if(response?['message']!=null){
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
+
         totalCount = apiResponse.length;
         filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
         Toaster.showSuccess(response?['message']);
@@ -193,10 +194,9 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
     }
   }
 
-  void _onSearchCategoryConfigEvent(SearchCategoryConfigEvent event, Emitter<CategoryConfigState> emit) {
-    var query = event.query.toLowerCase();
+  void _search(){
+    var query = searchController.text.toLowerCase();
     List<Map<String, dynamic>> filteredData = [];
-
     if (query.trim().isNotNullOrEmpty) {
       filteredData = apiResponse.where((element) {
         return [
@@ -208,7 +208,12 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
       filteredData = apiResponse;
     }
     totalCount = filteredData.length;
+    currentIndex=1;
     filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
+  }
+
+  void _onSearchCategoryConfigEvent(SearchCategoryConfigEvent event, Emitter<CategoryConfigState> emit) {
+    _search();
     emit(CategoryConfigCommonState());
   }
 

@@ -67,7 +67,11 @@ class ExpenseVehicleListItem extends StatelessWidget {
     return Dismissible(
       key: UniqueKey(),
       background: Container(
-        color: AppC.redAccent,
+        decoration: BoxDecoration(
+          color: AppC.redAccent,
+          borderRadius: BorderRadius.circular(6)
+        ),
+        
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

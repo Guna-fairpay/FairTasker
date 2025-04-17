@@ -195,7 +195,7 @@ class _DepartmentViewUIState extends State<DepartmentViewUI> {
                                       weight: FontWeight.bold,
                                     ),
                                     Utils.getText(
-                                      "${head['users']['first_name'] ?? ''} ${head['users']['last_name'] ?? ''}",
+                                      "${head['users']?['first_name'] ?? ''} ${head['users']?['last_name'] ?? ''}",
                                       color: AppC.subText,
                                     ),
                                   ],

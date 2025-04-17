@@ -3,7 +3,7 @@ import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/category_main_ui.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/subcategory_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Components/dropdownBoxWithIcon.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_event.dart';
@@ -51,7 +51,7 @@ class TaskView extends StatelessWidget {
               DropdownBoxWithIcon(
                 list: context.read<TaskBloc>().subcategory,
                 hindText: 'Select SubCategory',
-                onTap: () =>context.push(const CategoryViewUi()),
+                onTap: () =>context.push(const SubcategoryMainUi()),
                 onChanged: (v)=>context.read<TaskBloc>().add(SubcategoryDropDownEvent(data: v)),
                 label: 'name',
                 initialSelection: context.read<TaskBloc>().selectedSubCategory,
