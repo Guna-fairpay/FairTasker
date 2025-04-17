@@ -340,3 +340,10 @@ class ToDoTaskerTimeSensitiveEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [isTimeSensitive];
 }
+
+class ToDoTaskerViewBouncieEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewBouncieEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}

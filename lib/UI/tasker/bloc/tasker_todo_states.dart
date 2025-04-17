@@ -264,3 +264,10 @@ class ToDoTaskerShowDropCheckInPopupState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, selectedTime, type, Random().nextDouble()];
 }
+
+class ToDoTaskerViewBouncieState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerViewBouncieState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
