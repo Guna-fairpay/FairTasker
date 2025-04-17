@@ -112,32 +112,34 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         List<dynamic> fixTaskValues = fixTasksMap.values.toList();
         log("${fixTaskValues}", name:'fixTaskValues');//[43536, 43537, 43538]
 
+
+        // In your MaintenanceBloc, modify the parseMaintenanceData function:
         List<Map<String, dynamic>> parseMaintenanceData(List<Map<String, dynamic>> todos) {
-          try {
-            List<Map<String, dynamic>> result = [];
-            for (var todo in todos) {
-              final maintenanceTaskId = todo["maintenance_task_id"] ?? '';
-              final notes = todo["notes"] ?? '';
-              final comments = todo["comments"] ?? '';
-              if (maintenanceTaskId == null || notes == null || comments == null) {
-                continue; // Skip if any required field is null
-              }
-              List<dynamic> idList = maintenanceTaskId.trim().split("-").map((e) => e.trim()).toList();
-              List<dynamic> noteList = notes.trim().split("-").map((e) => e.trim()).toList();
-              for (int i = 0; i < idList.length; i++) {
+          List<Map<String, dynamic>> result = [];
+          for (var todo in todos) {
+            try {
+              final maintenanceTaskId = todo["maintenance_task_id"]?.toString() ?? '';
+              final notes = todo["notes"]?.toString() ?? '';
+              final comments = todo["comments"]?.toString() ?? '';
+
+              List<String> idParts = maintenanceTaskId.split('-');
+              List<String> noteParts = notes.split('-');
+
+              if (idParts.length >= 3) { // Ensure we have all required parts
                 result.add({
-                  "id": int.tryParse(idList[i]) ?? 0, // Handle invalid IDs
-                  "name": i < noteList.length ? (noteList[i] ?? "") : "Unknown",
+                  "maintenanceId": int.tryParse(idParts[0]) ?? 0,
+                  "itemId": int.tryParse(idParts[1]) ?? 0,
+                  "childId": int.tryParse(idParts[2]) ?? 0,
+                  "name": noteParts.length > 2 ? noteParts[2] : "Unknown",
                   "comments": comments,
                   "fixTaskId": todo['id'],
                 });
               }
+            } catch (e) {
+              log("Error parsing todo: $e");
             }
-            return result;
-          } catch (e) {
-            print("error in parseMaintenanceData: $e");
-            return [];
           }
+          return result;
         }
 
         matchingTodos = todoList
@@ -162,8 +164,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
             "notes": todo["notes"],
             "comments": todo["comments"],
           };
-        })
-            .where((todo) => todo != null)
+        }).where((todo) => todo != null)
             .cast<Map<String, dynamic>>()
             .toList();
 
@@ -249,12 +250,12 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         print("Updated maintenanceTaskId: $updatedIndividualCheckStates");
         print("IndividualCheckEvent ${event.item}");
         Map<String, dynamic> popupId = event.item ?? {};
-        print("popupId data ${popupId}");
         itemCopy = event.item;
         var childrenData = event.item?['children'];
         var childrens = List<Map<String, dynamic>>.from(childrenData ?? []);
         log("${event.status}", name: "CHILDREN_DATA");
         var goodData = childrens.firstWhereOrNull((element) => element['name'].toString().toLowerCase() == ( (event.status) ? "good" : "bad"));
+        log("$goodData", name: "GOOD_DATA");
 
 
         newItemId = int.parse(event.itemId);
@@ -265,18 +266,11 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           idListAsInt.remove(newItemId);
         }
         maintenanceTaskId = idListAsInt.map((id) => id.toString()).join('-'); //7-8-6
-        print("Updated maintenanceTaskId: $maintenanceTaskId");
-        var dropDownData1 = goodData;
-        log("$dropDownData1", name: "GOOD_DATA1");
-        // var dropDownData = event.status == false
-        //     ? {"id": 99, "name": "Not Checked"}
-        //     : (goodData ?? {"id": childrens.first['id'], "name": "Good"});
-        log("$dropDownData1", name: "GOOD_DATA");
+        var dropDownData = goodData;
 
         List<int> getMatchingIds(Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
           List<int> matchingIds = [];
 
-          // Extract relevant IDs from IndividualCheckEvent
           int parentId = checkEvent["id"];
           List<int> childIds = (checkEvent["children"] as List)
               .map((child) => child["id"] as int)
@@ -290,7 +284,6 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
                 .where((id) => id != -1)
                 .toList();
 
-            // Check if the task IDs match the hierarchy (parent + child)
             if (taskIds.contains(parentId) && taskIds.any((id) => childIds.contains(id))) {
               matchingIds.add(task["id"]);
             }
@@ -306,24 +299,19 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
 
           print('Parent ID: $parentId, Child ID: $childId');
         }
-        print("final value1 ${itemCopy}");
-        print("final value2 ${matchingTodos}");
+
         List<int> result = getMatchingIds(itemCopy, matchingTodos);
-        print("final value3 ${result}");
+
 
         emit(state.copyWith(
           popupId: popupId,
           individualCheckStates: updatedIndividualCheckStates,
-          dropdownValue: dropDownData1,
+          dropdownValue: dropDownData,
         ));
     });
 
     //Create Fix Task
     on<createFixTaskEvent>((event, emit) async {
-      // print("${todoItemsCopy['user_id']} ${todoItemsCopy['user_group_id']} ${event.item} maintenanceTaskId ${event.maintenanceTaskId} ${event.notes}"
-      //     "${event.comments} ${todoItemsCopy['todo_time']} ${todoItemsCopy['todo_date']} ${event.item} ${todoItemsCopy['vehicles']}"
-      //     "${todoItemsCopy['location']} ${todoItemsCopy['location_id']} ${todoItemsCopy['vendor_id']} ${todoItemsCopy['vendor_name']}"
-      //     "${vehiclesCopy['vehicle_number']}");
       try
       {
         await todoListRepo.createFixTask(CreateFixTaskData()
