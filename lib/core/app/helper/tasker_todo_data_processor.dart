@@ -264,6 +264,7 @@ class ToDoProcessor {
   }
 
   bool _hasBouncie(Map<String, dynamic> model) {
+    if (model['todo_date'] != DateTime.now().toFormat()) return false;
     if (model['vehicle_group_id'].toString().isNotNullOrEmpty) {
       return false;
     } else if (model['vin'].toString().isNotNullOrEmpty) {
