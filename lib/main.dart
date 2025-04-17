@@ -76,6 +76,7 @@ class MyApp extends StatelessWidget {
         title: 'Fair Returns',
         theme: ThemeData(
           cardColor: Colors.white,
+          dialogBackgroundColor: Colors.white,
           appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
           dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           searchBarTheme: SearchBarThemeData(

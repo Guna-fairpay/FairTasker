@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:path/path.dart';
@@ -78,7 +79,7 @@ class Converter {
       int index = entry.key;
       String filePath = entry.value;
       var file = File(filePath);
-      var isImageFile = file.path.split(".").last.isImageFile;
+      var isImageFile = file.isImage;
       String fieldName = "images";
       String fileName = basename(file.path);
       var field = "$fieldName[${index + (isImageFile ? lastImageIndex : lastVideoIndex)}]";

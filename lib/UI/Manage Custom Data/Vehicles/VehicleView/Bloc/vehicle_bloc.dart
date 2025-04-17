@@ -61,12 +61,13 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     emit(VehicleCommonState());
   }
   void _onSearchEvent(SearchVehicleEvent event, Emitter<VehicleState> emit) {
-    var searchQuery = event.query;
+    var searchQuery = event.query?.toLowerCase() ?? "";
     List<Map<String, dynamic>> result = [];
-    if (searchQuery?.trim().isNotNullOrEmpty ?? false) {
+    if (searchQuery.trim().isNotNullOrEmpty ?? false) {
       var response = apiResponse.where((element) =>
-          element['vehicle_name'].toString().toLowerCase().contains(
-              searchQuery.toString().toLowerCase())).toList();
+      element['vehicle_name'].toString().toLowerCase().contains(searchQuery) ||
+          element['vin'].toString().toLowerCase().contains(searchQuery) ||
+          element['vehicle_number'].toString().toLowerCase().contains(searchQuery)).toList();
       result = response;
       filteredResponse = result.take(itemsPerPage).toList();
     } else {
@@ -132,7 +133,10 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
       log("$e", name: "VehicleBloc");
     }
   }
-  void _onEditVehicleTabEvent(EditVehicleTabEvent event, Emitter<VehicleState> emit) {
+  void _onEditVehicleTabEvent(EditVehicleTabEvent event, Emitter<VehicleState> emit) async {
+    if (selectedVehicle != null) selectedVehicle = null;
+    emit(VehicleCommonState());
+    await Future.delayed(Durations.short1);
     selectedVehicle = event.vehicleData;
     emit(VehicleCommonState());
   }

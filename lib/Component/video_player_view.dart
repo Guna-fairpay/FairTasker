@@ -109,6 +109,17 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
     }
   }
 
+  void play() async {
+    var isPlaying = _controller?.value.isPlaying;
+
+    if (isPlaying ?? false) {
+      await _controller?.pause();
+    } else {
+      await _controller?.play();
+    }
+    _setState;
+  }
+
   @override
   Widget build(BuildContext context) {
     return (_controller?.value.isInitialized ?? false)
@@ -176,16 +187,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                                     icon:
                                         const Icon(Icons.fast_rewind_rounded)),
                                 IconButton(
-                                    onPressed: () async {
-                                      await ((_controller?.value.isPlaying ??
-                                              false)
-                                          ? _controller?.pause()
-                                          : (_controller?.value.isCompleted ??
-                                                  false)
-                                              ? _controller?.setLooping(true)
-                                              : _controller?.play());
-                                      _setState;
-                                    },
+                                    onPressed: play,
                                     icon: Icon(
                                         (_controller?.value.isPlaying ?? false)
                                             ? Icons.pause_rounded

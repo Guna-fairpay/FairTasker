@@ -61,8 +61,8 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     emit(CategoryCommonState());
   }
 
-  void _onSearchEvent(CategorySearchEvent event, Emitter<CategoryState> emit) {
-    var query = event.query.toLowerCase();
+  void _search() {
+    var query = searchController.text.toLowerCase();
     List<Map<String, dynamic>> filteredData = [];
     if (query.trim().isNotNullOrEmpty) {
       filteredData = _apiResponse.where((element) => element['name'].toString().toLowerCase().contains(query)).toList();
@@ -72,6 +72,10 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     currentPage = 1;
     totalCount = filteredData.length;
     filteredResponse = paginateList(data: filteredData, currentPage: currentPage, itemsPerPage: itemsPerPage);
+  }
+
+  void _onSearchEvent(CategorySearchEvent event, Emitter<CategoryState> emit) {
+    _search();
     emit(CategoryCommonState());
   }
 
@@ -89,8 +93,9 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       if (response != null) {
         _apiResponse.removeWhere((element) => element['id'] == model['id']);
         totalCount = _apiResponse.length;
+        if (selectedModel?['id'] == model['id']) _clearControllers();
         _sortResponse();
-        filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+        _search();
       }
       emit(CategoryCommonState());
     } catch (e) {
@@ -101,7 +106,13 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   void _onClearEvent(CategoryClearEvent event, Emitter<CategoryState> emit) {
     selectedModel = null;
     nameController.clear();
+    _search();
     emit(CategoryCommonState());
+  }
+
+  void _clearControllers() {
+    selectedModel = null;
+    nameController.clear();
   }
 
   void _onSaveEvent(CategorySaveEvent event, Emitter<CategoryState> emit) async {
@@ -112,18 +123,17 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
         // SAVE
         var response = await _saveCategory();
         if ((response != null) && (response['data'] != null)) {
-          nameController.clear();
+          _clearControllers();
           _apiResponse.add(response['data']);
           totalCount = _apiResponse.length;
           _sortResponse();
-          filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+          _search();
         }
       } else {
         // UPDATE
         var response = await _updateCategory();
         if ((response != null) && (response['data'] != null)) {
-          selectedModel = null;
-          nameController.clear();
+          _clearControllers();
           _apiResponse = _apiResponse.map((e) {
            if (e['id'] == response['data']?['id']) {
              return e..['name'] = response['data']?['name'];
@@ -133,7 +143,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
           }).toList();
           totalCount = _apiResponse.length;
           _sortResponse();
-          filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+          _search();
         }
       }
       emit(CategoryCommonState());

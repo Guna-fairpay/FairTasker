@@ -69,8 +69,8 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
     }
   }
 
-  void _onSearchEvent(SubCategorySearchEvent event, Emitter<SubCategoryState> emit) {
-    var query = event.query.toLowerCase();
+  void _search() {
+    var query = searchController.text.toLowerCase();
     if (query.trim().isNotNullOrEmpty) {
       filteredResponse = _subCategories.where((element) => (element['name'].toLowerCase().contains(query)) || (element['categoryName'].toLowerCase().contains(query))).toList();
     } else {
@@ -79,6 +79,10 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
     _totalCount = filteredResponse.length;
     currentPage = 1;
     filteredResponse = paginateList(data: filteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+  }
+
+  void _onSearchEvent(SubCategorySearchEvent event, Emitter<SubCategoryState> emit) {
+    _search();
     emit(SubCategoryCommonState());
   }
 
@@ -88,10 +92,10 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
       emit(SubCategoryLoadingState());
       var response = await _removeCategory(model['id']);
       if (response != null) {
-        _clearControllers();
+        if (selectedModel?['id'] == model['id']) _clearControllers();
         _subCategories.removeWhere((element) => element['id'] == model['id']);
         _totalCount = _subCategories.length;
-        filteredResponse = paginateList(data: _subCategories, currentPage: currentPage, itemsPerPage: itemsPerPage);
+        _search();
       }
       emit(SubCategoryCommonState());
     } catch (e) {
@@ -138,6 +142,7 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
           currentPage: currentPage,
           itemsPerPage: itemsPerPage);
       _clearControllers();
+      _search();
       emit(SubCategoryCommonState());
     } catch (e) {
       Console.of.error("Error Occurred", error: e);
@@ -158,6 +163,7 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
     selectedModel = null;
     selectedCategory = null;
     selectedExpenseTo = null;
+    _search();
     emit(SubCategoryCommonState());
   }
 
