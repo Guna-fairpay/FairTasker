@@ -204,6 +204,12 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(VendorDataCommonState());
     });
 
+    on<locationEvent>((event, emit) {
+      latitude = double.tryParse(event.latitude?.toString() ?? '');
+      longitude = double.tryParse(event.longitude?.toString() ?? '');
+      emit(VendorDataCommonState());
+    });
+
     //vendor edit event
     on<ExitEditModeEvent>((event, emit) {
       isEditMode = false;
@@ -370,6 +376,8 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       longitude = null;
       emit(VendorDataCommonState());
     });
+
+
 
   }
 }

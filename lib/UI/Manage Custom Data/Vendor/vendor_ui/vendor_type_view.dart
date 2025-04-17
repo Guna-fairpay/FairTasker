@@ -147,7 +147,12 @@ class VendorTypeView extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 8.0),
-                                            child: Text(vendor['name']),
+                                            child: GestureDetector(
+                                                onTap: () {
+                                                  context.read<VendorDataBloc>().add(EnterVendorTypeEditEvent(vendor: vendor));
+                                                },
+                                                child: Text(vendor['name'])
+                                            ),
                                           ),
                                           Padding(
                                               padding:

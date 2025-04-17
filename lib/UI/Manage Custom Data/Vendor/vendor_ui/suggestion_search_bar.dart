@@ -142,19 +142,21 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
           // ),
           InkWell(
             onTap: widget.onIconTap,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(topRight: Radius.circular(4),bottomRight: Radius.circular(4)),
-                color: AppC.blue50,
-                border:  const Border(
-                  top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
-                  bottom: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
-                  right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+            child:
+            Padding(
+              padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(4),
+                    bottomRight: Radius.circular(4),
+                  ),
+                  color: AppC.blue50,
                 ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 8,),
-                child: Icon(Icons.add,color: AppC.blue,),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  child: Icon(Icons.add, color: AppC.appColor),
+                ),
               ),
             ),
           ),

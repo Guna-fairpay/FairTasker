@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:math' as m;
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -58,6 +59,9 @@ class MaintenanceCheckListUI extends StatelessWidget {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state.pop) {
+              context.pop();
+            }
           }
         },
         child: BlocBuilder<MaintenanceBloc, MaintenanceState>(
@@ -92,10 +96,8 @@ class MaintenanceCheckListUI extends StatelessWidget {
                       itemCount: state.maintenance?.length ?? 0,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        final maintenanceCheckListData =
-                        state.maintenance![index];
-                        var checkList =
-                            (maintenanceCheckListData['children'] as List?) ?? [];
+                        final maintenanceCheckListData = state.maintenance![index];
+                        var checkList = (maintenanceCheckListData['children'] as List?) ?? [];
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,26 +116,15 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                         checkBoxWithSingleTextAndTexBox(
                                           checkboxValue:
                                           state.individualCheckStates[item['id'].toString()] ??
-                                              (state.initialDropDown?.any(
-                                                      (e) => e['itemId'] != item['id'])) ??
-                                              !((state.dropdownValue is List
-                                                  ? (state.dropdownValue as List).any((element) =>
+                                              (state.initialDropDown?.any((e) => e['itemId'] != item['id'])) ??
+                                              !((state.dropdownValue is List ? (state.dropdownValue as List).any((element) =>
                                               element['name'].toString().toLowerCase() ==
-                                                  "good")
-                                                  : false) ||
-                                                  List.from(item['children']).any((element) =>
-                                                  state.initialDropDown
-                                                      ?.map((e) => e['id'].toString())
-                                                      .contains(element['id'].toString()) ??
-                                                      false) ||
-                                                  ((state.idList?.contains(
-                                                      int.tryParse(item['id'].toString())) ??
-                                                      false) ||
-                                                      (state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] ==
-                                                          true
-                                                          ? false
-                                                          : true))),
-                                          onCheckboxChanged: (bool? value) async {
+                                                  "good") : false)
+                                                  || List.from(item['children']).any((element) => state.initialDropDown
+                                                      ?.map((e) => e['id'].toString()).contains(element['id'].toString()) ?? false)
+                                                  ||
+                                                  ((state.idList?.contains(int.tryParse(item['id'].toString())) ?? false) || (state.checkboxStates[maintenanceCheckListData['id']]?[item['id']] == true ? false : true))),
+                                            onCheckboxChanged: (bool? value) async {
                                             if (state.middleValues.where((element) => element == item['id'].toString()).isNotEmpty) {
                                               MaintenanceChecklistPopup.show(
                                                 context,
@@ -148,15 +139,15 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                 item: item,
                                               ),
                                             );
-                                            state.selectedDropdownValues[item['id']] =
-                                            value == true ? "Good" : "Bad";
+                                            state.selectedDropdownValues[item['id']] = value == true ? "Good" : "Bad";
                                             await Future.delayed(Durations.medium2);
                                           },
                                           label: item['name'].trim() ?? '',
                                         ),
                                         if (item['name'] != 'Other')
                                           Expanded(
-                                            child: Utils.dropdownBox(
+                                            child:
+                                            Utils.dropdownBox(
                                               'Good',
                                               List<Map<String, dynamic>>.from(item['children'])
                                                 ..addAll([
@@ -165,39 +156,27 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                 ]),
                                                   (value) {
                                                 context.read<MaintenanceBloc>().add(DropDownOptionEvent(value));
-                                                state.selectedDropdownValues[item['id']] = value['name'];
-
                                                 context.read<MaintenanceBloc>().add(
                                                   IndividualCheckEvent(
                                                     item['id'].toString(),
-                                                    value['name'] != "Not Checked",
+                                                    value['name'].toLowerCase() == "good",
                                                     item: item,
                                                   ),
                                                 );
                                               },
                                               labelKey: 'name',
                                               initialSelection: () {
-                                                if (state.dropdownValue == null) {
-                                                  final itemData = state.initialDropDown?.firstWhereOrNull(
-                                                          (e) => e['itemId'] == item['id']);
-                                                  if (itemData != null) {
-                                                    final exactMatch =
-                                                    (item['children'] as List).firstWhereOrNull((child) =>
-                                                    child['name'] == itemData['name']);
-                                                    if (exactMatch != null) return exactMatch;
-                                                    return {
-                                                      "id": itemData['childId'],
-                                                      "name": itemData['name']
-                                                    };
-                                                  }
-                                                  return (item['children'] as List).firstWhere(
-                                                        (child) =>
-                                                    child['name'].toString().toLowerCase() == "good",
-                                                    orElse: () => {"id": 99, "name": "Good"},
-                                                  );
-                                                } else {
-                                                  return state.dropdownValue;
+                                                final itemData = state.initialDropDown?.firstWhereOrNull(
+                                                      (e) => e['itemId'] == int.parse(item['id'].toString()),
+                                                );
+                                                log("Initial selection for item ${item['id']}: $itemData", name: "INIT_DEBUG");
+                                                if (itemData != null && itemData['name'].toLowerCase() == "bad") {
+                                                  return {"id": itemData['childId'], "name": "Bad"};
                                                 }
+                                                return (item['children'] as List).firstWhere(
+                                                      (child) => child['name'].toString().toLowerCase() == "good",
+                                                  orElse: () => {"id": 99, "name": "Good"},
+                                                );
                                               }(),
                                             ),
                                           ),

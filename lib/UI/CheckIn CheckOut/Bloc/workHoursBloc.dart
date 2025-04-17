@@ -936,6 +936,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     });
 
 
+    //Task page initial Event
     on<TaskInitialEvent>((event, emit) async{
       //Api fetching
       emit(state.copyWith(isLoading: true));
@@ -951,6 +952,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       if (taskHistory?.history3 != null && taskHistory!.history3 is List) {
         combinedHistory.addAll(taskHistory.history3!.whereType<Map<String, dynamic>>());
       }
+
       final data = await taskRepo.fetchGetConfiguration();
       final response1 = await taskRepo.fetchCohortData();
       final response2 = await todoListRepo.getTaskCategoryGroup();
@@ -1034,7 +1036,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             if (!addedTitles.contains(lowercaseTitle)) {
               classifiedTask['Other']!.add({
                 'title': title,
-                'id': null // No id available here unless sourced elsewhere
+                'id': -1 // No id available here unless sourced elsewhere
               });
               addedTitles.add(lowercaseTitle);
             }
@@ -1070,7 +1072,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
           // Initialize categories
           for (var category in categoryData) {
-            classifiedTasks[category['title']] = [];
+            bool includeCategory = category['title'] != 'Other' || event.cohortIds.contains(-1);
+            if (includeCategory) {
+              classifiedTasks[category['title']] = [];
+            }
           }
 
           // Classify tasks
@@ -1089,7 +1094,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               if (matched) break;
             }
 
-            if (!matched) {
+            if (!matched || event.cohortIds.contains(-1)) {
               classifiedTasks['Other'] ??= [];
               classifiedTasks['Other']!.add(task);
             }

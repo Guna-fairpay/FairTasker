@@ -78,7 +78,7 @@ class VendorView extends StatelessWidget {
                                   'Vendor Name',
                                   context.read<VendorDataBloc>().nameController,
                                   autoValidate: AutovalidateMode.onUserInteraction,
-                                  validator: (val) => val!.isEmpty ? 'Please enter location name' : null,
+                                  validator: (val) => val!.isEmpty ? 'Please enter vendor name' : null,
                                 ),
                                 5.height,
                                 Row(
@@ -111,7 +111,6 @@ class VendorView extends StatelessWidget {
                                   ],
                                 ),
                                 5.height,
-                                if (context.watch<VendorDataBloc>().isEditMode) ...[
                                   Row(children: [
                                     Expanded(
                                       child: Utils.getTextFormFieldWithIcon(
@@ -125,14 +124,8 @@ class VendorView extends StatelessWidget {
                                         _getCurrentLocation(context);
                                       }),
                                     ),
-                                    if (context
-                                                .watch<VendorDataBloc>()
-                                                .latitude !=
-                                            null &&
-                                        context
-                                                .watch<VendorDataBloc>()
-                                                .longitude !=
-                                            null) ...[
+                                    if (context.read<VendorDataBloc>().latitude != null &&
+                                        context.read<VendorDataBloc>().longitude != null) ...[
                                       GestureDetector(
                                         onTap: () async {
                                           final Uri mapsUri = Uri(
@@ -220,8 +213,8 @@ class VendorView extends StatelessWidget {
                                       )
                                     ],
                                   ]),
-                                  if (context.watch<VendorDataBloc>().latitude != null &&
-                                      context.watch<VendorDataBloc>().longitude != null) ...[
+                                  if (context.read<VendorDataBloc>().latitude != null &&
+                                      context.read<VendorDataBloc>().longitude != null) ...[
                                     ListTile(
                                       trailing: Utils.getText(
                                           "Lat : ${context.watch<VendorDataBloc>().latitude} "
@@ -232,20 +225,7 @@ class VendorView extends StatelessWidget {
                                     ),
                                   ] else ...[
                                     5.height,
-                                  ]
-                                ] else ...[
-                                  Utils.getTextFormFieldWithIcon(
-                                      'Address',
-                                      context
-                                          .read<VendorDataBloc>()
-                                          .addressController,
-                                      suffixIconData:
-                                          Icons.location_on_outlined,
-                                      onSuffixTap: () {
-                                    _getCurrentLocation(context);
-                                  }),
-                                  5.height,
-                                ],
+                                  ],
                                 Utils.getTextFormField(
                                     'Phone',
                                     context
@@ -403,7 +383,10 @@ class VendorView extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 10),
-                                            child: Text(vendor['name'] ?? ''),
+                                            child: GestureDetector(
+                                              onTap: () { context.read<VendorDataBloc>().add(EnterEditModeEvent(vendor: vendor));},
+                                                child: Text(vendor['name'] ?? '')
+                                            ),
                                           ),
                                           Padding(
                                               padding:
@@ -547,6 +530,7 @@ class VendorView extends StatelessWidget {
       // Update VendorDataBloc with latitude and longitude
       context.read<VendorDataBloc>().latitude = position.latitude;
       context.read<VendorDataBloc>().longitude = position.longitude;
+      context.read<VendorDataBloc>().add(locationEvent(latitude: position.latitude, longitude: position.longitude));
       // Fetch address
       _getAddressFromLatLng(context, position.latitude, position.longitude);
     } catch (e) {
@@ -566,6 +550,8 @@ class VendorView extends StatelessWidget {
         // Update addressController only if empty
         context.read<VendorDataBloc>().addressController.clear();
         context.read<VendorDataBloc>().addressController.text = address;
+        context.read<VendorDataBloc>().latitude = lat;
+        context.read<VendorDataBloc>().longitude = lng;
       } else {
         Utils.showMobileToast("No address found for the location.");
       }

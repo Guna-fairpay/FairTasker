@@ -748,22 +748,21 @@ class Utils {
           suffixIconConstraints: const BoxConstraints(),
           suffixIcon: InkWell(
             onTap: onSuffixTap,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(4),
-                  bottomRight: Radius.circular(4),
+            child:
+            Padding(
+              padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(4),
+                    bottomRight: Radius.circular(4),
+                  ),
+                  color: AppC.blue50,
                 ),
-                color: AppC.blue50,
-                border: const Border(
-                  top: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
-                  bottom: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
-                  right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  child: Icon(suffixIconData, color: AppC.appColor),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                child: Icon(suffixIconData, color: AppC.appColor),
               ),
             ),
           ),
