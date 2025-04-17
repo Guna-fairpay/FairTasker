@@ -1,3 +1,4 @@
+import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
 extension ContextExtension on BuildContext {
@@ -14,7 +15,10 @@ extension ContextExtension on BuildContext {
   Future<T?> pushNamedAndRemoveUntil<T>(String routeName, { bool maintainRoute = false}) async => await Navigator.pushNamedAndRemoveUntil(this, routeName, (route) => maintainRoute);
   Future<T?> pushReplacementNamed<T>(String routeName) async => await Navigator.pushReplacementNamed(this, routeName);
   void pop() => Navigator.pop(this);
-  void popDialog() => Navigator.pop(this, "dialog");
+  void popDialog() {
+    Navigator.pop(this, "dialog");
+    Utils.dismissKeyboard(this);
+  }
 
 
 }

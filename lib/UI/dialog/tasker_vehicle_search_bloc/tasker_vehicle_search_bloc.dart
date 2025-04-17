@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_bloc/tasker_vehicle_search_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicle_search_bloc/tasker_vehicle_search_states.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,13 +24,16 @@ class TVSBloc extends Bloc<TVSEvents, TVSStates> {
     try {
       emit(TVSLoadingState());
       vehicleList = await getIt<CommonService>().getActiveVehicles();
+      vehicleList = vehicleList.where((element) => element['branch_code'] == Session.of.getInt(Str.branchIdPrefText)).toList();
       emit(TVSUpdatedState());
     } catch (e) {
       emit(TVSUpdatedState());
     }
   }
 
-  void _onSelectedEvent(TVSSelectedEvent event, Emitter<TVSStates> emit) {
+  void _onSelectedEvent(TVSSelectedEvent event, Emitter<TVSStates> emit) async {
+    if (selectedModel != null) selectedModel = null;
+    await Future.delayed(Durations.short1);
     selectedModel = event.model;
     pageIndex = 0;
     emit(TVSUpdatedState());

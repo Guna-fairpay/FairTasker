@@ -1,4 +1,5 @@
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_dialog_bloc/tasker_parts_supplies_dialog_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_dialog_bloc/tasker_parts_supplies_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_parts_supplies_dialog_bloc/tasker_parts_supplies_dialog_states.dart';
@@ -6,6 +7,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -95,7 +97,7 @@ class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
               constraints: BoxConstraints(minWidth: context.width),
               child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 5,
+                  spacing: 10.sp,
                   children: [
                     Flexible(child: SingleChildScrollView(
                       child: CustomMultiSelectionChipsField<Map<String, dynamic>>(
@@ -106,15 +108,22 @@ class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
                         onChanged: (isChecked, value) => context.read<TPSDBloc>().add(TPSDSelectedEvent(value, isChecked)),
                       ),
                     )),
-                    Utils.getFilledButton("Save", () {
-                      var selected = context.read<TPSDBloc>().selectedPartsList;
-                      var modelIds = context.read<TPSDBloc>().modelIdsData;
-                      var filtered = selected.where((element) => !modelIds.contains(element['id'].toString())).toList();
-                      if (filtered.isNotEmpty) {
-                        onChanged?.call(filtered);
-                        context.popDialog();
-                      }
-                    })
+                    Row(
+                      children: [
+                        SuccessButton(
+                          text: "Save",
+                          onPressed: (){
+                            var selected = context.read<TPSDBloc>().selectedPartsList;
+                            var modelIds = context.read<TPSDBloc>().modelIdsData;
+                            var filtered = selected.where((element) => !modelIds.contains(element['id'].toString())).toList();
+                            if (filtered.isNotEmpty) {
+                              onChanged?.call(filtered);
+                              context.popDialog();
+                            }
+                          },
+                        )
+                      ],
+                    ),
                   ]),
             ));
   }

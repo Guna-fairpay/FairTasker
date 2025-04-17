@@ -214,6 +214,7 @@ class ApiClient {
             [];
       }
     }
+    if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:	${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
     var request = http.MultipartRequest("POST", message['url'])
       ..headers.addAll(message['token'])
       ..fields.addAll(message['fields'])

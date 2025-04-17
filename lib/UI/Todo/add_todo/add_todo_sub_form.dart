@@ -75,7 +75,7 @@ class AddTodoSubForm extends StatelessWidget {
               controller: context.read<AddToDoBloc>().vPersonController,
             ),
           ),
-          if (state.selectedVPerson
+          /*if (state.selectedVPerson
               .where((element) => ["vehicles", "g_vehicles"].contains(element['type']))
               .lastOrNull !=
               null)
@@ -101,7 +101,7 @@ class AddTodoSubForm extends StatelessWidget {
                     decoration: TextDecoration.underline,
                     decorationColor: AppC.appColor
                 ),)
-            ],
+            ],*/
           10.height,
           FocusTraversalOrder(
             order: NumericFocusOrder(3),
