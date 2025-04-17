@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/dialog/tasker_filter_resource_bloc/tasker_filter
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
@@ -107,7 +108,7 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                   Flexible(
                     child: ListView(
                       shrinkWrap: true,
-                      padding: EdgeInsets.only(bottom: 30),
+                      padding: const EdgeInsets.only(bottom: 30),
                       children: context
                           .watch<TFRDBloc>()
                           .departments
@@ -136,7 +137,7 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                       .toString()
                                       .isNotNullOrEmpty)
                                       ? Text(
-                                      "${model['from_time'] ?? ""} - ${model['to_time'] ?? ""}",
+                                      "${model['from_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")} - ${model['to_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")}",
                                     style: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
                                   )
                                       : null,

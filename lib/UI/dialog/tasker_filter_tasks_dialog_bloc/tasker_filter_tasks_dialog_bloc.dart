@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
+import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -57,7 +58,7 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
   List<Map<String, dynamic>>? _processedMap() {
     var subNames = subCategories?.map((e) => e['name'].toString().toLowerCase()).toSet().toList();
     var todosNames = toDos?.map((e) => e['title'].toString().toLowerCase()).toSet().toList();
-    var selectedGroups = subCategories?.where((element) => todosNames?.contains(element['name'].toString().toLowerCase()) ?? false).toList();
+    var selectedGroups = subCategories?.where((element) => todosNames?.contains(element['name'].toString().toLowerCase()) ?? false).toList().unique((element) => element['name']);
     var subIds = selectedGroups?.map((e) => e['parent_id']).toSet().toList();
     var mainIds = mainCategories?.where((element) => subIds?.contains(element['id']) ?? false).map((e) => e['id']).toSet().toList();
     var mapData = mainIds?.map((e) => {

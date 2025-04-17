@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,7 @@ class TodoTopSearchBar extends StatelessWidget {
         onChanged: onChanged,
         textInputAction: TextInputAction.search,
         onSubmitted: onChanged,
+        onTapOutside: (event) => Utils.dismissKeyboard(context),
         decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search_rounded),
             border: OutlineInputBorder(

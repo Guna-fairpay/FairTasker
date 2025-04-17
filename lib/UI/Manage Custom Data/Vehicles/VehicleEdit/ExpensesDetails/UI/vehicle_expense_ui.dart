@@ -9,7 +9,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class EditVehicleExpenseDetailsUI extends StatelessWidget {
   final String vin;
-  const EditVehicleExpenseDetailsUI({super.key, required this.vin});
+  final bool withInExpand;
+  const EditVehicleExpenseDetailsUI({super.key, required this.vin, this.withInExpand = false});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class EditVehicleExpenseDetailsUI extends StatelessWidget {
               if (EasyLoading.isShow) EasyLoading.dismiss();
             }
           },
-          child: const VehicleExpenseListingPageUI(),
+          child: VehicleExpenseListingPageUI(withInExpand: withInExpand),
         ),
     );
   }

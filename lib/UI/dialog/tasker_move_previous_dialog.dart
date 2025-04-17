@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_text_button.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/Component/todo_task_item_card.dart';
@@ -19,21 +20,28 @@ class TaskerMoveTomorrowDialog {
   TaskerMoveTomorrowDialog._();
 
   static void show(BuildContext context, Map<String, dynamic>? model,
-      List<Map<String, dynamic>>? models, {void Function(List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)? onChanged}) async {
+      List<Map<String, dynamic>>? models,
+      {void Function(
+              List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)?
+          onChanged}) async {
     await showDialog(
         context: context,
         useSafeArea: true,
         barrierDismissible: true,
-        builder: (context) =>
-            _TaskerMoveTomorrowDialogView(model: model, models: models, onChanged: onChanged));
+        builder: (context) => _TaskerMoveTomorrowDialogView(
+            model: model, models: models, onChanged: onChanged));
   }
 }
 
 class _TaskerMoveTomorrowDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
   final List<Map<String, dynamic>>? models;
-  final Function(List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)? onChanged;
-  const _TaskerMoveTomorrowDialogView({this.model, this.models, this.onChanged});
+  final Function(
+          List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)?
+      onChanged;
+
+  const _TaskerMoveTomorrowDialogView(
+      {this.model, this.models, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +81,10 @@ class _TaskerMoveTomorrowDialogView extends StatelessWidget {
 }
 
 class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
-  final Function(List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)? onChanged;
+  final Function(
+          List<Map<String, dynamic>> models, DateTime date, TimeOfDay time)?
+      onChanged;
+
   const _TaskerMoveTomorrowDialogContentView({this.onChanged});
 
   @override
@@ -122,13 +133,20 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                               suffixIcon: Icon(Icons.access_time_rounded,
                                   size: 18, color: context.theme.hintColor),
                               onNeutral: (value) async {
-                                context.read<TMPDBloc>().add(TMPDSelectTimeEvent(value));
+                                context
+                                    .read<TMPDBloc>()
+                                    .add(TMPDSelectTimeEvent(value));
                                 Console.of.log(value, name: "NEUTRAL_TIME");
                                 await Future.delayed(Durations.short1);
-                                Console.of.log("COMPLETING", name: "NEUTRAL_TIME");
-                                var selectedModels = (context.read<TMPDBloc>().selectedModels ?? []);
-                                var date = context.read<TMPDBloc>().selectedDate;
-                                var time = context.read<TMPDBloc>().selectedTime;
+                                Console.of
+                                    .log("COMPLETING", name: "NEUTRAL_TIME");
+                                var selectedModels =
+                                    (context.read<TMPDBloc>().selectedModels ??
+                                        []);
+                                var date =
+                                    context.read<TMPDBloc>().selectedDate;
+                                var time =
+                                    context.read<TMPDBloc>().selectedTime;
                                 if (selectedModels.isNotEmpty) {
                                   onChanged?.call(selectedModels, date, time);
                                   context.popDialog();
@@ -162,49 +180,37 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                         spacing: 10,
                         children: [
                           Expanded(
-                              child: Wrap(
-                            children: [
-                              if (context.watch<TMPDBloc>().hasByVehicle)
+                              child: Container(
+                            decoration: const BoxDecoration(
+                                border: BorderDirectional(
+                                    bottom: BorderSide(
+                                        color: AppC.borderColor,
+                                        width: Num.borderWidthThinField))),
+                            child: Row(
+                              children: [
+                                if (context.watch<TMPDBloc>().hasByVehicle)
+                                  CustomTabButton(
+                                      buttonText: "By Vehicle",
+                                      value: 0,
+                                      selectedBorderColor: AppC.borderColor,
+                                      onPressed: (value) => context
+                                          .read<TMPDBloc>()
+                                          .add(TMPDSelectVehicleEvent()),
+                                      selectedValue: context
+                                          .watch<TMPDBloc>()
+                                          .selectedIndex),
                                 CustomTabButton(
-                                    buttonText: "By Vehicle",
-                                    value: 0,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: AppC.borderColor,
-                                          width: Num.borderWidthThinField),
-                                      borderRadius: const BorderRadius.only(
-                                        topRight:
-                                            Radius.circular(Num.borderRadius),
-                                        topLeft:
-                                            Radius.circular(Num.borderRadius),
-                                      ),
-                                    ),
+                                    buttonText: "By Day",
+                                    value: 1,
+                                    selectedBorderColor: AppC.borderColor,
                                     onPressed: (value) => context
                                         .read<TMPDBloc>()
-                                        .add(TMPDSelectVehicleEvent()),
+                                        .add(TMPDSelectDayEvent()),
                                     selectedValue: context
                                         .watch<TMPDBloc>()
                                         .selectedIndex),
-                              CustomTabButton(
-                                  buttonText: "By Day",
-                                  value: 1,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: AppC.borderColor,
-                                        width: Num.borderWidthThinField),
-                                    borderRadius: const BorderRadius.only(
-                                      topRight:
-                                          Radius.circular(Num.borderRadius),
-                                      topLeft:
-                                          Radius.circular(Num.borderRadius),
-                                    ),
-                                  ),
-                                  onPressed: (value) => context
-                                      .read<TMPDBloc>()
-                                      .add(TMPDSelectDayEvent()),
-                                  selectedValue:
-                                      context.watch<TMPDBloc>().selectedIndex),
-                            ],
+                              ],
+                            ),
                           )),
                           Expanded(
                               child: InkWell(
@@ -254,7 +260,7 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                       false)
                     Flexible(
                         child: ListView.builder(
-                          shrinkWrap: true,
+                            shrinkWrap: true,
                             itemBuilder: (context, index) {
                               var model = context
                                       .watch<TMPDBloc>()
@@ -286,15 +292,33 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                                     ?.length ??
                                 0)),
                   if (onChanged != null)
-                  Utils.getFilledButton("Move Task", () {
-                    var selectedModels = (context.read<TMPDBloc>().selectedModels ?? []);
-                    var date = context.read<TMPDBloc>().selectedDate;
-                    var time = context.read<TMPDBloc>().selectedTime;
-                    if (selectedModels.isNotEmpty) {
-                      onChanged?.call(selectedModels, date, time);
-                      context.popDialog();
-                    }
-                  })
+                    ...[
+                      const Divider(
+                        height: Num.borderWidthThinField,
+                        thickness: Num.borderWidthThinField,
+                        color: AppC.borderColor,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CompactTextButton(
+                            text: "Move Task".toUpperCase(),
+                            icon: Icons.arrow_forward,
+                            iconColor: AppC.green,
+                            onPressed: () {
+                              var selectedModels =
+                              (context.read<TMPDBloc>().selectedModels ?? []);
+                              var date = context.read<TMPDBloc>().selectedDate;
+                              var time = context.read<TMPDBloc>().selectedTime;
+                              if (selectedModels.isNotEmpty) {
+                                onChanged?.call(selectedModels, date, time);
+                                context.popDialog();
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                    ],
                 ],
               ),
             ));

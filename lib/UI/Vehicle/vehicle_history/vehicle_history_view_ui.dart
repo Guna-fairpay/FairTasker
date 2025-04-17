@@ -119,166 +119,134 @@ class VehicleHistoryViewUI extends StatelessWidget {
                         if (additionalScroll)
                           ...[
                             if (state.vehicleDataList.isNotEmpty)
-                              Expanded(child: ListView.separated(
-                                // shrinkWrap: !additionalScroll,
-                                padding: const EdgeInsets.only(bottom: 20),
-                                itemCount: (state.vehicleDataList).keys
-                                    .length,
-                                separatorBuilder: (context, index) =>
-                                10.height,
+                              Expanded(child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: (state.vehicleDataList.values.expand((element) => element).toList().length ?? 0),
                                 physics: additionalScroll ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  var keyValue =
-                                  (state.vehicleDataList).keys.elementAt(
-                                      index);
-                                  var value = state.vehicleDataList[keyValue];
-                                  return StickyHeader(
-                                      header: Center(
-                                        child: Container(
-                                          padding: 8.padding.copyWith(left: 10.sp, right: 10.sp),
-                                          decoration: const BoxDecoration(
-                                              color: AppC.borderColor,
-                                              borderRadius: const BorderRadius.all(Radius.circular(Num.borderRadiusXLarge))),
-                                          child: Text(
-                                            "${keyValue.toFormat(
-                                                format: "MM-dd-yy")}",
-                                            style: context.textTheme.labelMedium
-                                                ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: AppC.appColor),
-                                          ),
-                                        ),
-                                      ),
-                                      overlapHeaders: false,
-                                      content: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: (value?.length ?? 0),
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        itemBuilder: (context, subIndex) {
-                                          var model = value?[subIndex];
-                                          List<
-                                              dynamic> users = model?['users'];
-                                          String? firstName =
-                                          (users.firstOrNull?['first_name'] ?? "");
-                                          String? lastName =
-                                          (users.firstOrNull?['last_name'] ?? "");
-                                          var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
-                                          var customId = (model['custom_link_id'] ??
-                                              0);
-                                          var customText = (customId == 1)
-                                              ? "Link"
-                                              : (customId == 2)
-                                              ? "TURO"
-                                              : "GETAROUND";
-                                          var time = model['todo_time']
-                                              .toString()
-                                              .toDateTime(
-                                              inputFormat: "HH:mm:ss")
-                                              .toFormat(format: "hh:mm a");
-                                          var isCompleted =
-                                          (model['status'] == 'Completed');
-                                          String customLink = model['custom_link'] ?? "";
-                                          return CustomVehicleHistoryCardView(
-                                            dateText: model['todo_date'].toString().toDateTime().toFormat(format: "MM-dd-yy"),
-                                            titleText: model['title'],
-                                            userNameText: firstLastChar,
-                                            hasParts:
-                                            ((model['parts'] as List?)
-                                                ?.isNotEmpty ??
-                                                false),
-                                            hasSupplies: ((model['supplies'] as List?)
-                                                ?.isNotEmpty ??
-                                                false),
-                                            locationText:
-                                            model['vendor_name'] ??
-                                                model['location'],
-                                            notesText: model['notes'],
-                                            timeText: time,
-                                            cleanCarText: model['clean_required'],
-                                            customText: customText,
-                                            hasCustom: model['custom_link'] !=
-                                                null,
-                                            isCompleted: isCompleted,
-                                            confirmDismiss: (
-                                                direction) async {
-                                              context.read<
-                                                  VehicleHistoryBloc>().add(
-                                                  VehicleHistoryCompleteEvent(
-                                                      model['id'],
-                                                      !isCompleted));
-                                              return false;
-                                            },
-                                            onTap: () {
-                                              context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model));
-                                              if (context.read<VehicleHistoryBloc>().isAdmin) {
-                                                VehicleHistoryDetailsUiDialog
-                                                    .show(context);
-                                              } else {
-                                                context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
-                                              }
-                                              // context.push(const VehicleHistoryDetailsUi(), fullscreenDialog: true);
-                                            },
-                                            onDelete: () {
-                                              // SHOW DIALOG AND GET CONFIRMATION WITH REASON
-                                              AskPermissionDialog.show(
-                                                context,
-                                                title:
-                                                "Are you sure want to delete this task?",
-                                                description:
-                                                "Kindly enter a valid reason to confirm the deletion",
-                                                positiveText: "Yes, delete it!",
-                                                negativeText: "Cancel",
-                                                isReasonRequired: true,
-                                                onReasonSubmitted: (reason) =>
-                                                    context
-                                                        .read<
-                                                        VehicleHistoryBloc>()
-                                                        .add(
-                                                        VehicleHistoryDeleteEvent(
-                                                            model['id'],
-                                                            reason)),
-                                              );
-                                            },
-                                            onParts: () {
-                                              ShowChipDialog.show<Map<String, dynamic>>(
-                                                  context, data: model['parts'] ?? [],
-                                                  title: "Parts",
-                                                  avatarIcon: const Icon(Icons.repartition_sharp),
-                                                  itemAsString: (
-                                                      item) => "${item['parts_name'] ?? ""}");
-                                            },
-                                            onSupplies: () {
-                                              ShowChipDialog.show<Map<String, dynamic>>(
-                                                  context, data: model['supplies'] ?? [],
-                                                  title: "Supplies",
-                                                  avatarIcon: const Icon(Icons.support_rounded),
-                                                  itemAsString: (
-                                                      item) => "${item['supplies_name'] ?? ""}");
-                                            },
-                                            onUserTap: (details) {
-                                              ShowChipDialog.show<Map<String, dynamic>>(
-                                                  context, data: users,
-                                                  title: "Users",
-                                                  avatarIcon: const Icon(Icons.person),
-                                                  itemAsString: (
-                                                      item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}");
-                                            },
-                                            onCustom: () {
-                                              switch(customId){
-                                                case 1:
-                                                  Utils.openURL(customLink);
-                                                  break;
-                                                case 2:
-                                                  Utils.openURL(customLink.toTuroReserveUrl);
-                                                  break;
-                                                case 3:
-                                                  Utils.openURL(customLink.toGetAroundReserveUrl);
-                                                  break;
-                                              }
-                                            },
-                                          );
-                                        },
-                                      ));
+                                itemBuilder: (context, subIndex) {
+                                  var model = state.vehicleDataList.values.expand((element) => element).toList()[subIndex];
+                                  List<
+                                      dynamic> users = model?['users'];
+                                  String? firstName =
+                                  (users.firstOrNull?['first_name'] ?? "");
+                                  String? lastName =
+                                  (users.firstOrNull?['last_name'] ?? "");
+                                  var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
+                                  var customId = (model['custom_link_id'] ??
+                                      0);
+                                  var customText = (customId == 1)
+                                      ? "Link"
+                                      : (customId == 2)
+                                      ? "TURO"
+                                      : "GETAROUND";
+                                  var time = model['todo_time']
+                                      .toString()
+                                      .toDateTime(
+                                      inputFormat: "HH:mm:ss")
+                                      .toFormat(format: "hh:mm a");
+                                  var isCompleted =
+                                  (model['status'] == 'Completed');
+                                  String customLink = model['custom_link'] ?? "";
+                                  return CustomVehicleHistoryCardView(
+                                    dateText: model['todo_date'].toString().toDateTime().toFormat(format: "MM-dd-yy"),
+                                    titleText: model['title'],
+                                    userNameText: firstLastChar,
+                                    hasParts:
+                                    ((model['parts'] as List?)
+                                        ?.isNotEmpty ??
+                                        false),
+                                    hasSupplies: ((model['supplies'] as List?)
+                                        ?.isNotEmpty ??
+                                        false),
+                                    locationText:
+                                    model['vendor_name'] ??
+                                        model['location'],
+                                    notesText: model['notes'],
+                                    timeText: time,
+                                    cleanCarText: model['clean_required'],
+                                    customText: customText,
+                                    hasCustom: model['custom_link'] !=
+                                        null,
+                                    isCompleted: isCompleted,
+                                    confirmDismiss: (
+                                        direction) async {
+                                      context.read<
+                                          VehicleHistoryBloc>().add(
+                                          VehicleHistoryCompleteEvent(
+                                              model['id'],
+                                              !isCompleted));
+                                      return false;
+                                    },
+                                    onTap: () {
+                                      context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model));
+                                      if (context.read<VehicleHistoryBloc>().isAdmin) {
+                                        context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
+                                      } else {
+                                        VehicleHistoryDetailsUiDialog
+                                            .show(context);
+                                      }
+                                      // context.push(const VehicleHistoryDetailsUi(), fullscreenDialog: true);
+                                    },
+                                    onDelete: () {
+                                      // SHOW DIALOG AND GET CONFIRMATION WITH REASON
+                                      AskPermissionDialog.show(
+                                        context,
+                                        title:
+                                        "Are you sure want to delete this task?",
+                                        description:
+                                        "Kindly enter a valid reason to confirm the deletion",
+                                        positiveText: "Yes, delete it!",
+                                        negativeText: "Cancel",
+                                        isReasonRequired: true,
+                                        onReasonSubmitted: (reason) =>
+                                            context
+                                                .read<
+                                                VehicleHistoryBloc>()
+                                                .add(
+                                                VehicleHistoryDeleteEvent(
+                                                    model['id'],
+                                                    reason)),
+                                      );
+                                    },
+                                    onParts: () {
+                                      ShowChipDialog.show<Map<String, dynamic>>(
+                                          context, data: model['parts'] ?? [],
+                                          title: "Parts",
+                                          avatarIcon: const Icon(Icons.repartition_sharp),
+                                          itemAsString: (
+                                              item) => "${item['parts_name'] ?? ""}");
+                                    },
+                                    onSupplies: () {
+                                      ShowChipDialog.show<Map<String, dynamic>>(
+                                          context, data: model['supplies'] ?? [],
+                                          title: "Supplies",
+                                          avatarIcon: const Icon(Icons.support_rounded),
+                                          itemAsString: (
+                                              item) => "${item['supplies_name'] ?? ""}");
+                                    },
+                                    onUserTap: (details) {
+                                      if (users.length <= 1) return;
+                                      ShowChipDialog.show<Map<String, dynamic>>(
+                                          context, data: users,
+                                          title: "Users",
+                                          avatarIcon: const Icon(Icons.person),
+                                          itemAsString: (
+                                              item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}");
+                                    },
+                                    onCustom: () {
+                                      switch(customId){
+                                        case 1:
+                                          Utils.openURL(customLink);
+                                          break;
+                                        case 2:
+                                          Utils.openURL(customLink.toTuroReserveUrl);
+                                          break;
+                                        case 3:
+                                          Utils.openURL(customLink.toGetAroundReserveUrl);
+                                          break;
+                                      }
+                                    },
+                                  );
                                 },
                               ))
                           ],
@@ -346,10 +314,10 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                   onTap: () {
                                     context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model));
                                     if (context.read<VehicleHistoryBloc>().isAdmin) {
+                                      context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
+                                    } else {
                                       VehicleHistoryDetailsUiDialog
                                           .show(context);
-                                    } else {
-                                      context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
                                     }
                                     // context.push(const VehicleHistoryDetailsUi(), fullscreenDialog: true);
                                   },

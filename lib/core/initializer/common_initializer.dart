@@ -1,4 +1,5 @@
 import 'dart:ui' show VoidCallback;
+import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -74,6 +75,16 @@ class CommonService {
   String? get timeNow {
     var now = tz.TZDateTime.now(_chicagoTime);
     return now.toFormat(format: "HH:mm:ss");
+  }
+
+  Time? get usTimeNow {
+    var now = tz.TZDateTime.now(_chicagoTime);
+    return now.time;
+  }
+
+  DateTime get usNow {
+    var now = tz.TZDateTime.now(_chicagoTime);
+    return now;
   }
 
   Future<void> initialFetch() async {

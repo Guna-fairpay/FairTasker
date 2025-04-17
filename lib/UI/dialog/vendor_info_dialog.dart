@@ -28,9 +28,9 @@ class _VendorInfoDialogView extends StatelessWidget {
     return AlertDialog.adaptive(
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
-      contentPadding: 10.padding,
-      titlePadding: 10.padding,
-      insetPadding: 10.padding,
+      contentPadding: 10.sp.padding,
+      titlePadding: 10.sp.padding,
+      insetPadding: 10.sp.padding,
       title: ListTile(
         dense: true,
         minTileHeight: 0,
@@ -46,12 +46,15 @@ class _VendorInfoDialogView extends StatelessWidget {
         ),
       ),
       content: Container(
-        constraints: BoxConstraints(
-            minWidth: context.width * 0.5),
+        width: double.maxFinite,
         decoration: BoxDecoration(),
         clipBehavior: Clip.antiAliasWithSaveLayer,
+        padding: 10.sp.padding,
         child: Table(
-          defaultColumnWidth: IntrinsicColumnWidth(),
+          columnWidths: {
+            0: FlexColumnWidth(),
+            1: FlexColumnWidth(2),
+          },
           border: TableBorder.all(
               borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
               width: Num.borderWidthThinField,
@@ -124,12 +127,23 @@ class _VendorInfoDialogView extends StatelessWidget {
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis),
                   )),
-              TableCell(
+              TableRowInkWell(
+                onTap: () async {
+                  var value = model?['display']?['vendor']?['address'] ?? "";
+                  final Uri mapsUri = Uri(
+                    scheme: 'https',
+                    host: 'www.google.com',
+                    path: '/maps/search/$value',
+                    queryParameters: {'q': value},
+                  );
+                  Utils.openURL(mapsUri.toString());
+                },
                   child: Padding(
                     padding: 10.padding,
                     child: Utils.getText(
                         "${model?['display']?['vendor']?['address'] ?? ""}",
                         size: 12.sp,
+                        color: AppC.appColor,
                         weight: FontWeight.normal,
                         overFlow: TextOverflow.ellipsis),
                   )),

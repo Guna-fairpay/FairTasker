@@ -8,12 +8,14 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/UI/e
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditVehicleBody extends StatelessWidget {
   final dynamic vehicleData;
@@ -34,19 +36,17 @@ class EditVehicleBody extends StatelessWidget {
             if (context.read<EditVehicleBloc>().vehicleImage.isNotEmpty)
               SizedBox(
                 height: 200,
-                child: Container(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.sizeOf(context).height,
-                    minWidth: MediaQuery.sizeOf(context).width,
-                  ),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: AppC.grey.withValues(alpha: 0.2)),
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  child: ImageViewer(
-                    fit: BoxFit.cover,
-                    imageInput: context.read<EditVehicleBloc>().vehicleImage[0] ?? {},
-                    isNotImage: !(context.read<EditVehicleBloc>().vehicleImage[0] as Object).isImage,
+                child: FittedBox(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
+                        color: AppC.grey.withValues(alpha: 0.2)),
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: ImageViewer(
+                      fit: BoxFit.contain,
+                      imageInput: context.read<EditVehicleBloc>().vehicleImage[0] ?? {},
+                      isNotImage: !(context.read<EditVehicleBloc>().vehicleImage[0] as Object).isImage,
+                    ),
                   ),
                 ),
               ),
