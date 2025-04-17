@@ -2,6 +2,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
 class CompactSearchView extends StatelessWidget {
@@ -23,6 +24,7 @@ class CompactSearchView extends StatelessWidget {
       maxLines: 1,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       style: context.textTheme.titleSmall?.copyWith(color: AppC.appColor),
+      onTapOutside: (event) => Utils.dismissKeyboard(context),
       decoration: InputDecoration(
         isDense: true,
         hintText: hintText,

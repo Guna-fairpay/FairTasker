@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fairpytasker/Component/compact_rotation_view.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -8,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TaskerViewVehicleHistoryDialog {
   TaskerViewVehicleHistoryDialog._();
@@ -33,34 +35,32 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       insetPadding: 10.padding,
       backgroundColor: AppC.white,
+      titlePadding: EdgeInsets.zero,
+      title: ListTile(
+        dense: true,
+        trailing: GestureDetector(
+          onTap: context.popDialog,
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Icon(
+              Icons.close,
+              color: Colors.red,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
       content: Container(
         width: double.maxFinite,
-        // height: context.height * 0.9,
         decoration: BoxDecoration(
             color: AppC.white,
             borderRadius: BorderRadius.circular(8)
         ),
-        padding: const EdgeInsets.all(10),
+        padding: 16.sp.padding,
         child: Column(
+          spacing: 10.sp,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: context.popDialog,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.red,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
@@ -82,8 +82,36 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            InteractiveViewer(
+            CompactRotationView(prefixChild: GestureDetector(
+              onTap: () async {
+                String imageUrl = model?['display']?['vehicle_image'];
+                if (imageUrl.isNotEmpty) {
+                  String whatsappUrl =
+                      "https://wa.me/?text=Check out this image: $imageUrl";
+                  Utils.openURL(whatsappUrl);
+                }
+              },
+              child: Image.asset(
+                Assets.whatsAppIcon,
+                height: 24,
+                width: 24,
+              ),
+            ), suffixChild: GestureDetector(
+              onTap: () async {
+                String imageUrl = model?['display']?['vehicle_image'];
+                if (imageUrl.isNotEmpty) {
+                  final mailUri = Uri.parse("mailto:email?subject=Check out this image!&body=Check out this image! $imageUrl");
+                  await launchUrl(mailUri);
+                  // Utils.openURL(emailUri.toString());
+                }
+              },
+              child: Image.asset(
+                Assets.mail,
+                height: 24,
+                width: 24,
+              ),
+            ),
+                child: InteractiveViewer(
               maxScale: 8.0,
               minScale: 0.01,
               child: CachedNetworkImage(
@@ -114,53 +142,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                   );
                 },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      String imageUrl = model?['display']?['vehicle_image'];
-                      if (imageUrl.isNotEmpty) {
-                        String whatsappUrl =
-                            "https://wa.me/?text=Check out this image: $imageUrl";
-                        Utils.openURL(whatsappUrl);
-                      }
-                    },
-                    child: Image.asset(
-                      Assets.whatsAppIcon,
-                      height: 24,
-                      width: 24,
-                    ),
-                  ),
-                  // const Icon(Icons.rotate_right_outlined),
-                  GestureDetector(
-                    onTap: () async {
-                      String imageUrl = model?['display']?['vehicle_image'];
-                      if (imageUrl.isNotEmpty) {
-                        String subject = Uri.encodeComponent('Check out this image');
-                        String body = Uri.encodeComponent('Here is an image: $imageUrl');
-                        final Uri emailUri = Uri(
-                          scheme: 'mailto',
-                          queryParameters: {
-                            'subject': subject,
-                            'body': body,
-                          },
-                        );
-                        Utils.openURL(emailUri.toString());
-                      }
-                    },
-                    child: Image.asset(
-                      Assets.mail,
-                      height: 24,
-                      width: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            )),
             Flexible(
               child: VehicleHistoryViewUI(
                 vin: model?['display']?['vins']?[0],

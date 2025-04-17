@@ -5,13 +5,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
-import 'package:fairpytasker/Response/assigned_to_response.dart';
-import 'package:fairpytasker/Response/location_response.dart';
-import 'package:fairpytasker/Response/parts_response.dart';
-import 'package:fairpytasker/Response/supplies_response.dart';
-import 'package:fairpytasker/Response/task_response.dart';
-import 'package:fairpytasker/Response/vehicle_list_response.dart';
-import 'package:fairpytasker/Response/vendor_response.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
@@ -247,9 +240,10 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         existing.addAll(event.selectedTaskIdentifier);
       }
       if (existing.containsKey(1)) {
-        taskNameController.text = existing[1]?['name'] ?? "";
+        if (((existing[1] as Map).isEmpty) && (taskNameController.text.isNullOrEmpty)) taskNameController.clear();
+        else taskNameController.text = existing[1]?['name'] ?? "";
       }
-      if (!existing.containsKey(1)) taskNameController.clear();
+      // if ((!existing.containsKey(1))) taskNameController.clear();
 
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);

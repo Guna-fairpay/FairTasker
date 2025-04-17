@@ -28,11 +28,17 @@ class SubcategoryAlterUi extends StatelessWidget {
               context.read<SubCategoryBloc>().nameController,
               validator: (val) => (val?.trim().isNullOrEmpty ?? false) ? 'Please enter sub category' : null,
             ),
-            Utils.dropdownBox('Select Category', context.watch<SubCategoryBloc>().mainCategories, (selectedValue) => context.read<SubCategoryBloc>().add(SubCategoryCategorySelectEvent(selectedValue)),
+            Utils.dropdownBox('Select Category', context.watch<SubCategoryBloc>().mainCategories, (selectedValue) {
+              context.read<SubCategoryBloc>().add(SubCategoryCategorySelectEvent(selectedValue));
+              Utils.dismissKeyboard(context);
+            },
                 initialSelection: context.watch<SubCategoryBloc>().selectedCategory,
                 selectedKey: context.watch<SubCategoryBloc>().selectedCategory,
                 labelKey: 'name'),
-            Utils.dropdownBox('Select ExpenseTo', context.watch<SubCategoryBloc>().expenseTo, (selectedValue) => context.read<SubCategoryBloc>().add(SubCategoryExpenseToSelectEvent(selectedValue)),
+            Utils.dropdownBox('Select ExpenseTo', context.watch<SubCategoryBloc>().expenseTo, (selectedValue) {
+              context.read<SubCategoryBloc>().add(SubCategoryExpenseToSelectEvent(selectedValue));
+              Utils.dismissKeyboard(context);
+            },
                 initialSelection: context.watch<SubCategoryBloc>().selectedExpenseTo,
                 selectedKey: context.watch<SubCategoryBloc>().selectedExpenseTo,
                 labelKey: 'expense_to'),

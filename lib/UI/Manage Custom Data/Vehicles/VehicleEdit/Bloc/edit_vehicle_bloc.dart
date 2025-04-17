@@ -109,7 +109,6 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       branch = branchResponse??[];
       vehicleStatus = vehicleStatusResponse?['data']??[];
       expenseDetails = editVehicleExpenseDetailsResponse?['data']??[];
-      log(expenseDetails.toString(), name: "EditVehicleInitialEvent");
       repairAndMaintenanceDetails = editVehicleExpenseDetailsResponse?['repair_and_maintenance_details']??[];
 
       selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['cohort_id'].toString(),);
@@ -169,11 +168,12 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       insuranceImageList=(event.vehicleData?['images']).where((element) => element['vehicle_image_type'] == 4).toList();
       insuranceImage=insuranceImageList.map((e) => e['path'].toString().toStorageURL).toList();
 
-      receiptImageList=event.vehicleData?['expenses']['attachments']??[];
+      receiptImageList=event.vehicleData?['expenses']?['attachments']??[];
       receiptImage=receiptImageList.map((e) => e['path'].toString().toStorageURL).toList();
 
       emit(EditVehicleLoadedState());
       }catch(e){
+        Console.of.error("Error", error: e);
         emit(EditVehicleErrorState(e.toString()));
         log(e.toString(),name: "EditVehicleInitialEvent");
       }

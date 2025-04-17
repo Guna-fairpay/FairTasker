@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class CustomDropdown<T extends Object> extends StatelessWidget {
   final List<T> items;
   final T? value;
+  final bool isExpanded;
   final String? labelText, hintText;
   final ItemAsString<T>? itemAsString;
   final ValueChanged<T?>? onChanged;
@@ -14,22 +15,13 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
   final AutovalidateMode? autoValidateMode;
   final FormFieldValidator<T>? validator;
 
-  // const CustomDropdown(
-  //     {super.key,
-  //     required this.items,
-  //     this.value,
-  //     this.labelText = "Select",
-  //     this.hintText,
-  //     this.contentPadding,
-  //     this.itemAsString,
-  //     this.onChanged});
-
   const CustomDropdown({super.key,
     required this.items,
     this.value,
     this.validator,
     this.autoValidateMode,
     this.labelText = "Select",
+    this.isExpanded = true,
     this.hintText,
     this.contentPadding,
     this.itemAsString,
@@ -58,7 +50,7 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
         autovalidateMode: autoValidateMode,
         validator: validator,
         isDense: true,
-        isExpanded: false,
+        isExpanded: isExpanded,
         menuMaxHeight: context.height * 0.3,
         style: context.textTheme.labelLarge,
         value: value,

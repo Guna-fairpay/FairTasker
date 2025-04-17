@@ -48,6 +48,7 @@ class TaskerMainUi extends StatelessWidget {
           if (!EasyLoading.isShow) EasyLoading.show();
         } else {
           if (EasyLoading.isShow) EasyLoading.dismiss();
+          if (state is! ToDoTaskerCommonState) Utils.dismissKeyboard(context);
           switch (state) {
             case ToDoTaskerSuccessState(): Toaster.showSuccess("${state.message}"); break;
             case ToDoTaskerErrorState(): Toaster.showError("${state.message}"); break;

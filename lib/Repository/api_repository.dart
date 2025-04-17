@@ -231,6 +231,10 @@ class APiRepository {
 
   String get _uploadTodo => "upload-todo";
 
+  String get _deleteVehicleParts => "delete-vehicle-parts";
+
+  String get _deleteSupplies => "delete-supplies";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -2155,6 +2159,28 @@ Future<Map<String, dynamic>?> getLocations() async {
       String apiUrl = "${Str.BASE_URL}$_uploadTodo";
       Map<String, dynamic> body = { "reservation" : text};
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteVehicleParts({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteVehicleParts/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteSupplies({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteSupplies/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

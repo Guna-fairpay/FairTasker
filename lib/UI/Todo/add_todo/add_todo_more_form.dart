@@ -126,6 +126,8 @@ class AddTodoMoreForm extends StatelessWidget {
                   items: List.from(state.linkOptions),
                   value: state.selectedLinkOption,
                   contentPadding: 5.padding,
+                  labelText: null,
+                  hintText: "Select option",
                   onChanged: (val) => context
                       .read<AddToDoBloc>()
                       .add(AddToDoSelectLinkOptionEvent(val)),

@@ -50,7 +50,8 @@ class AddPrivateRentalBody extends StatelessWidget {
             5.height,
             CustomDateTimePicker<DateTime>(
               controller: context.read<AddPrivateRentalBloc>().checkInController,
-              format: "MM-dd-yyyy",
+              format: "dd-MM-yyyy",
+              labelText: "dd-MM-yyyy",
               suffixIcon: Icon(Icons.calendar_month_rounded,
                   size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
@@ -64,7 +65,8 @@ class AddPrivateRentalBody extends StatelessWidget {
             5.height,
             CustomDateTimePicker<DateTime>(
               controller: context.read<AddPrivateRentalBloc>().checkOutController,
-              format: "MM-dd-yyyy",
+              format: "dd-MM-yyyy",
+              labelText: "dd-MM-yyyy",
               suffixIcon: Icon(Icons.calendar_month_rounded,
                   size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,

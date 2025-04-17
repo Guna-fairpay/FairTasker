@@ -48,6 +48,9 @@ class AddTodoRecurringForm extends StatelessWidget {
                     ),
                     Expanded(
                         child: CustomDropdown<Map<String, dynamic>>(
+                            labelText: null,
+                            isExpanded: true,
+                            hintText: "Select Recurring Type",
                             items: List.from(state.recurringTypes),
                             value: state.selectedRecurring,
                             contentPadding: 5.padding,
