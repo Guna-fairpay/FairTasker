@@ -11,6 +11,8 @@ class ReportsState extends Equatable {
   final dynamic vehicleFile;
   final dynamic earningFile;
   final dynamic vehicleInventoryFile;
+  final dynamic tollsFile;
+  final bool uploadSuccess;
 
   const ReportsState(
       {this.error,
@@ -22,7 +24,11 @@ class ReportsState extends Equatable {
       this.maintenanceFile,
       this.vehicleFile,
       this.earningFile,
-      this.vehicleInventoryFile});
+      this.vehicleInventoryFile,
+        this.tollsFile,
+        this.uploadSuccess = false,
+
+      });
 
   ReportsState copyWith({
     bool? isLoading,
@@ -35,6 +41,8 @@ class ReportsState extends Equatable {
     dynamic vehicleFile,
     dynamic earningFile,
     dynamic vehicleInventoryFile,
+    dynamic tollsFile,
+    bool? uploadSuccess,
   }) {
     return ReportsState(
         isLoading: isLoading ?? this.isLoading,
@@ -46,7 +54,10 @@ class ReportsState extends Equatable {
         maintenanceFile: maintenanceFile ?? this.maintenanceFile,
         vehicleFile: vehicleFile ?? this.vehicleFile,
         earningFile: earningFile ?? this.earningFile,
-        vehicleInventoryFile: vehicleInventoryFile ?? this.vehicleInventoryFile);
+        vehicleInventoryFile: vehicleInventoryFile ?? this.vehicleInventoryFile,
+        tollsFile: tollsFile ?? this.tollsFile,
+      uploadSuccess: uploadSuccess ?? this.uploadSuccess,
+    );
   }
 
   @override
@@ -59,6 +70,8 @@ class ReportsState extends Equatable {
         maintenanceFile,
         vehicleFile,
         earningFile,
-        vehicleInventoryFile
+        vehicleInventoryFile,
+        tollsFile,
+        uploadSuccess,
       ];
 }

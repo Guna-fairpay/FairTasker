@@ -57,6 +57,8 @@ class Downloader {
         if (fileNameMatch != null) {
           fileName = fileNameMatch.group(1)?.replaceAll(RegExp(r'"'), '').trim();
         }
+      } else {
+        fileName = path.split("/").lastOrNull;
       }
 
       // Ensure fileName is not null

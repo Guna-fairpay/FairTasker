@@ -220,7 +220,7 @@ class TaskRepository {
   Future<PunchlistResponse?> fetchPunchList() async
   {
     try{
-      final String apiUrl = '${Str.GOPORTAL_BASE_URL}userPunchList';
+      final String apiUrl = '${Str.GOPORTAL_BASE_URL}getWorkingHours';
       final http.Response? response = await apiClient.callGetMethod(apiUrl);
       print("Api URL $apiUrl");
       if(response != null){
