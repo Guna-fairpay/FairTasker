@@ -74,10 +74,16 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         totalCount = apiResponse.length;
         filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
         Toaster.showSuccess(response?['message']);
+        isEdit = false;
+        selectedData = null;
+        nameController.clear();
+        notesController.clear();
+        _search();
         emit(SuppliesCommonState());
       }
     }catch(e){
       Toaster.showError(e.toString());
+      _search();
       emit(SuppliesCommonState());
     }
   }
@@ -117,16 +123,19 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
           itemsPerPage: itemsPerPage,
         );
         Toaster.showSuccess("Supplies added successfully");
+        _search();
         emit(SuppliesCommonState());
       }
       else{
         Console.of.log(response,name: 'TESTCASE0');
         Toaster.showError(response);
+        _search();
         emit(SuppliesCommonState());
       }
     }catch(e){
       Toaster.showError(e.toString());
       Console.of.log(e.toString(),name: 'TESTCASE1');
+      _search();
       emit(SuppliesCommonState());
     }
   }
@@ -150,8 +159,8 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     }
   }
 
-  void _onSearchSuppliesEvent(SearchSuppliesEvent event, Emitter<SuppliesState> emit) {
-    var query = event.query.toLowerCase();
+  void _search(){
+    var query = searchController.text.toLowerCase();
     List<Map<String, dynamic>> filteredData = [];
 
     if (query.trim().isNotNullOrEmpty) {
@@ -163,9 +172,15 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     } else {
       filteredData = apiResponse;
     }
+    currentIndex=1;
     totalCount = filteredData.length;
     filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
-    emit(SuppliesCommonState());
+
+  }
+
+  void _onSearchSuppliesEvent(SearchSuppliesEvent event, Emitter<SuppliesState> emit) {
+    _search();
+     emit(SuppliesCommonState());
   }
 
 }

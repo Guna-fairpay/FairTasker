@@ -96,3 +96,10 @@ class GenerateInvoiceEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class GetOdometerEvent extends TodoEditExpenseEvent {
+  final String? vin;
+  const GetOdometerEvent({required this.vin});
+  @override
+  List<Object?> get props => [vin,Random().nextDouble()];
+}

@@ -32,7 +32,7 @@ class SplitExpenseUI extends StatelessWidget {
                         //const Icon(Icons.attach_money),
                         Expanded(
                           child: Utils.getTextFormField(
-                            '',
+                            null,
                             hintText: 'enter a amount',
                             e['controller'],
                             textType: const TextInputType.numberWithOptions(decimal: true),
@@ -66,10 +66,9 @@ class SplitExpenseUI extends StatelessWidget {
                             child: Utils.getText(
                               (e['name']).toString().toTitleCase(),
                             )),
-                        // const Icon(Icons.attach_money),
                         Expanded(
                           child: Utils.getTextFormField(
-                            '',
+                            null,
                             hintText: 'enter a amount',
                             e['controller'],
                             textType: const TextInputType.numberWithOptions(decimal: true),
@@ -89,7 +88,6 @@ class SplitExpenseUI extends StatelessWidget {
                                 ?.copyWith(fontFamily: "Lato"),
                             textInputFormatter:[
                               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
-
                           ),
                         ),
                       ],
@@ -98,10 +96,9 @@ class SplitExpenseUI extends StatelessWidget {
           Row(
             children: [
               Expanded(flex: 2, child: Utils.getText('Labour')),
-              // const Icon(Icons.attach_money),
               Expanded(
                 child: Utils.getTextFormField(
-                  '',
+                  null,
                   hintText: 'enter a amount',
                   context.read<TodoEditExpenseBloc>().labourCostController,
                   textType: const TextInputType.numberWithOptions(decimal: true),
@@ -128,7 +125,6 @@ class SplitExpenseUI extends StatelessWidget {
               Expanded(
                   flex: 2,
                   child: Utils.getText('Sub Total', weight: FontWeight.bold)),
-              // const Icon(Icons.attach_money),
               Expanded(
                 child: Utils.getTextFormField(
                   '',
@@ -185,7 +181,8 @@ class SplitExpenseUI extends StatelessWidget {
              Flexible(
                flex: 1,
                child: Utils.getTextFormField(
-                 '',
+                 null,
+                 hintText: "Enter Sales Tax",
                  maxLength: 20,
                  context
                      .watch<TodoEditExpenseBloc>()
@@ -229,86 +226,13 @@ class SplitExpenseUI extends StatelessWidget {
              ),
            ],
          ),
-         /* Row(
-            children: [
-
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        context.read<TodoEditExpenseBloc>().add(TaxIconEvent());
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(1),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: AppC.grey, width: 0.5),
-                        ),
-                        child: context.watch<TodoEditExpenseBloc>().taxIsTapped
-                            ? const Icon(
-                                Icons.monetization_on_outlined,
-                                color: AppC.grey,
-                                size: 20,
-                              )
-                            : const Icon(
-                                Icons.percent,
-                                color: AppC.grey,
-                                size: 20,
-                              ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: Utils.getTextFormField(
-                      '',
-                      maxLength: 20,
-                      context
-                          .watch<TodoEditExpenseBloc>()
-                          .percentageOrAmountController,
-                      inputAction: TextInputAction.done,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 1),
-                      textType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      labelStyle: context.textTheme.labelMedium
-                          ?.copyWith(color: context.theme.hintColor),
-                      style: context.textTheme.labelLarge
-                          ?.copyWith(fontFamily: "Lato"),
-                    ),
-                  ),
-              // const Icon(Icons.attach_money, color: AppC.grey, size: 20,),
-              Expanded(
-                child: Utils.getTextFormField(
-                  '',
-                  readOnly: true,
-                  context.watch<TodoEditExpenseBloc>().saleTaxController,
-                  fillColor: Colors.grey.shade200,
-                  borderWidth: 0.4,
-                  prefixIcon: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Text(
-                      "\$",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  labelStyle: context.textTheme.labelMedium
-                      ?.copyWith(color: context.theme.hintColor),
-                  style: context.textTheme.labelLarge
-                      ?.copyWith(fontFamily: "Lato"),
-                ),
-              ),
-            ],
-          ),*/
           Row(
             children: [
               Expanded(flex: 2, child: Utils.getText('Shipping & Handling')),
-              //const Icon(Icons.attach_money),
               Expanded(
                 child: Utils.getTextFormField(
-                  '',
-                  hintText: 'enter a amount',
+                  null,
+                  hintText: 'enter a ship',
                   context.read<TodoEditExpenseBloc>().shippingController,
                   textType: const TextInputType.numberWithOptions(decimal: true),
                   inputAction: TextInputAction.done,
@@ -334,7 +258,6 @@ class SplitExpenseUI extends StatelessWidget {
               Expanded(
                   flex: 2,
                   child: Utils.getText('Total', weight: FontWeight.bold)),
-              // const Icon(Icons.attach_money),
               Expanded(
                 child: Utils.getTextFormField(
                   '',

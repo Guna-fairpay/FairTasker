@@ -231,6 +231,8 @@ class APiRepository {
 
   String get _uploadTodo => "upload-todo";
 
+  String get _getOdometerValue => "get-vehicle-data";
+
   String get _deleteVehicleParts => "delete-vehicle-parts";
 
   String get _deleteSupplies => "delete-supplies";
@@ -2159,6 +2161,17 @@ Future<Map<String, dynamic>?> getLocations() async {
       String apiUrl = "${Str.BASE_URL}$_uploadTodo";
       Map<String, dynamic> body = { "reservation" : text};
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getOdometerValue({required String? vin}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}$_getOdometerValue?vin=$vin';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

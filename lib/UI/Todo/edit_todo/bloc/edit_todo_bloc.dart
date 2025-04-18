@@ -794,6 +794,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
     baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
     baseBody['trip_driven'] = tripDrivenController.text;
+    baseBody['time_change_reason'] = reason??'';
     baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1)
         ? customLinkController.text
         : "";
@@ -916,6 +917,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
       "vehicle_number": e['vehicle_number']
     })).toList()}";
+    baseBody['parts']= "${state.selectedParts.isEmpty
+        ? null
+        : state.selectedParts.map((e)=>jsonEncode({
+      "parts_id": "${e['id']}",
+      "parts_name": "${e['name']}",
+    }) ).toList()}";
+
+    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
+        ? null
+        : state.selectedSupplies.map((e)=>jsonEncode({
+      "supplies_id": "${e['id']}",
+      "supplies_name": "${e['name']}",
+    }) ).toList()}";
 
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
     baseBody['start_at'] = dateController.text;
@@ -935,22 +949,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
     }
-
-    baseBody['parts']= "${state.selectedParts.isEmpty
-        ? null
-        : state.selectedParts.map((e)=>jsonEncode({
-      "parts_id": "${e['id']}",
-      "parts_name": "${e['name']}",
-    }) ).toList()}";
-
-    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
-        ? null
-        : state.selectedSupplies.map((e)=>jsonEncode({
-      "supplies_id": "${e['id']}",
-      "supplies_name": "${e['name']}",
-    }) ).toList()}";
-
-
 
     var personList = state.selectedVPerson
         .where((element) => element['type'] == "person")
@@ -987,8 +985,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
   }
 
-
-
   // PICK MULTI IMAGES / FILES
   Future<List<File>?> _pickFiles() async {
     var result = await ImagePicker().pickMultiImage();
@@ -999,14 +995,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   Future<TodoListResponse?> _editTodoData(dynamic todoId) async =>
       await todoListRepo.editTodoData(id: todoId);
 
-
   /// API CALL: GET-USER-GROUP
   Future<List<Map<String,dynamic>>> _getGroupVehicles() async =>
       await getIt<CommonService>().groupVehicles();
 
   Future<Map<String, dynamic>?> _getPreviousOdometer({required String date, required String vin, required dynamic identifierId}) async =>
       await apiRepository.getPreviousOdometer(date: date, vin: vin, identifierId: identifierId);
-
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
 

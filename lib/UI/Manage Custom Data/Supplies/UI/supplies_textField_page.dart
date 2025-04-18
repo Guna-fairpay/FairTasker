@@ -32,7 +32,7 @@ class SuppliesTextFieldPage extends StatelessWidget {
                       : null,
                 ),
                 Utils.getTextFormField(
-                  "Notes",
+                  "Description",
                   context.read<SuppliesBloc>().notesController,
                 ),
                 Row(
