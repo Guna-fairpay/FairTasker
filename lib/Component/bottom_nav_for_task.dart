@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_ui.dart';
 import 'package:fairpytasker/Component/header.dart';
 import '../UI/CheckIn CheckOut/UI/resource_ui.dart';
-import '../UI/Finance/Expense/UI/expense_tap_ui.dart';
+import '../UI/Finance/Expense/Component/expense_tap_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
 import '../Utilities/str.dart';

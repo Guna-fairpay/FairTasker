@@ -1,31 +1,59 @@
-import 'package:fairpytasker/UI/Finance/Expense/Person/UI/Person_Edit/person_expense_edit_ui.dart';
-import 'package:fairpytasker/UI/Finance/Expense/Person/UI/Person_List/person_expense_history_ui.dart';
+
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
-import '../../../dialog/ask_permission_dialog.dart';
-import '../../../dialog/show_attachments_dialog.dart';
+import '../../../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
+import '../../../../../dialog/ask_permission_dialog.dart';
+import '../../../../../dialog/show_attachments_dialog.dart';
+import '../../Vehicle_Edit/UI/vehicle_expense_edit_ui.dart';
 
-class ExpensePersonListItem extends StatelessWidget {
+class ExpenseVehicleListItem extends StatelessWidget {
   final Map<String, dynamic> expense;
-  final void Function(String? value) onDelete;
   final void Function(bool? value)? onChanged;
-  final List <dynamic> employeeList;
+  final void Function(String? value) onDelete;
+  final VoidCallback? onCategoryTapEvent;
+  final VoidCallback? onCohortTapEvent;
+  final VoidCallback? onResetEvent;
 
-  const ExpensePersonListItem({
+  const ExpenseVehicleListItem({
     super.key,
     required this.expense,
-    required this.onDelete,
     required this.onChanged,
-    required this.employeeList,
+    required this.onDelete,
+    this.onCategoryTapEvent,
+    this.onCohortTapEvent,
+    this.onResetEvent,
   });
 
   @override
   Widget build(BuildContext context) {
     Color approveColor = expense['approved'] == 1 ? AppC.black : AppC.redAccent;
+    final cohort = expense['expense_to'] == 1
+        ? "${expense['expense_to_data']['expense_to'] ?? ''}"
+        : expense['expense_to'] == 4
+            ? '${expense['cohort']?['cohort'] ?? ''}'
+            : "";
 
+    Color getCategoryColor(String category) {
+      switch (category) {
+        case 'Fair Returns LP LLC':
+          return Colors.blue;
+        case 'Fair Returns Prime LP':
+          return Colors.green;
+        case 'FairFund 2024':
+          return Colors.purple;
+        case 'Fair Returns Fall 2023':
+          return Colors.black;
+        case 'Personal Car':
+          return Colors.brown;
+        case 'Unassigned':
+          return Colors.orange;
+        default:
+          return const Color.fromRGBO(9, 131, 74, 1);
+      }
+    }
 
     Color categoryColor = (expense['payment_method_id']).toString() == '4'
         ? const Color(0xFF13b3b3)
@@ -36,13 +64,14 @@ class ExpensePersonListItem extends StatelessWidget {
     List<dynamic> expenseImages =
         images.map((e) => e['path'].toString().toStorageURL).toList();
 
-    dynamic user = employeeList.firstWhere((element) => element['id'].toString()
-        == expense['employee_id'].toString());
-
     return Dismissible(
       key: UniqueKey(),
       background: Container(
-        color: AppC.redAccent,
+        decoration: BoxDecoration(
+          color: AppC.redAccent,
+          borderRadius: BorderRadius.circular(6)
+        ),
+        
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -86,13 +115,13 @@ class ExpensePersonListItem extends StatelessWidget {
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PersonExpenseEditUI(
-                                  id: expense['id'].toString(),
-                                ),
+                                fullscreenDialog: true,
+                                builder: (context) =>
+                                     ExpenseVehicleEditUI(expenseId: "${expense['id']}",
+                                     vehicleName: expense['vehicle']?['vehicle_name'],),
                               )),
                           child: Utils.getText(
-                              "${user['first_name']??''} "
-                                  "${user['last_name']??''}",
+                              expense['vehicle']?['vehicle_name'] ?? '',
                               overFlow: TextOverflow.ellipsis,
                               color: approveColor,
                               weight: FontWeight.bold),
@@ -118,8 +147,7 @@ class ExpensePersonListItem extends StatelessWidget {
                 10.width,
                 Expanded(
                   child: Utils.getText(
-                   "${user['first_name'].toString().getInitials()}"
-                       "${user['last_name'].toString().getInitials()}",
+                    "${expense['employee_name'] ?? ''}",
                     color: approveColor,
                     weight: FontWeight.bold,
                   ),
@@ -130,7 +158,7 @@ class ExpensePersonListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Utils.getText(
-                        "\$${double.tryParse(expense['expense_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                        "\$${expense['expense_amount'].toString().toDoubleDigit}",
                         color: approveColor,
                         weight: FontWeight.bold,
                         overFlow: TextOverflow.ellipsis,
@@ -141,27 +169,46 @@ class ExpensePersonListItem extends StatelessWidget {
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(
                   flex: 5,
                   child: Row(
                     children: [
                       Expanded(
-                        child: Utils.getText(
-                          '${expense['category']?['name'] ?? ''} ',
-                          overFlow: TextOverflow.ellipsis,
-                          color: categoryColor,
+                        flex: 2,
+                        child: InkWell(
+                          onTap: onCohortTapEvent,
+                          child: Utils.getText(
+                            cohort,
+                            overFlow: TextOverflow.ellipsis,
+                            color: (expense['expense_to']).toString() == '4'
+                                ? getCategoryColor(cohort)
+                                : AppC.appColor,
+                          ),
                         ),
                       ),
                       Utils.getText(" | ", weight: FontWeight.w900),
                       Expanded(
                         flex: 3,
-                        child: Utils.getText(
-                          '${expense['subcategory']?['name'] ?? ''}',
-                          overFlow: TextOverflow.ellipsis,
-                          color: categoryColor,
+                        child: InkWell(
+                          onTap: onCategoryTapEvent,
+                          child: Utils.getText(
+                            '${expense['category']?['name'] ?? ''} ',
+                            overFlow: TextOverflow.ellipsis,
+                            color: categoryColor,
+                          ),
+                        ),
+                      ),
+                      Utils.getText(" | ", weight: FontWeight.w900),
+                      Expanded(
+                        flex: 3,
+                        child: InkWell(
+                          onTap: onCategoryTapEvent,
+                          child: Utils.getText(
+                            '${expense['subcategory']?['name'] ?? ''}',
+                            overFlow: TextOverflow.ellipsis,
+                            color: categoryColor,
+                          ),
                         ),
                       ),
                     ],
@@ -172,7 +219,8 @@ class ExpensePersonListItem extends StatelessWidget {
                   child: Checkbox(
                     activeColor: AppC.appColor,
                     value: (expense['approved'] == 1),
-                    onChanged: onChanged,
+                    onChanged:
+                      onChanged,
                   ),
                 ),
                 Expanded(
@@ -181,17 +229,25 @@ class ExpensePersonListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       InkWell(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PersonExpenseHistoryUI(
-                                userId: expense['employee_id'].toString(),
-                                userName: "${user['first_name']??''} "
-                                    "${user['last_name']??''}",
-                              ))),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => VehicleExpenseHistoryUI(
+                                        vin: expense['vehicle']['vin'] ?? '',
+                                        vehicleName: expense['vehicle']
+                                                ['vehicle_name'] ??
+                                            '',
+                                        currentExpenseAmount: expense['approved']==0? double.tryParse(
+                                            expense['expense_amount']
+                                                .toString()):0.0,
+                                        showTotalAmount: true,
+                                      )));
+                        },
                         child: Utils.getText(
-                          "\$${double.tryParse(expense['approved_amount'].toStringAsFixed(2) ?? '0.0') ?? 0.0}",
+                          "\$${expense['approved_amount'].toString().toDoubleDigit}",
                           weight: FontWeight.bold,
+                          color: AppC.grey,
                           overFlow: TextOverflow.ellipsis,
                         ),
                       ),
