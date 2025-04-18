@@ -90,7 +90,7 @@ class ReportsViewBody extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Material(
-                                    color: Colors.grey.shade100,
+                                    color: const Color(0xFFeaf0fa),
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(6),
                                       bottomLeft: Radius.circular(6),
@@ -100,7 +100,7 @@ class ReportsViewBody extends StatelessWidget {
                                         context.read<ReportsBloc>().add(ReportTollsEvent());
                                       },
                                       child: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 12),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
                                         height: 40,
                                         alignment: Alignment.center,
                                         child: const Text(
@@ -128,7 +128,11 @@ class ReportsViewBody extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.download_rounded),
+                          icon: (state.tollFileLoading)
+                              ? const CircularProgressIndicator()
+                              :  Icon((state.tollsDownloadPath != null)
+                              ? Icons.file_open
+                              : Icons.download_rounded),
                           onPressed: () => context.read<ReportsBloc>().add(UploadFileEvent()),
                         ),
                       ],

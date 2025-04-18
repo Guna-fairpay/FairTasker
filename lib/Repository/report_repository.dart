@@ -46,7 +46,7 @@ class ReportRepository {
   }
 
 
-  Future<bool?> uploadFile(String filePath) async {
+  Future<String?> uploadFile(String filePath) async {
     try {
       String apiUrl = '${Str.BASE_URL}toll-export';
       final http.Response? response = await apiClient.callPostMethodWithBodyDynamic(apiUrl, infusedFiles: {"toll": filePath});
@@ -62,7 +62,7 @@ class ReportRepository {
             // Download the file
             String path = await customDownload(downloadUrl);
             Toaster.showSuccess("File downloaded successfully $path");
-            return true;
+            return path;
           } else {
             Utils.showSomethingWentWrong();
             return null;

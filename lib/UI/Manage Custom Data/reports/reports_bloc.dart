@@ -90,17 +90,23 @@ class ReportsBloc extends Bloc<ReportDownloadEvent, ReportsState> {
       }
     });
 
+
     on<UploadFileEvent>((event, emit) async {
       if (state.tollsFile == null) return;
-      log("${state.tollsFile}", name: "File_Path");
-      var response = await _reportRepository.uploadFile(state.tollsFile?.path.toString() ?? '');
-      if(response == true){
-        tolls.clear();
-        emit(state.copyWith(tollsFile: null));
+      if(state.tollsDownloadPath != null){
+        state.tollsDownloadPath.toString().open;
+        return;
+      } else {
+        emit(state.copyWith(tollFileLoading: true));
+        var response = await _reportRepository.uploadFile(state.tollsFile?.path.toString() ?? '');
+        log("Response: ${response}");
+        if(response!.isNotEmpty){
+          tolls.clear();
+          emit(state.copyWith(tollFileLoading: false, uploadSuccess: true, tollsDownloadPath: response));
+        }
       }
-      log("${state.tollsFile?.path ?? ''}");
-      log("${response}");
     });
+
 
   }
 

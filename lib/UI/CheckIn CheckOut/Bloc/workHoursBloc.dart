@@ -88,6 +88,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               userId = await Utils.getStringPreference(Str.userIdPrefText);
               //hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
 
+              log("branchId${branchId} userRole${userRole} userId${userId}");
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
