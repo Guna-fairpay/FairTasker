@@ -10,4 +10,5 @@ extension SizedExtension on num {
   EdgeInsets get rightPadding => EdgeInsets.only(right: toDouble());
   EdgeInsets get leftPadding => EdgeInsets.only(left: toDouble());
   EdgeInsets get horizontalPadding => EdgeInsets.symmetric(horizontal: toDouble());
+  EdgeInsets get verticalPadding => EdgeInsets.symmetric(vertical: toDouble());
 }

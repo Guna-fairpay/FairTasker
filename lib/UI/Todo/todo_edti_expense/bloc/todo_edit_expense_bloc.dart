@@ -149,37 +149,14 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     });
 
     on<GetTodoExpenseInitialEvent>((event, emit) async {
-      todoItem = event.todoItem;
-      selectedPart = event.selectedParts;
-      selectedSupplies = event.selectedSupplies;
-      selectedVendor = event.selectedVendor;
+
       try {
         emit(state.copyWith(isLoading: true));
         expenseId = event.expenseId;
-        // var response = await Future.wait([
-        //   _getTaskLists(),
-        //   _getPaymentMethods(),
-        //   _getExpenseCategories(),
-        //   _getExpenseDetails(expenseId),
-        //   _getVehicles(),
-        // ]);
-        // TaskExpenseResponse? taskExpenseResponse =
-        //     (response[0] is TaskExpenseResponse)
-        //         ? (response[0] as TaskExpenseResponse)
-        //         : null;
-        // PaymentResponse? paymentResponse = (response[1] is PaymentResponse)
-        //     ? (response[1] as PaymentResponse)
-        //     : null;
-        // CohortsResponse? cohortsResponse = (response[2] is CohortsResponse)
-        //     ? (response[2] as CohortsResponse)
-        //     : null;
-        // ExpenseSummaryResponse? expenseDetailResponse =
-        //     (response[3] is ExpenseSummaryResponse)
-        //         ? (response[3] as ExpenseSummaryResponse)
-        //         : null;
-       /* VehicleListResponse? vehicleResponse =
-            ((response[4] is VehicleListResponse) ? response[4] : null)
-                as VehicleListResponse?;*/
+        todoItem = event.todoItem;
+        selectedPart = event.selectedParts;
+        selectedSupplies = event.selectedSupplies;
+        selectedVendor = event.selectedVendor;
 
         var response = await apiRepository.getEditVehicleExpense(id:expenseId);
 

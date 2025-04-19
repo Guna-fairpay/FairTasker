@@ -300,11 +300,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var selectedTask = taskResponse.firstWhereOrNull((element) => element['id']==todoResponse?.editTodos?['identifier_id']);
         vehicleData=todoResponse?.editTodos?['vehicles']??[];
 
-         addressList = List.from(locations.firstOrNull?['addresses'] ?? [])
-            .where((e) => (List.from(jsonDecode(todoResponse?.editTodos?['address'])??[])
-            .map((id) => id))
-            .contains(e['id']))
+        final addressIds = (todoResponse?.editTodos?['address'] != null)
+            ? List.from(jsonDecode(todoResponse!.editTodos!['address']))
+            : [];
+
+        addressList = List.from(locations.firstOrNull?['addresses'] ?? [])
+            .where((e) => addressIds.contains(e['id']))
             .toList();
+
+        // addressList = List.from(locations.firstOrNull?['addresses'] ?? [])
+         //    .where((e) => (List.from(jsonDecode(todoResponse?.editTodos?['address'])??[])
+         //    .map((id) => id))
+         //    .contains(e['id']))
+         //    .toList();
 
         Console.of.log("Selected_Address $addressList");
 
@@ -696,7 +704,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
                 (element) => element == event.data.toString());
 
         var attachmentId = images
-            .where((element) => element['path'] == data.toString().removeStorageUrl)
+            .where((element) => element['path'] == data.toString().removeAttachmentURL)
             .map((e) => e['id'])
             .firstOrNull;
         emit(state.copyWith(isLoading: true));
