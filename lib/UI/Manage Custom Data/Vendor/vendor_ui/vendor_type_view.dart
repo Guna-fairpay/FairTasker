@@ -16,7 +16,7 @@ import '../../../../Component/success_button.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../dialog/ask_permission_dialog.dart';
-import '../vendor_data_bloc.dart';
+import '../Bloc/vendor_data_bloc.dart';
 
 class VendorTypeView extends StatelessWidget {
   const VendorTypeView({super.key});

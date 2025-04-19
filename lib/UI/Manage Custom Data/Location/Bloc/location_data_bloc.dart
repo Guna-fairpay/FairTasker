@@ -1,24 +1,17 @@
+
 import 'dart:developer' as d;
 import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:fairpytasker/Repository/location_repository.dart';
-import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../Repository/api_repository.dart';
-
+import '../../../../Repository/api_repository.dart';
 part '../Event/location_data_event.dart';
-
 part '../State/location_data_state.dart';
 
 class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
   final APiRepository apiRepository = APiRepository();
-  LocationDataRepo locationDataRepo = LocationDataRepo();
-  TodoListRepo todoListRepo = TodoListRepo();
   final TextEditingController searchController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController addressController = TextEditingController();
@@ -37,9 +30,6 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
   int get totalPages => (totalCount / itemsPerPage).ceil();
 
   Future<List<Map<String, dynamic>>> _fetchLocations() async => await getIt<CommonService>().getLocationsList(reset: true);
-  //_locations
-  //_deleteLocation
-  //
   LocationDataBloc() : super(LocationDataInitial())
   {
     on<LocationDataEvent>((event, emit) {});
@@ -118,6 +108,16 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
     });
 
 
+    on<DeleteLocation>((event, emit) async {
+      emit(const LocationDataLoading());
+      final response = await apiRepository.delete(event.id);
+      if (response == true) {
+        add(const GetAddedLocationListData());
+        emit(LocationDataCommonState());
+      } else {
+        emit(LocationDataCommonState());
+      }
+    });
 
     on<FilterLocationEvent>((event, emit) {
       final allLocation = location;

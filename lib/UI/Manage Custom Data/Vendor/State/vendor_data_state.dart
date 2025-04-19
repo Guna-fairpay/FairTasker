@@ -1,4 +1,4 @@
-part of 'vendor_data_bloc.dart';
+part of '../Bloc/vendor_data_bloc.dart';
 
 abstract class VendorDataState extends Equatable {
   const VendorDataState();

@@ -87,19 +87,27 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
           borderRadius: BorderRadius.circular(4),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 200),
-            child: ListView.builder(
+            child: ListView.separated(
+              padding: EdgeInsets.zero, // remove list padding
               shrinkWrap: true,
               itemCount: _filtered.length,
+              separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.grey), // optional: divider
               itemBuilder: (context, index) {
                 final item = _filtered[index];
-                return ListTile(
-                  title: Text(widget.displayString(item)),
+                return InkWell(
                   onTap: () {
                     widget.searchController.text = widget.displayString(item);
                     widget.onSelected(item);
                     _removeOverlay();
                     FocusScope.of(context).unfocus();
                   },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Text(
+                      widget.displayString(item),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
                 );
               },
             ),
@@ -110,6 +118,7 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
 
     overlay.insert(_overlayEntry!);
   }
+
 
   void _removeOverlay() {
     _overlayEntry?.remove();

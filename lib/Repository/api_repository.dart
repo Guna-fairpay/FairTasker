@@ -20,8 +20,19 @@ import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
+import '../Response/GetActiveHoursResponse.dart';
+import '../Response/GetWorkingHoursData.dart';
+import '../Response/punchList_Response.dart';
 import '../Response/subcategories_response.dart';
 import '../Response/expense_response.dart';
+import '../Response/todo_list_response.dart';
+import '../Response/working_history_count_response.dart';
+import '../UI/CheckIn CheckOut/Response/checkInOutResponse.dart';
+import '../UI/CheckIn CheckOut/Response/taskCategoryGroupResponse.dart';
+import '../UI/CheckIn CheckOut/Response/workingGetConfiguration.dart';
+import '../UI/CheckIn CheckOut/Response/workingHoursResponse.dart';
+import '../UI/CheckIn CheckOut/Response/workingReasonResponse.dart';
+import '../UI/CheckIn CheckOut/Response/workingTaskResponse.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
 import '../Utilities/str.dart' show Str;
@@ -90,6 +101,10 @@ class APiRepository {
   String get _getBranch => "getBranch";
 
   String get _vendors => "vendors";
+
+  String get _vendorTypes => "vendor-types";
+
+  String get _vendorImageDelete => "vendor-image-delete";
 
   String get _vehiclePartsList => "vehicle-parts-list";
 
@@ -814,6 +829,191 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<List<Map<String, dynamic>>?> getVendorsType() async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      final dynamic decodedData = json.decode(response?.body ?? '[]');
+
+      if (decodedData is List) {
+        return List<Map<String, dynamic>>.from(decodedData);
+      } else {
+        return null; // or throw an error if the format is unexpected
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> createVendor({
+    int? id,
+    String? name,
+    String? vendorTypeId,
+    String? address,
+    String? phone,
+    String? expertise,
+    String? description,
+    String? latitude,
+    String? longitude,
+    String? website,
+    List<File>? images,
+    }) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}vendors/$id";
+      } else {
+        apiUrl = "${Str.LIST_BASE_URL}vendors";
+      }
+      Map<String, String> reqMap ={
+        "name": name??'',
+        "type_id": vendorTypeId??'',
+        "address": address??'',
+        "phone": phone??'',
+        "expertise": expertise??'',
+        "description": description??'',
+        "latitude": latitude??'',
+        "longitude": longitude??'',
+        "website": website??'',
+        "platform": "TaskerApp",
+        "status": "1",
+      };
+      log('repository_side : $reqMap');
+      var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
+      request.headers.addAll(Utils.getHeaders());
+      request.fields.addAll(reqMap);
+
+      for (int i = 0; i < (images?.length ?? 0); i++) {
+        var file = images![i];
+        var multipartFile = http.MultipartFile.fromBytes(
+          'images[$i]',
+          (await file.readAsBytes()).toList(),
+          filename: file.path.split('/').last,
+        );
+        request.files.add(multipartFile);
+      }
+
+      http.StreamedResponse streamedResponse = await request.send();
+
+      if(streamedResponse.statusCode == 200 || streamedResponse.statusCode == 201){
+        final http.Response response =
+        await http.Response.fromStream(streamedResponse);
+        return json.decode(response.body);
+      }
+      else {
+        Utils.showSomethingWentWrong();
+        return null;
+      }
+    } catch (error) {
+      log('createVendor.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deleteVendor(int? vendorId) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendors/$vendorId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          log('deleteVendor api.response.body: ${response.body}');
+          log('deleteVendor api.statusCode: ${response.statusCode}');
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('deleteVendor.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> createVendorType(int? id, String? name) async {
+    try {
+      String body =
+      jsonEncode({"name": name, "platform": "TaskerApp", "status": "1"});
+      String apiUrl = '';
+      http.Response? response;
+      if (id != null) {
+        apiUrl = "${Str.LIST_BASE_URL}vendor-types/$id";
+        response = await _apiClient.callPutMethod(apiUrl, body: body);
+      } else {
+        return null;
+      }
+      log("createVendorTypeData apiUrl: $apiUrl");
+      log("createVendorTypeData body: $body");
+      if (response != null) {
+        log('createVendorTypeData api.response.body: ${response.body}');
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          log('createVendorTypeData api.statusCode: ${response.statusCode}');
+
+          GeneralResponse generalResponse =
+          GeneralResponse.fromJson(json.decode(response.body));
+          Utils.showMobileToast(generalResponse.message!);
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('createVendorTypeData.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> deleteVendorType(int? Id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorTypes/$Id";
+
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          log('deleteVendor api.response.body: ${response.body}');
+          log('deleteVendor api.statusCode: ${response.statusCode}');
+          return true;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('deleteVendor.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  //delete image for vendor page
+  Future<bool?> deleteImages(int? id) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_vendorImageDelete/$id";
+      log("deleteExpenseImages apiUrl: $apiUrl");
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          log('deleteExpenseImages api.response.body: ${response.body}');
+          log('deleteExpenseImages api.statusCode: ${response.statusCode}');
+          return true;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('deleteExpenseImages.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
   Future<Map<String, dynamic>?> getParts() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_vehiclePartsList";
@@ -1176,28 +1376,28 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  // //delete for location list item
-  // Future<bool?> delete(int? id) async {
-  //   try {
-  //     String apiUrl;
-  //     apiUrl = '${Str.LIST_BASE_URL}locations/$id';
-  //     log("delete-locations apiUrl: $apiUrl");
-  //     final http.Response? response = await _apiClient.callDelete(apiUrl);
-  //     if (response != null) {
-  //       if (response.statusCode == 200 || response.statusCode == 201) {
-  //         return true;
-  //       } else {
-  //         Utils.showSomethingWentWrong();
-  //         return null;
-  //       }
-  //     } else {
-  //       return null;
-  //     }
-  //   } catch (error) {
-  //     log('delete Location For Item.exception : ${error.toString()}');
-  //     return null;
-  //   }
-  // }
+  // delete for location list item
+  Future<bool?> delete(int? id) async {
+    try {
+      String apiUrl;
+      apiUrl = '${Str.LIST_BASE_URL}locations/$id';
+      log("delete-locations apiUrl: $apiUrl");
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('delete Location For Item.exception : ${error.toString()}');
+      return null;
+    }
+  }
 
   Future<Map<String, dynamic>?> personExpenseAddOrUpdateApi(
       {Map<String, dynamic>? body,
@@ -2356,6 +2556,460 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+//
+  Future<GetActiveHoursResponse?> getActiveHoursResponse(
+      String start, String end) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}employeeActiveHours?from=$start&to=$end";
+      log("getWorkingHistory apiUrl: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        GetActiveHoursResponse getActiveHours =
+        GetActiveHoursResponse.fromJson(json.decode(response.body));
+        if(getActiveHours.status == 200){
+          return getActiveHours;
+        }
+        return getActiveHours;
+      } else {
+        Utils.showNoResultFound();
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TaskCategoryGroupResponse?> getTaskCategoryGroups() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}taskCategoryGroup";
+      log("getAssignedTo apiUrl: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+
+        if (response.statusCode == 200) {
+
+          TaskCategoryGroupResponse taskCategoryGroupResponse =
+          TaskCategoryGroupResponse.fromJson(json.decode(response.body));
+          return taskCategoryGroupResponse; // Return departmentResponse here
+        } else {
+          Utils.showNoResultFound();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getTaskCategoryGroup.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<GetWorkingHoursDataResponse?> getWorkingHoursData(
+      String start, String end) async {
+    try {
+      String apiUrl =
+          "${Str.GOPORTAL_BASE_URL}employeeWorkHours?startDate=$start&endDate=$end";
+      log("getWorkingHistory apiUrl: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl,);
+      if (response != null) {
+        GetWorkingHoursDataResponse getWorkingHoursDataResponse =
+        GetWorkingHoursDataResponse.fromJson(json.decode(response.body));
+
+        if ((getWorkingHoursDataResponse.status ?? false)) {
+
+          return getWorkingHoursDataResponse;
+        } else {
+          Utils.showNoResultFound();
+          log('---------------> ${getWorkingHoursDataResponse.status!}');
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<WorkingHistoryCountResponse?> getWorkingHistoryCount(
+      String start, String end) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}employeeHistoryCount?from=$start&to=$end";
+      log("getWorkingHistory apiUrl: $apiUrl");
+      final http.Response? response = await _apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        WorkingHistoryCountResponse workingHistoryCountResponse =
+        WorkingHistoryCountResponse.fromJson(json.decode(response.body));
+        if(workingHistoryCountResponse.status == 200){
+          return workingHistoryCountResponse;
+        }
+        return workingHistoryCountResponse;
+      } else {
+        Utils.showNoResultFound();
+        return null;
+      }
+    } catch (error) {
+      log('getWorkingHistory.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+
+  Future<bool?> deleteTaskConfiguration(int? id) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}delete-configuration/$id";
+
+      log("deleteTaskConfiguration apiUrl: $apiUrl");
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('deleteTaskConfiguration.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<bool?> addTaskConfiguration(
+      int? id,
+      int? userId,
+      String? name,
+      String? amount,
+      String? task) async {
+    try {
+      String body = jsonEncode({"amount": amount, "task_name": name, "type":task, "id":id, "user_id": userId});
+      print("repository side $body");
+      String apiUrl = '';
+      http.Response? response;
+      if (id == null && userId==null) {
+        log("$task",name: "TaskBased");
+        apiUrl = "${Str.BASE_URL}add-configuration";
+        response = await _apiClient.callPostMethod(apiUrl, body: body);
+      }else if(id == null)
+      {
+        log("$task",name: "HourBased");
+        apiUrl = "${Str.BASE_URL}add-configuration";
+        response = await _apiClient.callPostMethod(apiUrl, body: body);
+      }
+      else {
+        apiUrl = "${Str.BASE_URL}update-configuration/$id";
+        response = await _apiClient.callPostMethod(apiUrl, body: body);
+      }
+      log("addTaskConfiguration apiUrl: $apiUrl");
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('addTaskConfiguration.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<CheckInOutReasonResponse?> fetchCheckInoutReason({
+    required int hrmId,
+    required String fromDate,
+    required String toDate,
+  }) async {
+    try {
+      final String apiUrl =
+          '${Str
+          .BASE_URL}checkinout-reason?hrm_id=$hrmId&from=$fromDate&to=$toDate';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        //print("Api response ${response.body}");
+        if (response.statusCode == 200) {
+          final CheckInOutReasonResponse checkInOutReasonResponse =
+          CheckInOutReasonResponse.fromJson(jsonDecode(response.body));
+          return checkInOutReasonResponse;
+        } else {
+          log('API Error: ${response.statusCode}, Body: ${response.body}');
+          return null;
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      log('Exception in fetchCheckInoutReason: $e');
+      return null;
+    }
+  }
+
+  //need
+  Future<WorkingHoursResponse?> fetchEmployeeTaskCount({
+    required int userId,
+    required String fromDate,
+    required String toDate,
+  }) async
+  {
+    try {
+      final String apiUrl =
+          '${Str
+          .BASE_URL}employeeTaskCount?user_id=$userId&from=$fromDate&to=$toDate';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        print("Api response ${response.body}");
+        if (response.statusCode == 200) {
+          final WorkingHoursResponse workingHoursResponse =
+          WorkingHoursResponse.fromJson(jsonDecode(response.body));
+          return workingHoursResponse;
+        } else {
+          log('API Error: ${response.statusCode}, Body: ${response.body}');
+          return null;
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      log('Exception in fetchEmployeeTaskCount: $e');
+      return null;
+    }
+  }
+
+  Future<WorkingReasonResponse?> fetchEmployeeComments({
+    required int? hrmId,
+    required String fromDate,
+    required String toDate,
+  }) async {
+    try {
+      print("-------->hrmId $hrmId fromDate $fromDate toDate $toDate");
+      final String apiUrl = '${Str.BASE_URL}edit-comments?hrm_id=$hrmId&from=$fromDate&to=$toDate';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        print("Api response ${response.body}");
+        if (response.statusCode == 200) {
+          final WorkingReasonResponse workingReasonResponse =
+          WorkingReasonResponse.fromJson(jsonDecode(response.body));
+          return workingReasonResponse;
+        } else {
+          log('API Error: ${response.statusCode}, Body: ${response.body}');
+          return null;
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      log('Exception in fetchEmployeeComments: $e');
+      return null;
+    }
+  }
+
+  Future<WorkingTaskResponse?> fetchEmployeeTaskHistory({
+    required dynamic to,
+    required dynamic from,
+    required dynamic userId,
+    required List<dynamic>? cohortIds, // Allow cohortIds to be nullable
+  }) async {
+    try {
+      print("Request parameters - from: $from, to: $to, userId: $userId, cohortIds: $cohortIds");
+
+      // Construct the base API URL
+      String apiUrl = '${Str.BASE_URL}employeeTaskHistory?to=$to&user_id=$userId&from=$from';
+
+      // Append cohort IDs only if they are not null or empty
+      if (cohortIds != null && cohortIds.isNotEmpty) {
+        String cohortQuery = cohortIds.map((id) => 'cohort_id[]=$id').join('&');
+        apiUrl += '&$cohortQuery';
+      }
+
+      print("Final API URL: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+
+      if (response != null) {
+        print("Response body: ${response.body}");
+        if (response.statusCode == 200) {
+          return WorkingTaskResponse.fromJson(jsonDecode(response.body));
+        } else {
+          print('Failed to load task history. Status code: ${response.statusCode}');
+          throw Exception('Failed to load task history. Status code: ${response.statusCode}');
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      print('Exception: Error fetching task history: $e');
+      throw Exception('Error fetching task history: $e');
+    }
+  }
+
+
+  Future<WorkingGetConfigurationResponse?> fetchGetConfiguration() async {
+    try{
+      final String apiUrl = '${Str.BASE_URL}getConfiguration';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      log("Api URL $apiUrl");
+      if(response != null){
+        if (response.statusCode == 200) {
+          WorkingGetConfigurationResponse workingGetConfigurationResponse = WorkingGetConfigurationResponse.fromJson(jsonDecode(response.body));
+          return workingGetConfigurationResponse;
+        } else {
+          throw Exception(
+              'Failed to load task history. Status code: ${response.statusCode}');
+        }
+      }else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching task history: $e');
+    }
+    return null;
+  }
+
+  Future<CohortsDataResponse?> fetchCohortData() async
+  {
+    try{
+      final String apiUrl = '${Str.LIST_BASE_URL}getCohortsData';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      print("Api URL $apiUrl");
+      if(response != null){
+        //debugPrint("Response body ${response.body}");
+        if (response.statusCode == 200) {
+          CohortsDataResponse cohortsDataResponse = CohortsDataResponse.fromJson(jsonDecode(response.body));
+          return cohortsDataResponse;
+        } else {
+          throw Exception(
+              'Failed to load . Status code: ${response.statusCode}');
+        }
+      }else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching : $e');
+    }
+    return null;
+  }
+
+
+  Future<AssignedToResponse?> getAssignedTo() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}getresources";
+      log("getAssignedTo apiUrl: $apiUrl");
+      final http.Response? response = await _apiClient.callGetMethod(
+        apiUrl,
+      );
+      if (response != null) {
+        AssignedToResponse assignedToResponse =
+        AssignedToResponse.fromJson(json.decode(response.body));
+        if (assignedToResponse.status == 200 ||
+            assignedToResponse.status == 201) {
+          return assignedToResponse;
+        } else {
+          Utils.showNoResultFound();
+          //debugPrint('---------------> ${assignedToResponse.status!}');
+          return null;
+        }
+        /*  } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }*/
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('getAssignedTo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<TodoListResponse?> editTodoData({dynamic id}) async {
+    try {
+      String apiUrl = '${Str.BASE_URL}edit-todo/$id';
+      log("edit-todo apiUrl: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          TodoListResponse todoListResponse =
+          TodoListResponse.fromJson(json.decode(response.body));
+
+          return todoListResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('edit-todo.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<UserGroupResponse?> fetchUserGroupingList() async {
+    try {
+      String apiUrl = '${Str.BASE_URL}group-person';
+      log("fetchUserGroupingList apiUrl: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          UserGroupResponse userGroupResponse =
+          UserGroupResponse.fromJson(json.decode(response.body));
+          return userGroupResponse;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('fetchUserGroupingList.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<PunchlistResponse?> fetchPunchList() async
+  {
+    try{
+      final String apiUrl = '${Str.GOPORTAL_BASE_URL}getWorkingHours';
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      print("Api URL $apiUrl");
+      if(response != null){
+        if(response.statusCode == 200 ) {
+          PunchlistResponse punchlistResponse = PunchlistResponse.fromJson(jsonDecode(response.body));
+          return punchlistResponse;
+        } else {
+          throw Exception(
+              'Failed to load . Status code: ${response.statusCode}');
+        }
+      } else {
+        log('API Response is null');
+      }
+    } catch (e) {
+      throw Exception('Error fetching : $e');
+    }
+    return null;
+  }
+  //
 
   Future<List<Map<String, dynamic>>?> todo() async {
     try {

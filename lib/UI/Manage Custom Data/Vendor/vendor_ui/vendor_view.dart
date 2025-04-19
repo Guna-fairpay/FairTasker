@@ -23,7 +23,7 @@ import '../../../../Utilities/utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
-import '../vendor_data_bloc.dart';
+import '../Bloc/vendor_data_bloc.dart';
 
 class VendorView extends StatelessWidget {
   dynamic selectedVendorType;
@@ -97,7 +97,7 @@ class VendorView extends StatelessWidget {
                                         },
                                         onSelected: (item) {
                                           selectedVendorType = item;
-                                          print('Selected item: $item');
+                                          print('Selected item: ${selectedVendorType['id']} ${selectedVendorType['name']}');
                                         },
                                         onIconTap: () {
                                           print("Triggered onIconTap");
@@ -280,8 +280,7 @@ class VendorView extends StatelessWidget {
                                             }
                                             context.read<VendorDataBloc>().add(AddVendorData(
                                                   name: context.read<VendorDataBloc>().nameController.text,
-                                                  vendorTypeId:
-                                                      selectedVendorType?['id'].toString() ?? '',
+                                                  vendorTypeId: selectedVendorType?['id'] ?? '',
                                                   address: context.read<VendorDataBloc>().addressController.text,
                                                   phone: context.read<VendorDataBloc>().phoneController.text,
                                                   expertise: context.read<VendorDataBloc>().expertiseController.text,
@@ -292,6 +291,7 @@ class VendorView extends StatelessWidget {
                                                   images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
                                                   id: null,
                                                 ));
+                                            selectedVendorType = null;
                                           },
                                         ),
                                       if (context
@@ -302,7 +302,7 @@ class VendorView extends StatelessWidget {
                                           onPressed: () {
                                             context.read<VendorDataBloc>().add(AddVendorData(
                                                   name: context.read<VendorDataBloc>().nameController.text,
-                                                  vendorTypeId: context.read<VendorDataBloc>().vendorTypeId.toString(),
+                                                  vendorTypeId: selectedVendorType != null ? selectedVendorType['id'] : context.read<VendorDataBloc>().vendorTypeId,
                                                   address: context.read<VendorDataBloc>().addressController.text,
                                                   phone: context.read<VendorDataBloc>().phoneController.text,
                                                   expertise: context.read<VendorDataBloc>().expertiseController.text,
@@ -313,6 +313,7 @@ class VendorView extends StatelessWidget {
                                                   images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
                                                   id: context.read<VendorDataBloc>().vendorId,
                                                 ));
+                                            selectedVendorType = null;
                                           },
                                         ),
                                         SuccessButton(
@@ -320,6 +321,7 @@ class VendorView extends StatelessWidget {
                                           backgroundColor: AppC.red,
                                           onPressed: () {
                                             context.read<VendorDataBloc>().add(ExitEditModeEvent());
+                                            selectedVendorType = null;
                                           },
                                         ),
                                       ],
