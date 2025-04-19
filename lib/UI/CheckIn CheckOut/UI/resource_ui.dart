@@ -16,7 +16,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../../Utilities/appC.dart';
-import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import '../../Finance/Expense/Component/date_range_selection.dart';
 import '../Bloc/workHoursBloc.dart';
@@ -104,138 +103,133 @@ class WorkHoursViewUI extends StatelessWidget {
                 Column(
                   children: [
                     const SizedBox(height: 7),
-                    Column(
-                      children: [
-                        // Header Container (Fixed)
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Table(
-                            columnWidths: const {
-                              0: FlexColumnWidth(2),
-                              1: FlexColumnWidth(3),
-                              2: FlexColumnWidth(3),
-                              3: FlexColumnWidth(2),
-                              4: FlexColumnWidth(2),
-                            },
-                            children: [
-                                const TableRow(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(4),
-                                      topRight: Radius.circular(4),
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey,
-                                        spreadRadius: 0.2,
-                                        blurRadius: 0.5,
-                                        offset: Offset(0, 1),
+                    SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Header Container (Fixed)
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Table(
+                              columnWidths: const {
+                                0: FlexColumnWidth(2),
+                                1: FlexColumnWidth(3),
+                                2: FlexColumnWidth(3),
+                                3: FlexColumnWidth(2),
+                                4: FlexColumnWidth(2),
+                              },
+                              children: [
+                                  const TableRow(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(4),
+                                        topRight: Radius.circular(4),
                                       ),
-                                    ],
-                                    color: Color.fromRGBO(240, 240, 240, 1),
-                                  ),
-                                  children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "User",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey,
+                                          spreadRadius: 0.2,
+                                          blurRadius: 0.5,
+                                          offset: Offset(0, 1),
+                                        ),
+                                      ],
+                                      color: Color.fromRGBO(240, 240, 240, 1),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "CheckIn",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
+                                    children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "User",
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "CheckOut",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "CheckIn",
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "Active",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "CheckOut",
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "Total",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "Active",
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              ...state.punchListData.map((item) => TableRow(
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(4),
-                                    bottomRight: Radius.circular(4),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey,
-                                      spreadRadius: 0.2,
-                                      blurRadius: 0.5,
-                                      offset: Offset(0, 1),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "Total",
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
                                   ],
-                                  color: AppC.white, // Ensure AppC.white is defined in your code
                                 ),
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "${item['User'] ?? ''}",
-                                      textAlign: TextAlign.center,
-                                    ),
+                                ...state.punchListData.map((item) => TableRow(
+                                  decoration: const BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: AppC.black,
+                                          width: 0.2,
+                                        ),
+                                      )
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "${item['CheckIn'] ?? ''}",
-                                      textAlign: TextAlign.center,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['User'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "${item['CheckOut'] ?? ''}",
-                                      textAlign: TextAlign.center,
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['CheckIn'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "${item['Active'] ?? ''}",
-                                      textAlign: TextAlign.center,
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['CheckOut'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      "${item['Total'] ?? ''}",
-                                      textAlign: TextAlign.center,
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['Active'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              )).toList(),
-                            ],
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${item['Total'] ?? ''}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                )).toList(),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Scrollable Body Container
-                      ],
+                          // Scrollable Body Container
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -285,6 +279,7 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                           ),
                         ),
+                        if(Session.of.getString(Str.userIdPrefText) == '3')
                         Expanded(child:
                         ResourceListingDropdown<Map<String, dynamic>>(
                           items: context.watch<WorkingHoursBloc>().dropDownResource,
@@ -341,6 +336,7 @@ class WorkHoursViewUI extends StatelessWidget {
                       child:
                       Builder(
                         builder: (context) {
+                          log("${context.watch<WorkingHoursBloc>().initialDropDown}");
                           var selectedName = context.watch<WorkingHoursBloc>().initialDropDown;
                           final dataList = (Session.of.getString(Str.userIdPrefText) == '3'
                               || Session.of.getString(Str.userIdPrefText) == '10'
@@ -354,7 +350,8 @@ class WorkHoursViewUI extends StatelessWidget {
                                   item['user_id'] == selectedName['id'];}).toList() ?? []
                               : state.combinedData?.where((item) {
                                 return
-                                  item['user_id'] == state.loginUserId;}).toList() ?? [];
+                                  item['user_id'].toString().trim() == state.loginUserId.toString().trim();
+                              }).toList() ?? [];
 
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();

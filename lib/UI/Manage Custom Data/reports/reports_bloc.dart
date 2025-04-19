@@ -1,12 +1,25 @@
+
+
+import 'dart:developer';
+import 'dart:io';
+import 'package:path/path.dart' as p;
 import 'package:fairpytasker/Repository/report_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/reports/reports_state.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:html/dom.dart';
+import 'package:http/http.dart' as http;
+
 
 class ReportsBloc extends Bloc<ReportDownloadEvent, ReportsState> {
   final ReportRepository _reportRepository = ReportRepository();
+  TextEditingController tolls = TextEditingController();
+  File? file;
+  String? fileName;
   ReportsBloc() : super(const ReportsState(
     isLoading: false,
   )) {
@@ -57,8 +70,44 @@ class ReportsBloc extends Bloc<ReportDownloadEvent, ReportsState> {
       String? errorText;
       var val = await _reportRepository.downloadVehicleInventoryData(onError: (val) => errorText = val);
       if (errorText?.isNotEmpty ?? false) Utils.showMobileToast("$errorText");
+
       emit(state.copyWith(isLoading: false, error: errorText, vehicleInventoryFile: val, isVehicleInventoryLoading: false));
     });
+
+    on<ReportTollsEvent>((event, emit) async{
+      //Open file picker
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],//types allowed
+      );
+      if (result != null && result.files.single.path != null) {
+        file = File(result.files.single.path!);
+        fileName = p.basename(file?.path ?? '');
+        tolls.text = fileName!;
+        log("${p.basename(file!.path)}", name: "File_name");
+        log("${file?.path}", name: "File_name");
+        emit(state.copyWith(tollsFile: file));
+      }
+    });
+
+
+    on<UploadFileEvent>((event, emit) async {
+      if (state.tollsFile == null) return;
+      if(state.tollsDownloadPath != null){
+        state.tollsDownloadPath.toString().open;
+        return;
+      } else {
+        emit(state.copyWith(tollFileLoading: true));
+        var response = await _reportRepository.uploadFile(state.tollsFile?.path.toString() ?? '');
+        log("Response: ${response}");
+        if(response!.isNotEmpty){
+          tolls.clear();
+          emit(state.copyWith(tollFileLoading: false, uploadSuccess: true, tollsDownloadPath: response));
+        }
+      }
+    });
+
+
   }
 
 }

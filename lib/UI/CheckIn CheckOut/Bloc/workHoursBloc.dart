@@ -66,13 +66,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         if(event.minDate.isNotEmpty || event.maxDate.isNotEmpty)
           {
             log("${extractDate(event.minDate)} ${extractDate(event.maxDate)}", name: "date print");
-            final response1 = await todoListRepo.getWorkingHistory(extractDate(event.minDate), extractDate(event.maxDate));//no need
+
             final response2 = await todoListRepo.getActiveHoursResponse(extractDate(event.minDate), extractDate(event.maxDate));
             final response3 = await authenticationRepo.getAssignedTo();
             final response4 = await todoListRepo.getWorkingHoursData(extractDate(event.minDate), extractDate(event.maxDate));
             final response5 = await todoListRepo.getWorkingHistoryCount(extractDate(event.minDate), extractDate(event.maxDate));
             final response6 = await taskRepo.fetchPunchList();
-            if (response1 != null && response2 != null && response3 != null && response4 != null && response5 != null && response6 != null) {
+            if (response2 != null && response3 != null && response4 != null && response5 != null && response6 != null) {
               workingHistory.clear();
               workingHistory = response5!.history!;//1
               workHours.clear();
@@ -88,6 +88,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               userId = await Utils.getStringPreference(Str.userIdPrefText);
               //hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
 
+              log("branchId${branchId} userRole${userRole} userId${userId}");
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
@@ -263,81 +264,95 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
                   List<Map<String, dynamic>> rawData,
-                  List<Map<String, dynamic>> workActiveHours) {
+                  List<Map<String, dynamic>> workActiveHours,
+                  ) {
+                try {
+                  String today = DateFormat("yyyy-MM-dd").format(DateTime.now());
+                  log("$today", name: "Today");
 
-                String today = DateFormat("yyyy-MM-dd").format(DateTime.now());
-                log("${today}", name: "Today");
-
-                String formatTime(String timeStr) {
-                  if (timeStr.isEmpty) return "";
-
-                  DateTime dateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(timeStr);
-
-                  return DateFormat("hh:mm a").format(dateTime);
-                }
-
-                String initials(String name) {
-                  return name.split(' ').map((e) => e[0]).take(2).join();
-                }
-
-                String formatTotal(String total) {
-                  List<String> parts = total.split(':');
-                  return "${parts[0]}:${parts[1]}"; // Extract HH:MM (Hours and Minutes)
-                }
-
-                String calculateElapsedTime(String startTime) {
-                  DateTime startDateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(startTime);
-                  DateTime now = DateTime.now().toUtc().subtract(Duration(hours: 5)); // Convert to EST (UTC-5)
-
-                  if (now.isBefore(startDateTime)) {
-                    return "00:00"; // Prevent errors if time is in the future
+                  String formatTime(String timeStr) {
+                    if (timeStr.isEmpty) return "";
+                    DateTime dateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(timeStr);
+                    return DateFormat("hh:mm a").format(dateTime);
                   }
 
-                  Duration elapsed = now.difference(startDateTime);
-                  int hours = elapsed.inHours;
-                  int minutes = elapsed.inMinutes % 60;
+                  String initials(String? name) {
+                    if (name == null || name.isEmpty) return "--";
+                    return name.split(' ').map((e) => e[0]).take(2).join();
+                  }
 
-                  return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
-                }
+                  String calculateElapsedTime(String startTime) {
+                    DateTime startDateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(startTime);
+                    DateTime now = DateTime.now().toUtc().subtract(Duration(hours: 5)); // Convert to EST (UTC-5)
 
-                // Function to sum active hours for today's date
-                String sumActiveHours(int hrmId) {
-                  int totalMinutes = 0;
+                    if (now.isBefore(startDateTime)) return "00:00";
 
-                  for (var record in workActiveHours) {
-                    if (record['hrm_id'] == hrmId && record['todo_date'] == today) {
-                      List<String> timeParts = record['active_hours'].split(':');
-                      int hours = int.parse(timeParts[0]);
-                      int minutes = int.parse(timeParts[1]);
+                    Duration elapsed = now.difference(startDateTime);
+                    int hours = elapsed.inHours;
+                    int minutes = elapsed.inMinutes % 60;
 
-                      totalMinutes += (hours * 60) + minutes;
+                    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
+                  }
+
+                  String sumActiveHours(int hrmId) {
+                    int totalMinutes = 0;
+
+                    for (var record in workActiveHours) {
+                      if (record['hrm_id'] == hrmId && record['todo_date'] == today) {
+                        String activeStr = record['active_hours'] ?? '00:00';
+                        List<String> timeParts = activeStr.split(':');
+                        int hours = int.tryParse(timeParts[0]) ?? 0;
+                        int minutes = int.tryParse(timeParts[1]) ?? 0;
+
+                        totalMinutes += (hours * 60) + minutes;
+                      }
                     }
+
+                    int finalHours = totalMinutes ~/ 60;
+                    int finalMinutes = totalMinutes % 60;
+                    return "${finalHours.toString().padLeft(2, '0')}:${finalMinutes.toString().padLeft(2, '0')}";
                   }
 
-                  // Convert total minutes into HH:MM format
-                  int finalHours = totalMinutes ~/ 60;
-                  int finalMinutes = totalMinutes % 60;
-                  return "${finalHours.toString().padLeft(2, '0')}:${finalMinutes.toString().padLeft(2, '0')}";
+                  return rawData.map((data) {
+                    String? startTime = data['start_time'];
+                    String? endTime = data['end_time'];
+                    Map<String, dynamic>? employee = data['employee'];
+                    String? empName = employee?['name'];
+                    int? empId = employee?['id'];
+
+                    String totalTime;
+
+                    if (startTime == null || startTime.isEmpty) {
+                      totalTime = "00:00";
+                    } else if (endTime == null || endTime.isEmpty) {
+                      totalTime = calculateElapsedTime(startTime);
+                    } else {
+                      try {
+                        DateTime start = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(startTime);
+                        DateTime end = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(endTime);
+                        Duration diff = end.difference(start);
+                        int hours = diff.inHours;
+                        int minutes = diff.inMinutes % 60;
+                        totalTime = "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}";
+                      } catch (_) {
+                        totalTime = "00:00";
+                      }
+                    }
+
+                    return {
+                      "User": initials(empName),
+                      "CheckIn": startTime != null ? formatTime(startTime) : "--",
+                      "CheckOut": (endTime == null || endTime.isEmpty) ? "" : formatTime(endTime),
+                      "Active": (empId != null) ? sumActiveHours(empId) : "00:00",
+                      "Total": totalTime,
+                    };
+                  }).toList();
+                } catch (e) {
+                  print("Error in formatEmployeeData: $e");
+                  return [];
                 }
-
-                return rawData.map((data) {
-                  String totalTime;
-
-                  if (data['end_time'].isEmpty) {
-                    totalTime = calculateElapsedTime(data['start_time']);
-                  } else {
-                    totalTime = formatTotal(data['total_hours']);
-                  }
-
-                  return {
-                    "User": initials(data['employee']['name']),
-                    "CheckIn": formatTime(data['start_time']),
-                    "CheckOut": data['end_time'].isEmpty ? "" : formatTime(data['end_time']),
-                    "Active": sumActiveHours(data['employee']['id']), // Assuming active time isn't provided
-                    "Total": totalTime,
-                  };
-                }).toList();
               }
+
 
               List<Map<String, dynamic>> formattedData = formatEmployeeData(response6?.data ?? [],workActiveHours);
               log("${formattedData}",name:"FormattedData");

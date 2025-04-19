@@ -10,3 +10,5 @@ class ReportMaintenanceEvent extends ReportDownloadEvent {}
 class ReportVehicleEvent extends ReportDownloadEvent {}
 class ReportEarningEvent extends ReportDownloadEvent {}
 class ReportVehicleInventoryEvent extends ReportDownloadEvent {}
+class ReportTollsEvent extends ReportDownloadEvent {}
+class UploadFileEvent extends ReportDownloadEvent {}
