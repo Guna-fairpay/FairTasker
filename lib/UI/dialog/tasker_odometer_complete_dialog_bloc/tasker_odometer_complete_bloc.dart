@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_states.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,12 +30,9 @@ class TOCDBloc extends Bloc<TOCDEvents, TOCDStates> {
     try {
       _model = event.model;
       emit(TOCDLoadingState());
-      var response = await Future.wait([
-        _getPreviousOdometer(date: _model?['todo_date'], vin: List.from(_model?['display']?['vins']).firstOrNull, identifierId: _model?['identifier_id']),
-        _getToDoOdometer(todoId: _model?['id']),
-      ]);
-      previousOdometerResponse = response[0];
-      toDoOdometerResponse = response[1];
+      var hasVins = List.from(_model?['display']?['vins']).firstOrNull.toString().isNotNullOrEmpty ?? false;
+      previousOdometerResponse = hasVins ? await _getPreviousOdometer(date: _model?['todo_date'], vin: List.from(_model?['display']?['vins']).firstOrNull, identifierId: _model?['identifier_id']) : null;
+      toDoOdometerResponse = await _getToDoOdometer(todoId: _model?['id']);
       if (toDoOdometerResponse?['data'] != null) {
         oilChangeController.text = "${toDoOdometerResponse?['data']['current_odometer']}";
         nextMilesCheckController.text = "${toDoOdometerResponse?['data']['next_miles_check']}";

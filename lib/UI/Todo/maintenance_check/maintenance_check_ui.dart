@@ -4,6 +4,10 @@ import 'package:fairpytasker/UI/Todo/maintenance_check/bloc/maintenance_check_ev
 import 'package:fairpytasker/UI/Todo/maintenance_check/bloc/maintenance_check_states.dart';
 import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_all_ui.dart';
 import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_list_ui.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/maintenance_check/maintenance_check_confirmation_dialog.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +34,19 @@ class MaintenanceCheckUi extends StatelessWidget {
             case MaintenanceCheckErrorState(): Toaster.showError(state.message); break;
             case MaintenanceCheckSuccessState(): Toaster.showSuccess(state.message); break;
             case MaintenanceCheckCompleteState(): onClose?.call(); break;
-            case MaintenanceTaskExistDialogState(): Toaster.showInfo(" Task already exits, please complete or delete the task"); break;
+            case MaintenanceTaskExistDialogState(): MaintenanceCheckConfirmDialog.show(context, model: state.model,
+                onComplete: () => context.read<MaintenanceCheckBloc>().add(MaintenanceCompleteTaskEvent(state.model)),
+                onUpdate: (model) => context.read<MaintenanceCheckBloc>().add(MaintenanceUpdateTaskEvent(state.model, model)),
+                onDelete: () => context.read<MaintenanceCheckBloc>().add(MaintenanceDeleteTaskEvent(state.model))); break;
+            case MaintenanceTaskDeleteDialogState(): AskPermissionDialog.show(context,
+                title: "Are you sure?",
+                description: "${Session.of.getString("name")},  are you sure you want to delete this task? Kindly enter a valid reason to confirm the deletion",
+                boldWords: [(Session.of.getString("name") ?? ''),","],
+                positiveText: "Yes, delete it!",
+                negativeText: "Cancel",
+                isReasonRequired: true,
+                onReasonSubmitted: (reason) => context.read<MaintenanceCheckBloc>().add(MaintenanceDeleteTaskEvent(state.model, reason: reason))
+            ); break;
           }
         }
       },
