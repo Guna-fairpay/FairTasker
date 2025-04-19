@@ -217,12 +217,12 @@ class LocationView extends StatelessWidget {
                                         context,
                                         title: "Are you sure?",
                                         description:
-                                        "Do you want to delete this vendor?",
+                                        "Do you want to delete this location?",
                                         positiveText:
                                         "Yes, Delete it!",
                                         negativeText: "Cancel",
                                         isReasonRequired: false,
-                                        onPositivePressed: () => context.read<LocationDataBloc>().add(DeleteLocation(id: e['id'])),
+                                        onPositivePressed: () => context.read<LocationDataBloc>().add(DeleteLocationEvent(id: e['id'])),
                                       );
                                     },
                                   )).toList(),

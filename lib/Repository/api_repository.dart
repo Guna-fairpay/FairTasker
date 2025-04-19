@@ -85,6 +85,8 @@ class APiRepository {
 
   String get _locations => "locations";
 
+  String get _location_address => "location_address";
+
   String get _getBranch => "getBranch";
 
   String get _vendors => "vendors";
@@ -549,6 +551,8 @@ class APiRepository {
     }
   }
 
+
+
   Future<Map<String, dynamic>?> updateVehicleExpenseHistory(
       {Map<String, dynamic>? body,
       List<File>? images,
@@ -591,6 +595,7 @@ class APiRepository {
       rethrow;
     }
   }
+
 
   Future<Map<String,dynamic>?> deleteRecurringTodo({String? id, dynamic reason,String? from,String? to}) async {
     try {
@@ -768,6 +773,8 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+
 
   Future<Map<String, dynamic>?> getBranch() async {
     try {
@@ -1053,6 +1060,128 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+
+  Future<bool?> createLocation({int? id, String? name, List<dynamic>? address}) async {
+    try {
+      log(" id - ${id} name - ${name} address - ${address}");
+      Map<String, dynamic> body = {
+        "platform": 'TaskerApp',
+        "status": "1",
+      };
+
+      if (id != null && address != null) {
+        log("Block 1");
+        final newAddresses = address.where((addr) =>
+        addr is Map && !addr.containsKey('id')).toList();
+
+        for (final addr in newAddresses) {
+          final response = await _apiClient.callPostMethod(
+            "${Str.LIST_BASE_URL}$_location_address",
+            body: jsonEncode({
+              "location_id": id,
+              "address": addr['address'] is List ? addr['address'] : [addr['address']],
+              "platform": addr['platform'] ?? 'TaskerApp',
+            }),
+          );
+
+          if (response?.statusCode != 200) {
+            log("Failed to create address: ${addr['address']}");
+            return false;
+          }
+        }
+        final addressWithId = address.where((addr) => addr is Map && addr.containsKey('id')).toList();
+        for (final addr in addressWithId){
+          final response = await _apiClient.callPostMethod("${Str.LIST_BASE_URL}$_location_address/${addr['id']}",
+              body: jsonEncode({
+                'address':addr['address'],
+                'platform':'TaskerApp',
+                'location_id':id,
+              })
+          );
+
+          if (response?.statusCode != 200) {
+            log("Failed to create address: ${addr['address']}");
+            return false;
+          }
+        }
+      }
+
+      String apiUrl;
+      if (id != null && name != null) {
+        log("Block 2");
+        apiUrl = "${Str.LIST_BASE_URL}locations/$id";
+        body["name"] = name;
+
+        if (address != null) {
+          log("Block 3");
+          body["address"] = address.where((addr) =>
+          addr is Map && addr.containsKey('id')).toList();
+        }
+      } else {
+        log("Block 4");
+        apiUrl = "${Str.LIST_BASE_URL}locations";
+        body["name"] = name;
+        body["address"] = address?.map((a) =>
+        a is Map ? a['address'] : a).toList() ?? [];
+      }
+
+      final response = await _apiClient.callPostMethod(
+        apiUrl,
+        body: jsonEncode(body),
+      );
+
+      return response?.statusCode == 200 || response?.statusCode == 201;
+    } catch (error) {
+      log('Error: $error');
+      return null;
+    }
+  }
+
+
+  Future<bool?> deleteLocation(int? id) async {
+    try {
+      String apiUrl = '';
+      apiUrl = "${Str.LIST_BASE_URL}$_location_address/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          return true;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('deleteLocation.exception : ${error.toString()}');
+      return null;
+    }
+  }
+
+  // //delete for location list item
+  // Future<bool?> delete(int? id) async {
+  //   try {
+  //     String apiUrl;
+  //     apiUrl = '${Str.LIST_BASE_URL}locations/$id';
+  //     log("delete-locations apiUrl: $apiUrl");
+  //     final http.Response? response = await _apiClient.callDelete(apiUrl);
+  //     if (response != null) {
+  //       if (response.statusCode == 200 || response.statusCode == 201) {
+  //         return true;
+  //       } else {
+  //         Utils.showSomethingWentWrong();
+  //         return null;
+  //       }
+  //     } else {
+  //       return null;
+  //     }
+  //   } catch (error) {
+  //     log('delete Location For Item.exception : ${error.toString()}');
+  //     return null;
+  //   }
+  // }
 
   Future<Map<String, dynamic>?> personExpenseAddOrUpdateApi(
       {Map<String, dynamic>? body,

@@ -352,6 +352,8 @@ class CommonService {
     }
   }
 
+
+
   Future<List<Map<String, dynamic>>> getPartsList({bool reset = false}) async {
     if (reset) partsList.clear();
     if (partsList.isNotEmpty) return partsList;

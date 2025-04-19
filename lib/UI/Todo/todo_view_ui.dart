@@ -28,6 +28,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../Manage Custom Data/Location/location_view.dart';
 import '../Manage Custom Data/Parts/BackUps/part_view_ui.dart';
 import '../Manage Employees/Employees/employees_view_ui.dart';
 import '../Vehicle/vehicle_history_module_ui.dart';
@@ -4589,7 +4590,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     child: InkWell(
                         onTap: () async {
                           await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LocationViewUI(),
+                            builder: (context) => LocationView(), //Update by RDB
                           ));
                         },
                         child: Icon(Icons.add, color: AppC().base, size: 20)),
