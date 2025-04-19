@@ -10,7 +10,7 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
   final bool isExpanded;
   final String? labelText, hintText;
   final ItemAsString<T>? itemAsString;
-  final ValueChanged<T?>? onChanged;
+  final void Function(T? value)? onChanged;
   final EdgeInsetsGeometry? contentPadding;
   final AutovalidateMode? autoValidateMode;
   final FormFieldValidator<T>? validator;
@@ -36,6 +36,7 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
     );
     return
       DropdownButtonFormField<T>(
+        key: UniqueKey(),
         decoration: InputDecoration(
             labelStyle: context.textTheme.labelLarge,
             constraints: const BoxConstraints(),

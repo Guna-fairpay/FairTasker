@@ -34,3 +34,10 @@ class MaintenanceTaskExistDialogState extends MaintenanceCheckState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class MaintenanceTaskDeleteDialogState extends MaintenanceCheckState {
+  final dynamic model;
+  MaintenanceTaskDeleteDialogState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

@@ -41,3 +41,26 @@ class MaintenanceCreateTaskEvent extends MaintenanceCheckEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class MaintenanceCompleteTaskEvent extends MaintenanceCheckEvent {
+  final dynamic model;
+  MaintenanceCompleteTaskEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class MaintenanceUpdateTaskEvent extends MaintenanceCheckEvent {
+  final dynamic model;
+  final dynamic selectedModel;
+  MaintenanceUpdateTaskEvent(this.model, this.selectedModel);
+  @override
+  List<Object?> get props => [model, selectedModel];
+}
+
+class MaintenanceDeleteTaskEvent extends MaintenanceCheckEvent {
+  final dynamic model;
+  final String? reason;
+  MaintenanceDeleteTaskEvent(this.model, {this.reason});
+  @override
+  List<Object?> get props => [model, reason];
+}
