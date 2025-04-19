@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../Utilities/Utils.dart';
 import '../../../../../../Utilities/appC.dart';
-import 'expense_bloc.dart';
-import 'expense_event.dart';
-import 'expense_state.dart';
+import '../Bloc/expense_bloc.dart';
+import '../Bloc/expense_event.dart';
+import '../Bloc/expense_state.dart';
 
 class CohortDialog {
   CohortDialog._();

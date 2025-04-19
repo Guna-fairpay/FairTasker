@@ -36,6 +36,13 @@ class FilePickerEvent extends BillEvent {
   List<Object?> get props => [value];
 }
 
+class RemoveImageEvent extends BillEvent {
+  final dynamic data;
+  RemoveImageEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
 class DeleteBillEvent extends BillEvent {
   final dynamic value;
   DeleteBillEvent({this.value});
@@ -45,12 +52,7 @@ class DeleteBillEvent extends BillEvent {
 
 class AddBillEvent extends BillEvent {}
 
-class EditBillEvent extends BillEvent {
-  final dynamic value;
-  EditBillEvent({this.value});
-  @override
-  List<Object?> get props => [value];
-}
+class EditBillEvent extends BillEvent {}
 
 class LoadEditValueEvent extends BillEvent {
   final dynamic value;
@@ -60,3 +62,10 @@ class LoadEditValueEvent extends BillEvent {
 }
 
 class ClearAllEvent extends BillEvent {}
+
+class PassBillToExpenseEvent extends BillEvent {
+  final dynamic value;
+  PassBillToExpenseEvent({required this.value});
+  @override
+    List<Object?> get props => [value];
+}

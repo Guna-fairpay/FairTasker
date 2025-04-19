@@ -1,8 +1,10 @@
 
 import 'dart:developer';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:path/path.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Bill/Bloc/bill_event.dart';
@@ -22,12 +24,17 @@ class BillBloc extends Bloc<BillEvent, BillState>{
   final TextEditingController amountController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   List<dynamic> files = [];
+  List<dynamic> attachments = [];
+  List<dynamic> ogAttachments = [];
   List<dynamic> apiResponse = [];
   String? from,to;
   DateRange? selectedDateRange = DateRange(DateTime.now().subtract(
       const Duration(days: 7)), DateTime.now());
   bool isCheck = false;
   bool isEdit = false;
+  dynamic model;
+  final FBroadcast _broadcast = FBroadcast.instance();
+
 
   BillBloc() : super(BillLoadingState()){
     on<BillInitialEvent>(_onInitialEvent);
@@ -39,6 +46,9 @@ class BillBloc extends Bloc<BillEvent, BillState>{
     on<EditBillEvent>(_onEditEvent);
     on<LoadEditValueEvent>(_onLoadEditValueEvent);
     on<ClearAllEvent>(_clearAll);
+    on<RemoveImageEvent>(_onRemoveImageEvent);
+    on<PassBillToExpenseEvent>(_onPassBillToExpense);
+    _registerBroadcast();
   }
 
   void _onInitialEvent(BillInitialEvent event, Emitter<BillState> emit) async {
@@ -79,6 +89,7 @@ class BillBloc extends Bloc<BillEvent, BillState>{
       if(response != null){
         apiResponse.remove(event.value);
         Toaster.showSuccess(response['message']);
+        add(ClearAllEvent());
         emit(BillCommonState());
       }
     }catch(e){
@@ -133,10 +144,10 @@ class BillBloc extends Bloc<BillEvent, BillState>{
       var response = await _apiRepository.billAddOrUpdate(
         body: body,
         images: files.whereType<File>().toList(),
-        id: event.value['id'],);
+        id: model['id'],);
       if(response?['data'] != null){
         add(ClearAllEvent());
-        apiResponse.remove(event.value);
+        apiResponse.remove(model);
         apiResponse.add(response?['data']);
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         Toaster.showSuccess('Bill Updated Successfully');
@@ -152,12 +163,13 @@ class BillBloc extends Bloc<BillEvent, BillState>{
   void _onLoadEditValueEvent(LoadEditValueEvent event, Emitter<BillState> emit)async{
     try{
       isEdit = true;
+      model = event.value;
       emit(BillLoadingState());
       var response = await _apiRepository.getEditBillData(id: event.value['id']);
       if(response?['data'] != null){
-        titleController.text = response?['data']['title'];
-        amountController.text = response?['data']['amount'];
-        descriptionController.text = response?['data']['description'];
+        titleController.text = response?['data']['title']??'';
+        amountController.text = response?['data']['amount']??'';
+        descriptionController.text = response?['data']['description']??'';
         List<dynamic> images = response?['data']['billimages'];
         files = images.map((e) => e['path'].toString().toAttachmentURL).toList();
         filePickerController.text = basename(files.lastOrNull?? "");
@@ -191,6 +203,47 @@ class BillBloc extends Bloc<BillEvent, BillState>{
     }
   }
 
+  void _onRemoveImageEvent(RemoveImageEvent event, Emitter<BillState> emit) async {
+    try {
+      if (event.data == null) return;
+      if (event.data is File) {
+        files.remove(event.data);
+      } else if (event.data is String) {
+        // REMOTE SELECTION REMOVE
+        emit(BillLoadingState());
+        var data = files.firstWhereOrNull((element) =>
+        element == event.data.toString());
+        filePickerController.text = basename(files.lastOrNull?? "");
+        var attachmentId = model['billimages'].firstWhere(
+              (e) =>
+          e['path'] == data
+              .toString()
+              .removeAttachmentURL,
+          orElse: () => null,
+        )?['id'];
+        var response = await _apiRepository.deleteBillImage(id: attachmentId);
+        if(response != null){
+          Toaster.showSuccess(response['message']);
+          final item = apiResponse.firstWhereOrNull(
+                (e) => e['id'].toString() == response['bill_id'].toString(),
+          );
+          item?['billimages']?.removeWhere(
+                (img) => img['id'].toString() == attachmentId.toString(),
+          );
+          files.remove(event.data);
+        }
+      }
+      filePickerController.text = basename((files.lastOrNull is File)
+          ? (files.lastOrNull as File).path
+          : files.lastOrNull?.toString() ?? "");
+      emit(BillCommonState());
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(BillCommonState());
+      log(e.toString(), name: "RemoveImageEvent");
+    }
+  }
+
   Future<List<File>> _pickFiles() async {
     var result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
@@ -204,14 +257,27 @@ class BillBloc extends Bloc<BillEvent, BillState>{
         [];
   }
 
+  void _onPassBillToExpense(PassBillToExpenseEvent event, Emitter<BillState> emit){
+    Console.of.debug(event.value);
+    emit(PassBillToExpenseState(value: event.value));
+  }
+
   void _clearAll(ClearAllEvent event, Emitter<BillState> emit){
     isEdit=false;
+    model=null;
     files.clear();
     titleController.clear();
     amountController.clear();
     descriptionController.clear();
     filePickerController.clear();
     emit(BillCommonState());
+  }
+
+  void _registerBroadcast() {
+    _broadcast.register("bill_refresh", (value, callback) {
+      Console.of.log("bill_refresh");
+      add(BillInitialEvent());
+    });
   }
 
 }

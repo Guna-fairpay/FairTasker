@@ -1,7 +1,7 @@
 
 import "package:date_time/date_time.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/category_subcategory_dialog.dart";
-import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/cohort_dialog.dart";
+import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/cohort_dialog.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/UI/expense_vehicle_list_item.dart";
 import "package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/UI/vehicle_expense_add_ui.dart";
 import "package:fairpytasker/Utilities/appC.dart";

@@ -23,12 +23,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class ExpenseVehicleAddUI extends StatelessWidget {
-  const ExpenseVehicleAddUI({super.key});
+  final dynamic model;
+  const ExpenseVehicleAddUI({super.key,this.model});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AddExpenseVehicleBloc>(
-      create: (context) => AddExpenseVehicleBloc()..add(const GetVehicleExpenseAddData()),
+      create: (context) => AddExpenseVehicleBloc()..add(GetVehicleExpenseAddData(model:model)),
       child: BlocListener<AddExpenseVehicleBloc, AddExpenseVehicleState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();

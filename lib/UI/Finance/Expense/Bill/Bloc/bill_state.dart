@@ -15,5 +15,12 @@ class BillCommonState extends BillState {
   List<Object?> get props => [Random().nextDouble()];
 }
 
+class PassBillToExpenseState extends BillState {
+  final dynamic value;
+  PassBillToExpenseState({required this.value});
+  @override
+  List<Object?> get props => [value,Random().nextDouble()];
+}
+
 
 

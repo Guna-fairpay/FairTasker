@@ -704,7 +704,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
                 (element) => element == event.data.toString());
 
         var attachmentId = images
-            .where((element) => element['path'] == data.toString().removeStorageUrl)
+            .where((element) => element['path'] == data.toString().removeAttachmentURL)
             .map((e) => e['id'])
             .firstOrNull;
         emit(state.copyWith(isLoading: true));

@@ -28,7 +28,7 @@ class BillTextFormPage extends StatelessWidget {
                 ImageUploadSection(
                   title: '',
                   borderColor: Colors.blue,
-                  onRemove: (){},//(file) => context.read<BillBloc>().add(RemoveVehicleImageEvent(data: file)),
+                  onRemove: (file)=> context.read<BillBloc>().add(RemoveImageEvent(data:file)),
                   images: context.watch<BillBloc>().files,
                   logName: "BillImageEvent",
                   isRequired: false,
@@ -44,7 +44,7 @@ class BillTextFormPage extends StatelessWidget {
                    if(context.read<BillBloc>().isEdit)...[
                      SuccessButton(
                       text: 'Update',
-                      onPressed: ()=>context.read<BillBloc>().add(AddBillEvent()),
+                      onPressed: ()=>context.read<BillBloc>().add(EditBillEvent()),
                     ),
                     SuccessButton(
                       text: 'cancel',

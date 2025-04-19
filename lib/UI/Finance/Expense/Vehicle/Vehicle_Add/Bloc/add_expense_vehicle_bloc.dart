@@ -11,6 +11,7 @@ import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -20,7 +21,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehicleState> {
-  final APiRepository apiRepository = APiRepository();
+  final APiRepository _apiRepository = APiRepository();
 
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
@@ -33,6 +34,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
   List<dynamic>? selectedVehicle;
   final FBroadcast _broadcast = FBroadcast.instance();
   String? resourceId;
+  dynamic model;
 
   AddExpenseVehicleBloc() : super(
       AddExpenseVehicleState(
@@ -64,11 +66,25 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         var paymentType = await getIt<CommonService>().getPaymentTypes();
         var categories = await getIt<CommonService>().getExpenseCategories();
 
+        if (event.model != null) {
+          model = event.model;
+          var response = await _apiRepository.getEditBillData(id: event.model['id']);
+          ogAttachments = response?['data']['billimages'];
+          attachments?.clear();
+          attachments?.addAll(ogAttachments
+              ?.map((e) => e['path'].toString().toAttachmentURL)
+              .toList() ??
+              []);
+          amountController.text = response?['data']['amount'] ?? '';
+          descriptionController.text = response?['data']['title'] ?? '';
+        }
+
         emit(state.copyWith(
           isLoading: false,
           vehicleList: vehicleList,
           paymentType: paymentType,
           categories: categories,
+          expenseAttachments: attachments,
           cohorts: AddToDoConfig.expenseTo,
           popAddPagePop: false,
         ));
@@ -141,11 +157,11 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
 
     on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
-      if (event.data is File) {
+      if (event.data != null) {
         // LOCAL SELECTION REMOVE
         state.expenseAttachments.remove(event.data);
         attachments = state.expenseAttachments;
-      } else if (event.data is String) {
+      } /*else if (event.data is String) {
         // REMOTE SELECTION REMOVE
         var data = attachments
             ?.firstWhereOrNull((element) => element == event.data.toString());
@@ -160,7 +176,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         emit(state.copyWith(isLoading: false));
         // once success remove from attachments
         attachments?.remove(event.data);
-      }
+      }*/
       emit(state.copyWith(expenseAttachments: attachments));
     });
 
@@ -172,14 +188,19 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         emit(state.copyWith(isLoading: true));
         log("${state.expenseAttachments.whereType<File>().toList()}",
             name: 'EXPENSE_DATA');
-        var response = await apiRepository.expenseAddOrUpdateApi(
+        var response = await _apiRepository.expenseAddOrUpdateApi(
             images: state.expenseAttachments.whereType<File>().toList(),
             body: _saveExpenseData());
         if (response?.isNotEmpty ?? false) {
+          if(model != null){
+            Map<String, String> baseBody = {'status':'1'};
+            var item = await _apiRepository.billAddOrUpdate(id: model['id'],body: baseBody);
+            _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+          }
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
         emit(state.copyWith(popAddPagePop: true));
-        _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+        _broadcast.stickyBroadcast("bill_refresh", value: true);
         if (response?['status'] == 200) emit(state.copyWith());
       } catch (e) {
         Toaster.showError("$e");

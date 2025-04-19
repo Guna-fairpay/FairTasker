@@ -101,6 +101,7 @@ class BillListingPage extends StatelessWidget {
                       onEdit: ()=> context
                           .read<BillBloc>()
                           .add(LoadEditValueEvent(value: e)),
+                      onPass:()=> context.read<BillBloc>().add(PassBillToExpenseEvent(value: e)),
                       onDelete: () {
                         AskPermissionDialog.show(context,
                             title: "Are you sure?",

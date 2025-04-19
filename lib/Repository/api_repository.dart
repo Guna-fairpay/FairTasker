@@ -241,9 +241,13 @@ class APiRepository {
 
   String get _deleteBill => "delete-bill";
 
-  String get _uploadBill => "upload-bill";
+  String get _addBill => "upload-bill";
+
+  String get _editBill => "update-bill";
 
   String get _getEditBill => "edit-bill";
+
+  String get _deleteBillImage => "delete-bill-image";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -2236,9 +2240,9 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = '';
       if (id != null) {
-        apiUrl = "${Str.BASE_URL}$_uploadBill/$id";
+        apiUrl = "${Str.BASE_URL}$_editBill/$id";
       } else {
-        apiUrl = "${Str.BASE_URL}$_uploadBill";
+        apiUrl = "${Str.BASE_URL}$_addBill";
       }
       Console.of.debug(body??'ERROR');
       final http.Response? response = await _apiClient.callPostMethodWithBody(
@@ -2270,6 +2274,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getEditBill/$id";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteBillImage({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteBillImage/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {

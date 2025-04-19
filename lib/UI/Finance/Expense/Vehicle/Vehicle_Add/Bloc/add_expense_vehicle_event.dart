@@ -9,11 +9,11 @@ abstract class AddExpenseVehicleEvent extends Equatable {
 }
 
 class GetVehicleExpenseAddData extends AddExpenseVehicleEvent {
-  const GetVehicleExpenseAddData();
+  final dynamic model;
+  const GetVehicleExpenseAddData({this.model});
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [model, Random().nextDouble()];
 }
-
 
 class CohortListEvent extends AddExpenseVehicleEvent {
   final dynamic selectedCohort;

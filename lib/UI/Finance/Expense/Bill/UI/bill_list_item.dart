@@ -11,16 +11,17 @@ class BillListItem extends TableRow {
   final Map<String, dynamic>? model;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
+  final VoidCallback? onPass;
   final VoidCallback? onViewAttachment;
 
   final bool? isCheck;
-  const BillListItem({required this.model, this.onViewAttachment,required this.onEdit,required this.isCheck, this.onDelete});
+  const BillListItem({required this.model,this.onPass, this.onViewAttachment,required this.onEdit,required this.isCheck, this.onDelete});
 
   @override
   List<Widget> get children => [
     TableRowInkWell(child:Checkbox(
-      value: isCheck,
-      onChanged: (v) {},
+      value: model?['expense_status'] == 1 ? true : false,
+      onChanged: (v)=>model?['expense_status'] == 0 ? onPass?.call():{},
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(8.sp),),
       side: BorderSide(color: AppC.appColor,width: 1.sp,),
     )),
