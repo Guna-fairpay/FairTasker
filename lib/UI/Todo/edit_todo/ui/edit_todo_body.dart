@@ -4,6 +4,8 @@ import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/backup/task_add_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog.dart';
@@ -37,7 +39,7 @@ class EditTodoBody extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 5,
+                  //spacing: 5,
                   children: [
                     CustomDateTimePicker<DateTime>(
                       controller: context.read<EditToDoBloc>().dateController,
@@ -46,22 +48,16 @@ class EditTodoBody extends StatelessWidget {
                           size: 15, color: context.theme.hintColor),
                       textAlign: TextAlign.center,
                       value: state.selectedDate,
-                      onChanged: (value) => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoDateChangeEvent(value)),
-
+                      onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoDateChangeEvent(value)),
                     ),
-                    5.width,
+                    10.width,
                     CustomDateTimePicker<TimeOfDay>(
                       controller: context.read<EditToDoBloc>().timeController,
                       value: state.selectedTime,
                       use24HourFormat: true,
                       format: "HH:mm",
-                      suffixIcon: Icon(Icons.access_time_rounded,
-                          size: 15, color: context.theme.hintColor),
-                      onChanged: (value) => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoTimeChangeEvent(value)),
+                      suffixIcon: Icon(Icons.access_time_rounded, size: 15, color: context.theme.hintColor),
+                      onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoTimeChangeEvent(value)),
                     ),
                     Expanded(
                       child: CustomCheckboxListTile(
@@ -70,9 +66,7 @@ class EditTodoBody extends StatelessWidget {
                         title: Utils.getText('Time Sensitive', weight: FontWeight.bold,overFlow: TextOverflow.visible,size: 12.sp),
                         value: state.isTimeSensitive,
                         activeColor: AppC.grey,
-                        onChanged: (value) => context
-                            .read<EditToDoBloc>()
-                            .add(EditToDoTimeSensitiveEvent()),
+                        onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoTimeSensitiveEvent()),
                       ),
                     ),
                     Column(
@@ -85,10 +79,7 @@ class EditTodoBody extends StatelessWidget {
                               state.resources,
                               state.selectedResource,
                               (value, name) => context.read<EditToDoBloc>().add(
-                                UserSelectionEvent(
-                                    selectedResource: value,
-                                    resourceName: name
-                                ),
+                                UserSelectionEvent(selectedResource: value, resourceName: name),
                               ),
                             );
                           },
@@ -108,13 +99,13 @@ class EditTodoBody extends StatelessWidget {
                 ],
                 10.height,
                 SearchViewField(
-                    controller: context.read<EditToDoBloc>().taskNameController,
-                    suggestions: state.tasks,
-                    itemAsString: (item) => item['task'] ?? '',
-                onSelected: (value) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: value)),
-                selectedItem: (state.selectedTask.isEmpty) ? null : state.selectedTask,
-                onEmptyTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>const TaskAddUI())),
-                showEmpty: true,
+                  controller: context.read<EditToDoBloc>().taskNameController,
+                  suggestions: state.tasks,
+                  itemAsString: (item) => item['task'] ?? '',
+                  onSelected: (value) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: value)),
+                  selectedItem: (state.selectedTask.isEmpty) ? null : state.selectedTask,
+                  onEmptyTap: () => context.push(const TaskMainPage()),
+                  showEmpty: true,
                   labelText: 'Task Name',
                   hintText: "Select Task",
                 ),
@@ -155,6 +146,7 @@ class EditTodoBody extends StatelessWidget {
                     style: context.textTheme.labelLarge
                         ?.copyWith(fontFamily: "Lato"),
                     readOnly: false,
+
                     onChangeCallback: (value) {}),
                 if(state.apiResponse['maintenance_task_id'] != null)
                 10.height,

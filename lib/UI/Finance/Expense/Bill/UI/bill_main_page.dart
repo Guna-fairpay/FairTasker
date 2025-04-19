@@ -27,7 +27,6 @@ class BillMainPage extends StatelessWidget {
             else{
               if(EasyLoading.isShow)EasyLoading.dismiss();
               if(state is PassBillToExpenseState){
-                Console.of.debug(state.value);
                 context.push(ExpenseVehicleAddUI(model: state.value,));
               }
             }

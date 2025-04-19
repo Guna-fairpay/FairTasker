@@ -245,6 +245,8 @@ class APiRepository {
 
   String get _editBill => "update-bill";
 
+  String get _updateBillStatus => "updataBillStatus";
+
   String get _getEditBill => "edit-bill";
 
   String get _deleteBillImage => "delete-bill-image";
@@ -337,7 +339,7 @@ class APiRepository {
       String apiUrl = "${Str.BASE_URL}$_editToDoApi/$todoId";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
-      return mapData;
+      return mapData?['todo'];
     } catch (error) {
       rethrow;
     }
@@ -1378,14 +1380,14 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<GeneralResponse?> deleteTodoImage(
+  Future<Map<String, dynamic>?> deleteTodoImage(
       dynamic todoId,
       ) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteTodoImage/$todoId";
-      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl);
       var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -2278,7 +2280,7 @@ Future<Map<String, dynamic>?> getLocations() async {
         autoIncrement: true,
         files: images?.map((e) => e.path).toList()
       );
-      Console.of.debug(response);
+      Console.of.debug("billAddOrUpdateResponse ${response?.body}");
       if (response != null) {
         if (response.isSuccess) {
           var mapData = await response.mapData;
@@ -2314,6 +2316,17 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateBillStatus({required dynamic id,required Map<String,String> status}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_updateBillStatus/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithBody(apiUrl,body: status);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
       rethrow;
     }
   }

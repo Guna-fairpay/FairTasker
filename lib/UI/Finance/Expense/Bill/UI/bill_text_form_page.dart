@@ -56,7 +56,7 @@ class BillTextFormPage extends StatelessWidget {
                 ),
                 Utils.getTextFormField('Title', context.read<BillBloc>().titleController,),
                 Utils.getTextFormField('Amount', context.read<BillBloc>().amountController,),
-                Utils.getTextFormField('Description', context.read<BillBloc>().descriptionController,minLines: 2,maxLines: 2,),
+                Utils.getTextFormField('Description', context.read<BillBloc>().descriptionController,minLines: 2,maxLines: 2,inputAction: TextInputAction.done,),
                 const Divider(thickness: 1,height: 0.1,),
               ]
                  );
