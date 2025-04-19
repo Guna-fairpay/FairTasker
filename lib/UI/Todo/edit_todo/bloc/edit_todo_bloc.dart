@@ -1,11 +1,9 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/Response/todo_list_response.dart';
 import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
@@ -41,7 +39,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController timeController = TextEditingController();
   final TextEditingController odometerController = TextEditingController();
   final TextEditingController tripDrivenController = TextEditingController();
-  final TextEditingController resolutionNotesController = TextEditingController();
+  final TextEditingController resolutionNotesController =
+      TextEditingController();
   final TextEditingController commentsController = TextEditingController();
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -54,100 +53,91 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
-  Map<String,dynamic> selectionTaps={};
+  Map<String, dynamic> selectionTaps = {};
   final FBroadcast _broadcast = FBroadcast.instance();
   dynamic selectedSentiments = {};
-  List<dynamic>vehicleData=[];
-  List<dynamic> addressList =[];
+  List<dynamic> vehicleData = [];
+  List<dynamic> addressList = [];
   List<dynamic> vendors = [];
   List<dynamic> locations = [];
-  dynamic previousOdometer={};
+  dynamic previousOdometer = {};
   late DateTime editToDoDate;
   bool showCleanCar = false;
-  String? name=Session.of.getString("name");
+  String? name = Session.of.getString("name");
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
   String? reason;
   String? timeChangePopupType;
   dynamic selectedDate;
 
-
-  EditToDoBloc() : super(
-      EditTodoState(
-        isLoading: false,
-        isTimeSensitive: false,
-        tasks: const [],
-        vehicles: const [],
-        persons: const [],
-        vendors: const [],
-        locations: const [],
-        partServices: const [],
-        supplies: const [],
-        resources: const [],
-        selectedTaskPersons: const [],
-        selectedVPerson: const [],
-        selectedVLocations: const {},
-        selectedParts: const [],
-        selectedSupplies: const [],
-        todoAttachments: const [],
-        selectedTask: const {},
-        linkOptions: AddToDoConfig.customOptions,
-        bottomTapData: const [],
-        selectedBottomTap: const {},
-        isSelectedPlatformCheck: false,
-        showPlatformCheck: false,
-        isMoreEnable: false,
-        isPartServiceEnable: false,
-        isSuppliesEnable: false,
-        selectedLinkOption: AddToDoConfig.customOptions[1],
-        selectedDate: DateTime.now(),
-        selectedTime: TimeOfDay.now(),
-        apiResponse: const {},
-        todoStatus: false,
-        selectedResource: const [],
-        userGroup: const [],
-        resourceName: const [],
-        addresses: const [],
-        title: '',
-        taskHistory: const [],
-        selectedVehicle: const{},
-        groupVehicles: const [],
-        sentiments: AddToDoConfig.sentiments,
-        selectedSentiment: const {},
-        popUpdatePage: false,
-        previousOdometer: '',
-        selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
-        showCleanCar: false,
-        isPop: false,
-        clearDurations: AddToDoConfig.cleanCarDurations,
-        selectedEndDate: null,
-        selectedStartDate: null,
-        isRecurring: false,
-        isTimeChange: false,
-      )) {
-
+  EditToDoBloc()
+      : super(EditTodoState(
+          isLoading: false,
+          isTimeSensitive: false,
+          tasks: const [],
+          vehicles: const [],
+          persons: const [],
+          vendors: const [],
+          locations: const [],
+          partServices: const [],
+          supplies: const [],
+          resources: const [],
+          selectedTaskPersons: const [],
+          selectedVPerson: const [],
+          selectedVLocations: const {},
+          selectedParts: const [],
+          selectedSupplies: const [],
+          todoAttachments: const [],
+          selectedTask: const {},
+          linkOptions: AddToDoConfig.customOptions,
+          bottomTapData: const [],
+          selectedBottomTap: const {},
+          isSelectedPlatformCheck: false,
+          showPlatformCheck: false,
+          isMoreEnable: false,
+          isPartServiceEnable: false,
+          isSuppliesEnable: false,
+          selectedLinkOption: AddToDoConfig.customOptions[1],
+          selectedDate: DateTime.now(),
+          selectedTime: TimeOfDay.now(),
+          apiResponse: const {},
+          todoStatus: false,
+          selectedResource: const [],
+          userGroup: const [],
+          resourceName: const [],
+          addresses: const [],
+          title: '',
+          taskHistory: const [],
+          selectedVehicle: const {},
+          groupVehicles: const [],
+          sentiments: AddToDoConfig.sentiments,
+          selectedSentiment: const {},
+          popUpdatePage: false,
+          previousOdometer: '',
+          selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
+          showCleanCar: false,
+          isPop: false,
+          clearDurations: AddToDoConfig.cleanCarDurations,
+          selectedEndDate: null,
+          selectedStartDate: null,
+          isRecurring: false,
+          isTimeChange: false,
+        )) {
     on<GetEditTodoInitialEvent>((event, emit) async {
-      emit(state.copyWith());
-      todoId = event.todoId;
-      // PROCEED API CALL
       try {
         emit(state.copyWith(isLoading: true));
-        var response = await Future.wait([
-          _editTodoData(todoId),
-        ]);
-
         var partsResponse = await getIt<CommonService>().getPartsList();
         var suppliesResponse = await getIt<CommonService>().getSuppliesList();
-        var vehicleResponse = await getIt<CommonService>().getActiveVehicles(reset: true);
+        var vehicleResponse =
+            await getIt<CommonService>().getActiveVehicles(reset: true);
         var vendorResponse = await getIt<CommonService>().getVendorsList();
         var locationResponse = await getIt<CommonService>().getLocationsList();
         var taskResponse = await getIt<CommonService>().getTaskExpenseData();
         var userGroupResponse = await getIt<CommonService>().getGroupPersons();
         var assignedToResponse = await getIt<CommonService>().getResources();
-        TodoListResponse? todoResponse = ((response[0] is TodoListResponse)
-            ? response[0]
-            : null);
-        var groupVehiclesResponse = await _getGroupVehicles();
+        var todoResponse = await apiRepository.editToDo(event.todoId);
+        var groupVehiclesResponse =
+            await getIt<CommonService>().groupVehicles();
         var resources = assignedToResponse;
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
@@ -158,67 +148,60 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var selectedUser = resources
             .where((element) => element['id'].toString() == currentUserId)
             .toList();
-        taskNameController.text = todoResponse?.editTodos?['title'] ?? '';
-        timeController.text = todoResponse?.editTodos?['todo_time'] ?? '';
-        dateController.text = todoResponse?.editTodos?['todo_date'] ?? '';
-        notesController.text = todoResponse?.editTodos?['notes'] ?? '';
+        timeController.text = todoResponse?['todo_time'] ?? '';
+        dateController.text = todoResponse?['todo_date'] ?? '';
+        notesController.text = todoResponse?['notes'] ?? '';
         departmentId = selectedUser.firstOrNull?['department'].toString();
-        customLinkController.text =
-            todoResponse?.editTodos?['reference_id'] ?? '';
-        tripDrivenController.text=todoResponse?.editTodos?['trip_driven'] ?? '';
-        resolutionNotesController.text=todoResponse?.editTodos?['resolution_notes'] ?? '';
-        commentsController.text=todoResponse?.editTodos?['comments'] ?? '';
-        odometerController.text= "${todoResponse?.editTodos?['mileage'] ?? ''}";
+        customLinkController.text = todoResponse?['reference_id'] ?? '';
+        tripDrivenController.text = todoResponse?['trip_driven'] ?? '';
+        resolutionNotesController.text =
+            todoResponse?['resolution_notes'] ?? '';
+        commentsController.text = todoResponse?['comments'] ?? '';
+        odometerController.text = "${todoResponse?['mileage'] ?? ''}";
 
-        if (todoResponse?.editTodos?['trip_review'] != null) {
-          selectedSentiments= AddToDoConfig.sentiments.firstWhereOrNull(
-                  (element) => element['name']==todoResponse?.editTodos?['trip_review'])??{};
+        if (todoResponse?['trip_review'] != null) {
+          selectedSentiments = AddToDoConfig.sentiments.firstWhereOrNull(
+                  (element) =>
+                      element['name'] == todoResponse?['trip_review']) ??
+              {};
         }
         linkSelection = AddToDoConfig.customOptions
             .where((element) =>
-        element['id']?.toString() == todoResponse?.editTodos?['custom_link_id']?.toString())
+                element['id']?.toString() ==
+                todoResponse?['custom_link_id']?.toString())
             .toList();
-
         if (linkSelection.isEmpty) {
           linkSelection = [AddToDoConfig.customOptions[1]];
         }
-
-        vinList = [todoResponse?.editTodos?['vin']];
-        var vVins = List.from(todoResponse?.editTodos?['vehicles']).map((e) => e['vin']);
+        vinList = [todoResponse?['vin']];
+        var vVins = List.from(todoResponse?['vehicles']).map((e) => e['vin']);
         vinList.addAll(vVins);
         vinList.removeWhere((element) => element.toString().isNullOrEmpty);
         vinList = vinList.unique((element) => element);
         Console.of.log("Vins $vinList");
-
         if (vinList.isNotEmpty) {
           vehicleList = vehicleResponse
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
-
-
-        if (todoResponse?.editTodos?['location_id'] != null) {
+        if (todoResponse?['location_id'] != null) {
           locations = locationResponse
               .where((element) =>
-                  element['id'].toString() ==
-                  todoResponse?.editTodos?['location_id'])
+                  element['id'].toString() == todoResponse?['location_id'])
               .toList();
         }
-        if (todoResponse?.editTodos?['vendor_id'] != null) {
+        if (todoResponse?['vendor_id'] != null) {
           vendors = vendorResponse
               .where((element) =>
-                  element['id'].toString() ==
-                  todoResponse?.editTodos?['vendor_id'])
+                  element['id'].toString() == todoResponse?['vendor_id'])
               .toList();
         }
-
-        if (todoResponse?.editTodos?['user_id'] != null) {
-          selectedIds =
-              ((todoResponse?.editTodos?['user_id']).toString()).split(',');
+        if (todoResponse?['user_id'] != null) {
+          selectedIds = ((todoResponse?['user_id']).toString()).split(',');
         }
-        if (todoResponse?.editTodos?['user_group_id'] != null) {
+        if (todoResponse?['user_group_id'] != null) {
           for (var group in userGroupResponse) {
-            if (group['id'] == todoResponse?.editTodos?['user_group_id']) {
+            if (group['id'] == todoResponse?['user_group_id']) {
               var decodedList = json.decode(group['userId'] ?? '[]');
               if (decodedList is List) {
                 selectedIds = decodedList.map((e) => e.toString()).toList();
@@ -233,132 +216,124 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             .map((e) => [e['first_name'].toString(), e['last_name'].toString()]
                 .toInitial)
             .toList();
-
         List<dynamic> partsId = [];
-        if ((todoResponse?.editTodos?['parts'] as List).isNotEmpty) {
-          partsId = todoResponse?.editTodos?['parts']
+        if ((todoResponse?['parts'] as List).isNotEmpty) {
+          partsId = todoResponse?['parts']
               .map((e) => e['parts_id'])
               .where((element) => element != null)
               .toList();
         }
-
         if (partsId.isNotEmpty) {
           partList = partsResponse
               .where((element) => partsId.contains(element['id'].toString()))
               .toList();
         }
-
         List<dynamic> suppliesId = [];
-        if ((todoResponse?.editTodos?['supplies'] as List).isNotEmpty) {
-          suppliesId = todoResponse?.editTodos?['supplies']
+        if ((todoResponse?['supplies'] as List).isNotEmpty) {
+          suppliesId = todoResponse?['supplies']
               .map((e) => e['supplies_id'])
               .where((element) => element != null)
               .toList();
         }
-
         if (suppliesId.isNotEmpty) {
           suppliesList = suppliesResponse
               .where((element) => suppliesId.contains(element['id'].toString()))
               .toList();
         }
         suppliesBroadcastEvent(suppliesList);
-
         var showPlatformCheck = false;
+        showPlatformCheck =
+            Str.platFormCheckIds.contains(todoResponse?['identifier_id']);
+        images = todoResponse?['todoimages'];
+        todoImages =
+            images.map((e) => e['path'].toString().toAttachmentURL).toList();
 
-        showPlatformCheck = Str.platFormCheckIds.contains(todoResponse?.editTodos?['identifier_id']);
-
-        images=todoResponse?.editTodos?['todoimages'];
-
-        todoImages=images.map((e) => e['path'].toString().toAttachmentURL).toList();
-
-        final title = todoResponse?.editTodos?['title'];
-        final vehicleExists = todoResponse?.editTodos?['vehicle_name'] != null ||
-            todoResponse?.editTodos?['vin'] != null ||
-            (todoResponse?.editTodos?['vehicles']?.isNotEmpty ?? false);
-
+        final title = todoResponse?['title'];
+        final vehicleExists = todoResponse?['vehicle_name'] != null ||
+            todoResponse?['vin'] != null ||
+            (todoResponse?['vehicles']?.isNotEmpty ?? false);
         final List<Map<String, dynamic>> tabs = [
-          if (!['Check In', 'Check Out'].contains(title)) {"id": 1, "title": "Expense"},
+          if (!['Check In', 'Check Out'].contains(title))
+            {"id": 1, "title": "Expense"},
           {"id": 2, "title": "Next Task"},
           if (title == 'Pre Checks') {"id": 3, "title": "Check List"},
           if (title == 'Maintenance Check') {"id": 4, "title": "Maintenance"},
-          if(title == 'Oil change' || title == 'OilChange Check' || title == 'Oil Change Check') {"id": 7, "title": "Odometer"}, //Add by RDB
+          if (title == 'Oil change' ||
+              title == 'OilChange Check' ||
+              title == 'Oil Change Check')
+            {"id": 7, "title": "Odometer"}, //Add by RDB
           if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
             {"id": 5, "title": "Set Vehicle"},
-          if(title == 'Private Rental Check') {"id": 6, "title": "Private Rental Check"}, //Add by RDB
+          if (title == 'Private Rental Check')
+            {"id": 6, "title": "Private Rental Check"}, //Add by RDB
         ];
-
         selectionTaps = tabs.firstWhere(
-              (e) => (title == "Pre Checks" && e['title'] == "Check List") ||
+          (e) =>
+              (title == "Pre Checks" && e['title'] == "Check List") ||
               (title == "Maintenance Check" && e['title'] == "Maintenance"),
           orElse: () => tabs.isNotEmpty ? tabs[0] : {},
         );
-
-
-        var selectedPerson = resources.where((element) => element['id'].toString() == todoResponse?.editTodos?['person_id'].toString()).toList();
-        var selectedGroupVehicles = groupVehiclesResponse.where((element) => element['id'].toString() == todoResponse?.editTodos?['vehicle_group_id'].toString()).toList();
-
-        var selectedTask = taskResponse.firstWhereOrNull((element) => element['id']==todoResponse?.editTodos?['identifier_id']);
-        vehicleData=todoResponse?.editTodos?['vehicles']??[];
-
-        final addressIds = (todoResponse?.editTodos?['address'] != null)
-            ? List.from(jsonDecode(todoResponse!.editTodos!['address']))
+        var selectedPerson = resources
+            .where((element) =>
+                element['id'].toString() ==
+                todoResponse?['person_id'].toString())
+            .toList();
+        var selectedGroupVehicles = groupVehiclesResponse
+            .where((element) =>
+                element['id'].toString() ==
+                todoResponse?['vehicle_group_id'].toString())
+            .toList();
+        var selectedTask = taskResponse.firstWhereOrNull(
+            (element) => element['id'] == todoResponse?['identifier_id']);
+        vehicleData = todoResponse?['vehicles'] ?? [];
+        final addressIds = (todoResponse?['address'] != null)
+            ? List.from(jsonDecode(todoResponse!['address']))
             : [];
-
         addressList = List.from(locations.firstOrNull?['addresses'] ?? [])
             .where((e) => addressIds.contains(e['id']))
             .toList();
-
-        // addressList = List.from(locations.firstOrNull?['addresses'] ?? [])
-         //    .where((e) => (List.from(jsonDecode(todoResponse?.editTodos?['address'])??[])
-         //    .map((id) => id))
-         //    .contains(e['id']))
-         //    .toList();
-
-        Console.of.log("Selected_Address $addressList");
-
-         previousOdometer = await _getPreviousOdometer(
-              date: todoResponse?.editTodos?['todo_date'],
-              vin: List.from(vinList).firstOrNull ?? '',
-              identifierId: todoResponse?.editTodos?['identifier_id']);
-
-         showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?.editTodos?['identifier_id']);
-
+        previousOdometer = await _getPreviousOdometer(
+            date: todoResponse?['todo_date'],
+            vin: List.from(vinList).firstOrNull ?? '',
+            identifierId: todoResponse?['identifier_id']);
+        showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
         RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
-        if(todoResponse?.editTodos?['recurring'] != null){
-          final matches = dateRegExp.allMatches(todoResponse?.editTodos?['recurring']??[]).toList();
+        if (todoResponse?['recurring'] != null) {
+          final matches =
+              dateRegExp.allMatches(todoResponse?['recurring'] ?? []).toList();
           if (matches.length >= 2) {
             String startDate = matches[0].group(0)!; // 12-31-2024
-            String endDate = matches[1].group(0)!;   // 03-31-2026
+            String endDate = matches[1].group(0)!; // 03-31-2026
             DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
             DateTime parsedEnd = DateFormat('MM-dd-yyyy').parse(endDate);
             selectedStartDate = parsedStart;
             selectedEndDate = parsedEnd;
           }
         }
-
         emit(state.copyWith(
           isLoading: false,
           showCleanCar: showCleanCar,
           bottomTapData: tabs,
           resourceName: list,
-          apiResponse: todoResponse?.editTodos,
-          previousOdometer: "${previousOdometer?['data']??''}",
-          todoStatus: todoResponse?.editTodos?['status'] == 'In Progress'
-              ? false
-              : true,
+          apiResponse: todoResponse,
+          previousOdometer: "${previousOdometer?['data'] ?? ''}",
+          todoStatus: todoResponse?['status'] == 'In Progress' ? false : true,
           selectedBottomTap: selectionTaps,
           tasks: taskResponse,
           selectedTask: selectedTask,
-          selectedVPerson:
-              CustomSearchDataConverter.convertVPerson(vehicles: vehicleList,persons: selectedPerson, groupVehicles: selectedGroupVehicles),
+          selectedVPerson: CustomSearchDataConverter.convertVPerson(
+              vehicles: vehicleList,
+              persons: selectedPerson,
+              groupVehicles: selectedGroupVehicles),
           selectedVLocations: CustomSearchDataConverter.convertVLocation(
-              vendors: vendors, locations: locations)
-              .firstOrNull ?? {},
+                      vendors: vendors, locations: locations)
+                  .firstOrNull ??
+              {},
           addresses: addressList,
-          selectedDate: todoResponse?.editTodos?['todo_date']
+          selectedDate: todoResponse?['todo_date']
               .toString()
               .toDateTime(inputFormat: 'yyyy-MM-dd'),
-          selectedTime: todoResponse?.editTodos?['todo_time']
+          selectedTime: todoResponse?['todo_time']
               .toString()
               .toTimeOfDay(inputFormat: 'HH:mm'),
           vehicles: vehicleResponse,
@@ -369,20 +344,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           supplies: suppliesResponse,
           selectedTaskPersons: selectedUser,
           resources: resources,
-          selectedLinkOption:linkSelection.first,
+          selectedLinkOption: linkSelection.first,
           selectedResource: selectedIds,
-          isPartServiceEnable:
-              (todoResponse?.editTodos?['parts'] as List).isNotEmpty,
-          isSuppliesEnable:
-              (todoResponse?.editTodos?['supplies'] as List).isNotEmpty,
+          isPartServiceEnable: (todoResponse?['parts'] as List).isNotEmpty,
+          isSuppliesEnable: (todoResponse?['supplies'] as List).isNotEmpty,
           selectedParts: partList,
           selectedSupplies: suppliesList,
-          title: todoResponse?.editTodos?['title'] ?? '',
+          title: todoResponse?['title'] ?? '',
           selectedVehicle: vehicleList.firstOrNull,
           taskHistory: vehicleList,
           showPlatformCheck: showPlatformCheck,
-          isSelectedPlatformCheck:todoResponse?.editTodos?['platform_check'] == 1?true:false,
-          isTimeSensitive: todoResponse?.editTodos?['time_sensitive'] == 1?true:false,
+          isSelectedPlatformCheck:
+              todoResponse?['platform_check'] == 1 ? true : false,
+          isTimeSensitive: todoResponse?['time_sensitive'] == 1 ? true : false,
           todoAttachments: todoImages,
           groupVehicles: groupVehiclesResponse,
           selectedSentiment: selectedSentiments,
@@ -391,8 +365,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedStartDate: selectedStartDate,
           isPop: false,
         ));
-        await Future.delayed(Durations.extralong4, () => partsBroadcastEvent(partList));
-        await Future.delayed(Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
+        await Future.delayed(
+            Durations.extralong4, () => partsBroadcastEvent(partList));
+        await Future.delayed(
+            Durations.extralong4, () => suppliesBroadcastEvent(suppliesList));
       } catch (e) {
         log("$e", name: "Error In Bloc Value");
         emit(state.copyWith(isLoading: false));
@@ -400,9 +376,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<EditToDoVLocationEvent>((event, emit) {
-       var existing = event.vLocation;
+      var existing = event.vLocation;
       emit(state.copyWith(selectedVLocations: existing));
-       vendorBroadcastEvent(existing);
+      vendorBroadcastEvent(existing);
       // FBroadcast.instance().broadcast("Vendor",value:existing);
     });
 
@@ -413,13 +389,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<EditToDoTaskEvent>((event, emit) {
       showCleanCar = Str.cleanCarCheckIds.contains(event.selectedTask['id']);
-        emit(state.copyWith(selectedTask: event.selectedTask,showCleanCar: showCleanCar));
+      emit(state.copyWith(
+          selectedTask: event.selectedTask, showCleanCar: showCleanCar));
     });
 
     on<EditToDoVPersonEvent>((event, emit) {
       var existingVPersons =
-      List<Map<String, dynamic>>.from(state.selectedVPerson);
-      String? type = existingVPersons.isNotEmpty ? existingVPersons.first['type'] : null;
+          List<Map<String, dynamic>>.from(state.selectedVPerson);
+      String? type =
+          existingVPersons.isNotEmpty ? existingVPersons.first['type'] : null;
       String newType = event.vPerson.first['type'];
       if (['person', 'g_vehicles'].contains(newType)) {
         existingVPersons.clear();
@@ -429,9 +407,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       existingVPersons.addAll(event.vPerson);
       existingVPersons = existingVPersons.unique((element) => element['id']);
-      log(existingVPersons.toString(),name: "existingVPersons");
+      log(existingVPersons.toString(), name: "existingVPersons");
       emit(state.copyWith(
-        selectedVPerson: existingVPersons,));
+        selectedVPerson: existingVPersons,
+      ));
     });
 
     on<EditToDoShowPartsEvent>((event, emit) {
@@ -445,33 +424,33 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     });
 
     on<TaskStatusChangeEvent>((event, emit) async {
-      bool? status =  event.todoStatus;
-      log(status.toString(),name: 'STATUS');
-        try {
-          if((state.apiResponse['identifier_id'] == 257)){
-            if(odometerController.text.isEmpty){
-              return Toaster.showError("Please enter odometer");
-            }else if(state.apiResponse['mandatory'] == 1){
-              return Toaster.showError("is all maintenance check done is mandatory");
-            }else{
-              emit(state.copyWith(isLoading: true));
-              await apiRepository.completeToDo(todoId, status: status!);
-              _broadcast.stickyBroadcast("todo_view", value:true);
-              emit(state.copyWith(todoStatus: !state.todoStatus, isLoading: false,isPop: true));
-            }
-          }else{
-            var model = state.apiResponse;
-            model.putIfAbsent("display", () => {
-              "vins" : vinList
-            });
-            _broadcast.stickyBroadcast("show_completed_popup", value: model);
-            emit(state.copyWith(todoStatus: !state.todoStatus, isPop: true));
+      bool? status = event.todoStatus;
+      log(status.toString(), name: 'STATUS');
+      try {
+        if ((state.apiResponse['identifier_id'] == 257)) {
+          if (odometerController.text.isEmpty) {
+            return Toaster.showError("Please enter odometer");
+          } else if (state.apiResponse['mandatory'] == 1) {
+            return Toaster.showError(
+                "is all maintenance check done is mandatory");
+          } else {
+            emit(state.copyWith(isLoading: true));
+            await apiRepository.completeToDo(todoId, status: status!);
+            _broadcast.stickyBroadcast("todo_view", value: true);
+            emit(state.copyWith(
+                todoStatus: !state.todoStatus, isLoading: false, isPop: true));
           }
-        } catch (e) {
-          Toaster.showError("$e");
-          log(e.toString(), name: 'ERROR');
-          emit(state.copyWith(isLoading: false));
+        } else {
+          var model = state.apiResponse;
+          model.putIfAbsent("display", () => {"vins": vinList});
+          _broadcast.stickyBroadcast("show_completed_popup", value: model);
+          emit(state.copyWith(todoStatus: !state.todoStatus, isPop: true));
         }
+      } catch (e) {
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
     });
 
     on<EditToDoPersonTapEvent>((event, emit) {
@@ -500,7 +479,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       partsBroadcastEvent(existing);
       // FBroadcast.instance().broadcast("Parts",value: existing, persistence: true);
       emit(state.copyWith(selectedParts: existing));
-
     });
 
     on<EditToDoSupplySelectionEvent>((event, emit) {
@@ -512,8 +490,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       emit(state.copyWith(selectedSupplies: existing));
       suppliesBroadcastEvent(existing);
-     // FBroadcast.instance().broadcast("Supplies",value:existing);
-
+      // FBroadcast.instance().broadcast("Supplies",value:existing);
     });
 
     on<EditToDoRecurringTypeEvent>((event, emit) =>
@@ -529,50 +506,63 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(selectedEndDate: event.selectedDate)));
 
     on<EditToDoTimeChangeEvent>((event, emit) async {
-
-      var model = state.apiResponse;
       var time = event.selectedTime;
       var identifierId = state.selectedTask['id'];
       var taskDate = state.selectedDate;
       var notes = notesController.text;
       var currentDate = DateTime.now().toFormat().toDateTime();
-      if ((taskDate == currentDate) && (reason.toString().isNullOrEmpty/* && event.type.toString().isNullOrEmpty*/)) {
+      if ((taskDate == currentDate) &&
+          (reason
+              .toString()
+              .isNullOrEmpty /* && event.type.toString().isNullOrEmpty*/)) {
         var selectedTime = Time.fromStr(time.toHMS());
-        if (ToDoConfig.dropCheckInCarRental.contains(identifierId) && ((notes.isNotNullOrEmpty ?? false) && !(notes.contains("/") ?? false))) {
+        if (ToDoConfig.dropCheckInCarRental.contains(identifierId) &&
+            ((notes.isNotNullOrEmpty) &&
+                !(notes.contains("/")))) {
           var currentTime = notes.toDateTime(inputFormat: "hh:mm a")?.time;
-          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
-          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          var isBefore =
+              selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter =
+              selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
           if (isAfter ?? false) {
-            timeChangePopupType='drop';
-            selectedDate=event.selectedTime;
+            timeChangePopupType = 'drop';
+            selectedDate = event.selectedTime;
             emit(state.copyWith(isTimeChange: true));
-            await Future.delayed(Durations.short1, () => emit(state.copyWith(isTimeChange: false)));
-            return ;
+            await Future.delayed(Durations.short1,
+                () => emit(state.copyWith(isTimeChange: false)));
+            return;
           }
-          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+          Console.of.log(
+              "IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
         } else {
           Console.of.log("ELSE PART");
         }
-        if (ToDoConfig.pickCheckOutCarRental.contains(identifierId) && ((notes.isNotNullOrEmpty ?? false) && !(notes.contains("/") ?? false))) {
+        if (ToDoConfig.pickCheckOutCarRental.contains(identifierId) &&
+            ((notes.isNotNullOrEmpty) &&
+                !(notes.contains("/")))) {
           var currentTime = notes.toDateTime(inputFormat: "hh:mm a")?.time;
-          var isBefore = selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
-          var isAfter = selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
+          var isBefore =
+              selectedTime?.isBefore(currentTime ?? Time.fromMinutes(0));
+          var isAfter =
+              selectedTime?.isAfter(currentTime ?? Time.fromMinutes(0));
           if (isBefore ?? false) {
-            timeChangePopupType='pickup';
+            timeChangePopupType = 'pickup';
             emit(state.copyWith(isTimeChange: true));
-            await Future.delayed(Durations.short1, () => emit(state.copyWith(isTimeChange: false)));
+            await Future.delayed(Durations.short1,
+                () => emit(state.copyWith(isTimeChange: false)));
             return;
           }
-          Console.of.log("IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
+          Console.of.log(
+              "IS_AFTER:\t$isAfter $selectedTime $currentTime IS_BEFORE:\t$isBefore");
         } else {
           Console.of.log("ELSE PART");
         }
       }
-        emit(state.copyWith(selectedTime: event.selectedTime)
-        );});
+      emit(state.copyWith(selectedTime: event.selectedTime));
+    });
 
-    on<EditTodoTimeChangeReasonEvent>((event, emit){
-      reason=event.reason;
+    on<EditTodoTimeChangeReasonEvent>((event, emit) {
+      reason = event.reason;
       emit(state.copyWith(selectedDate: selectedDate));
     });
 
@@ -650,44 +640,47 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoDeleteVehicleEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        var id = vehicleData.firstWhereOrNull((element) => element['vin'] == event.vehicleId)?['id'];
-        vinList.removeWhere((element) => event.vehicleId.contains(element),);
-        await apiRepository.deleteTodoVehicle(id:"$id");
-        _broadcast.stickyBroadcast("todo_view", value:true);
+        var id = vehicleData.firstWhereOrNull(
+            (element) => element['vin'] == event.vehicleId)?['id'];
+        vinList.removeWhere(
+          (element) => event.vehicleId.contains(element),
+        );
+        await apiRepository.deleteTodoVehicle(id: "$id");
+        _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(isLoading: false));
       } catch (e) {
         Toaster.showError("$e");
-        log(e.toString(),name: 'ERROR');
-       // emit(state.copyWith(isLoading: false));
-    }
+        log(e.toString(), name: 'ERROR');
+        // emit(state.copyWith(isLoading: false));
+      }
     });
 
     on<DeleteTodoEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        if(event.isExpenseDelete){
-          var responseExpense = await apiRepository.deleteVehicleExpense(event.data['expense_id']);
-          var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
-          _broadcast.stickyBroadcast("todo_view", value:true);
-          if (response?['status'] == 200) Toaster.showSuccess(response?['message']);
-        }else if(event.isRecurring){
-          var response = await apiRepository.deleteRecurringTodo(
+        if (event.isExpenseDelete) {
+          await apiRepository.deleteVehicleExpense(event.data['expense_id']);
+          var response = await apiRepository.deleteTodo(
+              id: event.todoId, reason: event.reason);
+          _broadcast.stickyBroadcast("todo_view", value: true);
+          if (response?['status'] == 200)
+            Toaster.showSuccess(response?['message']);
+        } else if (event.isRecurring) {
+          await apiRepository.deleteRecurringTodo(
             id: event.data['recurring_id'],
-            reason:state.selectedEndDate.toFormat(),
-            from:event.reason,
-            to:state.selectedStartDate.toFormat() ,);
-          _broadcast.stickyBroadcast("todo_view", value:true);
-        }else{
-          var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
-          _broadcast.stickyBroadcast("todo_view", value:true);
+            reason: state.selectedEndDate.toFormat(),
+            from: event.reason,
+            to: state.selectedStartDate.toFormat(),
+          );
+          _broadcast.stickyBroadcast("todo_view", value: true);
+        } else {
+          await apiRepository.deleteTodo(id: event.todoId, reason: event.reason);
+          _broadcast.stickyBroadcast("todo_view", value: true);
         }
-        // var response = await apiRepository.deleteTodo(id: event.todoId,reason: event.reason);
-        // _broadcast.stickyBroadcast("todo_view", value:true);
-
-        emit(state.copyWith(isLoading: false,isPop: true));
+        emit(state.copyWith(isLoading: false, isPop: true));
       } catch (e) {
         Toaster.showError("$e");
-        log(e.toString(),name: 'ERROR');
+        log(e.toString(), name: 'ERROR');
         emit(state.copyWith(isLoading: false));
       }
     });
@@ -698,22 +691,31 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         // LOCAL SELECTION REMOVE
         state.todoAttachments.remove(event.data);
         todoImages = state.todoAttachments;
+        emit(state.copyWith(todoAttachments: todoImages));
+        return;
       } else if (event.data is String) {
-        // REMOTE SELECTION REMOVE
-        var data = todoImages.firstWhereOrNull(
-                (element) => element == event.data.toString());
+        try{
+          var attachmentId = images
+              .where((element) =>
+                  element['path'].toString().toAttachmentURL ==
+                  event.data.toString())
+              .map((e) => e['id'])
+              .firstOrNull;
 
-        var attachmentId = images
-            .where((element) => element['path'] == data.toString().removeAttachmentURL)
-            .map((e) => e['id'])
-            .firstOrNull;
-        emit(state.copyWith(isLoading: true));
-        await apiRepository.deleteTodoImage(attachmentId);
-        emit(state.copyWith(isLoading: false));
-        // once success remove from attachments
-        todoImages.remove(event.data);
+          var response = await apiRepository.deleteTodoImage(attachmentId);
+          if(response != null){
+            todoImages.remove(event.data);
+            _broadcast.stickyBroadcast("todo_view", value: true);
+          }
+          emit(state.copyWith(todoAttachments: todoImages));
+          return;
+        }catch(e){
+          Toaster.showError("$e");
+          log(e.toString(), name: 'ERROR');
+          emit(state.copyWith(isLoading: false));
+        }
       }
-      emit(state.copyWith(todoAttachments: todoImages));
+
     });
 
     on<EditToDoSaveEvent>((event, emit) async {
@@ -721,30 +723,38 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         Toaster.showError("Task name is required");
         return;
       }
-      var isPlatformRequired = Str.platFormCheckIds.contains(state.selectedTask['id']) && departmentId == '7' && !state.isSelectedPlatformCheck;
+      var isPlatformRequired =
+          Str.platFormCheckIds.contains(state.selectedTask['id']) &&
+              departmentId == '7' &&
+              !state.isSelectedPlatformCheck;
       if (isPlatformRequired) {
         Toaster.showError("Platform check is required");
         return;
       }
-      if(state.selectedTask['id'] == 257){
+      if (state.selectedTask['id'] == 257) {
         final inputValue = num.tryParse(odometerController.text) ?? 0;
         final minMileage = num.tryParse(state.previousOdometer) ?? 0;
         if (odometerController.text.isNotEmpty && inputValue < minMileage) {
-          Toaster.showError("Can't enter lower than previous oil change odometer");
+          Toaster.showError(
+              "Can't enter lower than previous oil change odometer");
           return;
         }
       }
       // API CALL
       try {
-        emit(state.copyWith(isLoading: true,isRecurring: event.isRecurring));
-        var response = await apiRepository.updateToDoApi(todoId: "${state.apiResponse['id']}",
-            images: state.todoAttachments.whereType<File>().toList(), body: _editTodoBody());
-        if (response?.isNotEmpty ?? false) Toaster.showSuccess(response?['message']);
-        _broadcast.stickyBroadcast("todo_view", value:true);
-        emit(state.copyWith(isLoading: false,isPop: true,isRecurring: false));
+        emit(state.copyWith(isLoading: true, isRecurring: event.isRecurring));
+        var response = await apiRepository.updateToDoApi(
+            todoId: "${state.apiResponse['id']}",
+            images: state.todoAttachments.whereType<File>().toList(),
+            body: _editTodoBody());
+        if (response?.isNotEmpty ?? false) {
+          Toaster.showSuccess(response?['message']);
+        }
+        _broadcast.stickyBroadcast("todo_view", value: true);
+        emit(state.copyWith(isLoading: false, isPop: true, isRecurring: false));
       } catch (e) {
         Toaster.showError("$e");
-        log(e.toString(),name: 'ERROR');
+        log(e.toString(), name: 'ERROR');
         emit(state.copyWith(isLoading: false));
       }
     });
@@ -760,7 +770,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       if (state.selectedVPerson.isEmpty ||
           (state.selectedVPerson
-              .where((element) => ['vehicles', 'g_vehicles'].contains(element['type']))
+              .where((element) =>
+                  ['vehicles', 'g_vehicles'].contains(element['type']))
               .isEmpty)) {
         Toaster.showError("Vehicle is required");
         return;
@@ -769,9 +780,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(isLoading: true));
         var response = await todoListRepo.cleanCar(body: _cleanCarBody());
         _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response != null) Toaster.showSuccess(response['message'] ?? "Success");
+        if (response != null) {
+          Toaster.showSuccess(response['message'] ?? "Success");
+        }
         emit(state.copyWith(isLoading: false));
-      } catch(e) {
+      } catch (e) {
         Toaster.showError("$e");
         emit(state.copyWith(isLoading: false));
       }
@@ -780,16 +793,19 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
   Map<String, String> _editTodoBody() {
     Console.of.log(state.isRecurring);
-    state.selectedVPerson.removeWhere((element) => vinList.contains(element['value']['vin']));
+    state.selectedVPerson
+        .removeWhere((element) => vinList.contains(element['value']['vin']));
     Map<String, String> baseBody = {};
-    baseBody['title'] = "${state.selectedTask['task']??''}";
-    baseBody['identifier_id'] = "${state.selectedTask['id']??''}";
-    if(state.isRecurring == false){
+    baseBody['title'] = "${state.selectedTask['task'] ?? ''}";
+    baseBody['identifier_id'] = "${state.selectedTask['id'] ?? ''}";
+    if (state.isRecurring == false) {
       baseBody['todo_time'] = state.selectedTime.toHMS().toString();
       baseBody['todo_date'] = dateController.text;
     }
-    baseBody['reminder'] = state.apiResponse['reminder']==true?'true':'false';
-    baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
+    baseBody['reminder'] =
+        state.apiResponse['reminder'] == true ? 'true' : 'false';
+    baseBody['notes'] =
+        notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['comments'] = commentsController.text;
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
@@ -802,39 +818,34 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
     baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";
     baseBody['trip_driven'] = tripDrivenController.text;
-    baseBody['time_change_reason'] = reason??'';
-    baseBody['custom_link'] = (state.selectedLinkOption?['id'] == 1)
-        ? customLinkController.text
-        : "";
-    baseBody['reference_id'] = (state.selectedLinkOption?['id'] != 1)
-        ? customLinkController.text
-        : "";
-    if(state.selectedResource.isNotEmpty){
+    baseBody['time_change_reason'] = reason ?? '';
+    baseBody['custom_link'] =
+        (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
+    baseBody['reference_id'] =
+        (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
+    if (state.selectedResource.isNotEmpty) {
       if (state.selectedResource.length == 1) {
         baseBody['user_id'] = state.selectedResource.first.toString();
         baseBody['assigned_to'] = state.selectedResource.first;
-      }
-      else if (state.selectedResource.length > 1) {
+      } else if (state.selectedResource.length > 1) {
         baseBody['user_group_data'] = "${state.selectedResource}";
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
     }
 
-    baseBody['parts']= "${state.selectedParts.isEmpty
-          ? null
-          : state.selectedParts.map((e)=>jsonEncode({
-        "parts_id": "${e['id']}",
-        "parts_name": "${e['name']}",
-      }) ).toList()}";
+    baseBody['parts'] =
+        "${state.selectedParts.isEmpty ? null : state.selectedParts.map((e) => jsonEncode({
+                  "parts_id": "${e['id']}",
+                  "parts_name": "${e['name']}",
+                })).toList()}";
 
-    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
-          ? null
-          : state.selectedSupplies.map((e)=>jsonEncode({
-      "supplies_id": "${e['id']}",
-      "supplies_name": "${e['name']}",
-    }) ).toList()}";
+    baseBody['supplies'] =
+        "${state.selectedSupplies.isEmpty ? null : state.selectedSupplies.map((e) => jsonEncode({
+                  "supplies_id": "${e['id']}",
+                  "supplies_name": "${e['name']}",
+                })).toList()}";
 
-    if(state.selectedVLocations.isNotEmpty) {
+    if (state.selectedVLocations.isNotEmpty) {
       if (state.selectedVLocations['type'] == "location") {
         baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
@@ -844,17 +855,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
       }
     }
-    baseBody['vehicles']= "${state.selectedVPerson
-          .where((element) => element['type'] == "vehicles")
-          .map((e) => e['value'])
-          .map((e) => jsonEncode({
-                "cohort_id": "${e['cohort']?['id'] ?? ""}",
-                "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
-                "vin": e['vin'],
-                "vehicle_name": e['vehicle_name'],
-                "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
-                "vehicle_number": e['vehicle_number']
-              })).toList()}";
+    baseBody['vehicles'] =
+        "${state.selectedVPerson.where((element) => element['type'] == "vehicles").map((e) => e['value']).map((e) => jsonEncode({
+                  "cohort_id": "${e['cohort']?['id'] ?? ""}",
+                  "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+                  "vin": e['vin'],
+                  "vehicle_name": e['vehicle_name'],
+                  "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
+                  "vehicle_number": e['vehicle_number']
+                })).toList()}";
     var personList = state.selectedVPerson
         .where((element) => element['type'] == "person")
         .toList();
@@ -869,12 +878,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((element) => element['type'] == "g_vehicles")
         .toList();
 
-    var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
+    var groupVehicleId =
+        groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
 
     baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
-    if((state.isRecurring==true) && (state.selectedStartDate != null && state.selectedEndDate != null)){
-      baseBody['from_date'] = state.selectedStartDate.toFormat() ??'';
-      baseBody['to_date'] = state.selectedEndDate.toFormat() ??'';
+    if ((state.isRecurring == true) &&
+        (state.selectedStartDate != null && state.selectedEndDate != null)) {
+      baseBody['from_date'] = state.selectedStartDate.toFormat() ?? '';
+      baseBody['to_date'] = state.selectedEndDate.toFormat() ?? '';
     }
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
@@ -886,19 +897,21 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     var timeAt = state.selectedTime.toDateTime;
     var timeDay = state.selectedTime;
     if (timeAt != null) {
-      date = DateTime(date.year, date.month, date.day, timeAt.hour, timeAt.minute);
+      date =
+          DateTime(date.year, date.month, date.day, timeAt.hour, timeAt.minute);
       if (isAdd) {
-        timeAt = date.add(Duration(minutes: state.selectedClearDuration?['value']));
-      } else {
         timeAt =
-            date.subtract(Duration(minutes: state.selectedClearDuration?['value']));
+            date.add(Duration(minutes: state.selectedClearDuration?['value']));
+      } else {
+        timeAt = date
+            .subtract(Duration(minutes: state.selectedClearDuration?['value']));
       }
       timeDay = TimeOfDay.fromDateTime(timeAt);
     }
     Map<String, String> baseBody = {};
     baseBody['title'] = "Clean Car";
     baseBody['identifier_id'] = "30";
-    if(state.selectedVLocations.isNotEmpty) {
+    if (state.selectedVLocations.isNotEmpty) {
       if (state.selectedVLocations['type'] == "location") {
         baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
@@ -914,45 +927,41 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['vehicle_name'] = "";
     baseBody['vehicle_image'] = "";
     baseBody['vehicle_name'] = "";
-    baseBody['vehicles']= "${state.selectedVPerson
-        .where((element) => element['type'] == "vehicles")
-        .map((e) => e['value'])
-        .map((e) => jsonEncode({
-      "cohort_id": "${e['cohort']?['id'] ?? ""}",
-      "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
-      "vin": e['vin'],
-      "vehicle_name": e['vehicle_name'],
-      "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
-      "vehicle_number": e['vehicle_number']
-    })).toList()}";
-    baseBody['parts']= "${state.selectedParts.isEmpty
-        ? null
-        : state.selectedParts.map((e)=>jsonEncode({
-      "parts_id": "${e['id']}",
-      "parts_name": "${e['name']}",
-    }) ).toList()}";
+    baseBody['vehicles'] =
+        "${state.selectedVPerson.where((element) => element['type'] == "vehicles").map((e) => e['value']).map((e) => jsonEncode({
+                  "cohort_id": "${e['cohort']?['id'] ?? ""}",
+                  "cohort_name": "${e['cohort']?['cohort'] ?? ""}",
+                  "vin": e['vin'],
+                  "vehicle_name": e['vehicle_name'],
+                  "vehicle_image": (e['images'] as List?)?.firstOrNull?['path'],
+                  "vehicle_number": e['vehicle_number']
+                })).toList()}";
+    baseBody['parts'] =
+        "${state.selectedParts.isEmpty ? null : state.selectedParts.map((e) => jsonEncode({
+                  "parts_id": "${e['id']}",
+                  "parts_name": "${e['name']}",
+                })).toList()}";
 
-    baseBody['supplies'] = "${state.selectedSupplies.isEmpty
-        ? null
-        : state.selectedSupplies.map((e)=>jsonEncode({
-      "supplies_id": "${e['id']}",
-      "supplies_name": "${e['name']}",
-    }) ).toList()}";
+    baseBody['supplies'] =
+        "${state.selectedSupplies.isEmpty ? null : state.selectedSupplies.map((e) => jsonEncode({
+                  "supplies_id": "${e['id']}",
+                  "supplies_name": "${e['name']}",
+                })).toList()}";
 
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
     baseBody['start_at'] = dateController.text;
-    baseBody['notes'] = notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
+    baseBody['notes'] =
+        notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['todo_user_type'] = "0";
     baseBody['mileage'] = odometerController.text;
     baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
-    if(state.selectedResource.isNotEmpty){
+    if (state.selectedResource.isNotEmpty) {
       if (state.selectedResource.length == 1) {
         baseBody['user_id'] = state.selectedResource.first.toString();
         baseBody['assigned_to'] = state.selectedResource.first;
-      }
-      else if (state.selectedResource.length > 1) {
+      } else if (state.selectedResource.length > 1) {
         baseBody['user_group_data'] = "${state.selectedResource}";
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
@@ -971,7 +980,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         .where((element) => element['type'] == "g_vehicles")
         .toList();
 
-    var groupVehicleId = groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
+    var groupVehicleId =
+        groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
 
     baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
 
@@ -979,16 +989,23 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     return baseBody;
   }
 
-  void partsBroadcastEvent( dynamic value, ) {
-   // log(value.toString(), name: "Parts Broadcast");
+  void partsBroadcastEvent(
+    dynamic value,
+  ) {
+    // log(value.toString(), name: "Parts Broadcast");
     FBroadcast.instance().broadcast("Parts", value: value, persistence: true);
   }
 
-  void suppliesBroadcastEvent( dynamic value, ) {
-    FBroadcast.instance().broadcast("Supplies", value: value, persistence: true);
+  void suppliesBroadcastEvent(
+    dynamic value,
+  ) {
+    FBroadcast.instance()
+        .broadcast("Supplies", value: value, persistence: true);
   }
 
-  void vendorBroadcastEvent( dynamic value,) {
+  void vendorBroadcastEvent(
+    dynamic value,
+  ) {
     log(value.toString(), name: "Parts Broadcast");
     FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
   }
@@ -999,19 +1016,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     return result.map((e) => File(e.path)).toList();
   }
 
-  ///API CALL: EDIT TODO DATA
-  Future<TodoListResponse?> _editTodoData(dynamic todoId) async =>
-      await todoListRepo.editTodoData(id: todoId);
-
-  /// API CALL: GET-USER-GROUP
-  Future<List<Map<String,dynamic>>> _getGroupVehicles() async =>
-      await getIt<CommonService>().groupVehicles();
-
-  Future<Map<String, dynamic>?> _getPreviousOdometer({required String date, required String vin, required dynamic identifierId}) async =>
-      await apiRepository.getPreviousOdometer(date: date, vin: vin, identifierId: identifierId);
+  Future<Map<String, dynamic>?> _getPreviousOdometer(
+          {required String date,
+          required String vin,
+          required dynamic identifierId}) async =>
+      await apiRepository.getPreviousOdometer(
+          date: date, vin: vin, identifierId: identifierId);
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
-
 }
 
 class EditToDoInitialEvent {}

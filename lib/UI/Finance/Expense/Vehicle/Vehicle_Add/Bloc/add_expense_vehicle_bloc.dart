@@ -193,14 +193,16 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
             body: _saveExpenseData());
         if (response?.isNotEmpty ?? false) {
           if(model != null){
-            Map<String, String> baseBody = {'status':'1'};
-            var item = await _apiRepository.billAddOrUpdate(id: model['id'],body: baseBody);
-            _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+            var body = {'status':'1'};
+            var item = await _apiRepository.updateBillStatus(id: model['id'],
+                status: body);
+            Console.of.log(item);
+            _broadcast.stickyBroadcast("bill_refresh", value: true);
           }
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
         emit(state.copyWith(popAddPagePop: true));
-        _broadcast.stickyBroadcast("bill_refresh", value: true);
+        _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
         if (response?['status'] == 200) emit(state.copyWith());
       } catch (e) {
         Toaster.showError("$e");
