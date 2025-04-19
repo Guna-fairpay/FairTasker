@@ -12,12 +12,11 @@ import '../../../Utilities/Utils.dart';
 import '../Event/workingHoursEvent.dart';
 import '../Repository/workingHoursRepository.dart';
 import '../State/workingHoursState.dart';
-
+import '../../../../Repository/api_repository.dart';
 
 class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
-  final TaskRepository taskRepo = TaskRepository();
-  final TodoListRepo todoListRepo = TodoListRepo();
-  final JobListRepo authenticationRepo = JobListRepo();
+  //final TaskRepository taskRepo = TaskRepository();
+  final APiRepository apiRepository = APiRepository();
   DateRange? selectedDateRange;
   List<Map<String, dynamic>> formattedResources=[];
   List<Map<String, dynamic>> resources=[];
@@ -67,11 +66,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           {
             log("${extractDate(event.minDate)} ${extractDate(event.maxDate)}", name: "date print");
 
-            final response2 = await todoListRepo.getActiveHoursResponse(extractDate(event.minDate), extractDate(event.maxDate));
-            final response3 = await authenticationRepo.getAssignedTo();
-            final response4 = await todoListRepo.getWorkingHoursData(extractDate(event.minDate), extractDate(event.maxDate));
-            final response5 = await todoListRepo.getWorkingHistoryCount(extractDate(event.minDate), extractDate(event.maxDate));
-            final response6 = await taskRepo.fetchPunchList();
+            final response2 = await apiRepository.getActiveHoursResponse(extractDate(event.minDate), extractDate(event.maxDate));
+            final response3 = await apiRepository.getAssignedTo();
+            final response4 = await apiRepository.getWorkingHoursData(extractDate(event.minDate), extractDate(event.maxDate));
+            final response5 = await apiRepository.getWorkingHistoryCount(extractDate(event.minDate), extractDate(event.maxDate));
+            final response6 = await apiRepository.fetchPunchList();
             if (response2 != null && response3 != null && response4 != null && response5 != null && response6 != null) {
               workingHistory.clear();
               workingHistory = response5!.history!;//1
@@ -425,8 +424,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isLoading: true));
       try{
         List<dynamic> resource;
-        final response6 = await todoListRepo.getTaskHistoryConfiguration();
-        final response3 = await authenticationRepo.getAssignedTo();
+        final response6 = await apiRepository.fetchGetConfiguration();
+        final response3 = await apiRepository.getAssignedTo();
         userRole = await Utils.getStringListPreference(Str.rolePrefText);
         userId = await Utils.getStringPreference(Str.userIdPrefText);
         if(response6 != null && response3 != null){
@@ -485,7 +484,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<DeleteTaskComponentsEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
-        await todoListRepo.deleteTaskConfiguration(event.id).then((value) {
+        await apiRepository.deleteTaskConfiguration(event.id).then((value) {
           add(const TaskComponentsInitialEvent());
         });
       }
@@ -499,7 +498,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<CreateTaskEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
-        await todoListRepo.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
+        await apiRepository.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
         add(const TaskComponentsInitialEvent());
       } catch (error){
         emit(state.copyWith(isLoading: false));
@@ -514,7 +513,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         {"id": 1, "base": "Task based"},
         {"id": 2, "base": "Hour based"}
       ];
-      final apiResponse = await authenticationRepo.getAssignedTo();
+      final apiResponse = await apiRepository.getAssignedTo();
       var userListData = apiResponse?.resource;
       dynamic selectedUser = userListData?.firstWhere(
             (resource) => resource['id'] == event.userId,
@@ -659,7 +658,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<fetchEmployeeCommentEvent>((event, emit) async {
       print("event data---------> ${event.hrmId} ${event.fromDate} ${event.toDate}");
       //Fetch Data
-      final comment = await taskRepo.fetchEmployeeComments(
+      final comment = await apiRepository.fetchEmployeeComments(
       hrmId: event.hrmId,
       fromDate: event.fromDate,
       toDate: event.toDate,
@@ -829,12 +828,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     //Hours popup initial code
     on<HoursPopupEvent>((event, emit) async {
-      final data = await taskRepo.fetchCheckInoutReason(
+      final data = await apiRepository.fetchCheckInoutReason(
         hrmId: event.hrmId,
         fromDate: event.fromDate,
         toDate: event.toDate,
       );
-      final response = await taskRepo.fetchEmployeeTaskCount(
+      final response = await apiRepository.fetchEmployeeTaskCount(
         userId: event.empID,
         fromDate: event.fromDate,
         toDate: event.toDate,
@@ -955,7 +954,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<TaskInitialEvent>((event, emit) async{
       //Api fetching
       emit(state.copyWith(isLoading: true));
-      final taskHistory = await taskRepo.fetchEmployeeTaskHistory(
+      final taskHistory = await apiRepository.fetchEmployeeTaskHistory(
         to: event.to,
         from: event.from,
         userId: event.userId, cohortIds: event?.cohortIds ?? [],
@@ -968,9 +967,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         combinedHistory.addAll(taskHistory.history3!.whereType<Map<String, dynamic>>());
       }
 
-      final data = await taskRepo.fetchGetConfiguration();
-      final response1 = await taskRepo.fetchCohortData();
-      final response2 = await todoListRepo.getTaskCategoryGroup();
+      final data = await apiRepository.fetchGetConfiguration();
+      final response1 = await apiRepository.fetchCohortData();
+      final response2 = await apiRepository.getTaskCategoryGroups();
       List<Map<String, dynamic>> taskCategoryGroup = [];
       taskCategoryGroup = response2?.data ?? [];
       //log("${response1!.data?[0]['cohort']}",name: "response1");
@@ -1253,9 +1252,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isLoading: true));
 
       try {
-        final response = await todoListRepo.editTodoData(id: event.id);
-        final response1 = await authenticationRepo.getAssignedTo();
-        final response2 = await todoListRepo.fetchUserGroupingList();
+        final response = await apiRepository.editTodoData(id: event.id);
+        final response1 = await apiRepository.getAssignedTo();
+        final response2 = await apiRepository.fetchUserGroupingList();
 
         if (response == null || response1 == null || response2 == null) {
           throw Exception('One or more API responses are null');

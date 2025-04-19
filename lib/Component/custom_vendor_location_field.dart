@@ -1,15 +1,16 @@
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_view.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/View/location_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_view.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as d;
+
+import '../UI/Manage Custom Data/Vendor/vendor_ui/vendor_view.dart';
 
 class CustomVendorLocationField extends StatelessWidget {
   final List<dynamic> vendorsList, locationsList;

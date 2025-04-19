@@ -1,4 +1,4 @@
-part of '../UI/Manage Custom Data/Vendor/vendor_data_bloc.dart';
+part of '../Bloc/vendor_data_bloc.dart';
 
 abstract class VendorDataEvent extends Equatable {
   const VendorDataEvent();

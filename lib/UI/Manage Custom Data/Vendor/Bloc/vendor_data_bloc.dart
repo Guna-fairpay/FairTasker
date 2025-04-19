@@ -7,17 +7,20 @@ import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_repository.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fbroadcast/fbroadcast.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-part '../../../Event/vendor_data_event.dart';
-part 'vendor_data_state.dart';
+import '../../../../Repository/api_repository.dart';
+import '../../../../core/app/extension/liststring_extension.dart';
+part '../Event/vendor_data_event.dart';
+part '../State/vendor_data_state.dart';
 
 class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
+  final APiRepository apiRepository = APiRepository();
+
   VendorDataRepo vendorDataRepo = VendorDataRepo();
   TodoListRepo todoListRepo = TodoListRepo();
 
-  //final FBroadcast _broadcast = FBroadcast.instance();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -58,49 +61,26 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
 
+  Future<List<Map<String, dynamic>>> _fetchVendors() async => await getIt<CommonService>().getVendorsList(reset: true);
+  Future<List<Map<String, dynamic>>> _fetchVendorType() async => await getIt<CommonService>().getVendorTypeList(reset: true);
+
   VendorDataBloc() : super(VendorDataInitial()) {
     on<VendorDataEvent>((event, emit) {
     });
 
-    List<T> paginateList<T>({
-      required List<T> data,
-      required int currentPage,
-      required int itemsPerPage,
-    }) {
-      final pageIndex = currentPage - 1;
-      final start = pageIndex * itemsPerPage;
-      final end = start + itemsPerPage;
-
-      if (start >= data.length) return [];
-
-      return data.sublist(start, end > data.length ? data.length : end);
-    }
-
-    List<T> paginateList1<T>({
-      required List<T> data,
-      required int currentPage,
-      required int itemsPerPage,
-    }) {
-      final pageIndex = currentPage - 1;
-      final start = pageIndex * itemsPerPage;
-      final end = start + itemsPerPage;
-
-      if (start >= data.length) return [];
-
-      return data.sublist(start, end > data.length ? data.length : end);
-    }
-
-
     //vendor Initial Bloc
     on<GetVendorList>((event, emit) async {
       emit(const VendorDataLoading());
-      final vendor = await vendorDataRepo.getVendor();
-      final vendorType = await vendorDataRepo.getVendorType();
-      d.log("${vendorType?.data}", name: "vendor_type");
-      vendorTypeData = vendorType?.data ?? [];
-      filteredVendorType = vendorType?.data ?? [];
-      vendorsData = vendor?.data ?? [];
-      filteredVendors = vendor?.data ?? [];
+      final vendor = await _fetchVendors();
+      final vendorType = await _fetchVendorType();
+      d.log("${vendorType}", name: "vendor_type");
+
+      vendorTypeData = vendorType ?? [];
+      filteredVendorType = vendorType ?? [];
+
+      vendorsData = vendor ?? [];
+      filteredVendors = vendor ?? [];
+
       filteredVendors.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
       filteredVendorType.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
 
@@ -147,11 +127,12 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
 
     //vendor add and edit event
     on<AddVendorData>((event, emit) async {
+      d.log("${event.id} ${event.name} ${event.vendorTypeId} ${event.address} ${event.phone} ${event.expertise} ${event.description} ${event.images} ${event.website} ${event.latitude} ${event.longitude}");
       emit(const VendorDataLoading());
-      await vendorDataRepo.getAndCreateVendor(
+      final response = await apiRepository.createVendor(
         id : event.id ?? null,
         name : event.name ??'',
-        vendorTypeId : event.vendorTypeId ??'',
+        vendorTypeId : event.vendorTypeId.toString() ?? '',
         address : event.address ??'',
         phone : event.phone ??'',
         expertise : event.expertise ??'',
@@ -172,17 +153,24 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         vendorTypeId = null;
         vendorImage.clear();
         searchController.clear();
+        latitude = null;
+        longitude = null;
         emit(VendorDataCommonState());
       });
+      d.log("response added ${response}");
       add(const GetVendorList());
     });
 
     //delete vendor event
     on<DeleteVendorEvent>((event, emit) async {
       emit(const VendorDataLoading());
-      await vendorDataRepo.deleteVendor(event.id);
-      add(const GetVendorList());
-      emit(VendorDataCommonState());
+      final response = await apiRepository.deleteVendor(event.id);
+      if (response == true) {
+        add(const GetVendorList());
+        emit(VendorDataCommonState());
+      } else {
+        emit(VendorDataCommonState());
+      }
     });
 
     //vendor edit event
@@ -223,16 +211,18 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       vendorTypeId = null;
       vendorImage.clear();
       searchController.clear();
+      longitude = null;
+      latitude = null;
       emit(VendorDataCommonState());
     });
 
     //Vendor Types Initial Bloc
     on<GetVendorTypeList>((event, emit) async {
       emit(const VendorDataLoading());
-      final vendorType =  await vendorDataRepo.getVendorType();
-      vendorTypes = vendorType?.data ?? [];
+      final vendorType =  await _fetchVendorType();
+      vendorTypes = vendorType ?? [];
       vendorTypes.sort((a,b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
-      filterPage1 = paginateList1(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+      filterPage1 = paginateList(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       vendorTypeTotalCount = vendorTypes.length;
       emit(VendorDataCommonState());
     });
@@ -247,7 +237,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       filterPage1 = filtered;
       vendorTypeTotalCount = filtered.length;
       vendorTypeCurrentIndex = 1;
-      filterPage1 = paginateList1(data: filterPage1, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+      filterPage1 = paginateList(data: filterPage1, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       emit(VendorDataCommonState());
     });
 
@@ -255,7 +245,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     on<VendorTypePaginationEvent>((event, emit) {
       emit(const VendorDataLoading());
       vendorTypeCurrentIndex = event.page;
-      filterPage1 = paginateList1(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+      filterPage1 = paginateList(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       emit(VendorDataCommonState());
     });
 
@@ -276,7 +266,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     //vendor type add and edit event
     on<AddVendorType>((event, emit) async {
       emit(const VendorDataLoading());
-      await vendorDataRepo.createVendorType(event.id, event.name??'',).then((value) {
+      await apiRepository.createVendorType(event.id, event.name??'',).then((value) {
         isVendorTypeEdit = false;
         vendorTypeNameController.clear();
         emit(VendorDataCommonState());
@@ -287,7 +277,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     //vendor type delete event
     on<DeleteVendorType>((event, emit) async {
       emit(const VendorDataLoading());
-      await vendorDataRepo.deleteVendorType(event.id);
+      await apiRepository.deleteVendorType(event.id);
       add(const GetVendorTypeList());
       emit(VendorDataCommonState());
     });
@@ -308,7 +298,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
               orElse: () => null,
             );
             if (matchedImage != null) {
-              await vendorDataRepo.deleteImages(matchedImage['id']);
+              await apiRepository.deleteImages(matchedImage['id']);
             }
           }
           vendorImage.removeAt(event.index);
@@ -355,7 +345,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       try {
         emit(const VendorDataLoading());
         final imageId = event.id;
-        await vendorDataRepo.deleteImages(imageId);
+        await apiRepository.deleteImages(imageId);
         // Remove the image from remoteImages by matching ID
         remoteImages.removeWhere((url) {
           final path = url.replaceFirst("https://phase1.fairreturns.in/storage/", "");

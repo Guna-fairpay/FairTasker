@@ -9,11 +9,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../Bloc/location_data_bloc.dart';
-import '../../../Component/custom_compact_pagination.dart';
-import '../../../Component/success_button.dart';
-import '../../../Utilities/appC.dart';
-import 'location_list_item.dart';
+import '../Bloc/location_data_bloc.dart';
+import '../../../../Component/custom_compact_pagination.dart';
+import '../../../../Component/success_button.dart';
+import '../../../../Utilities/appC.dart';
+import '../Components/location_list_item.dart';
 
 class LocationView extends StatelessWidget {
   LocationView({super.key});
@@ -217,7 +217,7 @@ class LocationView extends StatelessWidget {
                                         context,
                                         title: "Are you sure?",
                                         description:
-                                        "Do you want to delete this vendor?",
+                                        "Do you want to delete this location?",
                                         positiveText:
                                         "Yes, Delete it!",
                                         negativeText: "Cancel",

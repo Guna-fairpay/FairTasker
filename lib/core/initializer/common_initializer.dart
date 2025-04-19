@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
@@ -42,6 +43,7 @@ class CommonService {
   List<Map<String, dynamic>> usersList = [];
   List<Map<String, dynamic>> cohortsList = [];
   List<Map<String, dynamic>> vendorsList = [];
+  List<Map<String, dynamic>> vendorsTypeList = [];
   List<Map<String, dynamic>> locationsList = [];
   List<Map<String, dynamic>> partsList = [];
   List<Map<String, dynamic>> suppliesList = [];
@@ -327,6 +329,34 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getVendorTypeList({bool reset = false}) async {
+    if (reset) {
+      vendorsTypeList.clear();
+    }
+    if (vendorsTypeList.isNotEmpty) {
+      return vendorsTypeList;
+    }
+
+    try {
+      final response = await _apiRepository.getVendorsType();
+
+      if (response != null && response is List) {
+        vendorsTypeList = List<Map<String, dynamic>>.from(
+          response.whereType<Map<String, dynamic>>(),
+        );
+      } else {
+        vendorsTypeList = [];
+      }
+
+      return vendorsTypeList;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      log("${e.toString()}", name: "getVendorTypeList");
+      return [];
+    }
+  }
+
+
   Future<List<Map<String, dynamic>>> getPaymentTypes({bool reset = false}) async {
     if (reset) paymentTypesList.clear();
     if (paymentTypesList.isNotEmpty) return paymentTypesList;
@@ -352,6 +382,8 @@ class CommonService {
       return [];
     }
   }
+
+
 
   Future<List<Map<String, dynamic>>> getPartsList({bool reset = false}) async {
     if (reset) partsList.clear();

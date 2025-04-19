@@ -13,7 +13,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Customers/customer_view_ui.dart';
-import 'Location/location_view.dart';
+import 'Location/View/location_view.dart';
 import 'Vehicle Status/vehicle_status_add_ui.dart';
 import 'Vendor/vendor_ui/vendor_view.dart';
 
