@@ -3,6 +3,7 @@ import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_type_head_search_view.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_add_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -144,7 +145,7 @@ class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
                   items: ["Vehicle", "Person"],
                   onTap: (item) {
                     item == "Vehicle"
-                        ? context.push(const VehicleAddUI())
+                        ? context.push(const VehicleMainViewUi())
                         : context.push(const EmployeesAddUI());
                   },
                 ),

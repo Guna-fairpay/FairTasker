@@ -228,13 +228,15 @@ class ApiClient {
     var infusedFiles = message['infusedFiles'];
     Console.of.debug("${infusedFiles.runtimeType} ${infusedFiles is List}", name: "INFUSION_TYPE");
     List<http.MultipartFile> multiPartFiles = [];
-    if (infusedFiles is List) {
-      var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
-      if (files.isNotEmpty) {
-        multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamic(files: files)) ?? [];
+    if (infusedFiles != null) {
+      if (infusedFiles is List) {
+        var files = List<Map<String, String?>>.from(message['infusedFiles'] ?? []);
+        if (files.isNotEmpty) {
+          multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamic(files: files)) ?? [];
+        }
+      } else if (infusedFiles is Map<String, String?>) {
+        multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
       }
-    } else if (infusedFiles is Map<String, String?>) {
-      multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
     }
     if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:\t${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
     var request = http.MultipartRequest("POST", message['url']);

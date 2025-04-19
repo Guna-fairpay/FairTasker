@@ -12,6 +12,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -69,16 +70,31 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
   Map<String, dynamic>? selectedVLocation;
 
-  List<Map<String, dynamic>> locations = [];
-  List<Map<String, dynamic>> persons = [];
-  List<Map<String, dynamic>> tasks = [];
-  List<Map<String, dynamic>> vehicles = [];
-  List<Map<String, dynamic>> vendors = [];
+  List<Map<String, dynamic>> _locations = [];
+  List<Map<String, dynamic>> _persons = [];
+  List<Map<String, dynamic>> _tasks = [];
+  List<Map<String, dynamic>> _vehicles = [];
+  List<Map<String, dynamic>> _vendors = [];
   List<Map<String, dynamic>> _toDoList = [];
   List<dynamic> attachments = [];
 
   late DateTime addToDoDate;
   dynamic existingRefId;
+
+  List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
+  List<Map<String, dynamic>> get persons {
+    List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
+    resources.removeWhere((resource) =>
+    ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+        (resource['branch_id'] !=
+            Session.of.getInt(Str.branchIdPrefText))) ||
+        (resource['deleted_at'] != null));
+    return resources;
+  }
+  List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
+  List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList;
+  List<Map<String, dynamic>> get vendors => getIt<CommonService>().vendorsList;
+  List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
 
   AddToDoBloc()
       : super(AddToDoState(
@@ -131,39 +147,16 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       try {
         emit(state.copyWith(isLoading: true));
         var response = await Future.wait([
-          _getTasks(),
-          _getVehicles(),
-          _getVendors(),
-          _getLocations(),
-          _getParts(),
-          _getSupplies(),
-          _getResources(),
-          _getGroupVehicles(),
-          _getCurrentToDos(),
+          _getTasks(), // 0
+          _getVehicles(), // 1
+          _getVendors(), // 2
+          _getLocations(), // 3
+          _getParts(), // 4
+          _getSupplies(), // 5
+          _getResources(), // 6
+          _getGroupVehicles(), // 7
+          _getCurrentToDos(), // 8
         ]);
-        // var groupVehicles = await _getGroupVehicles();
-        /*var tasks = response[0];
-        TaskExpenseResponse? taskResponse =
-            ((response[0] is TaskExpenseResponse) ? response[0] : null)
-                as TaskExpenseResponse?;
-        VehicleListResponse? vehicleResponse =
-            ((response[1] is VehicleListResponse) ? response[1] : null)
-                as VehicleListResponse?;
-        VendorResponse? vendorResponse = ((response[2] is VendorResponse)
-            ? response[2]
-            : null) as VendorResponse?;
-        LocationResponse? locationResponse = ((response[3] is LocationResponse)
-            ? response[3]
-            : null) as LocationResponse?;
-        PartsResponse? partsResponse = ((response[4] is PartsResponse)
-            ? response[4]
-            : null) as PartsResponse?;
-        SuppliesResponse? suppliesResponse = ((response[5] is SuppliesResponse)
-            ? response[5]
-            : null) as SuppliesResponse?;
-        AssignedToResponse? assignedToResponse =
-            ((response[6] is AssignedToResponse) ? response[6] : null)
-                as AssignedToResponse?;*/
         var resources = response[6] ?? [];
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
@@ -178,11 +171,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         Console.of.log(response.map((e) => e?.length).join(", "));
         vendorLocations = CustomSearchDataConverter.convertVLocation(
             vendors: response[2], locations: response[3]);
-        tasks = response[0] ?? [];
-        vehicles = response[1] ?? [];
-        persons = resources;
-        locations = response[3] ?? [];
-        vendors = response[2] ?? [];
+        _tasks = response[0] ?? [];
+        _vehicles = response[1] ?? [];
+        _persons = resources;
+        _locations = response[3] ?? [];
+        _vendors = response[2] ?? [];
         _toDoList = response[8] ?? [];
         emit(state.copyWith(
             isLoading: false,
@@ -220,18 +213,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoSelectedTaskIdentifierEvent>((event, emit) {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
-      // if ((!event.selectedTaskIdentifier.containsKey(1)) &&
-      //     existing.containsKey(1)) {
-      //   existing.remove(1);
-      // }
-      // if ((!event.selectedTaskIdentifier.containsKey(2)) &&
-      //     existing.containsKey(2)) {
-      //   existing.remove(2);
-      // }
-      // if ((!event.selectedTaskIdentifier.containsKey(3)) &&
-      //     existing.containsKey(3)) {
-      //   existing.remove(3);
-      // }
       log("${event.selectedTaskIdentifier.keys}", name: "AddToDoBloc-before");
       existing.removeWhere(
           (key, value) => !event.selectedTaskIdentifier.keys.contains(key));
@@ -243,32 +224,17 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         if (((existing[1] as Map).isEmpty) && (taskNameController.text.isNullOrEmpty)) taskNameController.clear();
         else taskNameController.text = existing[1]?['name'] ?? "";
       }
-      // if ((!existing.containsKey(1))) taskNameController.clear();
-
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);
       if (existing[2] != null) {
-        if (existing[2]?['type'] == 'person') {
-          vPersonController.text = existing[2]?['name'] ?? "";
-        }
-        existingVPersons.removeWhere((element) =>
-            element['type'] !=
-            ((existing[2]?['type'] == 'person') ? 'vehicles' : 'person'));
-        log("$existingVPersons", name: "AddToDoBloc-Person-before");
-        if ((existing[2]?['type'] == 'person') &&
-            existingVPersons
-                .where((element) => element['type'] == 'person')
-                .isNotEmpty) existingVPersons.clear();
-        if ((existingVPersons
-                .where((element) => element['type'] == 'person')
-                .isNotEmpty) &&
-            (existing[2]?['type'] == 'person')) {
+        if ((existing[2]?['type'] != 'vehicles') || ((existing[2]?['type'] == 'vehicles') && !(existingVPersons.map((e) => e['type']).contains("vehicles")))) {
           existingVPersons.clear();
+          existingVPersons.add(existing[2]);
         }
-        existingVPersons.add(existing[2]);
+        log("$existingVPersons", name: "AddToDoBloc-Person-before");
+        if (!existingVPersons.contains(existing[2])) existingVPersons.add(existing[2]);
       }
-      if (!existing.containsKey(2)) existingVPersons.clear();
-
+      existingVPersons = existingVPersons.distinct((element) => element['id']);
       log("${existing[3]}", name: "AddToDoBloc-VLocation");
       vLocationController.text = existing[3]?['name'] ?? "";
       var showCleanCar = false;
@@ -509,7 +475,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
       var isPlatformRequired = state.selectedTaskIdentifier.containsKey(1) &&
           Str.platFormCheckIds
-              .contains(state.selectedTaskIdentifier[1]['id']) &&
+              .contains(state.selectedTaskIdentifier[1]?['id']) &&
           departmentId == '7' &&
           !state.isSelectedPlatformCheck;
       if (isPlatformRequired) {
@@ -578,7 +544,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
                 .map((e) => e['value']['vin'])
                 .lastOrNull;
             if ((lastVin != null) &&
-                (state.selectedTaskIdentifier[1]['id'] == 30)) {
+                (state.selectedTaskIdentifier[1]?['id'] == 30)) {
               if (getIt<ToDoSupport>().isClearCarTaskExist(vin: lastVin)) {
                 var lastBody = getIt<ToDoSupport>().lastCleanCarTask(
                     vin: lastVin);
@@ -606,6 +572,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
       } catch (e) {
+        Console.of.error("Error", error: e);
         Toaster.showError("$e");
         emit(state.copyWith(isLoading: false));
       }
@@ -718,7 +685,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     baseBody['comments'] = "";
     baseBody['mileage'] = "";
     baseBody['resolution_notes'] = "";
-    baseBody['custom_link_id'] = "${state.selectedLinkOption?['id']}";
+    baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
     baseBody['custom_link'] =
         (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] =

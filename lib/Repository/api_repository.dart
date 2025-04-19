@@ -249,6 +249,10 @@ class APiRepository {
 
   String get _deleteBillImage => "delete-bill-image";
 
+  String get _getMaintenanceCheckList => "getMaintanceCheckList";
+
+  String get _todo => "todo";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1286,7 +1290,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
       body.putIfAbsent("type", () => "inline");
-      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      final http.Response? response = await  _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
@@ -2208,6 +2212,28 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getMaintenanceCheckList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getMaintenanceCheckList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> todo() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_todo";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return List.from(mapData?['todos']);
     } catch (error) {
       rethrow;
     }

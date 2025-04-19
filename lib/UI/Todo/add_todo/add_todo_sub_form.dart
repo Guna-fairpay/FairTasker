@@ -31,12 +31,12 @@ class AddTodoSubForm extends StatelessWidget {
             child: TaskIdentifier(
               taskIdentifierController:
               context.read<AddToDoBloc>().taskIdentifierController,
-              location: state.locations,
-              persons: state.persons,
-              tasks: state.tasks,
-              vehicles: state.vehicles,
-              gVehicles: state.groupVehicles,
-              vendors: state.vendors,
+              location: context.watch<AddToDoBloc>().locations,
+              persons: context.watch<AddToDoBloc>().persons,
+              tasks: context.watch<AddToDoBloc>().tasks,
+              vehicles: context.watch<AddToDoBloc>().vehicles,
+              gVehicles: context.watch<AddToDoBloc>().groupVehicleList,
+              vendors: context.watch<AddToDoBloc>().vendors,
               selected: state.selectedTaskIdentifier,
               onSelected: (val) => context
                   .read<AddToDoBloc>()
@@ -66,9 +66,9 @@ class AddTodoSubForm extends StatelessWidget {
           FocusTraversalOrder(
             order: NumericFocusOrder(2),
             child: CustomVehiclePersonField(
-              vehiclesList: state.vehicles,
-              personsList: state.persons,
-              groupVehicles: state.groupVehicles,
+              vehiclesList: context.watch<AddToDoBloc>().vehicles,
+              personsList: context.watch<AddToDoBloc>().persons,
+              groupVehicles: context.watch<AddToDoBloc>().groupVehicleList,
               selected: state.selectedVPerson,
               onSelected: (val) =>
                   context.read<AddToDoBloc>().add(AddToDoVPersonEvent(val)),
