@@ -1,7 +1,9 @@
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_view.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -64,8 +66,9 @@ class CustomVendorLocationField extends StatelessWidget {
           onSelected: _onSuggested,
           showEmptyWidget: value,
           // autoClear: true,
+
           onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
-            item == "Vendor" ? context.push(const VendorAddUI()) : context.push(const LocationAddUI());
+            item == "Vendor" ? context.push(VendorView()) : context.push(LocationView());
           },),
           itemAsString: (item) => item['name'].toString(),
           optionsBuilder: (textEditingValue) =>
