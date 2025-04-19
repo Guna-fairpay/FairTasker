@@ -59,6 +59,7 @@ class CommonService {
   List<Map<String, dynamic>> _toDoList = [];
   List<Map<String, dynamic>> _privateRentalVehicleList = [];
   List<Map<String, dynamic>> _privateRentalCustomersList = [];
+  List<Map<String, dynamic>> _maintenanceCheckList = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
@@ -458,6 +459,19 @@ class CommonService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getMaintenanceCheckList({bool reset = false}) async {
+    if (reset) _maintenanceCheckList.clear();
+    if (_maintenanceCheckList.isNotEmpty) return _maintenanceCheckList;
+    try {
+      var response = await _apiRepository.getMaintenanceCheckList();
+      _maintenanceCheckList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return _maintenanceCheckList;
+    }catch (e) {
+      Toaster.showError(e.toString());
+      return [];
+    }
+  }
+
   Future<void> clearAll() async {
     usersList.clear();
     cohortsList.clear();
@@ -477,6 +491,7 @@ class CommonService {
     _vehicleStatus?.clear();
     branchList.clear();
     _toDoList.clear();
+    _maintenanceCheckList.clear();
   }
 
 }

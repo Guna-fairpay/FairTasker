@@ -21,7 +21,7 @@ import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import '../Response/subcategories_response.dart';
-import '../UI/Finance/Expense/Response/expense_response.dart';
+import '../Response/expense_response.dart';
 import '../UI/Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../Utilities/Utils.dart';
 import '../Utilities/str.dart' show Str;
@@ -238,6 +238,22 @@ class APiRepository {
   String get _deleteVehicleParts => "delete-vehicle-parts";
 
   String get _deleteSupplies => "delete-supplies";
+
+  String get _getBillList => "bill-list";
+
+  String get _deleteBill => "delete-bill";
+
+  String get _addBill => "upload-bill";
+
+  String get _editBill => "update-bill";
+
+  String get _getEditBill => "edit-bill";
+
+  String get _deleteBillImage => "delete-bill-image";
+
+  String get _getMaintenanceCheckList => "getMaintanceCheckList";
+
+  String get _todo => "todo";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
@@ -1403,7 +1419,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
       body.putIfAbsent("type", () => "inline");
-      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      final http.Response? response = await  _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
@@ -2330,5 +2346,105 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> getMaintenanceCheckList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getMaintenanceCheckList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> todo() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_todo";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return List.from(mapData?['todos']);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getBillList({String? from, String? to}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getBillList?from=$from&to=$to";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteBill({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteBill/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> billAddOrUpdate(
+      {Map<String, dynamic>? body, dynamic id,List<File>? images,}) async {
+    try {
+      String apiUrl = '';
+      if (id != null) {
+        apiUrl = "${Str.BASE_URL}$_editBill/$id";
+      } else {
+        apiUrl = "${Str.BASE_URL}$_addBill";
+      }
+      Console.of.debug(body??'ERROR');
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+        apiUrl,
+        body: body,
+        fieldName: 'images',
+        autoIncrement: true,
+        files: images?.map((e) => e.path).toList()
+      );
+      Console.of.debug(response);
+      if (response != null) {
+        if (response.isSuccess) {
+          var mapData = await response.mapData;
+          return mapData;
+        } else {
+          Utils.showSomethingWentWrong();
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (error) {
+      log('billAddOrUpdateAPI : ${error.toString()}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEditBillData({dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getEditBill/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteBillImage({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteBillImage/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
 
 }

@@ -47,7 +47,7 @@ import '../Response/create_fix_task_data.dart';
 import '../Response/expense_other_categories.dart';
 import '../Response/expense_other_response.dart';
 import '../Response/expense_person_response.dart';
-import '../UI/Finance/Expense/Response/expense_response.dart';
+import '../Response/expense_response.dart';
 import '../Response/finance_statement_response.dart';
 import '../Response/payment_response.dart';
 import '../Response/task_miles.dart';

@@ -182,6 +182,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         };
       Console.of.log(data);
         var response = await _apiRepository.taskAddOrUpdate(body: data,id: selectedData?['id']);
+        await getIt<CommonService>().getTaskExpenseData(reset: true);
       if (response?["data"] != null) {
         final newData = response!["data"];
         taskController.clear();
@@ -256,7 +257,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       'task': "${itemModel['task']}",
       'time_taken': "${itemModel['time_taken']}",
       'user_type': "${itemModel['user_type']}",
-      'platform':'tasker-app'};
+      'platform':'tasker-app',
+    };
     var response = await _apiRepository.taskAddOrUpdate(body: data,id: itemModel['id']);
     // emit(TaskCommonState());
   }

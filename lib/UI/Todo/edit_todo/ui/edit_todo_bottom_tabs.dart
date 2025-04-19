@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
 import 'package:fairpytasker/UI/Todo/CheckList/check_list_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
 import 'package:fairpytasker/UI/Todo/maintenance/maintenance_check_list_ui.dart';
+import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/appC.dart';
@@ -57,7 +58,8 @@ class EditTodoBottomTabs extends StatelessWidget {
                   :state.selectedBottomTap['id'] == 3
                   ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   :state.selectedBottomTap['id'] == 4
-                  ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
+                  // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
+                  ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)
                   :state.selectedBottomTap['id'] == 5
                   ?VehicleEditUI(vehicle: state.taskHistory.first,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   :state.selectedBottomTap['id'] == 6

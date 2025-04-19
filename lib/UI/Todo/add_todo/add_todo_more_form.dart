@@ -1,7 +1,7 @@
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/BackUps/supplies_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/BackUps/part_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -93,7 +93,7 @@ class AddTodoMoreForm extends StatelessWidget {
                     .read<AddToDoBloc>()
                     .add(AddToDoPartSelectionEvent(isChecked, value)),
                 onEmptyTap: () =>
-                    context.push(const PartViewUI(), fullscreenDialog: true)),
+                    context.push(const PartsMainUI(), fullscreenDialog: true)),
           if (state.isMoreEnable && state.isSuppliesEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedSupplies),
@@ -104,7 +104,7 @@ class AddTodoMoreForm extends StatelessWidget {
                     .read<AddToDoBloc>()
                     .add(AddToDoSupplySelectionEvent(isChecked, value)),
                 itemAsString: (item) => item['name'].toString(),
-                onEmptyTap: () => context.push(const SuppliesViewUI(),
+                onEmptyTap: () => context.push(const SuppliesMainUI(),
                     fullscreenDialog: true)),
           10.height,
           Row(

@@ -1,5 +1,5 @@
-import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_edit_ui.dart';
-import 'package:fairpytasker/UI/Finance/Expense/UI/Person/person_expense_history_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Person/UI/Person_Edit/person_expense_edit_ui.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Person/UI/Person_List/person_expense_history_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';

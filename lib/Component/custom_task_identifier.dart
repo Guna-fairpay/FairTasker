@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/backup/task_add_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -134,7 +135,7 @@ class TaskIdentifier extends StatelessWidget {
         return CustomAutoSearchField<Map<String, dynamic>>(
           controller: taskIdentifierController,
           labelText: "Task Identifier",
-          onEmptyWidgetTap: () => context.push(const TaskAddUI(), fullscreenDialog: true),
+          onEmptyWidgetTap: () => context.push(const TaskMainPage(), fullscreenDialog: true),
           onSelected: (value) {
             selectedList[value['partNumber']] = value;
             log("onSelected:	$value", name: "TaskIdentifier");
@@ -255,6 +256,9 @@ class TaskIdentifier extends StatelessWidget {
     return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
 
+  List<String> get _inputParts {
+    return taskIdentifierController.text.split("-");
+  }
 
   List<SearchFieldListItem<Map<String, dynamic>>>? onSearchOld(String val) {
     if (val.isEmpty) {
@@ -348,6 +352,7 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void updateToFunction() {
+    Console.of.log("PART NUMBER #$partNumber ${_inputParts}", name: "TASK_IDENTIFIER");
     var currentText = taskIdentifierController.text;
     var formattedText = formatMapData(selectedList);
     log("${selected != selectedList} ${formattedText.length > taskIdentifierController.text.length}", name: "updateToFunction");
