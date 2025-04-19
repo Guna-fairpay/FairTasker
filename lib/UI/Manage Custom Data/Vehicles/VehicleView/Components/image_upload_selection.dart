@@ -13,19 +13,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ImageUploadSection extends StatelessWidget {
   final String title;
   final Color borderColor;
-  final Function onUpload;
+  final Function? onUpload;
   final Function onRemove;
   final List<dynamic> images;
   final String logName;
+  final bool isRequired;
 
   const ImageUploadSection({
     Key? key,
     required this.title,
     required this.borderColor,
-    required this.onUpload,
+    this.onUpload,
     required this.onRemove,
     required this.images,
     required this.logName,
+    this.isRequired = true,
   }) : super(key: key);
 
   @override
@@ -33,25 +35,27 @@ class ImageUploadSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onTap: () => onUpload(),
-          child: Container(
-            padding: 5.sp.padding,
-            decoration: BoxDecoration(
-              border: Border.all(color: borderColor, width: 1.5),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              spacing: 5,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
-                Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
-              ],
+        if(isRequired)...[
+          GestureDetector(
+            onTap: () => onUpload?.call(),
+            child: Container(
+              padding: 5.sp.padding,
+              decoration: BoxDecoration(
+                border: Border.all(color: borderColor, width: 1.5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                spacing: 5,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
+                  Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
+          const SizedBox(height: 10)
+        ],
         if (images.isNotEmpty)
           SizedBox(
             height: 100,

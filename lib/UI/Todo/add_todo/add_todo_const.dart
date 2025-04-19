@@ -70,7 +70,7 @@ class AddToDoConfig {
   static const List<Map<String, dynamic>> expenseTaps = [
     {"id" : 1, "title" : "Vehicle"},
     {"id" : 2, "title" : "Person"},
-    {"id" : 3, "title" : "Other"},
+    {"id" : 3, "title" : "Bill"},
   ];
 
   static const List<Map<String, dynamic>> sentiments = [
