@@ -59,7 +59,7 @@ class MaintenanceCheckItem extends StatelessWidget {
           ),
         ),
         if (((model?['selectedValue'] != null) && (model?['selectedValue']?['name'].toString().toLowerCase() != "good")) || ( (List.from(model?['children'] ?? []).isEmpty) && (model?['checked'] == false)))
-        SuccessButton(text: "${((model?['fix_task_id'] ?? 0) > 0) ? "Update" :  "Create"} Task", onPressed: onCreateTask)
+        SuccessButton(text: "${(((model?['fix_task_id'] ?? 0) > 0) && (model?['fix_task'] != null)) ? "Update" :  "Create"} Task", onPressed: onCreateTask)
       ],
     );
   }

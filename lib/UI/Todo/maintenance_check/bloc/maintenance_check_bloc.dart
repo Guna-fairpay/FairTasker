@@ -27,6 +27,9 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
     on<MaintenanceCheckItemCheckEvent>(_onItemCheckEvent);
     on<MaintenanceChangeStatusEvent>(_onChangeStatusEvent);
     on<MaintenanceCreateTaskEvent>(_onCreateTaskEvent);
+    on<MaintenanceDeleteTaskEvent>(_onDeleteTaskEvent);
+    on<MaintenanceCompleteTaskEvent>(_onCompleteTaskEvent);
+    on<MaintenanceUpdateTaskEvent>(_onUpdateTaskEvent);
   }
 
   Future<List<Map<String, dynamic>>> _fetchMaintenanceCheckList() async => await getIt<CommonService>().getMaintenanceCheckList();
@@ -103,6 +106,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
           }
           child['children'] = List.from(child['children']).distinct((element) => element['id']);
           child['selectedValue'] = _findSelectedValue(taskId: taskId, children: List.from(child['children']));
+          child['fix_task'] = _findToDo(taskId: taskId);
           child['checked'] = (child['selectedValue']?['name'].toString().toLowerCase() == "good") || (taskId.toString().isNullOrEmpty);
           child['comments'] = TextEditingController(text: _fetchComments(taskId: taskId));
         }
@@ -122,6 +126,18 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
   }
 
   String _fetchComments({dynamic taskId}) => _todos.where((element) => element['status'].toString() == "In Progress").firstWhereOrNull((element) => element['id'] == taskId)?['comments'] ?? "";
+
+  Map<String, dynamic>? _findToDo({required dynamic taskId}) {
+    var todo = _todos.where((element) => element['status'].toString() == "In Progress").firstWhereOrNull((element) => element['id'] == taskId);
+    var vinList = (List.from(todo?['vehicles'] ?? []).map((e) => e['vin'])).toList();
+    vinList.add((todo?['vin'] ?? ""));
+    vinList.removeWhere((element) => element.toString().isNullOrEmpty);
+    vinList = vinList.distinct((element) => element);
+    todo?.putIfAbsent("display", () => {
+      "vins" : vinList
+    });
+    return todo;
+  }
 
   void _onAllCheckEvent(MaintenanceCheckAllCheckEvent event, Emitter<MaintenanceCheckState> emit) async {
     try {
@@ -147,7 +163,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
   }
 
   void _onChangeStatusEvent(MaintenanceChangeStatusEvent event, Emitter<MaintenanceCheckState> emit) {
-    if (((event.model['fix_task_id'] ?? 0) != 0) && (event.value['id'] != 99)) {
+    if ((event.model['fix_task'] != null) && (event.value['id'] != 99)) {
       emit(MaintenanceTaskExistDialogState(event.model));
       return;
     }
@@ -161,7 +177,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
       var maintenanceTaskIds = [event.model?['parent_id'], event.model?['id'], (event.model?['selectedValue']?['id'] ?? 0)];
       var labels = _getLabels(maintenanceTaskIds);
       var comments = (event.model?['comments'] as TextEditingController).text;
-      var taskId = (event.model?['fix_task_id'] ?? 0);
+      var taskId = (event.model?['fix_task']?['id'] ?? 0);
       var identifierId = (event.model?['id'] == 64) ? 126 : null;
       var title = (event.model?['id'] == 64) ? "Oil Change" : "Fix";
       Map<String, String> body = {
@@ -214,12 +230,57 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
           .isNotNullOrEmpty)
           .map((e) => <String, dynamic>{"${e['id']}": e['fix_task_id']}).toList();
       Map<String, dynamic> fixTaskBody = { for (var element in oldIds) ...element };
-      fixTaskBody.putIfAbsent("$modelId", () => responseId);
+      fixTaskBody["$modelId"] = responseId;
       var updateBody = { "fix_tasks" : fixTaskBody, "type" : "inline" };
       Console.of.log(jsonEncode(updateBody));
       await _updateToDo(updateBody, _editToDoModel?['id']);
     } catch (e) {
       Console.of.error("Error", error: e);
     }
+  }
+
+  void _onDeleteTaskEvent(MaintenanceDeleteTaskEvent event, Emitter<MaintenanceCheckState> emit) async {
+    if (event.reason.isNullOrEmpty) {
+      emit(MaintenanceTaskDeleteDialogState(event.model));
+      return;
+    }
+    try {
+      emit(MaintenanceCheckLoadingState());
+      var taskId = event.model?['fix_task_id'];
+      await _apiRepository.deleteToDo(taskId, event.reason);
+      FBroadcast.instance().broadcast("todo_view");
+      emit(MaintenanceCheckCompleteState());
+    } catch(e) {
+      Console.of.error("Error", error: e);
+      emit(MaintenanceCheckErrorState(e));
+    }
+  }
+
+  void _onCompleteTaskEvent(MaintenanceCompleteTaskEvent event, Emitter<MaintenanceCheckState> emit) async {
+    emit(MaintenanceCheckCompleteState());
+    await Future.delayed(Durations.short1);
+    FBroadcast.instance().broadcast("show_completed_popup", value: event.model['fix_task']);
+  }
+
+  void _onUpdateTaskEvent(MaintenanceUpdateTaskEvent event, Emitter<MaintenanceCheckState> emit) async {
+    var taskId = event.model?['fix_task_id'];
+    var fixTask = event.model?['fix_task'];
+    var ids = [(event.model?['parent_id'] ?? 0), (event.model?['id'] ?? 0), (event.selectedModel?['id'] ?? 0)];
+    var labels = _getLabels(ids);
+    Map<String, String> body = {
+      "maintenance_task_id": ids.join(" - "),
+      "notes" : labels.join(" - "),
+      "type": "inline"
+    };
+    var completeBody = {
+      "complete_time_approved" : fixTask?['complete_time_approved'] ?? 0,
+      "complete_time_taken" : fixTask?['complete_time_taken'] ?? "00:15",
+      "status" : true
+    };
+    Console.of.log("$taskId $ids, $labels $body, $completeBody", name: "UPDATE_TASK_EVENT");
+    await _updateToDo(body, taskId);
+    await _apiRepository.completeTodo(todoId: taskId, body: completeBody);
+    FBroadcast.instance().broadcast("todo_view");
+    emit(MaintenanceCheckCompleteState());
   }
 }
