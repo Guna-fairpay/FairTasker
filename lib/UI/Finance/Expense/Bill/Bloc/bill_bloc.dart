@@ -258,7 +258,6 @@ class BillBloc extends Bloc<BillEvent, BillState>{
   }
 
   void _onPassBillToExpense(PassBillToExpenseEvent event, Emitter<BillState> emit){
-    Console.of.debug(event.value);
     emit(PassBillToExpenseState(value: event.value));
   }
 
