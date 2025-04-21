@@ -1,5 +1,7 @@
 
 import 'package:bloc/bloc.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import '../Event/employee_event.dart';
 import '../Repository/department_repository.dart';
 import '../Repository/employee_repository.dart';
@@ -66,7 +68,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     on<AddEmployeeData>((event, emit) async {
       emit(EmployeeLoading());
 
-      await employeeRepository.createEmployee(
+      var value = await employeeRepository.createEmployee(
         event.id,
         event.department,
         event.email,
@@ -77,20 +79,21 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         event.role,
 
 
-      )
-          .then((value) {
-        if (value != null) {
-          emit(EmployeeLoaded(
-            message: value.message ?? [].toString(),
-          ));
-        }
-      });
+      );
+      if (value != null) {
+        emit(EmployeeLoaded(
+          message: value.message ?? [].toString(),
+        ));
+      }
+      await getIt<CommonService>().getResources(reset: true);
+      await getIt<CommonService>().getUsers(reset: true);
+      FBroadcast.instance().broadcast("refresh_add");
     });
 
     on<EditEmployeeData>((event, emit) async {
       emit(EmployeeLoading());
 
-      await employeeRepository.editEmployee(
+      var value = await employeeRepository.editEmployee(
         event.id,
         event.firstname,
         event.lastname,
@@ -98,20 +101,19 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         event.phone,
         event.role,
         event.department,
-
-      )
-          .then((value) {
-        if (value != null) {
-          emit(EmployeeLoaded(
-            message: value.message ?? [].toString(),
-          ));
-        }
-      });
+      );
+      if (value != null) {
+        emit(EmployeeLoaded(
+          message: value.message ?? [].toString(),
+        ));
+      }
+      await getIt<CommonService>().getResources(reset: true);
+      await getIt<CommonService>().getUsers(reset: true);
+      FBroadcast.instance().broadcast("refresh_add");
     });
 
     on<DeleteEmployeeData>((event, emit) async {
       emit(EmployeeLoading());
-
       await employeeRepository.deleteEmployee(event.id)
           .then((value) {
         if (value != null) {
@@ -120,6 +122,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           ));
         }
       });
+      FBroadcast.instance().broadcast("refresh_add");
     });
 
   }

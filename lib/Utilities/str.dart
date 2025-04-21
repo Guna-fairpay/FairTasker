@@ -91,5 +91,7 @@ class Str{
 
     static const String todayToDo = "fetch_todos_for_today";
 
+    static const String addToDoRefresh = "refresh_add";
+
 
 }

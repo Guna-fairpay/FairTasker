@@ -19,7 +19,7 @@ class TodoTopHoursView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Text.rich(TextSpan(
-            text: (model?['checkIn'] ?? "00:00:00").toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a"),
+            text: (model?['checkIn'].toString().isNullOrEmpty ?? false) ? "00:00" : (model?['checkIn']).toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a"),
             children: [
               WidgetSpan(child: 3.width),
               TextSpan(text: "Check in", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))

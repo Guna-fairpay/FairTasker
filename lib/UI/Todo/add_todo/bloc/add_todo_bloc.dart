@@ -89,13 +89,19 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         (resource['branch_id'] !=
             Session.of.getInt(Str.branchIdPrefText))) ||
         (resource['deleted_at'] != null));
+    Console.of.log("FETCHING_RESOURCE_FROM_GET");
     return resources;
   }
   List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
-  List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList;
+  List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList.where((element) => element['branch_code'] == branchId).toList();
   List<Map<String, dynamic>> get vendors => getIt<CommonService>().vendorsList;
   List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
 
+  @override
+  Future<void> close() {
+    _broadcast.unregister(Str.addToDoRefresh);
+    return super.close();
+  }
   AddToDoBloc()
       : super(AddToDoState(
             showAppBar: true,
@@ -139,6 +145,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedRecurring: AddToDoConfig.recurringOptions.first,
             selectedDate: DateTime.now(),
             selectedTime: TimeOfDay.now())) {
+    _broadcast.register(Str.addToDoRefresh, (value, callback) => add(AddToDoRefreshEvent()));
+    on<AddToDoRefreshEvent>(_onRefreshEvent);
     on<AddToDoInitialEvent>((event, emit) async {
       addToDoDate = event.selectedDate ?? DateTime.now();
       emit(state.copyWith(
@@ -852,6 +860,59 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       }
     } catch (e) {
       Toaster.showError("$e");
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
+  void _onRefreshEvent(AddToDoRefreshEvent event, Emitter<AddToDoState> emit) async {
+    Console.of.log("REFRESH_EVENT_TRIGGERED", name: "ADD_TODO_BLOC");
+    // PROCEED API CALL
+    try {
+      emit(state.copyWith(isLoading: true));
+      var response = await Future.wait([
+        _getTasks(), // 0
+        _getVehicles(), // 1
+        _getVendors(), // 2
+        _getLocations(), // 3
+        _getParts(), // 4
+        _getSupplies(), // 5
+        _getResources(), // 6
+        _getGroupVehicles(), // 7
+        _getCurrentToDos(), // 8
+      ]);
+      var resources = response[6] ?? [];
+      resources.removeWhere((resource) => resource['id'] == 2);
+      resources.removeWhere((resource) =>
+      ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+          (resource['branch_id'] !=
+              Session.of.getInt(Str.branchIdPrefText))) ||
+          (resource['deleted_at'] != null));
+      var selectedUser = resources
+          .where((element) => element['id'].toString() == currentUserId)
+          .toList();
+      departmentId = selectedUser.firstOrNull?['department'].toString();
+      Console.of.log(response.map((e) => e?.length).join(", "));
+      vendorLocations = CustomSearchDataConverter.convertVLocation(
+          vendors: response[2], locations: response[3]);
+      _tasks = response[0] ?? [];
+      _vehicles = response[1] ?? [];
+      _persons = resources;
+      _locations = response[3] ?? [];
+      _vendors = response[2] ?? [];
+      _toDoList = response[8] ?? [];
+      emit(state.copyWith(
+          isLoading: false,
+          tasks: response[0] ?? [],
+          vehicles: response[1] ?? [],
+          persons: resources,
+          locations: response[3] ?? [],
+          vendors: response[2] ?? [],
+          partServices: response[4] ?? [],
+          supplies: response[5] ?? [],
+          groupVehicles: response[7] ?? [],
+          selectedTaskPersons: selectedUser,
+          resources: resources));
+    } catch (e) {
       emit(state.copyWith(isLoading: false));
     }
   }

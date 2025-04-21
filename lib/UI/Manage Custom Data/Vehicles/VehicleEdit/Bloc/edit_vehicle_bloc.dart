@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_state.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -338,13 +338,12 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         );
         if (response?['message']?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? []);
-          _broadcast.stickyBroadcast("vehicle_refresh", value: true);
-          emit(EditCompletedState());
         } else {
           Toaster.showError(response?['error'] ?? []);
-          emit(EditCompletedState());
         }
-
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+        emit(EditCompletedState());
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
