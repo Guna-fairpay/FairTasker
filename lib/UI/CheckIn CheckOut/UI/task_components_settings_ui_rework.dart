@@ -13,6 +13,7 @@ import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
 import 'Popups/resource_listing_dropdown.dart';
 
+
 class TaskComponentsSettingsUI extends StatelessWidget {
   const TaskComponentsSettingsUI({super.key});
 
@@ -52,11 +53,15 @@ class TaskComponentsSettingView extends StatelessWidget {
           amountController.text = state.amountController?.text ?? '';
           hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           FocusScope.of(context).unfocus();
+          if (!state.isEditMode) {
+            resource = null;
+            print("Reset resource to null on exit edit mode at ${DateTime.now()}");
+          }
         }
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
-          print("BlocBuilder state: selectedBase=${state.selectedBase}, selectedUser=${state.selectedUser}");
+          print("BlocBuilder state: userList=${state.userList}");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (tabController.indexIsChanging) {
               print("Tab index changing to: ${tabController.index} at ${DateTime.now()}");
@@ -66,7 +71,7 @@ class TaskComponentsSettingView extends StatelessWidget {
               // Reset resource when switching to hourly tab
               if (isHourly && (state.selectedUser == null || resource != null)) {
                 resource = null;
-                print("Reset resource to null for hourly tab");
+                print("Reset resource to null for hourly tab switch at ${DateTime.now()}");
               }
             }
           });
@@ -104,7 +109,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                 child: KeyedSubtree(
-                  key: ValueKey(tabController.index),
+                  key: ValueKey(state.uniqueId),
                   child: Form(
                     autovalidateMode: AutovalidateMode.onUnfocus,
                     key: formKey,
@@ -148,19 +153,29 @@ class TaskComponentsSettingView extends StatelessWidget {
                               }),
                           const SizedBox(height: 16),
                         ] else...[
-                          if(Session.of.getString(Str.userIdPrefText) == '3')
-                          Utils.dropdownBox(
-                            'Select User',
-                            state.userList,
-                            (value) {
-                              resource = value;
-                              //print("Selected Resource: $resource");
-                            },
-                            labelKey: 'first_name',
-                            labelKey2: 'last_name',
-                            //selectedKey: state.selectedResource,
-                            initialSelection: state.selectedUser ?? null,
-                          ),
+                          if(Session.of.getString(Str.userIdPrefText) == '3' && isHourlyBased)
+                            ResourceListingDropdown<Map<String, dynamic>>(
+                              items: (state.userList as List<Map<String, dynamic>>?)?.cast<Map<String, dynamic>>() ?? [],
+                              value: state.selectedUser is Map<String, dynamic> ? state.selectedUser : null, // Use selectedUser from state
+                              hintText: 'Select',
+                              itemAsString: (item) => item['first_name'].toString(),
+                              onChanged: (val) {
+                                if (val == null) {
+                                  context.read<WorkingHoursBloc>().add(const ClearResourceSelectionEvent());
+                                  resource = val; // Sync local resource with selection
+                                  print("Selected Resource: $resource");
+                                } else {
+                                  print("onChanged received null value, resetting resource");
+                                  context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
+                                    userId: val['id'],
+                                    amount: hourlyAmountController.text,
+                                  ));
+                                  resource = null;
+                                }
+                              },
+                              contentPadding: const EdgeInsets.all(5),
+                              key: ValueKey('dropdown-${state.uniqueId}'), // Force rebuild on mode change
+                            ),
                           const SizedBox(height: 16),
                           if(Session.of.getString(Str.userIdPrefText) == '3')
                           Utils.getTextFormField(
@@ -199,7 +214,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                       taskName: '',
                                       amount: hourlyAmountController.text,
                                       task: 'hourly',
-                                      userId: resource['id'] ?? state.selectedUser['id'],
+                                      userId: resource['id'] ?? state.selectedUser?['id'],
                                     ));
                                   } else {
                                     Utils.showMobileToast("Please fill all required fields");
@@ -223,8 +238,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                                   context.read<WorkingHoursBloc>().add(
                                       CreateTaskEvent(
                                           id: state.taskId,
-                                          amount: amountController.text.toString(),
-                                          userId: resource['id'],
+                                          amount: hourlyAmountController.text.toString(),
+                                          userId: resource?['id'] ?? state.userId,
                                           task: 'hourly')
                                   );
                                 }
@@ -233,7 +248,9 @@ class TaskComponentsSettingView extends StatelessWidget {
                             if (state.isEditMode)
                               Utils.getAddFilledButton("Cancel", () {
                                 FocusScope.of(context).unfocus();
-                                context.read<WorkingHoursBloc>().add(ResetResourceEvent());
+                                context.read<WorkingHoursBloc>().add(const ResetAllEvent());
+                                resource = null;
+                                //context.read<WorkingHoursBloc>().add(ResetResourceEvent());
                                 //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 1));
                                 context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                               }, bgColor: AppC.red),

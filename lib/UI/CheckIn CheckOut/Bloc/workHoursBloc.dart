@@ -5,12 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../../Repository/job_list_repository.dart';
-import '../../../Repository/todo_list_repository.dart';
 import '../../../Utilities/Str.dart';
 import '../../../Utilities/Utils.dart';
 import '../Event/workingHoursEvent.dart';
-import '../Repository/workingHoursRepository.dart';
 import '../State/workingHoursState.dart';
 import '../../../../Repository/api_repository.dart';
 
@@ -498,13 +495,19 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<CreateTaskEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
-        await apiRepository.addTaskConfiguration(event.id,event.userId,event.taskName,event.amount,event.task);
+        await apiRepository.addTaskConfiguration(
+            event.id,
+            event.userId,
+            event.taskName,
+            event.amount ?? '',
+            event.task);
         add(const TaskComponentsInitialEvent());
       } catch (error){
         emit(state.copyWith(isLoading: false));
         print("Error on CreateTaskEvent: $error");
       }
     });
+
 
 
     on<UpdateTaskEvent>((event, emit) async {
@@ -632,6 +635,26 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isEditMode: true,isLoading: false));
     });
 
+    // Add these handlers to your bloc
+    on<ResetAllEvent>((event, emit) {
+      emit(state.copyWith(
+        selectedUser: null,
+        userId: null,
+        isEditMode: false,
+        taskNameController: TextEditingController(),
+        amountController: TextEditingController(),
+        hourlyAmountController: TextEditingController(),
+        uniqueId: UniqueKey().toString(),
+      ));
+    });
+
+    on<ClearResourceSelectionEvent>((event, emit) {
+      emit(state.copyWith(
+        selectedUser: null,
+        userId: null,
+      ));
+    });
+
     on<ExitEditModeEvent>((event, emit) {
       emit(state.copyWith(isLoading: true));
       taskNameCtrl.clear();
@@ -646,8 +669,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         selectedUser: null,
         taskNameController: taskNameCtrl,
         amountController: amountCtrl,
+        hourlyAmountController: hourlyAmountCtrl,
         uniqueId: UniqueKey().toString(),
       ));
+      print("Exit edit mode: selectedUser reset to null at ${DateTime.now()}");
     });
 
 

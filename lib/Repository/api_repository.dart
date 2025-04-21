@@ -2710,8 +2710,10 @@ Future<Map<String, dynamic>?> getLocations() async {
         response = await _apiClient.callPostMethod(apiUrl, body: body);
       }
       else {
+        log("update config");
         apiUrl = "${Str.BASE_URL}update-configuration/$id";
         response = await _apiClient.callPostMethod(apiUrl, body: body);
+        log("${response?.body}" ,name: "update config");
       }
       log("addTaskConfiguration apiUrl: $apiUrl");
       if (response != null) {
