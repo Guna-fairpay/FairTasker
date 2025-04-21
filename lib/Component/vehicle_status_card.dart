@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicl
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -107,7 +108,7 @@ class VehicleStatusCard extends StatelessWidget {
                     TextSpan(text: "${model['last_checklist'] ?? ""}", recognizer: TapGestureRecognizer()..onTap = () => onPressed?.call(VehicleStatusOnPressed.last_checklist)),
                     if (!model['followup_date'].toString().isNullOrEmpty)
                       TextSpan(
-                          text: "\t ${model['followup_date']}",
+                          text: "\t ${model['followup_date'].toString().toDateTime().toFormat(format: "MM-dd-yy")}",
                           style: context.textTheme.labelMedium
                               ?.copyWith(color: AppC.red))
                   ])),

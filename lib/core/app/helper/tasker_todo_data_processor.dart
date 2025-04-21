@@ -194,13 +194,19 @@ class ToDoProcessor {
           (element) => element['id'] == model['vehicle_group_id'])?['name'];
     } else if (model['vehicle_name'].toString().isNotNullOrEmpty) {
       return model['vehicle_name'] ?? "";
-    } else {
+    } else if (List.from(model['vehicles'] ?? []).isNotEmpty) {
       var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []);
       if (vlist.length > 1) {
         return "MV";
       } else {
         return vlist.firstOrNull?['vehicle_name'];
       }
+    } else if (model['vin'].toString().isNotNullOrEmpty) {
+      var activeVehicle = _activeVehicles
+          .firstWhereOrNull((element) => element['vin'] == model['vin']);
+      return activeVehicle?['vehicle_name'];
+    } else {
+      return null;
     }
   }
 
