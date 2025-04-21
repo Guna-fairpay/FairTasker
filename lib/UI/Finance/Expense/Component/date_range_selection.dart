@@ -1,4 +1,3 @@
-import 'package:date_time/date_time.dart' hide DateRange;
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -59,7 +58,7 @@ class DateRangePicker extends StatelessWidget {
           initialDisplayedDate: selectedDateRange?.start ?? DateTime.now(),
           onDateRangeChanged: onDateRangeChanged,
           allowSingleTapDaySelection: true,
-          height: 340,
+          height: MediaQuery.of(context).size.height * 0.40,
           displayMonthsSeparator: true,
         );
       },

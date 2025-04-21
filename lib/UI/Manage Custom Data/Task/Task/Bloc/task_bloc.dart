@@ -138,7 +138,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
   void _onDeleteTaskEvent(DeleteTaskEvent event, Emitter<TaskState> emit) async {
     try{
-
       emit(TaskLoadingState());
       var response = await _apiRepository.deleteTaskExpensesData(event.data['id']);
       List<Map<String, dynamic>> result = [];
@@ -153,12 +152,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         // noCategoryResponse = result;
         filteredResponse = paginateList(data: noCategoryResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
         Toaster.showSuccess(response?['message']);
-        isEdit = false;
-        selectedData = null;
-        taskController.clear();
-        timeTakenController.clear();
-        selectedCategory.clear();
-        selectedSubCategory={};
+          isEdit = false;
+          selectedData = null;
+          taskController.clear();
+          timeTakenController.clear();
+          selectedCategory={};
+          selectedSubCategory = {};
         _search();
         emit(TaskCommonState());
       }
@@ -182,22 +181,26 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         };
       Console.of.log(data);
         var response = await _apiRepository.taskAddOrUpdate(body: data,id: selectedData?['id']);
-        await getIt<CommonService>().getTaskExpenseData(reset: true);
+        /*var taskResponse= */await getIt<CommonService>().getTaskExpenseData(reset: true);
       if (response?["data"] != null) {
-        final newData = response!["data"];
+        final newData = response?["data"];
         taskController.clear();
         timeTakenController.clear();
         selectedCategory={};
         selectedSubCategory={};
         selectedUserType={};
+       /* selectedData = null;
+        isEdit = false;*/
         if (selectedData != null) {
-          isEdit = false;
           selectedData = null;
+          isEdit = false;
           apiResponse.removeWhere((e) => e['id'] == newData['id']);
           apiResponse.add(newData);
         } else {
           apiResponse.add(newData);
         }
+        //apiResponse=taskResponse;
+        Console.of.log(apiResponse);
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         final List<Map<String, dynamic>> result = noCategory
             ? apiResponse.where((e) => e['subcategory_id'].toString().isNullOrEmpty).toList()
@@ -209,7 +212,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
           currentPage: currentIndex,
           itemsPerPage: itemsPerPage,
         );
-        Toaster.showSuccess(response['message']);
+        Toaster.showSuccess(response?['message']);
         _search();
         emit(TaskCommonState());
       }
@@ -229,13 +232,16 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
   void _onTaskInitialEvent(TaskInitialEvent event, Emitter<TaskState> emit) async {
     emit(TaskLoadingState());
+    if(event.title.toString().isNotNullOrEmpty){
+      taskController.text=event.title.toString();
+    }
     var response= await getIt<CommonService>().getTaskExpenseData(reset: true);
-    var categories = await getIt<CommonService>().getExpenseCategories(reset: true);
+    var categories = await getIt<CommonService>().getExpenseCategories();
     category=categories;
     response.removeWhere((element) => element['deleted_at'].toString().isNotNullOrEmpty);
     response.sort((a, b) => b['id'].compareTo(a['id']));
     selectedUserType = usersType[0];
-    apiResponse = response;
+    apiResponse =List.from(response);
     timeTakenController.text='30';
     // noCategoryResponse = apiResponse.where((element) => element['subcategory_id'].toString().isNotNullOrEmpty).toList();
     filteredResponse.clear();

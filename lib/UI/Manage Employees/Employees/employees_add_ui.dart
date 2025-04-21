@@ -48,7 +48,6 @@ class _EmployeesAddUIState extends State<EmployeesAddUI> {
         emailController.text.isEmpty ||
         mobileController.text.isEmpty ||
         passwordController.text.isEmpty ||
-        selectedDepartment == null ||
         selectedRole == null) {
       return ;
     }

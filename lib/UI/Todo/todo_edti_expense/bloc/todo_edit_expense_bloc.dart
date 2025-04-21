@@ -433,14 +433,16 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         'vehicleName': state.vehicleList.firstOrNull ? ['vehicle_name'] ??'',
         'sales_tax_percentage': percentageOrAmountController.text,
         'itemList': [
-          ...partsList
+          ...cleanList(partsList),
+          ...cleanList(suppliesList),
+         /* ...partsList
             ..forEach(
               (e) => (e as Map<String, dynamic>)..putIfAbsent("rate",
                   () => (e['controller'] as TextEditingController).text),
             ),
           ...suppliesList
             ..forEach((e) => (e as Map<String, dynamic>)..putIfAbsent(
-                "rate", () => (e['controller'] as TextEditingController).text),),
+                "rate", () => (e['controller'] as TextEditingController).text),),*/
         ],
       };
       emit(state.copyWith());
@@ -722,4 +724,20 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     totalAmountController.text = totalAmount.toStringAsFixed(2);
   }
   }
+
+  List<Map<String, dynamic>> cleanList(List<dynamic> inputList) {
+    return inputList.map((e) {
+      final item = Map<String, dynamic>.from(e);
+      final text = (item['controller'] as TextEditingController).text.trim();
+      item.remove('controller');
+      if (text.isNotEmpty) {
+        item['rate'] = text;
+      }else{
+        item['rate'] = "0";
+      }
+      return item;
+    }).toList();
+  }
+
+
 }

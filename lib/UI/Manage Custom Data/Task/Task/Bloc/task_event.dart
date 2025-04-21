@@ -6,7 +6,12 @@ abstract class TaskEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class TaskInitialEvent extends TaskEvent {}
+class TaskInitialEvent extends TaskEvent {
+  final String? title;
+  TaskInitialEvent({this.title});
+  @override
+  List<Object?> get props => [title];
+}
 
 class NoCategoryEvent extends TaskEvent {
   final dynamic value;

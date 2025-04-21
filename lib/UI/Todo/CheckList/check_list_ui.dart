@@ -103,7 +103,7 @@ class CheckListUI extends StatelessWidget {
       create: (context) => CheckListBloc()
         ..add(CheckListInitialEvent(
           todoItems: todoItems,
-          vehicle: vehicle,
+          vehicle: vehicle  ,
         )),
       child: BlocListener<CheckListBloc, CheckListState>(
         listener: (context, state) {

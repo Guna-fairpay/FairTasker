@@ -1,5 +1,8 @@
 
 import 'package:bloc/bloc.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import '../Event/employee_event.dart';
 import '../Repository/department_repository.dart';
 import '../Repository/employee_repository.dart';
@@ -12,6 +15,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     EmployeeRepository employeeRepository = EmployeeRepository();
     DepartmentRepository departmentRepository = DepartmentRepository();
     RolesRepository roleRepository = RolesRepository();
+    APiRepository apiRepository = APiRepository();
 
     on<GetEmployeeRoleData>((event, emit) async {
       emit(EmployeeLoading());
@@ -75,16 +79,23 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         event.password,
         event.phone,
         event.role,
-
-
-      )
-          .then((value) {
+      ).then((value) {
         if (value != null) {
           emit(EmployeeLoaded(
             message: value.message ?? [].toString(),
           ));
         }
+        //FBroadcast.instance().broadcast("refresh_add");
       });
+      Map<String, String> body = {
+        "first_name": event.firstname,
+        "last_name": event.lastname,
+        "email": event.email,
+        "password": event.password??'',
+      };
+      await apiRepository.addEmployee(body: body);
+      await getIt<CommonService>().getResources(reset: true);
+      await getIt<CommonService>().getUsers(reset: true);
     });
 
     on<EditEmployeeData>((event, emit) async {
@@ -100,12 +111,14 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         event.department,
 
       )
-          .then((value) {
+          .then((value) async {
         if (value != null) {
           emit(EmployeeLoaded(
             message: value.message ?? [].toString(),
           ));
         }
+        await getIt<CommonService>().getResources(reset: true);
+        await getIt<CommonService>().getUsers(reset: true);
       });
     });
 

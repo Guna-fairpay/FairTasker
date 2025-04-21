@@ -56,7 +56,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                   : state.selectedBottomTap['id'] == 2
                       ? const CreateTodoUI(showHeader: false)
                   :state.selectedBottomTap['id'] == 3
-                  ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
+                  ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory,)
                   :state.selectedBottomTap['id'] == 4
                   // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)

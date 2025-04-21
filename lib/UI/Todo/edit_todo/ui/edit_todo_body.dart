@@ -179,8 +179,7 @@ class EditTodoBody extends StatelessWidget {
                     onChangeCallback: (value) {}),
                 10.height,
                 if (state.showPlatformCheck ||Str.platFormCheckIds.contains(state.selectedTask['id']))
-                  Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(
-                      EditToDoPlatformCheckEvent()),
+                  Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(EditToDoPlatformCheckEvent()),
                       state.isSelectedPlatformCheck,
                       'Platform Check'),
                 10.height,

@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import '../Bloc/task_event.dart';
 
 class TaskMainPage extends StatelessWidget {
-
-  const TaskMainPage({super.key});
+final String? title;
+  const TaskMainPage({super.key,this.title});
 
   @override
   Widget build(BuildContext context) {

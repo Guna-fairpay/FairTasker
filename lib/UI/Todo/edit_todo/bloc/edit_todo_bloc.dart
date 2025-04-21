@@ -297,17 +297,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             vin: List.from(vinList).firstOrNull ?? '',
             identifierId: todoResponse?['identifier_id']);
         showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
-        RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
+
         if (todoResponse?['recurring'] != null) {
-          final matches =
-              dateRegExp.allMatches(todoResponse?['recurring'] ?? []).toList();
-          if (matches.length >= 2) {
-            String startDate = matches[0].group(0)!; // 12-31-2024
-            String endDate = matches[1].group(0)!; // 03-31-2026
-            DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
-            DateTime parsedEnd = DateFormat('MM-dd-yyyy').parse(endDate);
-            selectedStartDate = parsedStart;
-            selectedEndDate = parsedEnd;
+          if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
+            selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
+            selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
           }
         }
         emit(state.copyWith(

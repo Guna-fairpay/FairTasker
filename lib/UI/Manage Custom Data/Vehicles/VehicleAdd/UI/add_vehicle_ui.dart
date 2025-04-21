@@ -21,7 +21,7 @@ class AddVehicleUI extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            if (state is AddCompletedState) Navigator.pop(context);
+           // if (state is AddCompletedState) Navigator.pop(context);
           }
         },
         child: SafeArea(

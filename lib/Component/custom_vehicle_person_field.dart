@@ -6,6 +6,7 @@ import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -146,7 +147,7 @@ class _CustomVehiclePersonFieldState extends State<CustomVehiclePersonField> {
                   onTap: (item) {
                     item == "Vehicle"
                         ? context.push(const VehicleMainViewUi())
-                        : context.push(const EmployeesAddUI());
+                        : context.push(const EmployeesViewUI());
                   },
                 ),
                 itemAsString: formatMapData),
