@@ -63,14 +63,10 @@ class TaskComponentsSettingView extends StatelessWidget {
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
-          print("BlocBuilder state: userList=${state.userList}");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (tabController.indexIsChanging) {
-              print("Tab index changing to: ${tabController.index} at ${DateTime.now()}");
               final isHourly = tabController.index == 1;
-              print("Triggering SwitchTabEvent with isHourly: $isHourly");
               context.read<WorkingHoursBloc>().add(SwitchTabEvent(isHourly: isHourly));
-              // Reset resource when switching to hourly tab
             }
           });
           final isHourlyBased = tabController.index == 1 || state.selectedBase?['base'] == 'Hour based';
@@ -154,7 +150,6 @@ class TaskComponentsSettingView extends StatelessWidget {
                                 if (value == null) {
                                   context.read<WorkingHoursBloc>().add(const ClearResourceSelectionEvent());
                                 } else {
-                                  print("onChanged received null value, resetting resource");
                                   context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
                                     userId: value['id'],
                                     amount: hourlyAmountController.text,

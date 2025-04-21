@@ -21,7 +21,7 @@ import '../../../Bloc/vehicle_data_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../Todo/create_sparekey_data.dart';
 import '../../dialog/show_attachments_dialog.dart';
-
+//Set vehicle
 class VehicleEditUI extends StatefulWidget {
   final bool showHeader;
   late final Map<String, dynamic> vehicle;
@@ -477,6 +477,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   Widget build(BuildContext context) {
     return widget.showHeader
         ? Scaffold(
+      resizeToAvoidBottomInset: true,
         backgroundColor: AppC.white,
         appBar: const PreferredSize(
           preferredSize: Size.fromHeight(35.0),
@@ -1241,6 +1242,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                         ),
                         const SizedBox(height: 10),
                         Row(
+                          spacing: 10,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
@@ -1272,10 +1274,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                 bgColor: AppC.trans,
                                 borderColor: AppC.trans,
                                 textColor: AppC.grey,
-                                verticalPadding: 0
+                                verticalPadding: 0,
                               ),
                             ),
-                            const SizedBox(width: 10),
                             Expanded(
                               child: Utils.getTextFormField('Number Plate', vehicleNumberController,
                                   hintTextColor: AppC.grey),
@@ -1418,9 +1419,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                         'dd-mm-yyyy',
                                         renewalDateController,
                                         hintTextColor: AppC.grey,
-                                        suffixIcon: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: const Icon(
+                                        suffixIcon: const Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Icon(
                                             Icons.date_range,
                                             color: AppC.appColor,
                                             size: 15,
