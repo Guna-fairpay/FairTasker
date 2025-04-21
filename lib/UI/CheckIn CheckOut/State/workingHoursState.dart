@@ -37,7 +37,7 @@ class WorkingHoursState extends Equatable {
   final dynamic dropDownEvent;
   final dynamic selectedResource;
   final List<dynamic>userList;
-  final dynamic selectedUser;
+  final Map<String, dynamic>? selectedUser;
   final List<Map<String,dynamic>> comments;
   final List<Map<String,dynamic>> hoursData1;
   final List<Map<String,dynamic>> hoursData2;
@@ -149,7 +149,7 @@ class WorkingHoursState extends Equatable {
     dynamic dropDownEvent,
     dynamic selectedResource,
     List<dynamic>?userList,
-    dynamic selectedUser,
+    final Map<String, dynamic>? selectedUser,
     List<Map<String,dynamic>>? comments,
     List<Map<String,dynamic>>? hoursData1,
     List<Map<String,dynamic>>? hoursData2,
