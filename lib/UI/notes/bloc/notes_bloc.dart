@@ -39,6 +39,8 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
     on<NotesUpdateTaskEvent>(_onUpdateTaskEvent);
     on<NotesCheckTapEvent>(_onCheckTapEvent);
     on<NotesCheckEvent>(_onCheckSubmitEvent);
+    on<NotesSwapNoteItemsEvent>(_onSwapNoteItemsEvent);
+    on<NotesSwapNoteEvent>(_onSwapNoteEvent);
   }
 
   Future<Map<String, dynamic>?> _fetchNotes() async => await _apiRepository.getNotes(selectedDate: selectedDate, status: showCompletedStates);
@@ -47,6 +49,8 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
   Future<Map<String, dynamic>?> _deleteNotes({dynamic id}) async => await _apiRepository.deleteNotes(id: id);
   Future<Map<String, dynamic>?> _addNoteItem({dynamic id, Map<String, dynamic>? body}) async => await _apiRepository.addNoteItem(id: id, body: body);
   Future<Map<String, dynamic>?> _updateNoteItem({dynamic id, Map<String, dynamic>? body}) async => await _apiRepository.updateNoteItem(id: id, body: body);
+  Future<Map<String, dynamic>?> _swapNoteItem({Map<String, dynamic>? body}) async => await _apiRepository.swapNoteItems(body: body);
+  Future<Map<String, dynamic>?> _swapNotes({Map<String, dynamic>? body}) async => await _apiRepository.swapNotes(body: body);
 
 
   void _onInitialEvent(NotesInitialEvent event, Emitter<NotesStates> emit) => _refreshNotes();
@@ -200,6 +204,33 @@ class NotesBloc extends Bloc<NotesEvents, NotesStates> {
       if (response != null) _refreshNotes();
     } catch (e) {
       Console.of.error(e);
+      emit(NotesErrorState(e));
+    }
+  }
+
+  void _onSwapNoteItemsEvent(NotesSwapNoteItemsEvent event, Emitter<NotesStates> emit) async {
+    try {
+      var bodyData = event.data;
+      emit(NotesLoadingState());
+      var response = await Future.microtask(() => _swapNoteItem(body: bodyData));
+      if (response != null) _refreshNotes();
+      Console.of.log(response);
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(NotesErrorState(e));
+    }
+
+  }
+
+  void _onSwapNoteEvent(NotesSwapNoteEvent event, Emitter<NotesStates> emit) async {
+    try {
+      var bodyData = event.data;
+      emit(NotesLoadingState());
+      var response = await Future.microtask(() => _swapNotes(body: bodyData));
+      if (response != null) _refreshNotes();
+      Console.of.log(response);
+    } catch (e) {
+      Console.of.error("Error", error: e);
       emit(NotesErrorState(e));
     }
   }

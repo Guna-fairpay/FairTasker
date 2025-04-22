@@ -195,7 +195,7 @@ class ToDoProcessor {
     } else if (model['vehicle_name'].toString().isNotNullOrEmpty) {
       return model['vehicle_name'] ?? "";
     } else if (List.from(model['vehicles'] ?? []).isNotEmpty) {
-      var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []);
+      var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []).distinct((element) => element['vin']);
       if (vlist.length > 1) {
         return "MV";
       } else {
@@ -502,7 +502,12 @@ class ToDoProcessor {
   Color? _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
     var statusId = _getVehicleStatus(model);
     if (statusId != null) {
-      return (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
+      return switch(statusId) {
+        2 => Colors.black87,
+        3 => AppC.green,
+        4 => AppC.red,
+        _ => AppC.bouncieButtonColor
+      };
     } else {
       return AppC.appColor;
     }

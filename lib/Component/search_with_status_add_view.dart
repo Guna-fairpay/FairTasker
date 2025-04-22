@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,9 @@ class SearchWithStatusAddView extends StatelessWidget {
                 onChanged: onChanged,
               )),
           Flexible(
-              child: Utils.getSearchBarUI(
-                  searchController: (controller ?? TextEditingController()),
-                  onChange: onSearchChanged)),
+              child: CompactSearchView(
+                  controller: (controller ?? TextEditingController()),
+                  onChanged: onSearchChanged)),
           IconButton(
               onPressed: onAddPressed, icon: const Icon(Icons.add_rounded)),
         ],

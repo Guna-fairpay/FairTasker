@@ -1,17 +1,16 @@
 
 import 'package:fairpytasker/Component/drawer_ui.dart';
 import 'package:fairpytasker/UI/Finance/Revenue/revenue_view_ui.dart';
-import 'package:fairpytasker/UI/Todo/todo_view_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/vehicle_status_list_ui.dart';
 import 'package:fairpytasker/UI/notes/notes_main_ui.dart';
 import 'package:fairpytasker/UI/tasker/tasker_main_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_ui.dart';
 import 'package:fairpytasker/Component/header.dart';
-import '../UI/CheckIn CheckOut/UI/resource_ui.dart';
 import '../UI/Finance/Expense/Component/expense_tap_ui.dart';
 import '../UI/Finance/Finance/profit&loss_ui.dart';
 import '../UI/Finance/Invoice/invoice_view_ui.dart';
@@ -34,28 +33,14 @@ class _BottomNavigationForTaskViewState
   int index = 1;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _financeIconKey = GlobalKey();
-  String? userRole;
-  bool isRoleLoading = true; // Add loading state
-  String? userId;
+  String? get userRole => Session.of.getStringList(Str.rolePrefText)?.firstOrNull;
+  bool isRoleLoading = false; // Add loading state
+  String? get userId => Session.of.getString(Str.userIdPrefText);
 
   @override
   void initState() {
     super.initState();
     index = widget.selectedIndex;
-
-    Utils.getStringListPreference(Str.rolePrefText).then((role) {
-      setState(() {
-        userRole = role.isNotEmpty ? role[0] : null;
-        isRoleLoading = false; // Set loading to false when data is ready
-      });
-    });
-    Utils.getStringPreference(Str.userIdPrefText).then((users) {
-      setState(() {
-        userId = users;
-        isRoleLoading = false; // Set loading to false when data is ready
-      });
-    });
-
   }
   @override
   void dispose() {
@@ -221,13 +206,18 @@ class _BottomNavigationForTaskViewState
         selectedItemColor: AppC().base,
         unselectedItemColor: AppC.grey,
         onTap: (value) {
-          if (value == 4) {
-            showCustomMenu(context); // Show custom menu for Finance tab
-          } else {
+          if (value != 4) {
             setState(() {
               index = value;
             });
           }
+          // if (value == 4) {
+          //   showCustomMenu(context); // Show custom menu for Finance tab
+          // } else {
+          //   setState(() {
+          //     index = value;
+          //   });
+          // }
         },
         items: [
           buildBottomNavItem(

@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
 import 'package:fairpytasker/Component/notes_item_card.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -30,6 +31,7 @@ class NotesBodyUi extends StatelessWidget {
                       onTaskComplete: (mod, value) => context.read<NotesBloc>().add(NotesCheckTapEvent(mod, isAll: false, status: value)),
                       onAddNotesPressed: ()=> context.read<NotesBloc>().add(NotesAddTaskTapEvent(model)),
                       onEditTakPressed: (value)=> context.read<NotesBloc>().add(NotesEditTaskTapEvent(value)),
+                      onSwapNoteItems: (value)=> context.read<NotesBloc>().add(NotesSwapNoteItemsEvent(value)),
                       onEditPressed: () =>
                           context.read<NotesBloc>().add(NotesEditEvent(model)),
                       onDeletePressed: () => context
@@ -37,7 +39,21 @@ class NotesBodyUi extends StatelessWidget {
                           .add(NotesDeletePermissionEvent(model)));
                 },
                 itemCount: context.watch<NotesBloc>().apiResponse?.length ?? 0,
-                onReorder: (oldIndex, newIndex) {},
+                onReorder: (oldIndex, newIndex) {
+                  var list = context.read<NotesBloc>().apiResponse;
+                  Console.of.log("Index $newIndex $oldIndex");
+                  var nIndex = newIndex > ((list?.length ?? 0) - 1) ? newIndex - 1 : newIndex;
+                  var newModel = list?[nIndex];
+                  var oldModel = list?[oldIndex];
+                  var body = {
+                    "items" : [
+                      {"id": oldModel?['id'], "notes_index": nIndex},
+                      {"id": newModel?['id'], "notes_index": oldIndex},
+                    ]
+                  };
+                  Console.of.log("Body $body");
+                  context.read<NotesBloc>().add(NotesSwapNoteEvent(body));
+                },
               ),
             ));
   }

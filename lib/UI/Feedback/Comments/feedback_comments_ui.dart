@@ -165,6 +165,8 @@ class FeedbackEditComments extends StatelessWidget {
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30)),
                                   hintText: "Type here...",
                                   prefixIcon: GestureDetector(
                                     onTap: () => context
