@@ -10,10 +10,12 @@ abstract class AddToDoEvent extends Equatable {
 class AddToDoInitialEvent extends AddToDoEvent {
   final bool showAppBar;
   final DateTime? selectedDate;
-  AddToDoInitialEvent(this.showAppBar, {this.selectedDate});
+  final bool isNextTask;
+  final List<Map<String, dynamic>>? selectedVPerson;
+  AddToDoInitialEvent(this.showAppBar, {this.selectedDate, this.isNextTask = false, this.selectedVPerson});
 
   @override
-  List<Object?> get props => [showAppBar, selectedDate];
+  List<Object?> get props => [showAppBar, selectedDate, isNextTask, selectedVPerson];
 }
 
 class AddToDoShowMoreEvent extends AddToDoEvent {

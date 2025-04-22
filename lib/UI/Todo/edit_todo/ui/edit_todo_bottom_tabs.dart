@@ -54,7 +54,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                       selectedVendor: state.selectedVLocations,
                   )
                   : state.selectedBottomTap['id'] == 2
-                      ? const CreateTodoUI(showHeader: false)
+                      ? const CreateTodoUI(showHeader: false, isNextTask: true)
                   :state.selectedBottomTap['id'] == 3
                   ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull,)
                   :state.selectedBottomTap['id'] == 4

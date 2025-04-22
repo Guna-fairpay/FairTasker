@@ -81,6 +81,8 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   late DateTime addToDoDate;
   dynamic existingRefId;
 
+  bool isNextTask = false;
+
   List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
     List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
@@ -148,6 +150,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(AddToDoRefreshEvent()));
     on<AddToDoRefreshEvent>(_onRefreshEvent);
     on<AddToDoInitialEvent>((event, emit) async {
+      isNextTask = event.isNextTask;
       addToDoDate = event.selectedDate ?? DateTime.now();
       emit(state.copyWith(
           showAppBar: event.showAppBar, selectedDate: addToDoDate));
@@ -196,6 +199,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             supplies: response[5] ?? [],
             groupVehicles: response[7] ?? [],
             selectedTaskPersons: selectedUser,
+            selectedVPerson: event.selectedVPerson ?? [],
             resources: resources,
             selectedDate: addToDoDate,
             selectedLinkOption: AddToDoConfig.customOptions.first));

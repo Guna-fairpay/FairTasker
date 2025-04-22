@@ -16,9 +16,11 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class CreateTodoUI extends StatelessWidget {
   final bool showHeader;
+  final List<Map<String, dynamic>>? selectedVPerson;
   final List<Map<String, dynamic>?>? selectedAssignedTo;
   final DateTime? selectedDate;
-  const CreateTodoUI({super.key, this.showHeader = true, this.selectedAssignedTo, this.selectedDate});
+  final bool isNextTask;
+  const CreateTodoUI({super.key, this.showHeader = true, this.selectedAssignedTo, this.selectedDate, this.isNextTask = false, this.selectedVPerson});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class CreateTodoUI extends StatelessWidget {
 
   Widget withBody(BuildContext context) {
     return BlocProvider(
-      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader, selectedDate: selectedDate)),
+      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader, selectedDate: selectedDate, isNextTask: isNextTask, selectedVPerson: selectedVPerson)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
             if (state.isLoading) {
@@ -132,7 +134,7 @@ class CreateTodoUI extends StatelessWidget {
 
   Widget withOutBody(BuildContext context) {
     return BlocProvider(
-      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader)),
+      create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
             if (state.isLoading) {

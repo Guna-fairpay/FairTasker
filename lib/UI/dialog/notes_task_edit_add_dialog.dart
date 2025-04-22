@@ -1,9 +1,11 @@
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotesTaskAddEditDialog {
   NotesTaskAddEditDialog._();
@@ -29,6 +31,7 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       alignment: Alignment.topCenter,
+      backgroundColor: Colors.white,
       title: ListTile(
         dense: true,
         contentPadding: EdgeInsets.zero,
@@ -41,15 +44,24 @@ class _NotesTaskAddEditDialogView extends StatelessWidget {
       content: SizedBox(
         width: double.maxFinite,
         child: Column(
+          spacing: 5.sp,
           mainAxisSize: MainAxisSize.min,
           children: [
             Utils.getTextFormField("Notes", _controller),
-            Utils.getFilledButton("Save", () {
-              if (_controller.text.trim().isNotNullOrEmpty) {
-                onChanged?.call(_controller.text);
-                context.popDialog();
-              }
-            }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SuccessButton(
+                  text: "Save",
+                  onPressed: () {
+                    if (_controller.text.trim().isNotNullOrEmpty) {
+                      onChanged?.call(_controller.text);
+                      context.popDialog();
+                    }
+                  },
+                ),
+              ],
+            )
           ]
         ),
       ),
