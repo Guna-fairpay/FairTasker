@@ -3,12 +3,14 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotesItemCard extends StatelessWidget {
   final Map<String, dynamic>? model;
   final VoidCallback? onEditPressed, onDeletePressed, onAddNotesPressed;
+  final ValueChanged<Map<String, dynamic>?>? onSwapNoteItems;
   final Function(Map<String, dynamic>? value)? onEditTakPressed;
   final Future<bool?> Function(DismissDirection direction)? onConfirmDismiss;
   final Function(Map<String, dynamic>? model, bool? status)? onNotesComplete, onTaskComplete;
@@ -16,6 +18,7 @@ class NotesItemCard extends StatelessWidget {
   const NotesItemCard(
       {super.key,
       this.model,
+      this.onSwapNoteItems,
       this.onConfirmDismiss,
       this.onEditPressed,
       this.onDeletePressed,
@@ -66,9 +69,11 @@ class NotesItemCard extends StatelessWidget {
                 dense: true,
                 titleAlignment: ListTileTitleAlignment.center,
                 horizontalTitleGap: 0,
-                title: Text("${model?['title'] ?? ""}"),
-                titleTextStyle: context.textTheme.labelLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                title: GestureDetector(
+                  onTap: onEditPressed,
+                  child: Text("${model?['title'] ?? ""}", style: context.textTheme.labelLarge
+                      ?.copyWith(fontWeight: FontWeight.bold, color: AppC.appColor)),
+                ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -85,15 +90,18 @@ class NotesItemCard extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              ListView.separated(
+              ReorderableListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
                 itemCount: List.from(model?['note_items'] ?? []).length,
-                separatorBuilder: (context, index) => 5.sp.height,
+                // separatorBuilder: (context, index) => 5.sp.height,
                 itemBuilder: (context, index) {
-                  var item = List.from(model?['note_items'] ?? [])[index];
+                  var list = List.from(model?['note_items'] ?? []);
+                  var item = list[index];
                   return Column(
+                    key: Key("${item['id']}"),
+                    spacing: 5.sp,
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,17 +124,32 @@ class NotesItemCard extends StatelessWidget {
                             ?.copyWith(fontWeight: FontWeight.bold),
                         onTap: () => onEditTakPressed?.call(item),
                       ),
-                      if ((item['description'].toString().isNotNullOrEmpty) || (item['todos'] != null))
+                      if ((item['description'].toString().isNotNullOrEmpty) || ((item['todos'] != null) && (item['todos']?['notes'].toString().isNotNullOrEmpty ?? false)))
                       Padding(
                         padding: 16.leftPadding,
                         child: Text(
                           item['todos']?['notes'] ?? (item['description'] ?? ""),
                           style: context.textTheme.labelMedium,
                         ),
-                      )
+                      ),
+                      const SizedBox.shrink()
                     ],
                   );
-                },
+                }, onReorder: (oldIndex, newIndex) {
+                var list = List.from(model?['note_items'] ?? []);
+                  var newModel = list[newIndex];
+                  var oldModel = list[oldIndex];
+                  Console.of.log("INDEX $newIndex : MODEL $newModel");
+                  Console.of.log("OLD_INDEX $oldIndex : OLD_MODEL $oldModel");
+                  var body = {
+                    "items" : [
+                      {"id" : oldModel?['id'], "item_index" : newIndex},
+                      {"id" : newModel?['id'], "item_index" : oldIndex},
+                    ],
+                    "note_id" : newModel?['note_id']
+                  };
+                onSwapNoteItems?.call(body);
+              },
               ),
               Padding(
                   padding: 20.leftPadding,

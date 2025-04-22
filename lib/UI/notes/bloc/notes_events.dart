@@ -121,3 +121,17 @@ class NotesCheckTapEvent extends NotesEvents {
   @override
   List<Object?> get props => [data, isAll, status];
 }
+
+class NotesSwapNoteItemsEvent extends NotesEvents {
+  final Map<String, dynamic>? data;
+  NotesSwapNoteItemsEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
+
+class NotesSwapNoteEvent extends NotesEvents {
+  final Map<String, dynamic>? data;
+  NotesSwapNoteEvent(this.data);
+  @override
+  List<Object?> get props => [data];
+}
