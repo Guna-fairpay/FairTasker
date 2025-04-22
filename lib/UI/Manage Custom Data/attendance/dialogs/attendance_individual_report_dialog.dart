@@ -1,4 +1,5 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/dialogs/attendance_dialog_label_widget.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -9,10 +10,10 @@ class AttendanceIndividualReport {
   static final AttendanceIndividualReport dialog = AttendanceIndividualReport._();
 
   void show(BuildContext context, {bool isDaily = true, Map<String, dynamic>? data}) async {
-    const String basicContent = "Your total hours were 33:18\nYour active hours were 00:00\nYour idle hours were 33:18";
+    String basicContent = "Your total hours were ${data?[isDaily ? "daily" : "weekly"]?['totalHours']}\nYour active hours were ${data?[isDaily ? "daily" : "weekly"]?['activeHours']}\nYour idle hours were ${data?[isDaily ? "daily" : "weekly"]?['idleHours']}";
     final String content = isDaily
-        ? "Jan 4th 2025\n$basicContent\nPlease let me know the reason for these idle hours so I can log your active hours correctly into the HR system."
-    : "Jan 4th 2025 - Jan 10th 2025\n$basicContent\nTotal number of tasks completed 8\nTasks duration individual average - (infinity)\nTasks duration team average - (infinity)";
+        ? "${data?['daily']?['currentDay']}\n$basicContent\nPlease let me know the reason for these idle hours so I can log your active hours correctly into the HR system."
+    : "${data?['weekly']?['dateText']}\n$basicContent\nTotal number of tasks completed ${data?['weekly']?['completedTaskCount'] ?? 0}\nTasks duration individual average - (infinity)\nTasks duration team average - (infinity)";
     return showDialog(context: context, builder: (context) => AlertDialog(
       title: ListTile(
         title: Text("${isDaily ? "Daily" : "Weekly"} Report"),
@@ -34,15 +35,15 @@ class AttendanceIndividualReport {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isDaily)
-              Center(child: Text("Username", style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600), textAlign: TextAlign.center,)),
-            Text(isDaily ? "Jan 4th 2025" : "Jan 4th 2025 - Jan 10th 2025", style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600)),
-            const AttendanceDialogLabelWidget(label: "Your total hours were", value: "33:18"),
-            const AttendanceDialogLabelWidget(label: "Your active hours were", value: "00:00"),
-            const AttendanceDialogLabelWidget(label: "Your idle hours were", value: "33:18"),
+              Center(child: Text("${data?['first_name'] ?? ""} ${data?['last_name'] ?? ""}", style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600), textAlign: TextAlign.center,)),
+            Text(isDaily ? "${data?['daily']?['currentDay']}" : "${data?['weekly']?['dateText']}", style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600)),
+            AttendanceDialogLabelWidget(label: "Your total hours were", value: "${data?[isDaily ? "daily" : "weekly"]?['totalHours']}"),
+            AttendanceDialogLabelWidget(label: "Your active hours were", value: "${data?[isDaily ? "daily" : "weekly"]?['activeHours']}"),
+            AttendanceDialogLabelWidget(label: "Your idle hours were", value: "${data?[isDaily ? "daily" : "weekly"]?['idleHours']}"),
             if (isDaily)
               const AttendanceDialogLabelWidget(label: "Please let me know the reason for these idle hours so I can log your active hours correctly into the HR system.",),
             if (!isDaily)
-              const AttendanceDialogLabelWidget(label: "Total number of tasks completed", value: 8,),
+              AttendanceDialogLabelWidget(label: "Total number of tasks completed", value: (data?['weekly']?['completedTaskCount']) ?? 0,),
             if (!isDaily)
               const AttendanceDialogLabelWidget(label: "Tasks duration individual average -", value: "(infinity)",),
             if (!isDaily)

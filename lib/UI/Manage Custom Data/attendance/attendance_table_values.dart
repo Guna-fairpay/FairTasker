@@ -4,8 +4,8 @@ class AttendanceTableValues extends TableRow {
   final String name;
   final dynamic daily, weekly;
   final BuildContext context;
-  final Function(bool val)? onTap;
-  const AttendanceTableValues(this.context, {super.key, required this.name, required this.daily, required this.weekly, this.onTap});
+  final VoidCallback? onDaily, onWeekly;
+  const AttendanceTableValues(this.context, {super.key, required this.name, required this.daily, required this.weekly, this.onDaily, this.onWeekly});
 
   @override
   List<Widget> get children => [
@@ -18,7 +18,7 @@ class AttendanceTableValues extends TableRow {
       ),
     ),
     GestureDetector(
-  onTap: () => onTap?.call(true),
+  onTap: (daily.toString() == '00:00') ? null : onDaily,
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Text(
@@ -29,7 +29,7 @@ class AttendanceTableValues extends TableRow {
       ),
     ),
     GestureDetector(
-      onTap: () => onTap?.call(false),
+      onTap: (weekly.toString() == '00:00') ? null : onWeekly,
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Text(
