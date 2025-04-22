@@ -125,49 +125,10 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                 physics: additionalScroll ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, subIndex) {
                                   var model = state.vehicleDataList.values.expand((element) => element).toList()[subIndex];
-                                  List<
-                                      dynamic> users = model?['users'];
-                                  String? firstName =
-                                  (users.firstOrNull?['first_name'] ?? "");
-                                  String? lastName =
-                                  (users.firstOrNull?['last_name'] ?? "");
-                                  var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
-                                  var customId = (model['custom_link_id'] ??
-                                      0);
-                                  var customText = (customId == 1)
-                                      ? "Link"
-                                      : (customId == 2)
-                                      ? "TURO"
-                                      : "GETAROUND";
-                                  var time = model['todo_time']
-                                      .toString()
-                                      .toDateTime(
-                                      inputFormat: "HH:mm:ss")
-                                      .toFormat(format: "hh:mm a");
                                   var isCompleted =
                                   (model['status'] == 'Completed');
-                                  String customLink = model['custom_link'] ?? "";
                                   return CustomVehicleHistoryCardView(
-                                    dateText: model['todo_date'].toString().toDateTime().toFormat(format: "MM-dd-yy"),
-                                    titleText: model['title'],
-                                    userNameText: firstLastChar,
-                                    hasParts:
-                                    ((model['parts'] as List?)
-                                        ?.isNotEmpty ??
-                                        false),
-                                    hasSupplies: ((model['supplies'] as List?)
-                                        ?.isNotEmpty ??
-                                        false),
-                                    locationText:
-                                    model['vendor_name'] ??
-                                        model['location'],
-                                    notesText: model['notes'],
-                                    timeText: time,
-                                    cleanCarText: model['clean_required'],
-                                    customText: customText,
-                                    hasCustom: model['custom_link'] !=
-                                        null,
-                                    isCompleted: isCompleted,
+                                    model: model,
                                     confirmDismiss: (
                                         direction) async {
                                       context.read<
@@ -224,7 +185,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                           itemAsString: (
                                               item) => "${item['supplies_name'] ?? ""}");
                                     },
-                                    onUserTap: (details) {
+                                    onUserTap: (users) {
                                       if (users.length <= 1) return;
                                       ShowChipDialog.show<Map<String, dynamic>>(
                                           context, data: users,
@@ -233,7 +194,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                           itemAsString: (
                                               item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}");
                                     },
-                                    onCustom: () {
+                                    onCustom: (customId, customLink) {
                                       switch(customId){
                                         case 1:
                                           Utils.openURL(customLink);
@@ -259,56 +220,15 @@ class VehicleHistoryViewUI extends StatelessWidget {
                               physics: additionalScroll ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
                               itemBuilder: (context, subIndex) {
                                 var model = state.vehicleDataList.values.expand((element) => element).toList()[subIndex];
-                                List<
-                                    dynamic> users = model?['users'];
-                                String? firstName =
-                                (users.firstOrNull?['first_name'] ?? "");
-                                String? lastName =
-                                (users.firstOrNull?['last_name'] ?? "");
-                                var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
-                                var customId = (model['custom_link_id'] ??
-                                    0);
-                                var customText = (customId == 1)
-                                    ? "Link"
-                                    : (customId == 2)
-                                    ? "TURO"
-                                    : "GETAROUND";
-                                var time = model['todo_time']
-                                    .toString()
-                                    .toDateTime(
-                                    inputFormat: "HH:mm:ss")
-                                    .toFormat(format: "hh:mm a");
-                                var isCompleted =
-                                (model['status'] == 'Completed');
-                                String customLink = model['custom_link'] ?? "";
                                 return CustomVehicleHistoryCardView(
-                                  dateText: model['todo_date'].toString().toDateTime().toFormat(format: "MM-dd-yy"),
-                                  titleText: model['title'],
-                                  userNameText: firstLastChar,
-                                  hasParts:
-                                  ((model['parts'] as List?)
-                                      ?.isNotEmpty ??
-                                      false),
-                                  hasSupplies: ((model['supplies'] as List?)
-                                      ?.isNotEmpty ??
-                                      false),
-                                  locationText:
-                                  model['vendor_name'] ??
-                                      model['location'],
-                                  notesText: model['notes'],
-                                  timeText: time,
-                                  cleanCarText: model['clean_required'],
-                                  customText: customText,
-                                  hasCustom: model['custom_link'] !=
-                                      null,
-                                  isCompleted: isCompleted,
+                                  model: model,
                                   confirmDismiss: (
                                       direction) async {
                                     context.read<
                                         VehicleHistoryBloc>().add(
                                         VehicleHistoryCompleteEvent(
                                             model['id'],
-                                            !isCompleted));
+                                            !(model['status'] == 'Completed')));
                                     return false;
                                   },
                                   onTap: () {
@@ -358,7 +278,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                         itemAsString: (
                                             item) => "${item['supplies_name'] ?? ""}");
                                   },
-                                  onUserTap: (details) {
+                                  onUserTap: (users) {
                                     if (users.length <= 1) return;
                                     ShowChipDialog.show<Map<String, dynamic>>(
                                         context, data: users,
@@ -367,7 +287,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                         itemAsString: (
                                             item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}");
                                   },
-                                  onCustom: () {
+                                  onCustom: (customId, customLink) {
                                     switch(customId){
                                       case 1:
                                         Utils.openURL(customLink);
