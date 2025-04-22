@@ -6,8 +6,10 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_repository.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../Repository/api_repository.dart';
@@ -20,6 +22,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
 
   VendorDataRepo vendorDataRepo = VendorDataRepo();
   TodoListRepo todoListRepo = TodoListRepo();
+  final FBroadcast _broadcast = FBroadcast.instance();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
@@ -156,7 +159,10 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         latitude = null;
         longitude = null;
         emit(VendorDataCommonState());
-      });
+      }).whenComplete(() {
+      _broadcast.broadcast(Str.addToDoRefresh);
+      _broadcast.broadcast(Str.editToDoRefresh);
+    });
       d.log("response added ${response}");
       add(const GetVendorList());
     });
@@ -167,6 +173,8 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       final response = await apiRepository.deleteVendor(event.id);
       if (response == true) {
         add(const GetVendorList());
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(VendorDataCommonState());
       } else {
         emit(VendorDataCommonState());

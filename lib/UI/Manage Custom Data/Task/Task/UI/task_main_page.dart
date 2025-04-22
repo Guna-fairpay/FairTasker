@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import '../Bloc/task_event.dart';
 
 class TaskMainPage extends StatelessWidget {
-
-  const TaskMainPage({super.key});
+final String? title;
+  const TaskMainPage({super.key,this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +24,16 @@ class TaskMainPage extends StatelessWidget {
         context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold),
         backgroundColor: AppC.appColor,
         foregroundColor: AppC.white,
-        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: ()=>context.pop(),
+            icon: const Icon(Icons.close_outlined),
+          ),
+        ],
       ),
       body: BlocProvider<TaskBloc>(
-        create: (context) => TaskBloc()..add(TaskInitialEvent()),
+        create: (context) => TaskBloc()..add(TaskInitialEvent(title: title)),
         child: BlocListener<TaskBloc, TaskState>(
           listener: (context, state) {
             if (state is TaskLoadingState) {if (!EasyLoading.isShow) EasyLoading.show();}

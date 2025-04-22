@@ -6,7 +6,12 @@ abstract class PartsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class PartsInitialEvent extends PartsEvent {}
+class PartsInitialEvent extends PartsEvent {
+  final String? title;
+  PartsInitialEvent({this.title});
+  @override
+  List<Object?> get props => [title];
+}
 
 
 class PartsPaginationEvent extends PartsEvent {

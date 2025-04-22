@@ -1,17 +1,12 @@
 import 'package:fairpytasker/Component/custom_tab_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/BackUp/category_config_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/UI/category_config_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_view.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskTabBarUI extends StatelessWidget {
   const TaskTabBarUI({super.key});

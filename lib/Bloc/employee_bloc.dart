@@ -1,5 +1,10 @@
 
 import 'package:bloc/bloc.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import '../Event/employee_event.dart';
@@ -14,6 +19,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     EmployeeRepository employeeRepository = EmployeeRepository();
     DepartmentRepository departmentRepository = DepartmentRepository();
     RolesRepository roleRepository = RolesRepository();
+    APiRepository apiRepository = APiRepository();
 
     on<GetEmployeeRoleData>((event, emit) async {
       emit(EmployeeLoading());
@@ -68,7 +74,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     on<AddEmployeeData>((event, emit) async {
       emit(EmployeeLoading());
 
-      var value = await employeeRepository.createEmployee(
+     /* var value = await employeeRepository.createEmployee(
         event.id,
         event.department,
         event.email,
@@ -77,13 +83,53 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         event.password,
         event.phone,
         event.role,
-
-
-      );
-      if (value != null) {
+      ).then((value) {
+        if (value != null) {
+          emit(EmployeeLoaded(
+            message: value.message ?? [].toString(),
+          ));
+        }
+        //FBroadcast.instance().broadcast("refresh_add");
+      });*/
+      Map<String, String> data = {
+        "first_name": event.firstname,
+        "last_name": event.lastname,
+        "email": event.email,
+        "password": event.password ??'',
+        "department": event.department,
+        "role": event.role,
+        "phone": event.phone,
+      };
+      var addUserResponse = await apiRepository.adduser(body: data);
+      if(addUserResponse != null){
         emit(EmployeeLoaded(
-          message: value.message ?? [].toString(),
+          message: "${addUserResponse['message']}",
         ));
+      }
+      Console.of.debug(addUserResponse,name: 'addUserResponse');
+      Map<String, String> body = {
+        "first_name": event.firstname,
+        "last_name": event.lastname,
+        "email": event.email,
+        "password": event.password??'',
+      };
+      var addValue= await apiRepository.addEmployee(body: body);
+      Console.of.debug(addValue);
+      if(addValue?['employee']!=null){
+        Map<String, String> body = {
+          "department": event.department,
+          "first_name": event.firstname,
+          "last_name": event.lastname,
+          "email": event.email,
+          "hrm_id": "${addValue?['employee']['id']??''}",
+          "role": event.role,
+          "phone": event.phone,
+        };
+        var id=addUserResponse?['user']['id']??'';
+        var editValue= await apiRepository.updateEmployee(body: body,id: id);
+        Console.of.debug(editValue);
+      }else{
+        Toaster.showError(addValue);
       }
       await getIt<CommonService>().getResources(reset: true);
       await getIt<CommonService>().getUsers(reset: true);
@@ -122,6 +168,8 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           ));
         }
       });
+      await getIt<CommonService>().getResources(reset: true);
+      await getIt<CommonService>().getUsers(reset: true);
       FBroadcast.instance().broadcast("refresh_add");
     });
 

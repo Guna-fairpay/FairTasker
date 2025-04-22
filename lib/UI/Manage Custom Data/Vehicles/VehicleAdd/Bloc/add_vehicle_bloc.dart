@@ -235,6 +235,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
           _broadcast.stickyBroadcast("vehicle_refresh", value: true);
         }
         _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(AddCompletedState());
         // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
       } catch (e) {

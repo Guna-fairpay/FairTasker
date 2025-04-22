@@ -63,6 +63,7 @@ class EditTodoBody extends StatelessWidget {
                       child: CustomCheckboxListTile(
                         mainAxisSize: MainAxisSize.min,
                         useExpand: true,
+                        padding: 0.padding,
                         title: Utils.getText('Time Sensitive', weight: FontWeight.bold,overFlow: TextOverflow.visible,size: 12.sp),
                         value: state.isTimeSensitive,
                         activeColor: AppC.grey,
@@ -100,11 +101,11 @@ class EditTodoBody extends StatelessWidget {
                 10.height,
                 SearchViewField(
                   controller: context.read<EditToDoBloc>().taskNameController,
-                  suggestions: state.tasks,
+                  suggestions: context.watch<EditToDoBloc>().tasks,
                   itemAsString: (item) => item['task'] ?? '',
                   onSelected: (value) => context.read<EditToDoBloc>().add(EditToDoTaskEvent(selectedTask: value)),
                   selectedItem: (state.selectedTask.isEmpty) ? null : state.selectedTask,
-                  onEmptyTap: () => context.push(const TaskMainPage()),
+                  onEmptyTap: () => context.push(TaskMainPage(title: context.read<EditToDoBloc>().taskNameController.text,)),
                   showEmpty: true,
                   labelText: 'Task Name',
                   hintText: "Select Task",
@@ -113,9 +114,9 @@ class EditTodoBody extends StatelessWidget {
                 if(!["Check In", "Check Out"].contains(state.apiResponse['title']))
                   ...[
                     CustomVehiclePersonField(
-                      vehiclesList: state.vehicles,
-                      personsList: state.persons,
-                      groupVehicles: state.groupVehicles,
+                      vehiclesList: context.watch<EditToDoBloc>().vehicles,
+                      personsList: context.watch<EditToDoBloc>().persons,
+                      groupVehicles: context.watch<EditToDoBloc>().groupVehicleList,
                       selected: state.selectedVPerson,
                       onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val?['value']?['vin'])),
                       onSelected: (val) => context
@@ -126,15 +127,14 @@ class EditTodoBody extends StatelessWidget {
                     ),
                     10.height,
                     CustomVendorLocationField(
-                      vendorsList: state.vendors,
-                      locationsList: state.locations,
+                      vendorsList: context.watch<EditToDoBloc>().vendor,
+                      locationsList: context.watch<EditToDoBloc>().location,
                       selected: {3: state.selectedVLocations},
                       onSelected: (val) => context
                           .read<EditToDoBloc>()
                           .add(EditToDoVLocationEvent(val)),
                       controller: context.read<EditToDoBloc>().vLocationController,
                     ),
-
                     10.height,
                   ],
                 Utils.getTextFormField(
@@ -164,23 +164,23 @@ class EditTodoBody extends StatelessWidget {
                   minLines: 3,
                   maxLines: 3,
                 ),
-                if(state.apiResponse['title'] == 'Fix')
                 10.height,
-                if(state.apiResponse['title'] == 'Fix')
-                Utils.getTextFormField(
-                    'Resolution Notes', context.read<EditToDoBloc>().resolutionNotesController,
-                    isDense: true,
-                    contentPadding: 10.padding,
-                    labelStyle: context.textTheme.labelMedium
-                        ?.copyWith(color: context.theme.hintColor),
-                    style: context.textTheme.labelLarge
-                        ?.copyWith(fontFamily: "Lato"),
-                    readOnly: false,
-                    onChangeCallback: (value) {}),
-                10.height,
+                if((state.apiResponse['title']).toString().toLowerCase().contains('fix'))
+                  ...[
+                    Utils.getTextFormField(
+                        'Resolution Notes', context.read<EditToDoBloc>().resolutionNotesController,
+                        isDense: true,
+                        contentPadding: 10.padding,
+                        labelStyle: context.textTheme.labelMedium
+                            ?.copyWith(color: context.theme.hintColor),
+                        style: context.textTheme.labelLarge
+                            ?.copyWith(fontFamily: "Lato"),
+                        readOnly: false,
+                        onChangeCallback: (value) {}),
+                    10.height,
+                  ],
                 if (state.showPlatformCheck ||Str.platFormCheckIds.contains(state.selectedTask['id']))
-                  Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(
-                      EditToDoPlatformCheckEvent()),
+                  Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(EditToDoPlatformCheckEvent()),
                       state.isSelectedPlatformCheck,
                       'Platform Check'),
                 10.height,

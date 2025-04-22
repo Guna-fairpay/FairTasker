@@ -270,6 +270,12 @@ class APiRepository {
 
   String get _getMaintenanceCheckList => "getMaintanceCheckList";
 
+  String get _addEmployee => "employeeAdd";
+
+  String get _updateEmployee => "updateUser";
+
+  String get _addUser => "addUser";
+
   String get _todo => "todo";
 
   String get _swapNoteItems => "swapNoteItems";
@@ -3135,6 +3141,39 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.BASE_URL}$_swapNotes";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> addEmployee({required Map<String,String> body}) async {
+    try{
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_addEmployee";
+      final http.Response? response = await _apiClient.callPostMethodWithBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateEmployee({required Map<String,String> body,required dynamic id}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_updateEmployee/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> adduser({required Map<String,String> body}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_addUser";
+      final http.Response? response = await _apiClient.callPostMethodWithBody(apiUrl,body: body);
       var mapData = await response.mapData;
       return mapData;
     }catch(e){

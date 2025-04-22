@@ -140,7 +140,7 @@ class EditTodoUI extends StatelessWidget {
                           onPressed: () {
                             AskPermissionDialog.show(context,
                                 title: "Are you sure?",
-                                description: "${context.read<EditToDoBloc>().name}, are you sure you want to delete this revenue and task? Kindly enter a valid reason to confirm the deletion",
+                                description: "${context.read<EditToDoBloc>().name}, are you sure you want to delete this task? Kindly enter a valid reason to confirm the deletion",
                                 boldWords: [context.read<EditToDoBloc>().name ?? '', ","],
                                 positiveText: state.apiResponse['expense_id'] != null
                                     ? "Yes,Delete"

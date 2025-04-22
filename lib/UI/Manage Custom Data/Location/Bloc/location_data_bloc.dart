@@ -3,8 +3,10 @@ import 'dart:developer' as d;
 import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../../Repository/api_repository.dart';
 part '../Event/location_data_event.dart';
@@ -13,6 +15,7 @@ part '../State/location_data_state.dart';
 class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
   final APiRepository apiRepository = APiRepository();
   final TextEditingController searchController = TextEditingController();
+  final FBroadcast _broadcast = FBroadcast.instance();
   TextEditingController locationController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   List<Map<String, dynamic>> addressesList = [];
@@ -83,7 +86,8 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
         name: event.name,
         address: formattedAddresses,
       );
-
+      _broadcast.broadcast(Str.addToDoRefresh);
+      _broadcast.broadcast(Str.editToDoRefresh);
       if (success == true) {
         emit(LocationDataLoaded(
           message: locationId == null
@@ -102,8 +106,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
           selectedAddressIndex = null;
         }
       } else {
-        d.log(
-            "Update failed, address sent: $formattedAddresses, success: $success");
+        d.log("Update failed, address sent: $formattedAddresses, success: $success");
       }
     });
 
@@ -113,6 +116,8 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       final response = await apiRepository.delete(event.id);
       if (response == true) {
         add(const GetAddedLocationListData());
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(LocationDataCommonState());
       } else {
         emit(LocationDataCommonState());

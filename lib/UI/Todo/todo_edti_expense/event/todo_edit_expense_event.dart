@@ -10,16 +10,16 @@ abstract class TodoEditExpenseEvent extends Equatable {
 class GetTodoExpenseInitialEvent extends TodoEditExpenseEvent {
   final String? expenseId;
   final dynamic todoItem;
-  final List<dynamic> selectedParts;
-  final List<dynamic> selectedSupplies;
+  final List<dynamic>? selectedParts;
+  final List<dynamic>? selectedSupplies;
   final dynamic selectedVendor;
 
   const GetTodoExpenseInitialEvent(
       {required this.expenseId,
       this.todoItem,
-      required this.selectedParts,
-      required this.selectedSupplies,
-      required this.selectedVendor});
+       this.selectedParts,
+       this.selectedSupplies,
+       this.selectedVendor});
   @override
   List<Object?> get props => [expenseId, todoItem, Random().nextDouble()];
 }

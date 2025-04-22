@@ -8,6 +8,8 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 import '../../Utilities/appC.dart';
 import '../../Utilities/str.dart';
@@ -184,6 +186,7 @@ class _LeaveManagementViewUIState extends State<LeaveManagementViewUI> {
       backgroundColor: AppC.white,
       appBar: AppBar(
         title: const Text('Leave Management'),
+        titleTextStyle: TextStyle(fontWeight: FontWeight.bold,fontSize: 16.sp),
         foregroundColor: Colors.white,
         backgroundColor: AppC.appColor,
         automaticallyImplyLeading: false,

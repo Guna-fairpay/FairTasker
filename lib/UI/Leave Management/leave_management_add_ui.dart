@@ -1,6 +1,8 @@
 
 import 'package:fairpytasker/Event/leave_management_event.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../Bloc/leave_management_bloc.dart';
@@ -74,8 +76,10 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
     final newLeave = {
       'start_date': startDateController.text,
       'end_date': endDateController.text,
-      'start_time':isSelected ? '${startTimeController.text}:00':'',
-      'end_time':isSelected ? '${endTimeController.text}:00' : '',
+      'start_time':isSelected ? startTimeController.text.toDateTime(inputFormat: 'HH:mm')
+          .toFormat(format: 'HH:mm:ss')??'':'',
+      'end_time':isSelected ? endTimeController.text.toDateTime(inputFormat: 'HH:mm')
+          .toFormat(format: 'HH:mm:ss')??'':'',
       'reason': reasonController.text,
       'leave_type_id': selectedLeaveType['id'].toString(),
       'leave_duration': leaveDuration.toString(),
@@ -95,9 +99,12 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
           child: Utils.getTextFormField(
             '',
             controller,
-            suffixIcon: const Icon(
-              Icons.date_range,
-              color: AppC.appColor,
+            suffixIcon: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
+              child: Icon(
+                Icons.date_range,
+                color: AppC.appColor,
+              ),
             ),
             readOnly: true,
             onTapCallback: () {
@@ -122,9 +129,12 @@ class _LeaveManagementAddUIState extends State<LeaveManagementAddUI> {
           child: Utils.getTextFormField(
             '',
             controller,
-            suffixIcon: const Icon(
-              Icons.access_time_outlined,
-              color: AppC.appColor,
+            suffixIcon: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
+              child: Icon(
+                Icons.access_time_outlined,
+                color: AppC.appColor,
+              ),
             ),
             readOnly: true,
             onTapCallback: () async {

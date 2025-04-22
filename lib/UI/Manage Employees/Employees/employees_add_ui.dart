@@ -1,6 +1,7 @@
 
 import 'package:fairpytasker/State/employee_state.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -48,8 +49,10 @@ class _EmployeesAddUIState extends State<EmployeesAddUI> {
         emailController.text.isEmpty ||
         mobileController.text.isEmpty ||
         passwordController.text.isEmpty ||
-        selectedDepartment == null ||
         selectedRole == null) {
+      if(selectedRole == null){
+        Toaster.showError('Please select role');
+      }
       return ;
     }
 

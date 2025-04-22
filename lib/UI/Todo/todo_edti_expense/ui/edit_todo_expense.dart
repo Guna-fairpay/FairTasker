@@ -26,58 +26,62 @@ import 'invoice_preview_dialog.dart';
 class TodoExpense extends StatelessWidget {
   final dynamic expenseId;
   final dynamic todoItem;
-  final List<dynamic> selectedParts;
-  final List<dynamic> selectedSupplies;
+  final List<dynamic>? selectedParts;
+  final List<dynamic>? selectedSupplies;
   final dynamic selectedVendor;
 
   const TodoExpense(
       {super.key,
       required this.expenseId,
-      required this.todoItem,
-      required this.selectedParts,
-      required this.selectedSupplies,
-      required this.selectedVendor});
-
+       this.todoItem,
+       this.selectedParts,
+       this.selectedSupplies,
+       this.selectedVendor});
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TodoEditExpenseBloc>(
-      create: (context) => TodoEditExpenseBloc()
-        ..add(GetTodoExpenseInitialEvent(
-            expenseId: expenseId,
-            todoItem: todoItem,
-            selectedParts: selectedParts,
-            selectedSupplies: selectedSupplies,
-            selectedVendor: selectedVendor)),
+      create: (context) => TodoEditExpenseBloc()..add(GetTodoExpenseInitialEvent(
+          expenseId: expenseId,
+          todoItem: todoItem,
+          selectedParts: selectedParts,
+          selectedSupplies: selectedSupplies,
+          selectedVendor: selectedVendor
+      )),
       child: BlocListener<TodoEditExpenseBloc, TodoExpenseState>(
           listener: (context, state) {
-        state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-      }, child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
+            state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+            },
+          child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
               builder: (context, state) {
-        return Column(
-          spacing: 10,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            10.height,
-            if (state.vehicleList.length == 1)
-              InkWell(
-                onTap: () =>context.push(VehicleExpenseHistoryUI(
-                  vin: state.vehicleList.firstOrNull['vin'],
-                  vehicleName: state
-                      .vehicleList.firstOrNull['vehicle_name'],
-                  showTotalAmount: false,
-                )),
-                child: Utils.getText(
-                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
-                  color: AppC().base,
-                ),
-              ),
-            if (state.vehicleList.length > 1)
+                return Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    10.height,
+                    if (state.vehicleList.length == 1)
+                      InkWell(
+                        onTap: () =>context.push(VehicleExpenseHistoryUI(
+                          vin: state.vehicleList.firstOrNull['vin'],
+                          vehicleName: state.vehicleList.firstOrNull['vehicle_name'],
+                          showTotalAmount: false,
+                        )),
+                        child: Utils.getText(
+                          'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                          color: AppC().base,
+                        ),
+                      ),
+                    if (state.vehicleList.length > 1)
               Utils.dropdownBox(
                 'Select Vehicle',
                 state.vehicleList,
                 (selectedValue) {
                   context.read<TodoEditExpenseBloc>().add(
                       SelectedVehicleEvent(selectedVehicle: selectedValue));
+                  if(selectedValue['expense_id']!=null) {
+                    context.read<TodoEditExpenseBloc>().add(
+                        GetTodoExpenseInitialEvent(
+                            expenseId: selectedValue['expense_id']));
+                  }
                 },
                 labelKey: 'vehicle_name',
                 initialSelection: state.selectedVehicle,
@@ -109,11 +113,8 @@ class TodoExpense extends StatelessWidget {
                             Icons.cloud_upload,
                             color: AppC.blue,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Utils.getText('Upload',
-                              color: AppC.blue, weight: FontWeight.bold),
+                          const SizedBox(width: 5,),
+                          Utils.getText('Upload',color: AppC.blue, weight: FontWeight.bold),
                         ],
                       ),
                     ),
@@ -213,10 +214,7 @@ class TodoExpense extends StatelessWidget {
                             positiveText: "Yes, delete it!",
                             negativeText: "Cancel",
                             isReasonRequired: false,
-                            onPositivePressed: () =>
-                                context.read<TodoEditExpenseBloc>().add(
-                                    RemoveImageEvent(
-                                        data: state.expenseAttachments[index])));
+                            onPositivePressed: () => context.read<TodoEditExpenseBloc>().add(RemoveImageEvent(data: state.expenseAttachments[index])));
                       },
                       child: Stack(
                         children: [
@@ -315,8 +313,8 @@ class TodoExpense extends StatelessWidget {
               'Odometer',
               context.read<TodoEditExpenseBloc>().odometerController,
               textType: TextInputType.number,
-              suffixIcon: InkWell(
-                onTap:()=>context.read<TodoEditExpenseBloc>().add(GetOdometerEvent(vin: state.vehicleList.firstOrNull['vin'])),
+              suffixIcon: GestureDetector(
+                onTap:()=>context.read<TodoEditExpenseBloc>().add(GetOdometerEvent(vin: state.vehicleList.firstOrNull?['vin'])),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Icon(
@@ -334,22 +332,9 @@ class TodoExpense extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SuccessButton(
-                  onPressed:() {
-                    if((state.partsList.isEmpty && state.suppliesList.isEmpty) && context.read<TodoEditExpenseBloc>().amountController.text.isEmpty) {
-                      Toaster.showError("Please enter amount");
-                      return;
-                    }
-                    if(state.selectedMainCategory.isEmpty) {
-                      Toaster.showError("Please select category");
-                      return;
-                    }
-                    if(state.selectedSubCategory.isEmpty) {
-                      Toaster.showError("Please select subCategory");
-                      return;
-                    }
-                    context.read<TodoEditExpenseBloc>().add(const SaveExpenseEvent());
-                    },
+                  onPressed:()=>context.read<TodoEditExpenseBloc>().add(const SaveExpenseEvent()),
                 ),
+                if(context.read<TodoEditExpenseBloc>().isSaveCategory)
                 SuccessButton(
                   text: 'Save Category',
                   onPressed: (){},
