@@ -15,7 +15,7 @@ class TodoTaskItemCard extends StatelessWidget {
   final Map<String, dynamic> model;
   final bool? showCheckbox, value;
   final Future<bool?> Function()? onComplete, onPrevious, onInProgress;
-  final Function(bool? value)? onChecked;
+  final ValueChanged<bool?>? onChecked;
   final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory, onReasonAttachmentView;
   final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes;
   const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView});
@@ -127,6 +127,7 @@ class TodoTaskItemCard extends StatelessWidget {
             },
             child: GestureDetector(
               // onTap: onTap,
+              onTap: (showCheckbox ?? false) ? ()=> (onChecked?.call(!(value ?? false))) : null,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                 decoration: BoxDecoration(
@@ -356,6 +357,8 @@ class TodoTaskItemCard extends StatelessWidget {
                                   child: GestureDetector(
                                       onTapDown: onNotes,
                                       child: RichText(
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         text: TextSpan(
                                           text: "(${parse(model['display']?['notes'] ?? "").body?.text})",
                                           children: (model['display']?['hasTimeChangeReason'] ?? false) ? [
@@ -394,7 +397,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                 child: Checkbox(value: value,
                                   visualDensity: VisualDensity.adaptivePlatformDensity,
                                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  tristate: true,
+                                  tristate: false,
                                   shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadius)),
                                   side: const BorderSide(color: AppC.borderColor, width: Num.borderWidthField),
                                   onChanged: onChecked)

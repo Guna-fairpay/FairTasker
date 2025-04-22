@@ -892,10 +892,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           (resource['branch_id'] !=
               Session.of.getInt(Str.branchIdPrefText))) ||
           (resource['deleted_at'] != null));
-      var selectedUser = resources
-          .where((element) => element['id'].toString() == currentUserId)
-          .toList();
-      departmentId = selectedUser.firstOrNull?['department'].toString();
       Console.of.log(response.map((e) => e?.length).join(", "));
       vendorLocations = CustomSearchDataConverter.convertVLocation(
           vendors: response[2], locations: response[3]);
@@ -915,7 +911,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           partServices: response[4] ?? [],
           supplies: response[5] ?? [],
           groupVehicles: response[7] ?? [],
-          selectedTaskPersons: selectedUser,
           resources: resources));
     } catch (e) {
       emit(state.copyWith(isLoading: false));

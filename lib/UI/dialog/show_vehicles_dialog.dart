@@ -1,4 +1,5 @@
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicls_dialog_bloc/tasker_vehicle_persons_dialog_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicls_dialog_bloc/tasker_vehicles_persons_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_vehicls_dialog_bloc/tasker_vehicles_persons_dialog_states.dart';
@@ -68,6 +69,7 @@ class _TaskerVehiclesContent extends StatelessWidget {
               constraints: BoxConstraints(minWidth: context.width),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 spacing: 10,
                 children: [
                   CustomVehiclePersonField(
@@ -81,11 +83,14 @@ class _TaskerVehiclesContent extends StatelessWidget {
                     updateWhileDelete: false,
                   ),
                   if (onSelected != null)
-                  Utils.getFilledButton("Save", () {
-                    var value = context.read<TVPDBloc>().selectedVehicles;
-                    if (value.isNotEmpty) onSelected?.call(value);
-                    context.popDialog();
-                  })
+                    SuccessButton(
+                      text: "Save",
+                      onPressed: () {
+                        var value = context.read<TVPDBloc>().selectedVehicles;
+                        if (value.isNotEmpty) onSelected?.call(value);
+                        context.popDialog();
+                      },
+                    ),
                 ],
               ),
             ));
