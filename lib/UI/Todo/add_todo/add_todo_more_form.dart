@@ -43,7 +43,7 @@ class AddTodoMoreForm extends StatelessWidget {
                       .add(AddToDoAddressSelectionEvent(value, true)),
                   itemAsString: (item) => item['address'].toString())
             ],
-          if (state.isMoreEnable)
+          if (state.isMoreEnable || (context.watch<AddToDoBloc>().isNextTask))
             Row(
               spacing: 10,
               children: [
@@ -59,7 +59,8 @@ class AddTodoMoreForm extends StatelessWidget {
                         .add(AddToDoShowSuppliesEvent()),
                     state.isSuppliesEnable,
                     'Supplies'),
-                if (state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))
+
+                if ((state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1)) && (!(context.watch<AddToDoBloc>().isNextTask)))
                   IconButton(
                     onPressed: () =>
                         context.read<AddToDoBloc>().add(AddToDoCleanCarEvent()),
@@ -69,7 +70,7 @@ class AddTodoMoreForm extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             side: const BorderSide()))),
                   ),
-                if (state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))
+                if ((state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))  && (!(context.watch<AddToDoBloc>().isNextTask)))
                   Flexible(
                     child: CustomDropdown<Map<String, dynamic>>(
                       items: List.from(state.clearDurations),
@@ -82,7 +83,7 @@ class AddTodoMoreForm extends StatelessWidget {
                   )
               ],
             ),
-          if (state.isMoreEnable && state.isPartServiceEnable)
+          if ((state.isMoreEnable || (context.watch<AddToDoBloc>().isNextTask)) && state.isPartServiceEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedParts),
                 suggestionsList: List.from(state.partServices),
@@ -94,7 +95,7 @@ class AddTodoMoreForm extends StatelessWidget {
                     .add(AddToDoPartSelectionEvent(isChecked, value)),
                 onEmptyTap: () =>
                     context.push(const PartsMainUI(), fullscreenDialog: true)),
-          if (state.isMoreEnable && state.isSuppliesEnable)
+          if ((state.isMoreEnable || (context.watch<AddToDoBloc>().isNextTask)) && state.isSuppliesEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedSupplies),
                 suggestionsList: List.from(state.supplies),
@@ -107,6 +108,7 @@ class AddTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () => context.push(const SuppliesMainUI(),
                     fullscreenDialog: true)),
           10.height,
+          if (!(context.watch<AddToDoBloc>().isNextTask))
           Row(
             spacing: 10,
             mainAxisSize: MainAxisSize.min,
@@ -136,7 +138,7 @@ class AddTodoMoreForm extends StatelessWidget {
               )
             ],
           ),
-          if (state.selectedLinkOption != null)
+          if ((state.selectedLinkOption != null) && (!(context.watch<AddToDoBloc>().isNextTask)))
             Utils.getTextFormField("${state.selectedLinkOption!['label']}",
                 context.read<AddToDoBloc>().customLinkController,
                 inputAction: TextInputAction.done,
@@ -147,7 +149,7 @@ class AddTodoMoreForm extends StatelessWidget {
                     ?.copyWith(color: context.theme.hintColor),
                 style:
                     context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")),
-          if (state.selectedLinkOption != null)
+          if ((state.selectedLinkOption != null) && (!(context.watch<AddToDoBloc>().isNextTask)))
             ValueListenableBuilder(
               valueListenable: context.read<AddToDoBloc>().customLinkController,
               builder: (context, value, child) => value.text.isEmpty ? Container() : Text.rich(TextSpan(
