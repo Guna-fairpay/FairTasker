@@ -53,7 +53,7 @@ class OdometerView extends StatelessWidget {
                             children: [
                               TextSpan(
                                   text:
-                                  "${state.odometerData ?? 0}",
+                                  "${state.odometerData ?? 1}",
                                   style: context.textTheme.labelLarge
                                       ?.copyWith(fontWeight: FontWeight.w900))
                             ]),

@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/bloc/category_events.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Categorys/category_page/bloc/category_states.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,6 +18,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   final APiRepository _aPiRepository = APiRepository();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
+  final FBroadcast _fBroadcast = FBroadcast.instance();
   int currentPage = 1;
   int totalCount = 0;
   int itemsPerPage = 10;
@@ -37,6 +41,8 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   Future<Map<String, dynamic>?> _updateCategory() async => await _aPiRepository.updateExpensesCategory(name: nameController.text, id: selectedModel?['id']);
   Future<Map<String, dynamic>?> _deleteCategory(dynamic id) async => await _aPiRepository.deleteExpensesCategory(id: id);
 
+  Future<void> _fetchCommonCate() async => await getIt<CommonService>().getExpenseCategories(reset: true);
+
   void _sortResponse() {
     _apiResponse.sort((a, b) => num.tryParse(b['id'].toString())?.compareTo(num.tryParse(a['id'].toString()) ?? 0) ?? 0);
   }
@@ -45,6 +51,8 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     try {
       emit(CategoryLoadingState());
       var response = await _fetchCategories();
+      await _fetchCommonCate();
+      _triggerBroadcast();
       _apiResponse = List.from(response?['data'] ?? []);
       _sortResponse();
       filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
@@ -90,6 +98,8 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       emit(CategoryLoadingState());
       Map<String, dynamic> model = event.model;
       var response = await _deleteCategory(model['id']);
+      await _fetchCommonCate();
+      _triggerBroadcast();
       if (response != null) {
         _apiResponse.removeWhere((element) => element['id'] == model['id']);
         totalCount = _apiResponse.length;
@@ -146,11 +156,15 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
           _search();
         }
       }
+      await _fetchCommonCate();
+      _triggerBroadcast();
       emit(CategoryCommonState());
     } catch (e) {
       emit(CategoryErrorState(e));
     }
   }
+
+  void _triggerBroadcast() => _fBroadcast.broadcast(Str.refetchCate);
 
   void _onDeleteTapEvent(CategoryDeleteTapEvent event, Emitter<CategoryState> emit) => emit(CategoryDeleteTapState(event.model));
 }

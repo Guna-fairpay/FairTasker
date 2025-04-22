@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -30,6 +31,7 @@ class _NotesDialogView extends StatelessWidget {
       titlePadding: EdgeInsets.zero,
       alignment: Alignment.topCenter,
       insetPadding: 10.horizontalPadding,
+      backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
       title: ListTile(
           title: const Text("Notes"),
@@ -44,12 +46,16 @@ class _NotesDialogView extends StatelessWidget {
         child: Column(
           spacing: 10,
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Utils.getTextFormField("Notes", _controller, textType: TextInputType.multiline, maxLines: 5, inputAction: TextInputAction.newline),
-            Utils.getFilledButton("Save", () {
-              onSave?.call(_controller.text);
-              Navigator.pop(context);
-            })
+            SuccessButton(
+              text: "Save",
+              onPressed: () {
+                onSave?.call(_controller.text);
+                Navigator.pop(context);
+              },
+            )
           ],
         ),
       ),

@@ -278,6 +278,10 @@ class APiRepository {
 
   String get _todo => "todo";
 
+  String get _swapNoteItems => "swapNoteItems";
+
+  String get _swapNotes => "swapNotes";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3115,6 +3119,28 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.BASE_URL}$_updateBillStatus/$id";
       final http.Response? response = await _apiClient.callPostMethodWithBody(apiUrl,body: status);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> swapNoteItems({required Map<String,dynamic>? body}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_swapNoteItems";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> swapNotes({required Map<String,dynamic>? body}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_swapNotes";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
       var mapData = await response.mapData;
       return mapData;
     }catch(e){

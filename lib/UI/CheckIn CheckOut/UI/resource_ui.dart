@@ -356,6 +356,7 @@ class WorkHoursViewUI extends StatelessWidget {
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();
                           }
+                          log("${dataList} final_data");
                           return ListView.builder(
                             shrinkWrap: true,
                               itemCount: dataList?.length ?? 0,
