@@ -3,30 +3,40 @@ import 'dart:async';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_state.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PartsBloc extends Bloc<PartsEvent, PartsState>{
 
   final APiRepository _apiRepository = APiRepository();
+  final FBroadcast _broadcast = FBroadcast.instance();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   final TextEditingController searchController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
+
   AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
+
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  int selectedTab = 0;
   int itemsPerPage = 10;
   int currentIndex = 1;
   int totalCount = 0;
+
   bool isEdit = false;
+
   dynamic selectedData;
-  int selectedTab = 0;
+
 
   PartsBloc() : super(PartsLoadingState()){
 
@@ -70,6 +80,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
     try{
       emit(PartsLoadingState());
       var response = await _apiRepository.deletePartsData(event.data['id']);
+      await getIt<CommonService>().getPartsList(reset: true);
       if(response?['message']!=null){
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
@@ -80,6 +91,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         nameController.clear();
         notesController.clear();
         _search();
+        _broadcast.broadcast(Str.addToDoRefresh);
         emit(PartsCommonState());
       }
     }catch(e){
@@ -103,6 +115,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
       };
       Console.of.log(data);
       var response = await _apiRepository.partsAddOrUpdate(body: data,id: selectedData?['id']);
+      await getIt<CommonService>().getPartsList(reset: true);
       if (response?["data"] != null) {
         final newData = response!["data"];
         nameController.clear();
@@ -124,6 +137,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         );
         Toaster.showSuccess("Parts added successfully");
         _search();
+        _broadcast.broadcast(Str.addToDoRefresh);
         emit(PartsCommonState());
       }
       else{
@@ -144,7 +158,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
     try{
       emit(PartsLoadingState());
       var response = await getIt<CommonService>().getPartsList(reset: true);
-      apiResponse =response;
+      apiResponse =List.from(response);
       apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
       filteredResponse.clear();
       filteredResponse = paginateList(

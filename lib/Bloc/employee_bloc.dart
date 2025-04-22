@@ -133,6 +133,8 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           ));
         }
       });
+      await getIt<CommonService>().getResources(reset: true);
+      await getIt<CommonService>().getUsers(reset: true);
       FBroadcast.instance().broadcast("refresh_add");
     });
 

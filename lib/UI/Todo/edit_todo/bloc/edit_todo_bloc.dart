@@ -128,14 +128,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         emit(state.copyWith(isLoading: true));
         var partsResponse = await getIt<CommonService>().getPartsList();
         var suppliesResponse = await getIt<CommonService>().getSuppliesList();
-        var vehicleResponse =
-            await getIt<CommonService>().getActiveVehicles(reset: true);
+        var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
         var vendorResponse = await getIt<CommonService>().getVendorsList();
         var locationResponse = await getIt<CommonService>().getLocationsList();
         var taskResponse = await getIt<CommonService>().getTaskExpenseData();
         var userGroupResponse = await getIt<CommonService>().getGroupPersons();
         var assignedToResponse = await getIt<CommonService>().getResources();
         var todoResponse = await apiRepository.editToDo(event.todoId);
+        var partsData=List.from(partsResponse);
         var groupVehiclesResponse =
             await getIt<CommonService>().groupVehicles();
         var resources = assignedToResponse;
@@ -334,7 +334,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           persons: resources,
           locations: locationResponse,
           vendors: vendorResponse,
-          partServices: partsResponse,
+          partServices: partsData,
           supplies: suppliesResponse,
           selectedTaskPersons: selectedUser,
           resources: resources,

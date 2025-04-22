@@ -2,9 +2,11 @@
 import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/ui/parts_main_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/BackUps/supplies_view_ui.dart';
 import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/BackUps/part_view_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -101,7 +103,7 @@ class EditTodoMoreForm extends StatelessWidget {
                     .read<EditToDoBloc>()
                     .add(EditToDoPartSelectionEvent(isChecked, value)),
                 onEmptyTap: () =>
-                    context.push(const PartViewUI(), fullscreenDialog: true)),
+                    context.push(const PartsMainUI(), fullscreenDialog: true)),
           if (state.isMoreEnable && state.isSuppliesEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedSupplies),
@@ -112,7 +114,7 @@ class EditTodoMoreForm extends StatelessWidget {
                     .read<EditToDoBloc>()
                     .add(EditToDoSupplySelectionEvent(isChecked, value)),
                 itemAsString: (item) => item['name'].toString(),
-                onEmptyTap: () => context.push(const SuppliesViewUI(),
+                onEmptyTap: () => context.push(const SuppliesMainUI(),
                     fullscreenDialog: true)
             ),
           if (state.isMoreEnable && (Str.completedOdometer.contains(state.apiResponse['title'])))
