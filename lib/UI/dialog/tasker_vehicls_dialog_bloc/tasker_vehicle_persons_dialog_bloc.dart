@@ -39,10 +39,11 @@ class TVPDBloc extends Bloc<TVPDEvents, TVPDStates> {
 
   Future<List<Map<String, dynamic>>> _fetchVehicles() async => await getIt<CommonService>().getActiveVehicles();
   Future<List<Map<String, dynamic>>> _fetchGroupVehicles() async => await getIt<CommonService>().groupVehicles();
-  Future<List<Map<String, dynamic>>> _fetchPersons() async => await getIt<CommonService>().getUsers();
+  Future<List<Map<String, dynamic>>> _fetchPersons() async => await getIt<CommonService>().getResources();
 
   void _onInitialEvent(TVPDInitialEvent event, Emitter<TVPDStates> emit) async {
     Console.of.log("Initial Event");
+    emit(TVPDLoadingState());
     selectedModel = event.data;
     var response = await Future.wait([_fetchVehicles(), _fetchGroupVehicles(), _fetchPersons()]);
     _vehicles = response[0].where((element) => element['branch_code'] == _branchId).toList();

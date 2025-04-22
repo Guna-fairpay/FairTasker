@@ -17,6 +17,7 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:searchfield/searchfield.dart';
 
 /*class CustomVehiclePersonField extends StatefulWidget {
@@ -119,12 +120,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
                       // side: BorderSide(),
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Utils.getText(model['name'] ?? '', color: AppC.text),
-                        ],
-                      ),
+                      label: Text(model['name'] ?? '', style: context.textTheme.labelLarge?.copyWith(color: AppC.text, fontSize: 12.sp), overflow: TextOverflow.ellipsis, maxLines: 1),
                     ));
               },
             ).toList(),

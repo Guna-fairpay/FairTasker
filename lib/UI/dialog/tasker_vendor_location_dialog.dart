@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -49,6 +50,7 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
       clipBehavior: Clip.antiAliasWithSaveLayer,
       titlePadding: 10.padding,
       insetPadding: 10.padding,
+      backgroundColor: Colors.white,
       title: ListTile(
         dense: true,
         minTileHeight: 0,
@@ -67,6 +69,8 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
         width: double.maxFinite,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          spacing: 5.sp,
           children: [
             CustomVendorLocationField(
               vendorsList: getIt<CommonService>().vendorsList,
@@ -79,14 +83,17 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
                 Console.of.log(val);
               },
             ),
-            Utils.getFilledButton("Save", () {
-              if (selectedVendor != null) {
-                if (model?['display']?['vendor_location'] != controller.text) {
-                  onSelected?.call(selectedVendor ?? {});
-                  context.popDialog();
+            SuccessButton(
+              text: "Save",
+              onPressed: () {
+                if (selectedVendor != null) {
+                  if (model?['display']?['vendor_location'] != controller.text) {
+                    onSelected?.call(selectedVendor ?? {});
+                    context.popDialog();
+                  }
                 }
-              }
-            })
+              },
+            ),
           ],
         ),
       ),

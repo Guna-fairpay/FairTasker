@@ -44,7 +44,7 @@ class CustomVendorLocationField extends StatelessWidget {
   void _checkSelectedVData() async {
     Console.of.warning("_checkSelectedVData ${(selected?.containsKey(3) ?? false) && (selectedData != (selected?[3]))}", name: "CustomVendorLocationField");
     Console.of.warning("_checkSelectedVData ${selectedData} ${selectedData[3]}", name: "CustomVendorLocationField");
-    if ((selected?.containsKey(3) ?? false) && (Map.from(selected?[3]).isNotEmpty) && (selectedData != (selected?[3]))) {
+    if ((selected?.containsKey(3) ?? false) && (selected?[3] != null) && ((selected?[3] as Map).isNotEmpty) && (Map.from(selected?[3]).isNotEmpty) && (selectedData != (selected?[3]))) {
       selectedData = selected?[3] ?? {};
       var name = selectedData['name'];
       var controllerName = controller?.text;
