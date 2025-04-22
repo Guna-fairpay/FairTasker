@@ -321,6 +321,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       Console.of.debug("ReferenceId: $existingRefId");
       if (existingRefId.toString().isNotNullOrEmpty)
         customLinkController.text = "${existingRefId ?? ""}";
+      existingVPersons = existingVPersons.distinct((element) => element['id']);
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier,
