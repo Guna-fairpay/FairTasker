@@ -34,6 +34,7 @@ class SuggestionSearchBar<T> extends StatefulWidget {
 
 class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
   final FocusNode _focusNode = FocusNode();
+  final LayerLink _layerLink = LayerLink();
   List<T> _filtered = [];
   OverlayEntry? _overlayEntry;
 
@@ -52,9 +53,15 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
     }
 
     widget.searchController.addListener(_onTextChanged);
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) _removeOverlay();
-    });
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      _removeOverlay();
+    } else if (widget.searchController.text.isNotEmpty && _filtered.isNotEmpty) {
+      _showOverlay();
+    }
   }
 
   void _onTextChanged() {
@@ -76,51 +83,77 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
+    const itemHeight = 48.0;
+    const maxHeight = 200.0;
+    final itemCount = _filtered.length;
+    final calculatedHeight = (itemHeight * itemCount).clamp(0.0, maxHeight);
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx,
-        top: offset.dy + size.height + 5,
-        width: size.width,
-        child: Material(
-          elevation: 4,
-          borderRadius: BorderRadius.circular(4),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: ListView.separated(
-              padding: EdgeInsets.zero, // remove list padding
-              shrinkWrap: true,
-              itemCount: _filtered.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.grey), // optional: divider
-              itemBuilder: (context, index) {
-                final item = _filtered[index];
-                return InkWell(
-                  onTap: () {
-                    widget.searchController.text = widget.displayString(item);
-                    widget.onSelected(item);
-                    _removeOverlay();
-                    FocusScope.of(context).unfocus();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Text(
-                      widget.displayString(item),
-                      style: const TextStyle(fontSize: 14),
-                    ),
+      builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _removeOverlay,
+        child: Stack(
+          children: [
+            Positioned(
+              left: offset.dx,
+              top: offset.dy + size.height + 5,
+              width: size.width,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(4),
+                child: SizedBox(
+                  height: calculatedHeight,
+                  child: ListView.separated(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    itemCount: itemCount,
+                    separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.grey),
+                    itemBuilder: (context, index) {
+                      final item = _filtered[index];
+                      return Container(
+                        color: AppC.white,
+                        child: SizedBox(
+                          height: itemHeight,
+                          child: InkWell(
+                            onTap: () {
+                              widget.searchController.text = widget.displayString(item);
+                              widget.onSelected(item);
+                              _removeOverlay();
+                              FocusScope.of(context).unfocus();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                widget.displayString(item),
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
-
     overlay.insert(_overlayEntry!);
+    Scrollable.of(context)?.position.addListener(_scrollListener);
   }
 
+  void _scrollListener() {
+    if (Scrollable.of(context)?.position.hasContentDimensions ?? false) {
+      _removeOverlay();
+    }
+  }
 
   void _removeOverlay() {
+    Scrollable.of(context)?.position.removeListener(_scrollListener);
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
@@ -128,6 +161,7 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
   @override
   void dispose() {
     widget.searchController.removeListener(_onTextChanged);
+    _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     _removeOverlay();
     super.dispose();
@@ -135,25 +169,18 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => _focusNode.requestFocus(),
+    return CompositedTransformTarget(
+      link: _layerLink,
       child: TextField(
         controller: widget.searchController,
         focusNode: _focusNode,
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(color: AppC.grey, fontSize: 14),
-          suffixIcon:
-          // IconButton(
-          //   icon: const Icon(Icons.add, color: AppC.appColor),
-          //   onPressed: widget.onIconTap,
-          // ),
-          InkWell(
+          suffixIcon: InkWell(
             onTap: widget.onIconTap,
-            child:
-            Padding(
-              padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 1.5, bottom: 1.5, right: 1.5),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
