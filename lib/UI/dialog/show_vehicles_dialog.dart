@@ -9,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class TaskerVehiclesChangeDialog {
   TaskerVehiclesChangeDialog._();
@@ -33,6 +34,7 @@ class _TaskerVehiclesDialogView extends StatelessWidget {
       insetPadding: 10.padding,
       alignment: Alignment.topCenter,
       clipBehavior: Clip.antiAliasWithSaveLayer,
+      backgroundColor: Colors.white,
       title: ListTile(
         dense: true,
         contentPadding: EdgeInsets.zero,
@@ -50,7 +52,13 @@ class _TaskerVehiclesDialogView extends StatelessWidget {
       content: BlocProvider<TVPDBloc>(
         create: (context) => TVPDBloc()..add(TVPDInitialEvent(data: data)),
         child: BlocListener<TVPDBloc, TVPDStates>(
-          listener: (BuildContext context, TVPDStates state) {},
+          listener: (BuildContext context, TVPDStates state) {
+            if (state is TVPDLoadingState) {
+              EasyLoading.show();
+            } else {
+              if (EasyLoading.isShow) EasyLoading.dismiss();
+            }
+          },
           child: _TaskerVehiclesContent(onSelected: onSelected),
         ),
       ),

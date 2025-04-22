@@ -37,6 +37,12 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
   {
     on<LocationDataEvent>((event, emit) {});
 
+    on<LocationInitialEvent>((event, emit) async {
+      if(event.title != null){
+        locationController.text = event.title??'';
+      }
+    });
+
     on<GetAddedLocationListData>((event, emit) async {//c
       emit(const LocationDataLoading());
       final locationData = await _fetchLocations();

@@ -16,7 +16,8 @@ import '../../../../Utilities/appC.dart';
 import '../Components/location_list_item.dart';
 
 class LocationView extends StatelessWidget {
-  LocationView({super.key});
+  final String? title;
+  LocationView({super.key,this.title});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class LocationView extends StatelessWidget {
       ),
       body: BlocProvider(
         create: (context) =>
-        LocationDataBloc()..add(const GetAddedLocationListData()),
+        LocationDataBloc()..add(LocationInitialEvent(title: title))..add(const GetAddedLocationListData()),
         child: BlocListener<LocationDataBloc, LocationDataState>(
           listener: (context, state) async {
             if (state is LocationDataLoading) {
