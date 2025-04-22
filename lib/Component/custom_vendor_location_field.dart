@@ -69,7 +69,7 @@ class CustomVendorLocationField extends StatelessWidget {
           // autoClear: true,
 
           onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
-            item == "Vendor" ? context.push(VendorView()) : context.push(LocationView());
+            item == "Vendor" ? context.push(VendorView(title: controller?.text)) : context.push(LocationView());
           },),
           itemAsString: (item) => item['name'].toString(),
           optionsBuilder: (textEditingValue) =>

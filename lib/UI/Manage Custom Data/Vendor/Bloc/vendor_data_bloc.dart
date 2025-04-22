@@ -71,6 +71,12 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     on<VendorDataEvent>((event, emit) {
     });
 
+    on<VendorInitialEvent>((event, emit) {
+      if (event.title?.trim().isNotNullOrEmpty ?? false) {
+        nameController.text = event.title ?? '';
+      }
+    });
+
     //vendor Initial Bloc
     on<GetVendorList>((event, emit) async {
       emit(const VendorDataLoading());
