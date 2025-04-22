@@ -29,9 +29,9 @@ class TaskComponentsSettingsUI extends StatelessWidget {
 }
 
 class TaskComponentsSettingView extends StatelessWidget {
-  TaskComponentsSettingView({super.key});
   dynamic selectedBases;
   dynamic resource;
+  TaskComponentsSettingView({super.key});
   TextEditingController taskNameController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController hourlyAmountController = TextEditingController();
@@ -54,33 +54,22 @@ class TaskComponentsSettingView extends StatelessWidget {
           hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           FocusScope.of(context).unfocus();
           if (!state.isEditMode) {
-            resource = null;
-            print("Reset resource to null on exit edit mode at ${DateTime.now()}");
+            taskNameController.text = state.taskNameController?.text ?? '';
+            amountController.text = state.amountController?.text ?? '';
+            hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           }
+          FocusScope.of(context).unfocus();
         }
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
         builder: (context, state) {
-          print("BlocBuilder state: userList=${state.userList}");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (tabController.indexIsChanging) {
-              print("Tab index changing to: ${tabController.index} at ${DateTime.now()}");
               final isHourly = tabController.index == 1;
-              print("Triggering SwitchTabEvent with isHourly: $isHourly");
               context.read<WorkingHoursBloc>().add(SwitchTabEvent(isHourly: isHourly));
-              // Reset resource when switching to hourly tab
-              if (isHourly && (state.selectedUser == null || resource != null)) {
-                resource = null;
-                print("Reset resource to null for hourly tab switch at ${DateTime.now()}");
-              }
             }
           });
           final isHourlyBased = tabController.index == 1 || state.selectedBase?['base'] == 'Hour based';
-
-          if (isHourlyBased && state.selectedUser == null && resource != null) {
-            resource = null;
-            print("Force reset resource to null due to no selected user");
-          }
           return Scaffold(
             backgroundColor: AppC.white,
             appBar: PreferredSize(
@@ -154,27 +143,23 @@ class TaskComponentsSettingView extends StatelessWidget {
                           const SizedBox(height: 16),
                         ] else...[
                           if(Session.of.getString(Str.userIdPrefText) == '3' && isHourlyBased)
-                            ResourceListingDropdown<Map<String, dynamic>>(
-                              items: (state.userList as List<Map<String, dynamic>>?)?.cast<Map<String, dynamic>>() ?? [],
-                              value: state.selectedUser is Map<String, dynamic> ? state.selectedUser : null, // Use selectedUser from state
-                              hintText: 'Select',
-                              itemAsString: (item) => item['first_name'].toString(),
-                              onChanged: (val) {
-                                if (val == null) {
+                            Utils.dropdownBox(
+                              'Select User',
+                              state.userList,
+                                  (value) {
+                                if (value == null) {
                                   context.read<WorkingHoursBloc>().add(const ClearResourceSelectionEvent());
-                                  resource = val; // Sync local resource with selection
-                                  print("Selected Resource: $resource");
                                 } else {
-                                  print("onChanged received null value, resetting resource");
                                   context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
-                                    userId: val['id'],
+                                    userId: value['id'],
                                     amount: hourlyAmountController.text,
                                   ));
-                                  resource = null;
                                 }
                               },
-                              contentPadding: const EdgeInsets.all(5),
-                              key: ValueKey('dropdown-${state.uniqueId}'), // Force rebuild on mode change
+                              labelKey: 'first_name',
+                              labelKey2: 'last_name',
+                              initialSelection: state.isEditMode ? state.selectedUser is Map<String, dynamic> ? state.selectedUser : null : null,
+                              selectedKey: ValueKey('dropdown-${state.uniqueId}'),
                             ),
                           const SizedBox(height: 16),
                           if(Session.of.getString(Str.userIdPrefText) == '3')
@@ -208,8 +193,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                     Utils.showMobileToast("Please fill all required fields");
                                   }
                                 } else {
-                                  if (formKey.currentState!.validate() && hourlyAmountController.text.isNotEmpty &&
-                                      resource != null) {
+                                  if (formKey.currentState!.validate() && hourlyAmountController.text.isNotEmpty) {
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
                                       taskName: '',
                                       amount: hourlyAmountController.text,
