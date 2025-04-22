@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -199,19 +200,19 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
         var hasNoteId = (event.model?['note_id'] ?? 0) != 0;
         if ((toDoId == 0) || (event.model?['todos'] == null)) {
           // INSERT
-          var body = {
+          var body = <String, String>{
             "title": (event.model?['title'] as TextEditingController).text,
-            "todo_time": DateTime.now().toFormat(format: "HH:mm:ss"),
+            "todo_time": DateTime.now().toFormat(format: "HH:mm:ss") ?? "",
             "user_id": "",
             "time_sensitive": "false",
-            "start_at": selectedDate.toFormat(),
+            "start_at": selectedDate.toFormat() ?? "",
             "notes":
                 (event.model?['description'] as TextEditingController).text,
-            "identifier_id": null,
-            "branch_id": branchId,
-            "assigned_to": (event.model?['selectedUsers'] ?? [])
-                .map((e) => e['id'])
-                .toList(),
+            "identifier_id": "",
+            "branch_id": "$branchId",
+            "assigned_to": "${(event.model?['selectedUsers'] ?? [])
+                .map((e) => jsonEncode( e['id']))
+                .toList()}",
           };
           emit(AlterNotesLoadingState());
           var response = await _createTask(body);
@@ -246,7 +247,7 @@ class AlterNotesBloc extends Bloc<AlterNotesEvents, AlterNotesStates> {
       }
       FBroadcast.instance().broadcast("notes_view");
     } catch (e) {
-      Console.of.error(e);
+      Console.of.error("Error", error: e);
       emit(AlterNotesErrorState(e));
     }
   }

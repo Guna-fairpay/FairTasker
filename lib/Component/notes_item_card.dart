@@ -120,7 +120,7 @@ class NotesItemCard extends StatelessWidget {
                       Padding(
                         padding: 16.leftPadding,
                         child: Text(
-                          item['todos']?['notes'] ?? item['description'],
+                          item['todos']?['notes'] ?? (item['description'] ?? ""),
                           style: context.textTheme.labelMedium,
                         ),
                       )
