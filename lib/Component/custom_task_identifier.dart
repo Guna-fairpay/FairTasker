@@ -135,7 +135,7 @@ class TaskIdentifier extends StatelessWidget {
         return CustomAutoSearchField<Map<String, dynamic>>(
           controller: taskIdentifierController,
           labelText: "Task Identifier",
-          onEmptyWidgetTap: () => context.push(const TaskMainPage(), fullscreenDialog: true),
+          onEmptyWidgetTap: () => context.push(TaskMainPage(title: taskIdentifierController.text), fullscreenDialog: true),
           onSelected: (value) {
             selectedList[value['partNumber']] = value;
             log("onSelected:	$value", name: "TaskIdentifier");

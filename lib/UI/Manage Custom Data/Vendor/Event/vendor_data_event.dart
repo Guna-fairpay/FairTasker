@@ -77,6 +77,13 @@ class EnterVendorTypeEditEvent extends VendorDataEvent {
 class ExitEditModeEvent extends VendorDataEvent {}
 class ExitVendorTypeEditEvent extends VendorDataEvent {}
 
+class VendorInitialEvent extends VendorDataEvent {
+  final String? title;
+  const VendorInitialEvent({this.title});
+  @override
+  List<Object?> get props => [title];
+}
+
 class GetVendorList extends VendorDataEvent {
   const GetVendorList();
   @override

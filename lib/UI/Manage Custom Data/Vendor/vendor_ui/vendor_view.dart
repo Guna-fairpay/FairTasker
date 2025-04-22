@@ -28,9 +28,10 @@ import '../Bloc/vendor_data_bloc.dart';
 class VendorView extends StatelessWidget {
   dynamic selectedVendorType;
   List<dynamic> businessCarImage = [];
+  final String? title;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  VendorView({super.key});
+  VendorView({super.key, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class VendorView extends StatelessWidget {
         backgroundColor: AppC.appColor,
       ),
       body: BlocProvider(
-          create: (context) => VendorDataBloc()..add(const GetVendorList()),
+          create: (context) => VendorDataBloc()..add(VendorInitialEvent(title: title))..add(const GetVendorList()),
           child: BlocListener<VendorDataBloc, VendorDataState>(
             listener: (context, state) async {
               if (state is VendorDataLoading) {

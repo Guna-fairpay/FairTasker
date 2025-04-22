@@ -627,14 +627,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       Emitter<ToDoTaskerState> emit) async {
     try {
       var model = event.model;
-      var hasVendor = (model?['vendor_id'].toString().isNotNullOrEmpty ?? false);
-      var hasLocation = (model?['location_id'].toString().isNotNullOrEmpty ?? false);
       var selectedModel = event.selectedModel;
+      var type = selectedModel?['type'];
+      var isLocation = type == 'location';
       var mapData = {
-        "vendor_name": (hasVendor) ? (selectedModel?['name']) : "",
-        "vendor_id": (hasVendor) ? (selectedModel?['id']) : "",
-        "location": (hasLocation) ? (selectedModel?['name']) : "",
-        "location_id": (hasLocation) ? (selectedModel?['id']) : "",
+        "vendor_name": (!isLocation) ? (selectedModel?['name']) : "",
+        "vendor_id": (!isLocation) ? (selectedModel?['id']) : "",
+        "location": (isLocation) ? (selectedModel?['name']) : "",
+        "location_id": (isLocation) ? (selectedModel?['id']) : "",
         "address": ""
       };
       emit(ToDoTaskerLoadingState());

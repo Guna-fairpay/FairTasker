@@ -190,7 +190,7 @@ class _BottomNavigationForTaskViewState
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: true,
       key: UniqueKey(),
       child: Scaffold(
         drawer: const DrawerView(),
