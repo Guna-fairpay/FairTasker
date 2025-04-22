@@ -3,7 +3,7 @@ import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_fi
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -122,7 +122,7 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                           title: Utils.getText(mainModel['name'] ?? '',
                               weight: FontWeight.w700, size: 12.sp),
                           suffix: Utils.getText(
-                            ' ${childTasks.length}',
+                            ' ${childTasks.map<num>((e) => num.tryParse((e['count'] ?? 0).toString()) ?? 0).sum}',
                             size: 12.sp,
                             weight: FontWeight.w700,
                           ),
@@ -141,7 +141,7 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                                   padding: 10.padding,
                                   title: Utils.getText(
                                       "${e['task_name'] ?? ""}",
-                                      weight: FontWeight.w200,
+                                      weight: FontWeight.w400,
                                       size: 12.sp),
                                   value: context
                                       .watch<TFTDBloc>()

@@ -31,23 +31,6 @@ class ManageEmployees extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           children: [
-            /*Row(
-              children: [
-                GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 16,
-                    )),
-                const SizedBox(
-                  width: 10,
-                ),
-                Utils.getText('Manage Employees',
-                    size: 16, weight: FontWeight.bold),
-              ],
-            ),*/
             const SizedBox(
               height: 5,
             ),
@@ -59,34 +42,35 @@ class ManageEmployees extends StatelessWidget {
                     builder: (context) => const EmployeesViewUI()));
               },
             ),
-            _buildCard(
-              icon: Icons
-                  .business_center, // or Icons.apartment, Icons.business_center, Icons.people_alt
-              title: 'Departments',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const DepartmentViewUI()));
-              },
-            ),
             if (Session.of.getStringList(Str.rolePrefText)?.firstOrNull == 'Admin')
-              _buildCard(
-                icon: Icons.badge_outlined,
-                title: 'Roles',
-                onTap: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const RoleViewUI()));
-                },
-              ),
-            if (Session.of.getStringList(Str.rolePrefText)?.firstOrNull == 'Admin')
-              _buildCard(
-                icon: Icons
-                    .lock_person, // or Icons.verified_user, Icons.supervisor_account
-                title: 'Permissions',
-                onTap: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const PermissionsViewUI()));
-                },
-              ),
+              ...[
+                _buildCard(
+                  icon: Icons
+                      .business_center, // or Icons.apartment, Icons.business_center, Icons.people_alt
+                  title: 'Departments',
+                  onTap: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const DepartmentViewUI()));
+                  },
+                ),
+                _buildCard(
+                  icon: Icons.badge_outlined,
+                  title: 'Roles',
+                  onTap: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const RoleViewUI()));
+                  },
+                ),
+                _buildCard(
+                  icon: Icons
+                      .lock_person, // or Icons.verified_user, Icons.supervisor_account
+                  title: 'Permissions',
+                  onTap: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const PermissionsViewUI()));
+                  },
+                ),
+              ],
           ],
         ),
       ),

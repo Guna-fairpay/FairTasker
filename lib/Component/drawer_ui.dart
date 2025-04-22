@@ -95,13 +95,16 @@ class DrawerView extends StatelessWidget {
                     title: "Manage Custom Data's",
                     onTap: () => context.push(const ManageCustomDataMenuUI(), fullscreenDialog: true),
                   ),
-                  _buildDivider(),
-                  _buildListTile(
-                    context,
-                    icon: Icons.manage_accounts,
-                    title: "Manage Employees",
-                    onTap: () => context.push(const ManageEmployees(), fullscreenDialog: true),
-                  ),
+                  if (getIt<CommonService>().isAdmin)
+                    ...[
+                      _buildDivider(),
+                      _buildListTile(
+                        context,
+                        icon: Icons.manage_accounts,
+                        title: "Manage Employees",
+                        onTap: () => context.push(const ManageEmployees(), fullscreenDialog: true),
+                      ),
+                    ],
                   _buildDivider(),
                   _buildListTile(
                     context,
