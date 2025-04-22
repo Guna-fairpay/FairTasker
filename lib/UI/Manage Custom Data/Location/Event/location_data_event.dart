@@ -15,6 +15,13 @@ class AddLocationData extends LocationDataEvent {
   List<Object?> get props => [name, address, id];
 }
 
+class LocationInitialEvent extends LocationDataEvent {
+  final String? title;
+  const LocationInitialEvent({this.title});
+  @override
+  List<Object?> get props => [];
+}
+
 class GetAddedLocationListData extends LocationDataEvent {
   const GetAddedLocationListData();
   @override

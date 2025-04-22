@@ -873,10 +873,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       if (state.selectedVLocations['type'] == "location") {
         baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
+        baseBody['vendor_name'] = "";
+        baseBody['vendor_id'] = "";
       }
       if (state.selectedVLocations['type'] == "vendor") {
         baseBody['vendor_name'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
+        baseBody['location'] = "";
+        baseBody['location_id'] = "";
       }
     }
     baseBody['vehicles'] =

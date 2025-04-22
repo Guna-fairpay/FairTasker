@@ -315,7 +315,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
       }).toList();
     } else {
-      filteredData = apiResponse;
+      filteredData = noCategoryResponse;
     }
     totalCount = filteredData.length;
     currentIndex=1;
