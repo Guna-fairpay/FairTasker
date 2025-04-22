@@ -212,8 +212,7 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                               ],
                             ),
                           )),
-                          Expanded(
-                              child: InkWell(
+                          InkWell(
                             onTap: () => context.read<TMPDBloc>().add(
                                 TMPDSelectAllTaskEvent(
                                     selected: !(context
@@ -250,7 +249,7 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                                 )
                               ],
                             ),
-                          )),
+                          ),
                           const SizedBox.shrink(),
                         ],
                       )
@@ -276,14 +275,6 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                                 onChecked: (value) => context
                                     .read<TMPDBloc>()
                                     .add(TMPDSelectTaskEvent(model, value)),
-                                onTap: () => context.read<TMPDBloc>().add(
-                                    TMPDSelectTaskEvent(
-                                        model,
-                                        !(context
-                                                .read<TMPDBloc>()
-                                                .selectedModels
-                                                ?.contains(model) ??
-                                            false))),
                               );
                             },
                             itemCount: context
@@ -291,34 +282,33 @@ class _TaskerMoveTomorrowDialogContentView extends StatelessWidget {
                                     .filteredModels
                                     ?.length ??
                                 0)),
-                  if (onChanged != null)
-                    ...[
-                      const Divider(
-                        height: Num.borderWidthThinField,
-                        thickness: Num.borderWidthThinField,
-                        color: AppC.borderColor,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CompactTextButton(
-                            text: "Move Task".toUpperCase(),
-                            icon: Icons.arrow_forward,
-                            iconColor: AppC.green,
-                            onPressed: () {
-                              var selectedModels =
-                              (context.read<TMPDBloc>().selectedModels ?? []);
-                              var date = context.read<TMPDBloc>().selectedDate;
-                              var time = context.read<TMPDBloc>().selectedTime;
-                              if (selectedModels.isNotEmpty) {
-                                onChanged?.call(selectedModels, date, time);
-                                context.popDialog();
-                              }
-                            },
-                          )
-                        ],
-                      ),
-                    ],
+                  if (onChanged != null) ...[
+                    const Divider(
+                      height: Num.borderWidthThinField,
+                      thickness: Num.borderWidthThinField,
+                      color: AppC.borderColor,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CompactTextButton(
+                          text: "Move Task".toUpperCase(),
+                          icon: Icons.arrow_forward,
+                          iconColor: AppC.green,
+                          onPressed: () {
+                            var selectedModels =
+                                (context.read<TMPDBloc>().selectedModels ?? []);
+                            var date = context.read<TMPDBloc>().selectedDate;
+                            var time = context.read<TMPDBloc>().selectedTime;
+                            if (selectedModels.isNotEmpty) {
+                              onChanged?.call(selectedModels, date, time);
+                              context.popDialog();
+                            }
+                          },
+                        )
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ));

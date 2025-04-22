@@ -195,7 +195,7 @@ class ToDoProcessor {
     } else if (model['vehicle_name'].toString().isNotNullOrEmpty) {
       return model['vehicle_name'] ?? "";
     } else if (List.from(model['vehicles'] ?? []).isNotEmpty) {
-      var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []);
+      var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []).distinct((element) => element['vin']);
       if (vlist.length > 1) {
         return "MV";
       } else {
