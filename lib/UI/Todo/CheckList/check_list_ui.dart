@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/private_rental_check_UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -11,7 +12,7 @@ import 'package:html/parser.dart';
 class CheckListUI extends StatelessWidget {
   final dynamic todoItems, vehicle;
 
-  const CheckListUI({super.key, required this.todoItems, required this.vehicle});
+  const CheckListUI({super.key, required this.todoItems, this.vehicle});
 
   void _showTaskPopup(BuildContext context, CheckListBloc checkListBloc) {
     final overlay = Overlay.of(context);
@@ -103,7 +104,7 @@ class CheckListUI extends StatelessWidget {
       create: (context) => CheckListBloc()
         ..add(CheckListInitialEvent(
           todoItems: todoItems,
-          vehicle: vehicle  ,
+          vehicle: vehicle ?? {},
         )),
       child: BlocListener<CheckListBloc, CheckListState>(
         listener: (context, state) {
@@ -111,6 +112,9 @@ class CheckListUI extends StatelessWidget {
             EasyLoading.show(status: 'Loading...');
           } else {
             EasyLoading.dismiss();
+            if (state.pop) {
+              context.pop();
+            }
           }
         },
         child: BlocBuilder<CheckListBloc, CheckListState>(

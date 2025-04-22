@@ -177,3 +177,14 @@ class SwitchTabEvent extends WorkingHoursEvent {
   List<Object?> get props => [isHourly];
 }
 
+class ResetAllEvent extends WorkingHoursEvent {
+  const ResetAllEvent();
+  @override
+  List<Object?> get props => [];
+}
+
+class ClearResourceSelectionEvent extends WorkingHoursEvent {
+  const ClearResourceSelectionEvent();
+  @override
+  List<Object?> get props => [];
+}

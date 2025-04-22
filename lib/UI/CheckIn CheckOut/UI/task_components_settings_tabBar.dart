@@ -191,7 +191,6 @@ class TaskBasedTab extends StatelessWidget {
 }
 
 
-
 class HourlyBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>> hourlybased;
   final List<Map<String, dynamic>>? resource;
@@ -273,7 +272,7 @@ class HourlyBasedTab extends StatelessWidget {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Utils.getText("${resource?.where((user) => user['id'] == task['user_id']).first['first_name'] ?? ''}"),
+                            child: Utils.getText("${resource?.where((user) => user['id'] == task['user_id']).first['full_name'] ?? ''}"),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),

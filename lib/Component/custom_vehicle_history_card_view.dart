@@ -4,6 +4,8 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
@@ -11,51 +13,62 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomVehicleHistoryCardView extends StatelessWidget {
-  final bool hasParts;
-  final bool hasSupplies;
-  final bool hasCustom;
+  final Map<String, dynamic>? model;
   final VoidCallback? onTap;
   final VoidCallback? onParts;
   final VoidCallback? onSupplies;
-  final VoidCallback? onCustom;
-  final GestureTapDownCallback? onUserTap;
+  final Function(int customId, String customLink)? onCustom;
+  // final GestureTapDownCallback? onUserTap;
+  final ValueChanged<List<dynamic>>? onUserTap;
   final VoidCallback? onDelete;
-  final bool? isCompleted;
-  final String? customText;
-  final String? dateText;
-  final String? cleanCarText;
-  final String? userNameText;
-  final String? titleText;
-  final String? timeText;
-  final String? notesText;
-  final String? locationText;
   final ConfirmDismissCallback? confirmDismiss;
 
   const CustomVehicleHistoryCardView({
     super.key,
-    this.hasParts = false,
-    this.hasSupplies = false,
-    this.hasCustom = false,
+    required this.model,
     this.onTap,
     this.onParts,
     this.onSupplies,
     this.onCustom,
     this.onUserTap,
     this.onDelete,
-    this.dateText,
-    this.customText,
-    this.cleanCarText,
-    this.userNameText,
-    this.titleText,
-    this.timeText,
-    this.notesText,
-    this.locationText,
     this.confirmDismiss,
-    this.isCompleted,
   });
 
   @override
   Widget build(BuildContext context) {
+    List<
+        dynamic> users = model?['users'];
+    String? firstName =
+    (users.firstOrNull?['first_name'] ?? "");
+    String? lastName =
+    (users.firstOrNull?['last_name'] ?? "");
+    var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
+    var customId = (model?['reference_id'].toString().isNotNullOrEmpty ?? false)
+        ? 2 : (model?['custom_link_id'] ?? 0);
+    var customText = (customId == 1)
+        ? "Link"
+        : (customId == 2)
+        ? "TURO"
+        : "GETAROUND";
+    var time = model?['todo_time']
+        .toString()
+        .toDateTime(
+        inputFormat: "HH:mm:ss")
+        .toFormat(format: "hh:mm a");
+    var isCompleted =
+    (model?['status'] == 'Completed');
+    String customLink = model?['custom_link'] ?? (model?['reference_id'] ?? "");
+    String? userNameText = firstLastChar;
+    String? titleText = model?['title'] ?? "";
+    String? dateText = model?['todo_date'].toString().toDateTime().toFormat(format: "MM-dd-yy") ?? "";
+    bool hasParts = ((model?['parts'] as List?)?.isNotEmpty ?? false);
+    bool hasSupplies = ((model?['supplies'] as List?)?.isNotEmpty ?? false);
+    bool hasCustom = ((model?['custom_link'].toString().isNotNullOrEmpty ?? false) || (model?['reference_id'].toString().isNotNullOrEmpty ?? false) );
+    String? cleanCarText = model?['clean_required'] ?? "";
+    String? notesText = model?['notes'] ?? "";
+    String? locationText = model?['vendor_name'] ?? (model?['location'] ?? "");
+    String? timeText = time;
     return Container(
       padding: (hasCustom || hasSupplies || hasParts)
           ? EdgeInsets.zero
@@ -98,19 +111,6 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                   spacing: 10,
                   children: [
                     const SizedBox.shrink(),
-                    // Container(),
-                    /*if (userNameText?.isNotEmpty ?? false)
-                      InkWell(
-                        onTap: onUserTap,
-                        borderRadius: BorderRadius.circular(Num.borderRadiusXLarge),
-                        child: CircleAvatar(
-                          backgroundColor: AppC.appColor,
-                          child: Text("$userNameText",
-                              style: context.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white)),
-                        ),
-                      ),*/
                     if (dateText.isNotNullOrEmpty)
                     Padding(padding: 16.sp.topPadding, child: Text.rich(TextSpan(text: "$dateText"))),
                     Expanded(
@@ -145,7 +145,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                 if (timeText?.isNotEmpty ?? false)
                                   Text("$timeText",
                                       style: context.textTheme.labelMedium),
-                                if ((onDelete != null) || (Session.of.getString(Str.userIdPrefText).toNumeric == 3))
+                                if ((onDelete != null) && (Session.of.getString(Str.userIdPrefText).toNumeric == 3))
                                     InkWell(onTap: onDelete, child: const Icon(Icons.delete_outline_rounded, color: Colors.red)),
                               ],
                             ),
@@ -183,7 +183,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                               // TODO USER NAME
                               if (userNameText?.isNotEmpty ?? false)
                               GestureDetector(
-                                onTapDown: onUserTap,
+                                onTapDown: (details) => onUserTap?.call(users),
                                 child: Text("$userNameText",
                                     style: context.textTheme.labelLarge?.copyWith(
                                         fontWeight: FontWeight.w600,
@@ -256,7 +256,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                       ),
                     if (hasCustom && (customText?.isNotEmpty ?? false))
                       InkWell(
-                        onTap: onCustom,
+                        onTap: () => onCustom?.call(customId, customLink),
                         borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(6.0),
                             bottomRight: Radius.circular(6.0)),

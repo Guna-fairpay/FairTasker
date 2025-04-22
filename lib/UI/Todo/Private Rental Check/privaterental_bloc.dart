@@ -16,7 +16,14 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
   Map<String, dynamic> vehicleCopy = {};
   List<Map<String, dynamic>> matchingTodos = [];
 
-  PrivateRentalsBloc() : super(const PrivateRentalsState()) {
+  PrivateRentalsBloc() : super(const PrivateRentalsState(
+    isLoading: false,
+    getPrivateRentalCheckData: [],
+    checkBoxStates: {},
+    privateRentalNoteControllers: {},
+    todoItem: {},
+    pop: false
+  )) {
     on<PrivateRentalInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
 

@@ -119,6 +119,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       data['completedTaskCount'] = completedTasks?.length ?? 0;
       data['unCompletedTaskCount'] = unCompleted?.length ?? 0;
       data['completedTaskTime'] = completedTaskTime ?? 0;
+      data['weekly'] = {
+        "dateText" : "${fromDate?.formatDateWithOrdinal} - ${toDate?.formatDateWithOrdinal}",
+        "totalHours" : workingHours?.minutesToHourMinute,
+        "activeHours": data['sum_of_hours'],
+        "idleHours" : data['weekly_hours'],
+        "completedTaskCount" : currentDayTaskCompleted ?? 0,
+      };
       data['daily'] = {
         "currentDay": toDate?.formatDateWithOrdinal,
         "totalHours" : currentDayWorkHours.minutesToHourMinute,

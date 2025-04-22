@@ -56,16 +56,16 @@ class EditTodoBottomTabs extends StatelessWidget {
                   : state.selectedBottomTap['id'] == 2
                       ? const CreateTodoUI(showHeader: false)
                   :state.selectedBottomTap['id'] == 3
-                  ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory,)
+                  ?CheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull,)
                   :state.selectedBottomTap['id'] == 4
                   // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)
                   :state.selectedBottomTap['id'] == 5
                   ?VehicleEditUI(vehicle: state.taskHistory.first,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   :state.selectedBottomTap['id'] == 6
-                  ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.taskHistory.first,) //Add by RDB
+                  ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull,) //Add by RDB
                   :state.selectedBottomTap['id'] == 7
-                  ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.first, selectedVehicle: state.selectedVehicle)
+                  ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull, selectedVehicle: state.selectedVehicle)
                   :const SizedBox(),
             ),
           ],
