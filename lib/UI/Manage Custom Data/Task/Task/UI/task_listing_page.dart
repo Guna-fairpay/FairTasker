@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_state
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -65,8 +66,13 @@ class TaskListingPage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Expanded(
-                              child: Utils.getText(item['task'],
-                                  size: 12.sp, overFlow: TextOverflow.visible)),
+                              child: InkWell(
+                                onTap: () => context
+                                    .read<TaskBloc>()
+                                    .add(EditTaskEvent(data: item)),
+                                child: Utils.getText("${item['task']}",
+                                    size: 12.sp, overFlow: TextOverflow.visible),
+                              )),
                           Expanded(
                               flex: 1,
                               child: Utils.dropdownBox(
@@ -75,7 +81,10 @@ class TaskListingPage extends StatelessWidget {
                                   (value) => context.read<TaskBloc>().add(
                                       ListCategoryDropDownSelectionEvent(dropDownData: value, listModel: item)),
                                   labelKey: "name",
-                                  initialSelection: context
+                                  initialSelection: (item['category_id'].toString().isNullOrEmpty) ? null : context
+                                      .watch<TaskBloc>()
+                                      .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString()),
+                                  selectedKey: (item['category_id'].toString().isNullOrEmpty) ? null : context
                                       .watch<TaskBloc>()
                                       .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString()),
                                   height: 30.sp)),
