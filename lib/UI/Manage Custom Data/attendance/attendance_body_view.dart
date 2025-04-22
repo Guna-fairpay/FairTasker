@@ -67,6 +67,8 @@ class AttendanceBodyView extends StatelessWidget {
                 ),
               ]),
           ...context.watch<AttendanceBloc>().resources?.map((e) => AttendanceTableValues(context,
+              onDaily: () => AttendanceIndividualReport.dialog.show(context,data: e, isDaily: true),
+              onWeekly: () => AttendanceIndividualReport.dialog.show(context,data: e, isDaily: false),
               name: "${e['first_name'] ?? ""} ${e['last_name'] ?? ""}", daily: e['daily']?['totalHours'].toString(), weekly: e['weekly_hours'].toString())).toList() ?? [],
         ],
       ),
