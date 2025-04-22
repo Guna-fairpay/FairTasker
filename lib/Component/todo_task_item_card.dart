@@ -356,6 +356,8 @@ class TodoTaskItemCard extends StatelessWidget {
                                   child: GestureDetector(
                                       onTapDown: onNotes,
                                       child: RichText(
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         text: TextSpan(
                                           text: "(${parse(model['display']?['notes'] ?? "").body?.text})",
                                           children: (model['display']?['hasTimeChangeReason'] ?? false) ? [

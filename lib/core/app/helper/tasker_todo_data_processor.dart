@@ -502,7 +502,12 @@ class ToDoProcessor {
   Color? _getVehicleHistoryIconColorCode(Map<String, dynamic> model) {
     var statusId = _getVehicleStatus(model);
     if (statusId != null) {
-      return (statusId == 2) ? Colors.black87 : (statusId == 3) ? AppC.green : (statusId == 4) ? AppC.red : AppC.trans;
+      return switch(statusId) {
+        2 => Colors.black87,
+        3 => AppC.green,
+        4 => AppC.red,
+        _ => AppC.bouncieButtonColor
+      };
     } else {
       return AppC.appColor;
     }
