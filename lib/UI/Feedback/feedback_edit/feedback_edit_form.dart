@@ -67,9 +67,9 @@ class FeedbackEditForm extends StatelessWidget {
                 ),
                 10.height,
                 DropdownButtonFormField<int>(
-                  items: context.read<FBEditBloc>().statuses
-                      .mapIndexed((index, element) =>
-                      DropdownMenuItem<int>(value: index + 1, child: Text(element)))
+                  items: context.watch<FBEditBloc>().feedbackStatuses
+                      .map((element) =>
+                      DropdownMenuItem<int>(value: (element.id ?? 0).toInt(), child: Text(element.name ?? "")))
                       .toList(),
                   onChanged: (value) => context.read<FBEditBloc>().add(FBFeedStatusChangeEvent(value)),
                   value: state.status,

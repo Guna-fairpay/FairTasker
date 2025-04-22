@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:developer' as d;
 
 import 'package:fairpytasker/Repository/feedback_repository.dart';
+import 'package:fairpytasker/Response/feedback_status_response.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
@@ -27,6 +28,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
   Map<String, dynamic> feedbackResponse = {};
   Map<String, dynamic> commentResponse = {};
   List<dynamic> comments = [];
+  List<StatusList> feedbackStatuses = [];
   List<File> commentAttachments = [];
   dynamic feedBackId;
   dynamic pageId = 0;
@@ -43,10 +45,11 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         emit(FBLoadingState());
         var response = await Future.wait([
           _fetchFeedBack(feedBackId),
-          _fetchFeedBackComments(feedBackId)
+          _fetchFeedBackComments(feedBackId),
         ]);
         feedbackResponse = response[0] ?? {};
         commentResponse = response[1] ?? {};
+        feedbackStatuses = (await _feedbackStatusApiUrl()) ?? [];
         status = feedbackResponse['feedback']?['status'] ?? 0;
         comments = commentResponse['comments'] ?? [];
         feedAttachments = (List.from(feedbackResponse['feedback']?['attachments']).isEmpty) ? [] : List.from(feedbackResponse['feedback']?['attachments'] ?? []).map((e) => e['path'].toString().toAttachmentURL).toList();
@@ -198,6 +201,10 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
 
   Future<Map<String, dynamic>?> _deleteComment(dynamic commentId) async {
     return await _feedBackRepository.deleteFeedbackComment(commentId);
+  }
+
+  Future<List<StatusList>?> _feedbackStatusApiUrl() async {
+    return (await _feedBackRepository.fetchFeedbackStatus())?.statusList;
   }
 
   Future<Map<String, dynamic>?> _updateFeedBack() async {
