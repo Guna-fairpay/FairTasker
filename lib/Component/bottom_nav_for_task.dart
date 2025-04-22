@@ -189,130 +189,134 @@ class _BottomNavigationForTaskViewState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const DrawerView(),
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(30.0),
-        child: HeaderView(),
-      ),
-      backgroundColor: AppC.white,
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
-        type: BottomNavigationBarType.fixed,
+    return PopScope(
+      canPop: false,
+      key: UniqueKey(),
+      child: Scaffold(
+        drawer: const DrawerView(),
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(30.0),
+          child: HeaderView(),
+        ),
         backgroundColor: AppC.white,
-        currentIndex: index < 4 ? index : 0, // Show main tabs as active if index < 4
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedItemColor: AppC().base,
-        unselectedItemColor: AppC.grey,
-        onTap: (value) {
-          if (value != 4) {
-            setState(() {
-              index = value;
-            });
-          }
-          // if (value == 4) {
-          //   showCustomMenu(context); // Show custom menu for Finance tab
-          // } else {
-          //   setState(() {
-          //     index = value;
-          //   });
-          // }
-        },
-        items: [
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.calendar_month_rounded,
-              color: AppC.appColor,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.calendar_today_rounded,
-              color: AppC.grey,
-              // size: 28,
-            ),
-            label: 'Tasker',
-            itemIndex: 0,
-          ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.note_rounded,
-              color: AppC.appColor,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.note_outlined,
-              color: AppC.grey,
-              // size: 28,
-            ),
-            label: 'Notes',
-            itemIndex: 1,
-          ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.verified_rounded,
-              color: AppC.appColor,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.verified_outlined,
-              color: AppC.grey,
-              // size: 28,
-            ),
-            label: 'Asset',
-            itemIndex: 2,
-          ),
-          // buildBottomNavItem(
-          //   activeIcon: const Icon(
-          //     Icons.supervisor_account_rounded,
-          //     // size: 28,
-          //   ),
-          //   inactiveIcon: const Icon(
-          //     Icons.supervisor_account_outlined,
-          //     // size: 28,
-          //   ),
-          //   label: 'Resource',
-          //   itemIndex: 2,
-          // ),
-          buildBottomNavItem(
-            activeIcon: const Icon(
-              Icons.sms_failed,
-              // size: 28,
-            ),
-            inactiveIcon: const Icon(
-              Icons.sms_failed,
-              // size: 28,
-            ),
-            label: 'Feedback',
-            itemIndex: 3,
-          ),
-          if (!isRoleLoading && userRole == 'Admin' || userId=='3') // Show only after role is loaded
-            BottomNavigationBarItem(
-              icon: InkWell(
-                key: _financeIconKey,
-                onTap: () => setState(() => index = 4),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.monetization_on_rounded,
-                      // size: 28,
-                      color: (index == 4) ? AppC.red : AppC.grey,
-                    ),
-                    Utils.getText(
-                      'Expense',
-                      color: (index == 4) ? AppC.red : AppC.grey,
-                      weight: FontWeight.bold,
-                      size: 14,
-                    ),
-                  ],
-                ),
+        bottomNavigationBar: BottomNavigationBar(
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppC.white,
+          currentIndex: index < 4 ? index : 0, // Show main tabs as active if index < 4
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          selectedItemColor: AppC().base,
+          unselectedItemColor: AppC.grey,
+          onTap: (value) {
+            if (value != 4) {
+              setState(() {
+                index = value;
+              });
+            }
+            // if (value == 4) {
+            //   showCustomMenu(context); // Show custom menu for Finance tab
+            // } else {
+            //   setState(() {
+            //     index = value;
+            //   });
+            // }
+          },
+          items: [
+            buildBottomNavItem(
+              activeIcon: const Icon(
+                Icons.calendar_month_rounded,
+                color: AppC.appColor,
+                // size: 28,
               ),
-              label: 'Finance',
+              inactiveIcon: const Icon(
+                Icons.calendar_today_rounded,
+                color: AppC.grey,
+                // size: 28,
+              ),
+              label: 'Tasker',
+              itemIndex: 0,
             ),
-        ],
+            buildBottomNavItem(
+              activeIcon: const Icon(
+                Icons.note_rounded,
+                color: AppC.appColor,
+                // size: 28,
+              ),
+              inactiveIcon: const Icon(
+                Icons.note_outlined,
+                color: AppC.grey,
+                // size: 28,
+              ),
+              label: 'Notes',
+              itemIndex: 1,
+            ),
+            buildBottomNavItem(
+              activeIcon: const Icon(
+                Icons.verified_rounded,
+                color: AppC.appColor,
+                // size: 28,
+              ),
+              inactiveIcon: const Icon(
+                Icons.verified_outlined,
+                color: AppC.grey,
+                // size: 28,
+              ),
+              label: 'Asset',
+              itemIndex: 2,
+            ),
+            // buildBottomNavItem(
+            //   activeIcon: const Icon(
+            //     Icons.supervisor_account_rounded,
+            //     // size: 28,
+            //   ),
+            //   inactiveIcon: const Icon(
+            //     Icons.supervisor_account_outlined,
+            //     // size: 28,
+            //   ),
+            //   label: 'Resource',
+            //   itemIndex: 2,
+            // ),
+            buildBottomNavItem(
+              activeIcon: const Icon(
+                Icons.sms_failed,
+                // size: 28,
+              ),
+              inactiveIcon: const Icon(
+                Icons.sms_failed,
+                // size: 28,
+              ),
+              label: 'Feedback',
+              itemIndex: 3,
+            ),
+            if (!isRoleLoading && userRole == 'Admin' || userId=='3') // Show only after role is loaded
+              BottomNavigationBarItem(
+                icon: InkWell(
+                  key: _financeIconKey,
+                  onTap: () => setState(() => index = 4),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(
+                        Icons.monetization_on_rounded,
+                        // size: 28,
+                        color: (index == 4) ? AppC.red : AppC.grey,
+                      ),
+                      Utils.getText(
+                        'Expense',
+                        color: (index == 4) ? AppC.red : AppC.grey,
+                        weight: FontWeight.bold,
+                        size: 14,
+                      ),
+                    ],
+                  ),
+                ),
+                label: 'Finance',
+              ),
+          ],
+        ),
+        body: callPage(index),
       ),
-      body: callPage(index),
     );
   }
 }

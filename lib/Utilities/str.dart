@@ -93,5 +93,7 @@ class Str{
 
     static const String addToDoRefresh = "refresh_add";
 
+    static const String refetchCate = "refresh_category";
+
 
 }

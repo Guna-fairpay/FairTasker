@@ -3,10 +3,12 @@ import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/bloc/subcategory_events.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Sub%20Category/subcategory_page/bloc/subcategory_states.dart';
+import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,6 +17,7 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
   Map<String, dynamic>? selectedCategory, selectedExpenseTo;
+  final FBroadcast _fBroadcast = FBroadcast.instance();
   final Map<String, dynamic> _selectedCategory = {'id': 0, 'name': 'Select'}, _selectedExpenseTo = {'id': 0, 'expense_to': 'Select'};
   Map<String, dynamic>? selectedModel;
   List<Map<String, dynamic>> _apiResponse = [];
@@ -37,6 +40,8 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
     on<SubCategoryPageEvent>(_onPageEvent);
   }
 
+  void _triggerBroadcast() => _fBroadcast.broadcast(Str.refetchCate);
+
   int get totalPages => (_totalCount / itemsPerPage).ceil();
 
   Future<Map<String, dynamic>?> _fetchCategories({dynamic id}) async => await _aPiRepository.getExpensesCategory(id: id);
@@ -44,6 +49,8 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
   Future<Map<String, dynamic>?> _updateCategory() async => await _aPiRepository.updateExpensesCategory(name: nameController.text, expenseTo: selectedExpenseTo?['id'], parentId: selectedCategory?['id'], id: selectedModel?['id']);
   Future<Map<String, dynamic>?> _removeCategory(dynamic id) async => await _aPiRepository.deleteExpensesCategory(id: id);
   Future<List<Map<String, dynamic>>> _fetchCohorts() async => await getIt<CommonService>().getCohorts();
+
+  Future<void> _fetchCommonCate() async => await getIt<CommonService>().getExpenseCategories(reset: true);
 
   void _onInitialEvent(SubCategoryInitialEvent event, Emitter<SubCategoryState> emit) async {
     try {
@@ -91,6 +98,8 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
       var model = event.model;
       emit(SubCategoryLoadingState());
       var response = await _removeCategory(model['id']);
+      await _fetchCommonCate();
+      _triggerBroadcast();
       if (response != null) {
         if (selectedModel?['id'] == model['id']) _clearControllers();
         _subCategories.removeWhere((element) => element['id'] == model['id']);
@@ -143,6 +152,8 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
           itemsPerPage: itemsPerPage);
       _clearControllers();
       _search();
+      await _fetchCommonCate();
+      _triggerBroadcast();
       emit(SubCategoryCommonState());
     } catch (e) {
       Console.of.error("Error Occurred", error: e);
