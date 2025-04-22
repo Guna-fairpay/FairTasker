@@ -90,6 +90,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         notesController.clear();
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(SuppliesCommonState());
       }
     }catch(e){
@@ -137,6 +138,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         Toaster.showSuccess("Supplies added successfully");
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(SuppliesCommonState());
       }
       else{
@@ -156,6 +158,9 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
   void _onSuppliesInitialEvent(SuppliesInitialEvent event, Emitter<SuppliesState> emit) async {
     try{
       emit(SuppliesLoadingState());
+      if(event.title!=null){
+        nameController.text = event.title??'';
+      }
       var response = await getIt<CommonService>().getSuppliesList(reset: true);
       apiResponse =List.from(response);
       apiResponse.sort((a, b) => b['id'].compareTo(a['id']));

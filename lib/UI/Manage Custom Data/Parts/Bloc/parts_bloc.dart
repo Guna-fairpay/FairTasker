@@ -92,6 +92,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         notesController.clear();
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(PartsCommonState());
       }
     }catch(e){
@@ -138,6 +139,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         Toaster.showSuccess("Parts added successfully");
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(PartsCommonState());
       }
       else{
@@ -156,6 +158,9 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
 
   void _onPartsInitialEvent(PartsInitialEvent event, Emitter<PartsState> emit) async {
     try{
+      if(event.title?.trim().isNotNullOrEmpty ?? false){
+        nameController.text=event.title??'';
+      }
       emit(PartsLoadingState());
       var response = await getIt<CommonService>().getPartsList(reset: true);
       apiResponse =List.from(response);

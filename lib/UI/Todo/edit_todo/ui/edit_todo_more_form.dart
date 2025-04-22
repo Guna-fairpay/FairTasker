@@ -95,7 +95,7 @@ class EditTodoMoreForm extends StatelessWidget {
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedParts),
                 suggestionsList: List.from(state.partServices),
-                controller: TextEditingController(),
+                controller: context.read<EditToDoBloc>().partsController,
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
 
@@ -103,18 +103,18 @@ class EditTodoMoreForm extends StatelessWidget {
                     .read<EditToDoBloc>()
                     .add(EditToDoPartSelectionEvent(isChecked, value)),
                 onEmptyTap: () =>
-                    context.push(const PartsMainUI(), fullscreenDialog: true)),
+                    context.push( PartsMainUI(title: context.read<EditToDoBloc>().partsController.text,), fullscreenDialog: true)),
           if (state.isMoreEnable && state.isSuppliesEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedSupplies),
                 suggestionsList: List.from(state.supplies),
-                controller: TextEditingController(),
+                controller: context.read<EditToDoBloc>().suppliesController,
                 labelText: "Supplies",
                 onChanged: (isChecked, value) => context
                     .read<EditToDoBloc>()
                     .add(EditToDoSupplySelectionEvent(isChecked, value)),
                 itemAsString: (item) => item['name'].toString(),
-                onEmptyTap: () => context.push(const SuppliesMainUI(),
+                onEmptyTap: () => context.push(SuppliesMainUI(title: context.read<EditToDoBloc>().suppliesController.text),
                     fullscreenDialog: true)
             ),
           if (state.isMoreEnable && (Str.completedOdometer.contains(state.apiResponse['title'])))

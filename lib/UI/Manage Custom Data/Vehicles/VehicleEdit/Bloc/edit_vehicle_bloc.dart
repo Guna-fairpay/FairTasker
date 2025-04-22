@@ -342,6 +342,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
           Toaster.showError(response?['error'] ?? []);
         }
         _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         _broadcast.stickyBroadcast("vehicle_refresh", value: true);
         emit(EditCompletedState());
       } catch (e) {

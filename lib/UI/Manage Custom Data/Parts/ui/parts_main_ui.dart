@@ -13,7 +13,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PartsMainUI extends StatelessWidget {
-  const PartsMainUI({super.key});
+  final String? title;
+  const PartsMainUI({super.key, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +23,19 @@ class PartsMainUI extends StatelessWidget {
         title: const Text('Parts'),
         titleTextStyle:
         context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold),
+
         backgroundColor: AppC.appColor,
         foregroundColor: AppC.white,
-        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: ()=>context.pop(),
+            icon: const Icon(Icons.close_outlined),
+          ),
+        ],
       ),
       body: BlocProvider<PartsBloc>(
-        create: (context) => PartsBloc()..add(PartsInitialEvent()),
+        create: (context) => PartsBloc()..add(PartsInitialEvent(title: title)),
         child: BlocListener<PartsBloc, PartsState>(
           listener: (context, state) {
             if (state is PartsLoadingState) {if (!EasyLoading.isShow) EasyLoading.show();}

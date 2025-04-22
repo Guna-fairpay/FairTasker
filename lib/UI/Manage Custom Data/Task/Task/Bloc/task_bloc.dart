@@ -5,11 +5,13 @@ import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_state.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,6 +22,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   final TextEditingController taskController = TextEditingController();
   final TextEditingController timeTakenController = TextEditingController();
   AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
+  final FBroadcast _broadcast = FBroadcast.instance();
+
   List<Map<String, dynamic>> apiResponse = [];
   // List<Map<String, dynamic>> noCategoryResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
@@ -159,6 +163,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
           selectedCategory={};
           selectedSubCategory = {};
         _search();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(TaskCommonState());
       }
     }catch(e){
@@ -172,11 +178,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     try{
       emit(TaskLoadingState());
         var data = {
-          'category_id': "${selectedCategory['id']}",
-          'subcategory_id': "${selectedSubCategory['id']}",
+          'category_id': "${selectedCategory?['id']??''}",
+          'subcategory_id': "${selectedSubCategory?['id']??''}",
           'task':taskController.text,
           'time_taken':timeTakenController.text,
-          'user_type': "${selectedUserType['id']}",
+          'user_type': "${selectedUserType?['id']??''}",
           'platform':'tasker-app'
         };
       Console.of.log(data);
@@ -200,7 +206,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
           apiResponse.add(newData);
         }
         //apiResponse=taskResponse;
-        Console.of.log(apiResponse);
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         final List<Map<String, dynamic>> result = noCategory
             ? apiResponse.where((e) => e['subcategory_id'].toString().isNullOrEmpty).toList()
@@ -214,6 +219,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         );
         Toaster.showSuccess(response?['message']);
         _search();
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
         emit(TaskCommonState());
       }
       else{
@@ -232,7 +239,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
   void _onTaskInitialEvent(TaskInitialEvent event, Emitter<TaskState> emit) async {
     emit(TaskLoadingState());
-    if(event.title.toString().isNotNullOrEmpty){
+    Console.of.log(event.title);
+    if(event.title != null){
       taskController.text=event.title.toString();
     }
     var response= await getIt<CommonService>().getTaskExpenseData(reset: true);

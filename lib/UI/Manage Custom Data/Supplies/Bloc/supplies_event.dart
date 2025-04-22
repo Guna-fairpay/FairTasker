@@ -6,7 +6,12 @@ abstract class SuppliesEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class SuppliesInitialEvent extends SuppliesEvent {}
+class SuppliesInitialEvent extends SuppliesEvent {
+  final String? title;
+  SuppliesInitialEvent({this.title});
+  @override
+  List<Object?> get props => [title];
+}
 
 
 class SuppliesPaginationEvent extends SuppliesEvent {

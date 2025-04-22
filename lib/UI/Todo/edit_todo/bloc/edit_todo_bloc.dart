@@ -31,6 +31,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final APiRepository apiRepository = APiRepository();
   dynamic todoId = '';
   final TextEditingController taskNameController = TextEditingController();
+  final TextEditingController partsController = TextEditingController();
+  final TextEditingController suppliesController = TextEditingController();
   final TextEditingController vPersonController = TextEditingController();
   final TextEditingController vLocationController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
@@ -53,6 +55,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
+  List<Map<String,dynamic>> task = [];
   Map<String, dynamic> selectionTaps = {};
   final FBroadcast _broadcast = FBroadcast.instance();
   dynamic selectedSentiments = {};
@@ -69,6 +72,28 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   String? reason;
   String? timeChangePopupType;
   dynamic selectedDate;
+
+  List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
+  List<Map<String, dynamic>> get persons {
+    List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
+    resources.removeWhere((resource) =>
+    ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+        (resource['branch_id'] !=
+            Session.of.getInt(Str.branchIdPrefText))) ||
+        (resource['deleted_at'] != null));
+    Console.of.log("FETCHING_RESOURCE_FROM_GET");
+    return resources;
+  }
+  List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
+  List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList.where((element) => element['branch_code'] == branchId).toList();
+  List<Map<String, dynamic>> get vendor => getIt<CommonService>().vendorsList;
+  List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
+
+  @override
+  Future<void> close() {
+    _broadcast.unregister(Str.editToDoRefresh);
+    return super.close();
+  }
 
   EditToDoBloc()
       : super(EditTodoState(
@@ -123,6 +148,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           isRecurring: false,
           isTimeChange: false,
         )) {
+    _broadcast.register(Str.addToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
+    on<EditToDoRefreshEvent>(_onRefreshEvent);
     on<GetEditTodoInitialEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
@@ -158,7 +185,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             todoResponse?['resolution_notes'] ?? '';
         commentsController.text = todoResponse?['comments'] ?? '';
         odometerController.text = "${todoResponse?['mileage'] ?? ''}";
-
+        if(todoResponse?['identifier_id'] == null){
+          taskNameController.text = todoResponse?['title'] ?? '';
+        }
         if (todoResponse?['trip_review'] != null) {
           selectedSentiments = AddToDoConfig.sentiments.firstWhereOrNull(
                   (element) =>
@@ -304,6 +333,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
           }
         }
+         task =List.from(taskResponse);
         emit(state.copyWith(
           isLoading: false,
           showCleanCar: showCleanCar,
@@ -313,7 +343,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           previousOdometer: "${previousOdometer?['data'] ?? ''}",
           todoStatus: todoResponse?['status'] == 'In Progress' ? false : true,
           selectedBottomTap: selectionTaps,
-          tasks: taskResponse,
+          tasks: task,
           selectedTask: selectedTask,
           selectedVPerson: CustomSearchDataConverter.convertVPerson(
               vehicles: vehicleList,
@@ -845,7 +875,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
       }
       if (state.selectedVLocations['type'] == "vendor") {
-        baseBody['vendor'] = "${state.selectedVLocations['name'] ?? ''}";
+        baseBody['vendor_name'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
       }
     }
@@ -1018,6 +1048,44 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           date: date, vin: vin, identifierId: identifierId);
 
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
+
+  void _onRefreshEvent(EditToDoRefreshEvent event, Emitter<EditTodoState> emit) async {
+    Console.of.log("REFRESH_EVENT_TRIGGERED", name: "ADD_TODO_BLOC");
+    // PROCEED API CALL
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      var partsResponse = await getIt<CommonService>().getPartsList();
+      var suppliesResponse = await getIt<CommonService>().getSuppliesList();
+      var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
+      var vendorResponse = await getIt<CommonService>().getVendorsList();
+      var locationResponse = await getIt<CommonService>().getLocationsList();
+      var taskResponse = await getIt<CommonService>().getTaskExpenseData();
+      var userGroupResponse = await getIt<CommonService>().getGroupPersons();
+      var assignedToResponse = await getIt<CommonService>().getResources();
+      var resources = assignedToResponse;
+      resources.removeWhere((resource) => resource['id'] == 2);
+      resources.removeWhere((resource) =>
+      ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+          (resource['branch_id'] !=
+              Session.of.getInt(Str.branchIdPrefText))) ||
+          (resource['deleted_at'] != null));
+      emit(state.copyWith(
+          isLoading: false,
+          tasks: taskResponse,
+          vehicles: vehicleResponse,
+          persons: resources,
+          locations: locationResponse,
+          vendors: vendorResponse,
+          partServices: partsResponse,
+          supplies: suppliesResponse,
+          groupVehicles: userGroupResponse,
+          resources: resources));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
 }
 
-class EditToDoInitialEvent {}
+
