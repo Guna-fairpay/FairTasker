@@ -119,6 +119,10 @@ dependencies:
     git:
       url: https://github.com/PrabhuC-FP/receive_sharing_intent
       ref: master
+  date_range_picker:
+    git:
+      url: https://github.com/PrabhuC-FP/date_range_picker
+      ref: master
 
 dev_dependencies:
   flutter_test:
