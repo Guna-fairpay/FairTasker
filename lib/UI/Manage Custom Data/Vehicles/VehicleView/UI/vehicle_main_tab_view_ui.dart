@@ -18,6 +18,7 @@ class VehicleMainTabViewUi extends StatelessWidget {
           )
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           CustomTabButton(buttonText: "Vehicles", value: 0, selectedValue: context.watch<VehicleBloc>().selectedTab, onPressed: (val) => context.read<VehicleBloc>().add(VehicleTabChangeEvent(tabIndex: val))),
           if (context.watch<VehicleBloc>().selectedVehicle != null)

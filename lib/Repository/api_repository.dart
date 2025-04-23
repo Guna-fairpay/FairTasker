@@ -282,6 +282,8 @@ class APiRepository {
 
   String get _swapNotes => "swapNotes";
 
+  String get _setDefaultVehicleConfig => "setDefaultVehicleConfig";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1882,8 +1884,6 @@ Future<Map<String, dynamic>?> getLocations() async {
       if (response != null) {
         if (response.isSuccess) {
           var mapData = await response.mapData;
-          log("$mapData", name: "Success");
-          Toaster.showSuccess(mapData?['message'] ?? "");
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
@@ -3174,6 +3174,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.BASE_URL}$_addUser";
       final http.Response? response = await _apiClient.callPostMethodWithBody(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> setDefaultVehicleConfig({required String vin}) async {
+    try{
+      String apiUrl = "${Str.LIST_BASE_URL}$_setDefaultVehicleConfig/$vin";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     }catch(e){
