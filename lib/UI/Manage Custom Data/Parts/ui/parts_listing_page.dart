@@ -35,7 +35,9 @@ class PartsListingPage extends StatelessWidget {
                 ],
               ),
             ),
-            ListView.separated(
+            context.watch<PartsBloc>().filteredResponse.isEmpty
+                ? Utils.getText('No data found ', weight: FontWeight.bold)
+                : ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               separatorBuilder: (context, index) => const Divider(
