@@ -12,15 +12,15 @@ import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart' show Color, Colors;
 
 class ToDoProcessor {
-  List<Map<String, dynamic>> _groupVehicle = [];
-  List<Map<String, dynamic>> _activeVehicles = [];
-  List<Map<String, dynamic>> _activeVehiclesCount = [];
+  List<Map<String, dynamic>> get _groupVehicle => getIt<CommonService>().groupVehicleList;
+  List<Map<String, dynamic>> get _activeVehicles => getIt<CommonService>().activeVehicleList;
+  List<Map<String, dynamic>> get _activeVehiclesCount => getIt<CommonService>().activeVehicleCountList;
+  List<Map<String, dynamic>> get _usersList => getIt<CommonService>().usersList;
+  List<Map<String, dynamic>> get _vendorsList => getIt<CommonService>().vendorsList;
+  List<Map<String, dynamic>> get _locationList => getIt<CommonService>().locationsList;
+  List<Map<String, dynamic>> get _taskExpenseDatas => getIt<CommonService>().taskExpenseDataList;
   List<Map<String, dynamic>> _groupPersons = [];
-  List<Map<String, dynamic>> _usersList = [];
-  List<Map<String, dynamic>> _vendorsList = [];
-  List<Map<String, dynamic>> _locationList = [];
   List<Map<String, dynamic>> _bouncieVehicles = [];
-  List<Map<String, dynamic>> _taskExpenseDatas = [];
   List<Map<String, dynamic>> _relatedToDos = [];
 
   final APiRepository _aPiRepository = APiRepository();
@@ -42,15 +42,15 @@ class ToDoProcessor {
       _fetchActiveVehiclesCount(),
       _fetchCurrentToDos(),
     ]);
-    _groupVehicle = response[0] ?? [];
-    _activeVehicles = response[1] ?? [];
+    // _groupVehicle = response[0] ?? [];
+    // _activeVehicles = response[1] ?? [];
     _bouncieVehicles = response[2] ?? [];
-    _taskExpenseDatas = response[3] ?? [];
+    // _taskExpenseDatas = response[3] ?? [];
     _groupPersons = response[4] ?? [];
-    _usersList = response[5] ?? [];
-    _vendorsList = response[6] ?? [];
-    _locationList = response[7] ?? [];
-    _activeVehiclesCount = response[8] ?? [];
+    // _usersList = response[5] ?? [];
+    // _vendorsList = response[6] ?? [];
+    // _locationList = response[7] ?? [];
+    // _activeVehiclesCount = response[8] ?? [];
     return;
   }
 
@@ -336,10 +336,7 @@ class ToDoProcessor {
     return (address.isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
   }
 
-  bool _hasCustomLink(Map<String, dynamic> model) =>
-      model['custom_link_id'].toString().isNotNullOrEmpty &&
-      model['reference_id'].toString().isNotNullOrEmpty &&
-      model['custom_link_id'] != 1;
+  bool _hasCustomLink(Map<String, dynamic> model) => (model['reference_id'].toString().isNotNullOrEmpty);
 
   bool _hasTimeSensitive(Map<String, dynamic> model) =>
       model['time_sensitive'] == 1;

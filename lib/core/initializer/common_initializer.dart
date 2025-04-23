@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
+import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -32,6 +33,7 @@ class Initializer {
     tz.initializeTimeZones();
     getIt.registerSingleton<CommonService>(CommonService());
     getIt.registerSingleton<ToDoSupport>(ToDoSupport());
+    getIt.registerSingleton<ReceiveIntent>(ReceiveIntent());
   }
 }
 
