@@ -1,4 +1,5 @@
 import 'package:fairpytasker/Component/custom_wrap_choice.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog_bloc/tasker_resource_dialog_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog_bloc/tasker_resource_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_resource_dialog_bloc/tasker_resource_dialog_states.dart';
@@ -33,6 +34,7 @@ class _TaskerResourceDialogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       insetPadding: 10.padding,
@@ -87,6 +89,7 @@ class _TaskerResourceDialogBodyView extends StatelessWidget {
         constraints: BoxConstraints(minWidth: context.width),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             CustomWrapChoice<Map<String, dynamic>>(
                 items: context.watch<TRSDBloc>().apiResponse,
@@ -98,15 +101,18 @@ class _TaskerResourceDialogBodyView extends StatelessWidget {
                     .read<TRSDBloc>()
                     .add(TRSDSelectedEvent(value, isChecked))),
             if (onSelected != null)
-            Utils.getFilledButton("Save", () {
-              var selected = context.read<TRSDBloc>().selectedResourcesList;
-              if (selected.isNotEmpty) {
-                onSelected?.call(selected);
-                context.popDialog();
-              } else {
-                Toaster.showError("Select at least one resource");
-              }
-            })
+              SuccessButton(
+                text: "Save",
+                onPressed: () {
+                  var selected = context.read<TRSDBloc>().selectedResourcesList;
+                  if (selected.isNotEmpty) {
+                    onSelected?.call(selected);
+                    context.popDialog();
+                  } else {
+                    Toaster.showError("Select at least one resource");
+                  }
+                },
+              )
           ],
         ),
       ),

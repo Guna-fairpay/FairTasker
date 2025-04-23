@@ -83,6 +83,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
   bool isNextTask = false;
 
+  String? get taskName {
+    var selectedTask = state.selectedTaskIdentifier[1];
+    if ( (selectedTask != null) && ((selectedTask as Map?)?.isNotEmpty ?? false)) return selectedTask?['name'];
+    else return null;
+  }
+
   List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
     List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
