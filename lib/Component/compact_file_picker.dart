@@ -13,19 +13,19 @@ class CompactFilePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(
-              color: AppC.borderColor, width: Num.borderWidthThinField),
-          borderRadius: BorderRadius.circular(Num.borderRadius)),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      child: Row(
-        spacing: 10,
-        children: [
-          InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
-            child: Container(
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: AppC.borderColor, width: Num.borderWidthThinField),
+            borderRadius: BorderRadius.circular(Num.borderRadius)),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        child: Row(
+          spacing: 10,
+          children: [
+            Container(
               padding: 7.sp.horizontalPadding.copyWith(top: 9.sp, bottom: 9.sp),
               decoration: const BoxDecoration(
                   color: AppC.fileButtonColor,
@@ -40,15 +40,15 @@ class CompactFilePicker extends StatelessWidget {
                   style: context.textTheme.labelMedium?.copyWith(
                       color: AppC.subText, fontWeight: FontWeight.bold)),
             ),
-          ),
-          ValueListenableBuilder(valueListenable: controller ?? TextEditingController(), builder: (context, value, child) => Expanded(
-              child: Text( (value.text.trim().isNullOrEmpty) ? "No file chosen" : value.text,
-                  maxLines: 1,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.labelMedium
-                      ?.copyWith(color: AppC.subText, fontWeight: FontWeight.w700))))
-        ],
+            ValueListenableBuilder(valueListenable: controller ?? TextEditingController(), builder: (context, value, child) => Expanded(
+                child: Text( (value.text.trim().isNullOrEmpty) ? "No file chosen" : value.text,
+                    maxLines: 1,
+                    textAlign: TextAlign.start,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.labelMedium
+                        ?.copyWith(color: AppC.subText, fontWeight: FontWeight.w700))))
+          ],
+        ),
       ),
     );
   }

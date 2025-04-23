@@ -26,6 +26,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
   AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
 
   List<Map<String, dynamic>> apiResponse = [];
+  List<Map<String, dynamic>> _unFilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
 
   int selectedTab = 0;
@@ -46,7 +47,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
 
     on<PartsPaginationEvent>((event, emit) {
       currentIndex = event.page;
-      filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
       emit(PartsCommonState());
     });
 
@@ -84,7 +85,8 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
       if(response?['message']!=null){
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
-        filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+        _unFilteredResponse = apiResponse;
+        filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
         Toaster.showSuccess(response?['message']);
         isEdit = false;
         selectedData = null;
@@ -131,8 +133,9 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         }
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         totalCount = apiResponse.length;
+        _unFilteredResponse = apiResponse;
         filteredResponse = paginateList(
-          data: apiResponse,
+          data: _unFilteredResponse,
           currentPage: currentIndex,
           itemsPerPage: itemsPerPage,
         );
@@ -166,11 +169,12 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
       apiResponse =List.from(response);
       apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
       filteredResponse.clear();
+      _unFilteredResponse = apiResponse;
       filteredResponse = paginateList(
-          data: apiResponse,
+          data: _unFilteredResponse,
           currentPage: currentIndex,
           itemsPerPage: itemsPerPage);
-      totalCount = apiResponse.length;
+      totalCount = _unFilteredResponse.length;
       emit(PartsCommonState());
     }catch(e){
       Toaster.showError(e.toString());
@@ -190,9 +194,10 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
     } else {
       filteredData = apiResponse;
     }
+    _unFilteredResponse = filteredData;
     currentIndex=1;
     totalCount = filteredData.length;
-    filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
   }
 
   void _onSearchPartsEvent(SearchPartsEvent event, Emitter<PartsState> emit) {
