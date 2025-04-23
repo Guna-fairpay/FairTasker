@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_history_card_view.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/ui/edit_todo_ui.dart';
@@ -10,18 +11,12 @@ import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_view_users_dialog.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
-import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:number_pagination/number_pagination.dart';
-import 'package:sticky_headers/sticky_headers.dart';
 
 class VehicleHistoryViewUI extends StatelessWidget {
   final String? vin;
@@ -77,149 +72,64 @@ class VehicleHistoryViewUI extends StatelessWidget {
         child: BlocBuilder<VehicleHistoryBloc, VehicleHistoryState>(
           builder: (context, state) =>
               SafeArea(
-                  child: Padding(
-                    padding: (showHeader) ? const EdgeInsets.symmetric(horizontal: 20) : EdgeInsets.zero,
-                    child: Column(
-                      spacing: 10,
-                      mainAxisSize: MainAxisSize.min,
-                      children: (state.isLoading) ? [] : [
-                        Utils.getSearchBarUI(
-                          searchController:
-                          context
-                              .read<VehicleHistoryBloc>()
-                              .searchController,
-                          readOnly: state.isSameTaskSelected,
-                          onSearch: (value) =>
-                              context
-                                  .read<VehicleHistoryBloc>()
-                                  .add(VehicleHistorySearchEvent(value)),
-                        ),
-                        if ((showSameTask && ((title?.length ?? 0) > 0)))
-                          ListTile(
-                            dense: true,
-                            onTap: () => context.read<VehicleHistoryBloc>().add(VehicleHistorySameTaskEvent(title, !state.isSameTaskSelected)),
-                            contentPadding: EdgeInsets.zero,
-                            title: Utils.getText(
-                              'Same Task',
-                              weight: FontWeight.bold,
-                            ),
-                            trailing: Transform.scale(
-                              scale: 0.6,
-                              alignment: AlignmentDirectional.centerEnd,
-                              child: Switch(
-                                value: state.isSameTaskSelected,
-                                onChanged: (value) => context.read<VehicleHistoryBloc>().add(VehicleHistorySameTaskEvent(title, value)),
-                                materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                              ),
+                minimum: (showHeader) ? const EdgeInsets.symmetric(horizontal: 20) : EdgeInsets.zero,
+                  child: Column(
+                    spacing: 10,
+                    mainAxisSize: MainAxisSize.min,
+                    children: (state.isLoading) ? [] : [
+                      CompactSearchView(
+                        controller: context
+                            .read<VehicleHistoryBloc>()
+                            .searchController,
+                        readOnly: state.isSameTaskSelected,
+                        onSubmitted: (value) => context
+                            .read<VehicleHistoryBloc>()
+                            .add(VehicleHistorySearchEvent(value)),
+                      ),
+                      // Utils.getSearchBarUI(
+                      //   searchController:
+                      //   context
+                      //       .read<VehicleHistoryBloc>()
+                      //       .searchController,
+                      //   readOnly: state.isSameTaskSelected,
+                      //   onSearch: (value) =>
+                      //       context
+                      //           .read<VehicleHistoryBloc>()
+                      //           .add(VehicleHistorySearchEvent(value)),
+                      // ),
+                      if (title?.trim().isNotNullOrEmpty ?? false)
+                        ListTile(
+                          dense: true,
+                          onTap: () => context.read<VehicleHistoryBloc>().add(VehicleHistorySameTaskEvent(title, !state.isSameTaskSelected)),
+                          contentPadding: EdgeInsets.zero,
+                          title: Utils.getText(
+                            'Same Task',
+                            weight: FontWeight.bold,
+                          ),
+                          trailing: Transform.scale(
+                            scale: 0.6,
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: Switch(
+                              value: state.isSameTaskSelected,
+                              onChanged: (value) => context.read<VehicleHistoryBloc>().add(VehicleHistorySameTaskEvent(title, value)),
+                              materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
-                        if (!state.isLoading && state.vehicleDataList.isEmpty)
-                          const EmptyWidget(),
-                        if (additionalScroll)
-                          ...[
-                            if (state.vehicleDataList.isNotEmpty)
-                              Expanded(child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: (state.vehicleDataList.values.expand((element) => element).toList().length ?? 0),
-                                physics: additionalScroll ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, subIndex) {
-                                  var model = state.vehicleDataList.values.expand((element) => element).toList()[subIndex];
-                                  var isCompleted =
-                                  (model['status'] == 'Completed');
-                                  return CustomVehicleHistoryCardView(
-                                    model: model,
-                                    confirmDismiss: (
-                                        direction) async {
-                                      context.read<
-                                          VehicleHistoryBloc>().add(
-                                          VehicleHistoryCompleteEvent(
-                                              model['id'],
-                                              !isCompleted));
-                                      return false;
-                                    },
-                                    onTap: () {
-                                      context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model));
-                                      if (context.read<VehicleHistoryBloc>().isAdmin) {
-                                        context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
-                                      } else {
-                                        VehicleHistoryDetailsUiDialog
-                                            .show(context);
-                                      }
-                                      // context.push(const VehicleHistoryDetailsUi(), fullscreenDialog: true);
-                                    },
-                                    onDelete: () {
-                                      // SHOW DIALOG AND GET CONFIRMATION WITH REASON
-                                      AskPermissionDialog.show(
-                                        context,
-                                        title:
-                                        "Are you sure want to delete this task?",
-                                        description:
-                                        "Kindly enter a valid reason to confirm the deletion",
-                                        positiveText: "Yes, delete it!",
-                                        negativeText: "Cancel",
-                                        isReasonRequired: true,
-                                        onReasonSubmitted: (reason) =>
-                                            context
-                                                .read<
-                                                VehicleHistoryBloc>()
-                                                .add(
-                                                VehicleHistoryDeleteEvent(
-                                                    model['id'],
-                                                    reason)),
-                                      );
-                                    },
-                                    onParts: () {
-                                      ShowChipDialog.show<Map<String, dynamic>>(
-                                          context, data: model['parts'] ?? [],
-                                          title: "Parts",
-                                          avatarIcon: const Icon(Icons.repartition_sharp),
-                                          itemAsString: (
-                                              item) => "${item['parts_name'] ?? ""}");
-                                    },
-                                    onSupplies: () {
-                                      ShowChipDialog.show<Map<String, dynamic>>(
-                                          context, data: model['supplies'] ?? [],
-                                          title: "Supplies",
-                                          avatarIcon: const Icon(Icons.support_rounded),
-                                          itemAsString: (
-                                              item) => "${item['supplies_name'] ?? ""}");
-                                    },
-                                    onUserTap: (users) {
-                                      if (users.length <= 1) return;
-                                      ShowChipDialog.show<Map<String, dynamic>>(
-                                          context, data: users,
-                                          title: "Users",
-                                          avatarIcon: const Icon(Icons.person),
-                                          itemAsString: (
-                                              item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}");
-                                    },
-                                    onCustom: (customId, customLink) {
-                                      switch(customId){
-                                        case 1:
-                                          Utils.openURL(customLink);
-                                          break;
-                                        case 2:
-                                          Utils.openURL(customLink.toTuroReserveUrl);
-                                          break;
-                                        case 3:
-                                          Utils.openURL(customLink.toGetAroundReserveUrl);
-                                          break;
-                                      }
-                                    },
-                                  );
-                                },
-                              ))
-                          ],
-                        if (!additionalScroll)
-                          ...[
-                            if (state.vehicleDataList.values.expand((element) => element).isNotEmpty)
-                            ListView.builder(
+                        ),
+                      if (!state.isLoading && state.vehicleDataList.isEmpty)
+                        const EmptyWidget(withExpand: false),
+                      if (additionalScroll)
+                        ...[
+                          if (state.vehicleDataList.isNotEmpty)
+                            Expanded(child: ListView.builder(
                               shrinkWrap: true,
                               itemCount: (state.vehicleDataList.values.expand((element) => element).toList().length ?? 0),
                               physics: additionalScroll ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
                               itemBuilder: (context, subIndex) {
                                 var model = state.vehicleDataList.values.expand((element) => element).toList()[subIndex];
+                                var isCompleted =
+                                (model['status'] == 'Completed');
                                 return CustomVehicleHistoryCardView(
                                   model: model,
                                   confirmDismiss: (
@@ -228,7 +138,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                         VehicleHistoryBloc>().add(
                                         VehicleHistoryCompleteEvent(
                                             model['id'],
-                                            !(model['status'] == 'Completed')));
+                                            !isCompleted));
                                     return false;
                                   },
                                   onTap: () {
@@ -302,34 +212,126 @@ class VehicleHistoryViewUI extends StatelessWidget {
                                   },
                                 );
                               },
-                            )
-                          ],
-                        if (state.vehicleDataList.isNotEmpty)
-                          NumberPagination(
-                            onPageChanged: (page) =>
-                                context
-                                    .read<VehicleHistoryBloc>()
-                                    .add(VehicleHistoryPageEvent(page)),
-                            totalPages: state.totalPage,
-                            currentPage: state.currentPage,
-                            enableInteraction: true,
-                            betweenNumberButtonSpacing: 0,
-                            buttonRadius: 3,
-                            sectionSpacing: 0,
-                            visiblePagesCount: 5,
-                            controlButtonSize: const Size.fromRadius(20),
-                            numberButtonSize: const Size.fromRadius(20),
-                            fontFamily: "Lato",
-                            buttonElevation: 0,
-                            navigationButtonSpacing: 0,
-                            controlButtonColor: AppC.lightGrey,
-                            unSelectedButtonColor: AppC.trans,
-                            selectedButtonColor: AppC.appColor,
-                            selectedNumberFontWeight: FontWeight.bold,
-                            unSelectedNumberColor: AppC.text,
-                          ),
-                      ],
-                    ),
+                            ))
+                        ],
+                      if (!additionalScroll)
+                        ...[
+                          if (state.vehicleDataList.values.expand((element) => element).isNotEmpty)
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: (state.vehicleDataList.values.expand((element) => element).toList().length ?? 0),
+                            physics: additionalScroll ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, subIndex) {
+                              var model = state.vehicleDataList.values.expand((element) => element).toList()[subIndex];
+                              return CustomVehicleHistoryCardView(
+                                model: model,
+                                confirmDismiss: (
+                                    direction) async {
+                                  context.read<
+                                      VehicleHistoryBloc>().add(
+                                      VehicleHistoryCompleteEvent(
+                                          model['id'],
+                                          !(model['status'] == 'Completed')));
+                                  return false;
+                                },
+                                onTap: () {
+                                  context.read<VehicleHistoryBloc>().add(VehicleHistoryViewEvent(model));
+                                  if (context.read<VehicleHistoryBloc>().isAdmin) {
+                                    context.push(EditTodoUI(todoId: model['id']),fullscreenDialog: true);
+                                  } else {
+                                    VehicleHistoryDetailsUiDialog
+                                        .show(context);
+                                  }
+                                  // context.push(const VehicleHistoryDetailsUi(), fullscreenDialog: true);
+                                },
+                                onDelete: () {
+                                  // SHOW DIALOG AND GET CONFIRMATION WITH REASON
+                                  AskPermissionDialog.show(
+                                    context,
+                                    title:
+                                    "Are you sure want to delete this task?",
+                                    description:
+                                    "Kindly enter a valid reason to confirm the deletion",
+                                    positiveText: "Yes, delete it!",
+                                    negativeText: "Cancel",
+                                    isReasonRequired: true,
+                                    onReasonSubmitted: (reason) =>
+                                        context
+                                            .read<
+                                            VehicleHistoryBloc>()
+                                            .add(
+                                            VehicleHistoryDeleteEvent(
+                                                model['id'],
+                                                reason)),
+                                  );
+                                },
+                                onParts: () {
+                                  ShowChipDialog.show<Map<String, dynamic>>(
+                                      context, data: model['parts'] ?? [],
+                                      title: "Parts",
+                                      avatarIcon: const Icon(Icons.repartition_sharp),
+                                      itemAsString: (
+                                          item) => "${item['parts_name'] ?? ""}");
+                                },
+                                onSupplies: () {
+                                  ShowChipDialog.show<Map<String, dynamic>>(
+                                      context, data: model['supplies'] ?? [],
+                                      title: "Supplies",
+                                      avatarIcon: const Icon(Icons.support_rounded),
+                                      itemAsString: (
+                                          item) => "${item['supplies_name'] ?? ""}");
+                                },
+                                onUserTap: (users) {
+                                  if (users.length <= 1) return;
+                                  ShowChipDialog.show<Map<String, dynamic>>(
+                                      context, data: users,
+                                      title: "Users",
+                                      avatarIcon: const Icon(Icons.person),
+                                      itemAsString: (
+                                          item) => "${item['first_name'] ?? ""} ${item['last_name'] ?? ""}");
+                                },
+                                onCustom: (customId, customLink) {
+                                  switch(customId){
+                                    case 1:
+                                      Utils.openURL(customLink);
+                                      break;
+                                    case 2:
+                                      Utils.openURL(customLink.toTuroReserveUrl);
+                                      break;
+                                    case 3:
+                                      Utils.openURL(customLink.toGetAroundReserveUrl);
+                                      break;
+                                  }
+                                },
+                              );
+                            },
+                          )
+                        ],
+                      if (state.vehicleDataList.isNotEmpty)
+                        NumberPagination(
+                          onPageChanged: (page) =>
+                              context
+                                  .read<VehicleHistoryBloc>()
+                                  .add(VehicleHistoryPageEvent(page)),
+                          totalPages: state.totalPage,
+                          currentPage: state.currentPage,
+                          enableInteraction: true,
+                          betweenNumberButtonSpacing: 0,
+                          buttonRadius: 3,
+                          sectionSpacing: 0,
+                          visiblePagesCount: 5,
+                          controlButtonSize: const Size.fromRadius(20),
+                          numberButtonSize: const Size.fromRadius(20),
+                          fontFamily: "Lato",
+                          buttonElevation: 0,
+                          navigationButtonSpacing: 0,
+                          controlButtonColor: AppC.lightGrey,
+                          unSelectedButtonColor: AppC.trans,
+                          selectedButtonColor: AppC.appColor,
+                          selectedNumberFontWeight: FontWeight.bold,
+                          unSelectedNumberColor: AppC.text,
+                        ),
+                    ],
                   )),
         ),
       ),
