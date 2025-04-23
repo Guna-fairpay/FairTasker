@@ -1,5 +1,6 @@
 
 import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class ResourceSelection {
       ) async {
 
     ValueNotifier<List<String>> selectedIdsNotifier = ValueNotifier(selectedValues);
-
+    final ScrollController _scrollController = ScrollController();
     if (details != null) {
       await showMenu(
         elevation: 5,
@@ -34,80 +35,86 @@ class ResourceSelection {
             padding: EdgeInsets.zero,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: SizedBox(
-                width: 70.sp,
-                height: 200.sp,
-                child: ValueListenableBuilder<List<String>>(
-                  valueListenable: selectedIdsNotifier,
-                  builder: (context, value, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Icon(
-                              Icons.close_sharp,
-                              color: Colors.red,
-                            ),
-                          ),
+              child: ValueListenableBuilder<List<String>>(
+                valueListenable: selectedIdsNotifier,
+                builder: (context, value, _) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Icon(
+                          Icons.close_sharp,
+                          color: Colors.red,
                         ),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: resourceList.length,
-                            itemBuilder: (context, index) {
-                              final user = resourceList[index];
-                              final resourceId =
-                              resourceList[index]['id'].toString();
-                              final isSelected = value.contains(resourceId);
-                              List<dynamic> name = resourceList
-                                  .where((element) => selectedValues.contains(element['id'].toString()))
-                                  .toList();
-                              return GestureDetector(
-                                onTap: () {
-                                  if (isSelected) {
-                                    if (name.length <= 1 && value.length <= 1) {
-                                      Toaster.showWarning("Cannot proceed without a resource selected");
-                                      return;
-                                    }
-                                    selectedIdsNotifier.value.remove(resourceId);
-                                    name.remove(resourceList[index]);
-                                  } else {
-                                    selectedIdsNotifier.value.add(resourceId);
-                                    name.add(resourceList[index]);
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: 200.sp),
+                      child: Scrollbar(
+                        controller: _scrollController,
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        thickness: 5.sp,
+                        radius: const Radius.circular(Num.borderRadiusLarge),
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: resourceList.length,
+                          itemBuilder: (context, index) {
+                            final user = resourceList[index];
+                            final resourceId =
+                            resourceList[index]['id'].toString();
+                            final isSelected = value.contains(resourceId);
+                            List<dynamic> name = resourceList
+                                .where((element) => selectedValues.contains(element['id'].toString()))
+                                .toList();
+                            return GestureDetector(
+                              onTap: () {
+                                if (isSelected) {
+                                  if (name.length <= 1 && value.length <= 1) {
+                                    Toaster.showWarning("Cannot proceed without a resource selected");
+                                    return;
                                   }
-                                  selectedIdsNotifier.notifyListeners();
-                                  onSelectionChanged(selectedIdsNotifier.value,name);
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 2.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? AppC.appColor : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
+                                  selectedIdsNotifier.value.remove(resourceId);
+                                  name.remove(resourceList[index]);
+                                } else {
+                                  selectedIdsNotifier.value.add(resourceId);
+                                  name.add(resourceList[index]);
+                                }
+                                selectedIdsNotifier.notifyListeners();
+                                onSelectionChanged(selectedIdsNotifier.value,name);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 2.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppC.appColor : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
 
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: 3.0,
-                                    ),
-                                    child: Utils.getText(
-                                      <String>[(user?['first_name'] ?? ""), (user?['last_name'] ?? "")].toInitial,
-                                      weight: FontWeight.bold,
-                                      color: isSelected ? AppC.white : AppC.appColor,
-                                    ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: 3.0,
+                                  ),
+                                  child: Utils.getText(
+                                    <String>[(user?['first_name'] ?? ""), (user?['last_name'] ?? "")].toInitial,
+                                    weight: FontWeight.bold,
+                                    color: isSelected ? AppC.white : AppC.appColor,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    );
-                  },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

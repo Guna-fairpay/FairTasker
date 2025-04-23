@@ -94,6 +94,8 @@ class AddTodoMainForm extends StatelessWidget {
             builder: (context, state) => ((state != null) &&
                     (state.isNotEmpty ?? false))
                 ? VehicleHistoryViewUI(
+                    showSameTask: true,
+                    title: context.watch<AddToDoBloc>().taskName,
                     itemPerPage: 5,
                     additionalScroll: false,
                     showLoading: false,

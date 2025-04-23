@@ -25,6 +25,7 @@ class _TaskerBouncieDialogView extends StatelessWidget {
       insetPadding: 16.sp.padding,
       contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
       titlePadding: EdgeInsets.zero,
+      backgroundColor: Colors.white,
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: ListTile(
