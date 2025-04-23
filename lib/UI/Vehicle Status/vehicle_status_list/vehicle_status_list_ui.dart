@@ -35,65 +35,67 @@ class VehicleStatusListUi extends StatelessWidget {
               EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
-              if (state is VehicleStatusErrorState) {
-                Toaster.showError("${state.errorMessage}");
-              } else if (state is VehicleStatusSuccessState) {
-                Toaster.showSuccess("${state.successMessage}");
-              } else if (state is VehicleStatusOnPressedState) {
-                var pressType = state.type;
-                var data = state.data;
-                var tripCategory = state.tripCategory;
-                if ((pressType != null) && (data != null)) {
-                  switch(pressType) {
+              switch(state) {
+                case VehicleStatusErrorState(): Toaster.showError("${state.errorMessage}"); break;
+                case VehicleStatusSuccessState(): Toaster.showSuccess("${state.successMessage}"); break;
+                case VehicleStatusOnPressedState(): {
+                  var pressType = state.type;
+                  var data = state.data;
+                  var tripCategory = state.tripCategory;
+                  if ((pressType != null) && (data != null)) {
+                    switch(pressType) {
 
-                    case VehicleStatusOnPressed.last_checklist:
-                      context.push(VehicleStatusChecklistUI(
+                      case VehicleStatusOnPressed.last_checklist:
+                        context.push(VehicleStatusChecklistUI(
                           vehicleName: data['vehicle_name'] ?? '',
                           vin: data['vin'] ?? '',
-                        data:data,
-                      )
+                          data:data,
+                        )
                         );
-                    case VehicleStatusOnPressed.vehicle_config:
-                      context.push(VehicleStatusConfigUI(
-                        // vehicleStatusListData: data,
-                        vehicleName: data['vehicle_name'] ?? '',
-                        vin: data['vin'] ?? '',
-                      ));
-                    case VehicleStatusOnPressed.vehicle_edit:
-                      context.push(VehicleNotesHistoryViewUi(
-                        vin: data['vin'] ?? '',
-                        vehicleName: data['vehicle_name'] ?? '',
-                      ));
-                    case VehicleStatusOnPressed.vehicle_details:
-                      context.push(VehicleHistoryViewUI(
-                        vehicleName: data['vehicle_name'] ?? '',
-                        vin: data['vin'] ?? '',
-                      ));
-                    case VehicleStatusOnPressed.date_pickup:
-                      Utils.showPickerDate(context, value: (data['followup_date'] ?? "").toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
-                    case VehicleStatusOnPressed.view_history:
-                    context.push(VehicleHistoryViewUI(
-                      vehicleName: data['vehicle_name'] ?? '',
-                      vin: data['vin'] ?? '',
-                    ));
-                    case VehicleStatusOnPressed.view_expense:
-                      context.push(CumulativeCostListUI(vehicleStatusListData: data, createExpenseFieldData: CreateExpenseFieldData()));
-                    case VehicleStatusOnPressed.add_vehicle:
-                      context.push(const CreateTodoUI());
-                    case VehicleStatusOnPressed.view_notes:
-                      NotesDialog.show(context, message: data['note']);
+                      case VehicleStatusOnPressed.vehicle_config:
+                        context.push(VehicleStatusConfigUI(
+                          // vehicleStatusListData: data,
+                          vehicleName: data['vehicle_name'] ?? '',
+                          vin: data['vin'] ?? '',
+                        ));
+                      case VehicleStatusOnPressed.vehicle_edit:
+                        context.push(VehicleNotesHistoryViewUi(
+                          vin: data['vin'] ?? '',
+                          vehicleName: data['vehicle_name'] ?? '',
+                        ));
+                      case VehicleStatusOnPressed.vehicle_details:
+                        context.push(VehicleHistoryViewUI(
+                          vehicleName: data['vehicle_name'] ?? '',
+                          vin: data['vin'] ?? '',
+                        ));
+                      case VehicleStatusOnPressed.date_pickup:
+                        Utils.showPickerDate(context, value: (data['followup_date'] ?? "").toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
+                      case VehicleStatusOnPressed.view_history:
+                        context.push(VehicleHistoryViewUI(
+                          vehicleName: data['vehicle_name'] ?? '',
+                          vin: data['vin'] ?? '',
+                        ));
+                      case VehicleStatusOnPressed.view_expense:
+                        context.push(CumulativeCostListUI(vehicleStatusListData: data, createExpenseFieldData: CreateExpenseFieldData()));
+                      case VehicleStatusOnPressed.add_vehicle:
+                        context.push(const CreateTodoUI());
+                      case VehicleStatusOnPressed.view_notes:
+                        NotesDialog.show(context, message: data['note']);
+                    }
                   }
-                }
-              } else if (state is VehicleStatusShowDatePickerState) {
-                var data = state.data;
-                Utils.showPickerDate(context, value: data?['followup_date'].toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
-              } else if (state is VehicleStatusShowSortingState) {
-                var details = state.details;
-                if (details != null) {
-                  var offSet = Offset(details.globalPosition.dx, details.globalPosition.dy);
-                  var items = context.read<VehicleStatusBloc>().filterBys;
-                  SimplePopUpMenu.instance.show(context, items: items, position: offSet, itemAsString: (item) => item['name'] ?? "", onTap: (item) => context.read<VehicleStatusBloc>().add(VehicleStatusSortEvent(item)));
-                }
+                } break;
+                case VehicleStatusShowDatePickerState(): {
+                  var data = state.data;
+                  Utils.showPickerDate(context, value: data?['followup_date'].toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
+                } break;
+                case VehicleStatusShowSortingState(): {
+                  var details = state.details;
+                  if (details != null) {
+                    var offSet = Offset(details.globalPosition.dx, details.globalPosition.dy);
+                    var items = context.read<VehicleStatusBloc>().filterBys;
+                    SimplePopUpMenu.instance.show(context, items: items, position: offSet, itemAsString: (item) => item['name'] ?? "", onTap: (item) => context.read<VehicleStatusBloc>().add(VehicleStatusSortEvent(item)));
+                  }
+                } break;
               }
             }
           }, child: const VehicleStatusListBody()),

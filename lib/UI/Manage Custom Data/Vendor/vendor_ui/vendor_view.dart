@@ -303,7 +303,7 @@ class VendorView extends StatelessWidget {
                                           onPressed: () {
                                             context.read<VendorDataBloc>().add(AddVendorData(
                                                   name: context.read<VendorDataBloc>().nameController.text,
-                                                  vendorTypeId: selectedVendorType != null ? selectedVendorType['id'] : context.read<VendorDataBloc>().vendorTypeId,
+                                                  vendorTypeId: selectedVendorType != null ? selectedVendorType['id'] ?? '' : context.read<VendorDataBloc>().vendorTypeId,
                                                   address: context.read<VendorDataBloc>().addressController.text,
                                                   phone: context.read<VendorDataBloc>().phoneController.text,
                                                   expertise: context.read<VendorDataBloc>().expertiseController.text,

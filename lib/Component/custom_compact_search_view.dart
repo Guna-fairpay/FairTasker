@@ -6,10 +6,11 @@ import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
 class CompactSearchView extends StatelessWidget {
+  final bool readOnly;
   final String? hintText, labelText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged, onSubmitted;
-  const CompactSearchView({super.key, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText});
+  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class CompactSearchView extends StatelessWidget {
     return TextField(
       key: key,
       controller: controller,
+      readOnly: readOnly,
       textInputAction: TextInputAction.search,
       onChanged: onChanged,
       onSubmitted: onSubmitted,

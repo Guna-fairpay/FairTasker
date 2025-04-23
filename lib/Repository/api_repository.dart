@@ -956,10 +956,11 @@ Future<Map<String, dynamic>?> getLocations() async {
         apiUrl = "${Str.LIST_BASE_URL}vendor-types/$id";
         response = await _apiClient.callPutMethod(apiUrl, body: body);
       } else {
-        return null;
+        apiUrl = "${Str.LIST_BASE_URL}vendor-types";
+        response = await _apiClient.callPostMethod(apiUrl, body: body);
       }
       log("createVendorTypeData apiUrl: $apiUrl");
-      log("createVendorTypeData body: $body");
+      log("createVendorTypeData body: ${response?.body ?? ''}");
       if (response != null) {
         log('createVendorTypeData api.response.body: ${response.body}');
         if (response.statusCode == 200 || response.statusCode == 201) {

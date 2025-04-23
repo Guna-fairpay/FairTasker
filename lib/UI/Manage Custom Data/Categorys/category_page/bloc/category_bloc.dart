@@ -14,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   List<Map<String, dynamic>> _apiResponse = [];
   final GlobalKey<FormState> formKey = GlobalKey();
+  List<Map<String, dynamic>> _unFilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
   final APiRepository _aPiRepository = APiRepository();
   final TextEditingController nameController = TextEditingController();
@@ -45,6 +46,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
   void _sortResponse() {
     _apiResponse.sort((a, b) => num.tryParse(b['id'].toString())?.compareTo(num.tryParse(a['id'].toString()) ?? 0) ?? 0);
+    _unFilteredResponse = _apiResponse;
   }
 
   void _onInitialEvent(CategoryInitialEvent event, Emitter<CategoryState> emit) async {
@@ -55,8 +57,8 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       _triggerBroadcast();
       _apiResponse = List.from(response?['data'] ?? []);
       _sortResponse();
-      filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
-      totalCount = _apiResponse.length;
+      filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+      totalCount = _unFilteredResponse.length;
       emit(CategoryCommonState());
     } catch (e) {
       emit(CategoryErrorState(e));
@@ -65,7 +67,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
   void _onPaginationEvent(CategoryPaginationEvent event, Emitter<CategoryState> emit) {
     currentPage = event.page;
-    filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
     emit(CategoryCommonState());
   }
 
@@ -77,9 +79,10 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     } else {
       filteredData = _apiResponse;
     }
+    _unFilteredResponse = filteredData;
     currentPage = 1;
-    totalCount = filteredData.length;
-    filteredResponse = paginateList(data: filteredData, currentPage: currentPage, itemsPerPage: itemsPerPage);
+    totalCount = _unFilteredResponse.length;
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
   }
 
   void _onSearchEvent(CategorySearchEvent event, Emitter<CategoryState> emit) {
@@ -102,6 +105,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       _triggerBroadcast();
       if (response != null) {
         _apiResponse.removeWhere((element) => element['id'] == model['id']);
+        _unFilteredResponse = _apiResponse;
         totalCount = _apiResponse.length;
         if (selectedModel?['id'] == model['id']) _clearControllers();
         _sortResponse();
