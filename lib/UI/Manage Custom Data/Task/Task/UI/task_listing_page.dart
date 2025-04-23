@@ -49,7 +49,9 @@ class TaskListingPage extends StatelessWidget {
                 ),
               ),
             ),
-            ListView.separated(
+            context.watch<TaskBloc>().filteredResponse.isEmpty
+                ? Utils.getText('No data found ', weight: FontWeight.bold)
+                : ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 separatorBuilder: (context, index) => const Divider(
