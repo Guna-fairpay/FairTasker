@@ -72,6 +72,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   String? reason;
   String? timeChangePopupType;
   dynamic selectedDate;
+  List<Map<String,dynamic>> vehiclePersonList=[];
 
   List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
@@ -334,6 +335,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           }
         }
          task =List.from(taskResponse);
+        vehiclePersonList=CustomSearchDataConverter.convertVPerson(
+            vehicles: vehicleList,
+            persons: selectedPerson,
+            groupVehicles: selectedGroupVehicles);
+
         emit(state.copyWith(
           isLoading: false,
           showCleanCar: showCleanCar,
