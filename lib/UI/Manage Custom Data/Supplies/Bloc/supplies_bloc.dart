@@ -26,6 +26,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
   AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
 
   List<Map<String, dynamic>> apiResponse = [];
+  List<Map<String, dynamic>> _unFilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
 
   int selectedTab = 0;
@@ -46,7 +47,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
 
     on<SuppliesPaginationEvent>((event, emit) {
       currentIndex = event.page;
-      filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      _pagenate();
       emit(SuppliesCommonState());
     });
 
@@ -72,6 +73,10 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
 
   }
 
+  void _pagenate() {
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+  }
+
   void _listener() {}
 
   void _onDeleteTaskEvent(DeleteSuppliesEvent event, Emitter<SuppliesState> emit) async {
@@ -82,7 +87,8 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
       if(response?['message']!=null){
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
-        filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+        _unFilteredResponse = apiResponse;
+        _pagenate();
         Toaster.showSuccess(response?['message']);
         isEdit = false;
         selectedData = null;
@@ -130,11 +136,8 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         }
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         totalCount = apiResponse.length;
-        filteredResponse = paginateList(
-          data: apiResponse,
-          currentPage: currentIndex,
-          itemsPerPage: itemsPerPage,
-        );
+        _unFilteredResponse = apiResponse;
+        _pagenate();
         Toaster.showSuccess("Supplies added successfully");
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
@@ -165,10 +168,8 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
       apiResponse =List.from(response);
       apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
       filteredResponse.clear();
-      filteredResponse = paginateList(
-          data: apiResponse,
-          currentPage: currentIndex,
-          itemsPerPage: itemsPerPage);
+      _unFilteredResponse = apiResponse;
+      _pagenate();
       totalCount = apiResponse.length;
       emit(SuppliesCommonState());
     }catch(e){
@@ -192,8 +193,8 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     }
     currentIndex=1;
     totalCount = filteredData.length;
-    filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
-
+    _unFilteredResponse = filteredData;
+    _pagenate();
   }
 
   void _onSearchSuppliesEvent(SearchSuppliesEvent event, Emitter<SuppliesState> emit) {

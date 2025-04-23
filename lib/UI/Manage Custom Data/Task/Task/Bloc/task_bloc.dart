@@ -26,6 +26,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
   List<Map<String, dynamic>> apiResponse = [];
   // List<Map<String, dynamic>> noCategoryResponse = [];
+  List<Map<String, dynamic>> _unfilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
   List<dynamic>category=[];
   List<dynamic>subcategory=[];
@@ -50,7 +51,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
     on<TaskPaginationEvent>((event, emit) {
       currentIndex = event.page;
-      filteredResponse = paginateList(data: noCategoryResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      _paginate();
       emit(TaskCommonState());
     });
 
@@ -64,9 +65,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       }
       currentIndex = 1;
       totalCount = result.length;
-      // noCategoryResponse = result;
-      Console.of.log(result.length);
-      filteredResponse = paginateList(data: noCategoryResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+      _unfilteredResponse = result;
+      _paginate();
       emit(TaskCommonState());
     });
 
@@ -137,6 +137,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     return result;
   }
 
+  void _paginate() {
+    filteredResponse = paginateList(data: _unfilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+  }
+
 
   void _listener() {}
 
@@ -153,8 +157,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
           result = apiResponse.where((element) => element['subcategory_id'].toString().isNotNullOrEmpty).toList();
         }
         totalCount = result.length;
-        // noCategoryResponse = result;
-        filteredResponse = paginateList(data: noCategoryResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+        _unfilteredResponse = result;
+        _paginate();
         Toaster.showSuccess(response?['message']);
           isEdit = false;
           selectedData = null;
@@ -211,12 +215,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
             ? apiResponse.where((e) => e['subcategory_id'].toString().isNullOrEmpty).toList()
             : apiResponse.where((e) => e['subcategory_id'].toString().isNotNullOrEmpty).toList();
         totalCount = result.length;
-        // noCategoryResponse = result;
-        filteredResponse = paginateList(
-          data: noCategoryResponse,
-          currentPage: currentIndex,
-          itemsPerPage: itemsPerPage,
-        );
+        _unfilteredResponse = result;
+        _paginate();
         Toaster.showSuccess(response?['message']);
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
@@ -251,9 +251,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     selectedUserType = usersType[0];
     apiResponse =List.from(response);
     timeTakenController.text='30';
-    // noCategoryResponse = apiResponse.where((element) => element['subcategory_id'].toString().isNotNullOrEmpty).toList();
-    filteredResponse.clear();
-    filteredResponse = paginateList(data: noCategoryResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    _unfilteredResponse = noCategoryResponse;
+    _paginate();
     totalCount = noCategoryResponse.length;
     emit(TaskCommonState());
   }
@@ -317,10 +316,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     } else {
       filteredData = noCategoryResponse;
     }
-    totalCount = filteredData.length;
     currentIndex=1;
-    filteredResponse = paginateList(data: filteredData, currentPage: currentIndex, itemsPerPage: itemsPerPage,);
-
+    totalCount = filteredData.length;
+    _unfilteredResponse = filteredData;
+    _paginate();
   }
 
   void _onSearchEvent(SearchTaskEvent event, Emitter<TaskState> emit) {
