@@ -284,8 +284,8 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         isVendorTypeEdit = false;
         vendorTypeNameController.clear();
         emit(VendorDataCommonState());
+        add(const GetVendorTypeList());
       });
-      add(const GetVendorTypeList());
     });
 
     //vendor type delete event
