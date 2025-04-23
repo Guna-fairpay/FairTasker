@@ -3038,6 +3038,7 @@ class Utils {
         initialEntryMode: DatePickerEntryMode.calendarOnly,
         lastDate: DateTime.now().add(const Duration(days: 1825000))));
     if (result != null) onChanged?.call(result);
+    dismissKeyboard(context);
   }
 
   static void showPickerTime(BuildContext context, {TimeOfDay? value, void Function(TimeOfDay)? onChanged}) async {
@@ -3047,6 +3048,7 @@ class Utils {
       initialEntryMode: TimePickerEntryMode.dialOnly,
     );
     if (result != null) onChanged?.call(result);
+    dismissKeyboard(context);
   }
 }
 
