@@ -72,7 +72,7 @@ class ToDoTaskerVendorInfoState extends ToDoTaskerState {
   final Map<String, dynamic>? model;
   ToDoTaskerVendorInfoState(this.model);
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, Random().nextDouble()];
 }
 
 class ToDoTaskerNotesTapState extends ToDoTaskerState {
