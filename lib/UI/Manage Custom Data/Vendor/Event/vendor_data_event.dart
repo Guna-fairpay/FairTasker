@@ -14,7 +14,7 @@ abstract class VendorDataEvent extends Equatable {
 
 class AddVendorData extends VendorDataEvent {
   final String? name;
-  final String? vendorTypeId;
+  final int? vendorTypeId;
   final String? address;
   final String? phone;
   final String? expertise;
