@@ -245,7 +245,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     }
     var response= await getIt<CommonService>().getTaskExpenseData(reset: true);
     var categories = await getIt<CommonService>().getExpenseCategories();
-    category=categories;
+    category=List.from(categories);
     response.removeWhere((element) => element['deleted_at'].toString().isNotNullOrEmpty);
     response.sort((a, b) => b['id'].compareTo(a['id']));
     selectedUserType = usersType[0];
@@ -307,7 +307,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     List<Map<String, dynamic>> filteredData = [];
 
     if (query.trim().isNotNullOrEmpty) {
-      filteredData = noCategoryResponse.where((element) {
+      filteredData = apiResponse.where((element) {
         return [
           element['task'],
           element['category_name'],

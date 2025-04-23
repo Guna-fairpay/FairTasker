@@ -9,6 +9,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -230,12 +231,37 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
           infusedFiles: infusedFiles,
           body: _save(),
         );
-        if (response?.isNotEmpty ?? false) {
-          Toaster.showSuccess(response?['message'] ?? []);
+        (response?.containsKey("error") ?? false)
+            ? Toaster.showError(response?['error'] ?? "")
+            : Toaster.showSuccess(response?['message'] ?? "");
+        if ((response?.isNotEmpty ?? false) && (response?.containsKey("message") ?? false)) {
+         if(response?['data']?['vin']!=null) {
+           Console.of.log(response?['data']);
+           var data = response?['data'];
+           Map<String, String> body = {
+             'branch_id': '${data?['branch_code'] ?? ''}',
+             'cohort_id': '${data?['cohort_id'] ?? ''}',
+             'start_at': DateTime.now().toFormat(format: 'yyyy-MM-dd') ?? "",
+             'status': 'In Progress',
+             'title': 'Transport Car-Buy',
+             'todo_time': DateTime.now().toFormat(format: 'HH:mm:ss') ?? "",
+             'user_id': '${getIt<CommonService>().userId}',
+             'vehicle_name': '${data?['year']}${data?['make']}${data?['model']}',
+             'vehicle_status_category': '1',
+             'vehicle_status_checklist': '1',
+             'vin': '${data?['vin']}',
+           };
+           Console.of.log(body);
+           await _apiRepository.setDefaultVehicleConfig(
+               vin: body['vin'] ?? "");
+           await _apiRepository.addToDo(body: body);
+           _broadcast.broadcast("todo_view");
+         }
           _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          _broadcast.broadcast(Str.addToDoRefresh);
+          _broadcast.broadcast(Str.editToDoRefresh);
+          clearFields();
         }
-        _broadcast.broadcast(Str.addToDoRefresh);
-        _broadcast.broadcast(Str.editToDoRefresh);
         emit(AddCompletedState());
         // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
       } catch (e) {
@@ -348,5 +374,53 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   /// VEHICLE STATUS API CALL
   Future<List<Map<String, dynamic>>?> _getVehicleStatusCategories() async =>
       await getIt<CommonService>().getActiveVehiclesCount();
+
+  void clearFields() {
+    yearController.clear();
+    makeController.clear();
+    modelController.clear();
+    purchasePriceController.clear();
+    purchaseDateController.clear();
+    vinController.clear();
+    vehicleIdController.clear();
+    earningsController.clear();
+    utilizationRateController.clear();
+    platformController.clear();
+    mileageController.clear();
+    wholeSaleAmountController.clear();
+    addressController.clear();
+    carNumberController.clear();
+    oilGradeController.clear();
+    frontTireController.clear();
+    rearTireController.clear();
+    renewalDateController.clear();
+    numberPlateController.clear();
+    tollTagsController.clear();
+    spareTireController.clear();
+    insuranceCostController.clear();
+    insuranceAgentController.clear();
+    currentOdometerController.clear();
+    oilChangeOdometerController.clear();
+    maintenanceCheckController.clear();
+    receiptImage.clear();
+    vehicleImage.clear();
+    tireImage.clear();
+    tollImage.clear();
+    uploadRegSticker.clear();
+    insuranceImage.clear();
+    selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == "13",);
+    selectedBranch = branch.firstWhereOrNull((element) => element['id'].toString() == branchId.toString(),);
+    selectedVehicleStatus = vehicleStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
+    selectedActiveStatus = activeStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
+    showMore = false;
+    bouncie = false;
+    tollTags = false;
+    airTag = false;
+    permanentPlate = false;
+    spareTire = false;
+    spareKey = false;
+    frontLicensePlate = false;
+
+  }
 
 }
