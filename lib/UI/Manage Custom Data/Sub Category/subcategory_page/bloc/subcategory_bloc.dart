@@ -21,6 +21,7 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
   final Map<String, dynamic> _selectedCategory = {'id': 0, 'name': 'Select'}, _selectedExpenseTo = {'id': 0, 'expense_to': 'Select'};
   Map<String, dynamic>? selectedModel;
   List<Map<String, dynamic>> _apiResponse = [];
+  List<Map<String, dynamic>> _unFilteredResponse = [];
   List<Map<String, dynamic>> expenseTo = [];
   List<Map<String, dynamic>> subcategoriesList = []; // FROM SELECTED CATEGORY
   List<Map<String, dynamic>> filteredResponse = [];
@@ -69,7 +70,8 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
       _subCategories.sort((a, b) => b['id']?.compareTo(a['id']) ?? 0);
       _subCategories = _subCategories.map((e) => e..['categoryName'] = _apiResponse.firstWhere((element) => element['id'] == e['parent_id'])['name']).toList();
       _totalCount = _subCategories.length;
-      filteredResponse = paginateList(data: _subCategories, currentPage: currentPage, itemsPerPage: itemsPerPage);
+      _unFilteredResponse = _subCategories;
+      filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
       emit(SubCategoryCommonState());
     } catch(e) {
       emit(SubCategoryErrorState(e));
@@ -83,9 +85,10 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
     } else {
       filteredResponse = _subCategories;
     }
+    _unFilteredResponse = filteredResponse;
     _totalCount = filteredResponse.length;
     currentPage = 1;
-    filteredResponse = paginateList(data: filteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
   }
 
   void _onSearchEvent(SubCategorySearchEvent event, Emitter<SubCategoryState> emit) {
@@ -103,6 +106,7 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
       if (response != null) {
         if (selectedModel?['id'] == model['id']) _clearControllers();
         _subCategories.removeWhere((element) => element['id'] == model['id']);
+        _unFilteredResponse = _subCategories;
         _totalCount = _subCategories.length;
         _search();
       }
@@ -146,8 +150,9 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
         }
       }
       _subCategories.sort((a, b) => b['id']?.compareTo(a['id']) ?? 0);
+      _unFilteredResponse = _subCategories;
       _totalCount = _subCategories.length;
-      filteredResponse = paginateList(data: _subCategories,
+      filteredResponse = paginateList(data: _unFilteredResponse,
           currentPage: currentPage,
           itemsPerPage: itemsPerPage);
       _clearControllers();
@@ -213,7 +218,7 @@ class SubCategoryBloc extends Bloc<SubCategoryEvent, SubCategoryState> {
 
   void _onPageEvent(SubCategoryPageEvent event, Emitter<SubCategoryState> emit) {
     currentPage = event.page;
-    filteredResponse = paginateList(data: _subCategories, currentPage: currentPage, itemsPerPage: itemsPerPage);
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
     emit(SubCategoryCommonState());
   }
 }
