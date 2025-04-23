@@ -32,6 +32,7 @@ class CreateTodoUI extends StatelessWidget {
       create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader, selectedDate: selectedDate, isNextTask: isNextTask, selectedVPerson: selectedVPerson)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
+            Utils.dismissKeyboard(context);
             if (state.isLoading) {
               EasyLoading.show();
             } else {
@@ -137,6 +138,7 @@ class CreateTodoUI extends StatelessWidget {
       create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader, isNextTask: isNextTask, selectedDate: selectedDate, selectedVPerson: selectedVPerson)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
+            Utils.dismissKeyboard(context);
             if (state.isLoading) {
               EasyLoading.show();
             } else {

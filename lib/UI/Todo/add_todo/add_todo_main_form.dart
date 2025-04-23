@@ -63,7 +63,7 @@ class AddTodoMainForm extends StatelessWidget {
                                   .where((element) => ["vehicles", "g_vehicles"]
                                       .contains(element['type']))
                                   .lastOrNull !=
-                              null))
+                              null) && !(context.watch<AddToDoBloc>().isNextTask))
                           ? Text(
                               state.selectedVPerson
                                       .where((element) => [
@@ -85,7 +85,7 @@ class AddTodoMainForm extends StatelessWidget {
                   ],
                 )),
         16.height,
-        if (showHeader)
+        if (showHeader || !(context.watch<AddToDoBloc>().isNextTask))
           BlocSelector<AddToDoBloc, AddToDoState, Map?>(
             selector: (state) => state.selectedVPerson
                 .where((element) =>
