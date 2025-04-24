@@ -2,6 +2,7 @@ import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomWrapChoice<T extends Object> extends StatelessWidget {
   final List<T> items;
@@ -21,6 +22,8 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
+      spacing: 5.sp,
+      runSpacing: 5.sp,
       children: List<Widget>.generate(
         items.length,
         (int idx) {
@@ -29,15 +32,9 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2),
             child: ChoiceChip(
               showCheckmark: false,
-              padding: EdgeInsets.symmetric(horizontal: 5),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-              selectedColor: AppC.appColor,
-              backgroundColor: const Color(0xfff3f6f9),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
-              side: const BorderSide(color: AppC.appColor),
+              clipBehavior: Clip.antiAliasWithSaveLayer,
               label: Utils.getText(
                 itemAsString?.call(model) ?? "$model",
                 color: ((selectionItemAsString != null)
@@ -56,7 +53,7 @@ class CustomWrapChoice<T extends Object> extends StatelessWidget {
                     : selectedItems?.contains(model) ?? false)
                     ? FontWeight.bold
                     : FontWeight.normal,
-                size: 12,
+                size: 11.sp,
               ),
               selected: ((selectionItemAsString != null)
                   ? ((selectedItems

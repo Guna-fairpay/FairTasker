@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -89,9 +90,11 @@ class MyApp extends StatelessWidget {
             side: const WidgetStatePropertyAll(BorderSide.none),
           ),
           chipTheme: ChipThemeData(
-            color: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.appColor : AppC.lightGreen),
+            color: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.appColor : AppC.lightGrey),
             checkmarkColor: AppC.white,
-            side: BorderSide.none
+            side: BorderSide.none,
+            shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+            padding: 5.sp.horizontalPadding,
           ),
           switchTheme: SwitchThemeData(
             // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

@@ -16,7 +16,7 @@ class TaskerListingUi extends StatelessWidget {
         child: RefreshIndicator(
             child: (context.watch<ToDoTaskerBloc>().toDos.isEmpty &&
                     (state is! ToDoTaskerLoadingState))
-                ? const EmptyWidget()
+                ? const EmptyWidget(withExpand: false)
                 : ReorderableListView.builder(
                 physics: const BouncingScrollPhysics(),
                 itemCount: context.watch<ToDoTaskerBloc>().toDos.length,

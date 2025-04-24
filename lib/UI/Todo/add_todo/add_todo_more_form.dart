@@ -71,16 +71,11 @@ class AddTodoMoreForm extends StatelessWidget {
                             side: const BorderSide()))),
                   ),
                 if ((state.showCleanCar && (DateTime.now().compareTo(context.watch<AddToDoBloc>().addToDoDate) == 1))  && (!(context.watch<AddToDoBloc>().isNextTask)))
-                  Flexible(
-                    child: CustomDropdown<Map<String, dynamic>>(
-                      items: List.from(state.clearDurations),
-                      value: state.selectedClearDuration,
-                      itemAsString: (item) => item['value'].toString(),
-                      onChanged: (value) => context
-                          .read<AddToDoBloc>()
-                          .add(AddToDoCleanCarDuration(value)),
-                    ),
-                  )
+                  Flexible(child: Utils.dropdownBox("", List.from(state.clearDurations),
+                          initialSelection: state.selectedClearDuration,
+                          (selectedValue) => context
+                      .read<AddToDoBloc>()
+                      .add(AddToDoCleanCarDuration(selectedValue)), labelKey: "value")),
               ],
             ),
           if ((state.isMoreEnable || (context.watch<AddToDoBloc>().isNextTask)) && state.isPartServiceEnable)

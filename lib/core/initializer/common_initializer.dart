@@ -431,11 +431,11 @@ class CommonService {
 
   Future<List<Map<String, dynamic>>> getResources({bool reset = false}) async {
     if (reset) resourcesList.clear();
-    if (resourcesList.isNotEmpty) return resourcesList;
+    if (resourcesList.isNotEmpty) return List.from(resourcesList);
     try {
       var response = await _apiRepository.getResourcesList();
       resourcesList = List.from(response?.resource ?? []);
-      return resourcesList;
+      return List.from(resourcesList);
     } catch (e) {
       Toaster.showError(e.toString());
       return [];
