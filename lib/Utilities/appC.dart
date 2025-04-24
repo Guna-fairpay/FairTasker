@@ -57,5 +57,7 @@ static const redAccent = Color(0xffd01601);
   static const bouncieBgBorderColor = Color(0xFFf1b9b3);
 
   static const userFilterBg = Color(0xFFf8f8ff);
+  static const chipBackgroundUnselected = Color(0xFFf3f6f9);
+  static const chipBackgroundUnselectedBorder = Color(0xFF334371);
 
 }

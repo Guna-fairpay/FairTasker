@@ -92,8 +92,8 @@ class MyApp extends StatelessWidget {
           chipTheme: ChipThemeData(
             color: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? AppC.appColor : AppC.lightGrey),
             checkmarkColor: AppC.white,
-            side: BorderSide.none,
             shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+            side: const BorderSide(color: AppC.chipBackgroundUnselectedBorder),
             padding: 5.sp.horizontalPadding,
           ),
           switchTheme: SwitchThemeData(
