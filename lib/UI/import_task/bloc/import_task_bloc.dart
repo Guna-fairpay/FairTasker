@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/import_task/bloc/import_task_events.dart';
 import 'package:fairpytasker/UI/import_task/bloc/import_task_states.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,8 +35,12 @@ class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
       if (textFormKey.currentState?.validate() == false) return;
       if(!isClosed) emit(ImportTaskLoadingState());
       var response = await _uploadToDo();
-      if (response != null) textController.clear();
-      if(!isClosed) emit(ImportTaskCommonState());
+      if ((response != null) && ([200,201,202].contains(response['status']))) {
+        textController.clear();
+        if(!isClosed) emit(ImportTaskCompletedState());
+      } else {
+        if (!isClosed) emit(ImportTaskErrorState("Please enter valid text"));
+      }
     } catch (e) {
       if(!isClosed) emit(ImportTaskErrorState(e));
     }
@@ -44,8 +51,12 @@ class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
       if (turoFormKey.currentState?.validate() == false) return;
       if(!isClosed) emit(ImportTaskLoadingState());
       var response = await _uploadTuro();
-      if (response != null) turoController.clear();
-      if(!isClosed) emit(ImportTaskCommonState());
+      if ((response != null) && ([200,201,202].contains(response['status']))) {
+        turoController.clear();
+        if(!isClosed) emit(ImportTaskCompletedState());
+      } else {
+        if (!isClosed) emit(ImportTaskErrorState("Please enter valid text"));
+      }
     } catch (e) {
       if(!isClosed) emit(ImportTaskErrorState(e));
     }
@@ -60,6 +71,10 @@ class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
   }
 
   void _onInitialEvent(ImportTaskInitialEvent event, Emitter<ImportTaskState> emit) {
+    // var copiedMedia = List.from(getIt<ReceiveIntent>().medias);
+    // Console.of.log(copiedMedia.first.path);
+    // textController.text = copiedMedia.firstOrNull?.path ?? "";
+    // getIt<ReceiveIntent>().clear();
     currentPageIndex = event.fixedPageIndex ?? 0;
     emit(ImportTaskCommonState());
   }
