@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
@@ -17,7 +19,8 @@ class FeedbackCommentAttachments extends StatelessWidget {
       buildWhen: (previous, current) => current is FBCommentAttachments,
       builder: (context, state) => ((state is FBCommentAttachments) && (context.read<FBEditBloc>().commentAttachments.isNotEmpty)) ? Container(
         constraints: const BoxConstraints(maxHeight: 80),
-        child: GridView.builder(
+        child:
+        GridView.builder(
           gridDelegate:
           const SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisSpacing: 10,
@@ -26,9 +29,18 @@ class FeedbackCommentAttachments extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           itemBuilder: (context, index) {
+            int? attachmentId;
             var model = context.read<FBEditBloc>().commentAttachments[index];
-            return CloseBadge(
-                onTapDelete: () => context.read<FBEditBloc>().add(FBCommentRemoveAttachmentEvent(model)),
+            if(context.read<FBEditBloc>().attachmentMetadata != null && context.read<FBEditBloc>().attachmentMetadata.isNotEmpty && (model is File)){
+              // var metadata = context.read<FBEditBloc>().attachmentMetadata?[index];
+              // attachmentId = metadata?['id'];
+              attachmentId = 0;
+            }
+            return
+              CloseBadge(
+                onTapDelete: () {
+                  context.read<FBEditBloc>().add(FBCommentRemoveAttachmentEvent(model,attachmentId));
+                },
                 onTapView: () => context.read<FBEditBloc>().add(FBFeedViewAttachmentEvent(model, context.read<FBEditBloc>().commentAttachments)),
                 child: Container(
                   constraints: BoxConstraints(
@@ -44,10 +56,12 @@ class FeedbackCommentAttachments extends StatelessWidget {
                     imageInput: model,
                     isNotImage: !((model as Object).isImage),
                   ),
-                ));
+                )
+              );
           },
           itemCount: context.read<FBEditBloc>().commentAttachments.length,
         ),
+
       ) : const SizedBox.shrink(),
     );
   }
