@@ -90,6 +90,8 @@ class PersonExpenseViewUI extends StatelessWidget {
                     ? const EmptyWidget()
                     : Expanded(
                   child: ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    shrinkWrap: true,
                     separatorBuilder: (context, index) =>
                         const Divider(height: 0.5),
                     itemCount: state.apiResponse.length,
