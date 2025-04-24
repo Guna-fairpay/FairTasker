@@ -20,6 +20,7 @@ class BillListItem extends TableRow {
   @override
   List<Widget> get children => [
     TableRowInkWell(child:Checkbox(
+      activeColor: AppC.appColor,
       value: model?['expense_status'] == 1 ? true : false,
       onChanged: (v)=>model?['expense_status'] == 0 ? onPass?.call():{},
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(8.sp),),

@@ -826,7 +826,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     state.selectedVPerson
         .removeWhere((element) => vinList.contains(element['value']['vin']));
     Map<String, String> baseBody = {};
-    baseBody['title'] = "${state.selectedTask['task'] ?? ''}";
+    baseBody['title'] = "${state.selectedTask['task'] ?? taskNameController.text}";
     baseBody['identifier_id'] = "${state.selectedTask['id'] ?? ''}";
     if (state.isRecurring == false) {
       baseBody['todo_time'] = state.selectedTime.toHMS().toString();

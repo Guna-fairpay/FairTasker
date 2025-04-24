@@ -73,6 +73,7 @@ class EditTodoMoreForm extends StatelessWidget {
                         context.read<EditToDoBloc>().add(EditToDoCleanCarEvent()),
                     icon: const Icon(Icons.local_car_wash_sharp),
                     style: ButtonStyle(
+
                         shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                             side: const BorderSide()))),
@@ -208,6 +209,12 @@ class EditTodoMoreForm extends StatelessWidget {
                 ),
               ],
             ),
+          if(state.apiResponse['clean_required'] != null)
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Utils.getText(state.apiResponse['clean_required'] ?? '',
+                    align: TextAlign.start,
+                    color: const Color(0xffd01601))),
           if (state.selectedVehicle.isNotEmpty && state.taskHistory.length > 1)
             Utils.dropdownBox(
                 "Select Vehicle Name",
@@ -256,7 +263,7 @@ class EditTodoMoreForm extends StatelessWidget {
                           .add(EditToDoOpenCustomLinkEvent())),
                 textAlign: TextAlign.end,
                 style: context.textTheme.labelMedium?.copyWith(
-                    color: AppC.appColor,
+                    color:state.apiResponse['status']=='In Progress'? AppC.appColor:AppC.green,
                     fontSize: 12.sp,
                     decoration: TextDecoration.underline,
                     decorationColor: AppC.appColor),

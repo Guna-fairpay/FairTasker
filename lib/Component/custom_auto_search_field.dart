@@ -79,6 +79,7 @@ class _CustomAutoSearchFieldState<T extends Object> extends State<CustomAutoSear
             widget.controller.clear();
           }
           _focusNode?.requestFocus();
+          Utils.dismissKeyboard(context);
         },
         optionsViewBuilder: (context, onSelected, options) {
           try {

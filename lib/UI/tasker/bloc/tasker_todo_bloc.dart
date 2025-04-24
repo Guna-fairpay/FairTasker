@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
+import 'package:fairpytasker/Component/transportcar_pop.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -395,12 +396,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       /// CALL COMPLETE API
       /// IF CHECK IN / CHECK OUT THEN CHECK TODO DATE AND CURRENT DATE ARE SAME OR NOT
       /// IF BOTH DATE AS SAME THEN COMPLETE THE TASK OTHERWISE NO NEED TO CALL THE API
-      if ((["Check Out", "Check In"].contains(taskTitle))) {
+      if ((["Check Out", "Check In",].contains(taskTitle))) {
         if ((taskDate == currentDate)) {
           // CALL COMPLETE API
           _callCompleteApi(model, showLoading: false);
           (taskTitle == "Check In") ? _callSaveWorkingHour(model) : _callUpdateWorkingHour(model);
         }
+      }else if((["Transport Car-Buy"].contains(taskTitle))){
+        emit(ToDoTaskerCompleteTransportCarState(event.model));
       } else {
         _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
       }

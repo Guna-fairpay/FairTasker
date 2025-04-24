@@ -507,6 +507,17 @@ class CommonService {
     }
   }
 
+  Future<Map<String, dynamic>?> findVehicleReservation({required String vin}) async {
+    try {
+      var response = await _apiRepository.getVehicleHistory(vin: vin);
+      var _vehileHisory = List<Map<String, dynamic>>.from(response?['todo']?['data'] ?? []);
+      return _vehileHisory.firstOrNull;
+    }catch (e) {
+      Toaster.showError(e.toString());
+      return null;
+    }
+  }
+
   Future<void> clearAll() async {
     usersList.clear();
     cohortsList.clear();
