@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Component/close_badge.dart';
@@ -38,7 +39,8 @@ class FeedbackEditComments extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 12,
-                      child: ListView.separated(
+                      child:
+                      ListView.separated(
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             var model = state.comments[index];
@@ -56,7 +58,7 @@ class FeedbackEditComments extends StatelessWidget {
                                 ],
                               ),
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
                                 child: Card.outlined(
                                   elevation: 3,
                                   shape: ContinuousRectangleBorder(
@@ -84,32 +86,68 @@ class FeedbackEditComments extends StatelessWidget {
                                           title: Text(
                                               "${model?['users']?['first_name'] ?? ''} ${model?['users']['last_name']}"),
                                           subtitle: Text(GetTimeAgo.parse(DateTime.tryParse(model?['created_at'] ?? "") ?? DateTime.now().toUtc())),
-                                          trailing: ((model?['attachments'] !=
-                                                      null) &&
-                                                  (model?['attachments']
-                                                      is List) &&
-                                                  (model?['attachments'] as List)
-                                                      .isNotEmpty)
-                                              ? GestureDetector(
-                                                  onTap: () => context
-                                                      .read<FBEditBloc>()
-                                                      .add(FBFeedViewAttachmentEvent(
-                                                          null,
-                                                          (model?['attachments']
-                                                                  as List)
-                                                              .where((element) =>
-                                                                  element['path']
-                                                                      .toString()
-                                                                      .isNotEmpty)
-                                                              .map((e) => e[
-                                                                      'path']
-                                                                  .toString()
-                                                                  .toAttachmentURL)
-                                                              .toList())),
-                                                  child: const Icon(Icons
-                                                      .attach_file_rounded),
-                                                )
-                                              : null,
+                                          trailing:
+                                          // ((model?['attachments'] !=
+                                          //     null) &&
+                                          //     (model?['attachments']
+                                          //     is List) &&
+                                          //     (model?['attachments'] as List)
+                                          //         .isNotEmpty)
+                                          //     ? GestureDetector(
+                                          //   onTap: () => context
+                                          //       .read<FBEditBloc>()
+                                          //       .add(FBFeedViewAttachmentEvent(
+                                          //       null,
+                                          //       (model?['attachments']
+                                          //       as List)
+                                          //           .where((element) =>
+                                          //       element['path']
+                                          //           .toString()
+                                          //           .isNotEmpty)
+                                          //           .map((e) => e[
+                                          //       'path']
+                                          //           .toString()
+                                          //           .toAttachmentURL)
+                                          //           .toList())),
+                                          //   child: const Icon(Icons
+                                          //       .attach_file_rounded),
+                                          // )
+                                          //     : null,
+                                          ConstrainedBox(
+                                            constraints: const BoxConstraints(
+                                                maxWidth: 100),
+                                            child: Row(
+                                              spacing: 10,
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                Flexible(
+                                                  child: (context.watch<FBEditBloc>().selectedCommentModel != model) ?
+                                                  GestureDetector(
+                                                      onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
+                                                      child: Icon(Icons.edit_outlined, color:AppC.appColor)
+                                                  ) :
+                                                  GestureDetector(
+                                                    onTap: ()=> context.read<FBEditBloc>().add(FBCommentsEditCancelEvent()),
+                                                      child: Icon(Icons.cancel_outlined, color: AppC.red,)
+                                                  ),
+                                                ),
+                                                if((model?['attachments'] != null) && (model?['attachments']is List) && (model?['attachments'] as List).isNotEmpty)...[
+                                                  Flexible(
+                                                    child: GestureDetector(
+                                                        onTap: () => context.read<FBEditBloc>().add(FBFeedViewAttachmentEvent(
+                                                            null,
+                                                            (model?['attachments'] as List).where(
+                                                                    (element) => element['path'].toString().isNotEmpty)
+                                                                .map((e) => e['path'].toString().toAttachmentURL).toList())),
+                                                      child: const Icon(Icons.attach_file_rounded),
+                                                    ),
+                                                  ),
+                                                ] else...[
+                                                  const SizedBox.shrink(),
+                                                ]
+                                              ],
+                                            ),
+                                          ),
                                           titleTextStyle: context
                                               .textTheme.labelLarge
                                               ?.copyWith(
@@ -142,7 +180,8 @@ class FeedbackEditComments extends StatelessWidget {
                             );
                           },
                           separatorBuilder: (context, index) => 5.height,
-                          itemCount: state.comments.length),
+                          itemCount: state.comments.length
+                      ),
                     ),
                     Column(
                       spacing: 5,
@@ -153,9 +192,7 @@ class FeedbackEditComments extends StatelessWidget {
                           children: [
                             Expanded(
                               child: TextField(
-                                controller: context
-                                    .read<FBEditBloc>()
-                                    .commentController,
+                                controller: context.read<FBEditBloc>().commentController,
                                 textInputAction: TextInputAction.newline,
                                 clipBehavior: Clip.antiAliasWithSaveLayer,
                                 keyboardType: TextInputType.multiline,
@@ -169,9 +206,7 @@ class FeedbackEditComments extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(30)),
                                   hintText: "Type here...",
                                   prefixIcon: GestureDetector(
-                                    onTap: () => context
-                                        .read<FBEditBloc>()
-                                        .add(FBCommentAddAttachmentEvent()),
+                                    onTap: () => context.read<FBEditBloc>().add(FBCommentAddAttachmentEvent()),
                                     child:
                                         const Icon(Icons.attach_file_rounded),
                                   ),
@@ -179,9 +214,9 @@ class FeedbackEditComments extends StatelessWidget {
                               ),
                             ),
                             IconButton(
-                                onPressed: () => context
-                                    .read<FBEditBloc>()
-                                    .add(FBCommentSubmitEvent()),
+                                onPressed: () => context.read<FBEditBloc>().isEdit == false
+                                    ? context.read<FBEditBloc>().add(FBCommentSubmitEvent())
+                                    : context.read<FBEditBloc>().add(FBUpdateCommentEvent(context.read<FBEditBloc>().commentId, context.read<FBEditBloc>().commentController.text)),
                                 style: ButtonStyle(
                                     shape: WidgetStatePropertyAll(
                                         RoundedRectangleBorder(
@@ -195,7 +230,8 @@ class FeedbackEditComments extends StatelessWidget {
                                             Colors.white),
                                     padding:
                                         WidgetStatePropertyAll(14.padding)),
-                                icon: const Icon(Icons.send))
+                                icon: const Icon(Icons.send)
+                            )
                           ],
                         ),
                       ],
@@ -203,7 +239,8 @@ class FeedbackEditComments extends StatelessWidget {
                   ],
                 ),
               )
-            : const SizedBox.shrink());
+            : const SizedBox.shrink()
+    );
   }
 }
 

@@ -16,6 +16,7 @@ class FeedBackRepository {
   String get _feedbackComments => "${Str.BASE_URL}get-feedback-comments";
   String get _addFeedbackComments => "${Str.BASE_URL}add-feedback-comment";
   String get _deleteFeedbackComment => "${Str.BASE_URL}delete-feedback-comment";
+  String get _updateFeedbackComment => "${Str.BASE_URL}update-feedback-comment/";
 
   Future<FeedbackViewResponse?> fetchFeedback() async {
     var response = await _apiClient.callGetMethod(_viewApiUrl);
@@ -92,6 +93,16 @@ class FeedBackRepository {
 
   Future<Map<String, dynamic>?> deleteFeedbackComment(dynamic commentId) async {
     var response = await _apiClient.callDelete("$_deleteFeedbackComment/$commentId");
+    if (response.isSuccess) {
+      return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
+    } else {
+      throw Exception("${response?.statusCode} : ${response?.reasonPhrase}");
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateFeedbackComment(dynamic commentId, {dynamic comment}) async {
+    var fields = {"comment" : comment.toString()};
+    var response = await _apiClient.callPostMethodWithBody("$_updateFeedbackComment$commentId", body: fields);
     if (response.isSuccess) {
       return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
     } else {

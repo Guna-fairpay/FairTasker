@@ -35,6 +35,10 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
   dynamic pageTitle = "";
   dynamic priority = "";
   dynamic status = 0;
+  bool isEdit = false;
+  int? commentId;
+
+  dynamic selectedCommentModel;
 
   List<String> statuses = ["Pending", "In Progress", "Review", "Closed", "Feature", "Archive"];
 
@@ -187,8 +191,46 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
       }
     });
 
+    on<FBCommentsEditEvent>((event, emit) async {
+      selectedCommentModel = event.model;
+      d.log("${event.model}", name: "EDIT_COMMENT");
+      commentController.text = event.model?['comment'] ?? "";
+      isEdit = true;
+      commentId = event.model?['id'];
+      emit(FBCommentState(comments));
+    });
+
+    on<FBCommentsEditCancelEvent>((event, emit) async {
+      selectedCommentModel = null;
+      commentController.clear();
+      isEdit = false;
+      emit(FBCommentState(comments));
+    });
+
+    on<FBUpdateCommentEvent>((event, emit) async {
+      if (commentController.text.isEmpty) {
+        emit(FBErrorState("Comment field is required"));
+        return;
+      }
+      emit(FBLoadingState());
+      try {
+        var response = await _updateComment(event.commentId, comment: commentController.text);
+        d.log("$response", name: "UPDATE_COMMENT_RESPONSE");
+        if (response != null && response['status'] == 200) {
+          comments.firstWhere((element) => element['id'] == event.commentId)['comment'] = commentController.text;
+          commentController.clear();
+          isEdit = false;
+          emit(FBCommentState(comments));
+        }
+      } catch (e){
+        d.log("Update comments error $e", name: "UPDATE_COMMENT_ERROR");
+      }
+    });
+
   }
 
+
+  ///////////////////////////////
   Future<Map<String, dynamic>?> _fetchFeedBack(dynamic id) async {
     return await _feedBackRepository.getFeedback(id);
   }
@@ -199,6 +241,10 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
 
   Future<Map<String, dynamic>?> _uploadComments(dynamic feedBackId, {dynamic comment, List<File>? files}) async {
     return await _feedBackRepository.addFeedBackComments(feedBackId, comment: comment, files: files);
+  }
+
+  Future<Map<String, dynamic>?> _updateComment(dynamic commentId, {dynamic comment}) async {
+    return await _feedBackRepository.updateFeedbackComment(commentId, comment: comment);
   }
 
   Future<Map<String, dynamic>?> _deleteComment(dynamic commentId) async {
@@ -237,5 +283,6 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
     );
     return result?.paths.where((element) => (element?.isNotEmpty ?? false)).map((e) => File(e!)).toList() ?? [];
   }
+
 
 }
