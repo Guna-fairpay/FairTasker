@@ -154,73 +154,54 @@ class TodoTaskItemCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Flexible(
-                                child: GestureDetector(
-                                  // onTap: onTap,
-                                  child: Text.rich(TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        recognizer: TapGestureRecognizer()..onTap = onTap,
-                                          text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model['display']?['hasTimeSensitive'])
-                                          ? AppC.red
-                                          : AppC.appColor, fontWeight: FontWeight.bold)),
-                                      if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
-                                        ...[
-                                          TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-                                          TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                child: Text.rich(TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      recognizer: TapGestureRecognizer()..onTap = onTap,
+                                        text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model['display']?['hasTimeSensitive'])
+                                        ? AppC.red
+                                        : AppC.appColor, fontWeight: FontWeight.bold)),
+                                    if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
+                                      ...[
+                                        TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                        TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                        if (model['display']?['hasReasonAttachments'] ?? false)
+                                          WidgetSpan(child: 10.width),
                                           if (model['display']?['hasReasonAttachments'] ?? false)
-                                            WidgetSpan(child: 10.width),
-                                            if (model['display']?['hasReasonAttachments'] ?? false)
-                                            WidgetSpan(child: GestureDetector(
-                                              onTap: onReasonAttachmentView,
-                                              child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
-                                            )),
-                                          TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-                                        ],
-                                      if (model['display']?['hasRelatedTask'] ?? false)
-                                        ...[
-                                          TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
-                                          TextSpan(text: model['display']?['relatedTaskName']),
-                                        ]
-                                    ]
-                                  ), maxLines: 1,
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp)),
-                                ),
+                                          WidgetSpan(child: GestureDetector(
+                                            onTap: onReasonAttachmentView,
+                                            child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
+                                          )),
+                                        TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                      ],
+                                    if (model['display']?['hasRelatedTask'] ?? false)
+                                      ...[
+                                        TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
+                                        TextSpan(text: model['display']?['relatedTaskName']),
+                                      ]
+                                  ]
+                                ), maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp)),
                               ),
-                              // Flexible(
-                              //   child: GestureDetector(
-                              //     onTap: onTap,
-                              //     child: Utils.getText("${model['display']?['task_title'] ?? ""}",
-                              //         color: (model['display']?['hasTimeSensitive'])
-                              //             ? AppC.red
-                              //             : AppC.appColor,
-                              //         weight: FontWeight.bold,
-                              //         overFlow: TextOverflow.ellipsis,
-                              //         size: 12.sp),
-                              //   ),
-                              // ),
                               if (model['display']?['hasCustomLink'] ?? false)
-                                Flexible(
-                                  child: GestureDetector(
-                                    onTap: onCustomLink,
-                                    child: Utils.getText(
-                                      "T",
-                                      color: Colors.black,
-                                      weight: FontWeight.w700,
-                                      size: 14.sp,
-                                    ),
+                                GestureDetector(
+                                  onTap: onCustomLink,
+                                  child: Utils.getText(
+                                    "T",
+                                    color: Colors.black,
+                                    weight: FontWeight.w900,
+                                    size: 14.sp,
                                   ),
                                 ),
                               if (model['display']?['hasAttachments'] ?? false)
-                                Flexible(
-                                  child: GestureDetector(
-                                    onTap: onViewAttachment,
-                                    child: Icon(
-                                      Icons.remove_red_eye_sharp,
-                                      size: 14.sp,
-                                      color: AppC.appColor,
-                                    ),
+                                GestureDetector(
+                                  onTap: onViewAttachment,
+                                  child: Icon(
+                                    Icons.remove_red_eye_sharp,
+                                    size: 14.sp,
+                                    color: AppC.appColor,
                                   ),
                                 ),
                             ],
@@ -270,9 +251,9 @@ class TodoTaskItemCard extends StatelessWidget {
                                   onTapDown: onVehicleOrPerson,
                                   child: Utils.getText(
                                     (model['display']?['vehicle_or_person_name'] ?? ""),
-                                    size: 11.sp,
+                                    size: ((model['display']?['vehicle_or_person_name'] ?? "") == "MV") ? 14.sp : 11.sp,
                                     overFlow: TextOverflow.ellipsis,
-                                    weight: FontWeight.w900,
+                                    weight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -388,7 +369,7 @@ class TodoTaskItemCard extends StatelessWidget {
                             GestureDetector(
                                 onTapDown: onResource,
                                 child: Utils.getText("${model['display']?['resource_name'] ?? ""}",
-                                    weight: FontWeight.bold,
+                                    weight: FontWeight.w900,
                                     size: 13.sp,
                                     color: AppC().base)),
                             if(showCheckbox ?? false)

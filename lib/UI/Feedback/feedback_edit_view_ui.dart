@@ -1,13 +1,9 @@
 import 'dart:io';
-import 'package:fairpytasker/Component/feedback_tab_button.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_form.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_header.dart';
-import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_edit_main_bloc.dart';
-import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_edit_main_events.dart';
-import 'package:fairpytasker/UI/Feedback/feedback_edit/main_bloc/feedback_main_state.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -59,8 +55,8 @@ class FeedbackEditViewUI extends StatelessWidget {
                   : [
                 IconButton(
                   onPressed: () => context
-                      .read<FeedBackEditMainBloc>()
-                      .add(FeedBackEditMainSaveEvent()),
+                      .read<FBEditBloc>()
+                      .add(FBFeedSubmitEvent()),
                   icon: const Icon(Icons.save_rounded),
                 ),
               ],

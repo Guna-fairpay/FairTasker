@@ -1,6 +1,70 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
-class VehicleHistoryState extends Equatable {
+abstract class VehicleHistoryState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
+
+class VehicleHistoryLoadingState extends VehicleHistoryState {}
+class VehicleHistorySubLoadingState extends VehicleHistoryState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+class VehicleHistoryErrorState extends VehicleHistoryState {
+  final dynamic message;
+  VehicleHistoryErrorState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
+}
+class VehicleHistorySuccessState extends VehicleHistoryState {
+  final dynamic message;
+  VehicleHistorySuccessState(this.message);
+  @override
+  List<Object?> get props => [message, Random().nextDouble()];
+}
+class VehicleHistoryCommonState extends VehicleHistoryState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class VehicleHistorySelectTaskState extends VehicleHistoryState {
+  final dynamic selectedTask;
+  VehicleHistorySelectTaskState(this.selectedTask);
+  @override
+  List<Object?> get props => [selectedTask, Random().nextDouble()];
+}
+
+class VehicleHistoryDeleteInitState extends VehicleHistoryState {
+  final dynamic selectedTask;
+  VehicleHistoryDeleteInitState(this.selectedTask);
+  @override
+  List<Object?> get props => [selectedTask, Random().nextDouble()];
+}
+
+class VehicleHistoryShowPartsState extends VehicleHistoryState {
+  final dynamic model;
+  VehicleHistoryShowPartsState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class VehicleHistoryShowSuppliesState extends VehicleHistoryState {
+  final dynamic model;
+  VehicleHistoryShowSuppliesState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class VehicleHistoryShowUsersState extends VehicleHistoryState {
+  final List<dynamic> model;
+  VehicleHistoryShowUsersState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+/*class VehicleHistoryState extends Equatable {
   final dynamic vin;
   final int totalPage;
   final bool isLoading;
@@ -75,4 +139,4 @@ class VehicleHistoryState extends Equatable {
         selectedTask,
         isSameTaskSelected,
       ];
-}
+}*/
