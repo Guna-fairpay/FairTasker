@@ -1,5 +1,6 @@
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -9,6 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_time_ago/get_time_ago.dart';
+import '../../../Component/close_badge.dart';
+import '../../../Component/image_viewer.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import '../feedback_edit/bloc/fb_edit_bloc.dart';
@@ -17,6 +20,7 @@ import '../feedback_edit/bloc/fb_edit_states.dart';
 import '../feedback_edit/feedback_comment_attachments.dart';
 
 class FeedbackCommentsView extends StatelessWidget {
+
   const FeedbackCommentsView({super.key});
 
   @override
@@ -47,7 +51,8 @@ class FeedbackCommentsView extends StatelessWidget {
                         ),
                         child: GestureDetector(
                           onTap: ()=> context.read<FBEditBloc>().add(FBCommentAddAttachmentEvent()),
-                          child: Row(
+                          child:
+                          Row(
                             children: [
                               Material(
                                 color: const Color(0xFFeaf0fa),
@@ -55,9 +60,9 @@ class FeedbackCommentsView extends StatelessWidget {
                                   topLeft: Radius.circular(6),
                                   bottomLeft: Radius.circular(6),
                                 ),
-                                child: InkWell(
-                                  onTap: (){
-                                  },
+                                child:
+                                InkWell(
+                                  onTap: () => context.read<FBEditBloc>().add(FBCommentAddAttachmentEvent()),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12),
                                     height: 40,
@@ -82,6 +87,48 @@ class FeedbackCommentsView extends StatelessWidget {
                     ),
                   ],
                 ),
+                10.height,
+                // if (context.read<FBEditBloc>().isEdit &&
+                //     state.comments.any((comment) =>
+                //     comment['id'] ==
+                //         context.read<FBEditBloc>().commentId)) ...[
+                //   SizedBox(
+                //     height: 100,
+                //     child: GridView.builder(
+                //       gridDelegate:
+                //       const SliverGridDelegateWithFixedCrossAxisCount(
+                //           mainAxisSpacing: 10,
+                //           crossAxisCount: 1),
+                //       shrinkWrap: true,
+                //       scrollDirection: Axis.horizontal,
+                //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //       itemBuilder: (context, index) {
+                //         var model = context.read<FBEditBloc>().commentAttachments[index];
+                //         var metadata = context.read<FBEditBloc>().attachmentMetadata[index];
+                //         String attachmentId = metadata['id'].toString();
+                //         return CloseBadge(
+                //             onTapDelete: () => context.read<FBEditBloc>().add(FBCommentRemoveAttachmentEvent(attachmentId)),
+                //             onTapView: () => context.read<FBEditBloc>().add(FBFeedViewAttachmentEvent(model, context.read<FBEditBloc>().commentAttachments)),
+                //             child: Container(
+                //               constraints: BoxConstraints(
+                //                 minHeight: MediaQuery.sizeOf(context).height,
+                //                 minWidth: MediaQuery.sizeOf(context).width,
+                //               ),
+                //               decoration: BoxDecoration(
+                //                   borderRadius: BorderRadius.circular(16),
+                //                   color: AppC.grey.withValues(alpha: 0.2)),
+                //               clipBehavior: Clip.antiAliasWithSaveLayer,
+                //               child: ImageViewer(
+                //                 fit: BoxFit.cover,
+                //                 imageInput: model,
+                //                 isNotImage: !((model as Object).isImage),
+                //               ),
+                //             ));
+                //       },
+                //       itemCount: context.read<FBEditBloc>().commentAttachments.length,
+                //     ),
+                //   ),
+                // ],
                 const FeedbackCommentAttachments(),
                 10.height,
                 if(context.read<FBEditBloc>().isEdit == false)...[
@@ -120,6 +167,7 @@ class FeedbackCommentsView extends StatelessWidget {
                 Utils.getText("Comments"),
                 ListView.separated(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       var model = state.comments[index];
                       return Slidable(

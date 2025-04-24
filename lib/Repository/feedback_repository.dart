@@ -17,6 +17,7 @@ class FeedBackRepository {
   String get _addFeedbackComments => "${Str.BASE_URL}add-feedback-comment";
   String get _deleteFeedbackComment => "${Str.BASE_URL}delete-feedback-comment";
   String get _updateFeedbackComment => "${Str.BASE_URL}update-feedback-comment/";
+  String get _deleteCommentAttachment => "${Str.BASE_URL}delete-comment-attachment/";
 
   Future<FeedbackViewResponse?> fetchFeedback() async {
     var response = await _apiClient.callGetMethod(_viewApiUrl);
@@ -100,12 +101,22 @@ class FeedBackRepository {
     }
   }
 
-  Future<Map<String, dynamic>?> updateFeedbackComment(dynamic commentId, {dynamic comment}) async {
+  Future<Map<String, dynamic>?> updateFeedbackComment(dynamic commentId, {dynamic comment, List<File>? files}) async {
     var fields = {"comment" : comment.toString()};
-    var response = await _apiClient.callPostMethodWithBody("$_updateFeedbackComment$commentId", body: fields);
+    var filePaths = files?.map((e) => e.path).toList() ?? [];
+    var response = await _apiClient.callPostMethodWithBody("$_updateFeedbackComment$commentId", body: fields, files: filePaths, autoIncrement: true, fieldName: "attachments");
     if (response.isSuccess) {
       return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
     } else {
+      throw Exception("${response?.statusCode} : ${response?.reasonPhrase}");
+    }
+  }
+
+  Future<Map<String, dynamic>?>deleteCommentAttachment(dynamic attachmentId) async {
+    var response = await _apiClient.callDelete("$_deleteCommentAttachment$attachmentId");
+    if (response.isSuccess) {
+      return await parseString<Map<String, dynamic>>(response!.body, (json) => Map<String, dynamic>.from(json));
+      } else {
       throw Exception("${response?.statusCode} : ${response?.reasonPhrase}");
     }
   }
