@@ -6,7 +6,6 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
 import 'custom_date_time_picker.dart';
 
 class TransportCarPopup {
