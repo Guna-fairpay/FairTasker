@@ -24,8 +24,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Utilities/str.dart';
 import '../../../Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import '../bloc/edit_todo_bloc.dart';
-import '../event/edit_todo_event.dart';
-import '../state/edit_todo_state.dart';
+import '../bloc/edit_todo_event.dart';
+import '../bloc/edit_todo_state.dart';
 
 class EditTodoMoreForm extends StatelessWidget {
   const EditTodoMoreForm({super.key});
@@ -73,13 +73,21 @@ class EditTodoMoreForm extends StatelessWidget {
                         context.read<EditToDoBloc>().add(EditToDoCleanCarEvent()),
                     icon: const Icon(Icons.local_car_wash_sharp),
                     style: ButtonStyle(
-
                         shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                             side: const BorderSide()))),
                   ),
                 if (state.showCleanCar && (DateTime.now().compareTo(state.selectedDate??DateTime.now()) == 1))
                   Flexible(
+                    child: Utils.dropdownBox(
+                        'Clean Car Duration',
+                        state.clearDurations,
+                            (value) => context.read<EditToDoBloc>().add(EditToDoCleanCarDuration(value)),
+                        labelKey:'value',
+                        initialSelection: state.selectedClearDuration,
+                    ),
+                  )
+                  /*Flexible(
                     child:    CustomDropdown<Map<String, dynamic>>(
                       contentPadding: 4.padding,
                       items: List.from(state.clearDurations),
@@ -89,7 +97,7 @@ class EditTodoMoreForm extends StatelessWidget {
                           .read<EditToDoBloc>()
                           .add(EditToDoCleanCarDuration(value)),
                     ),
-                  )
+                  )*/
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)

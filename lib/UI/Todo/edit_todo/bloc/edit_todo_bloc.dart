@@ -23,8 +23,8 @@ import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/prefs.dart';
 import '../../../../core/app/helper/toaster.dart';
 import '../../add_todo/add_todo_const.dart';
-import '../event/edit_todo_event.dart';
-import '../state/edit_todo_state.dart';
+import 'edit_todo_event.dart';
+import 'edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
