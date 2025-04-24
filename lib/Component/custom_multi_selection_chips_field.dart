@@ -80,6 +80,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
                       onDeleted: () =>
                           onChanged?.call(false, selectedPartsList[idx]),
                       side: const BorderSide(color: AppC.trans),
+                      color: const WidgetStatePropertyAll(AppC.lowGreen),
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       deleteIcon: const Icon(
                         Icons.close,
