@@ -1,8 +1,11 @@
+import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/num.dart';
 
@@ -18,7 +21,41 @@ class DateRangePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DateRangeField(
+    return InkWell(
+      onTap: () async {
+        final List<DateTime?>? picked = await DateRagePicker.showDatePicker(
+            context: context,
+            initialFirstDate: selectedDateRange?.start ?? DateTime.now(),
+            initialLastDate: selectedDateRange?.end ?? DateTime.now(),
+            firstDate: DateTime.now().subtract(const Duration(days: 2000)),
+            lastDate: DateTime(DateTime.now().year + 5)
+        );
+        if (picked != null) {
+          onDateRangeSelected(DateRange(picked.firstOrNull ?? DateTime.now(), picked.lastOrNull ?? DateTime.now()));
+        }
+      },
+      child: Container(
+        width: double.maxFinite,
+        padding: 10.padding,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Num.subradiusButton),
+          border: Border.all(color: AppC.borderColor)
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                ((selectedDateRange?.start) == (selectedDateRange?.end)) ? "${selectedDateRange?.start.toFormat()}" : "${DateFormat("yyyy-MM-dd").format(selectedDateRange!.start)} - ${DateFormat("yyyy-MM-dd").format(selectedDateRange!.end)}",
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelLarge,
+              ),
+            ),
+            Icon(Icons.calendar_month_rounded, size: 13.sp, color: AppC.subText,)
+          ],
+        ),
+      ),
+    );
+    /*return DateRangeField(
       decoration:
       InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 0),
@@ -62,6 +99,6 @@ class DateRangePicker extends StatelessWidget {
           displayMonthsSeparator: true,
         );
       },
-    );
+    );*/
   }
 }

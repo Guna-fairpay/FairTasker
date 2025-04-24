@@ -114,10 +114,11 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         var response = await _updateFeedBack();
         d.log("$response", name: "UPLOAD_COMMENT_RESPONSE");
         if (response != null && response['status'] == 200) {
-          emit(FBLoadedState());
+
         }
+        emit(FBLoadedState());
       } catch (e) {
-        d.log("$e", name: "UPLOAD_COMMENT_ERROR");
+        d.log("$e", name: "UPLOAD_COMMENT_ERROR 120");
         emit(FBErrorState(e.toString()));
       }
     });
@@ -164,6 +165,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
           emit(FBCommentState(comments));
           emit(FBCommentAttachments(commentAttachments));
         }
+        emit(FBLoadedState());
       } catch (e) {
         d.log("$e", name: "UPLOAD_COMMENT_ERROR");
         emit(FBErrorState(e.toString()));
@@ -208,10 +210,10 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
   }
 
   Future<Map<String, dynamic>?> _updateFeedBack() async {
-    var lastImageIndex = (feedAttachments.where((element) => ((element as String).isNetworkURL)).length - 1);
-    var lastVideoIndex = (feedAttachments.where((element) => ((element as String).isNetworkURL)).length - 1);
-    var imageFiles = feedAttachments.where((element) => !((element as String).isNetworkURL)).where((element) => (element as String).isImageFile);
-    var videoFiles = feedAttachments.where((element) => !((element as String).isNetworkURL)).where((element) => !((element as String).isImageFile));
+    var lastImageIndex = (feedAttachments.whereType<String>().where((element) => element.isNetworkURL).length - 1);
+    var lastVideoIndex = (feedAttachments.whereType<String>().where((element) => element.isNetworkURL).length - 1);
+    var imageFiles = feedAttachments.whereType<File>().where((element) => element.path.isImage);
+    var videoFiles = feedAttachments.whereType<File>().where((element) => !element.path.isImage);
     var converter = QuillDeltaToHtmlConverter(
       feedDescriptionController.document.toDelta().toJson(),
       ConverterOptions.forEmail(),

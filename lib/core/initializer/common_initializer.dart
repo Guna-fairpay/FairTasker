@@ -73,6 +73,8 @@ class CommonService {
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false) || (userId == 3);
 
+  int get departmentId => Session.of.getInt("departmentId") ?? 0;
+
   void branchUpdate({VoidCallback? callback}) {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
   }
@@ -97,7 +99,8 @@ class CommonService {
       getUsers(),
       getCohorts(),
       getBranches(),
-      Authenticator.instance.getBearerToken()
+      Authenticator.instance.getBearerToken(),
+      Authenticator.instance.getDepartmentId(),
     ]);
     Console.of.log("$timeNow", name: "TIME_NOW_IN_AMERICA");
   }

@@ -8,6 +8,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -17,6 +18,8 @@ class TaskerResourceDialog {
   TaskerResourceDialog._();
 
   static void show(BuildContext context, Map<String, dynamic>? model, {void Function(List<Map<String, dynamic>> value)? onSelected}) async {
+    var users = List<Map<String, dynamic>>.from(model?['display']?['resources'] ?? []);
+    if ((users.length == 1) && (getIt<CommonService>().departmentId == 9)) return;
     await showDialog(
       context: context,
       useSafeArea: true,
@@ -89,7 +92,7 @@ class _TaskerResourceDialogBodyView extends StatelessWidget {
         constraints: BoxConstraints(minWidth: context.width),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CustomWrapChoice<Map<String, dynamic>>(
                 items: context.watch<TRSDBloc>().apiResponse,
@@ -97,21 +100,24 @@ class _TaskerResourceDialogBodyView extends StatelessWidget {
                     item['first_name'] + "\t${item['last_name']}",
                 selectionItemAsString: (item) => item['id'].toString(),
                 selectedItems: context.watch<TRSDBloc>().selectedResourcesList,
-                onChanged: (isChecked, value) => context
+                onChanged: (getIt<CommonService>().departmentId == 9) ? null : (isChecked, value) => context
                     .read<TRSDBloc>()
                     .add(TRSDSelectedEvent(value, isChecked))),
-            if (onSelected != null)
-              SuccessButton(
-                text: "Save",
-                onPressed: () {
-                  var selected = context.read<TRSDBloc>().selectedResourcesList;
-                  if (selected.isNotEmpty) {
-                    onSelected?.call(selected);
-                    context.popDialog();
-                  } else {
-                    Toaster.showError("Select at least one resource");
-                  }
-                },
+            if ((onSelected != null) && (getIt<CommonService>().departmentId != 9))
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: SuccessButton(
+                  text: "Save",
+                  onPressed: () {
+                    var selected = context.read<TRSDBloc>().selectedResourcesList;
+                    if (selected.isNotEmpty) {
+                      onSelected?.call(selected);
+                      context.popDialog();
+                    } else {
+                      Toaster.showError("Select at least one resource");
+                    }
+                  },
+                ),
               )
           ],
         ),
