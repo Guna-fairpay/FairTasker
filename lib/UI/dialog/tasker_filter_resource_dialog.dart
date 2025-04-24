@@ -43,7 +43,7 @@ class _TaskerFilterResourceDialogView extends StatelessWidget {
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       insetPadding: 10.padding.copyWith(top: 80),
       titlePadding: 10.horizontalPadding,
-      backgroundColor: AppC.blue50?.withValues(alpha: 0.9),
+      backgroundColor: AppC.userFilterBg,
       title: ListTile(
         dense: true,
         minLeadingWidth: 0,

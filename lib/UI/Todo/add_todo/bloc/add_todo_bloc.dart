@@ -98,7 +98,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         (resource['branch_id'] !=
             Session.of.getInt(Str.branchIdPrefText))) ||
         (resource['deleted_at'] != null));
-    Console.of.log("FETCHING_RESOURCE_FROM_GET");
     return resources;
   }
   List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
@@ -199,6 +198,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         if (event.selectedVPerson?.length == 1) {
           await _findReservationColor(event.selectedVPerson?.firstOrNull?['value']?['vin']);
         }
+        var selectedOption = getIt<CommonService>().isAdmin ? AddToDoConfig.customOptions.first : AddToDoConfig.customOptions[1];
         emit(state.copyWith(
             isLoading: false,
             tasks: response[0] ?? [],
@@ -213,7 +213,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             selectedVPerson: event.selectedVPerson ?? [],
             resources: resources,
             selectedDate: addToDoDate,
-            selectedLinkOption: AddToDoConfig.customOptions.first));
+            selectedLinkOption: selectedOption));
       } catch (e) {
         emit(state.copyWith(isLoading: false));
       }
@@ -267,7 +267,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       showPlatformCheck = Str.platFormCheckIds.contains(taskId);
       var selectedLink = Str.getAroundIds.contains(taskId);
       if (existingVPersons?.length == 1) {
-        await _findReservationColor(existingVPersons?.firstOrNull?['value']?['vin']);
+        await _findReservationColor(existingVPersons.firstOrNull?['value']?['vin']);
       }
       emit(state.copyWith(
           selectedTaskIdentifier: existing,
@@ -328,26 +328,18 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           .where((element) => element['type'] == 'vehicles')
           .map((e) => e['value']['vin'])
           .firstOrNull;
-      existingRefId = _toDoList
-          .where((element) =>
-              (element['vin'] == vehicleVin) ||
-              (List<Map<String, dynamic>>.from(element['vehicles'])
-                  .map((e) => e['vin'])
-                  .contains(vehicleVin)))
-          .map((e) => e['reference_id'])
-          .lastOrNull;
-      Console.of.debug("ReferenceId: $existingRefId");
-      if (existingRefId.toString().isNotNullOrEmpty)
-        customLinkController.text = "${existingRefId ?? ""}";
+
       existingVPersons = existingVPersons.distinct((element) => element['id']);
-      if (existingVPersons?.length == 1) {
-        await _findReservationColor(existingVPersons?.firstOrNull?['value']?['vin']);
-      }
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier,
           selectedLinkOption: AddToDoConfig.customOptions
               .firstWhereOrNull((element) => element['id'] == 2)));
+      if (existingVPersons.length == 1) await _findReservationColor(vehicleVin);
+      else {
+        existingRefId = null;
+        customLinkController.clear();
+      }
     });
 
     on<AddToDoVLocationEvent>((event, emit) {
@@ -666,6 +658,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   Future<void> _findReservationColor(String vin) async {
     var response = await getIt<CommonService>().findVehicleReservation(vin: vin);
     Console.of.log("${response?['identifier_id']}", name: "AddToDoBloc");
+    existingRefId = response?['reference_id'] ?? "";
+    Console.of.debug("ReferenceId: $existingRefId");
+    if (existingRefId.toString().isNotNullOrEmpty) customLinkController.text = "${existingRefId ?? ""}";
     reservationColor = Str.red.contains(response?['identifier_id'])
         ?AppC.redAccent
         :Str.green.contains(response?['identifier_id'])

@@ -26,3 +26,5 @@ class ImportTaskSuccessState extends ImportTaskState {
   @override
   List<Object?> get props => [message];
 }
+
+class ImportTaskCompletedState extends ImportTaskState {}

@@ -21,8 +21,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Component/custom_date_time_picker.dart';
 import '../../../../Component/custom_multi_selection_chips_field.dart';
 import '../bloc/edit_todo_bloc.dart';
-import '../event/edit_todo_event.dart';
-import '../state/edit_todo_state.dart';
+import '../bloc/edit_todo_event.dart';
+import '../bloc/edit_todo_state.dart';
 import 'edit_todo_bottom_tabs.dart';
 import 'edit_todo_more_form.dart';
 
@@ -180,11 +180,6 @@ class EditTodoBody extends StatelessWidget {
                         onChangeCallback: (value) {}),
                     10.height,
                   ],
-                if (state.showPlatformCheck ||Str.platFormCheckIds.contains(state.selectedTask['id']))
-                  Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(EditToDoPlatformCheckEvent()),
-                      state.isSelectedPlatformCheck,
-                      'Platform Check'),
-                10.height,
                 if(!["Check In", "Check Out"].contains(state.apiResponse['title']))
                 const EditTodoMoreForm(),
                 10.height,

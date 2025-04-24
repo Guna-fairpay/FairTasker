@@ -23,8 +23,8 @@ import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/prefs.dart';
 import '../../../../core/app/helper/toaster.dart';
 import '../../add_todo/add_todo_const.dart';
-import '../event/edit_todo_event.dart';
-import '../state/edit_todo_state.dart';
+import 'edit_todo_event.dart';
+import 'edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
@@ -41,10 +41,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController timeController = TextEditingController();
   final TextEditingController odometerController = TextEditingController();
   final TextEditingController tripDrivenController = TextEditingController();
-  final TextEditingController resolutionNotesController =
-      TextEditingController();
+  final TextEditingController resolutionNotesController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
+
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
+
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? departmentId; // LoggedIn User department ID
   List<String> selectedIds = [];
@@ -73,6 +74,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   String? timeChangePopupType;
   dynamic selectedDate;
   List<Map<String,dynamic>> vehiclePersonList=[];
+  bool cleanCarIsActive = false;
 
   List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
@@ -154,6 +156,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<GetEditTodoInitialEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
+        var todoResponse = await apiRepository.editToDo(event.todoId);
         var partsResponse = await getIt<CommonService>().getPartsList();
         var suppliesResponse = await getIt<CommonService>().getSuppliesList();
         var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
@@ -162,7 +165,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var taskResponse = await getIt<CommonService>().getTaskExpenseData();
         var userGroupResponse = await getIt<CommonService>().getGroupPersons();
         var assignedToResponse = await getIt<CommonService>().getResources();
-        var todoResponse = await apiRepository.editToDo(event.todoId);
         var partsData=List.from(partsResponse);
         var groupVehiclesResponse =
             await getIt<CommonService>().groupVehicles();
@@ -339,6 +341,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             vehicles: vehicleList,
             persons: selectedPerson,
             groupVehicles: selectedGroupVehicles);
+
+        cleanCarIsActive=true;
 
         emit(state.copyWith(
           isLoading: false,
@@ -809,6 +813,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       try {
         emit(state.copyWith(isLoading: true));
         var response = await todoListRepo.cleanCar(body: _cleanCarBody());
+        cleanCarIsActive=false;
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response != null) {
           Toaster.showSuccess(response['message'] ?? "Success");
@@ -949,10 +954,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       if (state.selectedVLocations['type'] == "location") {
         baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['location_id'] = "${state.selectedVLocations['id'] ?? ''}";
+        baseBody['vendor_name'] = "";
+        baseBody['vendor_id'] = "";
       }
       if (state.selectedVLocations['type'] == "vendor") {
         baseBody['vendor'] = "${state.selectedVLocations['name'] ?? ''}";
         baseBody['vendor_id'] = "${state.selectedVLocations['id'] ?? ''}";
+        baseBody['location'] = "";
+        baseBody['location_id'] = "";
       }
     }
     baseBody['cohort_id'] = "";
@@ -982,8 +991,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
                   "supplies_name": "${e['name']}",
                 })).toList()}";
 
-    baseBody['todo_time'] = state.selectedTime.toHMS().toString();
-    baseBody['start_at'] = dateController.text;
+    baseBody['todo_time'] = "${timeDay.toHMS()}";
+    baseBody['start_at'] = "${date.toFormat(format: "yyyy-MM-dd")}";
     baseBody['notes'] =
         notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
@@ -1000,25 +1009,14 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
     }
-
-    var personList = state.selectedVPerson
-        .where((element) => element['type'] == "person")
-        .toList();
-
-    var firstPerson = personList.isNotEmpty ? personList.first : null;
-
-    baseBody['person'] = firstPerson?['name']?.toString() ?? "";
-    baseBody['person_id'] = firstPerson?['id']?.toString() ?? "";
-
     var groupVehicleList = state.selectedVPerson
         .where((element) => element['type'] == "g_vehicles")
         .toList();
-
     var groupVehicleId =
         groupVehicleList.isNotEmpty ? groupVehicleList.first : null;
-
     baseBody['vehicle_group_id'] = groupVehicleId?['id']?.toString() ?? "";
-
+    baseBody['reason'] = '';
+    baseBody['branch_id'] = "${branchId ?? ""}";
     log(jsonEncode(baseBody), name: "CLEAN_CAR_JSON_BODY");
     return baseBody;
   }

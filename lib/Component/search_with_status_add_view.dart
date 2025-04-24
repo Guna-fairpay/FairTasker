@@ -34,6 +34,8 @@ class SearchWithStatusAddView extends StatelessWidget {
               )),
           Flexible(
               child: CompactSearchView(
+                filled: true,
+                  fillColor: Colors.white,
                   controller: (controller ?? TextEditingController()),
                   onChanged: onSearchChanged)),
           IconButton(
