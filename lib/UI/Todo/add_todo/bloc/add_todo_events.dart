@@ -196,3 +196,6 @@ class AddToDoReassignEvent extends AddToDoEvent {
 }
 
 class AddToDoRefreshEvent extends AddToDoEvent {}
+
+// SHOW ? HIDE TEXT-FIELD FOR CUSTOM LINK
+class AddToDoCustomLinkEnableEvent extends AddToDoEvent {}

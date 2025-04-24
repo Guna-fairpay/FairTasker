@@ -93,13 +93,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
     List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
-    Console.of.log("FETCHING_RESOURCE_FROM_BEFORE_GET ${resources.map((e) => e['id'])}");
     resources.removeWhere((resource) =>
     ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
         (resource['branch_id'] !=
             Session.of.getInt(Str.branchIdPrefText))) ||
         (resource['deleted_at'] != null));
-    Console.of.log("FETCHING_RESOURCE_FROM_GET ${resources.map((e) => e['id'])}");
     return resources;
   }
   List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
