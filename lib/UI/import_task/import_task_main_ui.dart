@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/Component/success_button.dart';
@@ -9,6 +10,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -42,6 +44,11 @@ class ImportTaskMainUi extends StatelessWidget {
                 EasyLoading.show();
               } else {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
+                switch (state) {
+                  case ImportTaskErrorState(): Toaster.showError(state.message); break;
+                  case ImportTaskSuccessState(): Toaster.showSuccess("Successfully imported"); break;
+                  case ImportTaskCompletedState(): context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0)); break;
+                }
               }
             },
             child: BlocBuilder<ImportTaskBloc, ImportTaskState>(
@@ -107,8 +114,8 @@ class ImportTaskMainUi extends StatelessWidget {
                                     0)
                                 ? context.watch<ImportTaskBloc>().textController
                                 : context.watch<ImportTaskBloc>().turoController,
-                            minLines: 16.sp.ceil(),
-                            maxLines: 26.sp.ceil(),
+                            minLines: 10.sp.ceil(),
+                            maxLines: 16.sp.ceil(),
                             borderColor: AppC.text,
                             hintText: "Paste your text here...",
                             validator: (value) =>
