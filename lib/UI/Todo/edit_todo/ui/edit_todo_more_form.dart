@@ -69,13 +69,12 @@ class EditTodoMoreForm extends StatelessWidget {
                     'Supplies'),
                 if (state.showCleanCar && (DateTime.now().compareTo(state.selectedDate??DateTime.now()) == 1))
                   IconButton(
-                    onPressed: () =>
-                        context.read<EditToDoBloc>().add(EditToDoCleanCarEvent()),
-                    icon: const Icon(Icons.local_car_wash_sharp),
+                    onPressed: () => context.read<EditToDoBloc>().cleanCarIsActive? context.read<EditToDoBloc>().add(EditToDoCleanCarEvent()):null,
+                    icon:  Icon(Icons.local_car_wash_sharp,color: context.watch<EditToDoBloc>().cleanCarIsActive?AppC.green:AppC.redAccent,),
                     style: ButtonStyle(
                         shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
-                            side: const BorderSide()))),
+                            side: BorderSide(color: context.watch<EditToDoBloc>().cleanCarIsActive?AppC.green:AppC.redAccent, width: 1)))),
                   ),
                 if (state.showCleanCar && (DateTime.now().compareTo(state.selectedDate??DateTime.now()) == 1))
                   Flexible(
@@ -87,17 +86,6 @@ class EditTodoMoreForm extends StatelessWidget {
                         initialSelection: state.selectedClearDuration,
                     ),
                   )
-                  /*Flexible(
-                    child:    CustomDropdown<Map<String, dynamic>>(
-                      contentPadding: 4.padding,
-                      items: List.from(state.clearDurations),
-                      value: state.selectedClearDuration,
-                      itemAsString: (item) => item['value'].toString(),
-                      onChanged: (value) => context
-                          .read<EditToDoBloc>()
-                          .add(EditToDoCleanCarDuration(value)),
-                    ),
-                  )*/
               ],
             ),
           if (state.isMoreEnable && state.isPartServiceEnable)
@@ -126,6 +114,10 @@ class EditTodoMoreForm extends StatelessWidget {
                 onEmptyTap: () => context.push(SuppliesMainUI(title: context.read<EditToDoBloc>().suppliesController.text),
                     fullscreenDialog: true)
             ),
+          if (state.showPlatformCheck ||Str.platFormCheckIds.contains(state.selectedTask['id']))
+            Utils.getCircleCheckWidget(() => context.read<EditToDoBloc>().add(EditToDoPlatformCheckEvent()),
+                state.isSelectedPlatformCheck,
+                'Platform Check'),
           if (state.isMoreEnable && (Str.completedOdometer.contains(state.apiResponse['title'])))
             Row(
             spacing: 15,
@@ -167,6 +159,7 @@ class EditTodoMoreForm extends StatelessWidget {
                       initialSelection: state.selectedLinkOption))
             ],
           ),
+
           5.height,
           if (state.selectedLinkOption != null)
             Utils.getTextFormField("${state.selectedLinkOption!['label']}",
