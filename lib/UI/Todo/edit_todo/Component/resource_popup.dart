@@ -2,6 +2,7 @@
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,8 +16,7 @@ class ResourceSelection {
       List<String> selectedValues,
       Function(List<String> val, List<dynamic> name) onSelectionChanged,
       ) async {
-
-    ValueNotifier<List<String>> selectedIdsNotifier = ValueNotifier(selectedValues);
+    ValueNotifier<List<String>> selectedIdsNotifier = ValueNotifier(List.from(selectedValues));
     final ScrollController _scrollController = ScrollController();
     if (details != null) {
       await showMenu(
@@ -77,10 +77,10 @@ class ResourceSelection {
                             return GestureDetector(
                               onTap: () {
                                 if (isSelected) {
-                                  if (name.length <= 1 && value.length <= 1) {
-                                    Toaster.showWarning("Cannot proceed without a resource selected");
-                                    return;
-                                  }
+                                  // if (name.length <= 1 && value.length <= 1) {
+                                  //   Toaster.showWarning("Cannot proceed without a resource selected");
+                                  //   return;
+                                  // }
                                   selectedIdsNotifier.value.remove(resourceId);
                                   name.remove(resourceList[index]);
                                 } else {
@@ -88,7 +88,14 @@ class ResourceSelection {
                                   name.add(resourceList[index]);
                                 }
                                 selectedIdsNotifier.notifyListeners();
-                                onSelectionChanged(selectedIdsNotifier.value,name);
+                                var count = selectedIdsNotifier.value.length;
+                                if (count > 0) {
+                                  Console.of.log("EMITTING");
+                                  onSelectionChanged(
+                                      selectedIdsNotifier.value, name);
+                                } else {
+                                  Console.of.log("NOT EMITTING");
+                                }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 2.0),
