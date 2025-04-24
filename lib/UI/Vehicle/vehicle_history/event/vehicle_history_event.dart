@@ -80,3 +80,39 @@ class VehicleHistoryViewEvent extends VehicleHistoryEvent {
   @override
   List<Object?> get props => [task, Random().nextDouble()];
 }
+
+class VehicleHistoryDeleteInitEvent extends VehicleHistoryEvent {
+  final dynamic task;
+  const VehicleHistoryDeleteInitEvent(this.task);
+  @override
+  List<Object?> get props => [task];
+}
+
+class VehicleHistoryShowPartsEvent extends VehicleHistoryEvent {
+  final dynamic model;
+  const VehicleHistoryShowPartsEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleHistoryShowSuppliesEvent extends VehicleHistoryEvent {
+  final dynamic model;
+  const VehicleHistoryShowSuppliesEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleHistoryShowUsersEvent extends VehicleHistoryEvent {
+  final List<dynamic> model;
+  const VehicleHistoryShowUsersEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleHistoryViewCustomLinkEvent extends VehicleHistoryEvent {
+  final int customId;
+  final String customLink;
+  const VehicleHistoryViewCustomLinkEvent(this.customId, this.customLink);
+  @override
+  List<Object?> get props => [customId, customLink];
+}

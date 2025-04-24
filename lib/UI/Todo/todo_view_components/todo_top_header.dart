@@ -1,8 +1,10 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -123,6 +125,7 @@ class TodoTopHeader extends StatelessWidget {
                     color: AppC().base,
                     size: 22.sp,
                   )),
+              if (getIt<CommonService>().departmentId != 9)
               GestureDetector(
                 onTapDown: onUserTapDown,
                 child: Row(

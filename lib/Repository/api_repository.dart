@@ -340,6 +340,7 @@ class APiRepository {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
       final Map<String, dynamic> map = {};
       map['status'] = status;
+      Console.of.debug(map);
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(map));
       var mapData = await response.mapData;
