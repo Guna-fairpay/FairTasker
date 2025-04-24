@@ -282,7 +282,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
                                       spacing: 10,
                                       children: [
                                         Expanded(
-                                          child: Utils.dropdownBoxSmallSize(
+                                          child: Utils.dropdownBox(
                                             "Select Category",
                                             category,
                                                 (value) {
@@ -313,7 +313,7 @@ class _TaskViewUIState extends State<TaskViewUI> {
                                           ),
                                         ),
                                         Expanded(
-                                          child: Utils.dropdownBoxSmallSize(
+                                          child: Utils.dropdownBox(
                                             "Select Subcategory",
                                             subCategory,
                                                 (value) {

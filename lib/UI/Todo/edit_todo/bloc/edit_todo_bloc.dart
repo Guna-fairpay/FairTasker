@@ -23,8 +23,8 @@ import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/prefs.dart';
 import '../../../../core/app/helper/toaster.dart';
 import '../../add_todo/add_todo_const.dart';
-import '../event/edit_todo_event.dart';
-import '../state/edit_todo_state.dart';
+import 'edit_todo_event.dart';
+import 'edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TodoListRepo todoListRepo = TodoListRepo();
@@ -154,6 +154,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<GetEditTodoInitialEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
+        var todoResponse = await apiRepository.editToDo(event.todoId);
         var partsResponse = await getIt<CommonService>().getPartsList();
         var suppliesResponse = await getIt<CommonService>().getSuppliesList();
         var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
@@ -162,7 +163,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var taskResponse = await getIt<CommonService>().getTaskExpenseData();
         var userGroupResponse = await getIt<CommonService>().getGroupPersons();
         var assignedToResponse = await getIt<CommonService>().getResources();
-        var todoResponse = await apiRepository.editToDo(event.todoId);
         var partsData=List.from(partsResponse);
         var groupVehiclesResponse =
             await getIt<CommonService>().groupVehicles();

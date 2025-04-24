@@ -18,6 +18,8 @@ import 'Comments/feedback_comments_ui.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import 'Comments/feedback_comments_view.dart';
+
 class FeedbackEditViewUI extends StatelessWidget {
   final dynamic feedBackId;
   const FeedbackEditViewUI({super.key, required this.feedBackId});
@@ -69,10 +71,12 @@ class FeedbackEditViewUI extends StatelessWidget {
                     children: [
                       FeedBackEditHeader(),
                       FeedbackEditForm(),
-                      FeedbackEditComments(),
+                      // FeedbackEditComments(),
+                      FeedbackCommentsView(),
                     ],
                   ),
-                )),
+                )
+            ),
           ),
         ),
       ),

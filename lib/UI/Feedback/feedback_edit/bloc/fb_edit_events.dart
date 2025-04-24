@@ -82,4 +82,19 @@ class FBFeedStatusChangeEvent extends FBEditEvents {
   List<Object?> get props => [status, Random().nextDouble()];
 }
 
+class FBCommentsEditEvent extends FBEditEvents {
+  dynamic model;
+  FBCommentsEditEvent(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
 
+class FBCommentsEditCancelEvent extends FBEditEvents {}
+
+class FBUpdateCommentEvent extends FBEditEvents {
+  final dynamic commentId;
+  final dynamic comment;
+  FBUpdateCommentEvent(this.commentId, this.comment);
+  @override
+  List<Object?> get props => [commentId, comment, Random().nextDouble()];
+}

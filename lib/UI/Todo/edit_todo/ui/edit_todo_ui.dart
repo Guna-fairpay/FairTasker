@@ -1,7 +1,7 @@
 
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
-import 'package:fairpytasker/UI/Todo/edit_todo/event/edit_todo_event.dart';
+import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_pickup_reason_dialog.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Utilities/appC.dart';
 import '../../../dialog/ask_permission_dialog.dart';
 import '../../../dialog/show_attachments_dialog.dart';
-import '../state/edit_todo_state.dart';
+import '../bloc/edit_todo_state.dart';
 import 'edit_todo_body.dart';
 
 class EditTodoUI extends StatelessWidget {

@@ -1,9 +1,6 @@
 
-
-
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:date_time/date_time.dart' as dt;
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/tasker_button.dart';
@@ -12,7 +9,6 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/main.dart';
@@ -20,7 +16,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -191,112 +186,6 @@ class Utils {
       ),
     );
   }
-
-
-  static Widget dropdownBoxSmallSize(
-      String hintText,
-      List<dynamic> listData,
-      Function(dynamic selectedValue) onSelected,
-      {required String labelKey,
-        dynamic initialSelection,
-        // bool enableSearch = false,
-        // bool requestFocusOnTap = false,
-        // bool enableFilter = false,
-        dynamic selectedKey,
-        double topLRadius=4,
-        double topRRadius=4,
-        double bottomLRadius=4,
-        double bottomRRadius=4,
-
-        // Color? arrowColor=AppC.appColor,
-        // TextEditingController? controller,
-      }) {
-    return Container(
-      height: 35,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: AppC.fieldBase,
-          width: Num.borderWidthField,
-        ),
-        borderRadius: const BorderRadius.all(
-          Radius.circular(Num.subradiusButton),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Container(
-            alignment: Alignment.centerRight,
-            child: const Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: Icon(
-                Icons.keyboard_arrow_down_sharp,
-                color:AppC.appColor,
-                size: 14,
-              ),
-            ),
-          ),
-          DropdownMenu<dynamic>(
-            key: ValueKey(selectedKey),
-            initialSelection: initialSelection,
-           // controller: controller,
-            hintText: hintText,
-            menuHeight: 250,
-           // enableSearch: enableSearch,
-           // requestFocusOnTap:requestFocusOnTap ,
-           // enableFilter: enableFilter,
-            /*trailingIcon: const Icon(
-              Icons.keyboard_arrow_down_sharp,
-              size: 12,
-              color: AppC.trans,
-            ),*/
-            /*selectedTrailingIcon: const Icon(
-              Icons.keyboard_arrow_down_sharp,
-              size: 12,
-              color: AppC.trans,
-            ),*/
-            textStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                overflow: TextOverflow.ellipsis),
-            inputDecorationTheme: const InputDecorationTheme(
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 10,
-              ),
-              border: InputBorder.none,
-              suffixIconColor: AppC.trans,
-              isCollapsed: true,
-              isDense: true,
-            ),
-            searchCallback: (entries, query) {
-              if (query.isEmpty) return null;
-              final int index = entries.indexWhere((entry) => entry.label == query);
-              return index != -1 ? index : null;
-            },
-            menuStyle: MenuStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              shadowColor: WidgetStateProperty.all<Color>(Colors.grey),
-              //surfaceTintColor: WidgetStateProperty.all<Color>(Colors.white),
-              visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
-            ),
-            expandedInsets: const EdgeInsets.only(top: 50),
-            dropdownMenuEntries:
-            listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-                  (dynamic value){
-                return DropdownMenuEntry<Map<String, dynamic>>(
-                  value: value,
-                  label: '${value[labelKey]??''}',
-                );
-              },
-            ).toList(),
-            onSelected: (selectedValue) {
-              onSelected(selectedValue); // Adjust this as per the expected key
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
 
   static Widget dropdownSearchBox(
       String hintText,

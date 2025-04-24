@@ -42,7 +42,7 @@ class FeedBackUI extends StatelessWidget {
               case FeedBackViewSuccessState(): Toaster.showSuccess(state.message); break;
               case FeedBackViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (state.attachments as List<Attachments>).map((e) => e.path.toAttachmentURL).toList() ?? [], title: state.title); break;
               case FeedBackShowDeleteDialogState(): AskPermissionDialog.show(context, description: "Do you want to delete the feedback?", onPositivePressed: () => context.read<FeedBackViewBloc>().add(FeedBackDeleteConfirmEvent(state.feedBackId))); break;
-              case FeedBackEditState(): context.push<FeedbackEditViewUI>(FeedbackEditViewUI(feedBackId: state.feedBackId,), fullscreenDialog: true); break;
+              case FeedBackEditState(): context.push<FeedbackEditViewUI>(FeedbackEditViewUI(feedBackId: state.feedBackId,), fullscreenDialog: true); break; // FeedBackEditViewUI
               case FeedBackAddState(): context.push<FeedbackAddUI>(const FeedbackAddUI(), fullscreenDialog: true); break;
             }
           }
