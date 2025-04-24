@@ -56,4 +56,6 @@ static const redAccent = Color(0xffd01601);
   static const bouncieFontColor = Color(0xFF9c1101);
   static const bouncieBgBorderColor = Color(0xFFf1b9b3);
 
+  static const userFilterBg = Color(0xFFf8f8ff);
+
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -128,63 +129,66 @@ class ToDoProcessor {
     if (relatedTaskIds.isNotEmpty) {
       _relatedToDos = await _fetchRelatedToDos(todoIds: relatedTaskIds) ?? [];
     }
-    return _processToDos(todos);
+    return await _processToDos(todos);
   }
 
-  List<Map<String, dynamic>> _processToDos(List<Map<String, dynamic>> toDos) {
-    return toDos
+  Future<List<Map<String, dynamic>>>? _processToDos(List<Map<String, dynamic>> toDos) {
+    final Completer<List<Map<String, dynamic>>> completer = Completer();
+    var result = toDos
         .map((e) => e
-          ..['vehicle_group_name'] = _getVehicleName(e)
-          ..['distance'] = _getVehicleDistance(e)
-          ..['image_path'] = _getVehicleImage(e)
-          ..['plate_number'] = _getVehiclePlate(e)
-          ..['display'] = {
-            "task_title": _title(e),
-            "task_time": _time(e),
-            "completed_time": _completedTime(e),
-            "hasCompletedTime": _hasCompletedTime(e),
-            "hasTimeSensitive": _hasTimeSensitive(e),
-            "person_name": _personName(e),
-            "vendor_location": _vendorLocation(e),
-            "resource_name": _resourceName(e),
-            "notes": _notes(e),
-            "hasBouncie": _hasBouncie(e),
-            "hasDistance": _hasDistance(e),
-            "hasParts": _hasParts(e),
-            "hasSupplies": _hasSupplies(e),
-            "hasG": _hasG(e),
-            "hasVehicleHistory": _hasVehicleHistory(e),
-            "hasVendorInfo": _hasVendorInfo(e),
-            "hasAttachments": _hasAttachments(e),
-            "hasAddress": _hasAddress(e),
-            "hasCustomLink": _hasCustomLink(e),
-            "hasCompleted": _hasCompleted(e),
-            "hasRelatedTask": _hasRelatedTask(e),
-            "hasVehiclePlate": _hasVehiclePlate(e),
-            "hasReason": _hasReason(e),
-            "hasReasonAttachments": _hasReasonAttachments(e),
-            "vins": _getVehicleVins(e),
-            "vehicle_image": _getVehicleImage(e),
-            "vehicle_plate": _getVehiclePlate(e),
-            "vehicle_distance": _getVehicleDistance(e),
-            "vehicle_name": _getVehicleName(e),
-            "vehicle_or_person_name": _getVehicleName(e) ?? _personName(e),
-            "vendor": _vendor(e),
-            "addresses" : _getAddresses(e),
-            "selectedAddress" : _getSelectedAddress(e),
-            "resources": _resources(e),
-            "vehicles": _getVehicles(e),
-            "vehicleStatus" : _getVehicleStatus(e),
-            "vehicleStatusCategoryName": _getVehicleStatusCategoryName(e),
-            "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
-            "relatedTaskName" : _getRelatedTaskName(e),
-            "personId" : e['person_id'],
-            "vehicleGroupId" : e['vehicle_group_id'],
-            "reason" : _reason(e),
-            "hasTimeChangeReason" : _hasTimeChangeReason(e),
-            "timeChangeReason" : _timeChangeReason(e),
-          })
+      ..['vehicle_group_name'] = _getVehicleName(e)
+      ..['distance'] = _getVehicleDistance(e)
+      ..['image_path'] = _getVehicleImage(e)
+      ..['plate_number'] = _getVehiclePlate(e)
+      ..['display'] = {
+        "task_title": _title(e),
+        "task_time": _time(e),
+        "completed_time": _completedTime(e),
+        "hasCompletedTime": _hasCompletedTime(e),
+        "hasTimeSensitive": _hasTimeSensitive(e),
+        "person_name": _personName(e),
+        "vendor_location": _vendorLocation(e),
+        "resource_name": _resourceName(e),
+        "notes": _notes(e),
+        "hasBouncie": _hasBouncie(e),
+        "hasDistance": _hasDistance(e),
+        "hasParts": _hasParts(e),
+        "hasSupplies": _hasSupplies(e),
+        "hasG": _hasG(e),
+        "hasVehicleHistory": _hasVehicleHistory(e),
+        "hasVendorInfo": _hasVendorInfo(e),
+        "hasAttachments": _hasAttachments(e),
+        "hasAddress": _hasAddress(e),
+        "hasCustomLink": _hasCustomLink(e),
+        "hasCompleted": _hasCompleted(e),
+        "hasRelatedTask": _hasRelatedTask(e),
+        "hasVehiclePlate": _hasVehiclePlate(e),
+        "hasReason": _hasReason(e),
+        "hasReasonAttachments": _hasReasonAttachments(e),
+        "vins": _getVehicleVins(e),
+        "vehicle_image": _getVehicleImage(e),
+        "vehicle_plate": _getVehiclePlate(e),
+        "vehicle_distance": _getVehicleDistance(e),
+        "vehicle_name": _getVehicleName(e),
+        "vehicle_or_person_name": _getVehicleName(e) ?? _personName(e),
+        "vendor": _vendor(e),
+        "addresses" : _getAddresses(e),
+        "selectedAddress" : _getSelectedAddress(e),
+        "resources": _resources(e),
+        "vehicles": _getVehicles(e),
+        "vehicleStatus" : _getVehicleStatus(e),
+        "vehicleStatusCategoryName": _getVehicleStatusCategoryName(e),
+        "vehicleHistoryIconColorCode" : _getVehicleHistoryIconColorCode(e),
+        "relatedTaskName" : _getRelatedTaskName(e),
+        "personId" : e['person_id'],
+        "vehicleGroupId" : e['vehicle_group_id'],
+        "reason" : _reason(e),
+        "hasTimeChangeReason" : _hasTimeChangeReason(e),
+        "timeChangeReason" : _timeChangeReason(e),
+      })
         .toList();
+    completer.complete(result);
+    return completer.future;
   }
 
   String? _getVehicleName(Map<String, dynamic> model) {

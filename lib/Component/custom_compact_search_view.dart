@@ -6,11 +6,13 @@ import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
 class CompactSearchView extends StatelessWidget {
+  final bool? filled;
   final bool readOnly;
+  final Color? fillColor;
   final String? hintText, labelText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged, onSubmitted;
-  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText});
+  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText, this.filled = false, this.fillColor = AppC.white});
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,8 @@ class CompactSearchView extends StatelessWidget {
         hintText: hintText,
         labelText: labelText,
         contentPadding: 7.padding,
+        fillColor: fillColor,
+        filled: filled,
         prefixIconConstraints: const BoxConstraints(),
         border: border,
         enabledBorder: border,

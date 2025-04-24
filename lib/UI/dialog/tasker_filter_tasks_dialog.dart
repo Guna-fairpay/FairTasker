@@ -2,6 +2,7 @@ import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dar
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -50,7 +51,7 @@ class _TaskerFilterTasksDialogView extends StatelessWidget {
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       insetPadding: 10.padding.copyWith(top: 90),
       titlePadding: 10.horizontalPadding,
-      backgroundColor: const Color(0xFFf8f8ff).withValues(alpha: 0.95),
+      backgroundColor: AppC.userFilterBg,
       title: ListTile(
         dense: true,
         minLeadingWidth: 0,
@@ -96,7 +97,10 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
     return BlocBuilder<TFTDBloc, TFTDStates>(
         builder: (context, state) => SizedBox(
               width: context.width,
-              child: ListView(shrinkWrap: true, children: [
+              child: ListView(shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(bottom: 20.sp),
+                  children: [
                 CustomCheckboxListTile(
                   title: const Text("All Todo"),
                   mainAxisSize: MainAxisSize.min,
