@@ -97,5 +97,9 @@ class Str{
 
     static const String refetchCate = "refresh_category";
 
+    static const List<int> green = [209, 211];
+
+    static const List<int> red = [212, 210];
+
 
 }

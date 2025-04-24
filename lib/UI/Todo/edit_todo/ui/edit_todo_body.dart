@@ -14,6 +14,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -39,7 +40,7 @@ class EditTodoBody extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  //spacing: 5,
+                  spacing: 10,
                   children: [
                     CustomDateTimePicker<DateTime>(
                       controller: context.read<EditToDoBloc>().dateController,
@@ -50,7 +51,7 @@ class EditTodoBody extends StatelessWidget {
                       value: state.selectedDate,
                       onChanged: (value) => context.read<EditToDoBloc>().add(EditToDoDateChangeEvent(value)),
                     ),
-                    10.width,
+                    // 10.width,
                     CustomDateTimePicker<TimeOfDay>(
                       controller: context.read<EditToDoBloc>().timeController,
                       value: state.selectedTime,
@@ -73,8 +74,8 @@ class EditTodoBody extends StatelessWidget {
                     Column(
                       children: [
                         GestureDetector(
-                          onTapDown: (TapDownDetails details) {
-                            ResourceSelection.showResourceSelection(
+                          onTapDown:  (getIt<CommonService>().departmentId == 9) ? null : (TapDownDetails details) {
+                           ResourceSelection.showResourceSelection(
                               context,
                               details,
                               state.resources,

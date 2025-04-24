@@ -38,7 +38,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       this.onChanged,
       this.onNeutral,
       this.showAsExpanded = false,
-      this.use24HourFormat = false});
+      this.use24HourFormat = true});
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +49,10 @@ class CustomDateTimePicker<T> extends StatelessWidget {
           result = await _pickDatePicker(context);
         }
         else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
-          result = use24HourFormat
-              ? await _pick24hTimePicker(context, onNeutral: onNeutral)
-              : await _pickTimePicker(context, onNeutral: onNeutral);
+          // result = use24HourFormat
+          //     ? await _pick24hTimePicker(context, onNeutral: onNeutral)
+          //     : await _pickTimePicker(context, onNeutral: onNeutral);
+          result = await _pick24hTimePicker(context, onNeutral: onNeutral);
         }
         if (result != null) onChanged?.call(result);
         controller?.text = Utils.formatDateTime(format: format, input: result);

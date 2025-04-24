@@ -157,7 +157,7 @@ class AddTodoMoreForm extends StatelessWidget {
                   recognizer: TapGestureRecognizer()..onTap = () => context.read<AddToDoBloc>().add(AddToDoOpenCustomLinkEvent())),
               textAlign: TextAlign.end,
               style: context.textTheme.labelLarge?.copyWith(
-                color: AppC.appColor,
+                color: context.watch<AddToDoBloc>().reservationColor,
                 decoration: TextDecoration.underline,
                 decorationColor: AppC.appColor
               ),),

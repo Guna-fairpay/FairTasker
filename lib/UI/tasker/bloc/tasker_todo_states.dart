@@ -271,3 +271,10 @@ class ToDoTaskerViewBouncieState extends ToDoTaskerState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class ToDoTaskerCompleteTransportCarState extends ToDoTaskerState {
+  final Map<String, dynamic>? model;
+  ToDoTaskerCompleteTransportCarState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

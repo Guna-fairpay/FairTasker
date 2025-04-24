@@ -8,6 +8,7 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -104,6 +105,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
   List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList.where((element) => element['branch_code'] == branchId).toList();
   List<Map<String, dynamic>> get vendors => getIt<CommonService>().vendorsList;
   List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
+  Color reservationColor = AppC.appColor;
 
   @override
   Future<void> close() {
@@ -194,6 +196,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         _locations = response[3] ?? [];
         _vendors = response[2] ?? [];
         _toDoList = response[8] ?? [];
+        if (event.selectedVPerson?.length == 1) {
+          await _findReservationColor(event.selectedVPerson?.firstOrNull?['value']?['vin']);
+        }
         emit(state.copyWith(
             isLoading: false,
             tasks: response[0] ?? [],
@@ -229,7 +234,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       emit(state.copyWith(isSuppliesEnable: !currentStatus));
     });
 
-    on<AddToDoSelectedTaskIdentifierEvent>((event, emit) {
+    on<AddToDoSelectedTaskIdentifierEvent>((event, emit) async {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       log("${event.selectedTaskIdentifier.keys}", name: "AddToDoBloc-before");
       existing.removeWhere(
@@ -261,6 +266,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       showCleanCar = Str.cleanCarCheckIds.contains(taskId);
       showPlatformCheck = Str.platFormCheckIds.contains(taskId);
       var selectedLink = Str.getAroundIds.contains(taskId);
+      if (existingVPersons?.length == 1) {
+        await _findReservationColor(existingVPersons?.firstOrNull?['value']?['vin']);
+      }
       emit(state.copyWith(
           selectedTaskIdentifier: existing,
           selectedVPerson: existingVPersons,
@@ -272,7 +280,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       log("$existing", name: "AddToDoBloc");
     });
 
-    on<AddToDoVPersonEvent>((event, emit) {
+    on<AddToDoVPersonEvent>((event, emit) async {
       List<Map<String, dynamic>> input = List.from(event.vPerson);
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);
@@ -332,6 +340,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       if (existingRefId.toString().isNotNullOrEmpty)
         customLinkController.text = "${existingRefId ?? ""}";
       existingVPersons = existingVPersons.distinct((element) => element['id']);
+      if (existingVPersons?.length == 1) {
+        await _findReservationColor(existingVPersons?.firstOrNull?['value']?['vin']);
+      }
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier,
@@ -651,6 +662,16 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoReassignEvent>(_onReassignEvent);
   }
+
+  Future<void> _findReservationColor(String vin) async {
+    var response = await getIt<CommonService>().findVehicleReservation(vin: vin);
+    Console.of.log("${response?['identifier_id']}", name: "AddToDoBloc");
+    reservationColor = Str.red.contains(response?['identifier_id'])
+        ?AppC.redAccent
+        :Str.green.contains(response?['identifier_id'])
+        ?AppC.green
+        :AppC.appColor;
+    }
 
   Map<String, String> _addTodoBody() {
     var baseBody = _cleanCarBody();
