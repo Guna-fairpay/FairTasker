@@ -111,6 +111,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                     child: Chip(
                       onDeleted: () => _onDelete(model),
                       side: const BorderSide(color: AppC.trans),
+                      color: const WidgetStatePropertyAll(AppC.lowGreen),
                       deleteIcon: const Icon(
                         Icons.close,
                         color: AppC.red,
