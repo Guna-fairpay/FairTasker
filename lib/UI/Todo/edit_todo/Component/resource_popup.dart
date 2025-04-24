@@ -3,7 +3,6 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../utilities/appC.dart';
@@ -19,7 +18,9 @@ class ResourceSelection {
     ValueNotifier<List<String>> selectedIdsNotifier = ValueNotifier(List.from(selectedValues));
     final ScrollController _scrollController = ScrollController();
     if (details != null) {
+
       await showMenu(
+
         elevation: 5,
         color: Colors.white,
         context: context,
@@ -46,6 +47,7 @@ class ResourceSelection {
                       child: GestureDetector(
                         onTap: () {
                           Navigator.of(context).pop();
+                          Utils.dismissKeyboard(context);
                         },
                         child: const Icon(
                           Icons.close_sharp,
@@ -59,7 +61,7 @@ class ResourceSelection {
                         controller: _scrollController,
                         thumbVisibility: true,
                         trackVisibility: true,
-                        thickness: 5.sp,
+                        thickness: 3.sp,
                         radius: const Radius.circular(Num.borderRadiusLarge),
                         child: ListView.builder(
                           controller: _scrollController,
@@ -98,13 +100,12 @@ class ResourceSelection {
                                 }
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(bottom: 2.0),
+                                padding: const EdgeInsets.only(bottom: 2.0,right: 6),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: isSelected ? AppC.appColor : Colors.transparent,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8.0,
                                     vertical: 3.0,
@@ -127,7 +128,8 @@ class ResourceSelection {
             ),
           ),
         ],
-      );
+      ).whenComplete(() => Utils.dismissKeyboard(context));
+      Utils.dismissKeyboard(context);
     }
   }
 }
