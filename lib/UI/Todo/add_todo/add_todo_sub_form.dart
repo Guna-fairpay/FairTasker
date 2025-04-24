@@ -132,14 +132,6 @@ class AddTodoSubForm extends StatelessWidget {
                 readOnly: false,
                 onChangeCallback: (value) {}),
           ),
-          10.height,
-          if (state.showPlatformCheck)
-            Utils.getCircleCheckWidget(
-                    () => context
-                    .read<AddToDoBloc>()
-                    .add(AddToDoPlatformCheckEvent()),
-                state.isSelectedPlatformCheck,
-                'Platform Check'),
         ],
       ),
     );
