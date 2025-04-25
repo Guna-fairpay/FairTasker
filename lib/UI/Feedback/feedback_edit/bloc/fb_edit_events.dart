@@ -51,10 +51,10 @@ class FBCommentAddAttachmentEvent extends FBEditEvents {
 
 class FBCommentRemoveAttachmentEvent extends FBEditEvents {
   final dynamic attachment;
-  final dynamic commentId;
-  FBCommentRemoveAttachmentEvent(this.attachment, this.commentId);
+  final dynamic attachmentId;
+  FBCommentRemoveAttachmentEvent(this.attachment, this.attachmentId);
   @override
-  List<Object?> get props => [attachment, commentId, Random().nextDouble()];
+  List<Object?> get props => [attachment, attachmentId, Random().nextDouble()];
 }
 
 class FBCommentSubmitEvent extends FBEditEvents {
@@ -84,7 +84,7 @@ class FBFeedStatusChangeEvent extends FBEditEvents {
 }
 
 class FBCommentsEditEvent extends FBEditEvents {
-  dynamic model;
+  final dynamic model;
   FBCommentsEditEvent(this.model);
   @override
   List<Object?> get props => [model, Random().nextDouble()];
