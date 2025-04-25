@@ -150,6 +150,7 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                 title: model?['display']?['task_title'],
                 showHeader: false,
                 showSameTask: true,
+                itemPerPage: 5,
               ),
             ),
           ],

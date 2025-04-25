@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permissi
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
 import 'package:fairpytasker/UI/dialog/tasker_check_pickup_reason_dialog.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -29,7 +30,7 @@ class EditTodoUI extends StatelessWidget {
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           if (state.isPop) {
-            Navigator.pop(context);
+            context.pop();
           }
           if (state.isTimeChange) {
             TaskerTimeChangeReasonDialog.show(

@@ -117,13 +117,13 @@ class ToDoProcessor {
   Future<List<Map<String, dynamic>>?> getToDoList(
       DateTime selectedDate, bool isCompleted,
       {String? resourceId}) async {
-    if (selectedDate.toFormat() == DateTime.now().toFormat()) getIt<ToDoSupport>().refresh();
     var response = await Future.wait([
       _fetchGroupPersons(),
       _fetchToDoList(selectedDate, isCompleted, resourceId: resourceId)
     ]);
     _groupPersons = response[0] ?? [];
     var todos = response[1] ?? [];
+    if (selectedDate.toFormat() == DateTime.now().toFormat()) getIt<ToDoSupport>().resetting(todos: todos);
     var relatedTaskIds = todos.map((e) => e['related_task_id'] ?? 0).toList();
     relatedTaskIds.removeWhere((element) => element <= 0);
     if (relatedTaskIds.isNotEmpty) {
@@ -196,7 +196,7 @@ class ToDoProcessor {
       // FIND VEHICLE GROUP NAME
       return _groupVehicle.firstWhereOrNull(
           (element) => element['id'] == model['vehicle_group_id'])?['name'];
-    } else if (model['vehicle_name'].toString().isNotNullOrEmpty) {
+    } else if ((model['vehicle_name'].toString().isNotNullOrEmpty) && (model['vin'].toString().isNotNullOrEmpty)) {
       return model['vehicle_name'] ?? "";
     } else if (List.from(model['vehicles'] ?? []).isNotEmpty) {
       var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []).distinct((element) => element['vin']);
