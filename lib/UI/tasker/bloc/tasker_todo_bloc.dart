@@ -106,8 +106,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) {
-      _reFetchToDos();
-      _fBroadcast.broadcast(Str.todayToDo);
+      add(ToDoTaskerRefreshEvent(showLoading: false));
+      // _fBroadcast.broadcast(Str.todayToDo);
     });
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
@@ -221,10 +221,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     _reFetchToDos();
   }
 
-  void _reFetchToDos() async {
+  void _reFetchToDos({bool showLoading = true}) async {
     try {
       toDos.clear();
-      if (!isClosed) emit(ToDoTaskerLoadingState());
+      Console.of.debug("SHOW LOADING $showLoading");
+      if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
       var response = await _fetchToDoList();
       unfiltered = response ?? [];
       toDos = unfiltered;
@@ -905,7 +906,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onRefreshEvent(ToDoTaskerRefreshEvent event, Emitter<ToDoTaskerState> emit) {
-    _reFetchToDos();
+    _reFetchToDos(showLoading: event.showLoading);
   }
 
   void _onViewVehicleEvent(ToDoTaskerViewVehicleEvent event, Emitter<ToDoTaskerState> emit) {

@@ -47,4 +47,9 @@ class ToDoSupport {
     Console.of.debug("Refreshing", name: "ToDoSupport");
     _fetchTodosForToday();
   }
+
+  void resetting({List<Map<String, dynamic>>? todos}) {
+    Console.of.debug("ReSetting Data", name: "ToDoSupport");
+    _todos = todos ?? [];
+  }
 }

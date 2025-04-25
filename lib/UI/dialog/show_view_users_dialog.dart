@@ -6,6 +6,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ShowChipDialog<T extends Object> {
   ShowChipDialog._();
@@ -31,7 +32,7 @@ class _ShowViewUsersDialog<T extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+          borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)),
       backgroundColor: Colors.white,
       title: ListTile(
         title: Text(title),
@@ -43,8 +44,8 @@ class _ShowViewUsersDialog<T extends Object> extends StatelessWidget {
       ),
       titlePadding: EdgeInsets.zero,
       alignment: Alignment.center,
-      insetPadding: 10.horizontalPadding,
-      contentPadding: 10.padding,
+      insetPadding: 16.sp.padding,
+      contentPadding: 10.sp.padding,
       content: Container(
         width: context.width,
         padding: const EdgeInsets.only(bottom: 10),
@@ -71,9 +72,6 @@ class _ShowViewUsersDialog<T extends Object> extends StatelessWidget {
             onSelected: (value) {
 
             },
-            shape: RoundedRectangleBorder(
-                borderRadius:
-                BorderRadius.circular(Num.borderRadiusXLarge + 4)),
           )).toList() ?? [],
         ),
       ),

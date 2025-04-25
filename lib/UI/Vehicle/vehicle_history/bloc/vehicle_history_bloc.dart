@@ -100,7 +100,7 @@ class VehicleHistoryBloc
     vinName = event.vehicleName;
     itemsPerPage = event.itemPerPage;
     try {
-      // emit(VehicleHistorySubLoadingState());
+      emit(VehicleHistoryLoadingState());
       var response = await Future.wait([
         _getResourcesList(),
         _getGroupPersonList(),

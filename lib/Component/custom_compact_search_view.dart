@@ -1,22 +1,23 @@
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 
 class CompactSearchView extends StatelessWidget {
   final bool? filled;
   final bool readOnly;
   final Color? fillColor;
+  final EdgeInsets? padding;
   final String? hintText, labelText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged, onSubmitted;
-  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText, this.filled = false, this.fillColor = AppC.white});
+  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText, this.filled = false, this.fillColor = AppC.white, this.padding});
 
   @override
   Widget build(BuildContext context) {
-    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(color: AppC.fieldBase, width: Num.borderWidthThinField));
+    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: (filled ?? false) ? BorderSide.none : const BorderSide(color: AppC.fieldBase, width: Num.borderWidthThinField));
     return TextField(
       key: key,
       controller: controller,
@@ -33,7 +34,7 @@ class CompactSearchView extends StatelessWidget {
         isDense: true,
         hintText: hintText,
         labelText: labelText,
-        contentPadding: 7.padding,
+        contentPadding: padding ?? 7.padding,
         fillColor: fillColor,
         filled: filled,
         prefixIconConstraints: const BoxConstraints(),
