@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
@@ -70,10 +71,13 @@ class SearchViewField<T extends Object> extends StatelessWidget {
         : (itemAsString(selectedItem!) == controller.text)
             ? selectedItem
             : null;
+    Console.of.log("omitted: $omitted ${itemAsString(selectedItem!)} ${controller.text}");
+    var omitting = suggestions.where((element) => element == omitted);
     var result = suggestions
         .where((element) => element != omitted)
         .where((element) => "$element".toLowerCase().contains(searchQuery));
-    if (showEmpty) _showEmptyWidget.value = result.isEmpty;
+    Console.of.log("result: ${result.isEmpty} ${omitting.isEmpty} ${omitted == null}");
+    if (showEmpty) _showEmptyWidget.value = (result.isEmpty) && ((omitting.isEmpty) && (omitted == null));
     return result;
   }
 }
