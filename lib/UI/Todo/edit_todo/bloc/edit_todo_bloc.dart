@@ -432,7 +432,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           List<Map<String, dynamic>>.from(state.selectedVPerson);
       String? type =
           existingVPersons.isNotEmpty ? existingVPersons.first['type'] : null;
-      String newType = event.vPerson.first['type'];
+      String? newType = List.from(event.vPerson).firstOrNull?['type'];
       if (['person', 'g_vehicles'].contains(newType)) {
         existingVPersons.clear();
       }
@@ -673,7 +673,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<EditToDoDeleteVehicleEvent>((event, emit) async {
       try {
-        emit(state.copyWith(isLoading: true));
+        emit(state.copyWith(isLoading: false));
         var id = vehicleData.firstWhereOrNull(
             (element) => element['vin'] == event.vehicleId)?['id'];
         vinList.removeWhere(
