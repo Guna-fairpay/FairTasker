@@ -1,7 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as d;
-
+import 'package:collection/collection.dart';
+import 'package:path/path.dart';
 import 'package:fairpytasker/Repository/feedback_repository.dart';
 import 'package:fairpytasker/Response/feedback_status_response.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
@@ -15,25 +15,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 
 class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
   final FeedBackRepository _feedBackRepository = FeedBackRepository();
   final ImagePicker _picker = ImagePicker();
   late TextEditingController feedTitleController;
   final TextEditingController commentController = TextEditingController();
+  final TextEditingController filePickerController  = TextEditingController();
   late QuillController feedDescriptionController;
   List<dynamic> feedAttachments = [];
   Map<String, dynamic> feedbackResponse = {};
   Map<String, dynamic> commentResponse = {};
   List<dynamic> comments = [];
   List<StatusList> feedbackStatuses = [];
-  List<File> commentAttachments = [];
+  List<dynamic> commentAttachments = [];
   List<String> commentsAttachments =[];
   dynamic feedBackId;
   dynamic pageId = 0;
@@ -61,6 +58,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         commentResponse = response[1] ?? {};
         feedbackStatuses = (await _feedbackStatusApiUrl()) ?? [];
         status = feedbackResponse['feedback']?['status'] ?? 0;
+
         comments = commentResponse['comments'] ?? [];
         feedAttachments = [];
         feedAttachments.addAll((List.from(feedbackResponse['feedback']?['attachments']).isEmpty) ? [] : List.from(feedbackResponse['feedback']?['attachments'] ?? []).map((e) => e['path'].toString().toAttachmentURL).toList());
@@ -150,22 +148,50 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
 
     on<FBCommentAddAttachmentEvent>((event, emit) async {
       var result = await _pickFiles();
-      commentAttachments = [...commentAttachments, ...result];
+      var attachments = List.from(commentAttachments);
+      var existingAttachments = List.from(commentAttachments)
+          .whereType<File>()
+          .map((e) => (e.path))
+          .toList();
+      for (var element in result) {
+        if (!existingAttachments.contains(element.path)) {
+          attachments.add(element);
+        }
+      }
+      commentAttachments = attachments;
+      filePickerController.text=basename(commentAttachments.lastOrNull?.path ?? "");
       emit(FBCommentAttachments(commentAttachments));
     });
 
     on<FBCommentRemoveAttachmentEvent>((event, emit) async {
-      d.log("${event.attachment}", name: "REMOVE_ATTACHMENT");
-      //_deleteCommentAttachment
-      var response = await _deleteCommentAttachment(event.attachment);
-      d.log("$response", name: "DELETE_COMMENT_ATTACHMENT_RESPONSE");
-      if (response != null && response['status'] == 200) {
-        commentAttachments.remove(event.attachment);
+      try{
+        if (event.attachment is File) {
+          commentAttachments.remove(event.attachment);
+        }else if(event.attachment is String){
+          emit(FBLoadingState());
+          var attachmentId = selectedCommentModel['attachments'].firstWhere(
+                  (element) => element['path'] == event.attachment.toString().removeAttachmentURL,
+              orElse: () => null)?['id'];
+          var response = await _deleteCommentAttachment(attachmentId);
+          if(response != null && response['status'] == 202){
+            for (var element in comments) {
+              if (List.from(element['attachments']).map((e) =>
+                  e['id'].toString()).contains(attachmentId.toString())) {
+                element['attachments'].removeWhere(
+                      (img) => img['id'].toString() == attachmentId.toString(),
+                );
+              }
+            }
+            commentAttachments.remove(event.attachment);
+          }
+        }
+        emit(FBCommentAttachments(commentAttachments));
+      }catch(e){
+        Console.of.error(e);
+        emit(FBErrorState(e.toString()));
         emit(FBCommentAttachments(commentAttachments));
       }
-      if (event.attachment is String) return;
-      commentAttachments.remove(event.attachment);
-      emit(FBCommentAttachments(commentAttachments));
+
     });
 
     on<FBCommentSubmitEvent>((event, emit) async {
@@ -175,12 +201,12 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
       }
       emit(FBLoadingState());
       try {
-        var response = await _uploadComments(feedBackId, comment: commentController.text, files: commentAttachments);
-        d.log("$response", name: "UPLOAD_COMMENT_RESPONSE");
+        var response = await _uploadComments(feedBackId, comment: commentController.text, files: commentAttachments.whereType<File>().toList());
         if (response != null && response['status'] == 200) {
           comments.add(response['comments']);
           commentController.clear();
           commentAttachments = [];
+          filePickerController.clear();
           emit(FBCommentState(comments));
           emit(FBCommentAttachments(commentAttachments));
         }
@@ -207,40 +233,14 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
     });
 
     on<FBCommentsEditEvent>((event, emit) async {
-      selectedCommentModel = event.model;
-      d.log("${event.model}", name: "EDIT_COMMENT");
-      commentController.text = event.model?['comment'] ?? "";
       isEdit = true;
+      selectedCommentModel = event.model;
+      commentController.text = event.model?['comment'] ?? "";
       commentId = event.model?['id'];
-      if (event.model['attachments'] != null && event.model['attachments'] is List) {
-        List attachments = event.model['attachments'];
-
-        attachmentMetadata = attachments.cast<Map<String, dynamic>>();
-
-        commentAttachments = await Future.wait(attachments.map((e) async {
-          try {
-            String url = e['path'].toString().toAttachmentURL;
-            final response = await http.get(Uri.parse(url));
-            if (response.statusCode == 200) {
-              final tempDir = await getTemporaryDirectory();
-              final fileName = path.basename(url);
-              final filePath = path.join(tempDir.path, fileName);
-              File file = File(filePath);
-              return await file.writeAsBytes(response.bodyBytes);
-            } else {
-              d.log("Failed to fetch attachment: HTTP ${response.statusCode}", name: "FETCH_ATTACHMENT_ERROR");
-              return null;
-            }
-          } catch (error) {
-            d.log("Failed to fetch attachment: $error", name: "FETCH_ATTACHMENT_ERROR");
-            return null;
-          }
-        })).then((results) => results.where((file) => file != null).toList().cast<File>());
-      } else {
-        commentAttachments = [];
-        attachmentMetadata = [];
-      }
-
+      List<dynamic> images = selectedCommentModel['attachments'];
+      commentAttachments = images.map((e) => e['path'].toString().toAttachmentURL).toList();
+      Console.of.log(commentAttachments);
+      // filePickerController.text= (commentAttachments.lastOrNull?? "");
       emit(FBCommentState(comments));
       emit(FBCommentAttachments(commentAttachments));
     });
@@ -261,15 +261,22 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
       }
       emit(FBLoadingState());
       try {
-        d.log("${commentAttachments}", name: "UPDATE_COMMENT");
-        var response = await _updateComment(event.commentId, comment: commentController.text, files: commentAttachments);
+        var response = await _updateComment(event.commentId, comment: commentController.text, files: commentAttachments.whereType<File>().toList());
         commentController.clear();
         commentAttachments = [];
+        filePickerController.clear();
         isEdit = false;
         d.log("$response", name: "UPDATE_COMMENT_RESPONSE");
         if (response != null && response['status'] == 200) {
-          comments.firstWhere((element) => element['id'] == event.commentId)['comment'] = commentController.text;
-
+          // REMOVE OLD COMMENT AND ADD NEW COMMENT
+          comments.removeWhere((element) => element['id'] == event.commentId);
+          comments.add(response['comments']);
+          // for (var element in comments) {
+          //   if (element['id'].toString() == event.commentId.toString()) {
+          //     element = response['comments'];
+          //   }
+          // }
+          // comments.firstWhere((element) => element['id'] == event.commentId)['comment'] = commentController.text;
           emit(FBCommentState(comments));
           emit(FBCommentAttachments(commentAttachments));
         }
