@@ -48,6 +48,7 @@ class DrawerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> userId = ['20','31','3','17','2','1'];
     return Drawer(
       backgroundColor: Colors.transparent,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -127,6 +128,7 @@ class DrawerView extends StatelessWidget {
                     onTap: () => navigateToPage(context, const ReportsView()),
                   ),
                   _buildDivider(),
+                  if(userId.contains(Session.of.getString(Str.userIdPrefText)))
                   _buildListTile(
                     context,
                     icon:  Icons.upload,

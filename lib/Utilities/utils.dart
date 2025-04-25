@@ -1,6 +1,7 @@
 
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:date_time/date_time.dart' as dt;
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/tasker_button.dart';
@@ -540,6 +541,182 @@ class Utils {
         ),
         onChanged: onChangeCallback,
       )
+    );
+  }
+
+  static Widget getTextFormFieldWithMultipleIcon(
+      String? labelText,
+      TextEditingController controller, {
+        Key? key,
+        FocusNode? focusNode,
+        Widget? label,
+        double textSize = 12,
+        Color textColor = AppC.text,
+        FontWeight fontWeight = FontWeight.w400,
+        bool readOnly = false,
+        bool autoFocus = false,
+        ValueChanged? onChangeCallback,
+        TextInputType textType = TextInputType.text,
+        TextInputAction? inputAction,
+        TextStyle? style,
+        int? maxLength,
+        Color borderColor = AppC.fieldBase,
+        Color hintTextColor = AppC.text,
+        String? hintText,
+        Widget? prefixIcon,
+        bool obscure = false,
+        bool isDense = true,
+        double? height,
+        TextStyle? hintTextStyle,
+        TextStyle? labelStyle,
+        TextStyle? counterTextStyle,
+        Color fillColor = AppC.trans,
+        EdgeInsets contentPadding = const EdgeInsets.symmetric(horizontal: 9),
+        VoidCallback? onTapCallback,
+        String? Function(String?)? validator,
+        bool showErrorSuffix = false,
+        int minLines = 1,
+        int maxLines = 1,
+        bool isCollapsed = false,
+        AutovalidateMode autoValidate = AutovalidateMode.disabled,
+        List<TextInputFormatter>? textInputFormatter,
+        double borderRadius = Num.subradiusButton,
+        TextAlign textAlign = TextAlign.start,
+        double borderWidth = Num.borderWidthField,
+        VoidCallback? onSuffixTap,
+        VoidCallback? onSuffixTap1,
+        VoidCallback? onSuffixTap2,
+        IconData suffixIconData = Icons.add,
+        IconData? suffixIconData1,
+        IconData? suffixIconData2,
+        Color? iconColor = AppC.appColor,
+        Color? iconColor1,
+        Color? iconColor2,
+        String?  bottomTrailingText,
+      }) {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) => TextFormField(
+        key: key,
+        validator: validator,
+        spellCheckConfiguration: const SpellCheckConfiguration(),
+        autovalidateMode: autoValidate,
+        textInputAction: inputAction ?? TextInputAction.next,
+        onTap: onTapCallback,
+        focusNode: focusNode,
+        autofocus: autoFocus,
+        controller: controller,
+        keyboardType: textType,
+        readOnly: readOnly,
+        maxLength: maxLength,
+        obscureText: obscure,
+        onTapOutside: (event) {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        textCapitalization: TextCapitalization.sentences,
+        inputFormatters: textInputFormatter,
+        textAlign: textAlign,
+        minLines: minLines,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          contentPadding: contentPadding,
+          constraints: const BoxConstraints(),
+          isDense: isDense,
+          labelText: labelText,
+          hintText: hintText,
+          counterText: bottomTrailingText,
+          counterStyle: counterTextStyle ?? const TextStyle(color: AppC.red),
+          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+          labelStyle: labelStyle ?? const TextStyle(color: AppC.grey, fontSize: 13),
+          filled: true,
+          isCollapsed: isCollapsed,
+          fillColor: fillColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(
+              color: borderColor,
+              width: borderWidth,
+            ),
+          ),
+          suffixIconConstraints: const BoxConstraints(),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 150,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  InkWell(
+                    onTap: onSuffixTap,
+                    child:
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: borderColor,width: 0.2),
+                        color: AppC.blue50,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        child: Icon(suffixIconData, color: iconColor),
+                      ),
+                    ),
+                  ),
+                  if(suffixIconData1 != null)
+                  InkWell(
+                    onTap: onSuffixTap1,
+                    child:
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: borderColor,width: 0.2),
+                        color: AppC.blue50,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        child: Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationZ(50 * math.pi / 180),
+                          child: Icon(suffixIconData1, color: iconColor1),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if(suffixIconData2 != null)
+                  InkWell(
+                    onTap: onSuffixTap2,
+                    child:
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: borderColor,width: 0.2),
+                        color: AppC.blue50,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        child: Icon(suffixIconData2, color: iconColor2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(),
+          prefixIcon: prefixIcon,
+        ),
+        style: style ??
+            TextStyle(
+              color: textColor,
+              fontWeight: fontWeight,
+            ),
+        onChanged: onChangeCallback,
+      ),
     );
   }
 

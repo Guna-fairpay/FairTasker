@@ -66,8 +66,7 @@ class VendorView extends StatelessWidget {
               return SafeArea(
                   minimum: EdgeInsets.only(bottom: 10.sp, top: 10.sp),
                   child: Padding(
-                    padding: EdgeInsets.only(
-                        left: 10.sp, right: 10.sp, bottom: 10.sp, top: 10.sp),
+                    padding: EdgeInsets.all(10.sp),
                     child: Column(
                       children: [
                         Expanded(
@@ -75,13 +74,16 @@ class VendorView extends StatelessWidget {
                             key: formKey,
                             child: ListView(
                               children: [
-                                Utils.getTextFormField(
-                                  'Vendor Name',
-                                  context.read<VendorDataBloc>().nameController,
-                                  autoValidate: AutovalidateMode.onUserInteraction,
-                                  validator: (val) => val!.isEmpty ? 'Please enter vendor name' : null,
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10.0),
+                                  child: Utils.getTextFormField(
+                                    'Vendor Name',
+                                    context.read<VendorDataBloc>().nameController,
+                                    autoValidate: AutovalidateMode.onUserInteraction,
+                                    validator: (val) => val!.isEmpty ? 'Please enter vendor name' : null,
+                                  ),
                                 ),
-                                5.height,
+                                10.height,
                                 Row(
                                   children: [
                                     Expanded(
@@ -111,135 +113,70 @@ class VendorView extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                5.height,
-                                  Row(children: [
-                                    Expanded(
-                                      child: Utils.getTextFormFieldWithIcon(
-                                          'Address',
-                                          context
-                                              .read<VendorDataBloc>()
-                                              .addressController,
-                                          suffixIconData:
-                                              Icons.location_on_outlined,
-                                          onSuffixTap: () {
-                                        _getCurrentLocation(context);
-                                      }),
-                                    ),
-                                    if (context.read<VendorDataBloc>().latitude != null &&
-                                        context.read<VendorDataBloc>().longitude != null) ...[
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final Uri mapsUri = Uri(
-                                            scheme: 'https',
-                                            host: 'www.google.com',
-                                            path:
-                                                '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
-                                            queryParameters: {
-                                              'q':
-                                                  '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'
-                                            },
-                                          );
-                                          if (await canLaunchUrl(mapsUri)) {
-                                            await launchUrl(mapsUri,
-                                                mode: LaunchMode
-                                                    .externalApplication);
-                                          } else {
-                                            throw 'Could not open the map.';
-                                          }
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topRight: Radius.circular(4),
-                                              bottomRight: Radius.circular(4),
-                                            ),
-                                            color: AppC.blue50,
-                                            border: const Border(
-                                              top: BorderSide(
-                                                  width: Num.borderWidthField,
-                                                  color: AppC.fieldBase),
-                                              bottom: BorderSide(
-                                                  width: Num.borderWidthField,
-                                                  color: AppC.fieldBase),
-                                              right: BorderSide(
-                                                  width: Num.borderWidthField,
-                                                  color: AppC.fieldBase),
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 9, vertical: 9),
-                                            child: Transform(
-                                                alignment: Alignment.center,
-                                                transform: Matrix4.rotationZ(
-                                                    50 * math.pi / 180),
-                                                child: const Icon(
-                                                    Icons.navigation_outlined,
-                                                    color: AppC.green)),
-                                          ),
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          context.read<VendorDataBloc>().add(const ResetLocationEvent());
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topRight: Radius.circular(4),
-                                              bottomRight: Radius.circular(4),
-                                            ),
-                                            color: AppC.blue50,
-                                            border: const Border(
-                                              top: BorderSide(
-                                                  width: Num.borderWidthField,
-                                                  color: AppC.fieldBase),
-                                              bottom: BorderSide(
-                                                  width: Num.borderWidthField,
-                                                  color: AppC.fieldBase),
-                                              right: BorderSide(
-                                                  width: Num.borderWidthField,
-                                                  color: AppC.fieldBase),
-                                            ),
-                                          ),
-                                          child: const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 9, vertical: 9),
-                                            child: Icon(Icons.close,
-                                                color: AppC.red),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ]),
-                                  if (context.read<VendorDataBloc>().latitude != null &&
-                                      context.read<VendorDataBloc>().longitude != null) ...[
-                                    ListTile(
-                                      trailing: Utils.getText(
-                                          "Lat : ${context.watch<VendorDataBloc>().latitude} "
-                                          "Long : ${context.watch<VendorDataBloc>().longitude}",
-                                          color: AppC.red),
-                                      dense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                    ),
-                                  ] else ...[
-                                    5.height,
-                                  ],
+                                10.height,
+                                Utils.getTextFormFieldWithMultipleIcon(
+                                  'Address',
+                                  context.read<VendorDataBloc>().addressController,
+                                  hintText: 'Address',
+                                  suffixIconData: Icons.location_on_outlined,
+                                  onSuffixTap: () {
+                                    _getCurrentLocation(context);
+                                  },
+                                  suffixIconData1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? Icons.navigation_outlined
+                                      : null,
+                                  iconColor1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? AppC.green
+                                      : null,
+                                  onSuffixTap1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? () async{
+                                    final Uri mapsUri = Uri(
+                                      scheme: 'https',
+                                      host: 'www.google.com',
+                                      path:
+                                      '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
+                                      queryParameters: {
+                                        'q':
+                                        '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'
+                                      },
+                                    );
+                                    if (await canLaunchUrl(mapsUri)) {
+                                      await launchUrl(mapsUri,
+                                          mode: LaunchMode
+                                              .externalApplication);
+                                    } else {
+                                      throw 'Could not open the map.';
+                                    }
+                                  } : (){},
+                                  suffixIconData2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? Icons.close
+                                      : null,
+                                  iconColor2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? AppC.red
+                                      : null,
+                                  onSuffixTap2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? () {
+                                    context.read<VendorDataBloc>().add(const ResetLocationEvent());
+                                  }
+                                      : (){},
+                                  bottomTrailingText: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                      ? "Lat : ${context.watch<VendorDataBloc>().latitude} Long : ${context.watch<VendorDataBloc>().longitude}"
+                                      : null,
+                                ),
+                                10.height,
                                 Utils.getTextFormField(
                                     'Phone',
                                     context
                                         .read<VendorDataBloc>()
                                         .phoneController,
                                     textType: TextInputType.phone),
-                                5.height,
+                                10.height,
                                 Utils.getTextFormField(
                                     'Website',
                                     context
                                         .read<VendorDataBloc>()
                                         .websiteController),
-                                5.height,
+                                10.height,
                                 Utils.getBorderedMultilineTextField(
                                     'Expertise',
                                     context
@@ -247,7 +184,7 @@ class VendorView extends StatelessWidget {
                                         .expertiseController,
                                     minLines: 2,
                                     maxLines: 4),
-                                5.height,
+                                10.height,
                                 Utils.getBorderedMultilineTextField(
                                     'Description',
                                     context
@@ -255,7 +192,7 @@ class VendorView extends StatelessWidget {
                                         .descriptionController,
                                     minLines: 2,
                                     maxLines: 4),
-                                5.height,
+                                10.height,
                                 VendorImageUploadSection(
                                   title: 'Upload Business Card',
                                   borderColor: Colors.blue,
