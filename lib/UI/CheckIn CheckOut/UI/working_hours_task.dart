@@ -119,7 +119,7 @@ class WorkingHoursTaskUI extends StatelessWidget {
                               );
                             },
                             child: Text(
-                              '\$$totalAmount', // Now inside BlocBuilder, so it works
+                              '\$$totalAmount',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

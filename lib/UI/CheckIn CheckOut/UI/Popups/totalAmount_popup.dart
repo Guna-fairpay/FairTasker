@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../../../../Utilities/appC.dart';
 
 void showHoursSummaryPopup(BuildContext context, {
@@ -103,7 +103,7 @@ void showHoursSummaryPopup(BuildContext context, {
                           child: Text(task['name'].toString()),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.only(left: 40),
                           child: Text(task['count'].toString()),
                         ),
                         Padding(
@@ -128,7 +128,7 @@ void showHoursSummaryPopup(BuildContext context, {
                           child: Text(''),
                         ),
                         const Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.only(left: 30,top: 8.0),
                           child: Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                         Padding(
@@ -155,7 +155,8 @@ Map<String, dynamic> _calculateTotals(
     List<Map<String, dynamic>> taskData,
     List<Map<String, dynamic>> paymentData,
     String name,
-    ) {
+    )
+{
   final tasks = <Map<String, dynamic>>[];
   double totalAmount = 0;
   int totalCount = 0;
@@ -179,7 +180,7 @@ Map<String, dynamic> _calculateTotals(
         matchedTask = taskName;
       } else {
         for (final paymentTask in paymentMap.keys) {
-          if (paymentTask != null && taskName.contains(paymentTask.split('/')[0])) {
+          if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
             matchedTask = paymentTask;
             break;
           }
@@ -193,7 +194,7 @@ Map<String, dynamic> _calculateTotals(
         taskGroups.update(key, (existing) => {
           'name': existing['name'],
           'count': (existing['count'] as int) + count,
-          'amount': (existing['amount'] as double) + (amount * count),
+          'amount': (existing['amount'] as int) + (amount * count),
         }, ifAbsent: () => {
           'name': matchedTask!,
           'count': count,
@@ -213,6 +214,7 @@ Map<String, dynamic> _calculateTotals(
     'totalCount': totalCount,
     'name': name,
   };
+
 }
 
 int _toInt(dynamic value) {

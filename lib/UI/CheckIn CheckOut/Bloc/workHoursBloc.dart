@@ -635,7 +635,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isEditMode: true,isLoading: false));
     });
 
-    // Add these handlers to your bloc
+
     on<ResetAllEvent>((event, emit) {
       emit(state.copyWith(
         selectedUser: null,
@@ -985,12 +985,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         userId: event.userId, cohortIds: event?.cohortIds ?? [],
       );
       List<Map<String, dynamic>> combinedHistory = [];
-      if (taskHistory?.history2 != null && taskHistory!.history2 is List) {
-        combinedHistory.addAll(taskHistory.history2!.whereType<Map<String, dynamic>>());
-      }
-      if (taskHistory?.history3 != null && taskHistory!.history3 is List) {
-        combinedHistory.addAll(taskHistory.history3!.whereType<Map<String, dynamic>>());
-      }
+      combinedHistory.addAll(taskHistory?.allHistory ?? []);
 
       final data = await apiRepository.fetchGetConfiguration();
       final response1 = await apiRepository.fetchCohortData();
@@ -1002,7 +997,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         List<String> titles = taskCategoryGroup.map((item) => item['name'].toString()).toList();
 
         List<Map<String, dynamic>> sortTitles(List<String> titles, List<Map<String, dynamic>> taskCategoryGroup) {
-          // Change classifiedTask to store a list of maps with title and id
+
           Map<String, List<Map<String, dynamic>>> classifiedTask = {
             'Other': [],
             'Parts': []
@@ -1032,10 +1027,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     String lowercaseTitle = title.toLowerCase();
                     if (lowercaseTitle == childCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
                       classifiedTask[parentCategory['name']] ??= [];
-                      // Store both title and id (if available, otherwise null)
                       classifiedTask[parentCategory['name']]!.add({
                         'title': title,
-                        'id': childCategory['id'] ?? null // Use id from subcategory if it exists
+                        'id': childCategory['id'] ?? null
                       });
                       addedTitles.add(lowercaseTitle);
                     }
@@ -1056,32 +1050,34 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
             }
           }
+          log("$classifiedTask",name: "classifiedTask");
+          log("$addedTitles",name: "addedTitles");
 
-          // Classify any title related to 'Parts'
+          // title related to 'Parts'
           for (var title in titles) {
             String lowercaseTitle = title.toLowerCase();
             if (lowercaseTitle.contains('parts') && !addedTitles.contains(lowercaseTitle)) {
               classifiedTask['Parts']!.add({
                 'title': title,
-                'id': null // No id available here unless sourced elsewhere
+                'id': null
               });
               addedTitles.add(lowercaseTitle);
             }
           }
 
-          // Add remaining titles to 'Other' category
+          // Add remaining titles to 'Other'
           for (var title in titles) {
             String lowercaseTitle = title.toLowerCase();
             if (!addedTitles.contains(lowercaseTitle)) {
               classifiedTask['Other']!.add({
                 'title': title,
-                'id': -1 // No id available here unless sourced elsewhere
+                'id': -1,
               });
               addedTitles.add(lowercaseTitle);
             }
           }
 
-          // Convert classifiedTask map into the required list format
+          // Convert classifiedTask map into list format
           List<Map<String, dynamic>> sortedTask = [];
 
           for (var category in categoryOrder) {
@@ -1090,7 +1086,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 "title": category,
                 "subcategory": classifiedTask[category]!.map((e) => {
                   "sub_title": e['title'],
-                  "id": e['id'] // Include id in the output
+                  "id": e['id'],
                 }).toList()
               });
             }
@@ -1099,13 +1095,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           return sortedTask;
         }
         var result = sortTitles(titles, taskCategoryGroup);
-        //log("$result",name: "result");
+        log("$result",name: "result_title");
 
 
         //Helper Function
-        List<Map<String, dynamic>> formatTaskData(
-            List<Map<String, dynamic>> categoryData,
-            List<Map<String, dynamic>> tasks)
+        List<Map<String, dynamic>> formatTaskData(List<Map<String, dynamic>> categoryData, List<Map<String, dynamic>> tasks)
         {
           Map<String, List<Map<String, dynamic>>> classifiedTasks = {};
 
@@ -1124,7 +1118,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
             for (var category in categoryData) {
               for (var sub in category['subcategory']) {
-                if (sub['sub_title'] == taskTitle) {
+                if (sub['sub_title'].toString().toLowerCase() == taskTitle.toLowerCase()) {
                   classifiedTasks[category['title']]!.add(task);
                   matched = true;
                   break;
@@ -1199,7 +1193,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         }
         //log("$result",name: "result");
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
-
+        log("$taskData",name: "taskData");
 
         int _convertToInt(dynamic value) {
           if (value is int) return value;
@@ -1207,28 +1201,25 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           if (value is String) return int.tryParse(value) ?? 0;
           return 0;
         }
-        int calculateTotalAmount(
-            List<Map<String, dynamic>> taskData,
-            List<Map<String, dynamic>> paymentData,
-            ) {
+        int calculateTotalAmount(List<Map<String, dynamic>> taskData, List<Map<String, dynamic>> paymentData,)
+        {
           int total = 0;
-
-          // Create a map of task names to amounts with proper type conversion
+          // Create a map of task names to amounts
           final paymentMap = {
             for (var payment in paymentData.where((p) => p['type'] == 'task'))
               payment['task_name']?.toString(): _convertToInt(payment['amount'])
           };
-
-          // Helper function to check for partial matches
+          log("$paymentMap",name: "paymentMap");
+          // check for partial matches
           int? findPaymentAmount(String taskName) {
-            // Try exact match first
+
             if (paymentMap.containsKey(taskName)) {
               return paymentMap[taskName];
             }
 
-            // Check for partial matches
+            // partial matches
             for (final paymentTask in paymentMap.keys) {
-              if (paymentTask != null && taskName.contains(paymentTask.split('/')[0])) {
+              if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
                 return paymentMap[paymentTask];
               }
             }

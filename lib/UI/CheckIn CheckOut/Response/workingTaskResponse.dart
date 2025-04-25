@@ -1,27 +1,20 @@
 
 class WorkingTaskResponse {
-  List<Map<String, dynamic>>? history2;
-  List<Map<String, dynamic>>? history3;
+  List<Map<String, dynamic>> allHistory = [];
 
-  WorkingTaskResponse({this.history2, this.history3});
+  WorkingTaskResponse();
 
   WorkingTaskResponse.fromJson(dynamic json) {
-    if (json['history'] != null && json['history'] is Map<String, dynamic>) {
-      var historyMap = json['history'] as Map<String, dynamic>;
+    final historyMap = json['history'];
 
-      history2 = historyMap.containsKey('2')
-          ? List<Map<String, dynamic>>.from(historyMap['2'] as List)
-          : [];
-
-      history3 = historyMap.containsKey('3')
-          ? List<Map<String, dynamic>>.from(historyMap['3'] as List)
-          : [];
-    } else {
-      history2 = [];
-      history3 = [];
+    if (historyMap != null && historyMap is Map<String, dynamic>) {
+      for (var entry in historyMap.entries) {
+        if (entry.value is List) {
+          allHistory.addAll(entry.value.whereType<Map<String, dynamic>>());
+        }
+      }
     }
 
-    print("Parsed history2: ${history2?.length}, history3: ${history3?.length}");
+    print("Total history tasks: ${allHistory.length}");
   }
-
 }
