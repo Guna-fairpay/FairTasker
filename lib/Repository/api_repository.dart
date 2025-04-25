@@ -545,6 +545,7 @@ class APiRepository {
 
   Future<VehicleExpenseHistoryResponse?> getEditVehicleExpense(
       {String? id}) async {
+    if (id.toString().isNullOrEmpty) return null;
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expenses/$id/edit';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
