@@ -10,7 +10,6 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -174,6 +173,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
 
   void _onCreateTaskEvent(MaintenanceCreateTaskEvent event, Emitter<MaintenanceCheckState> emit) async {
     try {
+      emit(MaintenanceCheckLoadingState());
       var maintenanceTaskIds = [event.model?['parent_id'], event.model?['id'], (event.model?['selectedValue']?['id'] ?? 0)];
       var labels = _getLabels(maintenanceTaskIds);
       var comments = (event.model?['comments'] as TextEditingController).text;
@@ -212,6 +212,8 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
         Console.of.log("$response", name: "RESPONSE");
         FBroadcast.instance().broadcast("todo_view");
         emit(MaintenanceCheckCompleteState());
+      } else {
+        emit(MaintenanceCheckCommonState());
       }
     } catch (e) {
       Console.of.error("Error", error: e);
