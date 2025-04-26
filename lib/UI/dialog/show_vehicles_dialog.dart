@@ -14,19 +14,20 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 class TaskerVehiclesChangeDialog {
   TaskerVehiclesChangeDialog._();
 
-  static void show(BuildContext context, Map<String, dynamic>? data, {void Function(List<Map<String, dynamic>> value)? onSelected}) async {
+  static void show(BuildContext context, Map<String, dynamic>? data, {void Function(Map<String, dynamic>? model,List<Map<String, dynamic>> value)? onSelected, ValueChanged<Map<String, dynamic>?>? onDeleted}) async {
     await showDialog(
         context: context,
         useSafeArea: true,
         barrierDismissible: true,
-        builder: (context) => _TaskerVehiclesDialogView(data: data, onSelected: onSelected));
+        builder: (context) => _TaskerVehiclesDialogView(data: data, onSelected: onSelected, onDeleted: onDeleted));
   }
 }
 
 class _TaskerVehiclesDialogView extends StatelessWidget {
   final Map<String, dynamic>? data;
-  final void Function(List<Map<String, dynamic>> value)? onSelected;
-  const _TaskerVehiclesDialogView({required this.data, this.onSelected});
+  final ValueChanged<Map<String, dynamic>?>? onDeleted;
+  final void Function(Map<String, dynamic>? model, List<Map<String, dynamic>> value)? onSelected;
+  const _TaskerVehiclesDialogView({required this.data, this.onSelected, this.onDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +58,9 @@ class _TaskerVehiclesDialogView extends StatelessWidget {
               EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
+              switch (state) {
+                case TVPDDeleteState(): onDeleted?.call(state.model); break;
+              }
             }
           },
           child: _TaskerVehiclesContent(onSelected: onSelected),
@@ -67,7 +71,7 @@ class _TaskerVehiclesDialogView extends StatelessWidget {
 }
 
 class _TaskerVehiclesContent extends StatelessWidget {
-  final void Function(List<Map<String, dynamic>> value)? onSelected;
+  final void Function(Map<String, dynamic>? model, List<Map<String, dynamic>> value)? onSelected;
   const _TaskerVehiclesContent({this.onSelected});
 
   @override
@@ -96,7 +100,8 @@ class _TaskerVehiclesContent extends StatelessWidget {
                       text: "Save",
                       onPressed: () {
                         var value = context.read<TVPDBloc>().selectedVehicles;
-                        if (value.isNotEmpty) onSelected?.call(value);
+                        var model = context.read<TVPDBloc>().selectedModel;
+                        if (value.isNotEmpty) onSelected?.call(model, value);
                         context.popDialog();
                       },
                     ),
