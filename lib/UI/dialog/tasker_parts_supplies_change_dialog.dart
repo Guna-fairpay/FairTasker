@@ -14,6 +14,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../Manage Custom Data/Parts/ui/parts_main_ui.dart';
+import '../Manage Custom Data/Supplies/UI/supplies_main_ui.dart';
+
 class TaskerPartsSuppliesDialog {
   TaskerPartsSuppliesDialog._();
 
@@ -81,15 +84,15 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
                   }
                 }
               },
-              child: _TaskerPartsSuppliesDialogBodyView(onChanged: onChanged),
+              child: _TaskerPartsSuppliesDialogBodyView(onChanged: onChanged, isParts: isParts),
             )));
   }
 }
 
 class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
   final void Function(List<Map<String, dynamic>> value)? onChanged;
-
-  const _TaskerPartsSuppliesDialogBodyView({this.onChanged});
+  final bool isParts;
+  const _TaskerPartsSuppliesDialogBodyView({this.onChanged, required this.isParts});
 
   @override
   Widget build(BuildContext _) {
@@ -112,6 +115,9 @@ class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
                         onChanged: (isChecked, value) => context
                             .read<TPSDBloc>()
                             .add(TPSDSelectedEvent(value, isChecked)),
+                            onEmptyTap: () => isParts
+                                ? context.push(PartsMainUI(title: context.read<TPSDBloc>().controller.text,))
+                                : context.push(SuppliesMainUI(title: context.read<TPSDBloc>().controller.text,)),
                       ),
                     )),
                     Row(
