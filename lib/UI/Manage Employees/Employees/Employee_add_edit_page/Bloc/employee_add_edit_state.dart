@@ -6,23 +6,23 @@ abstract class EmployeeAddEditState extends Equatable {
   List<Object?> get props => [];
 }
 
-class EmployeesLoadingState extends EmployeeAddEditState {}
+class EmployeeAddEditLoadingState extends EmployeeAddEditState {}
 
-class EmployeesCommonState extends EmployeeAddEditState {
+class EmployeeAddEditCommonState extends EmployeeAddEditState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class EmployeesErrorState extends EmployeeAddEditState {
+class EmployeeAddEditErrorState extends EmployeeAddEditState {
   final dynamic message;
-  EmployeesErrorState(this.message);
+  EmployeeAddEditErrorState(this.message);
   @override
   List<Object?> get props => [message];
 }
 
-class EmployeesSuccessState extends EmployeeAddEditState {
+class EmployeeAddEditSuccessState extends EmployeeAddEditState {
   final dynamic message;
-  EmployeesSuccessState(this.message);
+  EmployeeAddEditSuccessState(this.message);
   @override
   List<Object?> get props => [message];
 }
