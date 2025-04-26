@@ -1,22 +1,14 @@
-
-import 'dart:io';
-import 'package:fairpytasker/Component/close_badge.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_bloc.dart';
 import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_event.dart';
 import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_state.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_expense_attachment.dart';
 import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_split_expense_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -32,51 +24,50 @@ class TodoExpense extends StatelessWidget {
   const TodoExpense(
       {super.key,
       required this.expenseId,
-       this.todoItem,
-       this.selectedParts,
-       this.selectedSupplies,
-       this.selectedVendor});
+      this.todoItem,
+      this.selectedParts,
+      this.selectedSupplies,
+      this.selectedVendor});
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TodoEditExpenseBloc>(
-      create: (context) => TodoEditExpenseBloc()..add(GetTodoExpenseInitialEvent(
-          expenseId: expenseId,
-          todoItem: todoItem,
-          selectedParts: selectedParts,
-          selectedSupplies: selectedSupplies,
-          selectedVendor: selectedVendor
-      )),
+      create: (context) => TodoEditExpenseBloc()
+        ..add(GetTodoExpenseInitialEvent(
+            expenseId: expenseId,
+            todoItem: todoItem,
+            selectedParts: selectedParts,
+            selectedSupplies: selectedSupplies,
+            selectedVendor: selectedVendor)),
       child: BlocListener<TodoEditExpenseBloc, TodoExpenseState>(
           listener: (context, state) {
-            state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
-            },
-          child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
+        state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+      }, child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
               builder: (context, state) {
-                return Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    10.height,
-                    if (state.vehicleList.length == 1)
-                      InkWell(
-                        onTap: () =>context.push(VehicleExpenseHistoryUI(
-                          vin: state.vehicleList.firstOrNull['vin'],
-                          vehicleName: state.vehicleList.firstOrNull['vehicle_name'],
-                          showTotalAmount: false,
-                        )),
-                        child: Utils.getText(
-                          'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
-                          color: AppC().base,
-                        ),
-                      ),
-                    if (state.vehicleList.length > 1)
+        return Column(
+          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            10.height,
+            if (state.vehicleList.length == 1)
+              InkWell(
+                onTap: () => context.push(VehicleExpenseHistoryUI(
+                  vin: state.vehicleList.firstOrNull['vin'],
+                  vehicleName: state.vehicleList.firstOrNull['vehicle_name'],
+                  showTotalAmount: false,
+                )),
+                child: Utils.getText(
+                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                  color: AppC().base,
+                ),
+              ),
+            if (state.vehicleList.length > 1)
               Utils.dropdownBox(
                 'Select Vehicle',
                 state.vehicleList,
                 (selectedValue) {
                   context.read<TodoEditExpenseBloc>().add(
                       SelectedVehicleEvent(selectedVehicle: selectedValue));
-                  if(selectedValue['expense_id']!=null) {
+                  if (selectedValue['expense_id'] != null) {
                     context.read<TodoEditExpenseBloc>().add(
                         GetTodoExpenseInitialEvent(
                             expenseId: selectedValue['expense_id']));
@@ -85,176 +76,17 @@ class TodoExpense extends StatelessWidget {
                 labelKey: 'vehicle_name',
                 initialSelection: state.selectedVehicle,
               ),
-            Row(
-              spacing: 10,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => context
-                        .read<TodoEditExpenseBloc>()
-                        .add(PickImageEvent()),
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppC.blue,
-                          width: Num.borderWidthField,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(Num.subradiusButton),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.cloud_upload,
-                            color: AppC.blue,
-                          ),
-                          const SizedBox(width: 5,),
-                          Utils.getText('Upload',color: AppC.blue, weight: FontWeight.bold),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => context
-                        .read<TodoEditExpenseBloc>()
-                        .add(CaptureImageEvent()),
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppC.redAccent,
-                          width: Num.borderWidthField,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(Num.subradiusButton),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.camera_enhance,
-                            color: AppC.redAccent,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Utils.getText('Capture',
-                              color: AppC.redAccent, weight: FontWeight.bold),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                if (state.vendorList.isNotEmpty)
-                  Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        context.read<TodoEditExpenseBloc>().add(InvoiceEvent());
-                        await Future.delayed(const Duration(seconds: 1));
-                        var blo = context.read<TodoEditExpenseBloc>();
-                        InvoiceDialog.show(
-                          context,
-                          invoiceData: blo.invoiceData,
-                          onGenerate: () => blo.add(GenerateInvoiceEvent()),
-                        );
-                      },
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppC.blue,
-                            width: Num.borderWidthField,
-                          ),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(Num.subradiusButton),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.receipt_long, color: AppC.blue),
-                            const SizedBox(width: 5),
-                            Utils.getText('Invoice',
-                                color: AppC.blue, weight: FontWeight.bold),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+            EditTodoExpenseAttachment(
+              attachments: state.expenseAttachments,
+              pickImageEvent: () => context.read<TodoEditExpenseBloc>().add(PickImageEvent()),
+              captureImageEvent: () => context.read<TodoEditExpenseBloc>().add(CaptureImageEvent()),
+              invoiceEvent: () async {
+                context.read<TodoEditExpenseBloc>().add(InvoiceEvent());
+                InvoiceDialog.show(context);
+              },
+              removeImageEvent: (data) => context.read<TodoEditExpenseBloc>().add(RemoveImageEvent(data: data)),
+              vendorList: state.vendorList,
             ),
-            if (state.expenseAttachments.isNotEmpty)
-              SizedBox(
-                height: 100,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  itemCount: state.expenseAttachments.length,
-                  scrollDirection: Axis.horizontal,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1, mainAxisSpacing: 10),
-                  itemBuilder: (context, index) => CloseBadge(
-                      onTapView: () {
-                        ShowAttachmentsDialog.of.show(context,
-                            attachments: state.expenseAttachments,
-                            title: "",
-                            currentAttachment: state.expenseAttachments[index]);
-                      },
-                      onTapDelete: () {
-                        AskPermissionDialog.show(context,
-                            title: "Are you sure?",
-                            description: "Do you want to delete this Expense Image?",
-                            positiveText: "Yes, delete it!",
-                            negativeText: "Cancel",
-                            isReasonRequired: false,
-                            onPositivePressed: () => context.read<TodoEditExpenseBloc>().add(RemoveImageEvent(data: state.expenseAttachments[index])));
-                      },
-                      child: Stack(
-                        children: [
-                          Container(
-                            constraints: BoxConstraints(
-                              minHeight: MediaQuery.sizeOf(context).height,
-                              minWidth: MediaQuery.sizeOf(context).width,
-                            ),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: AppC.grey.withValues(alpha: 0.2)),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            child: ImageViewer(
-                              fit: BoxFit.cover,
-                              imageInput: state.expenseAttachments[index],
-                              isNotImage:
-                                  !((state.expenseAttachments[index] as Object)
-                                      .isImage),
-                            ),
-                          ),
-                          if ((state.expenseAttachments[index] as Object).isPDF)
-                          Container(
-                            decoration: BoxDecoration(
-                              color: AppC.green,
-                              borderRadius: BorderRadius.circular(16),
-
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                var data = (state.expenseAttachments[index] is File) ? (state.expenseAttachments[index] as File).path : state.expenseAttachments[index];
-                                Console.of.log(data);
-                                Utils.openURL(data, isFile: (state.expenseAttachments[index] is File));
-                              },child:Padding(
-                              padding: 4.padding,
-                              child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
-                            ),),
-                          ),
-                        ],
-                      )),
-                ),
-              ),
             Row(
               spacing: 10,
               children: [
@@ -296,9 +128,7 @@ class TodoExpense extends StatelessWidget {
                 selectedKey: state.selectedMainCategory,
                 initialSelection: state.selectedMainCategory,
                 labelKey: 'name'),
-            Utils.dropdownBox(
-                'Select SubCategory',
-                state.subCategories,
+            Utils.dropdownBox('Select SubCategory', state.subCategories,
                 (selectedValue) {
               context
                   .read<TodoEditExpenseBloc>()
@@ -313,7 +143,9 @@ class TodoExpense extends StatelessWidget {
               context.read<TodoEditExpenseBloc>().odometerController,
               textType: TextInputType.number,
               suffixIcon: GestureDetector(
-                onTap:()=>context.read<TodoEditExpenseBloc>().add(GetOdometerEvent(vin: state.vehicleList.firstOrNull?['vin'])),
+                onTap: () => context.read<TodoEditExpenseBloc>().add(
+                    GetOdometerEvent(
+                        vin: state.vehicleList.firstOrNull?['vin'])),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Icon(
@@ -324,21 +156,23 @@ class TodoExpense extends StatelessWidget {
               ),
               inputAction: TextInputAction.done,
             ),
-            if(state.odometerMessage!.isNotEmpty)
-            Utils.getText(state.odometerMessage??'',color: AppC.redAccent),
+            if (state.odometerMessage!.isNotEmpty)
+              Utils.getText(state.odometerMessage ?? '', color: AppC.redAccent),
             Row(
               spacing: 10,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SuccessButton(
-                  onPressed:()=>context.read<TodoEditExpenseBloc>().add(const SaveExpenseEvent()),
+                  onPressed: () => context
+                      .read<TodoEditExpenseBloc>()
+                      .add(const SaveExpenseEvent()),
                 ),
-                if(context.read<TodoEditExpenseBloc>().isSaveCategory)
-                SuccessButton(
-                  text: 'Save Category',
-                  onPressed: (){},
-                  backgroundColor: AppC.appColor,
-                ),
+                if (context.read<TodoEditExpenseBloc>().isSaveCategory)
+                  SuccessButton(
+                    text: 'Save Category',
+                    onPressed: () {},
+                    backgroundColor: AppC.appColor,
+                  ),
               ],
             ),
           ],
