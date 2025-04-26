@@ -26,3 +26,11 @@ class TVPDCommonState extends TVPDStates {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class TVPDDeleteState extends TVPDStates {
+  final dynamic model;
+  TVPDDeleteState({required this.model});
+  @override
+  List<Object?> get props => [model];
+
+}

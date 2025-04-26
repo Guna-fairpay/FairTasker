@@ -352,3 +352,10 @@ class ToDoTaskerViewBouncieEvent extends ToDoTaskerEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ToDoTaskerRemoveVehiclePersonEvent extends ToDoTaskerEvent {
+  final Map<String, dynamic>? model;
+  ToDoTaskerRemoveVehiclePersonEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
