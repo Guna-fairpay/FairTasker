@@ -28,7 +28,7 @@ class VehicleDataRepo {
       } else {
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
       }
-      print("Repository side Triggered ${createVehicleData.model}");
+      print("Repository side Triggered ${createVehicleData.oilGrade} ${createVehicleData.oilChangeOdometer} ${createVehicleData.carNumber} ${createVehicleData.vehicleNumber}");
       Map<String, String> reqMap = {
         "vehicle_id": createVehicleData.vehicleId,
         "vin": createVehicleData.vin,

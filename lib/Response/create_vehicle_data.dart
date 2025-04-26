@@ -49,10 +49,10 @@ class CreateVehicleData {
   String maintenanceCheck = '';
   List<File> insuranceImage = [];
 
-  // ✅ Constructor
+  //Constructor
   CreateVehicleData();
 
-  // ✅ Convert JSON to Object
+  // Convert JSON to Object
   factory CreateVehicleData.fromJson(Map<String, dynamic> json) {
     return CreateVehicleData()
       ..id = json['id']
@@ -66,7 +66,7 @@ class CreateVehicleData {
           [];
   }
 
-  // ✅ Convert Object to JSON
+  // Convert Object to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -103,7 +103,7 @@ void showHoursSummaryPopup(BuildContext context, {
                           child: Text(task['name'].toString()),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 40),
+                          padding: const EdgeInsets.only(left: 40,top: 8.0),
                           child: Text(task['count'].toString()),
                         ),
                         Padding(
@@ -134,7 +134,7 @@ void showHoursSummaryPopup(BuildContext context, {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            (totals['totalAmount'] as double).toStringAsFixed(2),
+                            (totals['totalAmount']).toStringAsFixed(2),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -158,12 +158,12 @@ Map<String, dynamic> _calculateTotals(
     )
 {
   final tasks = <Map<String, dynamic>>[];
-  double totalAmount = 0;
+  int totalAmount = 0;
   int totalCount = 0;
 
   final paymentMap = {
     for (var payment in paymentData.where((p) => p['type'] == 'task'))
-      payment['task_name']?.toString(): _toDouble(payment['amount']),
+      payment['task_name']?.toString(): _toInt(payment['amount']),
   };
 
   final taskGroups = <String, Map<String, dynamic>>{};
@@ -205,7 +205,7 @@ Map<String, dynamic> _calculateTotals(
   }
 
   tasks.addAll(taskGroups.values);
-  totalAmount = tasks.fold(0.0, (double sum, task) => sum + (task['amount'] as double));
+  totalAmount = tasks.fold(0, (int sum, task) => sum + (task['amount'] as int));
   totalCount = tasks.fold(0, (int sum, task) => sum + (task['count'] as int));
 
   return {
@@ -224,12 +224,12 @@ int _toInt(dynamic value) {
   return 0;
 }
 
-double _toDouble(dynamic value) {
-  if (value is double) return value;
-  if (value is int) return value.toDouble();
-  if (value is String) return double.tryParse(value) ?? 0.0;
-  return 0.0;
-}
+// double _toDouble(dynamic value) {
+//   if (value is double) return value;
+//   if (value is int) return value.toDouble();
+//   if (value is String) return double.tryParse(value) ?? 0.0;
+//   return 0.0;
+// }
 
 
 // int _convertToInt(dynamic value) {

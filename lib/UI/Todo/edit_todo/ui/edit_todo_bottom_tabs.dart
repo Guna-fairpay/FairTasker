@@ -61,7 +61,7 @@ class EditTodoBottomTabs extends StatelessWidget {
                   // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)
                   :state.selectedBottomTap['id'] == 5
-                  ?VehicleEditUI(vehicle: state.taskHistory.first,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
+                  ?VehicleEditUI(vehicle: state.taskHistory.firstOrNull,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   :state.selectedBottomTap['id'] == 6
                   ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull,) //Add by RDB
                   :state.selectedBottomTap['id'] == 7

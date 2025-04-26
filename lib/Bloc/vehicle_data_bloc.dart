@@ -95,6 +95,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
             vin: event.createVehicleData!.vin,
             categoryId: event.createVehicleData!.categoryId,
           ));
+          add(const GetAddedVehicleListData());
         } catch (error) {
           emit(const VehicleDataError( errorMessage: ''));
         }

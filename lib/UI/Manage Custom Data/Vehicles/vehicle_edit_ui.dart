@@ -24,13 +24,13 @@ import '../../dialog/show_attachments_dialog.dart';
 //Set vehicle
 class VehicleEditUI extends StatefulWidget {
   final bool showHeader;
-  late final Map<String, dynamic> vehicle;
+  late final Map<String, dynamic>? vehicle;
   final Map<String, dynamic> todoItems;
   final dynamic selectedVehicle;
 
   VehicleEditUI({
     super.key,
-    required this.vehicle,
+    this.vehicle,
     this.showHeader = true,
     required this.todoItems,
     required this.selectedVehicle,
@@ -242,7 +242,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     });
 
     final createVehicleData = CreateVehicleData()
-      ..id = widget.vehicle['id']
+      ..id = widget.vehicle?['id'] ?? ''
       ..year = yearController.text
       ..make = makeController.text
       ..model = modelController.text
@@ -298,7 +298,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   Future<void> _fetchUpdatedImages() async {
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
-      vehicleImageFile = widget.vehicle['images'] ?? [];
+      vehicleImageFile = widget.vehicle?['images'] ?? [];
     });
   }
 
@@ -416,14 +416,14 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                 ? int.tryParse(widget.todoItems['user_group_id'].toString())
                                 : null
                             ..userId = widget.todoItems['user_id'] ?? ''
-                            ..vehicleName = widget.vehicle['vehicle_name'] ?? ''
+                            ..vehicleName = widget.vehicle?['vehicle_name'] ?? ''
                             ..vehicles = widget.todoItems['vehicles'] ?? []
                             ..vendorId = widget.todoItems['vendor_id'] != null
                                 ? int.tryParse(widget.todoItems['vendor_id'].toString())
                                 : null
                             ..vendorName = widget.todoItems['vendor_name'] ?? ''
-                            ..vehicleNumber = widget.vehicle['vehicle_number']
-                            ..vin = widget.vehicle['vin'] ?? '';
+                            ..vehicleNumber = widget.vehicle?['vehicle_number']
+                            ..vin = widget.vehicle?['vin'] ?? '';
                           todoViewBloc!.add(AddSpareKeyTask(createSpareKeyTaskData: sparekeyData));
                           formKey.currentState?.save();
                           FocusScope.of(context).unfocus();
@@ -498,7 +498,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         else if (state is DropdownVehicleDataLoaded)
         {
           EasyLoading.dismiss();
-          print("vehicle data ${widget.vehicle['vehicle_name']}");
+          print("vehicle data ${widget.vehicle?['vehicle_name']}");
           createExpenseFieldData = state.createExpenseFieldData;
           if (state.createExpenseFieldData != null) {
             setState(() {
@@ -506,12 +506,12 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             });
             cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
             for (Map<String, dynamic> c in cohortsData) {
-              if (c['id'] == widget.vehicle['cohort_id']) {
+              if (c['id'] == widget.vehicle?['cohort_id']) {
                 selectedCohortsData = c;
               }
             }
             for (Map<String, dynamic> c in categoriesData) {
-              if (c['id'] == widget.vehicle['vehicle_status']) {
+              if (c['id'] == widget.vehicle?['vehicle_status']) {
                 selectedCategoriesData = c;
               }
             }
@@ -1007,7 +1007,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                     onChanged: (bool? value) {
                                       setState(() {
                                         bouncie = value ?? false;
-                                        widget.vehicle['bouncie'] = bouncie ? 1 : 0;
+                                        widget.vehicle?['bouncie'] = bouncie ? 1 : 0;
                                       });
                                     },
                                     label: 'Bouncie',
@@ -1018,7 +1018,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                     onChanged: (bool? value) {
                                       setState(() {
                                         tollTags = value ?? false;
-                                        widget.vehicle['toll_tags'] = tollTags ? 1 : 0;
+                                        widget.vehicle?['toll_tags'] = tollTags ? 1 : 0;
                                       });
                                     },
                                     label: 'Toll tags',
@@ -1036,7 +1036,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                     onChanged: (bool? value) {
                                       setState(() {
                                         airTag = value ?? false;
-                                        widget.vehicle['air_tag'] = airTag ? 1 : 0;
+                                        widget.vehicle?['air_tag'] = airTag ? 1 : 0;
                                       });
                                     },
                                     label: 'AirTag',
@@ -1047,7 +1047,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                     onChanged: (bool? value) {
                                       setState(() {
                                         spareTire = value ?? false;
-                                        widget.vehicle['spare_tire'] = spareTire ? 1 : 0;
+                                        widget.vehicle?['spare_tire'] = spareTire ? 1 : 0;
                                       });
                                     },
                                     label: 'Spare Tire',
@@ -1157,7 +1157,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             if (tollImage[index] is File) {
                                               tollImage.removeAt(index);
                                             } else {
-                                              int? tollImageId = (widget.vehicle['images'] as List<dynamic>?)?.firstWhere(
+                                              int? tollImageId = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
                                                       (image) =>
                                                   tollImage[index].split('/').last ==
                                                       image['path'].split('/').last,
@@ -1203,7 +1203,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                               onChanged: (bool? value) {
                                 setState(() {
                                   spareKey = value ?? false;
-                                  widget.vehicle['spare_key'] = spareKey ? 1 : 0;
+                                  widget.vehicle?['spare_key'] = spareKey ? 1 : 0;
                                 });
                               },
                               label: 'Spare Key',
@@ -1218,7 +1218,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                               onChanged: (bool? value) {
                                 setState(() {
                                   permanentPlate = value ?? false;
-                                  widget.vehicle['permanent_plate'] = permanentPlate ? 1 : 0;
+                                  widget.vehicle?['permanent_plate'] = permanentPlate ? 1 : 0;
                                 });
                               },
                               label: 'Permanent Plate',
@@ -1231,7 +1231,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                   onChanged: (bool? value) {
                                     setState(() {
                                       frontLicensePlate = value ?? false;
-                                      widget.vehicle['front_license_plate'] = frontLicensePlate ? 1 : 0;
+                                      widget.vehicle?['front_license_plate'] = frontLicensePlate ? 1 : 0;
                                     });
                                   },
                                   label: 'Front license plate',
@@ -1316,7 +1316,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                           });
                                           int? imageId;
                                           if (tireImageFile[index] is! File) {
-                                            final image = (widget.vehicle['images'] as List<dynamic>?)?.firstWhere(
+                                            final image = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
                                                   (image) =>
                                               tireImageFile[index].split('/').last ==
                                                   image['path'].split('/').last,
@@ -1518,7 +1518,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             if (uploadRegSticker[index] is File) {
                                               uploadRegSticker.removeAt(index);
                                             } else {
-                                              int? Id = (widget.vehicle['images'] as List<dynamic>?)?.firstWhere(
+                                              int? Id = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
                                                       (image) =>
                                                   uploadRegSticker[index].split('/').last ==
                                                       image['path'].split('/').last,
@@ -1649,7 +1649,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                         if (insuranceImage[index] is File) {
                                           insuranceImage.removeAt(index);
                                         } else {
-                                          int? Id = (widget.vehicle['images'] as List<dynamic>?)?.firstWhere(
+                                          int? Id = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
                                                   (image) =>
                                               insuranceImage[index].split('/').last ==
                                                   image['path'].split('/').last,
