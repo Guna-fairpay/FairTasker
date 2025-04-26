@@ -197,17 +197,28 @@ class ToDoProcessor {
       return _groupVehicle.firstWhereOrNull(
           (element) => element['id'] == model['vehicle_group_id'])?['name'];
     } else if ((model['vehicle_name'].toString().isNotNullOrEmpty) && (model['vin'].toString().isNotNullOrEmpty)) {
-      return model['vehicle_name'] ?? "";
+      return _getVinVehicleName(model) ??  (model['vehicle_name'] ?? "");
     } else if (List.from(model['vehicles'] ?? []).isNotEmpty) {
       var vlist = List<Map<String, dynamic>>.from(model['vehicles'] ?? []).distinct((element) => element['vin']);
       if (vlist.length > 1) {
         return "MV";
       } else {
-        return vlist.firstOrNull?['vehicle_name'];
+        return (_getVinVehicleName(model)) ?? (vlist.firstOrNull?['vehicle_name'] ?? "");
       }
     } else if (model['vin'].toString().isNotNullOrEmpty) {
       var activeVehicle = _activeVehicles
           .firstWhereOrNull((element) => element['vin'] == model['vin']);
+      return activeVehicle?['vehicle_name'] ?? "";
+    } else {
+      return null;
+    }
+  }
+
+  String? _getVinVehicleName(Map<String, dynamic> model) {
+    var vins = _getVehicleVins(model);
+    if (vins.length == 1) {
+      var activeVehicle = _activeVehicles
+          .firstWhereOrNull((element) => element['vin'] == vins.first);
       return activeVehicle?['vehicle_name'];
     } else {
       return null;

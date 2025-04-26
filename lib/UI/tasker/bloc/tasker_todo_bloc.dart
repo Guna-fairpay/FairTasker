@@ -759,6 +759,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       ]);
       if (response.isNotEmpty && response.length == 3) _reFetchToDos();
     } catch (e) {
+      Console.of.error("Error", error: e);
       emit(ToDoTaskerErrorState(e));
     }
   }

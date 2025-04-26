@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_odometer_complete_dialog_bloc/tasker_odometer_complete_states.dart';
@@ -91,10 +92,9 @@ class _TaskerOdometerCompleteDialogBodyView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
                 children: [
-                  if ((context
-                              .watch<TOCDBloc>()
-                              .previousOdometerResponse?['data'] ??
-                          0) >
+                  if ((num.tryParse(context
+                      .watch<TOCDBloc>()
+                      .previousOdometerResponse?['data'] ?? "") ?? 0) >
                       0)
                     Text.rich(
                       TextSpan(
@@ -169,13 +169,19 @@ class _TaskerOdometerCompleteDialogBodyView extends StatelessWidget {
                       context.read<TOCDBloc>().nextOdometerController,
                       readOnly: true),
                   if (onChanged != null)
-                  Utils.getFilledButton('Submit', () {
-                    var currentOdometer = num.tryParse(context.read<TOCDBloc>().oilChangeController.text);
-                    var nextMileCheck = num.tryParse(context.read<TOCDBloc>().nextMilesCheckController.text);
-                    var nextOdometer = num.tryParse(context.read<TOCDBloc>().nextOdometerController.text);
-                    onChanged?.call(currentOdometer ?? 0, nextMileCheck ?? 0, nextOdometer ?? 0);
-                    context.popDialog();
-                  }),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: SuccessButton(
+                        text: "Submit",
+                        onPressed: () {
+                          var currentOdometer = num.tryParse(context.read<TOCDBloc>().oilChangeController.text);
+                          var nextMileCheck = num.tryParse(context.read<TOCDBloc>().nextMilesCheckController.text);
+                          var nextOdometer = num.tryParse(context.read<TOCDBloc>().nextOdometerController.text);
+                          onChanged?.call(currentOdometer ?? 0, nextMileCheck ?? 0, nextOdometer ?? 0);
+                          context.popDialog();
+                        },
+                      ),
+                    )
                 ],
               ),
             ));

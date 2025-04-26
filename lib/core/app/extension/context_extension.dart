@@ -1,3 +1,4 @@
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -9,9 +10,13 @@ extension ContextExtension on BuildContext {
   TextTheme get textTheme => theme.textTheme;
 
   Future<void> push<T>(Widget page, {bool fullscreenDialog = false}) async {
-    Utils.dismissKeyboard(this);
-    await Navigator.push(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
-    Utils.dismissKeyboard(this);
+    try {
+      Utils.dismissKeyboard(this);
+      await Navigator.push(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
+      Utils.dismissKeyboard(this);
+    } catch (e) {
+      Console.of.error("Error", error: e);
+    }
   }
   Future<T> pushReplacement<T>(Widget page, {bool fullscreenDialog = false}) async => await Navigator.pushReplacement(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
   Future<T> pushAndRemoveUntil<T>(Widget page, { bool maintainRoute = false, bool fullscreenDialog = false }) async => await Navigator.pushAndRemoveUntil(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog), (route) => maintainRoute);
