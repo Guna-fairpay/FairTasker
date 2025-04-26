@@ -146,11 +146,11 @@ class _AskPermissionDialogView extends StatelessWidget {
                       if (isReasonRequired ?? false) {
                         if (_formKey.currentState?.validate() ?? false) {
                           onReasonSubmitted?.call(_reasonController.text);
-                          Navigator.pop(context);
+                          context.pop();
                         }
                       } else {
                         onPositivePressed?.call();
-                        Navigator.pop(context);
+                        context.pop();
                       }
                     },
                   )),
@@ -163,11 +163,11 @@ class _AskPermissionDialogView extends StatelessWidget {
                       if ((isReasonRequired ?? false) && (isExpense ?? false)) {
                         if (_formKey.currentState?.validate() ?? false) {
                           onMultiSubmitted?.call(_reasonController.text);
-                          Navigator.pop(context);
+                          context.pop();
                         }
                       } else {
                         onSaveMultiPressed?.call();
-                        Navigator.pop(context);
+                        context.pop();
                       }
                       },
                   ),
@@ -175,7 +175,7 @@ class _AskPermissionDialogView extends StatelessWidget {
                     text:  negativeText ??'Cancel',
                     backgroundColor: AppC.redAccent,
                     foregroundColor: AppC.white,
-                    onPressed: () =>Navigator.pop(context),
+                    onPressed: () =>context.pop(),
                   )
                 ],
               ),

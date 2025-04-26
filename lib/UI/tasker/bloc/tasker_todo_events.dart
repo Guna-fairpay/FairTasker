@@ -280,7 +280,12 @@ class ToDoTaskerVehicleHistoryTapEvent extends ToDoTaskerEvent {
   List<Object?> get props => [model];
 }
 
-class ToDoTaskerRefreshEvent extends ToDoTaskerEvent {}
+class ToDoTaskerRefreshEvent extends ToDoTaskerEvent {
+  final bool showLoading;
+  ToDoTaskerRefreshEvent({this.showLoading = true});
+  @override
+  List<Object?> get props => [showLoading];
+}
 
 class ToDoTaskerViewVehicleEvent extends ToDoTaskerEvent {
   final Map<String, dynamic>? model;

@@ -286,6 +286,10 @@ class APiRepository {
 
   String get _getVehicleHistory => "get-vehicle-history";
 
+  String get _getUserList => "userList";
+
+  String get _deleteUser => "deleteUser";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -545,6 +549,7 @@ class APiRepository {
 
   Future<VehicleExpenseHistoryResponse?> getEditVehicleExpense(
       {String? id}) async {
+    if (id.toString().isNullOrEmpty) return null;
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expenses/$id/edit';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
@@ -3203,6 +3208,28 @@ Future<Map<String, dynamic>?> getLocations() async {
       var mapData = await response.mapData;
       return mapData;
     }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployeeData({dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getUserList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteEmployee({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteUser/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
       rethrow;
     }
   }

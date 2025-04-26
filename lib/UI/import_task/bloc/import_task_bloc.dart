@@ -8,6 +8,7 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
   final GlobalKey<FormState> textFormKey = GlobalKey<FormState>();
@@ -71,10 +72,10 @@ class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
   }
 
   void _onInitialEvent(ImportTaskInitialEvent event, Emitter<ImportTaskState> emit) {
-    // var copiedMedia = List.from(getIt<ReceiveIntent>().medias);
-    // Console.of.log(copiedMedia.first.path);
-    // textController.text = copiedMedia.firstOrNull?.path ?? "";
-    // getIt<ReceiveIntent>().clear();
+    var copiedMedia = List<SharedMediaFile>.from(getIt<ReceiveIntent>().medias).firstOrNull;
+    Console.of.log(copiedMedia?.toMap());
+    textController.text = copiedMedia?.path ?? "";
+    if ((copiedMedia != null) && (copiedMedia.toMap().isNotEmpty)) getIt<ReceiveIntent>().clear();
     currentPageIndex = event.fixedPageIndex ?? 0;
     emit(ImportTaskCommonState());
   }

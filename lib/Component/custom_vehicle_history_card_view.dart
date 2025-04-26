@@ -92,17 +92,17 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
               child: Text((isCompleted ?? false) ? "InProgress" : "Complete", textAlign: TextAlign.end, style: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
             child: InkWell(
-              onTap: onTap,
+              // onTap: onTap,
               child: Card.filled(
                 shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
                     side: const BorderSide(
                         color: AppC.borderColor,
                         width: Num.borderWidthThinField)),
-                color: context.theme.cardColor,
+                color: Colors.white,
                 margin: EdgeInsets.only(
                     top: (hasCustom || hasSupplies || hasParts) ? 20 : 0),
-                elevation: 2,
+                elevation: 0,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -126,7 +126,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                 : Text.rich(
                                     TextSpan(
                                       children: [
-                                        TextSpan(text: "$titleText")
+                                        TextSpan(text: "$titleText", recognizer: TapGestureRecognizer()..onTap = onTap)
                                       ]
                                     ),
                                     style: context.textTheme.labelLarge
@@ -144,7 +144,9 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                               children: [
                                 if (timeText?.isNotEmpty ?? false)
                                   Text("$timeText",
-                                      style: context.textTheme.labelMedium),
+                                      style: context.textTheme.labelMedium?.copyWith(
+                                        color: isCompleted ? AppC.green : AppC.appColor
+                                      )),
                                 if ((onDelete != null) && (Session.of.getString(Str.userIdPrefText).toNumeric == 3))
                                     InkWell(onTap: onDelete, child: const Icon(Icons.delete_outline_rounded, color: Colors.red)),
                               ],
@@ -164,11 +166,11 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                         : '',
                                     preDataText: locationText.isNotNullOrEmpty ? locationText : null,
                                     preDataTextStyle: context.textTheme.labelLarge
-                                        ?.copyWith(color: AppC.appColor),
+                                        ?.copyWith(color: isCompleted ? AppC.green : AppC.appColor),
                                     trimLength: (((locationText?.length ?? 0) <= 10) || ((locationText?.length ?? 0) == 0)) ? 30 : 7,
-                                    titleTextStyle: context.textTheme.labelLarge
+                                    titleTextStyle: context.textTheme.labelSmall
                                         ?.copyWith(
-                                        color: AppC.green,
+                                        color: AppC.appColor,
                                         fontWeight: FontWeight.w500),
                                     trimMode: TrimMode.Length,
                                     trimCollapsedText: 'more',

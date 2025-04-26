@@ -332,9 +332,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       existingVPersons = existingVPersons.distinct((element) => element['id']);
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
-          selectedTaskIdentifier: oldIdentifier,
-          selectedLinkOption: AddToDoConfig.customOptions
-              .firstWhereOrNull((element) => element['id'] == 2)));
+          selectedTaskIdentifier: oldIdentifier));
       if (existingVPersons.length == 1) await _findReservationColor(vehicleVin);
       else {
         existingRefId = null;
