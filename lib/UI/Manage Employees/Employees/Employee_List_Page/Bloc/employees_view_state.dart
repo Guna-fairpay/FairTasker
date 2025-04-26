@@ -27,5 +27,11 @@ class EmployeesSuccessState extends EmployeesViewState {
   List<Object?> get props => [message];
 }
 
+class EmployeeAddOrEditState extends EmployeesViewState {
+  final dynamic id;
+  EmployeeAddOrEditState({this.id});
+  @override
+  List<Object?> get props => [id,Random().nextDouble()];
+}
 
 

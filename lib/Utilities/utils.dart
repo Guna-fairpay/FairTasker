@@ -17,6 +17,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -504,8 +505,8 @@ class Utils {
             labelText: labelText,
             hintText: hintText,
             counterText: '',
-            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey,),
-            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey,fontSize: 13),
+            hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+            labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
             filled: true,
             isCollapsed: isCollapsed,
             fillColor: fillColor,
