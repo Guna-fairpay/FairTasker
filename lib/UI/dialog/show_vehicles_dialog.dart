@@ -89,6 +89,7 @@ class _TaskerVehiclesContent extends StatelessWidget {
                     onSelected: (val) => context.read<TVPDBloc>().add(TVPDSelectedEvent(data: val)),
                     onDeleted: (val) => context.read<TVPDBloc>().add(TVPDDeleteEvent(data: val)),
                     updateWhileDelete: false,
+                    onEmptyAsync: () async => context.popDialog(),
                   ),
                   if (onSelected != null)
                     SuccessButton(

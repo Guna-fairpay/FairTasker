@@ -47,6 +47,8 @@ import 'package:searchfield/searchfield.dart';
       _CustomVehiclePersonFieldState();
 }*/
 
+typedef FutureCallback = Future<void> Function();
+
 class CustomVehiclePersonField extends StatelessWidget {
   final List<dynamic> vehiclesList, personsList, groupVehicles;
   final List<Map<String, dynamic>>? selected;
@@ -55,6 +57,7 @@ class CustomVehiclePersonField extends StatelessWidget {
   final TextEditingController? controller;
   final bool updateWhileDelete;
   final String labelText;
+  final FutureCallback? onEmptyAsync;
 
   CustomVehiclePersonField({
     super.key,
@@ -67,6 +70,7 @@ class CustomVehiclePersonField extends StatelessWidget {
     this.groupVehicles = const [],
     this.controller,
     this.updateWhileDelete = true,
+    this.onEmptyAsync,
   }) {
     _initState();
   }
@@ -134,16 +138,22 @@ class CustomVehiclePersonField extends StatelessWidget {
                 labelText: labelText,
                 autoClear: true,
                 showEmpty: true,
-                onEmptyTapDetails: (details) => SimplePopUpMenu.instance.show(
-                  context,
-                  position: details.globalPosition,
-                  items: ["Vehicle", "Person"],
-                  onTap: (item) {
-                    item == "Vehicle"
-                        ? context.push(const VehicleMainViewUi())
-                        : context.push(const EmployeesViewUI());
-                  },
-                ),
+                onEmptyTapDetails: (details) async {
+                  SimplePopUpMenu.instance.show(
+                    context,
+                    position: details.globalPosition,
+                    items: ["Vehicle", "Person"],
+                    onTap: (item) async {
+                      if (onEmptyAsync != null) {
+                        onEmptyAsync?.call();
+                        await Future.delayed(Durations.short1);
+                      }
+                      item == "Vehicle"
+                          ? context.push(const VehicleMainViewUi())
+                          : context.push(const EmployeesViewUI());
+                    },
+                  );
+                },
                 itemAsString: formatMapData),
         ],
       ),

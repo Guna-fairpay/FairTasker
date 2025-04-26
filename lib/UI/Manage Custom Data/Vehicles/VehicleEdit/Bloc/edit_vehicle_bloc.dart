@@ -336,6 +336,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
           body: _save(),
           id:"${event.data['id']}",
         );
+        await getIt<CommonService>().getActiveVehicles(reset: true);
         if (response?['message']?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? []);
         } else {
@@ -344,11 +345,12 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
         _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+        _broadcast.broadcast("todo_view");
         emit(EditCompletedState());
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
-        emit(EditCompletedState());
+        emit(EditVehicleCommonState());
       }
     });
 
@@ -463,6 +465,9 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         Toaster.showSuccess(response?['success'] ?? []);
         fileList.remove(data);
         _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+        _broadcast.broadcast(Str.addToDoRefresh);
+        _broadcast.broadcast(Str.editToDoRefresh);
+        _broadcast.broadcast("todo_view");
         return data;
       }
     }

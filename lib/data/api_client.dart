@@ -241,7 +241,10 @@ class ApiClient {
     if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:\t${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
     var request = http.MultipartRequest("POST", message['url']);
     if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
-    if (message['fields'] != null) request.fields.addAll(message['fields']);
+    if (message['fields'] != null) {
+      var fields = Map<String, dynamic>.from(message['fields']).map((key, value) => MapEntry(key, (value?.toString() ?? "")));
+      request.fields.addAll(fields);
+    }
     if (message['token'] != null) request.headers.addAll(message['token']);
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
