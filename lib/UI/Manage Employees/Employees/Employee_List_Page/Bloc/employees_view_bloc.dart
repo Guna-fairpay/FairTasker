@@ -39,15 +39,17 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
     on<EmployeesInitialEvent>(_onEmployeeInitialEvent);
     on<DeleteEmployeesEvent>(_onDeleteEmployeeEvent);
     on<SearchEmployeesEvent>(_onSearchEmployeesEvent);
+    on<EmployeesPaginationEvent>(_onEmployeePaginationEvent);
+    on<AddOrEditEvent>(_onEmployeeAddOrEditEvent);
 
-    on<EmployeesPaginationEvent>((event, emit) {
-      currentIndex = event.page;
-      filteredResponse = paginateList(
-          data: _unFilteredResponse,
-          currentPage: currentIndex,
-          itemsPerPage: itemsPerPage);
-      emit(EmployeesCommonState());
-    });
+    // on<EmployeesPaginationEvent>((event, emit) {
+    //   currentIndex = event.page;
+    //   filteredResponse = paginateList(
+    //       data: _unFilteredResponse,
+    //       currentPage: currentIndex,
+    //       itemsPerPage: itemsPerPage);
+    //   emit(EmployeesCommonState());
+    // });
   }
   
   void _onDeleteEmployeeEvent(DeleteEmployeesEvent event, Emitter<EmployeesViewState> emit) async {
@@ -123,6 +125,19 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
   void _onSearchEmployeesEvent(SearchEmployeesEvent event, Emitter<EmployeesViewState> emit) {
     _search();
     emit(EmployeesCommonState());
+  }
+
+  void _onEmployeePaginationEvent(EmployeesPaginationEvent event, Emitter<EmployeesViewState> emit) {
+    currentIndex = event.page;
+    filteredResponse = paginateList(
+        data: _unFilteredResponse,
+        currentPage: currentIndex,
+        itemsPerPage: itemsPerPage);
+    emit(EmployeesCommonState());
+  }
+
+  void _onEmployeeAddOrEditEvent(AddOrEditEvent event, Emitter<EmployeesViewState> emit) async {
+    emit(EmployeeAddOrEditState(id:event.data?['id']));
   }
 
 }

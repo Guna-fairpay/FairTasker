@@ -29,7 +29,7 @@ class EmployeeListPage extends StatelessWidget {
                 SuccessButton(
                   icon: Icons.add,
                     text: "Add",
-                    onPressed: () {},
+                    onPressed: () =>context.read<EmployeesViewBloc>().add(AddOrEditEvent()),
                 ),
                 const Spacer(flex: 1),
                 Expanded(
@@ -104,7 +104,7 @@ class EmployeeListPage extends StatelessWidget {
                             CompactIconButton(
                               icon:Icons.edit_outlined,
                               backgroundColor: AppC.appColor,
-                              onPressed: (){},),
+                              onPressed: () =>context.read<EmployeesViewBloc>().add(AddOrEditEvent(data: item)),),
                             CompactIconButton(
                               icon:Icons.delete_outline,
                               backgroundColor: AppC.redAccent,
