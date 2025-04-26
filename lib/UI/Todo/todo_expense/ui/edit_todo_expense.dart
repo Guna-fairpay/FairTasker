@@ -119,12 +119,10 @@ class TodoExpense extends StatelessWidget {
             if (state.partsList.isNotEmpty || state.suppliesList.isNotEmpty)
               const TodoSplitExpenseUI(),
             Utils.dropdownBox('Select Category', state.mainCategories,
-                (selectedValue) {
-              context
-                  .read<TodoEditExpenseBloc>()
-                  .add(CategoryListEvent(mainCategory: selectedValue));
+                    (selectedValue) {
+              context.read<TodoEditExpenseBloc>().add(CategoryListEvent(mainCategory: selectedValue));
               Future.microtask(() => Utils.dismissKeyboard(context));
-            },
+              },
                 selectedKey: state.selectedMainCategory,
                 initialSelection: state.selectedMainCategory,
                 labelKey: 'name'),
