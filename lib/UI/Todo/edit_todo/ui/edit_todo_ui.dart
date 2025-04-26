@@ -46,7 +46,7 @@ class EditTodoUI extends StatelessWidget {
         },
         child: BlocBuilder<EditToDoBloc, EditTodoState>(
             builder: (context, state) => Scaffold(
-                  resizeToAvoidBottomInset: false,
+                  //resizeToAvoidBottomInset: false,
                   backgroundColor: Colors.white,
                   appBar: AppBar(
                     backgroundColor: state.todoStatus
@@ -190,8 +190,7 @@ class EditTodoUI extends StatelessWidget {
                                 AskDateRangePermissionDialog.show(context,
                                     isReasonRequired: true,
                                     endDate: state.selectedEndDate.toFormat(),
-                                    startDate:
-                                        state.selectedStartDate?.toFormat(),
+                                    startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
                                     selectedEndDate: state.selectedEndDate,
                                     selectedStartDate: state.selectedStartDate,
                                     onStartDate: (value) => context
@@ -233,9 +232,8 @@ class EditTodoUI extends StatelessWidget {
                                     await Future.delayed(Durations.short1);
                                     AskDateRangePermissionDialog.show(context,
                                         endDate:
-                                            state.selectedEndDate?.toFormat(),
-                                        startDate:
-                                            state.selectedStartDate?.toFormat(),
+                                            state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
+                                        startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
                                         selectedEndDate: state.selectedEndDate,
                                         selectedStartDate:
                                             state.selectedStartDate,
