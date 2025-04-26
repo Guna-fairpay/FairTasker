@@ -547,16 +547,14 @@ class APiRepository {
     }
   }
 
-  Future<VehicleExpenseHistoryResponse?> getEditVehicleExpense(
+  Future<Map<String, dynamic>?> getEditVehicleExpense(
       {String? id}) async {
     if (id.toString().isNullOrEmpty) return null;
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expenses/$id/edit';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
-      return (mapData != null)
-          ? VehicleExpenseHistoryResponse.fromJson(mapData)
-          : null;
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -3232,6 +3230,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     } catch (error) {
       rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>?> cleanCar({required Map<String, dynamic> body}) async {
+    String apiUrl = "${Str.BASE_URL}$_addTodo";
+    final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+    if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
+      return response.mapData;
+    }
+    return null;
   }
 
 }
