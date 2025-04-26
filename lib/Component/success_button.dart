@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class SuccessButton extends StatelessWidget {
   final String? text;
   final IconData? icon;
+  final Color? iconColor;
   final double? elevation;
   final VoidCallback? onPressed;
   final Color? backgroundColor, foregroundColor;
@@ -15,6 +16,7 @@ class SuccessButton extends StatelessWidget {
       {super.key,
       this.text,
       this.icon,
+      this.iconColor=AppC.white,
       this.onPressed,
       this.elevation = 0,
       this.backgroundColor = AppC.green,
@@ -38,7 +40,7 @@ class SuccessButton extends StatelessWidget {
     return (icon != null)
         ? ElevatedButton.icon(
             key: key,
-            icon: Icon(icon),
+            icon: Icon(icon,color:iconColor,),
             onPressed: onPressed,
             clipBehavior: Clip.antiAliasWithSaveLayer,
             style: style,

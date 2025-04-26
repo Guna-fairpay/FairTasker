@@ -75,6 +75,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic selectedDate;
   List<Map<String,dynamic>> vehiclePersonList=[];
   bool cleanCarIsActive = false;
+  DateTime? recurringStartDate;
 
   List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get persons {
@@ -330,18 +331,29 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             identifierId: todoResponse?['identifier_id']);
         showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
 
-        if (todoResponse?['recurring'] != null) {
-          if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
+        RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
+        if(todoResponse?['recurring'] != null && todoResponse?['recurring_last_date'] != null){
+          final matches = dateRegExp.allMatches(todoResponse?['recurring']??[]).toList();
+          if (matches.isNotEmpty) {
+            String startDate = matches[0].group(0)!;
+            DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
+            recurringStartDate = parsedStart;
             selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
             selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
           }
         }
-         task =List.from(taskResponse);
+
+        /*if (todoResponse?['recurring'] != null) {
+          if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
+            selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
+            selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
+          }
+        }*/
+        task =List.from(taskResponse);
         vehiclePersonList=CustomSearchDataConverter.convertVPerson(
             vehicles: vehicleList,
             persons: selectedPerson,
             groupVehicles: selectedGroupVehicles);
-
         cleanCarIsActive=true;
 
         emit(state.copyWith(
@@ -841,12 +853,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         state.apiResponse['reminder'] == true ? 'true' : 'false';
     baseBody['notes'] =
         notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
-    baseBody['comments'] = commentsController.text;
+    baseBody['comments'] = commentsController.text.trim().isNullOrEmpty ? "" :commentsController.text;
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['todo_user_type'] = "0";
-    baseBody['comments'] = "";
     baseBody['mileage'] = odometerController.text;
     baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
@@ -867,19 +878,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
     }
-
     baseBody['parts'] =
         "${state.selectedParts.isEmpty ? null : state.selectedParts.map((e) => jsonEncode({
                   "parts_id": "${e['id']}",
                   "parts_name": "${e['name']}",
                 })).toList()}";
-
     baseBody['supplies'] =
         "${state.selectedSupplies.isEmpty ? null : state.selectedSupplies.map((e) => jsonEncode({
                   "supplies_id": "${e['id']}",
                   "supplies_name": "${e['name']}",
                 })).toList()}";
-
     if (state.selectedVLocations.isNotEmpty) {
       if (state.selectedVLocations['type'] == "location") {
         baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";

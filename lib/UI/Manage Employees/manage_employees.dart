@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class ManageEmployees extends StatelessWidget {
               title: 'Employees',
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const EmployeesViewUI()));
+                    builder: (context) => const EmployeeMainPage()));///EmployeeMainPage ///EmployeesViewUI
               },
             ),
             if (Session.of.getStringList(Str.rolePrefText)?.firstOrNull == 'Admin')
