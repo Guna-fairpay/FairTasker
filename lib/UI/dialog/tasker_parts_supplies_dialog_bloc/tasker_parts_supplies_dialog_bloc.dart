@@ -78,6 +78,7 @@ class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
     } else {
       selectedPartsList.remove(event.value);
       bool isOld = modelIds.contains(event.value['id'].toString());
+      emit(TPSDCommonState());
       if (isOld) {
         var id = _getSelectedId(event.value['id']);
         await ((isParts ?? false) ? _deleteParts(id) : _deleteSupplies(id));
