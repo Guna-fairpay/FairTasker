@@ -26,3 +26,10 @@ class TPSDSuccessState extends TPSDStates {
   @override
   List<Object?> get props => [message];
 }
+
+class TPSDDeleteState extends TPSDStates {
+  final dynamic id;
+  TPSDDeleteState(this.id);
+  @override
+  List<Object?> get props => [id];
+}

@@ -211,7 +211,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         var parts = await _getPartList();
         var supplies = await _getSuppliesList();
 
-        var apiResponse = response?.expenses;
+        var apiResponse = response?['expenses'];
 
         partsCostController.addListener(_updateExpenseTotal);
         labourCostController.addListener(_updateExpenseTotal);
@@ -388,7 +388,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           cohorts: AddToDoConfig.expenseTo,
           categories: categories,
           subCategories: subCategories,
-          editResponse: response?.expenses,
+          editResponse: apiResponse,
           expenseAttachments: attachments,
           selectedCategory: selectedCategory?.firstOrNull,
           selectedSubCategory: selectedSubCategory?.firstOrNull,
@@ -926,7 +926,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   }
 
   /// API CALL: EDIT EXPENSE DETAILS
-  Future<VehicleExpenseHistoryResponse?> _getEditVehicleExpenseDetails(dynamic expenseId) async {
+  Future<Map<String, dynamic>?> _getEditVehicleExpenseDetails(dynamic expenseId) async {
     return await apiRepository.getEditVehicleExpense(id: expenseId);
   }
 

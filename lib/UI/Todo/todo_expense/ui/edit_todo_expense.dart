@@ -1,26 +1,25 @@
 
 import 'dart:io';
+import 'package:fairpytasker/Component/close_badge.dart';
+import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/split_expense_ui.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_bloc.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_event.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_state.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_split_expense_ui.dart';
+import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../../Component/close_badge.dart';
-import '../../../../Component/image_viewer.dart';
-import '../../../../Utilities/appC.dart';
-import '../../../../Utilities/num.dart';
-import '../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
-import '../../../dialog/ask_permission_dialog.dart';
-import '../../../dialog/show_attachments_dialog.dart';
-import '../bloc/todo_edit_expense_bloc.dart';
-import '../event/todo_edit_expense_event.dart';
-import '../state/todo_edit_expense_state.dart';
 import 'invoice_preview_dialog.dart';
 
 class TodoExpense extends StatelessWidget {
@@ -286,7 +285,7 @@ class TodoExpense extends StatelessWidget {
               inputAction: TextInputAction.done,
             ),
             if (state.partsList.isNotEmpty || state.suppliesList.isNotEmpty)
-              const SplitExpenseUI(),
+              const TodoSplitExpenseUI(),
             Utils.dropdownBox('Select Category', state.mainCategories,
                 (selectedValue) {
               context

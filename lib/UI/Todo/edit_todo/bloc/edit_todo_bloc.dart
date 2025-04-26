@@ -27,9 +27,10 @@ import 'edit_todo_event.dart';
 import 'edit_todo_state.dart';
 
 class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
-  final TodoListRepo todoListRepo = TodoListRepo();
+
   final APiRepository apiRepository = APiRepository();
-  dynamic todoId = '';
+  final FBroadcast _broadcast = FBroadcast.instance();
+
   final TextEditingController taskNameController = TextEditingController();
   final TextEditingController partsController = TextEditingController();
   final TextEditingController suppliesController = TextEditingController();
@@ -44,53 +45,42 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   final TextEditingController resolutionNotesController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
 
+  int? get branchId => Session.of.getInt(Str.branchIdPrefText);
   String? get currentUserId => Session.of.getString(Str.userIdPrefText);
 
-  int? get branchId => Session.of.getInt(Str.branchIdPrefText);
-  String? departmentId; // LoggedIn User department ID
+  String? departmentId;
+  String? reason;
+  String? timeChangePopupType;
+  String todoId = '';
+  String? name = Session.of.getString("name");
+
   List<String> selectedIds = [];
   List<Map<String, dynamic>> vehicleList = [];
   List<Map<String, dynamic>> partList = [];
   List<Map<String, dynamic>> suppliesList = [];
+  List<Map<String,dynamic>> task = [];
+  List<Map<String,dynamic>> vehiclePersonList=[];
   List<dynamic> vinList = [];
   List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
-  List<Map<String,dynamic>> task = [];
-  Map<String, dynamic> selectionTaps = {};
-  final FBroadcast _broadcast = FBroadcast.instance();
-  dynamic selectedSentiments = {};
   List<dynamic> vehicleData = [];
   List<dynamic> addressList = [];
   List<dynamic> vendors = [];
   List<dynamic> locations = [];
+
+  Map<String, dynamic> selectionTaps = {};
+
+  dynamic selectedSentiments = {};
   dynamic previousOdometer = {};
-  late DateTime editToDoDate;
-  bool showCleanCar = false;
-  String? name = Session.of.getString("name");
-  DateTime? selectedStartDate;
-  DateTime? selectedEndDate;
-  String? reason;
-  String? timeChangePopupType;
   dynamic selectedDate;
-  List<Map<String,dynamic>> vehiclePersonList=[];
+
+  bool showCleanCar = false;
   bool cleanCarIsActive = false;
 
-  List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
-  List<Map<String, dynamic>> get persons {
-    List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
-    resources.removeWhere((resource) =>
-    ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
-        (resource['branch_id'] !=
-            Session.of.getInt(Str.branchIdPrefText))) ||
-        (resource['deleted_at'] != null));
-    Console.of.log("FETCHING_RESOURCE_FROM_GET");
-    return resources;
-  }
-  List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
-  List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList.where((element) => element['branch_code'] == branchId).toList();
-  List<Map<String, dynamic>> get vendor => getIt<CommonService>().vendorsList;
-  List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
+  DateTime? recurringStartDate;
 
   @override
   Future<void> close() {
@@ -98,8 +88,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     return super.close();
   }
 
-  EditToDoBloc()
-      : super(EditTodoState(
+  EditToDoBloc() : super(EditTodoState(
           isLoading: false,
           isTimeSensitive: false,
           tasks: const [],
@@ -165,9 +154,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         var taskResponse = await getIt<CommonService>().getTaskExpenseData();
         var userGroupResponse = await getIt<CommonService>().getGroupPersons();
         var assignedToResponse = await getIt<CommonService>().getResources();
-        var partsData=List.from(partsResponse);
-        var groupVehiclesResponse =
-            await getIt<CommonService>().groupVehicles();
+        var groupVehiclesResponse = await getIt<CommonService>().groupVehicles();
         var resources = assignedToResponse;
         resources.removeWhere((resource) => resource['id'] == 2);
         resources.removeWhere((resource) =>
@@ -330,18 +317,29 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             identifierId: todoResponse?['identifier_id']);
         showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
 
-        if (todoResponse?['recurring'] != null) {
-          if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
+        RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
+        if(todoResponse?['recurring'] != null && todoResponse?['recurring_last_date'] != null){
+          final matches = dateRegExp.allMatches(todoResponse?['recurring']??[]).toList();
+          if (matches.isNotEmpty) {
+            String startDate = matches[0].group(0)!;
+            DateTime parsedStart = DateFormat('MM-dd-yyyy').parse(startDate);
+            recurringStartDate = parsedStart;
             selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
             selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
           }
         }
-         task =List.from(taskResponse);
+
+        /*if (todoResponse?['recurring'] != null) {
+          if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
+            selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
+            selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
+          }
+        }*/
+        task =List.from(taskResponse);
         vehiclePersonList=CustomSearchDataConverter.convertVPerson(
             vehicles: vehicleList,
             persons: selectedPerson,
             groupVehicles: selectedGroupVehicles);
-
         cleanCarIsActive=true;
 
         emit(state.copyWith(
@@ -374,7 +372,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           persons: resources,
           locations: locationResponse,
           vendors: vendorResponse,
-          partServices: partsData,
+          partServices: partsResponse,
           supplies: suppliesResponse,
           selectedTaskPersons: selectedUser,
           resources: resources,
@@ -812,7 +810,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       }
       try {
         emit(state.copyWith(isLoading: true));
-        var response = await todoListRepo.cleanCar(body: _cleanCarBody());
+        var response = await apiRepository.cleanCar(body: _cleanCarBody());
         cleanCarIsActive=false;
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response != null) {
@@ -1088,6 +1086,23 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false));
     }
+  }
+
+  List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
+  List<Map<String, dynamic>> get tasks => getIt<CommonService>().taskExpenseDataList;
+  List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList.where((element) => element['branch_code'] == branchId).toList();
+  List<Map<String, dynamic>> get vendor => getIt<CommonService>().vendorsList;
+  List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
+
+  List<Map<String, dynamic>> get persons {
+    List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);
+    resources.removeWhere((resource) =>
+    ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+        (resource['branch_id'] !=
+            Session.of.getInt(Str.branchIdPrefText))) ||
+        (resource['deleted_at'] != null));
+    Console.of.log("FETCHING_RESOURCE_FROM_GET");
+    return resources;
   }
 
 }

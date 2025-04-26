@@ -4,47 +4,47 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../Repository/api_repository.dart';
-import '../../../../Repository/todo_list_repository.dart';
 import '../../../../Response/cohorts_response.dart';
 import '../../../../Response/payment_response.dart';
 import '../../../../Response/vehicle_list_response.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../core/app/helper/toaster.dart';
 import '../../../Todo/add_todo/add_todo_const.dart';
-import '../../../Todo/todo_edti_expense/repository/todo_edit_expense_repository.dart';
 import '../event/vehicle_expense_history_event.dart';
 import '../response/vehicle_expense_history_response.dart';
 import '../state/vehicle_expense_history_state.dart';
 
-class VehicleExpenseHistoryBloc
-    extends Bloc<VehicleExpenseHistoryEvent, VehicleExpenseHistoryState> {
+class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, VehicleExpenseHistoryState> {
+
   final APiRepository apiRepository = APiRepository();
-  final TodoEditExpenseRepository todoEditExpenseRepository =
-  TodoEditExpenseRepository();
-  final TodoListRepo todoListRepo = TodoListRepo();
+
   String? categoryId;
   String? subcategoryId;
+
   List<dynamic>? selectedCategory;
   List<dynamic>? selectedSubCategory;
-  List<dynamic>? subCategories = [];
-  List<Map<String, dynamic>>? categories = [];
+  List<dynamic>? selectedCohorts;
   List<dynamic>? selectedPaymentId;
+  List<dynamic>? selectedVehicle;
+
+  List<dynamic>? filterList = [];
+  List<dynamic>? approvedList=[];
+  List<dynamic>? subCategories = [];
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
+  List<Map<String, dynamic>>? categories = [];
+
   TextEditingController vehicleController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
-  List<dynamic>? selectedCohorts;
-  List<dynamic>? selectedVehicle;
-  List<dynamic>? filterList = [];
-  List<dynamic>? approvedList=[];
 
   VehicleExpenseHistoryBloc()
       : super(VehicleExpenseHistoryState(
@@ -98,13 +98,11 @@ class VehicleExpenseHistoryBloc
           }
         }
 
-
         for(var data in filterList??[]){
           if(data['approved'].toString() == "1"){
             approvedList?.add(data);
           }
         }
-
 
         double totalAmount = 0;
 
@@ -114,7 +112,6 @@ class VehicleExpenseHistoryBloc
         }
         totalAmount = double.parse(totalAmount.toStringAsFixed(2));
         log("Total Amount: $totalAmount", name: "Expense Calculation");
-
 
         emit(state.copyWith(
           isLoading: false,
@@ -133,34 +130,19 @@ class VehicleExpenseHistoryBloc
     on<GetEditVehicleExpenseHistory>((event, emit) async {
       try{
         emit(state.copyWith(isLoading: true));
-        var response = await Future.wait([
-          _getEditVehicleExpenseDetails(event.id),
-          _getPaymentMethods(),
-          _getExpenseCategories(),
-          _getVehicles(),
-        ]);
+        var vehicleExpenseHistoryResponse = await _getEditVehicleExpenseDetails(event.id);
+        var paymentResponse = await _getPaymentMethods();
+        var cohortsResponse = await _getExpenseCategories();
+        var vehicleResponse = await _getVehicles();
 
-        VehicleExpenseHistoryResponse? vehicleExpenseHistoryResponse =
-        (response[0] is VehicleExpenseHistoryResponse)
-            ? (response[0] as VehicleExpenseHistoryResponse)
-            :null;
-        PaymentResponse? paymentResponse = (response[1] is PaymentResponse)
-            ? (response[1] as PaymentResponse)
-            : null;
-        CohortsResponse? cohortsResponse = (response[2] is CohortsResponse)
-            ? (response[2] as CohortsResponse)
-            : null;
-        VehicleListResponse? vehicleResponse =
-        ((response[3] is VehicleListResponse) ? response[3] : null)
-        as VehicleListResponse?;
-        var apiResponse = vehicleExpenseHistoryResponse?.expenses;
+        var apiResponse = vehicleExpenseHistoryResponse?['expenses'];
 
         categoryId=apiResponse?['category_id'].toString()??'';
         subcategoryId=apiResponse?['subcategory_id'].toString()??'';
 
-        categories = cohortsResponse?.expenseData;
-        subCategories = cohortsResponse?.expenseData
-            ?.where((category) => category['id'].toString() == categoryId)
+        categories = cohortsResponse;
+        subCategories = cohortsResponse
+            .where((category) => category['id'].toString() == categoryId)
             .map((category) => category['sub_categories'] ?? [])
             .expand((subcategoryList) => subcategoryList)
             .toList();
@@ -172,10 +154,8 @@ class VehicleExpenseHistoryBloc
             ?.where((e) => e['id'].toString() == subcategoryId)
             .toList();
 
-        selectedPaymentId = paymentResponse?.data
-            ?.where((e) =>
-        e['id'] == apiResponse?['payment_method_id'],
-        ).toList();
+        selectedPaymentId = paymentResponse.where(
+              (e) => e['id'] == apiResponse?['payment_method_id'],).toList();
 
         ogAttachments = apiResponse?['attachments'];
 
@@ -183,7 +163,6 @@ class VehicleExpenseHistoryBloc
         attachments?.addAll(ogAttachments
             ?.map((e) => e['path'].toString().toStorageURL)
             .toList() ?? []);
-
 
         if(apiResponse?['expense_to'] != null){
           selectedCohorts = AddToDoConfig.expenseTo
@@ -195,11 +174,8 @@ class VehicleExpenseHistoryBloc
         amountController.text = "${apiResponse?['expense_amount'] ?? ''}";
         dateController.text = apiResponse?['expense_date'] ?? '';
 
-
-
-        selectedVehicle = vehicleResponse?.data
-            ?.where((e) => e['vin'] == apiResponse?['vin'])
-            .toList();
+        selectedVehicle = vehicleResponse.where(
+                (e) => e['vin'] == apiResponse?['vin']).toList();
         vehicleController.text = selectedVehicle?.firstOrNull?['vehicle_name'] ?? '';
 
         emit(state.copyWith(
@@ -211,11 +187,11 @@ class VehicleExpenseHistoryBloc
           selectedPaymentMethod: selectedPaymentId?.firstOrNull,
           categories: categories,
           subCategories: subCategories,
-          paymentMethods: paymentResponse?.data,
+          paymentMethods: paymentResponse,
           cohorts: AddToDoConfig.expenseTo,
           selectedCohorts:selectedCohorts?.firstOrNull,
           selectedDate: apiResponse?['expense_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd'),
-          vehicle: vehicleResponse?.data,
+          vehicle: vehicleResponse,
           selectedVehicle: selectedVehicle?.firstOrNull,
           vin: selectedVehicle?.firstOrNull?['vin'] ?? '',
           vehicleName: selectedVehicle?.firstOrNull?['vehicle_name'] ?? '',
@@ -225,7 +201,6 @@ class VehicleExpenseHistoryBloc
         log("$e", name: 'Error');
         emit(state.copyWith(isLoading: false));
       }
-
     });
 
     on<SearchVehicleExpenseHistoryEvent>((event, emit) {
@@ -383,22 +358,19 @@ class VehicleExpenseHistoryBloc
   }
 
   /// API CALL: PAYMENT METHODS
-  Future<PaymentResponse?> _getPaymentMethods() async {
-    return await todoListRepo.getPayment();
-  }
+  Future<List<Map<String, dynamic>>> _getPaymentMethods() async =>
+    await getIt<CommonService>().getPaymentTypes();
 
   /// API CALL: CATEGORIES
-  Future<CohortsResponse?> _getExpenseCategories() async {
-    return await todoListRepo.getCohorts();
-  }
+  Future<List<Map<String, dynamic>>> _getExpenseCategories() async =>
+     await getIt<CommonService>().getExpenseCategories();
 
   /// API CALL: ACTIVE-VEHICLES
-  Future<VehicleListResponse?> _getVehicles() async =>
-      await todoListRepo.fetchVehicleList();
+  Future<List<Map<String, dynamic>>> _getVehicles() async =>
+      await getIt<CommonService>().getActiveVehicles();
 
   /// API CALL: EXPENSE DETAILS
-  Future<VehicleExpenseHistoryResponse?> _getEditVehicleExpenseDetails(dynamic expenseId) async {
-    return await apiRepository.getEditVehicleExpense(id: expenseId);
-  }
+  Future<Map<String, dynamic>?> _getEditVehicleExpenseDetails(dynamic expenseId) async =>
+      await apiRepository.getEditVehicleExpense(id: expenseId);
 
 }

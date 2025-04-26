@@ -1,12 +1,12 @@
 
-import 'package:fairpytasker/UI/Todo/todo_edti_expense/ui/invoice_table.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/ui/invoice_table.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../Utilities/Utils.dart';
-import '../../../../Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 
 class InvoiceDialog {
   InvoiceDialog._();
