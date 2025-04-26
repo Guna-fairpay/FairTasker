@@ -841,12 +841,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         state.apiResponse['reminder'] == true ? 'true' : 'false';
     baseBody['notes'] =
         notesController.text.trim().isNullOrEmpty ? "" : notesController.text;
-    baseBody['comments'] = commentsController.text;
+    baseBody['comments'] = commentsController.text.trim().isNullOrEmpty ? "" :commentsController.text;
     baseBody['resolution_notes'] = resolutionNotesController.text;
     baseBody['platform_check'] = state.isSelectedPlatformCheck ? "1" : "0";
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['todo_user_type'] = "0";
-    baseBody['comments'] = "";
     baseBody['mileage'] = odometerController.text;
     baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
@@ -867,19 +866,16 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         baseBody['assigned_to'] = "${state.selectedResource}";
       }
     }
-
     baseBody['parts'] =
         "${state.selectedParts.isEmpty ? null : state.selectedParts.map((e) => jsonEncode({
                   "parts_id": "${e['id']}",
                   "parts_name": "${e['name']}",
                 })).toList()}";
-
     baseBody['supplies'] =
         "${state.selectedSupplies.isEmpty ? null : state.selectedSupplies.map((e) => jsonEncode({
                   "supplies_id": "${e['id']}",
                   "supplies_name": "${e['name']}",
                 })).toList()}";
-
     if (state.selectedVLocations.isNotEmpty) {
       if (state.selectedVLocations['type'] == "location") {
         baseBody['location'] = "${state.selectedVLocations['name'] ?? ''}";
