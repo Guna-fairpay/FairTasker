@@ -152,7 +152,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       frontTireController.text = widget.selectedVehicle['front_tire']?.toString() ?? '';
       rearTireController.text = widget.selectedVehicle['rear_tire']?.toString() ?? '';
       renewalDateController.text = widget.selectedVehicle['registration_renewal_date']?.toString() ?? '';
-      //renewalDateController.text = DateFormat('dd-MM-yyyy').parse(widget.selectedVehicle['registration_renewal_date'].toString()).toString() ?? '';
       currentOdometerController.text = widget.selectedVehicle['current_odometer']?.toString() ?? '';
       oilChangeOdometerController.text =  widget.selectedVehicle['oil_change_odometer']?.toString() ?? '';
       maintenanceCheckController.text = widget.selectedVehicle['maintenance_check']?.toString() ?? '';
@@ -488,12 +487,110 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   }
 
   Widget get body => BlocProvider(
-    create: (context) => vehicleDataBloc,
+    create: (context) => vehicleDataBloc..add(setVehicleInitialEvent(vehicle: widget.selectedVehicle, todoItems: widget.todoItems)),
     child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
       listener: (context, state)
       {
         if (state is VehicleDataLoading) {
           EasyLoading.show();
+        }
+        else if(state is setVehicleLoader){
+          EasyLoading.dismiss();
+        }
+        else if(state is setVehicleLoaded){
+          EasyLoading.dismiss();
+          d.log("${state.currentVehicle['vehicle_id']}");
+          yearController.text = state.currentVehicle['year'] ?? '';
+          makeController.text = state.currentVehicle['make'] ?? '';
+          modelController.text = state.currentVehicle['model']?.toString() ?? '';
+          vehicleNumberController.text = state.currentVehicle['vehicle_number']?.toString() ?? '';
+          vinController.text = state.currentVehicle['vin']?.toString() ?? '';
+          purchaseDateController.text = state.currentVehicle['purchase_date']?.toString() ?? '';
+          vehicleIdController.text = state.currentVehicle['vehicle_id']?.toString() ?? '';
+          purchasePriceController.text = state.currentVehicle['purchase_price']?.toString() ?? '';
+          earningsController.text = state.currentVehicle['earnings']?.toString() ?? '';
+          utilizationRateController.text = state.currentVehicle['utilization_rate']?.toString() ?? '';
+          platformController.text = state.currentVehicle['platform']?.toString() ?? '';
+          mileageController.text = state.currentVehicle['mileage']?.toString() ?? '';
+          wholeSaleAmountController.text = state.currentVehicle['wholesale_amount']?.toString() ?? '';
+          addressController.text = state.currentVehicle['address']?.toString() ?? '';
+          carNumberController.text = state.currentVehicle['car_number']?.toString() ?? '';
+          oilGradeController.text = state.currentVehicle['oil_grade']?.toString() ?? '';
+          frontTireController.text = state.currentVehicle['front_tire']?.toString() ?? '';
+          rearTireController.text = state.currentVehicle['rear_tire']?.toString() ?? '';
+          renewalDateController.text = state.currentVehicle['registration_renewal_date']?.toString() ?? '';
+          currentOdometerController.text = state.currentVehicle['current_odometer']?.toString() ?? '';
+          oilChangeOdometerController.text =  state.currentVehicle['oil_change_odometer']?.toString() ?? '';
+          maintenanceCheckController.text = state.currentVehicle['maintenance_check']?.toString() ?? '';
+          tollTagsIdController.text = state.currentVehicle['toll_tags_id']?.toString() ?? '';
+          spareTireController.text = state.currentVehicle['tire_size']?.toString() ?? '';
+          insuranceCostController.text = state.currentVehicle['insurance_cost']?.toString() ?? '';
+          insuranceAgentController.text = state.currentVehicle['insurance_agent']?.toString() ?? '';
+
+          vehicleImageFile.clear();
+          tireImageFile.clear();
+          tollImage.clear();
+          uploadRegSticker.clear();
+          insuranceImage.clear();
+          receiptImageFile.clear();
+          for (Map<String, dynamic> c in cohortsData) {
+            if (c['id'] == state.currentVehicle['cohort_id']) {
+              selectedCohortsData = c;
+            }
+          }
+          for (Map<String, dynamic> c in categoriesData) {
+            if (c['id'] == state.currentVehicle['vehicle_status']) {
+              selectedCategoriesData = c;
+            }
+          }
+          selectedVehicleStatus =
+          (state.currentVehicle['active'] ?? vehicleStatusList[1]) == 1
+              ? vehicleStatusList[0]
+              : vehicleStatusList[1];
+
+          vehicleImageFile = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 1)
+              .toList() ??
+              [];
+          var tireImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 2)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          tireImageFile.addAll(tireImages);
+          var tollImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 5)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          tollImage.addAll(tollImages);
+          var uploadRegStickers = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 3)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          uploadRegSticker.addAll(uploadRegStickers);
+          var insuranceImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 4)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          insuranceImage.addAll(insuranceImages);
+          receiptImageFile.addAll(state.currentVehicle['expenses']?['attachments'] ?? []);
+          bouncie = (state.currentVehicle['bouncie'] == 1);
+          airTag = (state.currentVehicle['air_tag'] == 1);
+          permanentPlate = (state.currentVehicle['permanent_plate'] == 1);
+          spareTire = (state.currentVehicle['spare_tire'] == 1);
+          spareKey = (state.currentVehicle['spare_key'] == 1);
+          permanentPlate = (state.currentVehicle['permanent_plate'] == 1);
+          frontLicensePlate = (state.currentVehicle['front_license_plate'] == 1);
+          tollTags = (state.currentVehicle['toll_tags'] == 1);
+
+          if (widget.showHeader == false) {
+            showMore = true;
+          }
+
+
         }
         else if (state is DropdownVehicleDataLoaded)
         {
@@ -529,8 +626,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           });
         }
         else if (state is VehicleDataUpdatedState) {
-          print("VehicleDataUpdatedState");
-          print("widget.vehicle (before): ${widget.vehicle}");
           setState(() {
             widget.vehicle = state.updatedVehicle;
             loading = false;
@@ -547,7 +642,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             final parsed = DateTime.parse(renewalDateController.text);
             renewalDateController.text = DateFormat('dd-MM-yyyy').format(parsed);
           } catch (e) {
-            // handle or ignore invalid date format
+            // ignore invalid date format
           }
         }
       },
@@ -922,7 +1017,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                                   vehicleImageFile.removeAt(index);
                                                 } else {
                                                   vehicleDataBloc
-                                                      .add(DeleteVehicleImage(id: vehicleImageFile[index]['id']));
+                                                      .add(DeleteSetVehicleImage(id: vehicleImageFile[index]['id']));
                                                   vehicleImageFile.removeAt(index);
                                                 }
                                                 setState(() {});
@@ -1165,7 +1260,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                               if (tollImageId != null) {
                                                 context
                                                     .read<VehicleDataBloc>()
-                                                    .add(DeleteVehicleImage(id: tollImageId));
+                                                    .add(DeleteSetVehicleImage(id: tollImageId));
                                                 tollImage.removeAt(index);
                                               }
                                             }
@@ -1324,7 +1419,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             );
                                             if (image != null) {
                                               imageId = image['id'];
-                                              context.read<VehicleDataBloc>().add(DeleteVehicleImage(id: imageId));
+                                              context.read<VehicleDataBloc>().add(DeleteSetVehicleImage(id: imageId));
                                             }
                                           }
                                           if (imageId != null) {
@@ -1526,7 +1621,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                               if (uploadRegSticker != null) {
                                                 context
                                                     .read<VehicleDataBloc>()
-                                                    .add(DeleteVehicleImage(id: Id));
+                                                    .add(DeleteSetVehicleImage(id: Id));
                                                 uploadRegSticker.removeAt(index);
                                               }
                                             }
@@ -1657,7 +1752,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                           if (insuranceImage != null) {
                                             context
                                                 .read<VehicleDataBloc>()
-                                                .add(DeleteVehicleImage(id: Id));
+                                                .add(DeleteSetVehicleImage(id: Id));
                                             insuranceImage.removeAt(index);
                                           }
                                         }

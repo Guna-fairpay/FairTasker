@@ -24,6 +24,7 @@ class VehicleDataRepo {
     try {
       String apiUrl = '';
       if (createVehicleData.id != null) {
+        log("vehicle update");
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${createVehicleData.id}";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
@@ -244,16 +245,7 @@ class VehicleDataRepo {
           debugPrint('deleteVehicleImages api.response.body: ${response.body}');
           debugPrint(
               'deleteVehicleImages api.statusCode: ${response.statusCode}');
-
-          // GeneralResponse generalResponse =
-          // GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          // Utils.showNoResultFound();
           return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          return false;
-          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;

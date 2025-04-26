@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
@@ -6,7 +8,10 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Repository/vehicle_repository.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
+
+import '../Utilities/Str.dart';
 part '../Event/vehicle_data_event.dart';
 part '../State/vehicle_data_state.dart';
 
@@ -86,22 +91,58 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
 //Set vehicle save Bloc
     on<UpdateVehicleDataEvent>((event, emit) async {
       if (event.createVehicleData != null) {
+        emit(const VehicleDataLoading());
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
           _broadcast.stickyBroadcast("todo_view", value: true);
+          final response1 = await getIt<CommonService>().getActiveVehicles(reset: true);
+          add(setVehicleInitialEvent(vehicle: response1, todoItems: null));
           print("Bloc Triggered");
+
           emit(VehicleDataLoadedV(
             result: response?.data ?? [],
             vin: event.createVehicleData!.vin,
             categoryId: event.createVehicleData!.categoryId,
           ));
-          add(const GetAddedVehicleListData());
         } catch (error) {
           emit(const VehicleDataError( errorMessage: ''));
         }
       }
     });
 
+    // on<setVehicleInitialEvent>((event, emit) async {
+    //   final response = await getIt<CommonService>().getActiveVehicles(reset: true);
+    //   dynamic vehicle;
+    //   if (response is List<Map>) {
+    //     vehicle = response.firstWhere(
+    //             (e) => e['vin'].toString() == event.vehicle['vin'].toString()
+    //     );
+    //   } else if (response is List) {
+    //     vehicle = response.firstWhere(
+    //             (e) => e['vin'].toString() == event.vehicle['vin'].toString()
+    //     );
+    //   }
+    //     log("${vehicle}", name: "VEHICLE_DATA");
+    //   emit(setVehicleLoaded(currentVehicle: vehicle));
+    // });
+
+    on<setVehicleInitialEvent>((event, emit) async {
+      final response = await getIt<CommonService>().getActiveVehicles(reset: true);
+      dynamic vehicle;
+      if (response is List && response.isNotEmpty && response.first is Map) {
+        vehicle = response.firstWhere(
+              (e) => e['vin'].toString() == event.vehicle['vin'].toString(),
+          orElse: () => {},
+        );
+      }
+      emit(setVehicleLoaded(currentVehicle: vehicle));
+    });
+
+    on<DeleteSetVehicleImage>((event, emit) async {
+      final response = await vehicleDataRepo.deleteVehicleImages(event.id);
+      emit(const setVehicleLoader());
+      log("${response}", name: "VEHICLE_Image");
+    });
 
     on<MoveRentalData>((event, emit) async {
       emit(const VehicleDataLoading());
