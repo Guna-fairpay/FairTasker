@@ -82,6 +82,19 @@ class VehicleDataLoading extends VehicleDataState {
   List<Object?> get props => [];
 }
 
+class setVehicleLoaded extends VehicleDataState {
+  final dynamic currentVehicle;
+  const setVehicleLoaded( {this.currentVehicle});
+  @override
+  List<Object?> get props => [ currentVehicle];
+}
+
+class setVehicleLoader extends VehicleDataState {
+  const setVehicleLoader();
+  @override
+  List<Object?> get props => [];
+}
+
 class DropdownVehicleDataLoaded extends VehicleDataState {
   final CreateExpenseFieldData? createExpenseFieldData;
   const DropdownVehicleDataLoaded({required this.createExpenseFieldData});

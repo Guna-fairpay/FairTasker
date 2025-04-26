@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../../../../Utilities/appC.dart';
 
 void showHoursSummaryPopup(BuildContext context, {
@@ -103,7 +103,7 @@ void showHoursSummaryPopup(BuildContext context, {
                           child: Text(task['name'].toString()),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.only(left: 40,top: 8.0),
                           child: Text(task['count'].toString()),
                         ),
                         Padding(
@@ -128,13 +128,13 @@ void showHoursSummaryPopup(BuildContext context, {
                           child: Text(''),
                         ),
                         const Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.only(left: 30,top: 8.0),
                           child: Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            (totals['totalAmount'] as double).toStringAsFixed(2),
+                            (totals['totalAmount']).toStringAsFixed(2),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -155,14 +155,15 @@ Map<String, dynamic> _calculateTotals(
     List<Map<String, dynamic>> taskData,
     List<Map<String, dynamic>> paymentData,
     String name,
-    ) {
+    )
+{
   final tasks = <Map<String, dynamic>>[];
-  double totalAmount = 0;
+  int totalAmount = 0;
   int totalCount = 0;
 
   final paymentMap = {
     for (var payment in paymentData.where((p) => p['type'] == 'task'))
-      payment['task_name']?.toString(): _toDouble(payment['amount']),
+      payment['task_name']?.toString(): _toInt(payment['amount']),
   };
 
   final taskGroups = <String, Map<String, dynamic>>{};
@@ -179,7 +180,7 @@ Map<String, dynamic> _calculateTotals(
         matchedTask = taskName;
       } else {
         for (final paymentTask in paymentMap.keys) {
-          if (paymentTask != null && taskName.contains(paymentTask.split('/')[0])) {
+          if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
             matchedTask = paymentTask;
             break;
           }
@@ -193,7 +194,7 @@ Map<String, dynamic> _calculateTotals(
         taskGroups.update(key, (existing) => {
           'name': existing['name'],
           'count': (existing['count'] as int) + count,
-          'amount': (existing['amount'] as double) + (amount * count),
+          'amount': (existing['amount'] as int) + (amount * count),
         }, ifAbsent: () => {
           'name': matchedTask!,
           'count': count,
@@ -204,7 +205,7 @@ Map<String, dynamic> _calculateTotals(
   }
 
   tasks.addAll(taskGroups.values);
-  totalAmount = tasks.fold(0.0, (double sum, task) => sum + (task['amount'] as double));
+  totalAmount = tasks.fold(0, (int sum, task) => sum + (task['amount'] as int));
   totalCount = tasks.fold(0, (int sum, task) => sum + (task['count'] as int));
 
   return {
@@ -213,6 +214,7 @@ Map<String, dynamic> _calculateTotals(
     'totalCount': totalCount,
     'name': name,
   };
+
 }
 
 int _toInt(dynamic value) {
@@ -222,12 +224,12 @@ int _toInt(dynamic value) {
   return 0;
 }
 
-double _toDouble(dynamic value) {
-  if (value is double) return value;
-  if (value is int) return value.toDouble();
-  if (value is String) return double.tryParse(value) ?? 0.0;
-  return 0.0;
-}
+// double _toDouble(dynamic value) {
+//   if (value is double) return value;
+//   if (value is int) return value.toDouble();
+//   if (value is String) return double.tryParse(value) ?? 0.0;
+//   return 0.0;
+// }
 
 
 // int _convertToInt(dynamic value) {

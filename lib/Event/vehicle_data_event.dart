@@ -78,6 +78,14 @@ class UpdateVehicleDataEvent extends VehicleDataEvent {
   List<Object?> get props => [createVehicleData];
 }
 
+class setVehicleInitialEvent extends VehicleDataEvent {
+  final dynamic vehicle;
+  final dynamic todoItems;
+  const setVehicleInitialEvent({required this.vehicle,required this.todoItems});
+  @override
+  List<Object?> get props => [vehicle, todoItems];
+}
+
 class MoveRentalData extends VehicleDataEvent {
   final dynamic rentalData;
   const MoveRentalData({
@@ -106,6 +114,13 @@ class DeleteVehicleGroupEvent extends VehicleDataEvent {
 class DeleteVehicleImage extends VehicleDataEvent {
   final int? id;
   const DeleteVehicleImage({required this.id});
+  @override
+  List<Object?> get props => [id];
+}
+
+class DeleteSetVehicleImage extends VehicleDataEvent {
+  final int? id;
+  const DeleteSetVehicleImage({required this.id});
   @override
   List<Object?> get props => [id];
 }
