@@ -287,10 +287,9 @@ class EditTodoMoreForm extends StatelessWidget {
                     onSaveMultiPressed: () async {
                       if(state.selectedEndDate != null && state.selectedStartDate != null){
                         await Future.delayed(Durations.short1);
-                        AskDateRangePermissionDialog.show(
-                            context,
-                            endDate: state.selectedEndDate?.toFormat(),
-                            startDate: state.selectedStartDate?.toFormat(),
+                        AskDateRangePermissionDialog.show(context,
+                            endDate: state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
+                            startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
                             selectedEndDate: state.selectedEndDate,
                             selectedStartDate: state.selectedStartDate,
                             onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
@@ -301,7 +300,6 @@ class EditTodoMoreForm extends StatelessWidget {
                             }
                         );
                       }
-
                     },
                     onPositivePressed: (){
                       context.read<EditToDoBloc>().add(
