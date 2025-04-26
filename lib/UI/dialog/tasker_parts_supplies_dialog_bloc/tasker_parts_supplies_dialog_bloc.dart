@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -15,7 +16,6 @@ class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
   Map<String, dynamic>? model;
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> selectedPartsList = [];
-  List<dynamic> modelIdsData = [];
   TextEditingController controller = TextEditingController();
   final APiRepository _apiRepository = APiRepository();
   TPSDBloc() : super(TPSDLoadingState()) {
@@ -29,10 +29,22 @@ class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
   Future<Map<String, dynamic>?> _deleteParts(dynamic id) async => await _apiRepository.deleteVehicleParts(id: id);
   Future<Map<String, dynamic>?> _deleteSupplies(dynamic id) async => await _apiRepository.deleteSupplies(id: id);
 
+  List<dynamic> get modelIdsData {
+    var modelParts = List<Map<String, dynamic>>.from(model?['parts'] ?? []).map((e) => e['parts_id']).toList();
+    var modelSupplies = List<Map<String, dynamic>>.from(model?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
+    return (isParts ?? false) ? modelParts : modelSupplies;
+  }
+
   List<dynamic> get modelIds {
     var modelParts = List<Map<String, dynamic>>.from(model?['parts'] ?? []).map((e) => e['parts_id']).toList();
     var modelSupplies = List<Map<String, dynamic>>.from(model?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
     return (isParts ?? false) ? modelParts : modelSupplies;
+  }
+
+  void _removeDeleted(dynamic id) {
+    var data = (isParts ?? false) ? (List<Map<String, dynamic>>.from(model?['parts'] ?? [])..removeWhere((e) => e['id'].toString() == id.toString())) : (List<Map<String, dynamic>>.from(model?['supplies'] ?? [])..removeWhere((e) => e['id'].toString() == id.toString()));
+    model?.update((isParts ?? false) ? 'parts' : 'supplies', (value) => data);
+    Console.of.log(model);
   }
 
   dynamic _getSelectedId(dynamic id) {
@@ -49,7 +61,6 @@ class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
       apiResponse = (isParts ?? false) ? await _fetchParts() : await _fetchSupplies();
       var modelParts = List<Map<String, dynamic>>.from(model?['parts'] ?? []).map((e) => e['parts_id']).toList();
       var modelSupplies = List<Map<String, dynamic>>.from(model?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
-      modelIdsData = (isParts ?? false) ? modelParts : modelSupplies;
       if (isParts ?? false) {
         selectedPartsList = apiResponse.where((element) => modelParts.contains(element['id'].toString())).toList();
       } else {
@@ -70,6 +81,8 @@ class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
       if (isOld) {
         var id = _getSelectedId(event.value['id']);
         await ((isParts ?? false) ? _deleteParts(id) : _deleteSupplies(id));
+        _removeDeleted(id);
+        emit(TPSDDeleteState(id));
       } else {
         Console.of.log("NEW_DATA_REMOVING");
       }

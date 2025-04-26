@@ -19,13 +19,14 @@ class TaskerPartsSuppliesDialog {
 
   static void show(BuildContext context, Map<String, dynamic>? model,
       {void Function(List<Map<String, dynamic>> value)? onChanged,
-      required bool isParts}) async {
+      required bool isParts,
+      ValueChanged<dynamic>? onDelete}) async {
     await showDialog(
       context: context,
       useSafeArea: true,
       barrierDismissible: true,
       builder: (context) => _TaskerPartsSuppliesDialogView(
-          model: model, onChanged: onChanged, isParts: isParts),
+          model: model, onChanged: onChanged, isParts: isParts, onDelete: onDelete),
     );
   }
 }
@@ -34,9 +35,10 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
   final void Function(List<Map<String, dynamic>> value)? onChanged;
   final bool isParts;
+  final ValueChanged<dynamic>? onDelete;
 
   const _TaskerPartsSuppliesDialogView(
-      {this.model, this.onChanged, required this.isParts});
+      {this.model, this.onChanged, required this.isParts, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +77,8 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
                     case TPSDSuccessState():
                       Toaster.showSuccess(state.message);
                       break;
+                    case TPSDDeleteState(): onDelete?.call(state.id); break;
                   }
-                }
-                if (state is TPSDErrorState) {
-                  Toaster.showError(state.message.toString());
                 }
               },
               child: _TaskerPartsSuppliesDialogBodyView(onChanged: onChanged),
@@ -88,6 +88,7 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
 
 class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
   final void Function(List<Map<String, dynamic>> value)? onChanged;
+
   const _TaskerPartsSuppliesDialogBodyView({this.onChanged});
 
   @override
@@ -99,23 +100,35 @@ class _TaskerPartsSuppliesDialogBodyView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   spacing: 10.sp,
                   children: [
-                    Flexible(child: SingleChildScrollView(
-                      child: CustomMultiSelectionChipsField<Map<String, dynamic>>(
-                        selectedPartsList: context.watch<TPSDBloc>().selectedPartsList,
+                    Flexible(
+                        child: SingleChildScrollView(
+                      child:
+                          CustomMultiSelectionChipsField<Map<String, dynamic>>(
+                        selectedPartsList:
+                            context.watch<TPSDBloc>().selectedPartsList,
                         suggestionsList: context.watch<TPSDBloc>().apiResponse,
                         itemAsString: (item) => item['name'],
                         controller: context.read<TPSDBloc>().controller,
-                        onChanged: (isChecked, value) => context.read<TPSDBloc>().add(TPSDSelectedEvent(value, isChecked)),
+                        onChanged: (isChecked, value) => context
+                            .read<TPSDBloc>()
+                            .add(TPSDSelectedEvent(value, isChecked)),
                       ),
                     )),
                     Row(
                       children: [
                         SuccessButton(
                           text: "Save",
-                          onPressed: (){
-                            var selected = context.read<TPSDBloc>().selectedPartsList;
-                            var modelIds = context.read<TPSDBloc>().modelIdsData;
-                            var filtered = selected.where((element) => !modelIds.contains(element['id'].toString())).toList();
+                          onPressed: () {
+                            var selected =
+                                context.read<TPSDBloc>().selectedPartsList;
+                            var modelIds =
+                                context.read<TPSDBloc>().modelIdsData;
+                            var filtered = selected
+                                .where((element) => !modelIds
+                                    .contains(element['id'].toString()))
+                                .toList();
+                            Console.of.log(modelIds);
+                            Console.of.log(selected);
                             if (filtered.isNotEmpty) {
                               onChanged?.call(filtered);
                               context.popDialog();
