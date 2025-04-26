@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../Utilities/Str.dart';
 import '../../../Utilities/Utils.dart';
+import '../../../Utilities/prefs.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
 import '../../../../Repository/api_repository.dart';
@@ -77,8 +78,44 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               resources=response3.resource!;//3
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
+              List<Map<String, dynamic>> punchListData = response6?.data ?? [];
+
+              List<Map<String, dynamic>> matchedPunchItem = [];
+
+              try {
+                matchedPunchItem = punchListData.where(
+                      (punchItem) {
+                    try {
+                      final employeeId = punchItem['employee']?['id']?.toString();
+                      if (employeeId == null) return false;
+
+                      final matchedResource = resources.firstWhere(
+                            (resource) {
+                          final resourceId = resource['hrm_id'];
+                          return resourceId != null && resourceId.toString() == employeeId;
+                        },
+                        orElse: () => {},
+                      );
 
 
+                      if (matchedResource != null && matchedResource['branch_id'] != null) {
+                        final branchId = Session.of.getInt(Str.branchIdPrefText)?.toString(); // 🛠️ Corrected
+                        return matchedResource['branch_id'].toString() == branchId;
+                      }
+                      return false;
+                    } catch (e) {
+                      log('Error inside: $e', name: 'whereConditionError');
+                      return false;
+                    }
+                  },
+                ).toList();
+              } catch (e) {
+                log('Error filtering matchedPunchItem: $e', name: 'matchedPunchItemError');
+                matchedPunchItem = [];
+              }
+
+
+              log("${matchedPunchItem}", name: "temp");
               branchId = await Utils.getIntPreference(Str.branchIdPrefText);
               userRole = await Utils.getStringListPreference(Str.rolePrefText);
               userId = await Utils.getStringPreference(Str.userIdPrefText);
@@ -261,7 +298,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               List<Map<String, dynamic>> formatEmployeeData(
                   List<Map<String, dynamic>> rawData,
                   List<Map<String, dynamic>> workActiveHours,
-                  ) {
+                  )
+              {
                 try {
                   String today = DateFormat("yyyy-MM-dd").format(DateTime.now());
                   log("$today", name: "Today");
@@ -279,7 +317,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
                   String calculateElapsedTime(String startTime) {
                     DateTime startDateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(startTime);
-                    DateTime now = DateTime.now().toUtc().subtract(Duration(hours: 5)); // Convert to EST (UTC-5)
+                    DateTime now = DateTime.now().toUtc().subtract(Duration(hours: 5));
 
                     if (now.isBefore(startDateTime)) return "00:00";
 
@@ -350,7 +388,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
 
 
-              List<Map<String, dynamic>> formattedData = formatEmployeeData(response6?.data ?? [],workActiveHours);
+              List<Map<String, dynamic>> formattedData = formatEmployeeData(matchedPunchItem ?? [],workActiveHours);
               log("${formattedData}",name:"FormattedData");
               dropDownResource = formattedResources;
               dropDownResource.insert(0, initialDropDown);
