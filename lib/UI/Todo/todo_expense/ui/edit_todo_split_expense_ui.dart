@@ -1,5 +1,6 @@
 
-import 'package:fairpytasker/UI/Todo/todo_edti_expense/bloc/todo_edit_expense_bloc.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_bloc.dart';
+import 'package:fairpytasker/UI/Todo/todo_expense/bloc/todo_edit_expense_state.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -8,11 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../Utilities/utils.dart';
 import '../../../../Utilities/appC.dart';
-import '../event/todo_edit_expense_event.dart';
-import '../state/todo_edit_expense_state.dart';
+import '../bloc/todo_edit_expense_event.dart';
 
-class SplitExpenseUI extends StatelessWidget {
-  const SplitExpenseUI({super.key});
+
+class TodoSplitExpenseUI extends StatelessWidget {
+  const TodoSplitExpenseUI({super.key});
 
   @override
   Widget build(BuildContext context) {
