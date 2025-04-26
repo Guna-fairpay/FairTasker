@@ -35,6 +35,11 @@ class DeleteEmployeesEvent extends EmployeesViewEvent {
   List<Object?> get props => [data];
 }
 
-class AddOrEditEvent extends EmployeesViewEvent {}
+class AddOrEditEvent extends EmployeesViewEvent {
+  final dynamic data;
+  AddOrEditEvent({this.data});
+  @override
+  List<Object?> get props => [data];
+}
 
 
