@@ -71,7 +71,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
         : (itemAsString(selectedItem!) == controller.text)
             ? selectedItem
             : null;
-    Console.of.log("omitted: $omitted ${itemAsString(selectedItem!)} ${controller.text}");
+    // Console.of.log("omitted: $omitted ${itemAsString(selectedItem!)} ${controller.text}");
     var omitting = suggestions.where((element) => element == omitted);
     var result = suggestions
         .where((element) => element != omitted)
