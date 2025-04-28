@@ -60,6 +60,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
               int? checklistId = int.tryParse(fixTasksMap.entries
                   .firstWhere((entry) => entry.value == todo['id'])
                   .key);
+              log("checklistId: $checklistId", name: "PrivateRentalBloc");
 
               var checklistItem = checkListData.firstWhere(
                     (item) => item['id'] == checklistId,
@@ -120,6 +121,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
 
     on<CreatePrivateFixTaskEvent>((event, emit) async {
       try {
+        emit(state.copyWith(isLoading: true));
         await todoListRepo.createFixTask(CreateFixTaskData()
           ..todoId = todoItemCopy['id']
           ..userId = todoItemCopy['user_id']
@@ -135,7 +137,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
           ..vendorName = todoItemCopy['vendor_name']
           ..vehicleNumber = vehicleCopy['vehicle_number']
           ..maintenanceTaskId = event.id);
-
+        emit(state.copyWith(isLoading: false, pop: true));
         _broadcast.stickyBroadcast("todo_view", value: true);
       } catch (e) {
         log("Error creating task: $e", name: "PrivateRentalBloc");
@@ -154,7 +156,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
 
     on<DeletePrivateRentalItemEvent>((event, emit) async {
       try {
-        await todoListRepo.deleteATodo(event.todoId);
+        await todoListRepo.deleteATodo(event.todoId, event.reason);
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(pop: true));
       } catch (e) {

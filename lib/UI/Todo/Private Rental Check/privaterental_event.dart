@@ -52,7 +52,8 @@ class CompletePrivateRentalItemEvent extends PrivateRentalsEvent {
 
 class DeletePrivateRentalItemEvent extends PrivateRentalsEvent {
   final String todoId;
-  const DeletePrivateRentalItemEvent({required this.todoId});
+  final String reason;
+  const DeletePrivateRentalItemEvent({required this.todoId, required this.reason});
   @override
   List<Object?> get props => [todoId];
 }

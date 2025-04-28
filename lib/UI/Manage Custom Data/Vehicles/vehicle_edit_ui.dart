@@ -3,6 +3,7 @@ import 'dart:developer' as d;
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -93,6 +94,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   bool spareTire = false;
   bool spareKey = false;
   bool frontLicensePlate = false;
+  List<dynamic> images = List.empty(growable: true);
   List<dynamic> tireImageFile = List.empty(growable: true);
   List<dynamic> tollImage = List.empty(growable: true);
   List<dynamic> uploadRegSticker = List.empty(growable: true);
@@ -283,7 +285,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       createVehicleData.tollImage = tollImage.whereType<File>().toList();
       createVehicleData.tireImage = tireImageFile.whereType<File>().toList();
       createVehicleData.uploadRegSticker = uploadRegSticker.whereType<File>().toList();
-      vehicleDataBloc.add(UpdateVehicleDataEvent(createVehicleData: createVehicleData));
+      vehicleDataBloc.add(UpdateVehicleDataEvent(createVehicleData: createVehicleData, vin: widget.selectedVehicle['vin']));
     });
     await _fetchUpdatedImages();
     imageCache.clear();
@@ -547,6 +549,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               ? vehicleStatusList[0]
               : vehicleStatusList[1];
 
+          images = (state.currentVehicle['images'] as List<dynamic>?) ?? [];
           vehicleImageFile = (state.currentVehicle['images'] as List<dynamic>?)
               ?.where((image) => image['vehicle_image_type'] == 1)
               .toList() ??
@@ -589,47 +592,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             showMore = true;
           }
 
-
-        }
-        else if (state is DropdownVehicleDataLoaded)
-        {
-          EasyLoading.dismiss();
-          print("vehicle data ${widget.vehicle?['vehicle_name']}");
-          createExpenseFieldData = state.createExpenseFieldData;
-          if (state.createExpenseFieldData != null) {
-            setState(() {
-              loading = false;
-            });
-            cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
-            for (Map<String, dynamic> c in cohortsData) {
-              if (c['id'] == widget.vehicle?['cohort_id']) {
-                selectedCohortsData = c;
-              }
-            }
-            for (Map<String, dynamic> c in categoriesData) {
-              if (c['id'] == widget.vehicle?['vehicle_status']) {
-                selectedCategoriesData = c;
-              }
-            }
-          }
-          setState(() {
-            loading = false;
-          });
-        }
-        else if (state is VehicleStatusCategoryLoaded) {
-          setState(() {
-            categoriesData = state.vehicleStatusDataList ?? [];
-            categoriesDataIsSelected = true;
-            selectedCategoriesData = categoriesData.isNotEmpty ? categoriesData[0] : null;
-            loading= false;
-          });
-        }
-        else if (state is VehicleDataUpdatedState) {
-          setState(() {
-            widget.vehicle = state.updatedVehicle;
-            loading = false;
-          });
-          Utils.showMobileToast('Vehicle updated successfully!');
         }
         else {
           setState(() {
@@ -641,7 +603,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             final parsed = DateTime.parse(renewalDateController.text);
             renewalDateController.text = DateFormat('dd-MM-yyyy').format(parsed);
           } catch (e) {
-            // ignore invalid date format
+            renewalDateController.text = '';
           }
         }
       },
@@ -655,432 +617,11 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               physics: const NeverScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  if (widget.showHeader)
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                        Utils.getText('Edit Vehicle', size: 20, weight: FontWeight.bold)
-                      ],
-                    ),
-                  Visibility(
-                    visible: widget.showHeader,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Visibility(
-                              visible: vehicleImageFile.isNotEmpty,
-                              child: vehicleImageFile.isNotEmpty
-                                  ? Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Stack(
-                                  alignment: Alignment.topRight,
-                                  children: [
-                                    (vehicleImageFile.first['path'] ?? '').isNotEmpty
-                                        ? Utils.getHeadCachedImageNetworkDisplay(
-                                        context, vehicleImageFile.first['path'] ?? '')
-                                        : ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: Image.file(
-                                        File(vehicleImageFile.first['path'] ?? ''),
-                                        width: 50.0,
-                                        height: 100.0,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                                  : const SizedBox(),
-                            ),
-                          ],
-                        ),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              yearController,
-                              label: Utils.getText('Year', color: AppC.grey),
-                              borderColor: isYearFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isYearFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              makeController,
-                              label: Utils.getText('Make', color: AppC.grey),
-                              borderColor: isMakeFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isMakeFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              modelController,
-                              label: Utils.getText('Model', color: AppC.grey),
-                              borderColor: isModelFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isModelFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                          '',
-                          vehicleNumberController,
-                          label: Utils.getText('Vehicle Number', color: AppC.grey),
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.dropdownBox(
-                          'Select Cohort',
-                          cohortsData,
-                              (selectedValue) {
-                            setState(() {
-                              selectedCohortsData = selectedValue;
-                            });
-                          },
-                          labelKey: 'cohort',
-                          initialSelection: selectedCohortsData,
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                          '',
-                          vinController,
-                          label: Utils.getText('Vin', color: AppC.grey),
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                          '',
-                          vehicleIdController,
-                          label: Utils.getText('Vehicle Id', color: AppC.grey),
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              purchaseDateController,
-                              suffixIcon: Padding(
-                                padding: isPurchaseDateFieldEmpty
-                                    ? const EdgeInsets.only(right: 35.0)
-                                    : const EdgeInsets.only(),
-                                child: const Icon(
-                                  Icons.date_range,
-                                  color: AppC.appColor,
-                                ),
-                              ),
-                              readOnly: true,
-                              onTapCallback: () {
-                                Utils.datePicker(context, '', initial: DateTime.parse("1970-01-01"))
-                                    .then((value) {
-                                  if (value != null) {
-                                    purchaseDateController.text =
-                                        Utils.convertDateToYearMonthDateFormat(value.toString());
-                                  }
-                                });
-                              },
-                              label: Utils.getText('Purchase Date', color: AppC.grey),
-                              borderColor: isPurchaseDateFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isPurchaseDateFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              purchasePriceController,
-                              label: Utils.getText('Purchase Price', color: AppC.grey),
-                              borderColor: isPurchaseFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isPurchaseFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 35,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: AppC.fieldBase,
-                                  width: Num.borderWidthField,
-                                ),
-                                borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                            child: Utils.getOutlinedButton('Purchase Receipt', () async {
-                              await imagePickHelper.getSingleImage(ImageSource.gallery).then((value) {
-                                if (value != null) {
-                                  receiptImageFile.add({'file': value, 'path': ''});
-                                  setState(() {});
-                                }
-                              });
-                            },
-                                iconData: const Icon(Icons.cloud_upload, color: AppC.appColor, size: 15),
-                                verticalPadding: 0,
-                                radius: BorderRadius.zero,
-                                bgColor: AppC.trans,
-                                borderColor: AppC.trans,
-                                textColor: AppC.grey),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Visibility(
-                          visible: receiptImageFile.isNotEmpty,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 5.0),
-                            child: SizedBox(
-                              height: 100,
-                              child:
-                              ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: receiptImageFile.length,
-                                itemBuilder: (context, index)
-                                {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                                    child: Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        (receiptImageFile[index]['path'] ?? '').isNotEmpty
-                                            ? Utils.getOvalCachedImageNetworkDisplay(
-                                            context, receiptImageFile[index]['path'] ?? '')
-                                            : ClipRRect(
-                                          borderRadius: BorderRadius.circular(6),
-                                          child: Image.file(
-                                            File(receiptImageFile[index]['file']?.path ?? ''),
-                                            width: 100.0,
-                                            height: 100.0,
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: InkWell(
-                                            onTap: () {
-                                              if ((receiptImageFile[index]['path'] ?? '').isEmpty) {
-                                                receiptImageFile.removeAt(index);
-                                              } else {
-                                                vehicleDataBloc.add(
-                                                  DeleteExpenseImage(id: receiptImageFile[index]['id']),
-                                                );
-                                                receiptImageFile.removeAt(index);
-                                              }
-                                              setState(() {});
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: AppC.red,
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: const Icon(
-                                                Icons.delete_outline_outlined,
-                                                color: AppC.white,
-                                                size: 16,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        Visibility(
-                          visible: !showMore,
-                          child: InkWell(
-                              onTap: () {
-                                showMore = !showMore;
-                                setState(() {});
-                              },
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Utils.getText(
-                                    ' More ...',
-                                    size: 12,
-                                    color: const Color(0xff0580b5),
-                                    weight: FontWeight.w500,
-                                  ),
-                                ],
-                              )),
-                        ),
-                      ],
-                    ),
-                  ),
                   Visibility(
                     visible: showMore,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Visibility(
-                          visible: widget.showHeader,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppC.fieldBase,
-                                        width: Num.borderWidthField,
-                                      ),
-                                      borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                                  child: Utils.getOutlinedButton('Vehicle Image', () async {
-                                    await imagePickHelper.getSingleImage(ImageSource.gallery).then((value) {
-                                      if (value != null) {
-                                        vehicleImageFile.add({'file': value, 'path': ''});
-                                        setState(() {});
-                                      }
-                                    });
-                                  },
-                                      iconData: const Icon(Icons.cloud_upload, color: AppC.appColor, size: 15),
-                                      verticalPadding: 0,
-                                      radius: BorderRadius.zero,
-                                      bgColor: AppC.trans,
-                                      borderColor: AppC.trans,
-                                      textColor: AppC.grey),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Visibility(
-                                visible: vehicleImageFile.isNotEmpty,
-                                child: SizedBox(
-                                  height: 100,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: vehicleImageFile.length,
-                                    itemBuilder: (context, index) {
-                                      return Stack(
-                                        alignment: Alignment.topRight,
-                                        children: [
-                                          (vehicleImageFile[index]['path'] ?? '').isNotEmpty
-                                              ? Utils.getOvalCachedImageNetworkDisplay(
-                                              context, vehicleImageFile[index]['path'] ?? '')
-                                              : ClipRRect(
-                                            borderRadius: BorderRadius.circular(6),
-                                            child: Image.file(
-                                              File(vehicleImageFile[index]['file']?.path ?? ''),
-                                              width: 100.0,
-                                              height: 100.0,
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: InkWell(
-                                              onTap: () {
-                                                if ((vehicleImageFile[index]['path'] ?? '').isEmpty) {
-                                                  vehicleImageFile.removeAt(index);
-                                                } else {
-                                                  vehicleDataBloc
-                                                      .add(DeleteSetVehicleImage(id: vehicleImageFile[index]['id']));
-                                                  vehicleImageFile.removeAt(index);
-                                                }
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: AppC.red,
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: const Icon(Icons.delete_outline_outlined,
-                                                    color: AppC.white, size: 16),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppC.fieldBase,
-                                        width: Num.borderWidthField,
-                                      ),
-                                      borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                                  child: DropdownButton<String>(
-                                    hint: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Utils.getText('Status', color: AppC.grey),
-                                    ),
-                                    value: selectedVehicleStatus,
-                                    isExpanded: true,
-                                    icon: const Icon(Icons.arrow_drop_down),
-                                    elevation: 3,
-                                    dropdownColor: AppC.white,
-                                    underline: Container(
-                                      height: 0,
-                                      color: Colors.transparent,
-                                    ),
-                                    onChanged: (String? value) {
-                                      selectedVehicleStatus = value;
-                                      setState(() {});
-                                    },
-                                    items: vehicleStatusList.map<DropdownMenuItem<String>>((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                          child: Utils.getText(value),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
-                        ),
                         Utils.getBorderedMultilineTextField(
                           'Address',
                           addressController,
@@ -1177,9 +718,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       child: Utils.getOutlinedButton(
                                         'Toll Image',
                                             () async {
-                                          FocusScope.of(context).requestFocus(FocusNode());
+                                          Utils.dismissKeyboard(context);
                                           var result = await _pickImages2();
-                                          FocusScope.of(context).requestFocus(FocusNode());
                                           if (result != null) {
                                             var files = tollImage.whereType<File>().map((e) => e.path);
                                             for (var element in result) {
@@ -1251,7 +791,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             if (tollImage[index] is File) {
                                               tollImage.removeAt(index);
                                             } else {
-                                              int? tollImageId = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
+                                              int? tollImageId = (images).firstWhere(
                                                       (image) =>
                                                   tollImage[index].split('/').last ==
                                                       image['path'].split('/').last,
@@ -1259,15 +799,14 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                               if (tollImageId != null) {
                                                 context
                                                     .read<VehicleDataBloc>()
-                                                    .add(DeleteSetVehicleImage(id: tollImageId));
+                                                    .add(DeleteSetVehicleImage(id: tollImageId, vin: widget.selectedVehicle['vin'].toString()));
                                                 tollImage.removeAt(index);
+                                              } else {
+                                                Console.of.error("tollImageId is null ${tollImage[index].toString().split("/").lastOrNull} ${images}");
                                               }
                                             }
                                             tollImage = List.from(tollImage);
                                           });
-                                          // context
-                                          //     .read<VehicleDataBloc>()
-                                          //     .add(const GetAddedVehicleListData());
                                         },
                                         child: Container(
                                           constraints: BoxConstraints(
@@ -1350,9 +889,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                               Utils.getOutlinedButton(
                                 'Tire Image Upload',
                                     () async {
-                                  FocusScope.of(context).requestFocus(FocusNode());
                                   var result = await _pickImages2();
-                                  FocusScope.of(context).requestFocus(FocusNode());
                                   if (result != null) {
                                     var files = tireImageFile.whereType<File>().map((e) => e.path);
                                     for (var element in result) {
@@ -1410,7 +947,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                           });
                                           int? imageId;
                                           if (tireImageFile[index] is! File) {
-                                            final image = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
+                                            final image = (images).firstWhere(
                                                   (image) =>
                                               tireImageFile[index].split('/').last ==
                                                   image['path'].split('/').last,
@@ -1418,7 +955,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             );
                                             if (image != null) {
                                               imageId = image['id'];
-                                              context.read<VehicleDataBloc>().add(DeleteSetVehicleImage(id: imageId));
+                                              context.read<VehicleDataBloc>().add(DeleteSetVehicleImage(id: imageId, vin: widget.selectedVehicle['vin'].toString()));
                                             }
                                           }
                                           if (imageId != null) {
@@ -1427,9 +964,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                           setState(() {
                                             tireImageFile.removeAt(index);
                                           });
-                                          // context
-                                          //     .read<VehicleDataBloc>()
-                                          //     .add(const GetAddedVehicleListData());
                                         },
                                         child: Container(
                                           constraints: BoxConstraints(
@@ -1557,9 +1091,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                   child: Utils.getOutlinedButton(
                                     'Upload Reg Sticker',
                                         () async {
-                                      FocusScope.of(context).requestFocus(FocusNode());
                                       var result = await _pickImages2();
-                                      FocusScope.of(context).requestFocus(FocusNode());
                                       if (result != null) {
                                         var files = uploadRegSticker.whereType<File>().map((e) => e.path);
                                         for (var element in result) {
@@ -1612,7 +1144,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             if (uploadRegSticker[index] is File) {
                                               uploadRegSticker.removeAt(index);
                                             } else {
-                                              int? Id = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
+                                              int? Id = (images).firstWhere(
                                                       (image) =>
                                                   uploadRegSticker[index].split('/').last ==
                                                       image['path'].split('/').last,
@@ -1620,7 +1152,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                               if (uploadRegSticker != null) {
                                                 context
                                                     .read<VehicleDataBloc>()
-                                                    .add(DeleteSetVehicleImage(id: Id));
+                                                    .add(DeleteSetVehicleImage(id: Id, vin: widget.selectedVehicle['vin'].toString()));
                                                 uploadRegSticker.removeAt(index);
                                               }
                                             }
@@ -1651,27 +1183,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                             ],
                           ),
                         ),
-                        if (widget.showHeader)
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Utils.getTextFormField('Current Odometer', currentOdometerController),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child:
-                                    Utils.getTextFormField('Oil Change Odometer', oilChangeOdometerController),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.getTextFormField(
-                                  'Maintenance Check(day from today)', maintenanceCheckController),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
                         Row(
                           children: [
                             Expanded(
@@ -1695,9 +1206,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                           child: Utils.getOutlinedButton(
                             'Insurance Image',
                                 () async {
-                              FocusScope.of(context).requestFocus(FocusNode());
                               var result = await _pickImages2();
-                              FocusScope.of(context).requestFocus(FocusNode());
                               if (result != null) {
                                 var files = insuranceImage.whereType<File>().map((e) => e.path);
                                 for (var element in result) {
@@ -1743,7 +1252,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                         if (insuranceImage[index] is File) {
                                           insuranceImage.removeAt(index);
                                         } else {
-                                          int? Id = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
+                                          int? Id = (images).firstWhere(
                                                   (image) =>
                                               insuranceImage[index].split('/').last ==
                                                   image['path'].split('/').last,
@@ -1751,7 +1260,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                           if (insuranceImage != null) {
                                             context
                                                 .read<VehicleDataBloc>()
-                                                .add(DeleteSetVehicleImage(id: Id));
+                                                .add(DeleteSetVehicleImage(id: Id, vin: widget.selectedVehicle['vin'].toString()));
                                             insuranceImage.removeAt(index);
                                           }
                                         }
@@ -1780,19 +1289,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                             ),
                           ),
                         ),
-                        if (widget.showHeader)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                  onTap: () {
-                                    showMore = !showMore;
-                                    setState(() {});
-                                  },
-                                  child: Utils.getText(' Less ...',
-                                      size: 12, color: const Color(0xff0580b5), weight: FontWeight.w500)),
-                            ],
-                          ),
                       ],
                     ),
                   ),
@@ -1801,7 +1297,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Utils.getAddFilledButton('Save', () {
-                        FocusScope.of(context).requestFocus(FocusNode());
                         if (spareKey == false) {
                           savePopUpMenu();
                         } else if (spareKey == true) {

@@ -62,8 +62,8 @@ class _PrivateRentalDialogView extends StatelessWidget {
                 }, bgColor: AppC.green),
                 const SizedBox(width: 20,),
                 Utils.getAddFilledButton("Delete", () {
-                  onDelete?.call();
                   Navigator.pop(context);
+                  onDelete?.call();
                 }, bgColor: AppC.red),
               ],
             ),

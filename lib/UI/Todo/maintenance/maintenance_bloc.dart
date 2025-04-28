@@ -359,7 +359,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         print("final value ${result}");
         deleteTodoID = result?.first.toString();
         print("final value ${deleteTodoID}");
-        await todoListRepo.deleteATodo(deleteTodoID!);
+        await todoListRepo.deleteATodo(deleteTodoID!,'');
       }
       catch(e){
         print("catch error ${e.toString()}");

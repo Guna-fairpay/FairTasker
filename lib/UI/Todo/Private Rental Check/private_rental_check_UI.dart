@@ -11,6 +11,9 @@ import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_even
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_state.dart';
 import 'package:html/parser.dart';
 
+import '../../../Utilities/prefs.dart';
+import '../../dialog/ask_permission_dialog.dart';
+
 extension ContextExtension on BuildContext {
   void pop() => Navigator.of(this).pop();
 }
@@ -32,7 +35,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
       child: BlocListener<PrivateRentalsBloc, PrivateRentalsState>(
         listener: (context, state) {
           if (state.isLoading) {
-            EasyLoading.show(status: 'Loading...');
+            EasyLoading.show();
           } else {
             EasyLoading.dismiss();
             if (state.pop) {
@@ -86,8 +89,6 @@ class PrivateRentalCheckUi extends StatelessWidget {
       ) {
     final int itemId = checkListData['id'];
     final notesController = noteControllers[itemId] ?? TextEditingController();
-
-    // Parse notes to remove HTML and extract custom content
     String extractedText = notesController.text.split('-').length > 1
         ? notesController.text.split('-')[1].trim()
         : notesController.text;
@@ -107,7 +108,6 @@ class PrivateRentalCheckUi extends StatelessWidget {
               onChanged: (bool? value) {
                 if (value != null) {
                   final bloc = context.read<PrivateRentalsBloc>();
-                  // Check if there's an existing task (based on notes or matchingTodos logic)
                   final matchingTodo = bloc.matchingTodos.firstWhere(
                         (todo) => todo['checklist_id'] == itemId,
                     orElse: () => {},
@@ -120,8 +120,17 @@ class PrivateRentalCheckUi extends StatelessWidget {
                       },
                       onDelete: ()
                       {
-                        context.read<PrivateRentalsBloc>().add(DeletePrivateRentalItemEvent(todoId: matchingTodo['todoId']));
-                      },);
+                        AskPermissionDialog.show(context,
+                          title: "Are you sure?",
+                          description: "${Session.of.getString("name")},  are you sure you want to delete this task? Kindly enter a valid reason to confirm the deletion",
+                          boldWords: [(Session.of.getString("name") ?? ''),","],
+                          positiveText: "Yes, delete it!",
+                          negativeText: "Cancel",
+                          isReasonRequired: true,
+                          onReasonSubmitted: (reason) => context.read<PrivateRentalsBloc>().add(DeletePrivateRentalItemEvent(todoId: matchingTodo['todoId'], reason: reason)),
+                        );
+                      }
+                      ,);
                   } else {
                     context.read<PrivateRentalsBloc>().add(
                       UpdateCheckboxEvent(

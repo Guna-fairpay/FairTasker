@@ -2084,11 +2084,13 @@ class TodoListRepo {
     }
   }
 
-  Future<bool?> deleteATodo(String todoId) async {
+  Future<bool?> deleteATodo(String todoId,String reason) async {
     try {
       String apiUrl = "${Str.BASE_URL}delete-todo/$todoId";
       debugPrint("deleteATodo apiUrl: $apiUrl");
-      final http.Response? response = await apiClient.callDelete(apiUrl);
+      final Map<String, dynamic> map = {};
+      map['reason'] = reason;
+      final http.Response? response = await apiClient.callDelete(apiUrl, body: map);
       if (response != null) {
         if (response.statusCode == 200) {
           debugPrint('deleteATodo api.response.body: ${response.body}');
