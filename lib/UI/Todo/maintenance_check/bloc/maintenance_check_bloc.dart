@@ -205,7 +205,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
         body['user_group_id'] = "${_editToDoModel?['user_group_id'] ?? ""}";
         body['user_id'] = "$_userId";
         body['vehicle_name'] = List.from(_editToDoModel?['vehicles'] ?? []).firstOrNull?['vehicle_name'] ?? "";
-        body['vehicles'] = "${_editToDoModel?['vehicles'] ?? ""}";
+        body['vehicles'] = "${List.from(_editToDoModel?['vehicles'] ?? []).map((e) => jsonEncode(e)).toList()}";
         body['vendor_id'] = _editToDoModel?['vendor_id'] ?? "";
         body['vendor_name'] = "${_editToDoModel?['vendor_name'] ?? ""}";
         body['vin'] = "${_editToDoModel?['vin'] ?? ""}";
