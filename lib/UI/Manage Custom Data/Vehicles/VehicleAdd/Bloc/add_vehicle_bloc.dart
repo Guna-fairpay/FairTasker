@@ -86,7 +86,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
 
     on<AddVehicleInitialEvent>((event, emit) async {
-      emit(AddVehicleLoadingState());
+      // emit(AddVehicleLoadingState());
       var response = await Future.wait([
         _getCohort(),
         _getBranch(),

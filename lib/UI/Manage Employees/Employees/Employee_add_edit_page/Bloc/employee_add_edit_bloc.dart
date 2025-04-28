@@ -79,9 +79,10 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
   void _onEmployeeSaveEvent(EmployeeSaveEvent event, Emitter<EmployeeAddEditState> emit) async {
     if(firstNameController.text.isEmpty || lastController.text.isEmpty
         ||emailController.text.isEmpty || mobileController.text.isEmpty
-        ||passwordController.text.isEmpty || selectedRole==null)
+         || ( (!isEdit) ? passwordController.text.isEmpty : false) || (selectedRole==null))
     {
-      Toaster.showError("Please fill all fields");
+      Toaster.showError("Please fill all required fields");
+      return;
     }else{
       try{
         emit(EmployeeAddEditLoadingState());
@@ -90,13 +91,10 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
           "last_name": lastController.text,
           "email": emailController.text,
           "phone": mobileController.text,
-          if(!isEdit)"password": passwordController.text,
+          if(!isEdit) "password": passwordController.text,
           "role": "${selectedRole['id']}",
           "department": "${selectedDepartment['id']}",
         };
-        if(isEdit){
-          var response = await _apiRepository.adduser(body: data);
-         }
         if(!isEdit){
         var response = await _apiRepository.adduser(body: data);
         if(response != null){
@@ -125,6 +123,8 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
             Toaster.showError(addValue);
           }
         }
+        } else {
+          var response = await _apiRepository.adduser(body: data);
         }
         await getIt<CommonService>().getResources(reset: true);
         await getIt<CommonService>().getUsers(reset: true);
