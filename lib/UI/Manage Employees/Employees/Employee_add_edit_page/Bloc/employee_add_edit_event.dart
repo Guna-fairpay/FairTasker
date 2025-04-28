@@ -7,8 +7,8 @@ abstract class EmployeeAddEditEvent extends Equatable {
 }
 
 class EmployeesAddEditInitialEvent extends EmployeeAddEditEvent {
-  final String? id;
-  EmployeesAddEditInitialEvent({this.id});
+  final dynamic id;
+  EmployeesAddEditInitialEvent({required this.id});
   @override
   List<Object?> get props => [id];
 }
