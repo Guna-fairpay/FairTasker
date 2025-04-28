@@ -81,7 +81,7 @@ class UpdateVehicleDataEvent extends VehicleDataEvent {
 class setVehicleInitialEvent extends VehicleDataEvent {
   final dynamic vehicle;
   final dynamic todoItems;
-  const setVehicleInitialEvent({required this.vehicle,required this.todoItems});
+  const setVehicleInitialEvent({this.vehicle,this.todoItems});
   @override
   List<Object?> get props => [vehicle, todoItems];
 }

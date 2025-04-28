@@ -94,16 +94,9 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         emit(const VehicleDataLoading());
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
+          log("${response}", name: "UPDATE_DATA");
           _broadcast.stickyBroadcast("todo_view", value: true);
-          final response1 = await getIt<CommonService>().getActiveVehicles(reset: true);
-          add(setVehicleInitialEvent(vehicle: response1, todoItems: null));
-          print("Bloc Triggered");
-
-          emit(VehicleDataLoadedV(
-            result: response?.data ?? [],
-            vin: event.createVehicleData!.vin,
-            categoryId: event.createVehicleData!.categoryId,
-          ));
+          emit(const setVehicleLoader());
         } catch (error) {
           emit(const VehicleDataError( errorMessage: ''));
         }
@@ -127,18 +120,26 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     // });
 
     on<setVehicleInitialEvent>((event, emit) async {
+      log("${event.vehicle}" ,name: "event_vehicle");
+      emit(const VehicleDataLoading());
       final response = await getIt<CommonService>().getActiveVehicles(reset: true);
-      dynamic vehicle;
-      if (response is List && response.isNotEmpty && response.first is Map) {
-        vehicle = response.firstWhere(
-              (e) => e['vin'].toString() == event.vehicle['vin'].toString(),
-          orElse: () => {},
-        );
+      dynamic vehicle = event.vehicle != null ? {} : null;
+      if (response.isNotEmpty && event.vehicle != null) {
+        try {
+          vehicle = response.firstWhere(
+                (e) => e['vin']?.toString() == event.vehicle?['vin']?.toString(),
+            orElse: () => {},
+          );
+        } catch (e) {
+          log("Error finding vehicle: $e");
+          vehicle = {};
+        }
       }
       emit(setVehicleLoaded(currentVehicle: vehicle));
     });
 
     on<DeleteSetVehicleImage>((event, emit) async {
+      emit(const VehicleDataLoading());
       final response = await vehicleDataRepo.deleteVehicleImages(event.id);
       emit(const setVehicleLoader());
       log("${response}", name: "VEHICLE_Image");

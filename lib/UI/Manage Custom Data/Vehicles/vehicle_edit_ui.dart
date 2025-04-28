@@ -35,7 +35,6 @@ class VehicleEditUI extends StatefulWidget {
     required this.todoItems,
     required this.selectedVehicle,
   }) {
-    d.log("${vehicle}", name: "VEHICLE_DATA");
     d.log("${todoItems}", name: "TODO_DATA");
     d.log("${selectedVehicle}", name: "SELECTED_VEHICLE");
   }
@@ -499,7 +498,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         }
         else if(state is setVehicleLoaded){
           EasyLoading.dismiss();
-          d.log("${state.currentVehicle['vehicle_id']}");
+          d.log("${state.currentVehicle?['vehicle_id'] ?? ''}");
           yearController.text = state.currentVehicle['year'] ?? '';
           makeController.text = state.currentVehicle['make'] ?? '';
           modelController.text = state.currentVehicle['model']?.toString() ?? '';
@@ -1266,9 +1265,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             }
                                             tollImage = List.from(tollImage);
                                           });
-                                          context
-                                              .read<VehicleDataBloc>()
-                                              .add(const GetAddedVehicleListData());
+                                          // context
+                                          //     .read<VehicleDataBloc>()
+                                          //     .add(const GetAddedVehicleListData());
                                         },
                                         child: Container(
                                           constraints: BoxConstraints(
@@ -1428,9 +1427,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                           setState(() {
                                             tireImageFile.removeAt(index);
                                           });
-                                          context
-                                              .read<VehicleDataBloc>()
-                                              .add(const GetAddedVehicleListData());
+                                          // context
+                                          //     .read<VehicleDataBloc>()
+                                          //     .add(const GetAddedVehicleListData());
                                         },
                                         child: Container(
                                           constraints: BoxConstraints(
@@ -1627,9 +1626,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                             }
                                             uploadRegSticker = List.from(uploadRegSticker);
                                           });
-                                          context
-                                              .read<VehicleDataBloc>()
-                                              .add(const GetAddedVehicleListData());
+                                          // context
+                                          //     .read<VehicleDataBloc>()
+                                          //     .add(const GetAddedVehicleListData());
                                         },
                                         child: Container(
                                           constraints: BoxConstraints(
