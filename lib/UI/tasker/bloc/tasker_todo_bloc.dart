@@ -100,15 +100,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     on<ToDoTaskerSaveRecordEvent>(_onSaveRecordEvent);
     on<ToDoTaskerTimeSensitiveEvent>(_onTimeSensitiveEvent);
     on<ToDoTaskerViewBouncieEvent>(_onViewBouncieEvent);
+    on<ToDoTaskerRemoveVehiclePersonEvent>(_onRemoveVehiclePersonEvent);
   }
 
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
 
   void _listenBroadCast() {
-    _fBroadcast.register("todo_view", (value, callback) {
-      add(ToDoTaskerRefreshEvent(showLoading: false));
-      // _fBroadcast.broadcast(Str.todayToDo);
-    });
+    _fBroadcast.register("todo_view", (value, callback) => add(ToDoTaskerRefreshEvent(showLoading: false)));
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
@@ -187,8 +185,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
       emit(ToDoTaskerCommonState());
     } catch (e) {
-      Console.of.error(e);
-      emit(ToDoTaskerErrorState(e));
+      Console.of.error("Error", error: e);
+      emit(ToDoTaskerErrorState("Server failure, Try again!"));
     }
   }
 
@@ -224,6 +222,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _reFetchToDos({bool showLoading = true}) async {
     try {
       toDos.clear();
+      if ((!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
       var response = await _fetchToDoList();
@@ -233,8 +232,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       Console.of.debug("CHECK ${toDos.length}");
       if (!isClosed) emit(ToDoTaskerCommonState());
     } catch (e) {
-      Console.of.error("REFRESH_TODOS $e");
-      if (!isClosed) emit(ToDoTaskerErrorState(e));
+      Console.of.error("REFRESH_TODOS", error: e);
+      if (!isClosed) emit(ToDoTaskerErrorState("Server Error, Try again!"));
     }
   }
 
@@ -653,17 +652,20 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onSaveVehiclesPersonsEvent(ToDoTaskerSaveVehiclesPersonsEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
-      var model = event.model;
+      var model = unfiltered.firstWhereOrNull((element) => element['id'] == event.model?['id']);
       var selected = event.selected;
       var isVehicles = selected?.map((e) => e['type']).contains('vehicles') ?? false;
       Map<String, dynamic> bodyData = {};
       if (isVehicles) {
         // VEHICLE
         var selectedVins = selected?.map((e) => e['value']?['vin']) ?? [];
+        Console.of.log("Existing Vin: ${List.from(model?['vehicles'] ?? []).map((e) => e['vin'])}");
+        Console.of.log("Selected Vin: $selectedVins");
         var modelVehiclesIds = List.from(model?['vehicles'] ?? []).where((element) => !selectedVins.contains(element['vin'])).map((e) => e['id'].toString());
         if (modelVehiclesIds.isNotEmpty) await Future.wait(modelVehiclesIds.map((e) => _deleteVehicle(id: e)));
         var modelVehicles = List.from(model?['vehicles'] ?? []).where((element) => !modelVehiclesIds.contains(element['id'])).map((e) => e['vin']);
         var selectedVehicles = selected?.where((element) => !modelVehicles.contains(element['value']?['vin']));
+        // var selectedVehicles = selected;
         bodyData = {
           "vehicles": selectedVehicles?.map((e) => {
             "cohort_id" : e['value']['cohort']?['id'] ?? "",
@@ -1024,5 +1026,16 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _onViewBouncieEvent(ToDoTaskerViewBouncieEvent event, Emitter<ToDoTaskerState> emit) {
     emit(ToDoTaskerViewBouncieState(event.model));
+  }
+
+  void _onRemoveVehiclePersonEvent(ToDoTaskerRemoveVehiclePersonEvent event, Emitter<ToDoTaskerState> emit) async {
+    try {
+      emit(ToDoTaskerLoadingState());
+      var response = await _deleteVehicle(id: event.model?['id'].toString());
+      if (response != null) _reFetchToDos();
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(ToDoTaskerErrorState(e));
+    }
   }
 }

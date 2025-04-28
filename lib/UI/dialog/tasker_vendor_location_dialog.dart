@@ -51,6 +51,7 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
       titlePadding: 10.padding,
       insetPadding: 10.padding,
       backgroundColor: Colors.white,
+      alignment: Alignment.topCenter,
       title: ListTile(
         dense: true,
         minTileHeight: 0,
