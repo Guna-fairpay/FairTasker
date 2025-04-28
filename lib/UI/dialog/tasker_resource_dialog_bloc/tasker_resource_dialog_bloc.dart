@@ -25,7 +25,7 @@ class TRSDBloc extends Bloc<TRSDEvents, TRSDStates> {
       model = event.model;
       emit(TRSDLoadingState());
       var response = await _getUsersList();
-      response.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['id'] == 2) || (element['branch_id'] != Session.of.getInt(Str.branchIdPrefText)));
+      response.removeWhere((element) => ((element['deleted_at'].toString().isNotNullOrEmpty) || (element['id'] == 2) || (element['branch_id'] != Session.of.getInt(Str.branchIdPrefText))) && (!(["7"].contains(element['department'])) && (element['id'] != 3) ));
       apiResponse = response;
       selectedResourcesList = List<Map<String, dynamic>>.from(model?['display']?['resources'] ?? []);
       Console.of.log(selectedResourcesList);
