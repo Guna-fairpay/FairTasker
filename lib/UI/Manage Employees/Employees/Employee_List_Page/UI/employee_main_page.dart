@@ -20,7 +20,7 @@ class EmployeeMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Employee'),
+        title: const Text('Employees'),
         titleTextStyle:
         context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold),
         backgroundColor: AppC.appColor,
@@ -46,22 +46,9 @@ class EmployeeMainPage extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all( color: AppC.grey,width: 0.5)
+                border: Border.all(color: AppC.grey, width: 0.5)
               ),
-              child: ListView(
-                physics:const BouncingScrollPhysics(),
-                children: [
-                  Padding(
-                    padding:  EdgeInsets.all(16.sp),
-                    child: Utils.getText('User List',size: 16.sp,weight: FontWeight.bold),
-                  ),
-                  const Divider(thickness: 0.5,height: 0.5,),
-                   Padding(
-                    padding: EdgeInsets.all(16.sp),
-                    child: const EmployeeListPage(),
-                  )
-                ],
-              )
+              child: const EmployeeListPage()
             ),
           ),
         ),
