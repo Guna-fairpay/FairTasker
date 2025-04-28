@@ -126,7 +126,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           "phone": event.phone,
         };
         var id=addUserResponse?['user']['id']??'';
-        var editValue= await apiRepository.updateEmployee(body: body,id: id);
+        var editValue = await apiRepository.updateEmployee(body: body,id: id);
         Console.of.debug(editValue);
       }else{
         Toaster.showError(addValue);

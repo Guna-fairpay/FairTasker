@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_p
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -38,7 +39,7 @@ class EmployeeMainPage extends StatelessWidget {
           listener: (context, state) {
             if (state is EmployeesLoadingState) {if (!EasyLoading.isShow) EasyLoading.show();}
             if (state is EmployeesCommonState) {if (EasyLoading.isShow) EasyLoading.dismiss();}
-            if(state is EmployeeAddOrEditState) context.push(EmployeeAddEditMainPage(id:'${state.id}',));
+            if(state is EmployeeAddOrEditState) context.push(EmployeeAddEditMainPage(id:state.id,));
           },
           child: SafeArea(
             minimum: const EdgeInsets.all(10),
