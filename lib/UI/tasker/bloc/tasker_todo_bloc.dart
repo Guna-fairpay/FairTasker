@@ -106,10 +106,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
 
   void _listenBroadCast() {
-    _fBroadcast.register("todo_view", (value, callback) {
-      add(ToDoTaskerRefreshEvent(showLoading: false));
-      // _fBroadcast.broadcast(Str.todayToDo);
-    });
+    _fBroadcast.register("todo_view", (value, callback) => add(ToDoTaskerRefreshEvent(showLoading: false)));
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
@@ -225,6 +222,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   void _reFetchToDos({bool showLoading = true}) async {
     try {
       toDos.clear();
+      if ((!isClosed)) emit(ToDoTaskerCommonState());
       Console.of.debug("SHOW LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
       var response = await _fetchToDoList();

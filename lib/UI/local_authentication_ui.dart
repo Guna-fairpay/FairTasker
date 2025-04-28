@@ -1,18 +1,23 @@
 import 'dart:io';
 import 'package:fairpytasker/Bloc/local_authentication_bloc.dart';
-import 'package:fairpytasker/UI/Splash/splash_ui.dart';
+import 'package:fairpytasker/Event/local_authentication_event.dart';
+import 'package:fairpytasker/State/local_authentication_state.dart';
 import 'package:fairpytasker/UI/authentication_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
 
 class LocalAuthenticationUI extends StatefulWidget {
@@ -23,115 +28,133 @@ class LocalAuthenticationUI extends StatefulWidget {
 }
 
 class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
-  LocalAuthenticationBloc? authenticationBloc;
+  // LocalAuthenticationBloc? authenticationBloc;
 
   @override
   void initState() {
     super.initState();
-    authenticationBloc = LocalAuthenticationBloc();
-    getIt<CommonService>().initialFetch();
-    checkBiometric();
+    // authenticationBloc = LocalAuthenticationBloc();
+    // getIt<CommonService>().initialFetch();
+    // checkBiometric();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                repeat: ImageRepeat.repeat,
-                opacity: 0.35,
-                image: AssetImage(Assets.splashBg),
-                fit: BoxFit.contain)),
-        child: Column(
-          // alignment: Alignment.topCenter,
-          children: [
-            Container(
-              margin: const EdgeInsets.all(20),
-              child: Image.asset(
-                Assets.taskManagerLogo,
-                fit: BoxFit.contain,
-                width: context.width * 0.5,
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(50),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 10,
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: AppC.appColor.withValues(alpha: 0.5),
-                        child: Padding(padding: const EdgeInsets.all(1),
-                        child: CircleAvatar(
-                          radius: 40,
-                          backgroundColor: AppC.lightGrey,
-                          child: Utils.getText(
-                              (Session.of.getString("name") ?? "")[0],
-                              color: AppC.appColor,
-                              size: 28,
-                              weight: FontWeight.w600),
-                        ),),
+        body: BlocProvider(
+      create: (context) => LocalAuthenticationBloc()..add(LocalAuthenticationInitialEvent()),
+      child: BlocListener<LocalAuthenticationBloc, LocalAuthenticationState>(
+          listener: (context, state) {
+            switch(state) {
+              case LocalAuthenticationSuccessState(): context.pushReplacement(const BottomNavigationForTaskView(selectedIndex: 0)); break;
+              case LocalAuthenticationFailureState(): if (state.message.toString().isNotNullOrEmpty) { Toaster.showError(state.message); } break;
+            }
+          },
+          child: BlocBuilder<LocalAuthenticationBloc, LocalAuthenticationState>(builder: (context, state) => SafeArea(
+            child: Container(
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      repeat: ImageRepeat.repeat,
+                      opacity: 0.35,
+                      image: AssetImage(Assets.splashBg),
+                      fit: BoxFit.contain)),
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(20),
+                    child: Image.asset(
+                      Assets.taskManagerLogo,
+                      fit: BoxFit.contain,
+                      width: context.width * 0.5,
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(50),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 10,
+                          children: [
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor:
+                              AppC.appColor.withValues(alpha: 0.5),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1),
+                                child: CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: AppC.lightGrey,
+                                  child: Utils.getText(
+                                      (Session.of.getString("name") ?? "")[0],
+                                      color: AppC.appColor,
+                                      size: 28,
+                                      weight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                            Utils.getText((Session.of.getString("name") ?? ""),
+                                align: TextAlign.center,
+                                weight: FontWeight.normal,
+                                size: 16),
+                            if (context.watch<LocalAuthenticationBloc>().showButton)
+                            ElevatedButton.icon(
+                              style: ButtonStyle(
+                                backgroundColor:
+                                WidgetStatePropertyAll(AppC().base),
+                                iconColor:
+                                const WidgetStatePropertyAll(Colors.white),
+                                textStyle: const WidgetStatePropertyAll(
+                                    TextStyle(
+                                        fontFamily: "Lato",
+                                        color: Colors.white)),
+                                shape: WidgetStatePropertyAll(
+                                    ContinuousRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            Num.borderRadiusLarge))),
+                              ),
+                              onPressed: () => context.read<LocalAuthenticationBloc>().add(LocalAuthenticationCheckEvent()),
+                              label: Utils.getText("Login with biometric",
+                                  color: Colors.white,
+                                  size: 14,
+                                  weight: FontWeight.w500),
+                              icon: const Icon(
+                                Icons.fingerprint_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Utils.getText((Session.of.getString("name") ?? ""),
-                          align: TextAlign.center,
-                          weight: FontWeight.normal,
-                          size: 16),
-                      ElevatedButton.icon(
+                    ),
+                  ),
+                  /*if (kDebugMode)
+                    Container(
+                      margin: const EdgeInsets.all(10),
+                      child: ElevatedButton.icon(
                         style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(AppC().base),
+                          backgroundColor: WidgetStatePropertyAll(AppC.blue50),
                           iconColor: const WidgetStatePropertyAll(Colors.white),
                           textStyle: const WidgetStatePropertyAll(TextStyle(
                               fontFamily: "Lato", color: Colors.white)),
-                          shape: WidgetStatePropertyAll(
-                              ContinuousRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10))),
                         ),
-                        onPressed: checkBiometric,
-                        label: Utils.getText("Login with biometric",
-                            color: Colors.white,
+                        onPressed: logout,
+                        label: Utils.getText("Logout",
+                            color: AppC.appColor,
                             size: 14,
                             weight: FontWeight.w500),
                         icon: const Icon(
-                          Icons.fingerprint_rounded,
-                          color: Colors.white,
+                          Icons.logout_rounded,
+                          color: AppC.appColor,
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),*/
+                ],
               ),
             ),
-            if (kDebugMode)
-              Container(
-                margin: const EdgeInsets.all(10),
-                child: ElevatedButton.icon(
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(AppC.blue50),
-                    iconColor: const WidgetStatePropertyAll(Colors.white),
-                    textStyle: const WidgetStatePropertyAll(TextStyle(
-                        fontFamily: "Lato", color: Colors.white)),
-                  ),
-                  onPressed: logout,
-                  label: Utils.getText("Logout",
-                      color: AppC.appColor,
-                      size: 14,
-                      weight: FontWeight.w500),
-                  icon: const Icon(
-                    Icons.logout_rounded,
-                    color: AppC.appColor,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
+          ))),
     ));
   }
 
@@ -141,16 +164,13 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
   void logout() {
     Session.of.clear();
     Utils.deletePreferences(key: Str.loginPrefText);
-    Utils.deletePreferences(
-        key: Str.accessTokenPrefText);
-    Utils.deletePreferences(
-        key: Str.userIdPrefText);
+    Utils.deletePreferences(key: Str.accessTokenPrefText);
+    Utils.deletePreferences(key: Str.userIdPrefText);
     context.pushAndRemoveUntil(const AuthenticationUI());
   }
 
   Future<void> checkBiometric() async {
     try {
-      debugPrint('msg11 $msg');
       bool hasBiometrics =
           await auth.canCheckBiometrics; //check if there is authencation,
       if (hasBiometrics) {
@@ -202,9 +222,8 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
         checkOtherPasswords();
       }
       // debugPrint('msg3 $msg');
-    } on PlatformException catch (e)  {
+    } on PlatformException catch (e) {
       msg = "Error while opening fingerprint/face scanner";
-      debugPrint('msg4 $msg');
       if (e.code == "auth_in_progress") return;
       checkOtherPasswords();
     }
