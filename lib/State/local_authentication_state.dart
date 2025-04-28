@@ -20,3 +20,9 @@ class LocalAuthenticationFailureState extends LocalAuthenticationState {
 }
 
 
+class LocalAuthenticationCommonState extends LocalAuthenticationState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+

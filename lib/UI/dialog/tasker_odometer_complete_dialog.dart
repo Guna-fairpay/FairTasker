@@ -92,9 +92,9 @@ class _TaskerOdometerCompleteDialogBodyView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
                 children: [
-                  if ((num.tryParse(context
+                   if ((num.tryParse("${context
                       .watch<TOCDBloc>()
-                      .previousOdometerResponse?['data'] ?? "") ?? 0) >
+                      .previousOdometerResponse?['data'] ?? ""}") ?? 0) >
                       0)
                     Text.rich(
                       TextSpan(

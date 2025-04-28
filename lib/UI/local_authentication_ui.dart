@@ -99,6 +99,7 @@ class _LocalAuthenticationUIState extends State<LocalAuthenticationUI> {
                                 align: TextAlign.center,
                                 weight: FontWeight.normal,
                                 size: 16),
+                            if (context.watch<LocalAuthenticationBloc>().showButton)
                             ElevatedButton.icon(
                               style: ButtonStyle(
                                 backgroundColor:

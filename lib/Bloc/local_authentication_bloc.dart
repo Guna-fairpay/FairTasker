@@ -8,6 +8,7 @@ import 'package:local_auth/local_auth.dart';
 class LocalAuthenticationBloc extends Bloc<LocalAuthenticationEvent, LocalAuthenticationState> {
   final LocalAuthentication _auth = LocalAuthentication();
   List<BiometricType> _availableBiometrics = [];
+  bool showButton = false;
   LocalAuthenticationBloc() : super(LocalAuthenticationLoadingState()) {
     on<LocalAuthenticationInitialEvent>(_onInitialEvent);
     on<LocalAuthenticationCheckEvent>(_onCheckEvent);
@@ -15,8 +16,10 @@ class LocalAuthenticationBloc extends Bloc<LocalAuthenticationEvent, LocalAuthen
 
   void _onInitialEvent(LocalAuthenticationInitialEvent event, Emitter<LocalAuthenticationState> emit) async {
     try {
-      await getIt<CommonService>().initialFetch();
+      getIt<CommonService>().initialFetch();
       _availableBiometrics = await _auth.getAvailableBiometrics();
+      showButton = true;
+      emit(LocalAuthenticationCommonState());
       if (_availableBiometrics.isNotEmpty) {
         var isAuthenticated = await _auth.authenticate(localizedReason: "Please authenticate to continue");
         if (isAuthenticated) {
@@ -24,6 +27,8 @@ class LocalAuthenticationBloc extends Bloc<LocalAuthenticationEvent, LocalAuthen
         } else {
           emit(LocalAuthenticationFailureState());
         }
+      } else {
+        emit(LocalAuthenticationSuccessState());
       }
     } catch (e) {
       e is PlatformException ? emit(LocalAuthenticationFailureState(message: e.message)) : emit(LocalAuthenticationFailureState(message: "Authentication failed"));
@@ -39,6 +44,8 @@ class LocalAuthenticationBloc extends Bloc<LocalAuthenticationEvent, LocalAuthen
         } else {
           emit(LocalAuthenticationFailureState());
         }
+      } else {
+        emit(LocalAuthenticationSuccessState());
       }
     } catch (e) {
       e is PlatformException ? emit(LocalAuthenticationFailureState(message: e.message)) : emit(LocalAuthenticationFailureState(message: "Authentication failed"));
