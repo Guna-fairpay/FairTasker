@@ -16,7 +16,7 @@ class VehicleMainTabViewUi extends StatelessWidget {
       decoration: const BoxDecoration(
           border: Border(
               bottom: BorderSide(width: Num.borderWidthThinField)
-          )
+          ),
       ),
       height: 30.sp,
       child: ListView(

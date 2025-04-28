@@ -16,9 +16,9 @@ class Console {
   void log(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name);
+        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
-        _logger.i("[$name] $message", error: error, stackTrace: stackTrace);
+        _logger.i("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }
     }
   }
@@ -26,9 +26,9 @@ class Console {
   void error(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name);
+        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
-        _logger.e("[$name] $message", error: error, stackTrace: stackTrace);
+        _logger.e("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }
     }
   }
@@ -36,9 +36,9 @@ class Console {
   void debug(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name);
+        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
-        _logger.d("[$name] $message", error: error, stackTrace: stackTrace);
+        _logger.d("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }
     }
   }
@@ -46,9 +46,9 @@ class Console {
   void warning(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name);
+        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
-        _logger.w("[$name] $message", error: error, stackTrace: stackTrace);
+        _logger.w("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }
     }
   }

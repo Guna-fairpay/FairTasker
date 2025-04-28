@@ -98,9 +98,10 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     on<EditVehicleInitialEvent>((event, emit) async {
       try{
       emit(EditVehicleLoadingState());
+      Console.of.error("CHECK");
+      var vehicleStatusResponse= await _getVehicleStatusCategories();
       var cohortResponse= await _getCohort();
       var branchResponse= await _getBranch();
-      var vehicleStatusResponse= await _getVehicleStatusCategories();
       var editVehicleExpenseDetailsResponse= await _getEditVehicleExpenseDetails(vin:"${event.vehicleData['vin']}");
 
       branchId = await Utils.getIntPreference(Str.branchIdPrefText);

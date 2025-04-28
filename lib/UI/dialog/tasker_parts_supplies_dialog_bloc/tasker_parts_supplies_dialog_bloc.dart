@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
   bool? isParts;
   Map<String, dynamic>? model;
-  List<Map<String, dynamic>> apiResponse = [];
+  // List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> selectedPartsList = [];
   TextEditingController controller = TextEditingController();
   final APiRepository _apiRepository = APiRepository();
@@ -53,12 +53,14 @@ class TPSDBloc extends Bloc<TPSDEvents, TPSDStates> {
     return ((isParts ?? false) ? modelParts : modelSupplies)?['id'];
   }
 
+  List<Map<String, dynamic>> get apiResponse => (isParts ?? false) ? getIt<CommonService>().partsList : getIt<CommonService>().suppliesList;
+
   void _onInitialEvent(TPSDInitialEvent event, Emitter<TPSDStates> emit) async {
     try {
       emit(TPSDLoadingState());
       isParts = event.isParts;
       model = event.model;
-      apiResponse = (isParts ?? false) ? await _fetchParts() : await _fetchSupplies();
+      (isParts ?? false) ? await _fetchParts() : await _fetchSupplies();
       var modelParts = List<Map<String, dynamic>>.from(model?['parts'] ?? []).map((e) => e['parts_id']).toList();
       var modelSupplies = List<Map<String, dynamic>>.from(model?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
       if (isParts ?? false) {

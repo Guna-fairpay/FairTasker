@@ -31,3 +31,8 @@ class TRCDShowAttachmentState extends TRCDStates {
   @override
   List<Object?> get props => [attachments, type, Random().nextDouble()];
 }
+
+class TRCDNoCleanDialogState extends TRCDStates {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
