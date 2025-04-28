@@ -1,4 +1,5 @@
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog_bloc/tasker_rental_complete_dialog_bloc.dart';
 import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog_bloc/tasker_rental_complete_dialog_events.dart';
@@ -66,6 +67,7 @@ class _TaskerRentalCompleteDialogView extends StatelessWidget {
                   context.popDialog();
                   break;
                 case TRCDShowAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "", onDeleted: (value) => context.read<TRCDBloc>().add(TRCDRemoveAttachmentEvent(value, state.type))); break;
+                case TRCDNoCleanDialogState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete Clean car task?", positiveText: "Yes, delete it!", negativeText: "Cancel", onPositivePressed: () => context.read<TRCDBloc>().add(TRCDNoCleanDialogEvent()), onNegativePressed: () => context.read<TRCDBloc>().add(TRCDNoCleanDialogEvent(isPositive: false))); break;
               }
             }
           },
@@ -171,6 +173,7 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                             () => context
                                 .read<TRCDBloc>()
                                 .add(TRCDMileageImagePickEvent()),
+                            radius: BorderRadius.circular(Num.borderRadius),
                             iconData: const Icon(Icons.cloud_upload_rounded)),
                         if (context.watch<TRCDBloc>().mileageAttachments.isNotEmpty)
                           IconButton(onPressed: () => context.read<TRCDBloc>().add(TRCDMileageAttachmentViewEvent()), icon: const Icon(Icons.remove_red_eye_rounded, color: AppC.appColor))

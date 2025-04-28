@@ -49,6 +49,7 @@ class _TaskerPartsSuppliesDialogView extends StatelessWidget {
         shape:
             ContinuousRectangleBorder(borderRadius: BorderRadius.circular(10)),
         insetPadding: 10.padding,
+        backgroundColor: Colors.white,
         title: ListTile(
           contentPadding: EdgeInsets.zero,
           minLeadingWidth: 0,

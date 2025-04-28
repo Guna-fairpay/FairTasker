@@ -23,6 +23,7 @@ class AskPermissionDialog {
       bool? isReasonRequired,
       void Function(String reason)? onReasonSubmitted,
       VoidCallback? onPositivePressed,
+      VoidCallback? onNegativePressed,
       VoidCallback? onSaveMultiPressed,
         bool? isExpense,
         void Function(String reason)? onMultiSubmitted,
@@ -43,6 +44,7 @@ class AskPermissionDialog {
         onReasonSubmitted: onReasonSubmitted,
         onSaveMultiPressed: onSaveMultiPressed,
         onMultiSubmitted: onMultiSubmitted,
+        onNegativePressed: onNegativePressed,
         isExpense: isExpense,
       ),
     );
@@ -58,6 +60,7 @@ class _AskPermissionDialogView extends StatelessWidget {
   final String? positiveText;
   final String? subPositiveText;
   final VoidCallback? onPositivePressed;
+  final VoidCallback? onNegativePressed;
   final VoidCallback? onSaveMultiPressed;
   final bool? isReasonRequired;
   final bool? isExpense;
@@ -80,6 +83,7 @@ class _AskPermissionDialogView extends StatelessWidget {
       this.onSaveMultiPressed,
       this.isReasonRequired,
       this.onMultiSubmitted,
+      this.onNegativePressed,
         this.isExpense,
       this.onReasonSubmitted});
 
@@ -146,11 +150,11 @@ class _AskPermissionDialogView extends StatelessWidget {
                       if (isReasonRequired ?? false) {
                         if (_formKey.currentState?.validate() ?? false) {
                           onReasonSubmitted?.call(_reasonController.text);
-                          context.pop();
+                          context.popDialog();
                         }
                       } else {
                         onPositivePressed?.call();
-                        context.pop();
+                        context.popDialog();
                       }
                     },
                   )),
@@ -163,11 +167,11 @@ class _AskPermissionDialogView extends StatelessWidget {
                       if ((isReasonRequired ?? false) && (isExpense ?? false)) {
                         if (_formKey.currentState?.validate() ?? false) {
                           onMultiSubmitted?.call(_reasonController.text);
-                          context.pop();
+                          context.popDialog();
                         }
                       } else {
                         onSaveMultiPressed?.call();
-                        context.pop();
+                        context.popDialog();
                       }
                       },
                   ),
@@ -175,7 +179,10 @@ class _AskPermissionDialogView extends StatelessWidget {
                     text:  negativeText ??'Cancel',
                     backgroundColor: AppC.redAccent,
                     foregroundColor: AppC.white,
-                    onPressed: () =>context.pop(),
+                    onPressed: () {
+                      onNegativePressed?.call();
+                      context.popDialog();
+                    },
                   )
                 ],
               ),

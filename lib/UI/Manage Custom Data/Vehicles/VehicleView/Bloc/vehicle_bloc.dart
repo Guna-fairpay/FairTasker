@@ -43,6 +43,15 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     on<VehicleGroupingTapEvent>(_onGroupingTapEvent);
   }
   Future<List<Map<String, dynamic>>?> _getVehicle() async => await getIt<CommonService>().getActiveVehicles(reset: true);
+  Future<void> _prepare({dynamic vin}) async {
+    final Completer _completer = Completer();
+    filteredResponse.clear();
+    if (vin.toString().isNotNullOrEmpty) selectedVehicle = apiResponse.firstWhereOrNull((element) => element['vin'] == vin);
+    filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    totalCount = apiResponse.length;
+    _completer.complete();
+    return _completer.future;
+  }
   void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(VehicleInitialEvent()));
   void _onPaginationEvent(VehiclePaginationEvent event, Emitter<VehicleState> emit) {
     currentIndex = event.page;
@@ -54,10 +63,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     var response= await _getVehicle();
     response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
     apiResponse = response ?? [];
-    filteredResponse.clear();
-    if (event.vin.toString().isNotNullOrEmpty) selectedVehicle = apiResponse.firstWhereOrNull((element) => element['vin'] == event.vin);
-    filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-    totalCount = apiResponse.length;
+    await _prepare(vin: event.vin);
     emit(VehicleCommonState());
   }
   void _onSearchEvent(SearchVehicleEvent event, Emitter<VehicleState> emit) {

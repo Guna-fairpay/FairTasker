@@ -10,6 +10,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   final T? selectedItem;
   final ValueChanged<T>? onSelected, onCleared;
   final ItemAsString<T> itemAsString;
+  final ItemAsString<T>? itemAsStringSearch;
   final TextEditingController controller;
   final bool showEmpty;
   final String? labelText, hintText;
@@ -25,6 +26,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
       required this.controller,
       required this.suggestions,
       required this.itemAsString,
+      this.itemAsStringSearch,
       this.labelText,
       this.hintText,
       this.selectedItem,
@@ -75,7 +77,7 @@ class SearchViewField<T extends Object> extends StatelessWidget {
     var omitting = suggestions.where((element) => element == omitted);
     var result = suggestions
         .where((element) => element != omitted)
-        .where((element) => "$element".toLowerCase().contains(searchQuery));
+        .where((element) => "${(itemAsStringSearch?.call(element)) ?? element}".toLowerCase().contains(searchQuery));
     Console.of.log("result: ${result.isEmpty} ${omitting.isEmpty} ${omitted == null}");
     if (showEmpty) _showEmptyWidget.value = (result.isEmpty) && ((omitting.isEmpty) && (omitted == null));
     return result;

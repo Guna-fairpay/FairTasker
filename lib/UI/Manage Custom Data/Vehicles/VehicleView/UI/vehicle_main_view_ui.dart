@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/v
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_tab_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_grouping/vehicle_grouping_dialog.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -29,9 +30,12 @@ class VehicleMainViewUi extends StatelessWidget {
       body: BlocProvider<VehicleBloc>(
         create: (context) => VehicleBloc()..add(VehicleInitialEvent(vin: vin)),
         child: BlocListener<VehicleBloc, VehicleState>(
+          key: UniqueKey(),
           listener: (context, state) {
+            Console.of.log((state is VehicleLoadingState), name: 'VehicleBloc');
             if (state is VehicleLoadingState) {
               EasyLoading.show();
+              Console.of.log("CHECKING_SPINNER");
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               if (state is VehicleGroupingTapState) {

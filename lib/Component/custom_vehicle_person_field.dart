@@ -138,6 +138,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                 labelText: labelText,
                 autoClear: true,
                 showEmpty: true,
+                itemAsStringSearch: (item) => List<String>.from(item['searchBy'] ?? []).join(", "),
                 onEmptyTapDetails: (details) async {
                   SimplePopUpMenu.instance.show(
                     context,
