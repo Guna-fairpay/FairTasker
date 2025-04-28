@@ -290,6 +290,16 @@ class APiRepository {
 
   String get _deleteUser => "deleteUser";
 
+  String get _getRoles => "getroles";
+
+  String get _getDepartments => "getdepartments";
+
+  String get _getEditUser => "editUser";
+
+  String get _deleteTodoNoteAttachment => "deleteTodoNoteAttachment";
+
+  String get _deleteTodoMileageAttachment => "deleteTodoMileageAttachment";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1642,6 +1652,7 @@ Future<Map<String, dynamic>?> getLocations() async {
       body.putIfAbsent("type", () => "inline");
       final http.Response? response = await  _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
+      Console.of.log(mapData, name: "ADD_TODO_RESPONSE");
       return mapData;
     } catch (error) {
       rethrow;
@@ -3239,6 +3250,61 @@ Future<Map<String, dynamic>?> getLocations() async {
       return response.mapData;
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>?> getRoleData() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getRoles";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getDepartmentData() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getDepartments";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployeeById({required dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getEditUser/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteTodoNoteAttachment(dynamic id,) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteTodoNoteAttachment/$id";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteTodoMileageAttachment(dynamic id,) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_deleteTodoMileageAttachment/$id";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (error) {
+      rethrow;
+    }
   }
 
 }
