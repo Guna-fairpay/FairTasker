@@ -151,6 +151,10 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
   }
 
   void _onItemCheckEvent(MaintenanceCheckItemCheckEvent event, Emitter<MaintenanceCheckState> emit) {
+    if ((event.model['fix_task'] != null) && (event.model['checked'] == false)) {
+      emit(MaintenanceTaskExistDialogState(event.model));
+      return;
+    }
     event.model['checked'] = event.value;
     if (event.value) {
       event.model['selectedValue'] = List.from(event.model['children']).firstWhereOrNull((element) => element['name'].toString().toLowerCase() == "good");
