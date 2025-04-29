@@ -8,9 +8,10 @@ abstract class TCCDEvents extends Equatable {
 
 class TCCDInitialEvents extends TCCDEvents {
   final Map<String, dynamic>? model;
-  TCCDInitialEvents({this.model});
+  final bool isComplete;
+  TCCDInitialEvents({this.model, required this.isComplete});
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, isComplete];
 }
 
 class CheckListsDropdownEvent extends TCCDEvents {
@@ -48,3 +49,25 @@ class AddressSelectionEvent extends TCCDEvents {
   @override
   List<Object?> get props => [data, isChecked];
 }
+
+class ResourceChangeEvent extends TCCDEvents {
+  final dynamic data;
+  ResourceChangeEvent({this.data,});
+  @override
+  List<Object?> get props => [data,];
+}
+
+class RadioButtonSelectionEvent extends TCCDEvents {
+  final dynamic value;
+  RadioButtonSelectionEvent({this.value});
+  @override
+  List<Object?> get props => [value];
+}
+
+class SaveEvent extends TCCDEvents {}
+
+class CancelEvent extends TCCDEvents {}
+
+class ConfirmEvent extends TCCDEvents {}
+
+class IgnoreEvent extends TCCDEvents {}

@@ -3307,4 +3307,13 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> vehicleStatusCreateTask({required Map<String, dynamic> body}) async {
+    String apiUrl = "${Str.BASE_URL}$_addTodo";
+    final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
+    if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
+      return response.mapData;
+    }
+    return null;
+  }
+
 }

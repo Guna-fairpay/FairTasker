@@ -55,6 +55,19 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
     on<VehicleOnPreviousEvent>(_onPrevious);
     on<VehicleStatusShowSortingEvent>(_onShowSortingEvent);
     on<VehicleStatusSortEvent>(_onSortEvent);
+    on<VehicleStatusCompletedPopupEvent>(_onCompletePopup);
+    on<VehicleStatusPreviousPopupEvent>(_onPreviousPopup);
+
+  }
+
+  void _onCompletePopup(VehicleStatusCompletedPopupEvent event, emit) async {
+    var model = event.model;
+    add(VehicleOnCompleteEvent(model: event.model));
+    emit(VehicleStatusCompletedPopupState(data:model));
+  }
+
+  void _onPreviousPopup(VehicleStatusPreviousPopupEvent event, emit) async {
+    emit(VehicleStatusPreviousPopupState(data:event.model));
   }
 
   void _onInitialEvent(event, emit) async {
@@ -455,8 +468,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       "cohort_name": model?['cohort'] ?? "",
       "user_id": getIt<CommonService>().getUserId,
       "vehicle_image": List<Map<String, dynamic>>.from(model?['images'])
-              .firstOrNull?['path'] ??
-          "",
+          .firstOrNull?['path'] ?? "",
       "vehicle_name": model?['vehicle_name'] ?? "",
       "vin": model?['vin'] ?? ""
     };

@@ -13,6 +13,7 @@ import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_history_main_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
+import 'package:fairpytasker/UI/dialog/transport_car_dialog/UI/transportcar_pop.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -96,7 +97,17 @@ class VehicleStatusListUi extends StatelessWidget {
                     SimplePopUpMenu.instance.show(context, items: items, position: offSet, itemAsString: (item) => item['name'] ?? "", onTap: (item) => context.read<VehicleStatusBloc>().add(VehicleStatusSortEvent(item)));
                   }
                 } break;
-              }
+                case VehicleStatusCompletedPopupState(): {
+                  TransportCarPopup.show(context,model:  state.data,
+                  isComplete: true,
+                  );
+                }break;
+                case VehicleStatusPreviousPopupState():{
+                  TransportCarPopup.show(context,model: state.data,
+                    isComplete: false,
+                  );
+                }
+                }
             }
           }, child: const VehicleStatusListBody()),
     );

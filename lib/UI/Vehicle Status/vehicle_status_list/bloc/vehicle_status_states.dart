@@ -63,3 +63,17 @@ class VehicleStatusShowSortingState extends VehicleStatusState {
   @override
   List<Object?> get props => [details, Random().nextDouble()];
 }
+
+class VehicleStatusCompletedPopupState extends VehicleStatusState {
+  final Map<String, dynamic>? data;
+  VehicleStatusCompletedPopupState({this.data});
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}
+
+class VehicleStatusPreviousPopupState extends VehicleStatusState {
+  final Map<String, dynamic>? data;
+  VehicleStatusPreviousPopupState({this.data});
+  @override
+  List<Object?> get props => [data, Random().nextDouble()];
+}

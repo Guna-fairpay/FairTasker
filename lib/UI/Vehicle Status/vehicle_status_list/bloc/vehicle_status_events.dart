@@ -94,3 +94,17 @@ class VehicleStatusSortEvent extends VehicleStatusEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class VehicleStatusCompletedPopupEvent extends VehicleStatusEvent {
+  final Map<String, dynamic>? model;
+  VehicleStatusCompletedPopupEvent({this.model});
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleStatusPreviousPopupEvent extends VehicleStatusEvent {
+  final Map<String, dynamic>? model;
+  VehicleStatusPreviousPopupEvent({this.model});
+  @override
+  List<Object?> get props => [model];
+}
