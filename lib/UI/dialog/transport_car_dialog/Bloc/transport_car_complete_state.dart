@@ -9,21 +9,21 @@ abstract class TCCDState extends Equatable {
 }
 
 class TCCDLoadingState extends TCCDState {}
-class TOCDCommonState extends TCCDState {
+class TCCDCommonState extends TCCDState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
 
-class TOCDErrorState extends TCCDState {
+class TCCDErrorState extends TCCDState {
   final String? message;
-  TOCDErrorState(this.message);
+  TCCDErrorState(this.message);
   @override
   List<Object?> get props => [message];
 }
 
-class TOCDSuccessState extends TCCDState {
+class TCCDSuccessState extends TCCDState {
   final String? message;
-  TOCDSuccessState(this.message);
+  TCCDSuccessState(this.message);
   @override
   List<Object?> get props => [message];
 }

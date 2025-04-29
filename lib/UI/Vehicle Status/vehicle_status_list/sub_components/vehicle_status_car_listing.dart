@@ -77,31 +77,19 @@ class VehicleStatusCarListing extends StatelessWidget {
                                 .filteredVehicleStatus[index];
                             return VehicleStatusCard(
                                 model: model,
-                                onComplete: () async {
-                                  TransportCarPopup.show(context,
-                                    model,
-                                    onSave: ()=>context.read<VehicleStatusBloc>().add(
-                                        VehicleOnCompleteEvent(model: model)),
-                                      onIgnore: ()=>context.read<VehicleStatusBloc>().add(
-                                      VehicleOnCompleteEvent(model: model))
-                                  );
+                                onComplete:()async{
+                                  context.read<VehicleStatusBloc>().add(VehicleStatusCompletedPopupEvent(model: model));
                                   return false;
-                                },
+                                  },
                                 onPrevious: () async {
-                                  TransportCarPopup.show(context,
-                                      model,
-                                      onSave: ()=>context.read<VehicleStatusBloc>().add(
-                                          VehicleOnPreviousEvent(model: model)),
-                                      onIgnore: ()=>context.read<VehicleStatusBloc>().add(
-                                          VehicleOnPreviousEvent(model: model))
-                                  );
+                                  context.read<VehicleStatusBloc>().add(VehicleStatusPreviousPopupEvent(model: model));
                                   return false;
                                 },
                                 onPressed: (type) => context
                                     .read<VehicleStatusBloc>()
                                     .add(VehicleStatusOnTapEvent(
                                         model: model, type: type)),
-                                dismissDirection: [1, 4, 5].contains(context
+                                dismissDirection: [1, 4].contains(context
                                         .read<VehicleStatusBloc>()
                                         .selectedCategory?['id'])
                                     ? DismissDirection.horizontal
@@ -109,7 +97,9 @@ class VehicleStatusCarListing extends StatelessWidget {
                                             .read<VehicleStatusBloc>()
                                             .selectedCategory?['id'])
                                         ? DismissDirection.none
-                                        : DismissDirection.startToEnd,
+                                        : [5].contains(context
+                                    .read<VehicleStatusBloc>()
+                                    .selectedCategory?['id']) ? DismissDirection.endToStart : DismissDirection.startToEnd,
                                 categoryId: context
                                     .read<VehicleStatusBloc>()
                                     .selectedCategory?['id']);
