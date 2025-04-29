@@ -77,24 +77,16 @@ class VehicleStatusCarListing extends StatelessWidget {
                                 .filteredVehicleStatus[index];
                             return VehicleStatusCard(
                                 model: model,
-                                onComplete: () async {
-                                  TransportCarPopup.show(context,
-                                    model,
-                                    onSave: ()=>context.read<VehicleStatusBloc>().add(
-                                        VehicleOnCompleteEvent(model: model)),
-                                      onIgnore: ()=>context.read<VehicleStatusBloc>().add(
-                                      VehicleOnCompleteEvent(model: model))
-                                  );
+                                onComplete:()async{
+                                  if(model['vehicle_status']==5){
+                                    context.read<VehicleStatusBloc>().add(VehicleOnCompleteEvent(model: model));
+                                  }else{
+                                    context.read<VehicleStatusBloc>().add(VehicleStatusCompletedPopupEvent(model: model));
+                                  }
                                   return false;
-                                },
+                                  },
                                 onPrevious: () async {
-                                  TransportCarPopup.show(context,
-                                      model,
-                                      onSave: ()=>context.read<VehicleStatusBloc>().add(
-                                          VehicleOnPreviousEvent(model: model)),
-                                      onIgnore: ()=>context.read<VehicleStatusBloc>().add(
-                                          VehicleOnPreviousEvent(model: model))
-                                  );
+                                  context.read<VehicleStatusBloc>().add(VehicleStatusPreviousPopupEvent(model: model));
                                   return false;
                                 },
                                 onPressed: (type) => context

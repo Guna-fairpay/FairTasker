@@ -1,4 +1,3 @@
-
 import 'package:fairpytasker/UI/dialog/transport_car_dialog/Bloc/transport_car_complete_bloc.dart';
 import 'package:fairpytasker/UI/dialog/transport_car_dialog/Bloc/transport_car_complete_event.dart';
 import 'package:fairpytasker/UI/dialog/transport_car_dialog/Bloc/transport_car_complete_state.dart';
@@ -15,42 +14,42 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TransportCarPopup {
   TransportCarPopup._();
-  static void show(BuildContext context,
-      Map<String, dynamic>? model,{
-    VoidCallback? onSave,
-    VoidCallback? onIgnore,
-        VoidCallback? onConfirm,
-        VoidCallback? onCancel,
-      }) {
-    showDialog(
+
+  static void show(
+    BuildContext context, {
+    Map<String, dynamic>? model,
+    bool isComplete = true,
+  }) async {
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => _TransportCarPopView(
-        onSave: onSave,
-        onIgnore: onIgnore,
         model: model,
-        onConfirm: onConfirm,
-        onCancel: onCancel,
+        isComplete: isComplete,
       ),
     );
   }
 }
 
 class _TransportCarPopView extends StatelessWidget {
-  final VoidCallback? onSave;
-  final VoidCallback? onIgnore;
-  final VoidCallback? onConfirm;
-  final VoidCallback? onCancel;
+  final bool isComplete;
   final Map<String, dynamic>? model;
-  const _TransportCarPopView({Key? key, this.onSave, this.onIgnore, this.model,this.onConfirm,this.onCancel}) : super(key: key);
+
+  const _TransportCarPopView({
+    Key? key,
+    this.isComplete = true,
+    this.model,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TCCDBloc>(
-      create: (context) => TCCDBloc()..add(TCCDInitialEvents(model: model)),
+    return BlocProvider(
+      create: (context) => TCCDBloc()
+        ..add(TCCDInitialEvents(model: model, isComplete: isComplete)),
       child: BlocListener<TCCDBloc, TCCDState>(
         listener: (context, state) {
-          if(state is TCCDLoadingState)EasyLoading.show();
-          if(state is TOCDCommonState)EasyLoading.dismiss();
+          if (state is TCCDLoadingState) EasyLoading.show();
+          if (state is TCCDCommonState) EasyLoading.dismiss();
         },
         child: AlertDialog(
             alignment: Alignment.topCenter,
@@ -59,41 +58,32 @@ class _TransportCarPopView extends StatelessWidget {
             backgroundColor: AppC.white,
             insetPadding: 10.sp.padding,
             titlePadding: EdgeInsets.zero,
-            contentPadding: 5.sp.padding.copyWith(left: 20.sp, right: 20.sp, bottom: 20.sp),
+            contentPadding:
+                5.sp.padding.copyWith(left: 15.sp, right: 20.sp, bottom: 15.sp),
             title: Align(
               alignment: Alignment.centerLeft,
               child: IconButton(
-                  onPressed: () =>context.pop(),
+                  onPressed: ()=>context.pop(),
                   icon: const Icon(Icons.close_outlined)),
             ),
-            content: BlocBuilder<TCCDBloc, TCCDState>(
-              builder: (context,state) {
-                return SizedBox(
-                  width: double.maxFinite,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                        spacing: 10,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CategorySelectionField(
-                            model: model,
-                            onConfirm: onConfirm,
-                            onCancel: onCancel,
-                          ),
-                          NextTaskUI(
-                            onSave: onSave,
-                            onIgnore: onIgnore,
-                          )
-                        ]
-                    ),
-                  ),
-                );
-              }
-            )
-        ),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (model?['vehicle_status'] != 1)
+                        CategorySelectionField(
+                          model: model,
+                        ),
+                      const NextTaskUI()
+                    ]),
+              ),
+            )),
       ),
     );
   }
