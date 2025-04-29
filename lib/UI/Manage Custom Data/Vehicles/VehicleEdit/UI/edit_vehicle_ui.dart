@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/UI/edit_vehicle_body.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -23,7 +24,12 @@ class EditVehicleUI extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            if (state is EditCompletedState) onClear?.call();
+            // if (state is EditCompletedState) onClear?.call();
+            switch(state) {
+              case EditVehicleSuccessState(): Toaster.showSuccess(state.message, context: context); break;
+              case EditVehicleErrorState(): Toaster.showError(state.message, context: context); break;
+              case EditCompletedState(): onClear?.call(); break;
+            }
           }
         },
         child: SafeArea(
