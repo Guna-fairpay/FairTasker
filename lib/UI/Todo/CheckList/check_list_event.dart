@@ -37,10 +37,25 @@ class AddFixTaskEvent extends CheckListEvent {
   List<Object?> get props => [notes, title, checklistId];
 }
 
+class UpdateFixTaskEvent extends CheckListEvent {
+  final String? notes;
+  final int? todoId;
+  const UpdateFixTaskEvent({ this.notes, this.todoId});
+  @override
+  List<Object?> get props => [notes, todoId];
+}
+
 class CompleteEvent  extends CheckListEvent {
-  const CompleteEvent();
+  final int? todoId;
+  const CompleteEvent(this.todoId);
+  @override
+  List<Object?> get props =>[todoId];
 }
 
 class DeleteEvent  extends CheckListEvent {
-  const DeleteEvent();
+  final int? todoId;
+  final String? reason;
+  const DeleteEvent({this.reason, this.todoId});
+  @override
+  List<Object?> get props =>[reason,todoId];
 }

@@ -86,7 +86,7 @@ class setVehicleLoaded extends VehicleDataState {
   final dynamic currentVehicle;
   const setVehicleLoaded( {this.currentVehicle});
   @override
-  List<Object?> get props => [ currentVehicle];
+  List<Object?> get props => [ currentVehicle, Random().nextDouble()];
 }
 
 class setVehicleLoader extends VehicleDataState {

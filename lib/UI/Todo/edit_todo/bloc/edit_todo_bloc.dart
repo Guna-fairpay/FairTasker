@@ -299,7 +299,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         selectionTaps = tabs.firstWhere(
           (e) =>
               (title == "Pre Checks" && e['title'] == "Check List") ||
-              (title == "Maintenance Check" && e['title'] == "Maintenance"),
+              (title == "Maintenance Check" && e['title'] == "Maintenance") ||
+                  (title == "Private Rental Check" && e['title'] == "Private Rental Check") ||
+                  ((title == 'Oil change' || title == 'OilChange Check' || title == 'Oil Change Check') && e['title'] == "Odometer"),
           orElse: () => tabs.isNotEmpty ? tabs[0] : {},
         );
         var selectedPerson = resources

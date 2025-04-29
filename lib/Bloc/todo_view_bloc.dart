@@ -73,7 +73,7 @@ class TodoViewBloc extends Bloc<TodoViewEvent, TodoViewState> {
 
     on<DeleteTodoEvent>((event, emit) async {
       emit(TodoListLoading());
-      await todoListRepo.deleteATodo(event.todoId ?? '').then((value) {
+      await todoListRepo.deleteATodo(event.todoId ?? '', '').then((value) {
         emit(DeleteTodoLoaded(result: value));
       });
     });

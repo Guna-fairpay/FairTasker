@@ -5,20 +5,27 @@ import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_bloc
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../Component/success_button.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_event.dart';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_state.dart';
 import 'package:html/parser.dart';
 
+import '../../../Utilities/prefs.dart';
+import '../../dialog/ask_permission_dialog.dart';
+
 extension ContextExtension on BuildContext {
   void pop() => Navigator.of(this).pop();
 }
 
 class PrivateRentalCheckUi extends StatelessWidget {
-  final dynamic todoItems, vehicle;
+  final dynamic? todoItems, vehicle;
 
-  const PrivateRentalCheckUi({super.key, required this.todoItems, required this.vehicle});
+  PrivateRentalCheckUi({super.key, required this.todoItems, required this.vehicle}) {
+    log("todoItems type: ${todoItems.runtimeType}");
+    log("vehicle type: ${vehicle.runtimeType}");
+  }
 
 
   @override
@@ -27,12 +34,12 @@ class PrivateRentalCheckUi extends StatelessWidget {
       create: (context) => PrivateRentalsBloc()
         ..add(PrivateRentalInitialEvent(
           todoItem: todoItems,
-          vehicle: vehicle,
+          vehicle: vehicle is Map ? Map<String, dynamic>.from(vehicle.map((k, v) => MapEntry(k.toString(), v))) : <String, dynamic>{},
         )),
       child: BlocListener<PrivateRentalsBloc, PrivateRentalsState>(
         listener: (context, state) {
           if (state.isLoading) {
-            EasyLoading.show(status: 'Loading...');
+            EasyLoading.show();
           } else {
             EasyLoading.dismiss();
             if (state.pop) {
@@ -86,8 +93,6 @@ class PrivateRentalCheckUi extends StatelessWidget {
       ) {
     final int itemId = checkListData['id'];
     final notesController = noteControllers[itemId] ?? TextEditingController();
-
-    // Parse notes to remove HTML and extract custom content
     String extractedText = notesController.text.split('-').length > 1
         ? notesController.text.split('-')[1].trim()
         : notesController.text;
@@ -107,7 +112,6 @@ class PrivateRentalCheckUi extends StatelessWidget {
               onChanged: (bool? value) {
                 if (value != null) {
                   final bloc = context.read<PrivateRentalsBloc>();
-                  // Check if there's an existing task (based on notes or matchingTodos logic)
                   final matchingTodo = bloc.matchingTodos.firstWhere(
                         (todo) => todo['checklist_id'] == itemId,
                     orElse: () => {},
@@ -120,8 +124,17 @@ class PrivateRentalCheckUi extends StatelessWidget {
                       },
                       onDelete: ()
                       {
-                        context.read<PrivateRentalsBloc>().add(DeletePrivateRentalItemEvent(todoId: matchingTodo['todoId']));
-                      },);
+                        AskPermissionDialog.show(context,
+                          title: "Are you sure?",
+                          description: "${Session.of.getString("name")},  are you sure you want to delete this task? Kindly enter a valid reason to confirm the deletion",
+                          boldWords: [(Session.of.getString("name") ?? ''),","],
+                          positiveText: "Yes, delete it!",
+                          negativeText: "Cancel",
+                          isReasonRequired: true,
+                          onReasonSubmitted: (reason) => context.read<PrivateRentalsBloc>().add(DeletePrivateRentalItemEvent(todoId: matchingTodo['todoId'], reason: reason)),
+                        );
+                      }
+                      ,);
                   } else {
                     context.read<PrivateRentalsBloc>().add(
                       UpdateCheckboxEvent(
@@ -147,6 +160,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 40.0, right: 20),
             child: Column(
+              spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Utils.getBorderedMultilineTextField(
@@ -155,21 +169,41 @@ class PrivateRentalCheckUi extends StatelessWidget {
                   minLines: 2,
                 ),
                 const SizedBox(height: 5),
-                Utils.getAddFilledButton(
-                  'Create Task',
-                      () {
-                    context.read<PrivateRentalsBloc>().add(
-                      CreatePrivateFixTaskEvent(
-                        notes: '${checkListData['title']} - ${notesController.text}',
-                        id: itemId.toString(),
-                        todoItem: todoItems,
-                        vehicle: vehicle,
-                      ),
-                    );
-                    FocusScope.of(context).unfocus();
-                  },
-                  bgColor: AppC.green,
-                ),
+                if(context.read<PrivateRentalsBloc>().matchingTodos.any(
+                        (todo) => todo['checklist_id'] == itemId))...[
+                  SuccessButton(
+                    text: 'Update Task',
+                    onPressed: (){
+                      final matchingTodo = context.read<PrivateRentalsBloc>().matchingTodos.firstWhere(
+                            (todo) => todo['checklist_id'] == itemId,
+                        orElse: () => {},
+                      );
+                      log("${matchingTodo}", name: "matchingTodo");
+                      context.read<PrivateRentalsBloc>().add(
+                        UpdateFixTaskEvent(
+                          todoId: matchingTodo['id'],
+                          notes: '${notesController.text}',
+                        ),
+                      );
+                    },
+                  )
+                ] else...[
+                  Utils.getAddFilledButton(
+                    'Create Task',
+                        () {
+                      context.read<PrivateRentalsBloc>().add(
+                        CreatePrivateFixTaskEvent(
+                          notes: '${checkListData['title']} - ${notesController.text}',
+                          id: itemId.toString(),
+                          todoItem: todoItems,
+                          vehicle: vehicle is Map ? Map<String, dynamic>.from(vehicle.map((k, v) => MapEntry(k.toString(), v))) : <String, dynamic>{},
+                        ),
+                      );
+                      FocusScope.of(context).unfocus();
+                    },
+                    bgColor: AppC.green,
+                  ),
+                ]
               ],
             ),
           ),

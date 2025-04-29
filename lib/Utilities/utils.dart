@@ -1440,6 +1440,19 @@ class Utils {
     );
   }
 
+  static void successMobileToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 4,
+      backgroundColor: AppC.green,
+      textColor: Colors.white,
+      fontSize: 15.0,
+      webShowClose: true,
+    );
+  }
+
   static void scrollDown(ScrollController scrollController) {
     scrollController.animateTo(scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 100), curve: Curves.linear);

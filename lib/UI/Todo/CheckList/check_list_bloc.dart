@@ -1,11 +1,13 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:fairpytasker/Response/create_fix_task_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Repository/todo_list_repository.dart';
+import '../../../Utilities/utils.dart';
 import 'check_list_event.dart';
 import 'check_list_state.dart';
 
@@ -69,33 +71,28 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
 
             print("fixTasksMap: $fixTasksMap");
             print("fixTaskValues: $fixTaskValues");
-
-
-            // 1. First, find all matching todos that are in fixTasksMap and not completed
+            
+            
             matchingTodos = todoList
                 .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
                 .map((todo)
             {
-              // Get the checklist ID that corresponds to this todo ID
+              
               int? checklistId = int.tryParse(fixTasksMap.entries
                   .firstWhere((entry) => entry.value == todo['id'])
                   .key);
 
-              // Find the checklist item
               var checklistItem = checkListData.firstWhere(
                       (item) => item['id'] == checklistId,
                   orElse: () => {}
               );
 
-              // Get the checklist title
               String checklistTitle = checklistItem['title'] ?? '';
 
-              // Extract just the custom note part (after the hyphen)
               String rawNote = todo["notes"].toString().trim();
               String noteContent = '';
 
               if (rawNote.contains('-')) {
-                // Split by `-` and get the LAST non-empty trimmed part
                 noteContent = rawNote.split('-').reversed.firstWhere(
                       (part) => part.trim().isNotEmpty,
                   orElse: () => '',
@@ -103,15 +100,15 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
               } else {
                 noteContent = rawNote;
               }
+              log("noteContent: $noteContent");
 
-              // Store the checklist title in notesValues for reference
               notesValues.add(checklistTitle);
 
               return {
                 "id": todo['id'],
                 "checklist_id": checklistId,
                 "checklist_title": checklistTitle,
-                "notes": noteContent, // Store just the custom note part
+                "notes": noteContent,
               };
 
             }).toList();
@@ -119,17 +116,13 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             print("matchingTodos: $matchingTodos");
             print("notesValues: $notesValues");
 
-            // Insert notes into corresponding TextEditingController
             for (var todo in matchingTodos) {
               int checklistId = todo['checklist_id'];
               String checklistTitle = todo['checklist_title'];
               String noteContent = todo['notes'];
 
               if (controllers.containsKey(checklistId)) {
-                // Reconstruct the full note with checklist title
                 controllers[checklistId]!.text = '$checklistTitle - $noteContent';
-
-                // Also update the checkbox state to unchecked since there's a task
                 checkBoxStates[checklistId] = false;
               }
             }
@@ -165,14 +158,15 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
 
     on<AddFixTaskEvent>((event, emit) async {
       try {
+        emit(state.copyWith(isLoading: true));
         await todoListRepo.createFixTask( CreateFixTaskData()
         ..todoId = todoItemsCopy['id']
           ..userId = todoItemsCopy['user_id']
             ..userGroupId = todoItemsCopy['user_group_id']
             ..title = event.title
             ..notes = event.notes
-            ..todoTime = todoItemsCopy['todo_time']
-            ..startAt = todoItemsCopy['todo_date']
+            ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""
+            ..startAt = DateTime.now().toFormat() ?? ""
             ..vehicleList = todoItemsCopy['vehicles']
             ..locationId = todoItemsCopy['location']
             ..locationId = todoItemsCopy['location_id']
@@ -181,7 +175,26 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vehicleNumber = vehiclesCopy['vehicle_number']
             ..maintenanceTaskId = event.checklistId.toString()
         );
+        Utils.successMobileToast("Fix Task created successfully");
+        emit(state.copyWith(isLoading: false, pop: true));
         _broadcast.stickyBroadcast("todo_view", value: true);
+      } catch (e) {
+        print("Error: $e");
+      }
+    });
+
+    on<UpdateFixTaskEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        final response = await todoListRepo.UpdateFixTask(event.todoId ?? 0,event.notes ?? ''
+        );
+        if(response == true){
+          Utils.successMobileToast("Fix Task Updated successfully");
+          emit(state.copyWith(isLoading: false, pop: true));
+          _broadcast.stickyBroadcast("todo_view", value: true);
+        } else {
+          log("Fix Task Updated failed");
+        }
       } catch (e) {
         print("Error: $e");
       }
@@ -190,25 +203,9 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
     on<CompleteEvent>((event,emit) async {
       log("matchingTodos: $matchingTodos");
       try{
-        List<int> getMatchingIds(
-            Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
-          List<int> matchingIds = [];
-
-          for (var task in maintenanceTasks) {
-            String title = task['checklist_title'];
-
-            if (title == checkEvent["title"]) {
-              matchingIds.add(task["id"]); // Add matching ID
-            }
-          }
-          return matchingIds;
-        }
-        log("getMatchingIds: $getMatchingIds");
-
-        result = getMatchingIds(checkListData, matchingTodos);
-        completeTodoID = result?.first.toString();
-        log("completeTodoID: $completeTodoID");
-        await todoListRepo.completeATodo(completeTodoID,"Completed");
+        log("completeTodoID: ${event.todoId}");
+        await todoListRepo.completeATodo(event.todoId.toString(),"Completed");
+        Utils.successMobileToast("Fix Task completed successfully");
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(pop:true));
       }
@@ -219,22 +216,8 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
 
     on<DeleteEvent>((event, emit) async {
       try{
-        List<int> getMatchingIds(
-            Map<String, dynamic> checkEvent, List<Map<String, dynamic>> maintenanceTasks) {
-          List<int> matchingIds = [];
-
-          for (var task in maintenanceTasks) {
-            String title = task['checklist_title'];
-
-            if (title == checkEvent["title"]) {
-              matchingIds.add(task["id"]); // Add matching ID
-            }
-          }
-          return matchingIds;
-        }
-        result = getMatchingIds(checkListData, matchingTodos);
-        completeTodoID = result?.first.toString();
-        await todoListRepo.deleteATodo(deleteTodoID!);
+        log("deleteTodoID: ${event.todoId}");
+        await todoListRepo.deleteATodo(event.todoId.toString(), event.reason!);
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(pop:true));
       }

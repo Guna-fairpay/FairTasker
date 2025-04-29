@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
@@ -81,7 +83,9 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
               locationsList: locationsList,
               controller: controller,
               selected: {3: selectedVendor},
-              onSelected: (val) {
+              onSelected: (val) async {
+                final response = getIt<CommonService>().getVendorsList(reset: true);
+                log("$response", name: "TaskerVendorLocationDialog");
                 selectedVendor = val;
                 controller.text = val?['name'];
                 Console.of.log(val);

@@ -3,6 +3,7 @@ import 'dart:developer' as d;
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,7 +36,6 @@ class VehicleEditUI extends StatefulWidget {
     required this.todoItems,
     required this.selectedVehicle,
   }) {
-    d.log("${vehicle}", name: "VEHICLE_DATA");
     d.log("${todoItems}", name: "TODO_DATA");
     d.log("${selectedVehicle}", name: "SELECTED_VEHICLE");
   }
@@ -94,6 +94,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   bool spareTire = false;
   bool spareKey = false;
   bool frontLicensePlate = false;
+  List<dynamic> images = List.empty(growable: true);
   List<dynamic> tireImageFile = List.empty(growable: true);
   List<dynamic> tollImage = List.empty(growable: true);
   List<dynamic> uploadRegSticker = List.empty(growable: true);
@@ -284,7 +285,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       createVehicleData.tollImage = tollImage.whereType<File>().toList();
       createVehicleData.tireImage = tireImageFile.whereType<File>().toList();
       createVehicleData.uploadRegSticker = uploadRegSticker.whereType<File>().toList();
-      vehicleDataBloc.add(UpdateVehicleDataEvent(createVehicleData: createVehicleData));
+      vehicleDataBloc.add(UpdateVehicleDataEvent(createVehicleData: createVehicleData, vin: widget.selectedVehicle['vin']));
     });
     await _fetchUpdatedImages();
     imageCache.clear();
@@ -499,7 +500,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         }
         else if(state is setVehicleLoaded){
           EasyLoading.dismiss();
-          d.log("${state.currentVehicle['vehicle_id']}");
+          d.log("${state.currentVehicle?['vehicle_id'] ?? ''}");
           yearController.text = state.currentVehicle['year'] ?? '';
           makeController.text = state.currentVehicle['make'] ?? '';
           modelController.text = state.currentVehicle['model']?.toString() ?? '';
@@ -548,6 +549,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               ? vehicleStatusList[0]
               : vehicleStatusList[1];
 
+          images = (state.currentVehicle['images'] as List<dynamic>?) ?? [];
           vehicleImageFile = (state.currentVehicle['images'] as List<dynamic>?)
               ?.where((image) => image['vehicle_image_type'] == 1)
               .toList() ??
@@ -590,47 +592,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             showMore = true;
           }
 
-
-        }
-        else if (state is DropdownVehicleDataLoaded)
-        {
-          EasyLoading.dismiss();
-          print("vehicle data ${widget.vehicle?['vehicle_name']}");
-          createExpenseFieldData = state.createExpenseFieldData;
-          if (state.createExpenseFieldData != null) {
-            setState(() {
-              loading = false;
-            });
-            cohortsData = state.createExpenseFieldData!.cohortsData ?? [];
-            for (Map<String, dynamic> c in cohortsData) {
-              if (c['id'] == widget.vehicle?['cohort_id']) {
-                selectedCohortsData = c;
-              }
-            }
-            for (Map<String, dynamic> c in categoriesData) {
-              if (c['id'] == widget.vehicle?['vehicle_status']) {
-                selectedCategoriesData = c;
-              }
-            }
-          }
-          setState(() {
-            loading = false;
-          });
-        }
-        else if (state is VehicleStatusCategoryLoaded) {
-          setState(() {
-            categoriesData = state.vehicleStatusDataList ?? [];
-            categoriesDataIsSelected = true;
-            selectedCategoriesData = categoriesData.isNotEmpty ? categoriesData[0] : null;
-            loading= false;
-          });
-        }
-        else if (state is VehicleDataUpdatedState) {
-          setState(() {
-            widget.vehicle = state.updatedVehicle;
-            loading = false;
-          });
-          Utils.showMobileToast('Vehicle updated successfully!');
         }
         else {
           setState(() {
@@ -642,7 +603,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
             final parsed = DateTime.parse(renewalDateController.text);
             renewalDateController.text = DateFormat('dd-MM-yyyy').format(parsed);
           } catch (e) {
-            // ignore invalid date format
+            renewalDateController.text = '';
           }
         }
       },
@@ -656,1153 +617,681 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               physics: const NeverScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  if (widget.showHeader)
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                        Utils.getText('Edit Vehicle', size: 20, weight: FontWeight.bold)
-                      ],
-                    ),
-                  Visibility(
-                    visible: widget.showHeader,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Utils.getTextFormField(
+                          "Address",
+                          addressController,
+                        inputAction: TextInputAction.newline,
+                        textType: TextInputType.multiline,
+                        minLines: 3,
+                        maxLines: 5,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child:
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                checkBoxWithSingleText(
+                                  value: bouncie,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      bouncie = value ?? false;
+                                      widget.vehicle?['bouncie'] = bouncie ? 1 : 0;
+                                    });
+                                  },
+                                  label: 'Bouncie',
+                                ),
+                                const SizedBox(height: 10),
+                                checkBoxWithSingleText(
+                                  value: tollTags,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      tollTags = value ?? false;
+                                      widget.vehicle?['toll_tags'] = tollTags ? 1 : 0;
+                                    });
+                                  },
+                                  label: 'Toll tags',
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                checkBoxWithSingleText(
+                                  value: airTag,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      airTag = value ?? false;
+                                      widget.vehicle?['air_tag'] = airTag ? 1 : 0;
+                                    });
+                                  },
+                                  label: 'AirTag',
+                                ),
+                                const SizedBox(height: 10),
+                                checkBoxWithSingleText(
+                                  value: spareTire,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      spareTire = value ?? false;
+                                      widget.vehicle?['spare_tire'] = spareTire ? 1 : 0;
+                                    });
+                                  },
+                                  label: 'Spare Tire',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Visibility(
+                                    visible: tollTags,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 5),
+                                      child: Utils.getTextFormField('Enter the toll tag id', tollTagsIdController),
+                                    )),
+                                Visibility(
+                                  visible: tollTags,
+                                  child: Container(
+                                    height: 35,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppC.fieldBase,
+                                          width: Num.borderWidthField,
+                                        ),
+                                        borderRadius:
+                                        const BorderRadius.all(Radius.circular(Num.subradiusButton))),
+                                    child: Utils.getOutlinedButton(
+                                      'Toll Image',
+                                          () async {
+                                        Utils.dismissKeyboard(context);
+                                        var result = await _pickImages2();
+                                        if (result != null) {
+                                          var files = tollImage.whereType<File>().map((e) => e.path);
+                                          for (var element in result) {
+                                            if (!files.contains(element.path)) {
+                                              tollImage.add(element);
+                                            }
+                                          }
+                                          setState(() {});
+                                        }
+                                      },
+                                      iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                      verticalPadding: 0,
+                                      radius: BorderRadius.zero,
+                                      bgColor: AppC.trans,
+                                      borderColor: AppC.trans,
+                                      textColor: AppC.grey,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Visibility(
+                                visible: spareTire,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 5),
+                                  child: Utils.getTextFormField('e.g.,T165/70D18',
+                                      spareTireController,
+                                    validator: (value){
+                                      final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
+                                      if (!SpareTireRegex.hasMatch(value ?? '')) {
+                                        return 'T165/70D18';
+                                      }
+                                      return null;
+                                    }
+                                  ),
+                                )
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5.0),
+                        child: Column(
                           children: [
                             Visibility(
-                              visible: vehicleImageFile.isNotEmpty,
-                              child: vehicleImageFile.isNotEmpty
-                                  ? Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Stack(
-                                  alignment: Alignment.topRight,
-                                  children: [
-                                    (vehicleImageFile.first['path'] ?? '').isNotEmpty
-                                        ? Utils.getHeadCachedImageNetworkDisplay(
-                                        context, vehicleImageFile.first['path'] ?? '')
-                                        : ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: Image.file(
-                                        File(vehicleImageFile.first['path'] ?? ''),
-                                        width: 50.0,
-                                        height: 100.0,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ],
+                              visible: tollImage.isNotEmpty && tollTags,
+                              child: GridView.builder(
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 10.0,
+                                  mainAxisSpacing: 10.0,
+                                  childAspectRatio: 1.0,
                                 ),
-                              )
-                                  : const SizedBox(),
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: tollImage.length,
+                                itemBuilder: (context, index) {
+                                  return CloseBadge(
+                                      onTapView: () {
+                                        ShowAttachmentsDialog.of.show(context,
+                                            attachments: tollImage, title: "", currentAttachment: tollImage[index]);
+                                      },
+                                      onTapDelete: () {
+                                        setState(() {
+                                          if (tollImage[index] is File) {
+                                            tollImage.removeAt(index);
+                                          } else {
+                                            int? tollImageId = (images).firstWhere(
+                                                    (image) =>
+                                                tollImage[index].split('/').last ==
+                                                    image['path'].split('/').last,
+                                                orElse: () => null)?['id'];
+                                            if (tollImageId != null) {
+                                              context
+                                                  .read<VehicleDataBloc>()
+                                                  .add(DeleteSetVehicleImage(id: tollImageId, vin: widget.selectedVehicle['vin'].toString()));
+                                              tollImage.removeAt(index);
+                                            } else {
+                                              Console.of.error("tollImageId is null ${tollImage[index].toString().split("/").lastOrNull} ${images}");
+                                            }
+                                          }
+                                          tollImage = List.from(tollImage);
+                                        });
+                                      },
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          minHeight: MediaQuery.sizeOf(context).height,
+                                          minWidth: MediaQuery.sizeOf(context).width,
+                                        ),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(16),
+                                            color: AppC.grey.withValues(alpha: 0.2)),
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        child: ImageViewer(
+                                          fit: BoxFit.cover,
+                                          imageInput: tollImage[index],
+                                          isNotImage: !(tollImage[index] as Object).isImage,
+                                        ),
+                                      ));
+                                },
+                              ),
                             ),
                           ],
                         ),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              yearController,
-                              label: Utils.getText('Year', color: AppC.grey),
-                              borderColor: isYearFieldEmpty ? Colors.red : AppC.fieldBase,
+                      ),
+                      Row(
+                        children: [
+                          checkBoxWithSingleText(
+                            value: spareKey,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                spareKey = value ?? false;
+                                widget.vehicle?['spare_key'] = spareKey ? 1 : 0;
+                              });
+                            },
+                            label: 'Spare Key',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          checkBoxWithSingleText(
+                            value: permanentPlate,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                permanentPlate = value ?? false;
+                                widget.vehicle?['permanent_plate'] = permanentPlate ? 1 : 0;
+                              });
+                            },
+                            label: 'Permanent Plate',
+                          ),
+                          Expanded(
+                            child: Visibility(
+                              visible: permanentPlate,
+                              child: checkBoxWithSingleText(
+                                value: frontLicensePlate,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    frontLicensePlate = value ?? false;
+                                    widget.vehicle?['front_license_plate'] = frontLicensePlate ? 1 : 0;
+                                  });
+                                },
+                                label: 'Front license plate',
+                              ),
                             ),
-                            if (isYearFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              makeController,
-                              label: Utils.getText('Make', color: AppC.grey),
-                              borderColor: isMakeFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isMakeFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              modelController,
-                              label: Utils.getText('Model', color: AppC.grey),
-                              borderColor: isModelFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isModelFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                          '',
-                          vehicleNumberController,
-                          label: Utils.getText('Vehicle Number', color: AppC.grey),
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.dropdownBox(
-                          'Select Cohort',
-                          cohortsData,
-                              (selectedValue) {
-                            setState(() {
-                              selectedCohortsData = selectedValue;
-                            });
-                          },
-                          labelKey: 'cohort',
-                          initialSelection: selectedCohortsData,
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                          '',
-                          vinController,
-                          label: Utils.getText('Vin', color: AppC.grey),
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getTextFormField(
-                          '',
-                          vehicleIdController,
-                          label: Utils.getText('Vehicle Id', color: AppC.grey),
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              purchaseDateController,
-                              suffixIcon: Padding(
-                                padding: isPurchaseDateFieldEmpty
-                                    ? const EdgeInsets.only(right: 35.0)
-                                    : const EdgeInsets.only(),
-                                child: const Icon(
-                                  Icons.date_range,
-                                  color: AppC.appColor,
-                                ),
-                              ),
-                              readOnly: true,
-                              onTapCallback: () {
-                                Utils.datePicker(context, '', initial: DateTime.parse("1970-01-01"))
-                                    .then((value) {
-                                  if (value != null) {
-                                    purchaseDateController.text =
-                                        Utils.convertDateToYearMonthDateFormat(value.toString());
-                                  }
-                                });
-                              },
-                              label: Utils.getText('Purchase Date', color: AppC.grey),
-                              borderColor: isPurchaseDateFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isPurchaseDateFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            Utils.getTextFormField(
-                              '',
-                              purchasePriceController,
-                              label: Utils.getText('Purchase Price', color: AppC.grey),
-                              borderColor: isPurchaseFieldEmpty ? Colors.red : AppC.fieldBase,
-                            ),
-                            if (isPurchaseFieldEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(Icons.error_outline, color: Colors.red),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 35,
-                          child: Container(
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
                             decoration: BoxDecoration(
                                 border: Border.all(
                                   color: AppC.fieldBase,
                                   width: Num.borderWidthField,
                                 ),
                                 borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                            child: Utils.getOutlinedButton('Purchase Receipt', () async {
-                              await imagePickHelper.getSingleImage(ImageSource.gallery).then((value) {
-                                if (value != null) {
-                                  receiptImageFile.add({'file': value, 'path': ''});
+                            child:
+                            Utils.getOutlinedButton(
+                              'Tire Image Upload',
+                                  () async {
+                                var result = await _pickImages2();
+                                if (result != null) {
+                                  var files = tireImageFile.whereType<File>().map((e) => e.path);
+                                  for (var element in result) {
+                                    if (!files.contains(element.path)) {
+                                      tireImageFile.add(element);
+                                    }
+                                  }
                                   setState(() {});
                                 }
-                              });
-                            },
-                                iconData: const Icon(Icons.cloud_upload, color: AppC.appColor, size: 15),
-                                verticalPadding: 0,
-                                radius: BorderRadius.zero,
-                                bgColor: AppC.trans,
-                                borderColor: AppC.trans,
-                                textColor: AppC.grey),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Visibility(
-                          visible: receiptImageFile.isNotEmpty,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 5.0),
-                            child: SizedBox(
-                              height: 100,
-                              child:
-                              ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: receiptImageFile.length,
-                                itemBuilder: (context, index)
-                                {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                                    child: Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        (receiptImageFile[index]['path'] ?? '').isNotEmpty
-                                            ? Utils.getOvalCachedImageNetworkDisplay(
-                                            context, receiptImageFile[index]['path'] ?? '')
-                                            : ClipRRect(
-                                          borderRadius: BorderRadius.circular(6),
-                                          child: Image.file(
-                                            File(receiptImageFile[index]['file']?.path ?? ''),
-                                            width: 100.0,
-                                            height: 100.0,
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: InkWell(
-                                            onTap: () {
-                                              if ((receiptImageFile[index]['path'] ?? '').isEmpty) {
-                                                receiptImageFile.removeAt(index);
-                                              } else {
-                                                vehicleDataBloc.add(
-                                                  DeleteExpenseImage(id: receiptImageFile[index]['id']),
-                                                );
-                                                receiptImageFile.removeAt(index);
-                                              }
-                                              setState(() {});
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: AppC.red,
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: const Icon(
-                                                Icons.delete_outline_outlined,
-                                                color: AppC.white,
-                                                size: 16,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                        Visibility(
-                          visible: !showMore,
-                          child: InkWell(
-                              onTap: () {
-                                showMore = !showMore;
-                                setState(() {});
                               },
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Utils.getText(
-                                    ' More ...',
-                                    size: 12,
-                                    color: const Color(0xff0580b5),
-                                    weight: FontWeight.w500,
-                                  ),
-                                ],
-                              )),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Visibility(
-                    visible: showMore,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Visibility(
-                          visible: widget.showHeader,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppC.fieldBase,
-                                        width: Num.borderWidthField,
-                                      ),
-                                      borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                                  child: Utils.getOutlinedButton('Vehicle Image', () async {
-                                    await imagePickHelper.getSingleImage(ImageSource.gallery).then((value) {
-                                      if (value != null) {
-                                        vehicleImageFile.add({'file': value, 'path': ''});
-                                        setState(() {});
-                                      }
-                                    });
-                                  },
-                                      iconData: const Icon(Icons.cloud_upload, color: AppC.appColor, size: 15),
-                                      verticalPadding: 0,
-                                      radius: BorderRadius.zero,
-                                      bgColor: AppC.trans,
-                                      borderColor: AppC.trans,
-                                      textColor: AppC.grey),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Visibility(
-                                visible: vehicleImageFile.isNotEmpty,
-                                child: SizedBox(
-                                  height: 100,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: vehicleImageFile.length,
-                                    itemBuilder: (context, index) {
-                                      return Stack(
-                                        alignment: Alignment.topRight,
-                                        children: [
-                                          (vehicleImageFile[index]['path'] ?? '').isNotEmpty
-                                              ? Utils.getOvalCachedImageNetworkDisplay(
-                                              context, vehicleImageFile[index]['path'] ?? '')
-                                              : ClipRRect(
-                                            borderRadius: BorderRadius.circular(6),
-                                            child: Image.file(
-                                              File(vehicleImageFile[index]['file']?.path ?? ''),
-                                              width: 100.0,
-                                              height: 100.0,
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: InkWell(
-                                              onTap: () {
-                                                if ((vehicleImageFile[index]['path'] ?? '').isEmpty) {
-                                                  vehicleImageFile.removeAt(index);
-                                                } else {
-                                                  vehicleDataBloc
-                                                      .add(DeleteSetVehicleImage(id: vehicleImageFile[index]['id']));
-                                                  vehicleImageFile.removeAt(index);
-                                                }
-                                                setState(() {});
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: AppC.red,
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: const Icon(Icons.delete_outline_outlined,
-                                                    color: AppC.white, size: 16),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 35,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppC.fieldBase,
-                                        width: Num.borderWidthField,
-                                      ),
-                                      borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                                  child: DropdownButton<String>(
-                                    hint: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Utils.getText('Status', color: AppC.grey),
-                                    ),
-                                    value: selectedVehicleStatus,
-                                    isExpanded: true,
-                                    icon: const Icon(Icons.arrow_drop_down),
-                                    elevation: 3,
-                                    dropdownColor: AppC.white,
-                                    underline: Container(
-                                      height: 0,
-                                      color: Colors.transparent,
-                                    ),
-                                    onChanged: (String? value) {
-                                      selectedVehicleStatus = value;
-                                      setState(() {});
-                                    },
-                                    items: vehicleStatusList.map<DropdownMenuItem<String>>((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                          child: Utils.getText(value),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
+                              iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                              radius: BorderRadius.zero,
+                              bgColor: AppC.trans,
+                              borderColor: AppC.trans,
+                              textColor: AppC.grey,
+                              verticalPadding: 0,
+                            ),
                           ),
-                        ),
-                        Utils.getBorderedMultilineTextField(
-                          'Address',
-                          addressController,
-                          minLines: 3,
-                          fillColor: AppC.white,
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child:
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  checkBoxWithSingleText(
-                                    value: bouncie,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        bouncie = value ?? false;
-                                        widget.vehicle?['bouncie'] = bouncie ? 1 : 0;
-                                      });
-                                    },
-                                    label: 'Bouncie',
-                                  ),
-                                  const SizedBox(height: 10),
-                                  checkBoxWithSingleText(
-                                    value: tollTags,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        tollTags = value ?? false;
-                                        widget.vehicle?['toll_tags'] = tollTags ? 1 : 0;
-                                      });
-                                    },
-                                    label: 'Toll tags',
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  checkBoxWithSingleText(
-                                    value: airTag,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        airTag = value ?? false;
-                                        widget.vehicle?['air_tag'] = airTag ? 1 : 0;
-                                      });
-                                    },
-                                    label: 'AirTag',
-                                  ),
-                                  const SizedBox(height: 10),
-                                  checkBoxWithSingleText(
-                                    value: spareTire,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        spareTire = value ?? false;
-                                        widget.vehicle?['spare_tire'] = spareTire ? 1 : 0;
-                                      });
-                                    },
-                                    label: 'Spare Tire',
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
+                          Expanded(
+                            child: Utils.getTextFormField('Number Plate', vehicleNumberController,
+                                hintTextColor: AppC.grey),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Visibility(
-                                      visible: tollTags,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 5),
-                                        child: Utils.getTextFormField('Enter the toll tag id', tollTagsIdController),
-                                      )),
-                                  Visibility(
-                                    visible: tollTags,
-                                    child: Container(
-                                      height: 35,
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: AppC.fieldBase,
-                                            width: Num.borderWidthField,
-                                          ),
-                                          borderRadius:
-                                          const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                                      child: Utils.getOutlinedButton(
-                                        'Toll Image',
-                                            () async {
-                                          FocusScope.of(context).requestFocus(FocusNode());
-                                          var result = await _pickImages2();
-                                          FocusScope.of(context).requestFocus(FocusNode());
-                                          if (result != null) {
-                                            var files = tollImage.whereType<File>().map((e) => e.path);
-                                            for (var element in result) {
-                                              if (!files.contains(element.path)) {
-                                                tollImage.add(element);
-                                              }
-                                            }
-                                            setState(() {});
-                                          }
-                                        },
-                                        iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                        verticalPadding: 0,
-                                        radius: BorderRadius.zero,
-                                        bgColor: AppC.trans,
-                                        borderColor: AppC.trans,
-                                        textColor: AppC.grey,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Visibility(
-                                  visible: spareTire,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 5),
-                                    child: Utils.getTextFormField('e.g.,T165/70D18',
-                                        spareTireController,
-                                      validator: (value){
-                                        final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
-                                        if (!SpareTireRegex.hasMatch(value ?? '')) {
-                                          return 'T165/70D18';
-                                        }
-                                        return null;
-                                      }
-                                    ),
-                                  )
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 5.0),
-                          child: Column(
-                            children: [
-                              Visibility(
-                                visible: tollImage.isNotEmpty && tollTags,
-                                child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 10.0,
-                                    mainAxisSpacing: 10.0,
-                                    childAspectRatio: 1.0,
-                                  ),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: tollImage.length,
-                                  itemBuilder: (context, index) {
-                                    return CloseBadge(
-                                        onTapView: () {
-                                          ShowAttachmentsDialog.of.show(context,
-                                              attachments: tollImage, title: "", currentAttachment: tollImage[index]);
-                                        },
-                                        onTapDelete: () {
-                                          setState(() {
-                                            if (tollImage[index] is File) {
-                                              tollImage.removeAt(index);
-                                            } else {
-                                              int? tollImageId = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
-                                                      (image) =>
-                                                  tollImage[index].split('/').last ==
-                                                      image['path'].split('/').last,
-                                                  orElse: () => null)?['id'];
-                                              if (tollImageId != null) {
-                                                context
-                                                    .read<VehicleDataBloc>()
-                                                    .add(DeleteSetVehicleImage(id: tollImageId));
-                                                tollImage.removeAt(index);
-                                              }
-                                            }
-                                            tollImage = List.from(tollImage);
-                                          });
-                                          context
-                                              .read<VehicleDataBloc>()
-                                              .add(const GetAddedVehicleListData());
-                                        },
-                                        child: Container(
-                                          constraints: BoxConstraints(
-                                            minHeight: MediaQuery.sizeOf(context).height,
-                                            minWidth: MediaQuery.sizeOf(context).width,
-                                          ),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(16),
-                                              color: AppC.grey.withValues(alpha: 0.2)),
-                                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                                          child: ImageViewer(
-                                            fit: BoxFit.cover,
-                                            imageInput: tollImage[index],
-                                            isNotImage: !(tollImage[index] as Object).isImage,
-                                          ),
-                                        ));
-                                  },
+                            Visibility(
+                              visible: tireImageFile.isNotEmpty,
+                              child: GridView.builder(
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 10.0,
+                                  mainAxisSpacing: 10.0,
+                                  childAspectRatio: 1.0,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            checkBoxWithSingleText(
-                              value: spareKey,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  spareKey = value ?? false;
-                                  widget.vehicle?['spare_key'] = spareKey ? 1 : 0;
-                                });
-                              },
-                              label: 'Spare Key',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            checkBoxWithSingleText(
-                              value: permanentPlate,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  permanentPlate = value ?? false;
-                                  widget.vehicle?['permanent_plate'] = permanentPlate ? 1 : 0;
-                                });
-                              },
-                              label: 'Permanent Plate',
-                            ),
-                            Expanded(
-                              child: Visibility(
-                                visible: permanentPlate,
-                                child: checkBoxWithSingleText(
-                                  value: frontLicensePlate,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      frontLicensePlate = value ?? false;
-                                      widget.vehicle?['front_license_plate'] = frontLicensePlate ? 1 : 0;
-                                    });
-                                  },
-                                  label: 'Front license plate',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          spacing: 10,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppC.fieldBase,
-                                    width: Num.borderWidthField,
-                                  ),
-                                  borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                              child:
-                              Utils.getOutlinedButton(
-                                'Tire Image Upload',
-                                    () async {
-                                  FocusScope.of(context).requestFocus(FocusNode());
-                                  var result = await _pickImages2();
-                                  FocusScope.of(context).requestFocus(FocusNode());
-                                  if (result != null) {
-                                    var files = tireImageFile.whereType<File>().map((e) => e.path);
-                                    for (var element in result) {
-                                      if (!files.contains(element.path)) {
-                                        tireImageFile.add(element);
-                                      }
-                                    }
-                                    setState(() {});
-                                  }
-                                },
-                                iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                radius: BorderRadius.zero,
-                                bgColor: AppC.trans,
-                                borderColor: AppC.trans,
-                                textColor: AppC.grey,
-                                verticalPadding: 0,
-                              ),
-                            ),
-                            Expanded(
-                              child: Utils.getTextFormField('Number Plate', vehicleNumberController,
-                                  hintTextColor: AppC.grey),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Visibility(
-                                visible: tireImageFile.isNotEmpty,
-                                child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 10.0,
-                                    mainAxisSpacing: 10.0,
-                                    childAspectRatio: 1.0,
-                                  ),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: tireImageFile.length,
-                                  itemBuilder: (context, index) {
-                                    return CloseBadge(
-                                        onTapView: () {
-                                          ShowAttachmentsDialog.of.show(context,
-                                              attachments: tireImageFile,
-                                              title: "",
-                                              currentAttachment: tireImageFile[index]);
-                                        },
-                                        onTapDelete: () async {
-                                          setState(() {
-                                            if (tireImageFile[index] is File) {
-                                              tireImageFile.removeAt(index);
-                                            }
-                                          });
-                                          int? imageId;
-                                          if (tireImageFile[index] is! File) {
-                                            final image = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
-                                                  (image) =>
-                                              tireImageFile[index].split('/').last ==
-                                                  image['path'].split('/').last,
-                                              orElse: () => null,
-                                            );
-                                            if (image != null) {
-                                              imageId = image['id'];
-                                              context.read<VehicleDataBloc>().add(DeleteSetVehicleImage(id: imageId));
-                                            }
-                                          }
-                                          if (imageId != null) {
-                                            await Future.delayed(const Duration(milliseconds: 300));
-                                          }
-                                          setState(() {
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: tireImageFile.length,
+                                itemBuilder: (context, index) {
+                                  return CloseBadge(
+                                      onTapView: () {
+                                        ShowAttachmentsDialog.of.show(context,
+                                            attachments: tireImageFile,
+                                            title: "",
+                                            currentAttachment: tireImageFile[index]);
+                                      },
+                                      onTapDelete: () async {
+                                        setState(() {
+                                          if (tireImageFile[index] is File) {
                                             tireImageFile.removeAt(index);
-                                          });
-                                          context
-                                              .read<VehicleDataBloc>()
-                                              .add(const GetAddedVehicleListData());
-                                        },
-                                        child: Container(
-                                          constraints: BoxConstraints(
-                                            minHeight: MediaQuery.sizeOf(context).height,
-                                            minWidth: MediaQuery.sizeOf(context).width,
-                                          ),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(16),
-                                              color: AppC.grey.withValues(alpha: 0.2)),
-                                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                                          child: ImageViewer(
-                                            fit: BoxFit.cover,
-                                            imageInput: tireImageFile[index],
-                                            isNotImage: !(tireImageFile[index] as Object).isImage,
-                                          ),
-                                        ));
-                                  },
-                                ),
+                                          }
+                                        });
+                                        int? imageId;
+                                        if (tireImageFile[index] is! File) {
+                                          final image = (images).firstWhere(
+                                                (image) =>
+                                            tireImageFile[index].split('/').last ==
+                                                image['path'].split('/').last,
+                                            orElse: () => null,
+                                          );
+                                          if (image != null) {
+                                            imageId = image['id'];
+                                            context.read<VehicleDataBloc>().add(DeleteSetVehicleImage(id: imageId, vin: widget.selectedVehicle['vin'].toString()));
+                                          }
+                                        }
+                                        if (imageId != null) {
+                                          await Future.delayed(const Duration(milliseconds: 300));
+                                        }
+                                        setState(() {
+                                          tireImageFile.removeAt(index);
+                                        });
+                                      },
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          minHeight: MediaQuery.sizeOf(context).height,
+                                          minWidth: MediaQuery.sizeOf(context).width,
+                                        ),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(16),
+                                            color: AppC.grey.withValues(alpha: 0.2)),
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        child: ImageViewer(
+                                          fit: BoxFit.cover,
+                                          imageInput: tireImageFile[index],
+                                          isNotImage: !(tireImageFile[index] as Object).isImage,
+                                        ),
+                                      ));
+                                },
                               ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Utils.getTextFormField('Car Number', carNumberController,
-                                  hintTextColor: AppC.grey),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Utils.getTextFormField('Oil grade', oilGradeController,
-                                  hintTextColor: AppC.grey),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Utils.getTextFormField('Front tire e.g., 215/55R17',
-                                  frontTireController,
-                                  hintTextColor: AppC.grey,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Utils.getTextFormField('Car Number', carNumberController,
+                                hintTextColor: AppC.grey),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Utils.getTextFormField('Oil grade', oilGradeController,
+                                hintTextColor: AppC.grey),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Utils.getTextFormField('Front tire e.g., 215/55R17',
+                                frontTireController,
+                                hintTextColor: AppC.grey,
+                              validator: (value){
+                                final FrontTireRegex = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
+                                if (!FrontTireRegex.hasMatch(value ?? '')) {
+                                  return '215/55R17';
+                                }
+                                return null;
+                              }
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Utils.getTextFormField('Rear tire e.g., 215/55R17',
+                              rearTireController,
+                                hintTextColor: AppC.grey,
                                 validator: (value){
-                                  final FrontTireRegex = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
-                                  if (!FrontTireRegex.hasMatch(value ?? '')) {
+                                  final BackTireRegex = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
+                                  if (!BackTireRegex.hasMatch(value ?? '')) {
                                     return '215/55R17';
                                   }
                                   return null;
                                 }
-                              ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Utils.getTextFormField('Rear tire e.g., 215/55R17',
-                                rearTireController,
-                                  hintTextColor: AppC.grey,
-                                  validator: (value){
-                                    final BackTireRegex = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
-                                    if (!BackTireRegex.hasMatch(value ?? '')) {
-                                      return '215/55R17';
-                                    }
-                                    return null;
-                                  }
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Utils.getText('Reg Sticker date', weight: FontWeight.bold),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.centerRight,
-                                    children: [
-                                      Utils.getTextFormField(
-                                        'dd-mm-yyyy',
-                                        renewalDateController,
-                                        hintTextColor: AppC.grey,
-                                        suffixIcon: const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Icon(
-                                            Icons.date_range,
-                                            color: AppC.appColor,
-                                            size: 15,
-                                          ),
-                                        ),
-
-                                        readOnly: true,
-                                        onTapCallback: () {
-                                          //d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
-                                          renewalDateController.text = DateFormat('dd-MM-yyyy').format(DateTime?.tryParse(renewalDateController.text) ?? DateTime.now());
-                                          d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
-                                          Utils.datePicker(context, '',
-                                              initial: DateFormat('dd-MM-yyyy').parse(renewalDateController.text))
-                                              .then((value) {
-                                            if (value != null) {
-                                              renewalDateController.text =
-                                                  DateFormat('dd-MM-yyyy').format(value);
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Utils.getText('Reg Sticker date', weight: FontWeight.bold),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Column(
                               children: [
-                                Container(
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppC.fieldBase,
-                                        width: Num.borderWidthField,
+                                Stack(
+                                  alignment: Alignment.centerRight,
+                                  children: [
+                                    Utils.getTextFormField(
+                                      'dd-mm-yyyy',
+                                      renewalDateController,
+                                      hintTextColor: AppC.grey,
+                                      suffixIcon: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Icon(
+                                          Icons.date_range,
+                                          color: AppC.appColor,
+                                          size: 15,
+                                        ),
                                       ),
-                                      borderRadius:
-                                      const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                                  child: Utils.getOutlinedButton(
-                                    'Upload Reg Sticker',
-                                        () async {
-                                      FocusScope.of(context).requestFocus(FocusNode());
-                                      var result = await _pickImages2();
-                                      FocusScope.of(context).requestFocus(FocusNode());
-                                      if (result != null) {
-                                        var files = uploadRegSticker.whereType<File>().map((e) => e.path);
-                                        for (var element in result) {
-                                          if (!files.contains(element.path)) {
-                                            uploadRegSticker.add(element);
+                                      readOnly: true,
+                                      onTapCallback: () {
+                                        renewalDateController.text = DateFormat('dd-MM-yyyy').format(DateTime?.tryParse(renewalDateController.text) ?? DateTime.now());
+                                        d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
+                                        Utils.datePicker(context, '',
+                                            initial: DateFormat('dd-MM-yyyy').parse(renewalDateController.text))
+                                            .then((value) {
+                                          if (value != null) {
+                                            renewalDateController.text =
+                                                DateFormat('dd-MM-yyyy').format(value);
                                           }
-                                        }
-                                        setState(() {});
-                                      }
-                                    },
-                                    iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                    verticalPadding: 0,
-                                    radius: BorderRadius.zero,
-                                    bgColor: AppC.trans,
-                                    borderColor: AppC.trans,
-                                    textColor: AppC.grey,
-                                  ),
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
                             children: [
-                              Visibility(
-                                visible: uploadRegSticker.isNotEmpty,
-                                child: GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 10.0,
-                                    mainAxisSpacing: 10.0,
-                                    childAspectRatio: 1.0,
-                                  ),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: uploadRegSticker.length,
-                                  itemBuilder: (context, index) {
-                                    return CloseBadge(
-                                        onTapView: () {
-                                          ShowAttachmentsDialog.of.show(context,
-                                              attachments: uploadRegSticker,
-                                              title: "",
-                                              currentAttachment: uploadRegSticker[index]);
-                                        },
-                                        onTapDelete: () {
-                                          setState(() {
-                                            if (uploadRegSticker[index] is File) {
-                                              uploadRegSticker.removeAt(index);
-                                            } else {
-                                              int? Id = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
-                                                      (image) =>
-                                                  uploadRegSticker[index].split('/').last ==
-                                                      image['path'].split('/').last,
-                                                  orElse: () => null)?['id'];
-                                              if (uploadRegSticker != null) {
-                                                context
-                                                    .read<VehicleDataBloc>()
-                                                    .add(DeleteSetVehicleImage(id: Id));
-                                                uploadRegSticker.removeAt(index);
-                                              }
-                                            }
-                                            uploadRegSticker = List.from(uploadRegSticker);
-                                          });
-                                          context
-                                              .read<VehicleDataBloc>()
-                                              .add(const GetAddedVehicleListData());
-                                        },
-                                        child: Container(
-                                          constraints: BoxConstraints(
-                                            minHeight: MediaQuery.sizeOf(context).height,
-                                            minWidth: MediaQuery.sizeOf(context).width,
-                                          ),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(16),
-                                              color: AppC.grey.withValues(alpha: 0.2)),
-                                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                                          child: ImageViewer(
-                                            fit: BoxFit.cover,
-                                            imageInput: uploadRegSticker[index],
-                                            isNotImage: !(uploadRegSticker[index] as Object).isImage,
-                                          ),
-                                        ));
+                              Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppC.fieldBase,
+                                      width: Num.borderWidthField,
+                                    ),
+                                    borderRadius:
+                                    const BorderRadius.all(Radius.circular(Num.subradiusButton))),
+                                child: Utils.getOutlinedButton(
+                                  'Upload Reg Sticker',
+                                      () async {
+                                    var result = await _pickImages2();
+                                    if (result != null) {
+                                      var files = uploadRegSticker.whereType<File>().map((e) => e.path);
+                                      for (var element in result) {
+                                        if (!files.contains(element.path)) {
+                                          uploadRegSticker.add(element);
+                                        }
+                                      }
+                                      setState(() {});
+                                    }
                                   },
+                                  iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                  verticalPadding: 0,
+                                  radius: BorderRadius.zero,
+                                  bgColor: AppC.trans,
+                                  borderColor: AppC.trans,
+                                  textColor: AppC.grey,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        if (widget.showHeader)
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Utils.getTextFormField('Current Odometer', currentOdometerController),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child:
-                                    Utils.getTextFormField('Oil Change Odometer', oilChangeOdometerController),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Utils.getTextFormField(
-                                  'Maintenance Check(day from today)', maintenanceCheckController),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
-                        Row(
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Expanded(
-                              child: Utils.getTextFormField('Insurance Agent', insuranceAgentController),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Utils.getTextFormField('Insurance Cost', insuranceCostController),
+                            Visibility(
+                              visible: uploadRegSticker.isNotEmpty,
+                              child: GridView.builder(
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 10.0,
+                                  mainAxisSpacing: 10.0,
+                                  childAspectRatio: 1.0,
+                                ),
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: uploadRegSticker.length,
+                                itemBuilder: (context, index) {
+                                  return CloseBadge(
+                                      onTapView: () {
+                                        ShowAttachmentsDialog.of.show(context,
+                                            attachments: uploadRegSticker,
+                                            title: "",
+                                            currentAttachment: uploadRegSticker[index]);
+                                      },
+                                      onTapDelete: () {
+                                        setState(() {
+                                          if (uploadRegSticker[index] is File) {
+                                            uploadRegSticker.removeAt(index);
+                                          } else {
+                                            int? Id = (images).firstWhere(
+                                                    (image) =>
+                                                uploadRegSticker[index].split('/').last ==
+                                                    image['path'].split('/').last,
+                                                orElse: () => null)?['id'];
+                                            if (uploadRegSticker != null) {
+                                              context
+                                                  .read<VehicleDataBloc>()
+                                                  .add(DeleteSetVehicleImage(id: Id, vin: widget.selectedVehicle['vin'].toString()));
+                                              uploadRegSticker.removeAt(index);
+                                            }
+                                          }
+                                          uploadRegSticker = List.from(uploadRegSticker);
+                                        });
+
+                                      },
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          minHeight: MediaQuery.sizeOf(context).height,
+                                          minWidth: MediaQuery.sizeOf(context).width,
+                                        ),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(16),
+                                            color: AppC.grey.withValues(alpha: 0.2)),
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        child: ImageViewer(
+                                          fit: BoxFit.cover,
+                                          imageInput: uploadRegSticker[index],
+                                          isNotImage: !(uploadRegSticker[index] as Object).isImage,
+                                        ),
+                                      ));
+                                },
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppC.fieldBase,
-                                width: Num.borderWidthField,
-                              ),
-                              borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                          child: Utils.getOutlinedButton(
-                            'Insurance Image',
-                                () async {
-                              FocusScope.of(context).requestFocus(FocusNode());
-                              var result = await _pickImages2();
-                              FocusScope.of(context).requestFocus(FocusNode());
-                              if (result != null) {
-                                var files = insuranceImage.whereType<File>().map((e) => e.path);
-                                for (var element in result) {
-                                  if (!files.contains(element.path)) {
-                                    insuranceImage.add(element);
-                                  }
-                                }
-                                setState(() {});
-                              }
-                            },
-                            iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                            verticalPadding: 0,
-                            radius: BorderRadius.zero,
-                            bgColor: AppC.trans,
-                            borderColor: AppC.trans,
-                            textColor: AppC.grey,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Utils.getTextFormField('Insurance Agent', insuranceAgentController),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: Visibility(
-                            visible: insuranceImage.isNotEmpty,
-                            child: GridView.builder(
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 10.0,
-                                mainAxisSpacing: 10.0,
-                                childAspectRatio: 1.0,
-                              ),
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: insuranceImage.length,
-                              itemBuilder: (context, index) {
-                                return CloseBadge(
-                                    onTapView: () {
-                                      ShowAttachmentsDialog.of.show(context,
-                                          attachments: insuranceImage,
-                                          title: "",
-                                          currentAttachment: insuranceImage[index]);
-                                    },
-                                    onTapDelete: () {
-                                      setState(() {
-                                        if (insuranceImage[index] is File) {
-                                          insuranceImage.removeAt(index);
-                                        } else {
-                                          int? Id = (widget.vehicle?['images'] as List<dynamic>?)?.firstWhere(
-                                                  (image) =>
-                                              insuranceImage[index].split('/').last ==
-                                                  image['path'].split('/').last,
-                                              orElse: () => null)?['id'];
-                                          if (insuranceImage != null) {
-                                            context
-                                                .read<VehicleDataBloc>()
-                                                .add(DeleteSetVehicleImage(id: Id));
-                                            insuranceImage.removeAt(index);
-                                          }
-                                        }
-                                        insuranceImage = List.from(insuranceImage);
-                                      });
-                                      context
-                                          .read<VehicleDataBloc>()
-                                          .add(const GetAddedVehicleListData());
-                                    },
-                                    child: Container(
-                                      constraints: BoxConstraints(
-                                        minHeight: MediaQuery.sizeOf(context).height,
-                                        minWidth: MediaQuery.sizeOf(context).width,
-                                      ),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(16),
-                                          color: AppC.grey.withValues(alpha: 0.2)),
-                                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                                      child: ImageViewer(
-                                        fit: BoxFit.cover,
-                                        imageInput: insuranceImage[index],
-                                        isNotImage: !(insuranceImage[index] as Object).isImage,
-                                      ),
-                                    ));
-                              },
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Utils.getTextFormField('Insurance Cost', insuranceCostController),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppC.fieldBase,
+                              width: Num.borderWidthField,
                             ),
+                            borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
+                        child: Utils.getOutlinedButton(
+                          'Insurance Image',
+                              () async {
+                            var result = await _pickImages2();
+                            if (result != null) {
+                              var files = insuranceImage.whereType<File>().map((e) => e.path);
+                              for (var element in result) {
+                                if (!files.contains(element.path)) {
+                                  insuranceImage.add(element);
+                                }
+                              }
+                              setState(() {});
+                            }
+                          },
+                          iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                          verticalPadding: 0,
+                          radius: BorderRadius.zero,
+                          bgColor: AppC.trans,
+                          borderColor: AppC.trans,
+                          textColor: AppC.grey,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: Visibility(
+                          visible: insuranceImage.isNotEmpty,
+                          child: GridView.builder(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 10.0,
+                              mainAxisSpacing: 10.0,
+                              childAspectRatio: 1.0,
+                            ),
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: insuranceImage.length,
+                            itemBuilder: (context, index) {
+                              return CloseBadge(
+                                  onTapView: () {
+                                    ShowAttachmentsDialog.of.show(context,
+                                        attachments: insuranceImage,
+                                        title: "",
+                                        currentAttachment: insuranceImage[index]);
+                                  },
+                                  onTapDelete: () {
+                                    setState(() {
+                                      if (insuranceImage[index] is File) {
+                                        insuranceImage.removeAt(index);
+                                      } else {
+                                        int? Id = (images).firstWhere(
+                                                (image) =>
+                                            insuranceImage[index].split('/').last ==
+                                                image['path'].split('/').last,
+                                            orElse: () => null)?['id'];
+                                        if (insuranceImage != null) {
+                                          context
+                                              .read<VehicleDataBloc>()
+                                              .add(DeleteSetVehicleImage(id: Id, vin: widget.selectedVehicle['vin'].toString()));
+                                          insuranceImage.removeAt(index);
+                                        }
+                                      }
+                                      insuranceImage = List.from(insuranceImage);
+                                    });
+                                    context
+                                        .read<VehicleDataBloc>()
+                                        .add(const GetAddedVehicleListData());
+                                  },
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                      minHeight: MediaQuery.sizeOf(context).height,
+                                      minWidth: MediaQuery.sizeOf(context).width,
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color: AppC.grey.withValues(alpha: 0.2)),
+                                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                                    child: ImageViewer(
+                                      fit: BoxFit.cover,
+                                      imageInput: insuranceImage[index],
+                                      isNotImage: !(insuranceImage[index] as Object).isImage,
+                                    ),
+                                  ));
+                            },
                           ),
                         ),
-                        if (widget.showHeader)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                  onTap: () {
-                                    showMore = !showMore;
-                                    setState(() {});
-                                  },
-                                  child: Utils.getText(' Less ...',
-                                      size: 12, color: const Color(0xff0580b5), weight: FontWeight.w500)),
-                            ],
-                          ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Utils.getAddFilledButton('Save', () {
-                        FocusScope.of(context).requestFocus(FocusNode());
                         if (spareKey == false) {
                           savePopUpMenu();
                         } else if (spareKey == true) {
