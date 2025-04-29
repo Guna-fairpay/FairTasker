@@ -340,14 +340,17 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         await getIt<CommonService>().getActiveVehicles(reset: true);
         Console.of.log(response, name: "RESPONSE");
         if (response?['message']?.isNotEmpty ?? false) {
-          Toaster.showSuccess(response?['message'] ?? []);
+          // Toaster.showSuccess("Update successfully");
+          emit(EditVehicleSuccessState("Update successfully"));
         } else {
-          Toaster.showError(response?['error'] ?? []);
+          // Toaster.showError(response?['error'] ?? []);
+          emit(EditVehicleErrorState(response?['error'] ?? ""));
         }
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
         _broadcast.stickyBroadcast("vehicle_refresh", value: true);
         _broadcast.broadcast("todo_view");
+        await Future.delayed(Durations.extralong4);
         emit(EditCompletedState());
       } catch (e) {
         Toaster.showError("$e");
