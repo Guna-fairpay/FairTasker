@@ -199,6 +199,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           await _findReservationColor(event.selectedVPerson?.firstOrNull?['value']?['vin']);
         }
         var selectedOption = getIt<CommonService>().isAdmin ? AddToDoConfig.customOptions.first : AddToDoConfig.customOptions[1];
+        if (existingRefId.toString().isNotNullOrEmpty) selectedOption = AddToDoConfig.customOptions[1];
         emit(state.copyWith(
             isLoading: false,
             tasks: response[0] ?? [],
@@ -333,7 +334,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       emit(state.copyWith(
           selectedVPerson: existingVPersons,
           selectedTaskIdentifier: oldIdentifier));
-      if (existingVPersons.length == 1) await _findReservationColor(vehicleVin);
+      if (existingVPersons.length == 1) {
+        await _findReservationColor(vehicleVin);
+        if (existingRefId.toString().isNotNullOrEmpty) {
+          emit(state.copyWith(selectedLinkOption: AddToDoConfig.customOptions[1]));
+        }
+      }
       else {
         existingRefId = null;
         customLinkController.clear();

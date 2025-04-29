@@ -56,3 +56,10 @@ class TRCDRemoveAttachmentEvent extends TRCDEvents {
   @override
   List<Object?> get props => [attachment, type];
 }
+
+class TRCDNoCleanDialogEvent extends TRCDEvents {
+  final bool isPositive;
+  TRCDNoCleanDialogEvent({this.isPositive = true});
+  @override
+  List<Object?> get props => [isPositive];
+}

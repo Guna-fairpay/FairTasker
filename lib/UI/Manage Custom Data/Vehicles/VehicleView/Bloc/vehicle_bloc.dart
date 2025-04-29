@@ -6,6 +6,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
@@ -43,6 +44,15 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     on<VehicleGroupingTapEvent>(_onGroupingTapEvent);
   }
   Future<List<Map<String, dynamic>>?> _getVehicle() async => await getIt<CommonService>().getActiveVehicles(reset: true);
+  Future<void> _prepare({dynamic vin}) async {
+    final Completer _completer = Completer();
+    filteredResponse.clear();
+    if (vin.toString().isNotNullOrEmpty) selectedVehicle = apiResponse.firstWhereOrNull((element) => element['vin'] == vin);
+    filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    totalCount = apiResponse.length;
+    _completer.complete();
+    return _completer.future;
+  }
   void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(VehicleInitialEvent()));
   void _onPaginationEvent(VehiclePaginationEvent event, Emitter<VehicleState> emit) {
     currentIndex = event.page;
@@ -50,15 +60,17 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     emit(VehicleCommonState());
   }
   void _onInitialEvent(VehicleInitialEvent event, Emitter<VehicleState> emit) async {
-    emit(VehicleLoadingState());
-    var response= await _getVehicle();
-    response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
-    apiResponse = response ?? [];
-    filteredResponse.clear();
-    if (event.vin.toString().isNotNullOrEmpty) selectedVehicle = apiResponse.firstWhereOrNull((element) => element['vin'] == event.vin);
-    filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-    totalCount = apiResponse.length;
-    emit(VehicleCommonState());
+    try {
+      await Future.delayed(Durations.short2);
+      emit(VehicleLoadingState());
+      var response= await _getVehicle();
+      response?.sort((a, b) => b['created_at'].compareTo(a['created_at']));
+      apiResponse = response ?? [];
+      await _prepare(vin: event.vin);
+      emit(VehicleCommonState());
+    }  catch (e) {
+      Console.of.error("Error", error: e);
+    }
   }
   void _onSearchEvent(SearchVehicleEvent event, Emitter<VehicleState> emit) {
     var searchQuery = event.query?.toLowerCase() ?? "";

@@ -72,8 +72,15 @@ class CommonService {
   int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false) || (userId == 3);
+  bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 22, 1, 28, 21, ].contains(userId)));
 
   int get departmentId => Session.of.getInt("departmentId") ?? 0;
+
+  bool get showBranchSelection {
+    var hasDepartmentId = [6,7,8].contains(departmentId);
+    var hasHrmId = Session.of.getInt(Str.hrmIdPrefText) != 0;
+    return (isAdmin || hasDepartmentId) && hasHrmId;
+  }
 
   void branchUpdate({VoidCallback? callback}) {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
@@ -511,7 +518,7 @@ class CommonService {
     try {
       var response = await _apiRepository.getVehicleHistory(vin: vin);
       var _vehileHisory = List<Map<String, dynamic>>.from(response?['todo']?['data'] ?? []);
-      return _vehileHisory.firstOrNull;
+      return _vehileHisory.where((element) => element['todo_date'] == (DateTime.now().toFormat())).firstOrNull;
     }catch (e) {
       Toaster.showError(e.toString());
       return null;

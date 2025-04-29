@@ -98,9 +98,10 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     on<EditVehicleInitialEvent>((event, emit) async {
       try{
       emit(EditVehicleLoadingState());
+      Console.of.error("CHECK");
+      var vehicleStatusResponse= await _getVehicleStatusCategories();
       var cohortResponse= await _getCohort();
       var branchResponse= await _getBranch();
-      var vehicleStatusResponse= await _getVehicleStatusCategories();
       var editVehicleExpenseDetailsResponse= await _getEditVehicleExpenseDetails(vin:"${event.vehicleData['vin']}");
 
       branchId = await Utils.getIntPreference(Str.branchIdPrefText);
@@ -337,6 +338,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
           id:"${event.data['id']}",
         );
         await getIt<CommonService>().getActiveVehicles(reset: true);
+        Console.of.log(response, name: "RESPONSE");
         if (response?['message']?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? []);
         } else {
@@ -458,17 +460,27 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       log(data, name: "data");
       log(fileList.toString(), name: "fileList");
       log("$fullImageList", name: "fullImageList");
-      var path = fileList.firstWhereOrNull((element) => element == data.toString());
-      var imageId = fullImageList.firstWhereOrNull((element) => element['path'] == path.toString().removeStorageUrl)?['id'];
-      var response =  await _apiRepository.deleteVehicleImage(imageId);
-      if(response?['success'] != null){
-        Toaster.showSuccess(response?['success'] ?? []);
-        fileList.remove(data);
-        _broadcast.stickyBroadcast("vehicle_refresh", value: true);
-        _broadcast.broadcast(Str.addToDoRefresh);
-        _broadcast.broadcast(Str.editToDoRefresh);
-        _broadcast.broadcast("todo_view");
-        return data;
+      try {
+        var path = fileList.firstWhereOrNull((element) => element == data.toString());
+        var lastData = fullImageList.firstWhereOrNull((element) => element['path'] == path.toString().removeStorageUrl);
+        var hasExpense = Map.from(lastData ?? {}).containsKey("expense_id");
+        var imageId = fullImageList.firstWhereOrNull((element) => element['path'] == path.toString().removeStorageUrl)?['id'];
+        var response =  await ((hasExpense) ? _apiRepository.deleteVehicleExpenseImage(imageId) : _apiRepository.deleteVehicleImage(imageId));
+        Console.of.error(response, name: "RESPONSE_ERROR");
+        if(response?['success'] != null){
+          Toaster.showSuccess(response?['success'] ?? "Deleted! Success");
+          fileList.remove(data);
+          _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          _broadcast.broadcast(Str.addToDoRefresh);
+          _broadcast.broadcast(Str.editToDoRefresh);
+          _broadcast.broadcast("todo_view");
+          return data;
+        } else {
+          Toaster.showError(response?['error'] ?? "Something went wrong");
+        }
+      } catch (e) {
+        Console.of.error("Error", error: e);
+        Toaster.showError(e.toString());
       }
     }
   }

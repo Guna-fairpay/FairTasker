@@ -252,7 +252,7 @@ class _BottomNavigationForTaskViewState
             label: 'Feedback',
             itemIndex: 3,
           ),
-          if (getIt<CommonService>().isAdmin) // Show only after role is loaded
+          if (getIt<CommonService>().showExpense) // Show only after role is loaded
             BottomNavigationBarItem(
               icon: InkWell(
                 key: _financeIconKey,

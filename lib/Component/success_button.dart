@@ -36,7 +36,7 @@ class SuccessButton extends StatelessWidget {
         foregroundColor: WidgetStatePropertyAll(foregroundColor),
         visualDensity: VisualDensity.compact,
         textStyle: WidgetStatePropertyAll(context.textTheme.labelLarge
-            ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)));
+            ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white,fontSize: 12.sp)));
     return (icon != null)
         ? ElevatedButton.icon(
             key: key,

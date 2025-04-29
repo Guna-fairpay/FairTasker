@@ -243,6 +243,7 @@ class ApiClient {
     if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
     if (message['fields'] != null) {
       var fields = Map<String, dynamic>.from(message['fields']).map((key, value) => MapEntry(key, (value?.toString() ?? "")));
+      Console.of.log(fields, name: "UPLOADED_FIELDS");
       request.fields.addAll(fields);
     }
     if (message['token'] != null) request.headers.addAll(message['token']);

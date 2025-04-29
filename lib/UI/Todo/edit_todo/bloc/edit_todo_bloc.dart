@@ -64,6 +64,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> linkSelection = [];
   List<dynamic> images = [];
   List<dynamic> todoImages = [];
+  List<dynamic> notesImages = [];
+  List<dynamic> mileageImages = [];
   List<dynamic> vehicleData = [];
   List<dynamic> addressList = [];
   List<dynamic> vendors = [];
@@ -74,6 +76,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   dynamic selectedSentiments = {};
   dynamic previousOdometer = {};
   dynamic selectedDate;
+
+  Map<String, dynamic>? todoResponse = {};
 
   bool showCleanCar = false;
   bool cleanCarIsActive = false;
@@ -89,63 +93,66 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
 
   EditToDoBloc() : super(EditTodoState(
-          isLoading: false,
-          isTimeSensitive: false,
-          tasks: const [],
-          vehicles: const [],
-          persons: const [],
-          vendors: const [],
-          locations: const [],
-          partServices: const [],
-          supplies: const [],
-          resources: const [],
-          selectedTaskPersons: const [],
-          selectedVPerson: const [],
-          selectedVLocations: const {},
-          selectedParts: const [],
-          selectedSupplies: const [],
-          todoAttachments: const [],
-          selectedTask: const {},
-          linkOptions: AddToDoConfig.customOptions,
-          bottomTapData: const [],
-          selectedBottomTap: const {},
-          isSelectedPlatformCheck: false,
-          showPlatformCheck: false,
-          isMoreEnable: false,
-          isPartServiceEnable: false,
-          isSuppliesEnable: false,
-          selectedLinkOption: AddToDoConfig.customOptions[1],
-          selectedDate: DateTime.now(),
-          selectedTime: TimeOfDay.now(),
-          apiResponse: const {},
-          todoStatus: false,
-          selectedResource: const [],
-          userGroup: const [],
-          resourceName: const [],
-          addresses: const [],
-          title: '',
-          taskHistory: const [],
-          selectedVehicle: const {},
-          groupVehicles: const [],
-          sentiments: AddToDoConfig.sentiments,
-          selectedSentiment: const {},
-          popUpdatePage: false,
-          previousOdometer: '',
-          selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
-          showCleanCar: false,
-          isPop: false,
-          clearDurations: AddToDoConfig.cleanCarDurations,
-          selectedEndDate: null,
-          selectedStartDate: null,
-          isRecurring: false,
-          isTimeChange: false,
-        )) {
+    isLoading: false,
+    isTimeSensitive: false,
+    tasks: const [],
+    vehicles: const [],
+    persons: const [],
+    vendors: const [],
+    locations: const [],
+    partServices: const [],
+    supplies: const [],
+    resources: const [],
+    selectedTaskPersons: const [],
+    selectedVPerson: const [],
+    selectedVLocations: const {},
+    selectedParts: const [],
+    selectedSupplies: const [],
+    todoAttachments: const [],
+    selectedTask: const {},
+    linkOptions: AddToDoConfig.customOptions,
+    bottomTapData: const [],
+    selectedBottomTap: const {},
+    isSelectedPlatformCheck: false,
+    showPlatformCheck: false,
+    isMoreEnable: false,
+    isPartServiceEnable: false,
+    isSuppliesEnable: false,
+    selectedLinkOption: AddToDoConfig.customOptions[1],
+    selectedDate: DateTime.now(),
+    selectedTime: TimeOfDay.now(),
+    apiResponse: const {},
+    todoStatus: false,
+    selectedResource: const [],
+    userGroup: const [],
+    resourceName: const [],
+    addresses: const [],
+    title: '',
+    taskHistory: const [],
+    selectedVehicle: const {},
+    groupVehicles: const [],
+    sentiments: AddToDoConfig.sentiments,
+    selectedSentiment: const {},
+    popUpdatePage: false,
+    previousOdometer: '',
+    selectedClearDuration: AddToDoConfig.cleanCarDurations.first,
+    showCleanCar: false,
+    isPop: false,
+    clearDurations: AddToDoConfig.cleanCarDurations,
+    selectedEndDate: null,
+    selectedStartDate: null,
+    isRecurring: false,
+    isTimeChange: false,
+    notesImages: const [],
+    mileageImages: const [],
+  )) {
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
     on<EditToDoRefreshEvent>(_onRefreshEvent);
+
     on<GetEditTodoInitialEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        var todoResponse = await apiRepository.editToDo(event.todoId);
+        todoResponse = await apiRepository.editToDo(event.todoId);
         var partsResponse = await getIt<CommonService>().getPartsList();
         var suppliesResponse = await getIt<CommonService>().getSuppliesList();
         var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
@@ -266,7 +273,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         images = todoResponse?['todoimages'];
         todoImages =
             images.map((e) => e['path'].toString().toAttachmentURL).toList();
-
+        notesImages =
+            List.from(todoResponse?['todo_note_attachments']).map((e) => e['path'].toString().toAttachmentURL).toList();
+        mileageImages =
+            List.from(todoResponse?['todo_mileage_attachments']).map((e) => e['path'].toString().toAttachmentURL).toList();
         final title = todoResponse?['title'];
         final vehicleExists = todoResponse?['vehicle_name'] != null ||
             todoResponse?['vin'] != null ||
@@ -316,7 +326,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             vin: List.from(vinList).firstOrNull ?? '',
             identifierId: todoResponse?['identifier_id']);
         showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
-
         RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
         if(todoResponse?['recurring'] != null && todoResponse?['recurring_last_date'] != null){
           final matches = dateRegExp.allMatches(todoResponse?['recurring']??[]).toList();
@@ -328,7 +337,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
           }
         }
-
         /*if (todoResponse?['recurring'] != null) {
           if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
             selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
@@ -341,7 +349,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             persons: selectedPerson,
             groupVehicles: selectedGroupVehicles);
         cleanCarIsActive=true;
-
         emit(state.copyWith(
           isLoading: false,
           showCleanCar: showCleanCar,
@@ -395,6 +402,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           clearDurations: AddToDoConfig.cleanCarDurations,
           selectedEndDate: selectedEndDate,
           selectedStartDate: selectedStartDate,
+          notesImages: notesImages,
+          mileageImages: mileageImages,
           isPop: false,
         ));
         await Future.delayed(
@@ -748,6 +757,50 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         }
       }
 
+    });
+
+    on<RemoveNotesImageEvent>((event, emit) async {
+        try{
+          var attachmentId =
+             List.from(todoResponse?['todo_note_attachments']).where((element) =>
+          element['path'].toString().toAttachmentURL ==
+              event.data.toString())
+              .map((e) => e['id'])
+              .firstOrNull;
+          var response = await apiRepository.deleteTodoNoteAttachment(attachmentId);
+          if(response != null){
+            notesImages.remove(event.data);
+            _broadcast.stickyBroadcast("todo_view", value: true);
+          }
+          emit(state.copyWith(notesImages: notesImages));
+          return;
+        }catch(e){
+          Toaster.showError("$e");
+          log(e.toString(), name: 'ERROR');
+          emit(state.copyWith(isLoading: false));
+        }
+    });
+
+    on<RemoveMileageImageEvent>((event, emit) async {
+      try{
+        var attachmentId =
+            List.from(todoResponse?['todo_mileage_attachments']).where((element) =>
+            element['path'].toString().toAttachmentURL ==
+                event.data.toString())
+                .map((e) => e['id'])
+                .firstOrNull;
+        var response = await apiRepository.deleteTodoMileageAttachment(attachmentId);
+        if(response != null){
+          mileageImages.remove(event.data);
+          _broadcast.stickyBroadcast("todo_view", value: true);
+        }
+        emit(state.copyWith(mileageImages: mileageImages));
+        return;
+      }catch(e){
+        Toaster.showError("$e");
+        log(e.toString(), name: 'ERROR');
+        emit(state.copyWith(isLoading: false));
+      }
     });
 
     on<EditToDoSaveEvent>((event, emit) async {

@@ -141,8 +141,10 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
   void _onAllCheckEvent(MaintenanceCheckAllCheckEvent event, Emitter<MaintenanceCheckState> emit) async {
     try {
       emit(MaintenanceCheckLoadingState());
-      var body = { "mandatory" : (event.value ?? false) ? 1 : 0, "type" : "inline" };
+      var body = { "mandatory" : (event.value ?? false) ? 0 : 1, "type" : "inline" };
+      Console.of.log(jsonEncode(body));
       var response = await _updateToDo(body, _editToDoModel?['id']);
+      FBroadcast.instance().broadcast("todo_view", value: true);
       if (response != null) emit(MaintenanceCheckCompleteState());
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -205,7 +207,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
         body['user_group_id'] = "${_editToDoModel?['user_group_id'] ?? ""}";
         body['user_id'] = "$_userId";
         body['vehicle_name'] = List.from(_editToDoModel?['vehicles'] ?? []).firstOrNull?['vehicle_name'] ?? "";
-        body['vehicles'] = "${_editToDoModel?['vehicles'] ?? ""}";
+        body['vehicles'] = "${List.from(_editToDoModel?['vehicles'] ?? []).map((e) => jsonEncode(e)).toList()}";
         body['vendor_id'] = _editToDoModel?['vendor_id'] ?? "";
         body['vendor_name'] = "${_editToDoModel?['vendor_name'] ?? ""}";
         body['vin'] = "${_editToDoModel?['vin'] ?? ""}";
@@ -214,7 +216,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
       if (response != null) {
         if (taskId == 0) await _updateBody(responseId: List.from(response['todo']).firstOrNull?['id'], modelId: event.model['id']);
         Console.of.log("$response", name: "RESPONSE");
-        FBroadcast.instance().broadcast("todo_view");
+        FBroadcast.instance().broadcast("todo_view", value: true);
         emit(MaintenanceCheckCompleteState());
       } else {
         emit(MaintenanceCheckCommonState());
@@ -254,7 +256,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
       emit(MaintenanceCheckLoadingState());
       var taskId = event.model?['fix_task_id'];
       await _apiRepository.deleteToDo(taskId, event.reason);
-      FBroadcast.instance().broadcast("todo_view");
+      FBroadcast.instance().broadcast("todo_view", value: true);
       emit(MaintenanceCheckCompleteState());
     } catch(e) {
       Console.of.error("Error", error: e);

@@ -132,7 +132,7 @@ class Utils {
         double topRRadius = 4,
         double bottomLRadius = 4,
         double bottomRRadius = 4,
-        double height = 40,
+        double height = 35,
       }) {
     //Console.of.log("initialSelection${initialSelection}");
     return
@@ -154,10 +154,10 @@ class Utils {
         initialSelection: initialSelection,
         hintText: hintText,
         menuHeight: 250,
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           color: AppC.text,
             overflow: TextOverflow.ellipsis,
-          fontSize: 14
+          fontSize: 12.sp
         ),
         inputDecorationTheme:  InputDecorationTheme(
           hintStyle: const TextStyle(color: AppC.grey),
@@ -539,6 +539,7 @@ class Utils {
           // fontSize: textSize,
           color: textColor,
           fontWeight: fontWeight,
+          fontSize: 12.sp,
         ),
         onChanged: onChangeCallback,
       )

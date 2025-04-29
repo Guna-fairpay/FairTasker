@@ -12,9 +12,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EmployeeAddEditMainPage extends StatelessWidget {
-  final String? id;
+  final dynamic id;
   const EmployeeAddEditMainPage({super.key, this.id});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,17 +54,16 @@ class EmployeeAddEditMainPage extends StatelessWidget {
                       Padding(
                         padding:  EdgeInsets.all(16.sp),
                         child: Utils.getText(
-                            id == "null"?'Add User':'Edit User',size: 16.sp,weight: FontWeight.bold),
+                            id==null?'Add User':'Edit User',size: 16.sp,weight: FontWeight.bold),
                       ),
                       const Divider(thickness: 0.5,height: 0.5,),
                       Padding(
                         padding: EdgeInsets.all(16.sp),
-                        child: const EmployeeAddEditTextFormFieldPage(),
+                        child: EmployeeAddEditTextFormFieldPage(id: id,),
                       )
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
