@@ -9,11 +9,13 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/BackUps/part_view_u
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/UI/supplies_main_ui.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/ask_date_range_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/gestures.dart';
@@ -120,18 +122,19 @@ class EditTodoMoreForm extends StatelessWidget {
                 'Platform Check'),
           if (state.isMoreEnable && (Str.completedOdometer.contains(state.apiResponse['title'])))
             Row(
-            spacing: 15,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 10,
             children: [
-              10.height,
               Expanded(child: Utils.getTextFormField("Trip driven miles", context.read<EditToDoBloc>().tripDrivenController,)),
-              Expanded(child: Utils.dropdownBox(
-                "Selected Sentiments",
-                state.sentiments,
-                    (val)=>context.read<EditToDoBloc>().add(EditToDoSelectSentimentsEvent(val)),
-                labelKey: 'name',
-                initialSelection: state.selectedSentiment,
-              ),),
-              10.height,
+              Expanded(
+                child: Utils.dropdownBox(
+                  "Selected Sentiments",
+                  state.sentiments,
+                      (val)=>context.read<EditToDoBloc>().add(EditToDoSelectSentimentsEvent(val)),
+                  labelKey: 'name',
+                  initialSelection: state.selectedSentiment,
+                ),
+              ),
             ],
           ),
           Row(
@@ -216,6 +219,40 @@ class EditTodoMoreForm extends StatelessWidget {
                 child: Utils.getText(state.apiResponse['clean_required'] ?? '',
                     align: TextAlign.start,
                     color: const Color(0xffd01601))),
+          if(state.mileageImages.isNotEmpty)
+            GestureDetector(
+              onTap: (){
+                ShowAttachmentsDialog.of.show(context,
+                    attachments: state.mileageImages, title: "",
+                    onDeleted: (data)=>context.read<EditToDoBloc>().add(RemoveMileageImageEvent(data:data))
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                spacing: 5,
+                children: [
+                  Utils.getText('General Picture'),
+                  Icon(Icons.remove_red_eye_outlined,size: 16.sp,)
+                ],
+              ),
+            ),
+          if(state.notesImages.isNotEmpty)
+            GestureDetector(
+              onTap: (){
+                ShowAttachmentsDialog.of.show(context,
+                  attachments: state.notesImages, title: "",
+                  onDeleted: (data)=>context.read<EditToDoBloc>().add(RemoveNotesImageEvent(data:data))
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                spacing: 5,
+                children: [
+                  Utils.getText('Note attachments'),
+                  Icon(Icons.remove_red_eye_outlined,size: 16.sp,)
+                ],
+              ),
+            ),
           if (state.selectedVehicle.isNotEmpty && state.taskHistory.length > 1)
             Utils.dropdownBox(
                 "Select Vehicle Name",

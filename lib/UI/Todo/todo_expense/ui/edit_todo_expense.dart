@@ -96,6 +96,7 @@ class TodoExpense extends StatelessWidget {
                       'Amount in dollars',
                       textType: TextInputType.number,
                       context.read<TodoEditExpenseBloc>().amountController,
+                      inputAction: TextInputAction.done,
                     ),
                   ),
                 Expanded(
