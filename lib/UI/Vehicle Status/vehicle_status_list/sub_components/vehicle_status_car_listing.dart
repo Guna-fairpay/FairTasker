@@ -78,7 +78,11 @@ class VehicleStatusCarListing extends StatelessWidget {
                             return VehicleStatusCard(
                                 model: model,
                                 onComplete:()async{
-                                  context.read<VehicleStatusBloc>().add(VehicleStatusCompletedPopupEvent(model: model));
+                                  if(model['vehicle_status']==5){
+                                    context.read<VehicleStatusBloc>().add(VehicleOnCompleteEvent(model: model));
+                                  }else{
+                                    context.read<VehicleStatusBloc>().add(VehicleStatusCompletedPopupEvent(model: model));
+                                  }
                                   return false;
                                   },
                                 onPrevious: () async {
@@ -89,7 +93,7 @@ class VehicleStatusCarListing extends StatelessWidget {
                                     .read<VehicleStatusBloc>()
                                     .add(VehicleStatusOnTapEvent(
                                         model: model, type: type)),
-                                dismissDirection: [1, 4].contains(context
+                                dismissDirection: [1, 4, 5].contains(context
                                         .read<VehicleStatusBloc>()
                                         .selectedCategory?['id'])
                                     ? DismissDirection.horizontal
@@ -97,9 +101,7 @@ class VehicleStatusCarListing extends StatelessWidget {
                                             .read<VehicleStatusBloc>()
                                             .selectedCategory?['id'])
                                         ? DismissDirection.none
-                                        : [5].contains(context
-                                    .read<VehicleStatusBloc>()
-                                    .selectedCategory?['id']) ? DismissDirection.endToStart : DismissDirection.startToEnd,
+                                        : DismissDirection.startToEnd,
                                 categoryId: context
                                     .read<VehicleStatusBloc>()
                                     .selectedCategory?['id']);
