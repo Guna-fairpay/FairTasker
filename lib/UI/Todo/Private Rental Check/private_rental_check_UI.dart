@@ -20,9 +20,12 @@ extension ContextExtension on BuildContext {
 }
 
 class PrivateRentalCheckUi extends StatelessWidget {
-  final dynamic todoItems, vehicle;
+  final dynamic? todoItems, vehicle;
 
-  const PrivateRentalCheckUi({super.key, required this.todoItems, required this.vehicle});
+  PrivateRentalCheckUi({super.key, required this.todoItems, required this.vehicle}) {
+    log("todoItems type: ${todoItems.runtimeType}");
+    log("vehicle type: ${vehicle.runtimeType}");
+  }
 
 
   @override
@@ -31,7 +34,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
       create: (context) => PrivateRentalsBloc()
         ..add(PrivateRentalInitialEvent(
           todoItem: todoItems,
-          vehicle: vehicle,
+          vehicle: vehicle is Map ? Map<String, dynamic>.from(vehicle.map((k, v) => MapEntry(k.toString(), v))) : <String, dynamic>{},
         )),
       child: BlocListener<PrivateRentalsBloc, PrivateRentalsState>(
         listener: (context, state) {
@@ -193,7 +196,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
                           notes: '${checkListData['title']} - ${notesController.text}',
                           id: itemId.toString(),
                           todoItem: todoItems,
-                          vehicle: vehicle,
+                          vehicle: vehicle is Map ? Map<String, dynamic>.from(vehicle.map((k, v) => MapEntry(k.toString(), v))) : <String, dynamic>{},
                         ),
                       );
                       FocusScope.of(context).unfocus();

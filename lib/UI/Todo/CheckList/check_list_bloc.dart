@@ -100,6 +100,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
               } else {
                 noteContent = rawNote;
               }
+              log("noteContent: $noteContent");
 
               notesValues.add(checklistTitle);
 

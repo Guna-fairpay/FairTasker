@@ -197,7 +197,9 @@ class CheckListUI extends StatelessWidget {
                       context.read<CheckListBloc>().add(
                         AddFixTaskEvent(
                           title: title,
-                          notes: '${checkListData['title']} - ${notesController.text}',
+                          notes: notesController.text.isNotEmpty || notesController.text != ''
+                              ? '${checkListData['title']} - ${notesController.text}'
+                              : checkListData['title'],
                           checklistId: checkListData['id'],
                         ),
                       );
