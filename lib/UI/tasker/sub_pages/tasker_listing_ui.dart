@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
@@ -100,6 +101,7 @@ class TaskerListingUi extends StatelessWidget {
                     onBouncie: () => context
                         .read<ToDoTaskerBloc>()
                         .add(ToDoTaskerViewBouncieEvent(model)),
+                    onMore: (value) => NotesDialog.show(context, message: value),
                   );
                 },
                 onReorder: (oldIndex, newIndex) {

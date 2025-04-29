@@ -10,8 +10,10 @@ class BranchPopupMenu {
   BranchPopupMenu._();
 
   static void show(BuildContext context, {Offset? offset, void Function(Map<String, dynamic> value)? onChanged}) async {
+    Utils.hideKeyboard(context);
     var response = await showMenu(
         context: context,
+        color: Colors.white,
         position: (offset != null) ? (offset.toRelativeRect(context: context)) : const RelativeRect.fromLTRB(10, 50, 0, 50),
         items: getIt<CommonService>()
             .branchList
@@ -31,7 +33,7 @@ class BranchPopupMenu {
                           (e['id'] == Session.of.getInt(Str.branchIdPrefText))
                               ? [
                                   BoxShadow(
-                                    color: Colors.blue.withOpacity(0.3),
+                                    color: Colors.blue.withValues(alpha: 0.3),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
@@ -42,7 +44,7 @@ class BranchPopupMenu {
                         vertical: 5, horizontal: 10), // Reduced padding
                     child: Center(
                       child: Text(
-                        e['city'],
+                        "${e['city'] ?? ""}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14, // Smaller font size
@@ -64,5 +66,6 @@ class BranchPopupMenu {
       getIt<CommonService>().updateBranch..value = true..notifyListeners();
       FBroadcast.instance().broadcast(Str.branchChange, value: true);
     }
+    Utils.hideKeyboard(context);
   }
 }

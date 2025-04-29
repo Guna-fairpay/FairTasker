@@ -36,13 +36,15 @@ class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
       if (textFormKey.currentState?.validate() == false) return;
       if(!isClosed) emit(ImportTaskLoadingState());
       var response = await _uploadToDo();
+      Console.of.log(response);
       if ((response != null) && ([200,201,202].contains(response['status']))) {
         textController.clear();
         if(!isClosed) emit(ImportTaskCompletedState());
       } else {
-        if (!isClosed) emit(ImportTaskErrorState("Please enter valid text"));
+        if (!isClosed) emit(ImportTaskErrorState(response?['message'] ?? "Something went wrong, please try again later"));
       }
     } catch (e) {
+      Console.of.error("Error", error: e);
       if(!isClosed) emit(ImportTaskErrorState(e));
     }
   }
@@ -52,13 +54,15 @@ class ImportTaskBloc extends Bloc<ImportTaskEvent, ImportTaskState> {
       if (turoFormKey.currentState?.validate() == false) return;
       if(!isClosed) emit(ImportTaskLoadingState());
       var response = await _uploadTuro();
+      Console.of.log(response);
       if ((response != null) && ([200,201,202].contains(response['status']))) {
         turoController.clear();
         if(!isClosed) emit(ImportTaskCompletedState());
       } else {
-        if (!isClosed) emit(ImportTaskErrorState("Please enter valid text"));
+        if (!isClosed) emit(ImportTaskErrorState(response?['message'] ?? "Something went wrong, please try again later"));
       }
     } catch (e) {
+      Console.of.error("Error", error: e);
       if(!isClosed) emit(ImportTaskErrorState(e));
     }
   }

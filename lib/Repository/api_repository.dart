@@ -570,14 +570,14 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteVehicleExpenseImage(
+  Future<Map<String, dynamic>?> deleteVehicleExpenseImage(
     dynamic todoVehicleId,
   ) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_deleteExpenseImage/$todoVehicleId";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
+      return mapData;
     } catch (error) {
       rethrow;
     }

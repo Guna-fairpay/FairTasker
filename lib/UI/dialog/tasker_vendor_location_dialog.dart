@@ -42,6 +42,9 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
     }
   }
 
+  List<Map<String, dynamic>> get vendorsList => getIt<CommonService>().vendorsList;
+  List<Map<String, dynamic>> get locationsList => getIt<CommonService>().locationsList;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -74,8 +77,8 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
           spacing: 5.sp,
           children: [
             CustomVendorLocationField(
-              vendorsList: getIt<CommonService>().vendorsList,
-              locationsList: getIt<CommonService>().locationsList,
+              vendorsList: vendorsList,
+              locationsList: locationsList,
               controller: controller,
               selected: {3: selectedVendor},
               onSelected: (val) {

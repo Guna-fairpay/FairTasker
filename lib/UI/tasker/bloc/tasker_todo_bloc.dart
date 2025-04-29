@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
@@ -106,7 +107,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
 
   void _listenBroadCast() {
-    _fBroadcast.register("todo_view", (value, callback) => add(ToDoTaskerRefreshEvent(showLoading: false)));
+    _fBroadcast.register("todo_view", (value, callback) => add(ToDoTaskerRefreshEvent(showLoading: (value ?? false))));
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
@@ -219,12 +220,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     _reFetchToDos();
   }
 
-  void _reFetchToDos({bool showLoading = true}) async {
+  void _reFetchToDos({bool showLoading = true, bool refresh = false}) async {
     try {
       toDos.clear();
-      if ((!isClosed)) emit(ToDoTaskerCommonState());
-      Console.of.debug("SHOW LOADING $showLoading");
+      if ( (!showLoading) &&  (!isClosed)) emit(ToDoTaskerCommonState());
+      Console.of.debug("SHOW_LOADING $showLoading");
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
+      if (refresh) await _toDoProcessor.refresh();
       var response = await _fetchToDoList();
       unfiltered = response ?? [];
       toDos = unfiltered;
@@ -342,10 +344,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         };
         emit(ToDoTaskerLoadingState());
         var response = await _updateToDo(body: body, todoId: model?['id']);
-        if (response != null) {
-          _reFetchToDos();
-        }
-        emit(ToDoTaskerCommonState());
+        if (response != null) _reFetchToDos();
+        else emit(ToDoTaskerCommonState());
       }
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
@@ -389,7 +389,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var taskTitle = model?['title'];
     var taskDate = model?['todo_date'].toString().toDateTime();
     var currentDate = DateTime.now().toFormat().toDateTime();
-    Console.of.log("TASK COMPLETE ${identifierId} $taskTitle");
+    var mileage = (num.tryParse("${model?['mileage'] ?? ""}") ?? 0);
+    var mandatory = model?['mandatory'];
+    var hasMileage = (mileage > 0);
+    var hasMandatory = ( mandatory == 0);
+    var isAbleMaintenanceComplete = (hasMileage && hasMandatory);
+    Console.of.log("TASK COMPLETE ${identifierId} $taskTitle MILEAGE $hasMileage ($mileage) MANDATORY $hasMandatory ($mandatory) ${hasMileage && hasMandatory}");
     if (identifierId.toString().isNullOrEmpty) {
       /// CUSTOM TASK
       Console.of.log("CUSTOM TASK COMPLETE");
@@ -417,7 +422,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       switch(identifierId) {
         case 35: // OIL CHANGE STATE
         case 126: emit(ToDoTaskerCompleteOilChangeState(event.model)); break;
-        case 257: emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); break;
+        case 257: (isAbleMaintenanceComplete) ? _callCompleteApi(model) : emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); break;
         case 212: emit(ToDoTaskerCompleteRentalCheckOutState(event.model)); break;
         case 28:
         case 210: emit(ToDoTaskerCompleteRentalPickupState(event.model)); break;
@@ -743,10 +748,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "todo_time" : model?['todo_time'],
         "user_group_id" : model?['user_group_id'],
         "vehicle_name" : model?['vehicle_name'],
-        "vehicles" : model?['vehicles'],
+        "vehicles" : "${List.from(model?['vehicles'] ?? []).map((e) => jsonEncode(e)).toList()}",
         "vendor_id" : model?['vendor_id'],
         "vendor_name" : model?['vendor_name'],
         "vin" : model?['vin'],
+        "user_id": _toDoProcessor.userId
       };
       var completeTodoMap = {
         "complete_time_approved" : model?['complete_time_approved'],
@@ -773,10 +779,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var time = event.time;
       var notes = event.notes;
       var mapData = {
+        // "user_id": _toDoProcessor.userId,
         "title" : "Pickup Car",
         "location" : null,
         "location_id" : null,
-        "vehicles" : model?['vehicles'],
+        "vehicles" : "${List.from(model?['vehicles'] ?? []).map((e) => jsonEncode(e)).toList()}",
         "repeatPeriod" : null,
         "repeatDay" : null,
         "repeatWeek" : null,
@@ -830,8 +837,12 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "status" : true
       };
       var response = await _completeToDo(body : body, todoId: model?['id']);
-      if (response != null) _reFetchToDos();
-      emit(ToDoTaskerTaskCompletedState(model));
+      if (response != null) {
+        emit(ToDoTaskerTaskCompletedState(model));
+        _reFetchToDos();
+      } else {
+        emit(ToDoTaskerCommonState());
+      }
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
     }
@@ -909,7 +920,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onRefreshEvent(ToDoTaskerRefreshEvent event, Emitter<ToDoTaskerState> emit) {
-    _reFetchToDos(showLoading: event.showLoading);
+    _reFetchToDos(showLoading: event.showLoading, refresh: true);
   }
 
   void _onViewVehicleEvent(ToDoTaskerViewVehicleEvent event, Emitter<ToDoTaskerState> emit) {
