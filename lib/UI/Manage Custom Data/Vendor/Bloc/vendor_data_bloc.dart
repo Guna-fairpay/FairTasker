@@ -139,7 +139,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       d.log("${event.id} ${event.name} ${event.vendorTypeId} ${event.address} ${event.phone} ${event.expertise} ${event.description} ${event.images} ${event.website} ${event.latitude} ${event.longitude}");
       emit(const VendorDataLoading());
       final response = await apiRepository.createVendor(
-        id : event.id ?? null,
+        id : event.id,
         name : event.name ??'',
         vendorTypeId : event.vendorTypeId.toString() ?? '',
         address : event.address ??'',
@@ -150,25 +150,24 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         website: event.website ?? '',
         latitude: event.latitude?.isNotEmpty == true ? event.latitude : null,
         longitude: event.longitude?.isNotEmpty == true ? event.longitude : null,
-      ).then((value) {
-        isEditMode = false;
-        nameController.clear();
-        addressController.clear();
-        phoneController.clear();
-        expertiseController.clear();
-        descriptionController.clear();
-        websiteController.clear();
-        vendorId = null;
-        vendorTypeId = null;
-        vendorImage.clear();
-        searchController.clear();
-        latitude = null;
-        longitude = null;
-        emit(VendorDataCommonState());
-      }).whenComplete(() {
+      );
+      isEditMode = false;
+      nameController.clear();
+      addressController.clear();
+      phoneController.clear();
+      expertiseController.clear();
+      descriptionController.clear();
+      websiteController.clear();
+      vendorId = null;
+      vendorTypeId = null;
+      vendorImage.clear();
+      searchController.clear();
+      latitude = null;
+      longitude = null;
       _broadcast.broadcast(Str.addToDoRefresh);
       _broadcast.broadcast(Str.editToDoRefresh);
-    });
+      _broadcast.broadcast(Str.refetchVendorLocation);
+      emit(VendorDataCommonState());
       d.log("response added ${response}");
       add(const GetVendorList());
     });
@@ -181,6 +180,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
         add(const GetVendorList());
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
+        _broadcast.broadcast(Str.refetchVendorLocation);
         emit(VendorDataCommonState());
       } else {
         emit(VendorDataCommonState());

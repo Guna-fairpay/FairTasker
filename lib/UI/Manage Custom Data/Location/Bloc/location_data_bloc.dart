@@ -94,6 +94,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       );
       _broadcast.broadcast(Str.addToDoRefresh);
       _broadcast.broadcast(Str.editToDoRefresh);
+      _broadcast.broadcast(Str.refetchVendorLocation);
       if (success == true) {
         emit(LocationDataLoaded(
           message: locationId == null
@@ -124,6 +125,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
         add(const GetAddedLocationListData());
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
+        _broadcast.broadcast(Str.refetchVendorLocation);
         emit(LocationDataCommonState());
       } else {
         emit(LocationDataCommonState());
@@ -169,6 +171,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
           location.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
           filterPage = paginateList(data: location, currentPage: currentIndex, itemsPerPage: itemsPerPage);
           totalCount = location.length;
+          _broadcast.broadcast(Str.refetchVendorLocation);
           add(const GetAddedLocationListData());
           emit(LocationDataCommonState());
         } else {
