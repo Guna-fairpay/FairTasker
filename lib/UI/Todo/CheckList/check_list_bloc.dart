@@ -1,11 +1,13 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:fairpytasker/Response/create_fix_task_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Repository/todo_list_repository.dart';
+import '../../../Utilities/utils.dart';
 import 'check_list_event.dart';
 import 'check_list_state.dart';
 
@@ -162,8 +164,8 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..userGroupId = todoItemsCopy['user_group_id']
             ..title = event.title
             ..notes = event.notes
-            ..todoTime = todoItemsCopy['todo_time']
-            ..startAt = todoItemsCopy['todo_date']
+            ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""
+            ..startAt = DateTime.now().toFormat() ?? ""
             ..vehicleList = todoItemsCopy['vehicles']
             ..locationId = todoItemsCopy['location']
             ..locationId = todoItemsCopy['location_id']
@@ -172,8 +174,26 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vehicleNumber = vehiclesCopy['vehicle_number']
             ..maintenanceTaskId = event.checklistId.toString()
         );
+        Utils.successMobileToast("Fix Task created successfully");
         emit(state.copyWith(isLoading: false, pop: true));
         _broadcast.stickyBroadcast("todo_view", value: true);
+      } catch (e) {
+        print("Error: $e");
+      }
+    });
+
+    on<UpdateFixTaskEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(isLoading: true));
+        final response = await todoListRepo.UpdateFixTask(event.todoId ?? 0,event.notes ?? ''
+        );
+        if(response == true){
+          Utils.successMobileToast("Fix Task Updated successfully");
+          emit(state.copyWith(isLoading: false, pop: true));
+          _broadcast.stickyBroadcast("todo_view", value: true);
+        } else {
+          log("Fix Task Updated failed");
+        }
       } catch (e) {
         print("Error: $e");
       }
@@ -184,6 +204,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
       try{
         log("completeTodoID: ${event.todoId}");
         await todoListRepo.completeATodo(event.todoId.toString(),"Completed");
+        Utils.successMobileToast("Fix Task completed successfully");
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(state.copyWith(pop:true));
       }

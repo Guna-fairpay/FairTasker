@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_bloc
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../../../Component/success_button.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/appC.dart';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_event.dart';
@@ -156,6 +157,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 40.0, right: 20),
             child: Column(
+              spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Utils.getBorderedMultilineTextField(
@@ -164,21 +166,41 @@ class PrivateRentalCheckUi extends StatelessWidget {
                   minLines: 2,
                 ),
                 const SizedBox(height: 5),
-                Utils.getAddFilledButton(
-                  'Create Task',
-                      () {
-                    context.read<PrivateRentalsBloc>().add(
-                      CreatePrivateFixTaskEvent(
-                        notes: '${checkListData['title']} - ${notesController.text}',
-                        id: itemId.toString(),
-                        todoItem: todoItems,
-                        vehicle: vehicle,
-                      ),
-                    );
-                    FocusScope.of(context).unfocus();
-                  },
-                  bgColor: AppC.green,
-                ),
+                if(context.read<PrivateRentalsBloc>().matchingTodos.any(
+                        (todo) => todo['checklist_id'] == itemId))...[
+                  SuccessButton(
+                    text: 'Update Task',
+                    onPressed: (){
+                      final matchingTodo = context.read<PrivateRentalsBloc>().matchingTodos.firstWhere(
+                            (todo) => todo['checklist_id'] == itemId,
+                        orElse: () => {},
+                      );
+                      log("${matchingTodo}", name: "matchingTodo");
+                      context.read<PrivateRentalsBloc>().add(
+                        UpdateFixTaskEvent(
+                          todoId: matchingTodo['id'],
+                          notes: '${notesController.text}',
+                        ),
+                      );
+                    },
+                  )
+                ] else...[
+                  Utils.getAddFilledButton(
+                    'Create Task',
+                        () {
+                      context.read<PrivateRentalsBloc>().add(
+                        CreatePrivateFixTaskEvent(
+                          notes: '${checkListData['title']} - ${notesController.text}',
+                          id: itemId.toString(),
+                          todoItem: todoItems,
+                          vehicle: vehicle,
+                        ),
+                      );
+                      FocusScope.of(context).unfocus();
+                    },
+                    bgColor: AppC.green,
+                  ),
+                ]
               ],
             ),
           ),

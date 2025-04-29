@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/private_rental_check_UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,97 +20,6 @@ class CheckListUI extends StatelessWidget {
 
   const CheckListUI({super.key, required this.todoItems, this.vehicle});
 
-  // void _showTaskPopup(BuildContext context, CheckListBloc checkListBloc) {
-  //   final overlay = Overlay.of(context);
-  //   OverlayEntry? overlayEntry;
-  //   overlayEntry = OverlayEntry(
-  //     builder: (context) => Positioned(
-  //       top: 50,
-  //       left: MediaQuery.of(context).size.width * 0.025, // Adjust position
-  //       width: MediaQuery.of(context).size.width * 0.95, // Increased width
-  //       child: Material(
-  //         color: Colors.transparent,
-  //         child: Container(
-  //           padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 8),
-  //           decoration: BoxDecoration(
-  //             color: Colors.white,
-  //             borderRadius: BorderRadius.circular(10),
-  //             boxShadow: const [
-  //               BoxShadow(
-  //                 color: Colors.black26,
-  //                 blurRadius: 6,
-  //                 offset: Offset(0, 3),
-  //               ),
-  //             ],
-  //           ),
-  //           constraints: BoxConstraints(
-  //             minHeight: 100,
-  //             maxHeight: MediaQuery.of(context).size.height * 0.5,
-  //           ),
-  //           child: IntrinsicHeight(
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 // Close Button and Message in One Row
-  //                 ListTile(
-  //                   contentPadding: EdgeInsets.zero,
-  //                   dense: true,
-  //                   visualDensity: VisualDensity.compact,
-  //                   trailing: IconButton(
-  //                     icon: const Icon(Icons.close),
-  //                     onPressed: () {
-  //                       overlayEntry?.remove();
-  //                       overlayEntry = null;
-  //                     },
-  //                   ),
-  //                 ),
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     Expanded(
-  //                       child: Utils.getText(
-  //                         "Task already exists, please complete or delete the task",
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 const SizedBox(height: 10,),
-  //                 // Buttons Row
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.end,
-  //                   children: [
-  //                     Utils.getAddFilledButton("Complete", () {
-  //                       overlayEntry?.remove();
-  //                       overlayEntry = null;
-  //                       checkListBloc.add(const CompleteEvent(todoId: null));
-  //                     }, bgColor: AppC.green),
-  //                     const SizedBox(width: 30,),
-  //                     Utils.getAddFilledButton("Delete", () {
-  //                       overlayEntry?.remove();
-  //                       overlayEntry = null;
-  //                       AskPermissionDialog.show(context,
-  //                           title: "Are you sure?",
-  //                           description: "${Session.of.getString("name")},  are you sure you want to delete this task? Kindly enter a valid reason to confirm the deletion",
-  //                           boldWords: [(Session.of.getString("name") ?? ''),","],
-  //                           positiveText: "Yes, delete it!",
-  //                           negativeText: "Cancel",
-  //                           isReasonRequired: true,
-  //                           onReasonSubmitted: (reason) => checkListBloc.add(DeleteEvent(reason: reason)),
-  //                         //DeleteEvent
-  //                       );
-  //                     }, bgColor: AppC.red),
-  //                   ],
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  //   overlay.insert(overlayEntry!);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +87,8 @@ class CheckListUI extends StatelessWidget {
     final notesController = context.read<CheckListBloc>().state.notesControllers?[itemId] ?? TextEditingController();
 
     String extractedText = notesController.text.split('-').length > 1 ? notesController.text.split('-')[1].trim() : notesController.text;
+    String extractedData = '';
+    print("extractedData: ${extractedData} CheckListUI");
     notesController.text = parse(extractedText).body?.text ?? extractedText;
     bool hasNotes = notesController.text.isNotEmpty;
     bool isChecked = checkBoxStates[itemId] ?? !hasNotes;
@@ -203,7 +115,6 @@ class CheckListUI extends StatelessWidget {
                     PrivateRentalDialog.show(context,
                       onCompleted: ()
                       {
-                        //checkListBloc.add(const CompleteEvent());
                         bloc.add(CompleteEvent(matchingTodo['id']));
                       },
                       onDelete: ()
@@ -243,10 +154,11 @@ class CheckListUI extends StatelessWidget {
             ),
           ],
         ),
-        if (!isChecked)
-          Padding(
+        if (!isChecked)...[
+           Padding(
             padding: const EdgeInsets.only(left: 50.0, right: 20),
             child: Column(
+              spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Utils.getBorderedMultilineTextField(
@@ -254,29 +166,50 @@ class CheckListUI extends StatelessWidget {
                   notesController,
                   minLines: 2,
                 ),
-                Utils.getAddFilledButton(
-                  'Create Task',
-                      () async {
-                    var title = switch (checkListData['id']) {
-                      1 => 'Clean Car',
-                      7 => 'Oil Change Check',
-                      8 => 'Refuel Car',
-                      _ => 'Fix',
-                    };
-                    context.read<CheckListBloc>().add(
-                      AddFixTaskEvent(
-                        title: title,
-                        notes: '${checkListData['title']}-${notesController.text}',
-                        checklistId: checkListData['id'],
-                      ),
-                    );
-                    FocusScope.of(context).unfocus();
-                  },
-                  bgColor: AppC.green,
-                ),
+                if(context.read<CheckListBloc>().matchingTodos.any(
+                (todo) => todo['checklist_id'] == itemId))...[
+                  SuccessButton(
+                    text: 'Update Task',
+                    onPressed: (){
+                      final matchingTodo = context.read<CheckListBloc>().matchingTodos.firstWhere(
+                            (todo) => todo['checklist_id'] == itemId,
+                        orElse: () => {},
+                      );
+                      log("${matchingTodo}", name: "matchingTodo");
+                      context.read<CheckListBloc>().add(
+                          UpdateFixTaskEvent(
+                            todoId: matchingTodo['id'],
+                            notes: '${notesController.text}',
+                          ),
+                      );
+                    },
+                  )
+                ] else...[
+                  Utils.getAddFilledButton(
+                    'Create Task',
+                        () async {
+                      var title = switch (checkListData['id']) {
+                        1 => 'Clean Car',
+                        7 => 'Oil Change Check',
+                        8 => 'Refuel Car',
+                        _ => 'Fix',
+                      };
+                      context.read<CheckListBloc>().add(
+                        AddFixTaskEvent(
+                          title: title,
+                          notes: '${checkListData['title']} - ${notesController.text}',
+                          checklistId: checkListData['id'],
+                        ),
+                      );
+                      FocusScope.of(context).unfocus();
+                    },
+                    bgColor: AppC.green,
+                  ),
+                ]
               ],
             ),
           ),
+        ]
       ],
     );
   }

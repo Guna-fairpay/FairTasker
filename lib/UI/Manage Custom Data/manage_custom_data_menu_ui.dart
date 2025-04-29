@@ -79,20 +79,12 @@ class ManageCustomDataMenuUI extends StatelessWidget {
             _buildCard(
               icon: Icons.business,
               title: 'Vendor',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => VendorView(),
-                ));
-              },
+              onTap: () => context.push(VendorView()),
             ),
             _buildCard(
               icon: Icons.location_on,
               title: 'Location',
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => LocationView(),
-                ));
-              },
+              onTap: () => context.push(LocationView(),)
             ),
             _buildCard(
               icon: Icons.construction,

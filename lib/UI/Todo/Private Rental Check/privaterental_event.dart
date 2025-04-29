@@ -43,6 +43,14 @@ class CreatePrivateFixTaskEvent extends PrivateRentalsEvent {
   List<Object?> get props => [notes, id, todoItem, vehicle];
 }
 
+class UpdateFixTaskEvent extends PrivateRentalsEvent {
+  final String? notes;
+  final int? todoId;
+  const UpdateFixTaskEvent({ this.notes, this.todoId});
+  @override
+  List<Object?> get props => [notes, todoId];
+}
+
 class CompletePrivateRentalItemEvent extends PrivateRentalsEvent {
   final String todoId;
   const CompletePrivateRentalItemEvent({required this.todoId});

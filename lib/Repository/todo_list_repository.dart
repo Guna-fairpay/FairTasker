@@ -2132,7 +2132,7 @@ class TodoListRepo {
         if (response.statusCode == 200 || response.statusCode == 201) {
           debugPrint('completeATodo api.response.body: ${response.body}');
           debugPrint('completeATodo api.statusCode: ${response.statusCode}');
-
+          return true;
         } else {
           Utils.showSomethingWentWrong();
           return null;
@@ -3341,18 +3341,18 @@ class TodoListRepo {
         return null;
       }
 
-      // 3. Parse response safely
+      // 3. Parse response
       final dynamic responseData = json.decode(response.body);
       log("Full response: $responseData", name: "API_RESPONSE");
 
-      // 4. Extract task ID safely
+      // 4. Extract task ID
       final int? newTaskId = _extractTaskId(responseData);
       if (newTaskId == null) {
         log("Failed to extract task ID from response");
         return null;
       }
 
-      // 5. Handle maintenance task ID
+      // 5. maintenance task ID
       final String? maintenanceId = createFixTaskData.maintenanceTaskId?.split('-').lastOrNull;
       if (maintenanceId != null) {
         fixTasksMap[maintenanceId] = newTaskId;
@@ -3377,7 +3377,6 @@ class TodoListRepo {
   // Helper function to safely extract task ID
   int? _extractTaskId(dynamic responseData) {
     try {
-      // Try multiple possible response formats
       return responseData['todo']?[0]?['id'] as int?
           ?? responseData['id'] as int?
           ?? responseData['todo_id'] as int?;
@@ -3387,6 +3386,28 @@ class TodoListRepo {
     }
   }
 
+  Future<bool?> UpdateFixTask(int todoId, String notes) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}update-todo/${todoId}";
+      String body = jsonEncode({
+        "identifier_id": todoId,
+        "notes": notes,
+        "type": "inline"
+      });
+      log("$body", name: "POST_BODY");
+      final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
+
+      if (response == null) {
+        log("API call failed: ${response?.statusCode}");
+        return null;
+      } else {
+        return true;
+      }
+    } catch (error) {
+      log('UpdateFixTask.exception : ${error.toString()}');
+      return null;
+    }
+  }
 
   Future<TaskMilesResponse?> getTaskMiles() async {
     try {

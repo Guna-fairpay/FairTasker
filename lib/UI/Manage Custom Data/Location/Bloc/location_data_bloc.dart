@@ -151,6 +151,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
           'address': event.address,
           'location_id': -1,
         });
+        d.log("addressesList after add: $addressesList");
         addressController.clear();
         emit(LocationDataCommonState());
       }
