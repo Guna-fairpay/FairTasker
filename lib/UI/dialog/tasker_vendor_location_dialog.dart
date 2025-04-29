@@ -1,17 +1,14 @@
-import 'dart:developer';
-
-import 'package:collection/collection.dart';
-import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/dialog/tasker_vendor_location_dialog/bloc/tasker_vendor_location_dialog_bloc.dart';
+import 'package:fairpytasker/UI/dialog/tasker_vendor_location_dialog/bloc/tasker_vendor_location_dialog_event.dart';
+import 'package:fairpytasker/UI/dialog/tasker_vendor_location_dialog/bloc/tasker_vendor_location_dialog_state.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskerVendorLocationDialog {
@@ -29,23 +26,8 @@ class TaskerVendorLocationDialog {
 
 class _TaskerVendorLocationDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
-  final TextEditingController controller = TextEditingController();
   final void Function(Map<String, dynamic>)? onSelected;
-  Map<String, dynamic>? selectedVendor;
-
-  _TaskerVendorLocationDialogView({required this.model, this.onSelected}) {
-    var locationId = model?['location_id'];
-    var vendorId = model?['vendor_id'];
-    if (locationId != null || vendorId != null) {
-      var list = CustomSearchDataConverter.convertVLocation(locations: getIt<CommonService>().locationsList, vendors: getIt<CommonService>().vendorsList);
-      selectedVendor = list
-          .firstWhereOrNull((element) => element['id'] == vendorId);
-      controller.text = model?['display']?['vendor_location'];
-    }
-  }
-
-  List<Map<String, dynamic>> get vendorsList => getIt<CommonService>().vendorsList;
-  List<Map<String, dynamic>> get locationsList => getIt<CommonService>().locationsList;
+  const _TaskerVendorLocationDialogView({required this.model, this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -71,38 +53,38 @@ class _TaskerVendorLocationDialogView extends StatelessWidget {
             icon: const Icon(Icons.close_rounded)),
       ),
       contentPadding: 10.padding,
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          spacing: 5.sp,
-          children: [
-            CustomVendorLocationField(
-              vendorsList: vendorsList,
-              locationsList: locationsList,
-              controller: controller,
-              selected: {3: selectedVendor},
-              onSelected: (val) async {
-                final response = getIt<CommonService>().getVendorsList(reset: true);
-                log("$response", name: "TaskerVendorLocationDialog");
-                selectedVendor = val;
-                controller.text = val?['name'];
-                Console.of.log(val);
-              },
+      content: BlocProvider(
+        create: (context) => TVLDBloc()..add(TVLDInitialEvent(model)),
+        child: BlocListener<TVLDBloc,TVLDState>(
+          listener: (context, state) {
+            if (state is TVLDSubmitState) {
+              onSelected?.call(state.data);
+              context.popDialog();
+            }
+          },
+          child: BlocBuilder<TVLDBloc, TVLDState>(
+            builder: (context, state) => SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 5.sp,
+                children: [
+                  CustomVendorLocationField(
+                    vendorsList: context.watch<TVLDBloc>().vendorsList,
+                    locationsList: context.watch<TVLDBloc>().locationsList,
+                    controller: context.read<TVLDBloc>().controller,
+                    selected: {3: context.watch<TVLDBloc>().selectedVendor},
+                    onSelected: (val) => context.read<TVLDBloc>().add(TVLDSelectEvent(val)),
+                  ),
+                  SuccessButton(
+                    text: "Save",
+                    onPressed: () => context.read<TVLDBloc>().add(TVLDSubmitEvent()),
+                  ),
+                ],
+              ),
             ),
-            SuccessButton(
-              text: "Save",
-              onPressed: () {
-                if (selectedVendor != null) {
-                  if (model?['display']?['vendor_location'] != controller.text) {
-                    onSelected?.call(selectedVendor ?? {});
-                    context.popDialog();
-                  }
-                }
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
