@@ -285,5 +285,19 @@ class EditTodoTimeChangeReasonEvent extends EditToDoEvent {
   List<Object?> get props => [reason];
 }
 
+class RemoveNotesImageEvent extends EditToDoEvent {
+  final dynamic data;
+  RemoveNotesImageEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
+class RemoveMileageImageEvent extends EditToDoEvent {
+  final dynamic data;
+  RemoveMileageImageEvent({required this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
 class EditToDoRefreshEvent extends EditToDoEvent {}
 

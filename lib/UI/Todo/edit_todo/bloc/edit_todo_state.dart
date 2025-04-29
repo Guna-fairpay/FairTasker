@@ -54,6 +54,8 @@ class EditTodoState extends Equatable {
   final DateTime? selectedStartDate;
   final bool isRecurring;
   final bool isTimeChange;
+  final List<dynamic> notesImages;
+  final List<dynamic> mileageImages;
 
   const EditTodoState( {
     required this.isLoading,
@@ -106,6 +108,9 @@ class EditTodoState extends Equatable {
     required this.selectedStartDate,
     required this.isRecurring,
     required this.isTimeChange,
+    required this.notesImages,
+    required this.mileageImages,
+
   });
 
   EditTodoState copyWith({
@@ -168,6 +173,8 @@ class EditTodoState extends Equatable {
     DateTime? selectedEndDate,
     DateTime? selectedStartDate,
     bool? isTimeChange,
+    List<dynamic>? notesImages,
+    List<dynamic>? mileageImages,
 
   }) =>
       EditTodoState(
@@ -222,6 +229,8 @@ class EditTodoState extends Equatable {
         selectedStartDate: selectedStartDate ?? this.selectedStartDate,
         isRecurring: isRecurring ?? this.isRecurring,
         isTimeChange: isTimeChange ?? this.isTimeChange,
+        notesImages: notesImages ?? this.notesImages,
+        mileageImages: mileageImages ?? this.mileageImages,
       );
 
   @override
@@ -276,6 +285,9 @@ class EditTodoState extends Equatable {
     selectedStartDate,
     isRecurring,
     isTimeChange,
+    notesImages,
+    mileageImages,
+
     Random().nextDouble()
   ];
 }
