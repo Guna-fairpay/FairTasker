@@ -45,8 +45,8 @@ class ImportTaskMainUi extends StatelessWidget {
               } else {
                 if (EasyLoading.isShow) EasyLoading.dismiss();
                 switch (state) {
-                  case ImportTaskErrorState(): Toaster.showError(state.message); break;
-                  case ImportTaskSuccessState(): Toaster.showSuccess("Successfully imported"); break;
+                  case ImportTaskErrorState(): Toaster.showError(state.message, context: context); break;
+                  case ImportTaskSuccessState(): Toaster.showSuccess("Successfully imported", context: context); break;
                   case ImportTaskCompletedState(): context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0)); break;
                 }
               }

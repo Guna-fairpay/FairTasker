@@ -10,7 +10,8 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fairpytasker/utilities/appC.dart';
-import 'package:flutter/material.dart' show Color, Colors;
+import 'package:flutter/foundation.dart' show compute;
+import 'package:flutter/material.dart' show Color, Colors, Durations;
 
 class ToDoProcessor {
   List<Map<String, dynamic>> get _groupVehicle => getIt<CommonService>().groupVehicleList;
@@ -20,7 +21,7 @@ class ToDoProcessor {
   List<Map<String, dynamic>> get _vendorsList => getIt<CommonService>().vendorsList;
   List<Map<String, dynamic>> get _locationList => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get _taskExpenseDatas => getIt<CommonService>().taskExpenseDataList;
-  List<Map<String, dynamic>> _groupPersons = [];
+  List<Map<String, dynamic>> get _groupPersons => getIt<CommonService>().groupPersonList;
   List<Map<String, dynamic>> _bouncieVehicles = [];
   List<Map<String, dynamic>> _relatedToDos = [];
 
@@ -47,7 +48,7 @@ class ToDoProcessor {
     // _activeVehicles = response[1] ?? [];
     _bouncieVehicles = response[2] ?? [];
     // _taskExpenseDatas = response[3] ?? [];
-    _groupPersons = response[4] ?? [];
+    // _groupPersons = response[4] ?? [];
     // _usersList = response[5] ?? [];
     // _vendorsList = response[6] ?? [];
     // _locationList = response[7] ?? [];
@@ -55,38 +56,52 @@ class ToDoProcessor {
     return;
   }
 
+  Future<List<List<Map<String, dynamic>>>> refresh() async {
+    return await Future.wait([
+      _fetchVehicleGroups(reset: true),
+      _fetchActiveVehicles(reset: true),
+      _fetchBouncieVehicles(reset: true),
+      _fetchTaskExpenseData(reset: true),
+      _fetchUsers(reset: true),
+      _fetchVendors(reset: true),
+      _fetchLocations(reset: true),
+      _fetchActiveVehiclesCount(reset: true),
+      _fetchCurrentToDos(reset: true),
+    ]);
+  }
+
   Future<List<Map<String, dynamic>>?> _fetchRelatedToDos({required List<dynamic> todoIds}) async =>
       await _aPiRepository.relatedToDos(todoIds: todoIds);
 
-  Future<List<Map<String, dynamic>>> _fetchVehicleGroups() async =>
-      await getIt<CommonService>().groupVehicles();
+  Future<List<Map<String, dynamic>>> _fetchVehicleGroups({bool reset = false}) async =>
+      await getIt<CommonService>().groupVehicles(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchActiveVehicles() async =>
-      await getIt<CommonService>().getActiveVehicles();
+  Future<List<Map<String, dynamic>>> _fetchActiveVehicles({bool reset = false}) async =>
+      await getIt<CommonService>().getActiveVehicles(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchActiveVehiclesCount() async =>
-      await getIt<CommonService>().getActiveVehiclesCount();
+  Future<List<Map<String, dynamic>>> _fetchActiveVehiclesCount({bool reset = false}) async =>
+      await getIt<CommonService>().getActiveVehiclesCount(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchBouncieVehicles() async =>
-      await getIt<CommonService>().getBouncieVehicles();
+  Future<List<Map<String, dynamic>>> _fetchBouncieVehicles({bool reset = false}) async =>
+      await getIt<CommonService>().getBouncieVehicles(reset: reset);
 
   Future<List<Map<String, dynamic>>> _fetchGroupPersons() async =>
       await getIt<CommonService>().getGroupPersons();
 
-  Future<List<Map<String, dynamic>>> _fetchUsers() async =>
-      await getIt<CommonService>().getUsers();
+  Future<List<Map<String, dynamic>>> _fetchUsers({bool reset = false}) async =>
+      await getIt<CommonService>().getUsers(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchVendors() async =>
-      await getIt<CommonService>().getVendorsList();
+  Future<List<Map<String, dynamic>>> _fetchVendors({bool reset = false}) async =>
+      await getIt<CommonService>().getVendorsList(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchLocations() async =>
-      await getIt<CommonService>().getLocationsList();
+  Future<List<Map<String, dynamic>>> _fetchLocations({bool reset = false}) async =>
+      await getIt<CommonService>().getLocationsList(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchTaskExpenseData() async =>
-      await getIt<CommonService>().getTaskExpenseData();
+  Future<List<Map<String, dynamic>>> _fetchTaskExpenseData({bool reset = false}) async =>
+      await getIt<CommonService>().getTaskExpenseData(reset: reset);
 
-  Future<List<Map<String, dynamic>>> _fetchCurrentToDos() async =>
-      await getIt<CommonService>().getToDos();
+  Future<List<Map<String, dynamic>>> _fetchCurrentToDos({bool reset = false}) async =>
+      await getIt<CommonService>().getToDos(reset: reset);
 
   Future<List<Map<String, dynamic>>?> _fetchToDoList(
       DateTime selectedDate, bool isCompleted,
@@ -121,7 +136,7 @@ class ToDoProcessor {
       _fetchGroupPersons(),
       _fetchToDoList(selectedDate, isCompleted, resourceId: resourceId)
     ]);
-    _groupPersons = response[0] ?? [];
+    // _groupPersons = response[0] ?? [];
     var todos = response[1] ?? [];
     if (selectedDate.toFormat() == DateTime.now().toFormat()) getIt<ToDoSupport>().resetting(todos: todos);
     var relatedTaskIds = todos.map((e) => e['related_task_id'] ?? 0).toList();
@@ -129,10 +144,11 @@ class ToDoProcessor {
     if (relatedTaskIds.isNotEmpty) {
       _relatedToDos = await _fetchRelatedToDos(todoIds: relatedTaskIds) ?? [];
     }
+
     return await _processToDos(todos);
   }
 
-  Future<List<Map<String, dynamic>>>? _processToDos(List<Map<String, dynamic>> toDos) {
+  Future<List<Map<String, dynamic>>>? _processToDos(List<Map<String, dynamic>> toDos) async {
     final Completer<List<Map<String, dynamic>>> completer = Completer();
     var result = toDos
         .map((e) => e
@@ -188,6 +204,7 @@ class ToDoProcessor {
       })
         .toList();
     completer.complete(result);
+    await Future.delayed(Durations.medium1);
     return completer.future;
   }
 

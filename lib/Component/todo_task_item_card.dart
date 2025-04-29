@@ -16,9 +16,10 @@ class TodoTaskItemCard extends StatelessWidget {
   final bool? showCheckbox, value;
   final Future<bool?> Function()? onComplete, onPrevious, onInProgress;
   final ValueChanged<bool?>? onChecked;
+  final void Function(String? value)? onMore; // SHOW MORE TEXT WITH THIS FUNCTION
   final VoidCallback? onTap, onPlateNumTap, onVendorInfo, onBouncie, onCustomLink, onViewAttachment, onDateChange, onCompletedTimeChange, onTimeChange, onVehicleHistory, onReasonAttachmentView;
   final GestureTapDownCallback? onVehicleOrPerson, onVehicleGroup, onParts, onSupplies, onVendorOrLocation, onAddress, onResource, onNotes;
-  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView});
+  const TodoTaskItemCard({super.key, required this.model, this.onTap, this.onPlateNumTap, this.onVendorInfo, this.onBouncie, this.onCustomLink, this.onViewAttachment, this.onDateChange, this.onCompletedTimeChange, this.onTimeChange, this.onVehicleOrPerson, this.onVehicleHistory, this.onVehicleGroup, this.onParts, this.onSupplies, this.onVendorOrLocation, this.onAddress, this.onResource, this.onNotes, this.onComplete, this.onPrevious, this.showCheckbox = false, this.value = false, this.onChecked, this.onInProgress, this.onReasonAttachmentView, this.onMore});
 
   @override
   Widget build(BuildContext context) {
@@ -335,18 +336,19 @@ class TodoTaskItemCard extends StatelessWidget {
                                 ),
                               if (model['display']?['notes'].toString().isNotNullOrEmpty ?? false)
                                 Flexible(
-                                  child: GestureDetector(
-                                      onTapDown: onNotes,
-                                      child: RichText(
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        text: TextSpan(
-                                          text: "(${parse(model['display']?['notes'] ?? "").body?.text})",
-                                          children: (model['display']?['hasTimeChangeReason'] ?? false) ? [
-                                            TextSpan(text: "\t${(model['display']?['timeChangeReason'] ?? "").toString().toTitleCase()}", style: context.textTheme.labelMedium?.copyWith(color: null))
-                                          ] : [],
-                                          style: context.textTheme.labelMedium?.copyWith(fontSize: 11.sp, overflow: TextOverflow.ellipsis, color: AppC.appColor)
-                                        ))),
+                                  child: RichText(
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(text: "(${parse(model['display']?['notes'] ?? "").body?.text})", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
+                                        if (model['display']?['hasTimeChangeReason'] ?? false)
+                                        TextSpan(text: "\t${(model['display']?['timeChangeReason'] ?? "").toString().toTitleCase()}", style: context.textTheme.labelMedium?.copyWith(color: null),
+                                          recognizer: ((model['display']?['timeChangeReason'] ?? "").toString().length > 10) ? (TapGestureRecognizer()..onTap = ()=> onMore?.call((model['display']?['timeChangeReason'] ?? ""))) : null,
+                                        )
+                                      ],
+                                      style: context.textTheme.labelMedium?.copyWith(fontSize: 11.sp, overflow: TextOverflow.ellipsis, color: AppC.appColor)
+                                    )),
                                 ),
                               if (model['display']?['hasAddress'] ?? false)
                                 Flexible(
