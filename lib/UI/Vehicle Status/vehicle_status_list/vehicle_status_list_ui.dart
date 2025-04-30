@@ -33,7 +33,7 @@ class VehicleStatusListUi extends StatelessWidget {
       child: BlocListener<VehicleStatusBloc, VehicleStatusState>(
           listener: (context, state)  {
             if (state is VehicleStatusLoadingState) {
-              EasyLoading.show();
+              if (!EasyLoading.isShow) EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
               switch(state) {
