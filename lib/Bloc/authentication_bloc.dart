@@ -19,7 +19,6 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       emit(const AuthenticationLoading());
       var response = await authenticationRepo.callLoginAPI(event.email, event.password);
       if (response != null) {
-        await getIt<CommonService>().getUsers();
         var branches = await getIt<CommonService>().getBranches();
         if (response.user?.branchId != null) {
           String? branchName = branches.firstWhereOrNull((element) => element['id'] == response.user?.branchId)?['city'];
