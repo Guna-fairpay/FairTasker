@@ -100,6 +100,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       filterData = filter?['data'] ?? {};
       selectedCategory = vehicleStatusCategories.firstOrNull;
       _prepareFilter();
+      vehicleStatus..removeWhere((element) => element['isConfig']==0,);
       filteredVehicleStatus = vehicleStatus;
       selectedCohort = cohortsData[0];
       emit(VehicleStatusLoadedState());
@@ -126,6 +127,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       var response = await _getVehicleStatus(
           statusId: selectedCategory?['id'], cohortId: selectedCohort?['id']);
       vehicleStatus = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      vehicleStatus..removeWhere((element) => element['isConfig']==0,);
       var vehiclesCount =
           List<Map<String, dynamic>>.from(response?['vehiclesCount'] ?? []);
       filteredVehicleStatus = vehicleStatus
@@ -200,6 +202,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       vehicleStatus = List<Map<String, dynamic>>.from(status?['data'] ?? []);
       filterData = filter?['data'] ?? {};
       _prepareFilter();
+      vehicleStatus..removeWhere((element) => element['isConfig']==0);
       filteredVehicleStatus = vehicleStatus;
       if (tripApiResponse.isNotEmpty) {
         filteredTrips.clear();

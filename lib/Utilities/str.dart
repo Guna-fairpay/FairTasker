@@ -74,7 +74,7 @@ class Str{
 
     static const List<int> getAroundIds = [268, 177];
 
-    static const List<String> unCompletedOdometer = ['Maintenance Check','Getaround Prechecks'];
+    static const List<String> unCompletedOdometer = ['Maintenance Check','Getaround Prechecks','Private Rental Check'];
 
     static const List<String> completedOdometer = ['CheckOut Car Rental','Pickup Car Rental'];
 

@@ -50,6 +50,7 @@ class _TransportCarPopView extends StatelessWidget {
         listener: (context, state) {
           if (state is TCCDLoadingState) EasyLoading.show();
           if (state is TCCDCommonState) EasyLoading.dismiss();
+          if (state is TCCDSuccessState) context.pop();
         },
         child: AlertDialog(
             alignment: Alignment.topCenter,

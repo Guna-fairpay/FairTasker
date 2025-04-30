@@ -480,9 +480,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             } else {
               emit(state.copyWith(isLoading: true));
               await apiRepository.completeToDo(todoId, status: status!);
-              await apiRepository.addToDo(
-                  infusedFiles: state.todoAttachments.whereType<File>().toList(),
-                  body: _editTodoBody());
+              _insertMaintenanceCheckTask(todoResponse, incrementDays: 30);
               _broadcast.stickyBroadcast("todo_view", value: true);
               emit(state.copyWith(
                   todoStatus: !state.todoStatus,
@@ -1194,6 +1192,39 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     return resources;
   }
 
+  Future<Map<String, dynamic>?> _insertMaintenanceCheckTask(Map<String, dynamic>? model, {int incrementDays = 0}) async {
+    try {
+      var date = model?['todo_date'].toString().toDateTime();
+      if (incrementDays > 0) {
+        date = date?.add(Duration(days: incrementDays));
+      }
+      var addToDoMap = {
+        "address" : model?['address'],
+        "branch_id" : model?['branch_id'],
+        "cohort_id" : model?['cohort_id'],
+        "identifier_id" : 257,
+        "location" : model?['location'],
+        "location_id" : model?['location_id'],
+        "notes" : model?['notes'],
+        "start_at" : date.toFormat(),
+        "time_sensitive" : model?['time_sensitive'],
+        "title" : "Maintenance Check",
+        "todo_time" : model?['todo_time'],
+        "user_group_id" : model?['user_group_id'],
+        "vehicle_name" : model?['vehicle_name'],
+        "vehicles" : "${List.from(model?['vehicles'] ?? []).map((e) => jsonEncode(e)).toList()}",
+        "vendor_id" : model?['vendor_id'],
+        "vendor_name" : model?['vendor_name'],
+        "vin" : model?['vin'],
+        "user_id": model?['user_id']
+      };
+      return await _addToDo(body: addToDoMap);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> _addToDo({required Map<String, dynamic> body}) async => await apiRepository.addToDo(body: body);
   Future<Map<String, dynamic>?> _deleteParts(dynamic id) async => await apiRepository.deleteVehicleParts(id: id);
   Future<Map<String, dynamic>?> _deleteSupplies(dynamic id) async => await apiRepository.deleteSupplies(id: id);
 
