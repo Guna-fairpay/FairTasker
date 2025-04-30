@@ -222,9 +222,12 @@ class EditTodoMoreForm extends StatelessWidget {
           if(state.apiResponse['clean_required'] != null && state.apiResponse['status']=="Completed")
             Align(
                 alignment: Alignment.centerLeft,
-                child: Utils.getText(state.apiResponse['clean_required'] ?? '',
+                child: Utils.getText(
+                    state.apiResponse['clean_required'] ?? '',
                     align: TextAlign.start,
-                    color: const Color(0xffd01601))),
+                    color: const Color(0xffd01601)
+                ),
+            ),
           if(state.mileageImages.isNotEmpty)
             GestureDetector(
               onTap: (){

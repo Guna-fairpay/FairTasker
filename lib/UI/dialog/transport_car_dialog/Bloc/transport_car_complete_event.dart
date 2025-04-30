@@ -71,3 +71,7 @@ class CancelEvent extends TCCDEvents {}
 class ConfirmEvent extends TCCDEvents {}
 
 class IgnoreEvent extends TCCDEvents {}
+
+class CalendarSwitchEvent extends TCCDEvents {}
+
+class CleanCheckBoxEvent extends TCCDEvents {}

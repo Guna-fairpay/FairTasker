@@ -72,34 +72,27 @@ class CategorySelectionField extends StatelessWidget {
                   children: [
                     InkWell(
                       child: Transform.scale(
-                        scale: 0.6,
-                        child: SizedBox(
-                          width: 40,
-                          child: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 4),
-                            child: Switch(
-                                trackOutlineColor:
-                                WidgetStateColor.resolveWith(
-                                      (states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return AppC.green;
-                                    } else {
-                                      return AppC.grey;
-                                    }
-                                  },
-                                ),
-                                inactiveThumbColor: AppC.white,
-                                inactiveTrackColor: AppC.appColor,
-                                materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                                activeColor: AppC.white,
-                                activeTrackColor: AppC.green,
-                                // value: completeAllDay,
-                                value: true,
-                                onChanged: (value) { }),
-                          ),
-                        ),
+                        scale: 0.7,
+                        child: Switch(
+                          padding: 0.padding,
+                            trackOutlineColor:
+                            WidgetStateColor.resolveWith(
+                                  (states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return AppC.appColor;
+                                } else {
+                                  return AppC.grey;
+                                }
+                              },
+                            ),
+                            inactiveThumbColor: AppC.white,
+                            inactiveTrackColor: AppC.grey,
+                            materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                            activeColor: AppC.white,
+                            activeTrackColor: AppC.appColor,
+                            value: context.watch<TCCDBloc>().isUnBlockCalendar,
+                            onChanged: (value)=>context.read<TCCDBloc>().add(CalendarSwitchEvent())),
                       ),
                     ),
                     Utils.getText("Unblock Calendar",size: 12.sp,),
@@ -108,7 +101,8 @@ class CategorySelectionField extends StatelessWidget {
                         useExpand: false,
                         mainAxisSize: MainAxisSize.min,
                         title: Utils.getText('Is Clean Required?',size: 12.sp,),
-                        value: true, onChanged:(value){},
+                        value: context.watch<TCCDBloc>().isCleanRequired,
+                        onChanged:(value)=>context.read<TCCDBloc>().add(CleanCheckBoxEvent()),
                         padding: 0.padding,
                       ),
                       ),
@@ -117,7 +111,6 @@ class CategorySelectionField extends StatelessWidget {
                 ),
               if([3].contains(context.watch<TCCDBloc>().selectedButton)|| (context.watch<TCCDBloc>().currentStatus == 4 && !context.watch<TCCDBloc>().isShow))
               Utils.getText("Vehicle Id : ${model?['vehicle_id']}",),
-              // Text("${[2,3, 4].contains(context.watch<TCCDBloc>().selectedButton)} ${(context.watch<TCCDBloc>().isShow==false)} ${(context.watch<TCCDBloc>().currentStatus == 4 && !context.watch<TCCDBloc>().isShow)}"),
               if([2,3].contains(context.watch<TCCDBloc>().selectedButton) || (context.watch<TCCDBloc>().currentStatus == 4 && !context.watch<TCCDBloc>().isShow))
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -125,18 +118,12 @@ class CategorySelectionField extends StatelessWidget {
                   children: [
                     SuccessButton(
                       text: "Confirm",
-                      onPressed: (){
-                        onConfirm?.call();
-                        context.pop();
-                      },
+                      onPressed: ()=>context.read<TCCDBloc>().add(ConfirmEvent()),
                     ),
                     SuccessButton(
                       text: "Cancel",
                       backgroundColor: AppC.red,
-                      onPressed:(){
-                        onCancel?.call();
-                        context.pop();
-                      },
+                      onPressed:()=>context.read<TCCDBloc>().add(CancelEvent()),
                     )
                   ],
                 ),
