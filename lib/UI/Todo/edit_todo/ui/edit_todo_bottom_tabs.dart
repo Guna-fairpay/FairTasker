@@ -60,9 +60,9 @@ class EditTodoBottomTabs extends StatelessWidget {
                   :state.selectedBottomTap['id'] == 5
                   ?VehicleEditUI(vehicle: state.taskHistory.firstOrNull,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   :state.selectedBottomTap['id'] == 6
-                  ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.selectedVehicle,) //Add by RDB
+                  ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.selectedVehicle) //Add by RDB
                   :state.selectedBottomTap['id'] == 7
-                  ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull, selectedVehicle: state.selectedVehicle)
+                  ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull, selectedVehicle: state.selectedVehicle) //Add by RDB
                   :const SizedBox(),
             ),
           ],
