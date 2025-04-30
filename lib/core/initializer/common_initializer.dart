@@ -75,15 +75,22 @@ class CommonService {
   bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 22, 1, 28, 21, ].contains(userId)));
 
   int get departmentId => Session.of.getInt("departmentId") ?? 0;
+  int? get branchId => Session.of.getInt(Str.branchIdPrefText);
 
   bool get showBranchSelection {
     var hasDepartmentId = [6,7,8].contains(departmentId);
     var hasHrmId = Session.of.getInt(Str.hrmIdPrefText) != 0;
-    return (isAdmin || hasDepartmentId) && hasHrmId;
+    return ((isAdmin || hasDepartmentId) && hasHrmId) && (![21].contains(userId));
   }
 
   void branchUpdate({VoidCallback? callback}) {
     _broadcast.register(Str.branchChange, (value, _) => callback?.call());
+  }
+
+  List<dynamic> get currentBranchHrmIds {
+    var userList = List.from(usersList);
+    userList.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['hrm_id'].toString().isNullOrEmpty));
+    return userList.where((element) => element['branch_id'] == branchId).map((e) => e['hrm_id'] ?? 0).toList();
   }
 
   String? get timeNow {

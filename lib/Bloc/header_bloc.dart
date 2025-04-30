@@ -6,6 +6,7 @@ import 'package:fairpytasker/State/header_states.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,11 +22,13 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   }
 
   Future<List<Map<String, dynamic>>?> _getUserPunchList() async => await _aPiRepository.getUserPunchList();
+  List<dynamic> get _currentBranchHrmIds => getIt<CommonService>().currentBranchHrmIds;
 
   void _onInitialEvent(HeaderInitialEvent event, Emitter<HeaderState> emit) async {
     try {
       emit(HeaderLoadingState());
       _userPunchList = (await _getUserPunchList()) ?? [];
+      _userPunchList = _userPunchList.where((element) => _currentBranchHrmIds.contains(element['employee']?['id'])).toList();
       checkInCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNullOrEmpty).length;
       checkOutCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNotNullOrEmpty).length;
       Console.of.log(_userPunchList, name: "USER_PUNCH_LIST");
