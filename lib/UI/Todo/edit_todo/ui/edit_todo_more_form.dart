@@ -96,8 +96,8 @@ class EditTodoMoreForm extends StatelessWidget {
                 suggestionsList: List.from(state.partServices),
                 controller: context.read<EditToDoBloc>().partsController,
                 labelText: "Parts",
-                itemAsString: (item) => item['name'].toString(),
 
+                itemAsString: (item) => item['name'].toString(),
                 onChanged: (isChecked, value) => context
                     .read<EditToDoBloc>()
                     .add(EditToDoPartSelectionEvent(isChecked, value)),
@@ -213,7 +213,13 @@ class EditTodoMoreForm extends StatelessWidget {
                 ),
               ],
             ),
-          if(state.apiResponse['clean_required'] != null)
+          if(state.apiResponse['odour'] != null && state.apiResponse['status']=="Completed")
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Utils.getText(state.apiResponse['odour'] ?? '',
+                    align: TextAlign.start,
+                    color: const Color(0xffd01601))),
+          if(state.apiResponse['clean_required'] != null && state.apiResponse['status']=="Completed")
             Align(
                 alignment: Alignment.centerLeft,
                 child: Utils.getText(state.apiResponse['clean_required'] ?? '',

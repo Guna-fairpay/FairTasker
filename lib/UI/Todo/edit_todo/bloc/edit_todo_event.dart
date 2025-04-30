@@ -301,3 +301,7 @@ class RemoveMileageImageEvent extends EditToDoEvent {
 
 class EditToDoRefreshEvent extends EditToDoEvent {}
 
+class PartsRemovedEvent extends EditToDoEvent {
+
+}
+
