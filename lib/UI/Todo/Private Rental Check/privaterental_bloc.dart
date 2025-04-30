@@ -138,6 +138,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
           ..vendorId = todoItemCopy['vendor_id']
           ..vendorName = todoItemCopy['vendor_name']
           ..vehicleNumber = vehicleCopy['vehicle_number']
+          ..branchId = todoItemCopy['branch_id']
           ..maintenanceTaskId = event.id);
         Utils.successMobileToast("Fix Task created successfully");
         emit(state.copyWith(isLoading: false, pop: true));

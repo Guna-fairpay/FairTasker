@@ -21,5 +21,6 @@ class CreateFixTaskData
   String? maintenanceTaskId = '';
   String? vehicleNumber = '';
   String? comments ='';
+  int? branchId;
   List<dynamic>? vehicleList = [];
 }
