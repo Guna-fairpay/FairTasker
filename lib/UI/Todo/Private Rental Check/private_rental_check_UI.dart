@@ -193,6 +193,7 @@ class PrivateRentalCheckUi extends StatelessWidget {
                         () {
                       context.read<PrivateRentalsBloc>().add(
                         CreatePrivateFixTaskEvent(
+                          title: checkListData['id'] == 1 ? "Clean car" : "Fix",
                           notes: '${checkListData['title']} - ${notesController.text}',
                           id: itemId.toString(),
                           todoItem: todoItems,
