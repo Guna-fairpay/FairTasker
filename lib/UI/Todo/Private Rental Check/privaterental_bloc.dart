@@ -56,40 +56,60 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
             Map<String, dynamic> fixTasksMap = jsonDecode(fixTasksJson);
             List<dynamic> fixTaskValues = fixTasksMap.values.toList();
 
+            print("fixTasksMap: $fixTasksMap");
+            print("fixTaskValues: $fixTaskValues");
+
             matchingTodos = todoList
                 .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
                 .map((todo) {
-              int? checklistId = int.tryParse(fixTasksMap.entries
-                  .firstWhere((entry) => entry.value == todo['id'])
-                  .key);
+              int? checklistId;
+              try {
+                checklistId = int.tryParse(fixTasksMap.entries
+                    .firstWhere((entry) => entry.value == todo['id'],
+                    orElse: () => MapEntry('', null))
+                    .key.toString()) ??
+                    0;
+              } catch (e) {
+                log("Error finding checklistId for todo['id']: ${todo['id']}, error: $e",
+                    name: "PrivateRentalBloc");
+                checklistId = 0;
+              }
               log("checklistId: $checklistId", name: "PrivateRentalBloc");
 
               var checklistItem = checkListData.firstWhere(
                     (item) => item['id'] == checklistId,
                 orElse: () => {},
               );
+              String checklistTitle = (checklistItem['title'] ?? '').toString();
 
-              String checklistTitle = checklistItem['title'] ?? '';
-              String noteContent = todo["notes"].toString().trim().contains('-')
-                  ? todo["notes"].toString().trim().split('-')[1].trim()
-                  : todo["notes"];
+              String noteContent = '';
+              List<String> noteParts = [];
+              String notePrefix = '';
+              if (todo['notes'] != null && todo['notes'].toString().trim().isNotEmpty) {
+                String notesStr = todo['notes'].toString().trim();
+                noteParts = notesStr.split('-');
+                noteContent = notesStr.contains('-') && noteParts.length > 1
+                    ? noteParts[1].trim()
+                    : notesStr;
+                notePrefix = noteParts.isNotEmpty ? noteParts[0].trim() : '';
+              }
 
               return {
-                "id": todo['id'],
+                "id": todo['id'] ?? 0,
                 "checklist_id": checklistId,
                 "checklist_title": checklistTitle,
                 "notes": noteContent,
-                "todoId": todo['id'].toString(),
+                "todoId": todo['id']?.toString() ?? '0',
+                "notePrefix": notePrefix,
               };
             }).toList();
-
+            log("matchingTodos: $matchingTodos", name: "PrivateRentalBloc");
             for (var todo in matchingTodos) {
               int checklistId = todo['checklist_id'];
-              String checklistTitle = todo['checklist_title'];
               String noteContent = todo['notes'];
-
+              String notesPrefix = todo['notePrefix'];
               if (controllers.containsKey(checklistId)) {
-                controllers[checklistId]!.text = '$checklistTitle - $noteContent';
+                controllers[checklistId]!.text = noteContent != '' ? '$noteContent' : notesPrefix != '' ? notesPrefix : '';
                 checkBoxStates[checklistId] = false;
               }
             }
@@ -128,7 +148,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
           ..todoId = todoItemCopy['id']
           ..userId = todoItemCopy['user_id']
           ..userGroupId = todoItemCopy['user_group_id']
-          ..title = 'Private Rental Fix'
+          ..title = event.title
           ..notes = event.notes
           ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""
           ..startAt = DateTime.now().toFormat() ?? ""
