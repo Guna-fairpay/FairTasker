@@ -51,7 +51,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   String? departmentId;
   String? reason;
   String? timeChangePopupType;
-  String todoId = '';
+  String? todoId;
   String? name = Session.of.getString("name");
 
   List<String> selectedIds = [];
@@ -70,6 +70,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<dynamic> addressList = [];
   List<dynamic> vendors = [];
   List<dynamic> locations = [];
+  List<dynamic> partsIdList = [];
+  List<dynamic> suppliesIdList = [];
 
   Map<String, dynamic> selectionTaps = {};
 
@@ -339,12 +341,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
           }
         }
-        /*if (todoResponse?['recurring'] != null) {
-          if(todoResponse?['todo_date'] != null && todoResponse?['recurring_last_date'] != null){
-            selectedStartDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['todo_date']);
-            selectedEndDate = DateFormat('yyyy-MM-dd').parse(todoResponse?['recurring_last_date']);
-          }
-        }*/
+        todoId = todoResponse?['id'].toString()??'';
+        partsIdList=List<Map<String, dynamic>>.from(todoResponse?['parts'] ?? []).map((e) => e['parts_id']).toList();
+        suppliesIdList=List<Map<String, dynamic>>.from(todoResponse?['supplies'] ?? []).map((e) => e['supplies_id']).toList();
+        Console.of.log(partsIdList.toString(), name: "partsIdList");
         task =List.from(taskResponse);
         vehiclePersonList=CustomSearchDataConverter.convertVPerson(
             vehicles: vehicleList,
@@ -470,24 +470,39 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       bool? status = event.todoStatus;
       log(status.toString(), name: 'STATUS');
       try {
-        if ((state.apiResponse['identifier_id'] == 257)) {
-          if (odometerController.text.isEmpty) {
-            return Toaster.showError("Please enter odometer");
-          } else if (state.apiResponse['mandatory'] == 1) {
-            return Toaster.showError(
-                "is all maintenance check done is mandatory");
+        if(status==true){
+          if ((state.apiResponse['identifier_id'] == 257)) {
+            if (odometerController.text.isEmpty) {
+              return Toaster.showError("Please enter odometer");
+            } else if (state.apiResponse['mandatory'] == 1) {
+              return Toaster.showError(
+                  "is all maintenance check done is mandatory");
+            } else {
+              emit(state.copyWith(isLoading: true));
+              await apiRepository.completeToDo(todoId, status: status!);
+              await apiRepository.addToDo(
+                  infusedFiles: state.todoAttachments.whereType<File>().toList(),
+                  body: _editTodoBody());
+              _broadcast.stickyBroadcast("todo_view", value: true);
+              emit(state.copyWith(
+                  todoStatus: !state.todoStatus,
+                  isLoading: false,
+                  isPop: true));
+            }
           } else {
-            emit(state.copyWith(isLoading: true));
-            await apiRepository.completeToDo(todoId, status: status!);
-            _broadcast.stickyBroadcast("todo_view", value: true);
-            emit(state.copyWith(
-                todoStatus: !state.todoStatus, isLoading: false, isPop: true));
+            var model = state.apiResponse;
+            model.putIfAbsent("display", () => {"vins": vinList});
+            _broadcast.stickyBroadcast("show_completed_popup", value: model);
+            emit(state.copyWith(todoStatus: !state.todoStatus, isPop: true));
           }
-        } else {
-          var model = state.apiResponse;
-          model.putIfAbsent("display", () => {"vins": vinList});
-          _broadcast.stickyBroadcast("show_completed_popup", value: model);
-          emit(state.copyWith(todoStatus: !state.todoStatus, isPop: true));
+        }else{
+          emit(state.copyWith(isLoading: true));
+          await apiRepository.completeToDo(todoId, status: status!);
+          _broadcast.stickyBroadcast("todo_view", value: true);
+          emit(state.copyWith(
+              todoStatus: !state.todoStatus,
+              isLoading: false,
+              isPop: true));
         }
       } catch (e) {
         Toaster.showError("$e");
@@ -512,24 +527,43 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoPlatformCheckEvent>((event, emit) => emit(state.copyWith(
         isSelectedPlatformCheck: !state.isSelectedPlatformCheck)));
 
-    on<EditToDoPartSelectionEvent>((event, emit) {
+    on<EditToDoPartSelectionEvent>((event, emit) async {
       var existing = List.from(state.selectedParts);
       if (event.isChecked) {
         if (!existing.contains(event.part)) existing.add(event.part);
       } else {
         if (existing.contains(event.part)) existing.remove(event.part);
+        bool isOld = partsIdList.contains(event.part['id'].toString());
+
+        Console.of.log("IS_OLD:	${event.part['id']}");
+        if (isOld) {
+          var id=List.from(state.apiResponse['parts']).firstWhereOrNull(
+                  (element) => element['parts_id'].toString() == event.part['id'].toString())?['id'];
+          await _deleteParts(id);
+          _broadcast.stickyBroadcast("todo_view", value: false);
+        }
       }
       partsBroadcastEvent(existing);
       // FBroadcast.instance().broadcast("Parts",value: existing, persistence: true);
       emit(state.copyWith(selectedParts: existing));
     });
 
-    on<EditToDoSupplySelectionEvent>((event, emit) {
+    on<EditToDoSupplySelectionEvent>((event, emit) async {
       var existing = List.from(state.selectedSupplies);
       if (event.isChecked) {
         if (!existing.contains(event.data)) existing.add(event.data);
       } else {
         if (existing.contains(event.data)) existing.remove(event.data);
+        bool isOld = suppliesIdList.contains(event.data['id'].toString());
+        Console.of.log("IS_OLD:	${event.data['id']}");
+        if (isOld) {
+          var id = List.from(state.apiResponse['supplies']).firstWhereOrNull(
+                  (element) =>
+              element['supplies_id'].toString() ==
+                  event.data['id'].toString())?['id'];
+         await _deleteSupplies(id);
+          _broadcast.stickyBroadcast("todo_view", value: false);
+        }
       }
       emit(state.copyWith(selectedSupplies: existing));
       suppliesBroadcastEvent(existing);
@@ -689,7 +723,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           (element) => event.vehicleId.contains(element),
         );
         await apiRepository.deleteTodoVehicle(id: "$id");
-        _broadcast.stickyBroadcast("todo_view", value: true);
+        _broadcast.stickyBroadcast("todo_view", value: false);
         emit(state.copyWith(isLoading: false));
       } catch (e) {
         Toaster.showError("$e");
@@ -1159,6 +1193,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     Console.of.log("FETCHING_RESOURCE_FROM_GET");
     return resources;
   }
+
+  Future<Map<String, dynamic>?> _deleteParts(dynamic id) async => await apiRepository.deleteVehicleParts(id: id);
+  Future<Map<String, dynamic>?> _deleteSupplies(dynamic id) async => await apiRepository.deleteSupplies(id: id);
 
 }
 

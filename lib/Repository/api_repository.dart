@@ -352,6 +352,7 @@ class APiRepository {
 
   Future<GeneralResponse?> completeToDo(dynamic todoId,
       {bool status = true}) async {
+    if (todoId.toString().isNullOrEmpty) throw Exception("Invalid Todo Id");
     try {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
       final Map<String, dynamic> map = {};
