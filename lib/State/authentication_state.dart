@@ -23,3 +23,10 @@ class AuthenticationLoaded extends AuthenticationState {
   @override
   List<Object?> get props => [authenticationData, userPermissions];
 }
+
+class AuthenticationError extends AuthenticationState {
+  final dynamic message;
+  const AuthenticationError({this.message});
+  @override
+  List<Object?> get props => [message];
+}
