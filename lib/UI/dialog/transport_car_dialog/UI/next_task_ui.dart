@@ -116,9 +116,7 @@ class NextTaskUI extends StatelessWidget {
                   SuccessButton(
                     text: "Ignore",
                     backgroundColor: AppC.red,
-                    onPressed: () {
-                      context.pop();
-                      },
+                    onPressed: ()=>context.read<TCCDBloc>().add(IgnoreEvent()),
                   )
                 ],
               ),

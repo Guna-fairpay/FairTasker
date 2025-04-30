@@ -265,9 +265,7 @@ class EditTodoUI extends StatelessWidget {
                           },
                           icon: const Icon(Icons.save,color: AppC.green,)),
                       IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () =>context.pop(),
                           icon: const Icon(Icons.close)),
                     ],
                   ),
