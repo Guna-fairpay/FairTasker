@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../../Utilities/appC.dart';
@@ -37,10 +36,12 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
   final LayerLink _layerLink = LayerLink();
   List<T> _filtered = [];
   OverlayEntry? _overlayEntry;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
 
     if (widget.selectedId != null) {
       final matched = widget.suggestions.firstWhere(
@@ -57,6 +58,7 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
   }
 
   void _onFocusChange() {
+    if (!_isMounted) return;
     if (!_focusNode.hasFocus) {
       _removeOverlay();
     } else if (widget.searchController.text.isNotEmpty && _filtered.isNotEmpty) {
@@ -65,12 +67,15 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
   }
 
   void _onTextChanged() {
+    if (!_isMounted) return;
     final query = widget.searchController.text.toLowerCase();
     if (widget.onChanged != null) widget.onChanged!(query);
 
-    _filtered = widget.suggestions
-        .where((item) => widget.displayString(item).toLowerCase().contains(query))
-        .toList();
+    setState(() {
+      _filtered = widget.suggestions
+          .where((item) => widget.displayString(item).toLowerCase().contains(query))
+          .toList();
+    });
 
     _removeOverlay();
     if (query.isNotEmpty && _filtered.isNotEmpty && _focusNode.hasFocus) {
@@ -79,8 +84,10 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
   }
 
   void _showOverlay() {
-    final overlay = Overlay.of(context);
-    final renderBox = context.findRenderObject() as RenderBox;
+    if (!_isMounted) return;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
     const itemHeight = 48.0;
@@ -111,25 +118,22 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
                     separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.grey),
                     itemBuilder: (context, index) {
                       final item = _filtered[index];
-                      return Container(
-                        color: AppC.white,
-                        child: SizedBox(
+                      return GestureDetector(
+                        onTap: () {
+                          if (!_isMounted) return;
+                          widget.searchController.text = widget.displayString(item);
+                          widget.onSelected(item);
+                          _removeOverlay();
+                          FocusScope.of(context).unfocus();
+                        },
+                        child: Container(
+                          color: AppC.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                           height: itemHeight,
-                          child: InkWell(
-                            onTap: () {
-                              widget.searchController.text = widget.displayString(item);
-                              widget.onSelected(item);
-                              _removeOverlay();
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                widget.displayString(item),
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            widget.displayString(item),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ),
                       );
@@ -142,24 +146,19 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
         ),
       ),
     );
-    overlay.insert(_overlayEntry!);
-    Scrollable.of(context)?.position.addListener(_scrollListener);
-  }
 
-  void _scrollListener() {
-    if (Scrollable.of(context)?.position.hasContentDimensions ?? false) {
-      _removeOverlay();
-    }
+    Overlay.of(context).insert(_overlayEntry!);
   }
 
   void _removeOverlay() {
-    Scrollable.of(context)?.position.removeListener(_scrollListener);
+    if (!_isMounted) return;
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
 
   @override
   void dispose() {
+    _isMounted = false;
     widget.searchController.removeListener(_onTextChanged);
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
@@ -177,7 +176,7 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(color: AppC.grey, fontSize: 14),
-          suffixIcon: InkWell(
+          suffixIcon: GestureDetector(
             onTap: widget.onIconTap,
             child: Padding(
               padding: const EdgeInsets.only(top: 1.5, bottom: 1.5, right: 1.5),
@@ -210,5 +209,3 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
     );
   }
 }
-
-
