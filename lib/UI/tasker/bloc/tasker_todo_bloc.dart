@@ -422,7 +422,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       switch(identifierId) {
         case 35: // OIL CHANGE STATE
         case 126: emit(ToDoTaskerCompleteOilChangeState(event.model)); break;
-        case 257: (isAbleMaintenanceComplete) ? _callCompleteApi(model) : emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); break;
+        case 257: {
+          if (isAbleMaintenanceComplete) {
+            _insertMaintenanceCheckTask(model, incrementDays: 30);
+            _callCompleteApi(model); } else { emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); }
+        } break;
         case 212: emit(ToDoTaskerCompleteRentalCheckOutState(event.model)); break;
         case 28:
         case 210: emit(ToDoTaskerCompleteRentalPickupState(event.model)); break;
@@ -727,6 +731,38 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     }
   }
 
+  Future<Map<String, dynamic>?> _insertMaintenanceCheckTask(Map<String, dynamic>? model, {int incrementDays = 0}) async {
+    try {
+      var date = model?['todo_date'].toString().toDateTime();
+      if (incrementDays > 0) {
+        date = date?.add(Duration(days: incrementDays));
+      }
+      var addToDoMap = {
+        "address" : model?['address'],
+        "branch_id" : model?['branch_id'],
+        "cohort_id" : model?['cohort_id'],
+        "identifier_id" : 257,
+        "location" : model?['location'],
+        "location_id" : model?['location_id'],
+        "notes" : model?['notes'],
+        "start_at" : date.toFormat(),
+        "time_sensitive" : model?['time_sensitive'],
+        "title" : "Maintenance Check",
+        "todo_time" : model?['todo_time'],
+        "user_group_id" : model?['user_group_id'],
+        "vehicle_name" : model?['vehicle_name'],
+        "vehicles" : "${List.from(model?['vehicles'] ?? []).map((e) => jsonEncode(e)).toList()}",
+        "vendor_id" : model?['vendor_id'],
+        "vendor_name" : model?['vendor_name'],
+        "vin" : model?['vin'],
+        "user_id": model?['user_id']
+      };
+      return await _addToDo(body: addToDoMap);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   void _onCompleteOdometerEvent(ToDoTaskerCompleteOdometerEvent event, Emitter<ToDoTaskerState> emit) async {
     try {
       var model = event.model;
@@ -752,7 +788,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "vendor_id" : model?['vendor_id'],
         "vendor_name" : model?['vendor_name'],
         "vin" : model?['vin'],
-        "user_id": _toDoProcessor.userId
+        "user_id": model?['user_id']
       };
       var completeTodoMap = {
         "complete_time_approved" : model?['complete_time_approved'],
