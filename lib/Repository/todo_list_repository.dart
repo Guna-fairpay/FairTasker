@@ -3317,6 +3317,7 @@ class TodoListRepo {
         "user_group_id": createFixTaskData.userGroupId,
         "user_id": createFixTaskData.userId,
         "title": createFixTaskData.title,
+        "branch_id" : createFixTaskData.branchId,
         "maintenance_task_id": createFixTaskData.maintenanceTaskId,
         "notes": createFixTaskData.notes,
         "todo_time": createFixTaskData.todoTime,
