@@ -7,6 +7,8 @@ class CreateFixTaskData
   int? userGroupId;
   int? identifierId;
   int? mandatory;
+  int? todoTypeId;
+  String? timeSensitive;
   String? title='';
   String? startAt='';
   String? todoTime='';

@@ -3333,6 +3333,7 @@ class TodoListRepo {
         "comments": createFixTaskData.comments,
         "vehicle_number": createFixTaskData.vehicleNumber,
         "platform": "TaskerApp",
+        "type" : "inline",
       });
 
       log("$body", name: "POST_BODY");
