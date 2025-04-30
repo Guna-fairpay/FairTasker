@@ -184,9 +184,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             todoResponse?['resolution_notes'] ?? '';
         commentsController.text = todoResponse?['comments'] ?? '';
         odometerController.text = "${todoResponse?['mileage'] ?? ''}";
-        if(todoResponse?['identifier_id'] == null){
-          taskNameController.text = todoResponse?['title'] ?? '';
-        }
         if (todoResponse?['trip_review'] != null) {
           selectedSentiments = AddToDoConfig.sentiments.firstWhereOrNull(
                   (element) =>
@@ -351,6 +348,15 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             persons: selectedPerson,
             groupVehicles: selectedGroupVehicles);
         cleanCarIsActive=true;
+
+        if((todoResponse?['identifier_id'] == null) || (selectedTask == null)
+            || (selectedTask?['task'] != (todoResponse?['title'] ?? '')) ){
+          Console.of.debug(todoResponse?['title']);
+          taskNameController.text = todoResponse?['title'] ?? '';
+          selectedTask=null;
+
+        }
+
         emit(state.copyWith(
           isLoading: false,
           showCleanCar: showCleanCar,
