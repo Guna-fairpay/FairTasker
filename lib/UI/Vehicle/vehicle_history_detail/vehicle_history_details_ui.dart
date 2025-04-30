@@ -86,7 +86,7 @@ class VehicleHistoryDetailsUi extends StatelessWidget {
                     leadingIcon: Icons.calendar_month_rounded),
                 ListWidget<Map<String, dynamic>>(
                     item: mapData,
-                    itemAsString: (item) => ((mapData?['users'])
+                    itemAsString: (item) => ((mapData['users'])
                         .map((e) =>
                             "${e['first_name'] ?? ""} ${e['last_name'] ?? ""}")
                         .join(", ")),
@@ -116,13 +116,13 @@ class VehicleHistoryDetailsUi extends StatelessWidget {
                       leadingIcon: Icons.sticky_note_2_outlined),
                 if ((mapData['parts'] as List?)?.isNotEmpty ?? false)
                   ChoiceBoxWidget<Map<String, dynamic>>(
-                      items: (mapData['parts'] as List<Map<String, dynamic>>)
-                          .distinct((e) => e?['parts_id']),
+                      items: (List<Map<String, dynamic>>.from(mapData['parts']))
+                          .distinct((e) => e['parts_id']),
                       itemAsString: (item) => item['parts_name'] ?? ""),
                 if ((mapData['supplies'] as List?)?.isNotEmpty ?? false)
                   ChoiceBoxWidget<Map<String, dynamic>>(
-                      items: (mapData['supplies'] as List<Map<String, dynamic>>)
-                          .distinct((e) => e?['supplies_id']),
+                      items: (List<Map<String, dynamic>>.from(mapData['supplies']))
+                          .distinct((e) => e['supplies_id']),
                       itemAsString: (item) => item['supplies_name'] ?? ""),
                 ListWidget(
                     item: (mapData['mileage'] != null)

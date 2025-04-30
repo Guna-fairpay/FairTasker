@@ -175,7 +175,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vehicleNumber = vehiclesCopy['vehicle_number']
             ..maintenanceTaskId = event.checklistId.toString()
         );
-        Utils.successMobileToast("Fix Task created successfully");
+        Utils.successMobileToast("${event.title} Task created successfully");
         emit(state.copyWith(isLoading: false, pop: true));
         _broadcast.stickyBroadcast("todo_view", value: true);
       } catch (e) {

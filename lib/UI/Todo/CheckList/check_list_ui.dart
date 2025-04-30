@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/private_rental_check_UI.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -46,31 +47,28 @@ class CheckListUI extends StatelessWidget {
             if (state.checkListData == null || state.checkListData!.isEmpty) {
               return const SizedBox();
             }
-            return
-              SingleChildScrollView(
-                child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: state.checkListData!.length,
-                    itemBuilder: (context, index) {
-                      return checkList(
-                        context,
-                        state.checkListData![index],
-                        index,
-                        state.checkBoxStates ?? {},
-                        state.notesValues,
-                      );
-                    },
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
-                  ),
-                  if (todoItems['title'] == 'Getaround Prechecks')
-                    Utils.getText('Immobilizer Check'),
-                ],
-                ),
-              );
+            return Column(
+            children: [
+              const SizedBox(height: 10),
+              ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: state.checkListData!.length,
+                itemBuilder: (context, index) {
+                  return checkList(
+                    context,
+                    state.checkListData![index],
+                    index,
+                    state.checkBoxStates ?? {},
+                    state.notesValues,
+                  );
+                },
+                separatorBuilder: (context, index) => const SizedBox(height: 10),
+              ),
+              if (todoItems['title'] == 'Getaround Prechecks')
+                Utils.getText('Immobilizer Check'),
+            ],
+            );
           },
         ),
       ),

@@ -30,6 +30,7 @@ import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/main.dart';
@@ -3358,13 +3359,15 @@ class TodoListRepo {
         fixTasksMap[maintenanceId] = newTaskId;
       }
 
+      var fixTaskBody = {
+        'fix_tasks': fixTasksMap,
+        'type': "inline"
+      };
+      Console.of.log(fixTaskBody);
       // 6. Update todo with fix tasks
       final updateResponse = await apiClient.callPostMethod(
           apiUrl1,
-          body: jsonEncode({
-            'fix_tasks': fixTasksMap,
-            'type': "inline"
-          })
+          body: jsonEncode(fixTaskBody)
       );
 
       log("Update response: ${updateResponse?.body}", name: "UPDATE_RESPONSE");
