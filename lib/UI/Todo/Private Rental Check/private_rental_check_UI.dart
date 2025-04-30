@@ -1,7 +1,7 @@
-
 import 'dart:developer';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/private_rental_popup.dart';
 import 'package:fairpytasker/UI/Todo/Private%20Rental%20Check/privaterental_bloc.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -15,17 +15,10 @@ import 'package:html/parser.dart';
 import '../../../Utilities/prefs.dart';
 import '../../dialog/ask_permission_dialog.dart';
 
-extension ContextExtension on BuildContext {
-  void pop() => Navigator.of(this).pop();
-}
-
 class PrivateRentalCheckUi extends StatelessWidget {
-  final dynamic? todoItems, vehicle;
+  final dynamic todoItems, vehicle;
 
-  PrivateRentalCheckUi({super.key, required this.todoItems, required this.vehicle}) {
-    log("todoItems type: ${todoItems.runtimeType}");
-    log("vehicle type: ${vehicle.runtimeType}");
-  }
+  const PrivateRentalCheckUi({super.key, required this.todoItems, required this.vehicle});
 
 
   @override

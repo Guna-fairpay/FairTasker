@@ -25,7 +25,7 @@ String? filterDate;
 String? formattedDate;
 DateTime selectedDate = DateTime.now();
 
-final Flavor flavor = Flavor.debug;
+final Flavor flavor = Flavor.debug; // SHOULD NOT CHANGE UNTIL GET PROPER PERMISSION FROM THE LEAD
 
 void main() {
   runZonedGuarded(() async {

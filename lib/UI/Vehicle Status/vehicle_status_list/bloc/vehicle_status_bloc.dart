@@ -38,7 +38,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
   final FBroadcast _fBroadcast = FBroadcast.instance();
 
   VehicleStatusBloc() : super(VehicleStatusLoadingState()) {
-    _fBroadcast.register("vehicleStatus", (value, callback) => add(VehicleStatusInitialEvent()));
+    _fBroadcast.register("vehicleStatus", (value, callback) => add(VehicleStatusRefreshCurrentStatusEvent()));
     on<VehicleStatusInitialEvent>(_onInitialEvent);
     on<VehicleStatusShowHideSearcherEvent>(_onShowHideSearcher);
     on<VehicleStatusCohortChangeEvent>(_onCohortChange);
@@ -57,6 +57,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
     on<VehicleStatusSortEvent>(_onSortEvent);
     on<VehicleStatusCompletedPopupEvent>(_onCompletePopup);
     on<VehicleStatusPreviousPopupEvent>(_onPreviousPopup);
+    on<VehicleStatusRefreshCurrentStatusEvent>(_onRefreshCurrentStatus);
 
   }
 
@@ -356,6 +357,10 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       await _aPiRepository.saveFilter(
           filterName: filterId, model: filterModel, filterData: filterData);
 
+  Future<Map<String, dynamic>?> _vehicleStatusUpdate(
+      Map<String, dynamic> todo) async =>
+      await _aPiRepository.vehicleStatusUpdate(body: todo);
+
 // API CALLS : ENDS HERE
 
   void _onVehicleStatusTap(
@@ -477,15 +482,26 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
     };
   }
 
+  Map<String, dynamic> toStatusUpdateModel(Map<String, dynamic>? model) {
+    return {
+      "vehicle_status": 7,
+      "vehicle_status_update": DateTime.now().toFormat(),
+      "vin": model?['vin'] ?? ""
+    };
+  }
+
   void _onComplete(
       VehicleOnCompleteEvent event, Emitter<VehicleStatusState> emit) async {
     try {
       var model = event.model;
       var mapBody = toModel(model);
+      var updateBody = toStatusUpdateModel(model);
       emit(VehicleStatusLoadingState());
       var response = await _completeToDo(mapBody);
+      await _vehicleStatusUpdate(updateBody);
       if (response?['status'] == 200) {
-        emit(VehicleStatusSuccessState("Status updated Successfully"));
+        add(VehicleStatusRefreshCurrentStatusEvent());
+        // emit(VehicleStatusSuccessState("Status updated Successfully"));
       } else {
         emit(VehicleStatusErrorState("Something went wrong"));
       }
@@ -546,6 +562,37 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       emit(VehicleStatusChangedState());
     } catch (e) {
       emit(VehicleStatusErrorState(e.toString()));
+    }
+  }
+
+  void _onRefreshCurrentStatus(VehicleStatusRefreshCurrentStatusEvent event, Emitter<VehicleStatusState> emit) async {
+    try {
+      showMiscellaneous = false;
+      filteredVehicleStatus = [];
+      vehicleStatus = [];
+      miscellaneousVehicles = [];
+      emit(VehicleStatusLoadingState());
+      var response = await Future.wait([
+        _getFilter(selectedCategory?['id']),
+        _getVehicleStatus(
+            statusId: selectedCategory?['id'], cohortId: selectedCohort?['id'])
+      ]);
+      var filter = response[0];
+      var status = response[1];
+      vehicleStatus = List<Map<String, dynamic>>.from(status?['data'] ?? []);
+      filterData = filter?['data'] ?? {};
+      _prepareFilter();
+      vehicleStatus..removeWhere((element) => element['isConfig']==0);
+      filteredVehicleStatus = vehicleStatus;
+      if (tripApiResponse.isNotEmpty) {
+        filteredTrips.clear();
+        showRentalCategories = true;
+        selectedTripCategory = tripStatusCategories.first;
+        tripApiResponse.clear();
+      }
+      emit(VehicleStatusLoadedState());
+    } catch (e) {
+      emit(VehicleStatusErrorState(e));
     }
   }
 }

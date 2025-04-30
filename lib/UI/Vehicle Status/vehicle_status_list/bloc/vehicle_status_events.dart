@@ -108,3 +108,5 @@ class VehicleStatusPreviousPopupEvent extends VehicleStatusEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class VehicleStatusRefreshCurrentStatusEvent extends VehicleStatusEvent {}
