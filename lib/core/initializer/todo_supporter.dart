@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
@@ -27,6 +28,7 @@ class ToDoSupport {
   }
 
   void _fetchTodosForToday() async {
+    if (Session.of.getBool(Str.loginPrefText) == false) return;
     _todos = await _commonService.getToDos(reset: true);
   }
 

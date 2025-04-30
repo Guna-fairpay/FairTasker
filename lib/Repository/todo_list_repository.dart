@@ -2494,7 +2494,7 @@ class TodoListRepo {
 
   Future<ExpensePersonResponse?> getExpensePersonData(
       String minDate, String maxDate) async {
-    const String apiUrl = '${Str.LIST_BASE_URL}ajaxPersonExpense';
+    String apiUrl = '${Str.LIST_BASE_URL}ajaxPersonExpense';
     final Map<String, String> payload = {
       'minDate': minDate,
       'maxDate': maxDate,
@@ -2522,7 +2522,7 @@ class TodoListRepo {
 
   Future<ExpenseOtherResponse?> getExpenseOtherData(
       String minDate, String maxDate) async {
-    const String apiUrl = '${Str.LIST_BASE_URL}ajaxOtherExpense';
+    String apiUrl = '${Str.LIST_BASE_URL}ajaxOtherExpense';
     final Map<String, String> payload = {
       'minDate': minDate,
       'maxDate': maxDate,

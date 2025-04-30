@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/build_flavor/flavor.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,6 +25,7 @@ String? filterDate;
 String? formattedDate;
 DateTime selectedDate = DateTime.now();
 
+final Flavor flavor = Flavor.debug;
 
 void main() {
   runZonedGuarded(() async {

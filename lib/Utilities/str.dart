@@ -1,17 +1,11 @@
+import 'package:fairpytasker/main.dart';
 
 class Str{
-    static const String BASE_URL = "https://apidevfairtasker.fairreturns.in/api/";
-    //static const String BASE_URL = "http://192.168.1.24:8000/api/";
-
-    static const String GOPORTAL_BASE_URL = "https://apiorgportal.fairreturns.in/api/";
-
-   // static const String STORAGE_BASE_URL = "https://devfairtasker.fairreturns.in/uploads/";
-   static const String STORAGE_BASE_URL = "https://phase1.fairreturns.in/storage/";
-
-    //static const String LIST_BASE_URL = "https://dev.fairreturns.in/api/";
-    static const String LIST_BASE_URL = "https://phase1.fairreturns.in/api/";
-
-    static const String TODO_ATTACHMENTS_URL ="https://apidevfairtasker.fairreturns.in/";
+    static String get BASE_URL => flavor.baseUrl;
+    static String get GOPORTAL_BASE_URL => flavor.portalUrl;
+    static String get STORAGE_BASE_URL => flavor.storageUrl;
+    static String get LIST_BASE_URL => flavor.returnsUrl;
+    static String get TODO_ATTACHMENTS_URL => flavor.attachmentUrl;
 
     static const String TURO_RESERV_URL = "https://turo.com/us/en/reservation/";
     static const String GETAROUND_RESERV_URL = "https://getaround.com/dashboard/rentals/";
