@@ -587,11 +587,16 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           permanentPlate = (state.currentVehicle['permanent_plate'] == 1);
           frontLicensePlate = (state.currentVehicle['front_license_plate'] == 1);
           tollTags = (state.currentVehicle['toll_tags'] == 1);
-
-          if (widget.showHeader == false) {
-            showMore = true;
-          }
-
+        }
+        else if(state is setVehicleImageLoaded){
+          EasyLoading.dismiss();
+          var insuranceImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 4)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          insuranceImage.addAll(insuranceImages);
+          receiptImageFile.addAll(state.currentVehicle['expenses']?['attachments'] ?? []);
         }
         else {
           setState(() {
@@ -1044,7 +1049,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                   alignment: Alignment.centerRight,
                                   children: [
                                     Utils.getTextFormField(
-                                      'dd-mm-yyyy',
+                                      'mm-dd-yyyy',
                                       renewalDateController,
                                       hintTextColor: AppC.grey,
                                       suffixIcon: const Padding(
@@ -1057,14 +1062,14 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                                       ),
                                       readOnly: true,
                                       onTapCallback: () {
-                                        renewalDateController.text = DateFormat('dd-MM-yyyy').format(DateTime?.tryParse(renewalDateController.text) ?? DateTime.now());
+                                        renewalDateController.text = DateFormat('MM-dd-yyyy').format(DateTime?.tryParse(renewalDateController.text) ?? DateTime.now());
                                         d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
                                         Utils.datePicker(context, '',
-                                            initial: DateFormat('dd-MM-yyyy').parse(renewalDateController.text))
+                                            initial: DateFormat('MM-dd-yyyy').parse(renewalDateController.text))
                                             .then((value) {
                                           if (value != null) {
                                             renewalDateController.text =
-                                                DateFormat('dd-MM-yyyy').format(value);
+                                                DateFormat('MM-dd-yyyy').format(value);
                                           }
                                         });
                                       },

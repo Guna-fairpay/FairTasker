@@ -29,12 +29,14 @@ class UpdateCheckboxEvent extends PrivateRentalsEvent {
 }
 
 class CreatePrivateFixTaskEvent extends PrivateRentalsEvent {
+  final int? identifierId;
   final String title;
   final String notes;
   final String id;
   final Map<String, dynamic> todoItem;
   final Map<String, dynamic> vehicle;
   const CreatePrivateFixTaskEvent({
+    this.identifierId,
     required this.title,
     required this.notes,
     required this.id,
@@ -42,7 +44,7 @@ class CreatePrivateFixTaskEvent extends PrivateRentalsEvent {
     required this.vehicle,
   });
   @override
-  List<Object?> get props => [notes, id, todoItem, vehicle, title];
+  List<Object?> get props => [notes, id, todoItem, vehicle, title, identifierId];
 }
 
 class UpdateFixTaskEvent extends PrivateRentalsEvent {
