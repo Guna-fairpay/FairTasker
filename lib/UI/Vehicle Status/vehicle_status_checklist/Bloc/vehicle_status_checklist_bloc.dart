@@ -52,7 +52,7 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
           'task_name': event.data['task_name'],
           'user_id': _userId,
           'vehicle_name': data['vehicle_name'],
-          'vehicle_image': data['images'][0]['path']??'',
+          'vehicle_image': List.from(data['images']).firstOrNull?['path'] ?? '',
           'vin':  event.data['vin'],
         });
         Console.of.debug('response: $response');
@@ -65,7 +65,7 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
         });
         Console.of.debug('percentageResponse: $percentageResponse');
         if(percentageResponse != null){
-          percentage = double.tryParse("${percentageResponse['percentage']}") ?? 0.0;
+          percentage = double.tryParse("${percentageResponse['percentage']??0}") ?? 0.0;
         }
         if(event.data['category_id'].toString() != data['vehicle_status'].toString()) {
           var response = await _apiRepository.vehicleStatusUpdate(body: {
@@ -89,8 +89,9 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
         _fBroadcast.broadcast("vehicleStatus",value: true);
         emit(VehicleStatusChecklistCommonState());
       } catch (e) {
-        Toaster.showError(e);
-        Console.of.error(e);
+        emit(VehicleStatusChecklistCommonState());
+        Toaster.showError(e,title: 'Show me');
+        Console.of.error("Error", error: e);
       }
     });
 
