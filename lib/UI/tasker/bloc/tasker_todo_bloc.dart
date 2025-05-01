@@ -425,7 +425,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         case 257: {
           if (isAbleMaintenanceComplete) {
             _insertMaintenanceCheckTask(model, incrementDays: 30);
-            _callCompleteApi(model); } else { emit(ToDoTaskerCompleteMaintenanceCheckState(event.model)); }
+            _callCompleteApi(model); } else {
+            emit(ToDoTaskerErrorState("Is all maintenance check done is mandatory"));
+            emit(ToDoTaskerCompleteMaintenanceCheckState(event.model));
+          }
         } break;
         case 212: emit(ToDoTaskerCompleteRentalCheckOutState(event.model)); break;
         case 28:

@@ -38,6 +38,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
   final FBroadcast _fBroadcast = FBroadcast.instance();
 
   VehicleStatusBloc() : super(VehicleStatusLoadingState()) {
+    getIt<CommonService>().branchUpdate(callback: () => add(VehicleStatusRefreshCurrentStatusEvent()));
     _fBroadcast.register("vehicleStatus", (value, callback) => add(VehicleStatusRefreshCurrentStatusEvent()));
     on<VehicleStatusInitialEvent>(_onInitialEvent);
     on<VehicleStatusShowHideSearcherEvent>(_onShowHideSearcher);
@@ -573,16 +574,30 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
       miscellaneousVehicles = [];
       emit(VehicleStatusLoadingState());
       var response = await Future.wait([
+        _getVehicleStatusCategories(),
         _getFilter(selectedCategory?['id']),
         _getVehicleStatus(
             statusId: selectedCategory?['id'], cohortId: selectedCohort?['id'])
       ]);
-      var filter = response[0];
-      var status = response[1];
+      var categories = response[0];
+      var filter = response[1];
+      var status = response[2];
       vehicleStatus = List<Map<String, dynamic>>.from(status?['data'] ?? []);
       filterData = filter?['data'] ?? {};
+      vehicleStatusCategories = List<Map<String, dynamic>>.from(categories?['data'] ?? []);
+      var vehiclesCount =
+      List<Map<String, dynamic>>.from(status?['vehiclesCount'] ?? []);
+      vehicleStatusCategories = vehicleStatusCategories
+          .map((e) => e
+        ..['count'] = vehiclesCount.firstWhereOrNull(
+                (element) => element['id'] == e['id'])?['vehicle_count'] ??
+            0)
+          .toList();
       _prepareFilter();
+      Console.of.log(selectedCategory);
       vehicleStatus..removeWhere((element) => element['isConfig']==0);
+      selectedCategory = vehicleStatusCategories.firstWhereOrNull((element) => element['id'] == selectedCategory?['id']);
+      Console.of.log(selectedCategory);
       filteredVehicleStatus = vehicleStatus;
       if (tripApiResponse.isNotEmpty) {
         filteredTrips.clear();
