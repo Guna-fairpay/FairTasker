@@ -317,7 +317,7 @@ class TCCDBloc extends Bloc<TCCDEvents, TCCDState> {
     return {
       "title": 'Clean Car',
       "identifier_id": 30,
-      "cohort_id": 218,
+      "cohort_id": model?['cohort_id'] ?? "",
       "cohort_name": '${model?['cohort']}',
       "vin": "${model?['vin']}",
       "vehicle_name": "${model?['vehicle_name']}",
@@ -357,7 +357,7 @@ class TCCDBloc extends Bloc<TCCDEvents, TCCDState> {
       "purchase_price": model?['purchase_price'] ?? "",
       "vehicle_id": model?['vehicle_id'] ?? "",
       "vehicle_number": model?['vehicle_number'] ?? "",
-      "vehicle_status": model?['vehicle_status'] ?? "",
+      "vehicle_status": "${selectedButton ?? (model?['vehicle_status'] ?? "")}",
       "vin": model?['vin'] ?? "",
       "year": model?['year'] ?? "",
     };

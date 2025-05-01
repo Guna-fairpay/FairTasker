@@ -39,7 +39,7 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
             BlocBuilder<VehicleExpenseHistoryBloc, VehicleExpenseHistoryState>(
                 builder: (context, state) {
 
-                  String total = "${(currentExpenseAmount ?? 0) + (state.totalAmount ?? 0)}";
+                  String total = "${/*(currentExpenseAmount ?? 0) +*/ (state.totalAmount ?? 0)}";
 
                   return Scaffold(
               appBar: AppBar(

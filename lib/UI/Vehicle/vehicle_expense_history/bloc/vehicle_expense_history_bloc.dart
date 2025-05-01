@@ -110,6 +110,11 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
           double expense = (data['expense_amount'] ?? 0).toDouble();
           totalAmount += expense;
         }
+        totalAmount = 0;
+        for (var data in filterList ?? []) {
+          double expense = (data['expense_amount'] ?? 0).toDouble();
+          totalAmount += expense;
+        }
         totalAmount = double.parse(totalAmount.toStringAsFixed(2));
         log("Total Amount: $totalAmount", name: "Expense Calculation");
 
