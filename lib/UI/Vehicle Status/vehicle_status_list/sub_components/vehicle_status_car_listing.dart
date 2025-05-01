@@ -26,6 +26,7 @@ class VehicleStatusCarListing extends StatelessWidget {
               ? const EmptyWidget()
               : Expanded(
                   child: ListView.separated(
+                    physics: const BouncingScrollPhysics(),
                       itemBuilder: (context, index) {
                         var model = context
                             .read<VehicleStatusBloc>()
@@ -71,6 +72,7 @@ class VehicleStatusCarListing extends StatelessWidget {
                   : Expanded(
                       child: ListView.builder(
                           shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
                           itemBuilder: (context, index) {
                             var model = context
                                 .read<VehicleStatusBloc>()
@@ -115,6 +117,7 @@ class VehicleStatusCarListing extends StatelessWidget {
                   ? const EmptyWidget()
                   : Expanded(
                       child: ListView.separated(
+                          physics: const BouncingScrollPhysics(),
                           itemBuilder: (context, index) {
                             var model = context
                                 .read<VehicleStatusBloc>()

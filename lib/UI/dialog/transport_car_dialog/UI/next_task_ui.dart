@@ -51,7 +51,7 @@ class NextTaskUI extends StatelessWidget {
                 children: [
                   Expanded(
                       child: CustomDateTimePicker<DateTime>(
-                        format: "dd-MM-yyyy",
+                        format: "MM-dd-yyyy",
                         controller: context.read<TCCDBloc>().dateController,
                         value: context.read<TCCDBloc>().selectedDate,
                         onChanged: (v) =>
@@ -105,7 +105,7 @@ class NextTaskUI extends StatelessWidget {
                     onSelected: (value) => context.read<TCCDBloc>()
                         .add(AddressSelectionEvent(value, true)),
                     itemAsString: (item) => item['address'].toString()),
-              Utils.getTextFormField("Notes", TextEditingController()),
+              Utils.getTextFormField("Notes", context.read<TCCDBloc>().notesController),
               Row(
                 spacing: 20,
                 children: [
