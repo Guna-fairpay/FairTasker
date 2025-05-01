@@ -250,43 +250,47 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     });
 
     final createVehicleData = CreateVehicleData()
-      ..id = widget.vehicle?['id'] ?? ''
-      ..year = yearController.text
-      ..make = makeController.text
-      ..model = modelController.text
-      ..vin = vinController.text
-      ..vehicleId = vehicleIdController.text
-      ..earnings = earningsController.text
-      ..utilizationRate = utilizationRateController.text
-      ..platform = platformController.text
-      ..mileage = mileageController.text
-      ..wholesaleAmount = wholeSaleAmountController.text
-      ..purchaseDate = purchaseDateController.text
-      ..purchasePrice = purchasePriceController.text
-      ..address = addressController.text
-      ..vehicleNumber = vehicleNumberController.text
-      ..carNumber = carNumberController.text
-      ..oilGrade = oilGradeController.text
+      ..id = widget.vehicle?['id'] ?? ''//
+      ..year = yearController.text//
+      ..make = makeController.text//
+      ..model = modelController.text//
+      ..vin = vinController.text//
+      ..vehicleId = vehicleIdController.text//
+      ..earnings = earningsController.text//
+      ..utilizationRate = utilizationRateController.text//
+      ..platform = platformController.text//
+      ..mileage = mileageController.text//
+      ..wholesaleAmount = wholeSaleAmountController.text//
+      ..purchaseDate = purchaseDateController.text//
+      ..purchasePrice = purchasePriceController.text//
+      ..address = addressController.text//
+      ..vehicleNumber = vehicleNumberController.text//
+      ..carNumber = carNumberController.text//
+      ..oilGrade = oilGradeController.text//
       ..frontTire = frontTireController.text
       ..rearTire = rearTireController.text
       ..insuranceAgent = insuranceAgentController.text
       ..insuranceCost = insuranceCostController.text
-      ..bouncie = boolToInt(bouncie)
-      ..airTag = boolToInt(airTag)
-      ..permanentPlate = boolToInt(permanentPlate)
-      ..spareTire = boolToInt(spareTire)
+      ..bouncie = boolToInt(bouncie)//
+      ..airTag = boolToInt(airTag)//
+      ..permanentPlate = boolToInt(permanentPlate)//
+      ..spareTire = boolToInt(spareTire)//
       ..tollTag = boolToInt(tollTags)
-      ..spareKey = spareKey == true ? 1 : 0
+      ..spareKey = spareKey == true ? 1 : 0//
       ..frontLicensePlate = boolToInt(frontLicensePlate)
       ..tireSize = spareTireController.text
-      ..regStickerDate = renewalDate.toString()
+      ..regStickerDate = renewalDate.toString()//registration sticker date
       ..currentOdometer = currentOdometerController.text
       ..oilChangeOdometer = oilChangeOdometerController.text
       ..maintenanceCheck = maintenanceCheckController.text
       ..tollTagsId = tollTagsIdController.text
-      ..selectedVehicleStatus = selectedCategoriesData?['id']
+      ..selectedVehicleStatus = widget.selectedVehicle['vehicle_status']
       ..selectedCohort = selectedCohortsData?['id']
-      ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0;
+      ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0
+      ..employeeId = widget.selectedVehicle['employee_id']
+      ..branchCode = widget.selectedVehicle['branch_code']
+      ..vehicleStatus = widget.selectedVehicle['vehicle_status']//
+      ..cohortId = widget.selectedVehicle['cohort_id'];
 
     setState(() {
       createVehicleData.insuranceImage = insuranceImage.whereType<File>().toList();
@@ -605,6 +609,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
               .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
               .toList() ??
               [];
+          insuranceImage.clear();
+          receiptImageFile.clear();
           insuranceImage.addAll(insuranceImages);
           receiptImageFile.addAll(state.currentVehicle['expenses']?['attachments'] ?? []);
         }
@@ -614,16 +620,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           });
         }
         Console.of.debug(renewalDate);
-        /*if (renewalDateController.text.isNotEmpty) {
-          d.log("${renewalDateController.text}", name: "before");
-          if(renewalDateController.text != "0000-00-00"){
-            final parsed = DateFormat("MM-dd-yyyy").parse(renewalDateController.text);
-            renewalDateController.text = DateFormat('MM-dd-yyyy').format(parsed);
-          } else{
-            renewalDateController.text = '';
-          }
-        }*/
-       // d.log("${renewalDateController.text}", name: "RenewalDate");
       },
       builder: (context, state) {
         return Padding(
