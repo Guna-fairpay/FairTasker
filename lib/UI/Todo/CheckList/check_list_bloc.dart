@@ -170,7 +170,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
         emit(state.copyWith(isLoading: true));
         await todoListRepo.createFixTask( CreateFixTaskData()
             ..branchId = todoItemsCopy['branch_id']
-            ..identifierId = int.tryParse(todoItemsCopy['identifier_id'].toString())//
+            ..identifierId = event.identifierId
             ..todoId = todoId
             ..userId = todoItemsCopy['user_id'].toString()
             ..userGroupId = int.tryParse(todoItemsCopy['user_group_id'].toString())
@@ -183,7 +183,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
             ..vehicleList = todoItemsCopy['vehicles']
             ..vendorName = todoItemsCopy['vendor_name'].toString()
             ..vehicleNumber = vehiclesCopy['vehicle_number'].toString()
-          ..maintenanceTaskId = event.checklistId.toString()
+            ..maintenanceTaskId = event.checklistId.toString()
         );
         Utils.successMobileToast("${event.title} Task created successfully");
         emit(state.copyWith(isLoading: false, pop: true));

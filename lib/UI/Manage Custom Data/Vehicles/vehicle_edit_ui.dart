@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'dart:developer' as d;
+import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -87,6 +91,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   final TextEditingController renewalDateController  = TextEditingController();
   final TextEditingController plateNumberController = TextEditingController();
 
+  DateTime? renewalDate;
+
   bool bouncie = false;
   bool tollTags = false;
   bool airTag = false;
@@ -160,7 +166,10 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       spareTireController.text = widget.selectedVehicle['tire_size']?.toString() ?? '';
       insuranceCostController.text = widget.selectedVehicle['insurance_cost']?.toString() ?? '';
       insuranceAgentController.text = widget.selectedVehicle['insurance_agent']?.toString() ?? '';
-
+      renewalDate = (widget.selectedVehicle['registration_renewal_date']??'').toString()
+          .toDateTime(inputFormat: 'yyyy-MM-dd');
+      Console.of.log("renewalDate $renewalDate");
+      Console.of.log("renewalDate ${widget.selectedVehicle['registration_renewal_date']}");
       vehicleImageFile.clear();
       tireImageFile.clear();
       tollImage.clear();
@@ -229,7 +238,6 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
   }
 
   void _save() async {
-
     formKey.currentState?.save();
     FocusScope.of(context).unfocus();
     print("save function triggered");
@@ -271,7 +279,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       ..spareKey = spareKey == true ? 1 : 0
       ..frontLicensePlate = boolToInt(frontLicensePlate)
       ..tireSize = spareTireController.text
-      ..regStickerDate = renewalDateController.text
+      ..regStickerDate = renewalDate.toString()
       ..currentOdometer = currentOdometerController.text
       ..oilChangeOdometer = oilChangeOdometerController.text
       ..maintenanceCheck = maintenanceCheckController.text
@@ -493,6 +501,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       listener: (context, state)
       {
         if (state is VehicleDataLoading) {
+          Utils.dismissKeyboard(context);
           EasyLoading.show();
         }
         else if(state is setVehicleLoader){
@@ -527,7 +536,8 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           spareTireController.text = state.currentVehicle['tire_size']?.toString() ?? '';
           insuranceCostController.text = state.currentVehicle['insurance_cost']?.toString() ?? '';
           insuranceAgentController.text = state.currentVehicle['insurance_agent']?.toString() ?? '';
-
+          renewalDate = (state.currentVehicle['registration_renewal_date']??'').toString()
+              .toDateTime(inputFormat: 'yyyy-MM-dd');
           vehicleImageFile.clear();
           tireImageFile.clear();
           tollImage.clear();
@@ -587,25 +597,33 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           permanentPlate = (state.currentVehicle['permanent_plate'] == 1);
           frontLicensePlate = (state.currentVehicle['front_license_plate'] == 1);
           tollTags = (state.currentVehicle['toll_tags'] == 1);
-
-          if (widget.showHeader == false) {
-            showMore = true;
-          }
-
+        }
+        else if(state is setVehicleImageLoaded){
+          EasyLoading.dismiss();
+          var insuranceImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 4)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          insuranceImage.addAll(insuranceImages);
+          receiptImageFile.addAll(state.currentVehicle['expenses']?['attachments'] ?? []);
         }
         else {
           setState(() {
             loading = false;
           });
         }
-        if (renewalDateController.text.isNotEmpty) {
-          try {
-            final parsed = DateTime.parse(renewalDateController.text);
-            renewalDateController.text = DateFormat('dd-MM-yyyy').format(parsed);
-          } catch (e) {
+        Console.of.debug(renewalDate);
+        /*if (renewalDateController.text.isNotEmpty) {
+          d.log("${renewalDateController.text}", name: "before");
+          if(renewalDateController.text != "0000-00-00"){
+            final parsed = DateFormat("MM-dd-yyyy").parse(renewalDateController.text);
+            renewalDateController.text = DateFormat('MM-dd-yyyy').format(parsed);
+          } else{
             renewalDateController.text = '';
           }
-        }
+        }*/
+       // d.log("${renewalDateController.text}", name: "RenewalDate");
       },
       builder: (context, state) {
         return Padding(
@@ -1038,40 +1056,22 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: Column(
-                              children: [
-                                Stack(
-                                  alignment: Alignment.centerRight,
-                                  children: [
-                                    Utils.getTextFormField(
-                                      'dd-mm-yyyy',
-                                      renewalDateController,
-                                      hintTextColor: AppC.grey,
-                                      suffixIcon: const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Icon(
-                                          Icons.date_range,
-                                          color: AppC.appColor,
-                                          size: 15,
-                                        ),
-                                      ),
-                                      readOnly: true,
-                                      onTapCallback: () {
-                                        renewalDateController.text = DateFormat('dd-MM-yyyy').format(DateTime?.tryParse(renewalDateController.text) ?? DateTime.now());
-                                        d.log("${renewalDateController.text}" ,name: 'renewalDateController.text');
-                                        Utils.datePicker(context, '',
-                                            initial: DateFormat('dd-MM-yyyy').parse(renewalDateController.text))
-                                            .then((value) {
-                                          if (value != null) {
-                                            renewalDateController.text =
-                                                DateFormat('dd-MM-yyyy').format(value);
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            child: CustomDateTimePicker<DateTime>(
+                              controller: renewalDateController,
+                              format: "MM-dd-yyyy",
+                              suffixIcon: Icon(Icons.calendar_month_rounded,
+                                  size: 18, color: context.theme.hintColor),
+                              textAlign: TextAlign.center,
+                              value: renewalDate, /*renewalDateController.text.isNotEmpty
+                                  ? DateFormat('MM-dd-yyyy').tryParse(renewalDateController.text)
+                                  : null,*/
+                              onChanged: (value){
+                                d.log("Renewal Date: $value");
+                                setState(() {
+                                  renewalDate = value;
+                                  d.log("Renewal Date: ${renewalDate}");
+                                });
+                              },
                             ),
                           ),
                           const SizedBox(width: 10),

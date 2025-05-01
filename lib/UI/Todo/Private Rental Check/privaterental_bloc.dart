@@ -148,6 +148,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
           ..todoId = todoItemCopy['id']
           ..userId = todoItemCopy['user_id']
           ..userGroupId = todoItemCopy['user_group_id']
+          ..identifierId = event.identifierId
           ..title = event.title
           ..notes = event.notes
           ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""

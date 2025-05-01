@@ -191,6 +191,12 @@ class CheckListUI extends StatelessWidget {
                         8 => 'Refuel Car',
                         _ => 'Fix',
                       };
+                      int identifierId = switch (checkListData['id']) {
+                        1 => 294,
+                        7 => 295,
+                        8 => 296,
+                        _ => 47,
+                      };
                       context.read<CheckListBloc>().add(
                         AddFixTaskEvent(
                           title: title,

@@ -72,7 +72,7 @@ extension StringExtension on String? {
 
   DateTime? toDateTime({String inputFormat = "yyyy-MM-dd"}) {
     var input = this;
-    if ((input == null) || (input.isEmpty) || (isNullOrEmpty)) return null;
+    if ((input == null) || (input.isEmpty) || (isNullOrEmpty) || (input.contains("0000"))) return null;
     var dateFormat = DateFormat(inputFormat);
     return dateFormat.parse(input);
   }
