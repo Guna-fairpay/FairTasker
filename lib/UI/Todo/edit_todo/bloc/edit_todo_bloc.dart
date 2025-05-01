@@ -286,9 +286,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           {"id": 2, "title": "Next Task"},
           if (title == 'Pre Checks') {"id": 3, "title": "Check List"},
           if (title == 'Maintenance Check') {"id": 4, "title": "Maintenance"},
-          if (title == 'Oil change' ||
-              title == 'OilChange Check' ||
-              title == 'Oil Change Check')
+          if (['Oil change'.toLowerCase(), 'OilChange Check'.toLowerCase(), 'Oil Change Check'.toLowerCase()].contains(title.toString().toLowerCase()))
             {"id": 7, "title": "Odometer"}, //Add by RDB
           if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
             {"id": 5, "title": "Set Vehicle"},
