@@ -96,7 +96,7 @@ class EditVehicleBody extends StatelessWidget {
             10.height,
             CustomDateTimePicker<DateTime>(
               controller: context.read<EditVehicleBloc>().purchaseDateController,
-              format: "dd-MM-yyyy",
+              format: "MM-dd-yyyy",
               suffixIcon: Icon(Icons.calendar_month_rounded, size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
               value: context.read<EditVehicleBloc>().selectedPurchaseDate,

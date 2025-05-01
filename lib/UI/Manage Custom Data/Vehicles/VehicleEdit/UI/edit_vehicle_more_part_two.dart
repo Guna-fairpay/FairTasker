@@ -82,7 +82,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                       CustomDateTimePicker<DateTime>(
                         controller:
                         context.read<EditVehicleBloc>().renewalDateController,
-                        format: "dd-MM-yyyy",
+                        format: "MM-dd-yyyy",
                         suffixIcon: Icon(Icons.calendar_month_rounded,
                             size: 18, color: context.theme.hintColor),
                         textAlign: TextAlign.start,
