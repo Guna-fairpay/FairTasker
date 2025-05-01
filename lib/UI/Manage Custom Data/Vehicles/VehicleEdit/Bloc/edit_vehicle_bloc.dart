@@ -340,18 +340,17 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
         await getIt<CommonService>().getActiveVehicles(reset: true);
         Console.of.log(response, name: "RESPONSE");
         if (response?['message']?.isNotEmpty ?? false) {
-          // Toaster.showSuccess("Update successfully");
+          _broadcast.broadcast(Str.addToDoRefresh);
+          _broadcast.broadcast(Str.editToDoRefresh);
+          _broadcast.stickyBroadcast("vehicle_refresh", value: true);
+          _broadcast.broadcast("todo_view");
           emit(EditVehicleSuccessState("Update successfully"));
+          await Future.delayed(Durations.extralong4);
+          emit(EditCompletedState());
         } else {
           // Toaster.showError(response?['error'] ?? []);
           emit(EditVehicleErrorState(response?['error'] ?? ""));
         }
-        _broadcast.broadcast(Str.addToDoRefresh);
-        _broadcast.broadcast(Str.editToDoRefresh);
-        _broadcast.stickyBroadcast("vehicle_refresh", value: true);
-        _broadcast.broadcast("todo_view");
-        await Future.delayed(Durations.extralong4);
-        emit(EditCompletedState());
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
@@ -368,14 +367,14 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     baseBody['make'] = makeController.text;
     baseBody['model'] = modelController.text;
     baseBody['year'] =  yearController.text;
-    baseBody['cohort_id'] = '${selectedCohort['id'] ?? ''}';
+    baseBody['cohort_id'] = '${selectedCohort?['id'] ?? ''}';
     baseBody['earnings'] = earningsController.text;
     baseBody['utilization_rate'] = utilizationRateController.text;
     baseBody['platform'] = platformController.text;
     baseBody['mileage'] = mileageController.text;
     baseBody['whole_sale_amount'] = wholeSaleAmountController.text;
-    baseBody['vehicle_status'] = "${selectedVehicleStatus['id'] ?? ''}";
-    baseBody['active'] = "${selectedActiveStatus['id'] ?? ''}";
+    baseBody['vehicle_status'] = "${selectedVehicleStatus?['id'] ?? ''}";
+    baseBody['active'] = "${selectedActiveStatus?['id'] ?? ''}";
     baseBody['purchase_price'] = purchasePriceController.text;
     baseBody['purchase_date'] = selectedPurchaseDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['vehicle_number'] = numberPlateController.text;
@@ -387,7 +386,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     baseBody['permanent_plate'] = permanentPlate ? "1" : "0";
     baseBody['car_number'] = carNumberController.text;
     baseBody['oil_grade'] = oilGradeController.text;
-    baseBody['branch_code'] = '${selectedBranch['id'] ?? ''}';
+    baseBody['branch_code'] = '${selectedBranch?['id'] ?? ''}';
     baseBody['registration_renewal_date'] = selectedRegStickerDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['toll_tags'] = tollTags ? "1" : "0";
     baseBody['toll_tags_id'] = tollTagsController.text;

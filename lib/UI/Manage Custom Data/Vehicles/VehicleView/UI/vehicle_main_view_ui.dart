@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_tab_content_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_tab_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_grouping/vehicle_grouping_dialog.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -12,9 +13,22 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
-class VehicleMainViewUi extends StatelessWidget {
+class VehicleMainViewUi extends StatefulWidget {
   final dynamic vin;
   const VehicleMainViewUi({super.key, this.vin});
+
+  @override
+  State<VehicleMainViewUi> createState() => _VehicleMainViewUiState();
+}
+
+class _VehicleMainViewUiState extends State<VehicleMainViewUi> {
+
+
+  @override
+  void dispose() {
+    EasyLoading.dismiss();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +38,16 @@ class VehicleMainViewUi extends StatelessWidget {
         clipBehavior: Clip.antiAliasWithSaveLayer,
         backgroundColor: AppC.appColor,
         foregroundColor: AppC.white,
-        automaticallyImplyLeading: true,
-        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: context.pop,
+            icon: const Icon(Icons.close_rounded),
+          )
+        ],
       ),
       body: BlocProvider<VehicleBloc>(
-        create: (context) => VehicleBloc()..add(VehicleInitialEvent(vin: vin)),
+        create: (context) => VehicleBloc()..add(VehicleInitialEvent(vin: widget.vin)),
         child: BlocListener<VehicleBloc, VehicleState>(
           key: UniqueKey(),
           listener: (context, state) {

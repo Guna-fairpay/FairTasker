@@ -1901,13 +1901,8 @@ Future<Map<String, dynamic>?> getLocations() async {
           infusedFiles: infusedFiles,
       );
       if (response != null) {
-        if (response.isSuccess) {
-          var mapData = await response.mapData;
-          return mapData;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
+        var mapData = await response.mapData;
+        return mapData;
       } else {
         return null;
       }
