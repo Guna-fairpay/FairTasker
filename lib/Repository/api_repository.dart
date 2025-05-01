@@ -3217,7 +3217,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getEmployeeData({dynamic id}) async {
+  Future<Map<String, dynamic>?> getEmployeeData() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getUserList";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);

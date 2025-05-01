@@ -85,6 +85,7 @@ class NextTaskUI extends StatelessWidget {
                 context.watch<TCCDBloc>().selectedResource,
               ),
               CustomVendorLocationField(
+                enableEmptyWidget: false,
                 vendorsList: context.watch<TCCDBloc>().vendor,
                 locationsList: context.watch<TCCDBloc>().location,
                 selected: {3: context.read<TCCDBloc>().selectedVLocations},

@@ -21,10 +21,8 @@ class EmployeeAddEditErrorState extends EmployeeAddEditState {
 }
 
 class EmployeeAddEditSuccessState extends EmployeeAddEditState {
-  final dynamic message;
-  EmployeeAddEditSuccessState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [Random().nextDouble()];
 }
 
 
