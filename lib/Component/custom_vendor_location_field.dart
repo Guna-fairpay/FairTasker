@@ -16,12 +16,14 @@ class CustomVendorLocationField extends StatelessWidget {
   final List<dynamic> vendorsList, locationsList;
   final TextEditingController? controller;
   final Map<int, dynamic>? selected;
+  final bool enableEmptyWidget;
   final void Function(dynamic val)? onSelected, onCleared;
 
   CustomVendorLocationField(
       {super.key,
       required this.vendorsList,
       required this.locationsList,
+      this.enableEmptyWidget = true,
       this.selected,
       this.onSelected,
       this.onCleared,
@@ -58,23 +60,27 @@ class CustomVendorLocationField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
+    return (enableEmptyWidget) ? ValueListenableBuilder(
       valueListenable: showEmptyNotifier,
-      builder: (context, value, child) => CustomAutoSearchField(
-          controller: controller!,
-          labelText: "Vendor/Location",
-          onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,
-          onSelected: _onSuggested,
-          showEmptyWidget: value,
-          // autoClear: true,
+      builder: (_, value, child) => _searcher(context, value),
+    ) : _searcher(context, false);
+  }
 
-          onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
-            item == "Vendor" ? context.push(VendorView(title: controller?.text)) : context.push(LocationView(title: controller?.text,));
-          },),
-          itemAsString: (item) => item['name'].toString(),
-          optionsBuilder: (textEditingValue) =>
-              onSearch(textEditingValue)),
-    );
+  Widget _searcher(BuildContext context, bool emptyValue) {
+    return CustomAutoSearchField(
+        controller: controller!,
+        labelText: "Vendor/Location",
+        onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,
+        onSelected: _onSuggested,
+        showEmptyWidget: emptyValue,
+        // autoClear: true,
+
+        onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
+          item == "Vendor" ? context.push(VendorView(title: controller?.text)) : context.push(LocationView(title: controller?.text,));
+        },),
+        itemAsString: (item) => item['name'].toString(),
+        optionsBuilder: (textEditingValue) =>
+            onSearch(textEditingValue));
   }
 
   Future<Iterable<Map<String, dynamic>>> onSearch(

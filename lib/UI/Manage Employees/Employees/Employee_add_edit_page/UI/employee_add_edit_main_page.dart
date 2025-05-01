@@ -37,6 +37,7 @@ class EmployeeAddEditMainPage extends StatelessWidget {
           listener: (context, state) {
             if (state is EmployeeAddEditLoadingState) {if (!EasyLoading.isShow) EasyLoading.show();}
             if (state is EmployeeAddEditCommonState) {if (EasyLoading.isShow) EasyLoading.dismiss();}
+            if (state is EmployeeAddEditSuccessState) {context.pop();}
           },
           child: SafeArea(
             minimum: const EdgeInsets.all(10),

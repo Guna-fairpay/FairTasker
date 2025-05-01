@@ -2,6 +2,9 @@
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_event.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/Bloc/employee_add_edit_state.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -23,7 +26,7 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
 
   AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
 
-  List<Map<String, dynamic>> apiResponse = [];
+  Map<String, dynamic> apiResponse = {};
   List<Map<String, dynamic>> roleList = [];
   List<Map<String, dynamic>> departmentList = [];
   dynamic selectedRole={};
@@ -36,6 +39,8 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
     on<EmployeesAddEditInitialEvent>(_onEmployeeInitialEvent);
     on<ShowPasswordEvent>(_onShowPasswordEvent);
     on<EmployeeSaveEvent>(_onEmployeeSaveEvent);
+    on<RoleSelectionEvent>(_onRoleSelectionEvent);
+    on<DepartmentSelectionEvent>(_onDepartmentSelectionEvent);
 
   }
 
@@ -47,16 +52,17 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
       if(event.id != null){
         var departmentResponse = await _apiRepository.getDepartmentData();
         var response = await _apiRepository.getEmployeeById(id: event.id);
+        apiResponse = response?['user'];
         roleList = List.from(response?['role']);
         departmentList =List.from(departmentResponse?['department']);
         firstNameController.text = response?['user']?['first_name'];
         lastController.text = response?['user']?['last_name'];
         emailController.text = response?['user']?['email'];
         mobileController.text = response?['user']?['phone'];
-        selectedRole = roleList.firstWhere(
-                (element) => element['id'].toString() ==  response?['user']?['role']['id'].toString());
-        selectedDepartment = departmentResponse?['department'].firstWhere(
-                (element) => element['id'].toString() ==  response?['user']?['department'].toString());
+        selectedRole = roleList.where(
+                (element) => element['id'].toString() ==  (apiResponse['role']?['id']).toString()).firstOrNull;
+        selectedDepartment =List.from(departmentResponse?['department']).where(
+                (element) => element['id'].toString() ==  (apiResponse['department']).toString()).firstOrNull;
       }else{
       var roleResponse = await _apiRepository.getRoleData();
       var departmentResponse = await _apiRepository.getDepartmentData();
@@ -65,8 +71,8 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
       }
       emit(EmployeeAddEditCommonState());
     }catch(e){
-      Toaster.showError(e.toString());
-      Console.of.error(e.toString());
+      Toaster.showError(e.toString(),);
+      Console.of.error('EmployeesAddEditInitialEvent',error: e);
       emit(EmployeeAddEditCommonState());
     }
   }
@@ -79,9 +85,11 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
   void _onEmployeeSaveEvent(EmployeeSaveEvent event, Emitter<EmployeeAddEditState> emit) async {
     if(firstNameController.text.isEmpty || lastController.text.isEmpty
         ||emailController.text.isEmpty || mobileController.text.isEmpty
-         || ( (!isEdit) ? passwordController.text.isEmpty : false) || (selectedRole==null))
+        || (selectedRole==null) || (selectedRole.toString().isNullOrEmpty)
+    || !(emailController.text.isValidEmail()) || ((Map.from(selectedRole).isEmpty))
+         || ( (!isEdit) ? passwordController.text.isEmpty : false) )
     {
-      Toaster.showError("Please fill all required fields");
+      Toaster.showError(((emailController.text.isValidEmail())) ? "Please fill all required fields" : "Please enter valid email");
       return;
     }else{
       try{
@@ -97,6 +105,7 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
         };
         if(!isEdit){
         var response = await _apiRepository.adduser(body: data);
+        // Console.of.debug(response,name: 'AddAPI',);
         if(response != null){
           Toaster.showSuccess(response['message']);
           Map<String, String> body = {
@@ -106,6 +115,7 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
             "password": passwordController.text,
           };
           var addValue= await _apiRepository.addEmployee(body: body);
+          // Console.of.debug(addValue,name: 'addValue',);
           if(addValue?['employee']!=null){
             Map<String, String> body = {
               "department": "${selectedDepartment['id']}",
@@ -117,23 +127,38 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
               "phone": mobileController.text,
             };
             var id=response['user']['id']??'';
-            var editValue= await _apiRepository.updateEmployee(body: body,id: id);
-            Console.of.debug(editValue);
+            await _apiRepository.updateEmployee(body: body,id: id);
+            // Console.of.debug(editValue);
           }else{
-            Toaster.showError(addValue);
+            Toaster.showError(addValue?['message']);
           }
         }
         } else {
-          var response = await _apiRepository.adduser(body: data);
+          var response = await _apiRepository.updateEmployee(body: data,id: "${apiResponse['id']}");
+          if(response?['status']==200){
+          Toaster.showSuccess(response?['message']);
+          }
         }
-        await getIt<CommonService>().getResources(reset: true);
-        await getIt<CommonService>().getUsers(reset: true);
-        FBroadcast.instance().broadcast("refresh_add");
+        getIt<CommonService>().getResources(reset: true);
+        getIt<CommonService>().getUsers(reset: true);
+        FBroadcast.instance().broadcast(Str.addToDoRefresh);
+        FBroadcast.instance().broadcast("refreshEmployees");
+        emit(EmployeeAddEditSuccessState());
       }catch(e){
         Toaster.showError(e.toString());
         emit(EmployeeAddEditCommonState());
       }
     }
+  }
+
+  void _onRoleSelectionEvent(RoleSelectionEvent event, Emitter<EmployeeAddEditState> emit) {
+    selectedRole = event.value;
+    emit(EmployeeAddEditCommonState());
+  }
+
+  void _onDepartmentSelectionEvent(DepartmentSelectionEvent event, Emitter<EmployeeAddEditState> emit) {
+    selectedDepartment = event.value;
+    emit(EmployeeAddEditCommonState());
   }
 
 }
