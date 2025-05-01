@@ -128,7 +128,6 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     });
 
     on<DeleteSetVehicleImage>((event, emit) async {
-      emit(const VehicleDataLoading());
       Console.of.debug("VIN ${event.vin} // ID: ${event.id}", name: "DELETE_IMAGE_EVENT");
       d.log('${event.vin} ${event.id}', name: "delete_image");
       final response = await vehicleDataRepo.deleteVehicleImages(event.id);
@@ -145,7 +144,8 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
           vehicle = {};
         }
       }
-      emit(setVehicleLoaded(currentVehicle: vehicle));
+      d.log("${vehicle}", name: "VEHICLE_Image");
+      emit(setVehicleImageLoaded(currentVehicle: vehicle));
       d.log("${response}", name: "VEHICLE_Image");
     });
 
