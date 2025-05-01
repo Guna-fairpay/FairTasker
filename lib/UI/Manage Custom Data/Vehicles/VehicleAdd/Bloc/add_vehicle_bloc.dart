@@ -313,6 +313,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     baseBody['maintenance_check'] = maintenanceCheckController.text;
     baseBody['insurance_agent'] = insuranceAgentController.text;
     baseBody['insurance_cost'] = insuranceCostController.text;
+    baseBody['employee_id'] = "${getIt<CommonService>().userId}";
     baseBody['platform_from'] = 'tasker-app';
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;

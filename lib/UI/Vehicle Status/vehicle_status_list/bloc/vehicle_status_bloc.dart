@@ -64,7 +64,7 @@ class VehicleStatusBloc extends Bloc<VehicleStatusEvent, VehicleStatusState> {
 
   void _onCompletePopup(VehicleStatusCompletedPopupEvent event, emit) async {
     var model = event.model;
-    add(VehicleOnCompleteEvent(model: event.model));
+    //add(VehicleOnCompleteEvent(model: event.model));
     emit(VehicleStatusCompletedPopupState(data:model));
   }
 

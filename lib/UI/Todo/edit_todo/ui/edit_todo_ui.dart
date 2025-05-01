@@ -18,14 +18,15 @@ import 'edit_todo_body.dart';
 
 class EditTodoUI extends StatelessWidget {
   final dynamic todoId;
+  final dynamic model;
 
-  const EditTodoUI({super.key, required this.todoId});
+  const EditTodoUI({super.key, required this.todoId,this.model});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId")),
+          EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId",)),
       child: BlocListener<EditToDoBloc, EditTodoState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();

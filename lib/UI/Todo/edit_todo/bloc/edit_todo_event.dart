@@ -10,9 +10,10 @@ abstract class EditToDoEvent extends Equatable {
 
 class GetEditTodoInitialEvent extends EditToDoEvent {
   final String? todoId;
-   GetEditTodoInitialEvent({required this.todoId});
+  final dynamic model;
+   GetEditTodoInitialEvent({required this.todoId,this.model});
   @override
-  List<Object?> get props => [todoId];
+  List<Object?> get props => [todoId,model];
 }
 
 class EditToDoShowMoreEvent extends EditToDoEvent {
