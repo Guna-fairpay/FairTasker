@@ -6,6 +6,7 @@ import 'package:fairpytasker/Component/custom_type_head_search_view.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/vehicle_add_ui.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/employees_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
@@ -151,7 +152,7 @@ class CustomVehiclePersonField extends StatelessWidget {
                       }
                       item == "Vehicle"
                           ? context.push(const VehicleMainViewUi())
-                          : context.push(const EmployeesViewUI());
+                          : context.push(const EmployeeMainPage());
                     },
                   );
                 },

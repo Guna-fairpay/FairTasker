@@ -26,9 +26,9 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
             const MyRichText(text: 'Last Name'),
             Utils.getTextFormField(null, context.read<EmployeeAddEditBloc>().lastController,hintText: 'Enter last name'),
             const MyRichText(text: 'Mobile No'),
-            Utils.getTextFormField(null, context.read<EmployeeAddEditBloc>().mobileController,hintText: 'Enter mobile number'),
+            Utils.getTextFormField(null, context.read<EmployeeAddEditBloc>().mobileController,hintText: 'Enter mobile number',textType: TextInputType.phone),
             const MyRichText(text: 'Email'),
-            Utils.getTextFormField(null, context.read<EmployeeAddEditBloc>().emailController,hintText: 'Enter email address'),
+            Utils.getTextFormField(null, context.read<EmployeeAddEditBloc>().emailController,hintText: 'Enter email address',inputAction: TextInputAction.done,textType: TextInputType.emailAddress),
             if(id==null)...[
               const MyRichText(text: 'Password'),
               Utils.getTextFormField(
@@ -50,9 +50,19 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
               ),
             ],
             const MyRichText(text: 'Role'),
-            Utils.dropdownBox('Select a role', context.read<EmployeeAddEditBloc>().roleList, (onSelected){}, labelKey: 'name',initialSelection: context.read<EmployeeAddEditBloc>().selectedRole),
+            Utils.dropdownBox(
+                'Select a role',
+                context.read<EmployeeAddEditBloc>().roleList,
+                    (onSelected)=>context.read<EmployeeAddEditBloc>().add(RoleSelectionEvent(value : onSelected)),
+                labelKey: 'name',initialSelection: context.read<EmployeeAddEditBloc>().selectedRole
+            ),
             Text('Department',style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: const Color(0xff212529)),),
-            Utils.dropdownBox('Select a department', context.read<EmployeeAddEditBloc>().departmentList, (onSelected){}, labelKey: 'name',initialSelection: context.read<EmployeeAddEditBloc>().selectedDepartment),
+            Utils.dropdownBox(
+                'Select a department',
+                context.read<EmployeeAddEditBloc>().departmentList,
+                    (onSelected)=>context.read<EmployeeAddEditBloc>().add(DepartmentSelectionEvent(value : onSelected)),
+                labelKey: 'name',initialSelection: context.read<EmployeeAddEditBloc>().selectedDepartment
+            ),
             Row(
               children: [
                 Expanded(child: Utils.getElevatedButton(()=>context.read<EmployeeAddEditBloc>().add(EmployeeSaveEvent()),text: 'Save',bgColor: AppC.appColor)),

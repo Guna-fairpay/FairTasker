@@ -112,7 +112,7 @@ class TCCDBloc extends Bloc<TCCDEvents, TCCDState> {
             .firstOrNull;
       }
       // Console.of.debug(model, name: 'MODEL');
-      controller.addItems(List.from(model?['checklists'])
+      controller.addItems(List.from(model?['checklists']??[])
           .map(
             (e) => DropdownItem<Map<String, dynamic>>(
                 value: e, label: (e['checklist_name'] ?? "")),
@@ -202,32 +202,46 @@ class TCCDBloc extends Bloc<TCCDEvents, TCCDState> {
 
   void _onSaveEvent(SaveEvent event, Emitter<TCCDState> emit) async {
     try{
+      Map<String, dynamic> baseBody = {};
       // Console.of.debug(_selectedModel,name:'SAVE');
       if(controller.selectedItems.isEmpty){
         return;
       }else{
         emit(TCCDLoadingState());
-        Map<String,dynamic> data={
-          'branch_id': "${_selectedModel?['branch_code']}",
-          'cohort_id': "${_selectedModel?['cohort_id']}",
-          'custom_task':customTaskController.text,
-          'notes':notesController.text,
-          'start_at': "${selectedDate?.toFormat()}",
-          'statusTask':controller.selectedItems.map((e) => e.value).map((e) => {
-            "title" : _checkListName(e['checklist_name'], (e['category_id'] ?? 0)),
-            "vehicle_status_category" : e['category_id'] ?? 0,
-            "vehicle_status_checklist" : e['checklist_id'] ?? 0,
-            "vehicle_status_id" : e['id'] ?? 0,
-          }).toList(),
-          'todo_time': "${selectedTime?.toHMS()}",
-          'user_id': "$id",
-          'vehicle_name': "${_selectedModel?['vehicle_name']}",
-          'vehicle_status_category': "${_selectedModel?['vehicle_status']}",
-          'vin': "${_selectedModel?['vin']}",
-          "type" : "inline"
-        };
-        // Console.of.debug(jsonEncode(data));
-         await _apiRepository.vehicleStatusCreateTask(body: data);
+        baseBody['branch_id'] = "${_selectedModel?['branch_code']}";
+        baseBody['cohort_id'] = "${_selectedModel?['cohort_id']}";
+        baseBody['custom_task'] = customTaskController.text;
+        baseBody['notes'] = notesController.text;
+        baseBody['start_at'] = "${selectedDate?.toFormat()}";
+        baseBody['statusTask'] = controller.selectedItems.map((e) => e.value).map((e) => {
+          "title" : _checkListName(e['checklist_name'], (e['category_id'] ?? 0)),
+           "vehicle_status_category" : e['category_id'] ?? 0,
+          "vehicle_status_checklist" : e['checklist_id'] ?? 0,
+          "vehicle_status_id" : e['id'] ?? 0,
+        }).toList();
+        baseBody ['todo_time'] = "${selectedTime?.toHMS()}";
+        baseBody ['user_id'] = "$id";
+        baseBody['vehicle_name'] = "${_selectedModel?['vehicle_name']}";
+        baseBody['vehicle_status_category'] = "${_selectedModel?['vehicle_status']}";
+        baseBody['vin'] = "${_selectedModel?['vin']}";
+        baseBody["type"] = "inline" ;
+        if(addresses.isNotEmpty) baseBody['address'] = "${addresses.map((e) => e['id']).toList()}";
+        if (selectedVLocations!=null) {
+          if (selectedVLocations?['type'] == "location") {
+            baseBody['location'] = "${selectedVLocations?['name'] ?? ''}";
+            baseBody['location_id'] = "${selectedVLocations?['id'] ?? ''}";
+            baseBody['vendor_name'] = "";
+            baseBody['vendor_id'] = "";
+          }
+          if (selectedVLocations?['type'] == "vendor") {
+            baseBody['vendor_name'] = "${selectedVLocations?['name'] ?? ''}";
+            baseBody['vendor_id'] = "${selectedVLocations?['id'] ?? ''}";
+            baseBody['location'] = "";
+            baseBody['location_id'] = "";
+          }
+        }
+         Console.of.debug(baseBody,name:'SAVE');
+         await _apiRepository.vehicleStatusCreateTask(body: baseBody);
          var vehicleStatusId =  isBuy && isShow ? 2 : 1 ;
         Map<String, dynamic> mapData = {
           "vehicle_status" : "${isBuy ? vehicleStatusId : selectedButton ?? _selectedModel?['vehicle_status']}",
@@ -236,7 +250,6 @@ class TCCDBloc extends Bloc<TCCDEvents, TCCDState> {
         };
         await _apiRepository.vehicleStatusUpdate(body: mapData,);
         FBroadcast.instance().broadcast("vehicleStatus",value:true);
-
       }
       emit(TCCDSuccessState());
     }catch(e){

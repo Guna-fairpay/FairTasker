@@ -41,15 +41,8 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
     on<SearchEmployeesEvent>(_onSearchEmployeesEvent);
     on<EmployeesPaginationEvent>(_onEmployeePaginationEvent);
     on<AddOrEditEvent>(_onEmployeeAddOrEditEvent);
+    _broadcast.register('refreshEmployees', (value, callback) => add(EmployeesInitialEvent()));
 
-    // on<EmployeesPaginationEvent>((event, emit) {
-    //   currentIndex = event.page;
-    //   filteredResponse = paginateList(
-    //       data: _unFilteredResponse,
-    //       currentPage: currentIndex,
-    //       itemsPerPage: itemsPerPage);
-    //   emit(EmployeesCommonState());
-    // });
   }
   
   void _onDeleteEmployeeEvent(DeleteEmployeesEvent event, Emitter<EmployeesViewState> emit) async {
@@ -59,7 +52,6 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
       var response = await _apiRepository.deleteEmployee(id:event.data['id']);
       await getIt<CommonService>().getResources(reset: true);
       await getIt<CommonService>().getUsers(reset: true);
-      FBroadcast.instance().broadcast("refresh_add");
       if(response?['message']!=null){
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
@@ -82,7 +74,6 @@ class EmployeesViewBloc extends Bloc<EmployeesViewEvent, EmployeesViewState>{
       emit(EmployeesLoadingState());
       var response = await _apiRepository.getEmployeeData();
       apiResponse =List.from(response?['role']);
-
       apiResponse = apiResponse
           .mapIndexed((index, element) => {...element, 'index': index + 1})
           .toList();

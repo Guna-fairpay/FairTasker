@@ -27,9 +27,9 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
         vehicleConfigData = List.from(response?['categories'] ?? []);
         emit(VehicleStatusConfigCommonState());
       }catch (e) {
-        emit(VehicleStatusConfigLoadedState());
         Toaster.showError(e);
-        Console.of.error(e);
+        Console.of.error("Error", error: e);
+        emit(VehicleStatusConfigLoadedState());
       }
     });
 
@@ -61,7 +61,8 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
         emit(VehicleStatusConfigCommonState());
       }catch (e) {
         Toaster.showError(e);
-        Console.of.error(e);
+        Console.of.error("Error", error: e);
+        emit(VehicleStatusConfigCommonState());
       }
     });
 
@@ -95,7 +96,8 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
         emit(VehicleStatusConfigCommonState());
       }catch (e) {
         Toaster.showError(e);
-        Console.of.error(e);
+        Console.of.error("Error", error: e);
+        emit(VehicleStatusConfigLoadedState());
       }
     });
 
@@ -118,7 +120,8 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
         emit(VehicleStatusConfigCommonState());
       }catch (e) {
         Toaster.showError(e);
-        Console.of.error(e);
+        Console.of.error("Error", error: e);
+        emit(VehicleStatusConfigLoadedState());
       }
     });
 
