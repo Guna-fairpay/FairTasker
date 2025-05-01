@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+import '../../../core/app/helper/toaster.dart';
 import 'odometer_bloc.dart';
 import 'odometer_event.dart';
 import 'odometer_state.dart';
@@ -21,6 +22,7 @@ class OdometerView extends StatelessWidget {
     required this.selectedVehicle,
   });
 
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -32,7 +34,7 @@ class OdometerView extends StatelessWidget {
       child: BlocListener<OdometerBloc, OdometerState>(listener: (context, state)
       {
         if(state.isLoading){
-          EasyLoading.show(status: 'Loading...');
+          EasyLoading.show();
         } else {
           EasyLoading.dismiss();
         }
@@ -40,25 +42,28 @@ class OdometerView extends StatelessWidget {
         child: BlocBuilder<OdometerBloc, OdometerState>(
           builder: (context, state) {
             return SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Form(
+                  key: formKey,
                   child: Column(
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text.rich(
-                        TextSpan(
-                            text: "Previous Oil Change Odometer : ",
-                            children: [
-                              TextSpan(
-                                  text:
-                                  "${state.odometerData ?? 1}",
-                                  style: context.textTheme.labelLarge
-                                      ?.copyWith(fontWeight: FontWeight.w900))
-                            ]),
-                        style: context.textTheme.labelLarge,
-                      ),
+                      if(((state.odometerData) != null) && ((state.odometerData) > 0))...[
+                        Text.rich(
+                          TextSpan(
+                              text: "Previous Oil Change Odometer : ",
+                              children: [
+                                TextSpan(
+                                    text:
+                                    "${state.odometerData}",
+                                    style: context.textTheme.labelLarge
+                                        ?.copyWith(fontWeight: FontWeight.w900))
+                              ]),
+                          style: context.textTheme.labelLarge,
+                        ),
+                      ],
                       Row(
                         spacing: 10,
                         children: [
@@ -83,7 +88,6 @@ class OdometerView extends StatelessWidget {
                             child:
                             Utils.getTextFormField(
                               'Oil Change Odometer',
-                              autoValidate: AutovalidateMode.always,
                               context.read<OdometerBloc>().oilChangeController,
                               inputAction: TextInputAction.next,
                               textType: const TextInputType.numberWithOptions(
@@ -95,7 +99,7 @@ class OdometerView extends StatelessWidget {
                               validator: (val) => (double.tryParse(
                                   val.toString()) ?? 0) <
                                   (double.tryParse("${state.odometerData ?? 0}") ?? 0)
-                                  ? "Cannot enter lower than previous oil change odometer"
+                                  ? "Cannot enter lower than \n previous oil change \n odometer"
                                   : null,
                             ),
                           ),
@@ -113,23 +117,30 @@ class OdometerView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      // Utils.getText("Next Odometer",align: TextAlign.start),
-                      // Utils.getTextFormField("Enter", TextEditingController())
                       Utils.getText('Next Odometer', weight: FontWeight.bold),
                       Utils.getTextFormField('Next Odometer',
                           context.read<OdometerBloc>().nextOdometerController,
                           readOnly: true),
                         SuccessButton(
                           onPressed: (){
-                            var currentOdometer = num.tryParse(context.read<OdometerBloc>().oilChangeController.text);
-                            var nextMileCheck = num.tryParse(context.read<OdometerBloc>().nextMilesCheckController.text);
-                            var nextOdometer = num.tryParse(context.read<OdometerBloc>().nextOdometerController.text);
-                            context.read<OdometerBloc>().add(OdometerSaveEvent(
-                              currentOdometer: currentOdometer,
-                              nextOdometer: nextOdometer,
-                              nextMilesCheck: nextMileCheck,
-                              toDoId: todoItems['id'],)
-                            );
+                            if(formKey.currentState!.validate() && context.read<OdometerBloc>().oilChangeController.text != ''){
+                              var currentOdometer = num.tryParse(context.read<OdometerBloc>().oilChangeController.text);
+                              var nextMileCheck = num.tryParse(context.read<OdometerBloc>().nextMilesCheckController.text);
+                              var nextOdometer = num.tryParse(context.read<OdometerBloc>().nextOdometerController.text);
+                              context.read<OdometerBloc>().add(OdometerSaveEvent(
+                                currentOdometer: currentOdometer,
+                                nextOdometer: nextOdometer,
+                                nextMilesCheck: nextMileCheck,
+                                toDoId: todoItems['id'],)
+                              );
+                              formKey.currentState!.reset();
+                            } else {
+                              if(context.read<OdometerBloc>().oilChangeController.text == ''){
+                                Toaster.showError("Invalid odometer value");
+                              } else{
+                                Toaster.showError("Entered odometer it cannot be less than the previous odometer");
+                              }
+                            }
                           },
                         )
                     ],

@@ -36,7 +36,7 @@ class VehicleDataRepo {
         "make": createVehicleData.make,
         "model": createVehicleData.model,
         "year": createVehicleData.year,
-        "cohort_id": createVehicleData.selectedCohort.toString(),
+        "cohort_id": createVehicleData.cohortId.toString(),
         "earnings": createVehicleData.earnings,
         "utilization_rate": createVehicleData.utilizationRate,
         "platform": createVehicleData.platform,
@@ -54,7 +54,8 @@ class VehicleDataRepo {
         "spare_key": createVehicleData.spareKey.toString(),
         "permanent_plate": createVehicleData.permanentPlate.toString(),
         "car_number": createVehicleData.carNumber.toString(),
-        "oil_grade": createVehicleData.oilGrade.toString(),
+        "oil_grade": createVehicleData.oilGrade.toString(),//
+        "registration_renewal_date": createVehicleData.regStickerDate.toString(),
         "toll_tags": createVehicleData.tollTag.toString(),
         "toll_tags_id": createVehicleData.tollTagsId.toString(),
         "front_license_plate": createVehicleData.frontLicensePlate.toString(),
@@ -63,32 +64,18 @@ class VehicleDataRepo {
         "rear_tire": createVehicleData.rearTire,
         "insurance_agent": createVehicleData.insuranceAgent.toString(),
         "insurance_cost": createVehicleData.insuranceCost.toString(),
+        "employee_id" : createVehicleData.employeeId.toString(),
+        "branch_code": createVehicleData.branchCode.toString(),
         "platform_from": 'TaskerApp',
         "current_odometer": createVehicleData.currentOdometer,
         "oil_change_odometer": createVehicleData.oilChangeOdometer,
         "maintenance_check": createVehicleData.maintenanceCheck,
-        "registration_renewal_date": createVehicleData.regStickerDate
-            .toString(),
       };
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
 
       request.fields.addAll(reqMap);
 
-      // for (int i = 0;
-      // i < (createVehicleData.chosenPurchaseReceipts.length);
-      // i++) {
-      //   var file = createVehicleData.chosenPurchaseReceipts[i];
-      //
-      //   var multipartFile = http.MultipartFile.fromBytes(
-      //     'files[$i]',
-      //     (await file.readAsBytes()).toList(),
-      //     filename: file.path
-      //         .split('/')
-      //         .last,
-      //   );
-      //   request.files.add(multipartFile);
-      // }
 
       request.files.addAll(
           createVehicleData.vehicleImage.whereType<File>().map((e) =>

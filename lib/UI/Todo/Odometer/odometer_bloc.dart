@@ -42,19 +42,22 @@ class OdometerBloc extends Bloc<OdometerEvent, OdometerState>{
           event.vehicle['vin'].toString()
         );
         var response1 = await _getToDoOdometer(todoId: event.todoItems['id']);
-        log("response1: ${response1}", name: "odometer_data");
-        log("response1: ${response1?['data']['current_odometer']}", name: "odometer_data");
-        log("response1: ${response1?['data']['next_miles_check']}", name: "odometer_data");
-        log("response1: ${response1?['data']['next_odometer']}", name: "odometer_data");
+        log("response: ${response?.data}", name: "odometer_data");
+        log("response1: ${response1 ?? []}", name: "odometer_data");
 
-        if(response1 != null){
-          oilChangeController.text = "${response1['data']['current_odometer']}";
-          nextMilesCheckController.text = "${response1['data']['next_miles_check']}";
-          nextOdometerController.text = "${response1['data']['next_odometer']}";
+        if(response1?['data'] != null){
+          try{
+            oilChangeController.text = "${response1?['data']['current_odometer']}";
+            nextMilesCheckController.text = "${response1?['data']['next_miles_check']}";
+            nextOdometerController.text = "${response1?['data']['next_odometer']}";
+          }
+          catch(e){
+            log("response1.exception : ${e.toString()}");
+          }
         }
         emit(state.copyWith(
           isLoading: false,
-          odometerData: response?.data ?? [],
+          odometerData: response?.data,
         ));
       }
       catch (e) {
