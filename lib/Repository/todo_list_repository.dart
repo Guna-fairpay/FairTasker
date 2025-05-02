@@ -28,6 +28,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/categories_response.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Response/vehicle_grouping_response.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -3288,7 +3289,7 @@ class TodoListRepo {
         "notes": sparekeyData.notes ,
         "start_at": sparekeyData.startAt,
         'time_sensitive': sparekeyData.timeSensitive,
-        "todo_time": sparekeyData.todoTime,
+        "todo_time": DateTime.now().toFormat(format: "HH:mm:ss") ?? "",
         "todo_user_type": sparekeyData.todoUserType,
         "user_group_id": sparekeyData.userGroupId,
         "user_id": sparekeyData.userId,
@@ -3374,7 +3375,6 @@ class TodoListRepo {
         'fix_tasks': fixTasksMap,
         'type': "inline"
       };
-      fixTaskBody.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       Console.of.log(fixTaskBody);
       // 6. Update todo with fix tasks
       final updateResponse = await apiClient.callPostMethod(

@@ -1,17 +1,16 @@
+
 import 'dart:io';
 import 'dart:developer' as d;
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import '../../../Bloc/todo_view_bloc.dart';
 import '../../../Component/close_badge.dart';
 import '../../../Component/header.dart';
@@ -440,7 +439,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                             ..vendorName = widget.todoItems['vendor_name'] ?? ''
                             ..vehicleNumber = widget.vehicle?['vehicle_number']
                             ..vin = widget.vehicle?['vin'] ?? '';
-                          todoViewBloc!.add(AddSpareKeyTask(createSpareKeyTaskData: sparekeyData));
+                          vehicleDataBloc.add(AddSpareKeysTask(createSpareKeyTaskData: sparekeyData));
                           vehicleImageFile.clear();
                           tireImageFile.clear();
                           tollImage.clear();
@@ -449,6 +448,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                           receiptImageFile.clear();
                           formKey.currentState?.save();
                           Utils.dismissKeyboard(context);
+                          Navigator.pop(context);
                         }, bgColor: AppC.green),
                         Utils.getAddFilledButton('Cancel', () {
                           Navigator.pop(context);
@@ -513,8 +513,10 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
     child: BlocConsumer<VehicleDataBloc, VehicleDataState>(
       listener: (context, state)
       {
-        if (state is VehicleDataLoading) {
-          Utils.dismissKeyboard(context);
+        if (state is setVehicleDataLoading) {
+          if(state.pop){
+            context.pop();
+          }
           EasyLoading.show();
         }
         else if(state is setVehicleLoader){
@@ -615,6 +617,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
         else if(state is setVehicleImageLoaded){
 
           EasyLoading.dismiss();
+          images.clear();
           images = (state.currentVehicle['images'] as List<dynamic>?) ?? [];
           var tireImages = (state.currentVehicle['images'] as List<dynamic>?)
               ?.where((image) => image['vehicle_image_type'] == 2)
