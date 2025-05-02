@@ -16,6 +16,7 @@ import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/file_saver.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
@@ -357,6 +358,7 @@ class APiRepository {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
       final Map<String, dynamic> map = {};
       map['status'] = status;
+      map.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       Console.of.debug(map);
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(map));
@@ -372,6 +374,7 @@ class APiRepository {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$todoId";
       final Map<String, dynamic> map = {};
       map['reason'] = reason;
+      map.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response =
           await _apiClient.callDelete(apiUrl, body: map);
       var mapData = await response.mapData;
@@ -445,6 +448,7 @@ class APiRepository {
   Future<Map<String, dynamic>?> updateToDoApi(
       {Map<String, dynamic>? body, List<File>? images, String? todoId}) async {
     try {
+      body?.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String apiUrl = "${Str.BASE_URL}$_updateToDoApi/$todoId";
       final http.Response? response = await _apiClient.callPostMethodWithBody(
           apiUrl,
@@ -457,8 +461,8 @@ class APiRepository {
           var mapData = await response.mapData;
           log(mapData.toString(), name: "updateToDoApi");
 
-          Toaster.showSuccess(
-              mapData?['message'] ?? "Todo Updated Successfully");
+          // Toaster.showSuccess(
+          //     mapData?['message'] ?? "Todo Updated Successfully");
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
@@ -493,8 +497,8 @@ class APiRepository {
       if (response != null) {
         if (response.isSuccess) {
           var mapData = await response.mapData;
-          Toaster.showSuccess(
-              mapData?['message'] ?? "Todo Updated Successfully");
+          // Toaster.showSuccess(
+          //     mapData?['message'] ?? "Todo Updated Successfully");
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
@@ -650,7 +654,9 @@ class APiRepository {
   Future<Map<String,dynamic>?> deleteTodo({String? id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
-      final http.Response? response = await _apiClient.callDelete(apiUrl, body: {'reason': '$reason'});
+      Map<String, String> body = {'reason': "$reason"};
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      final http.Response? response = await _apiClient.callDelete(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
@@ -662,7 +668,9 @@ class APiRepository {
   Future<Map<String,dynamic>?> deleteRecurringTodo({String? id, dynamic reason,String? from,String? to}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteRecurringTodo/$id?from=$from&to=$to&reason=$reason";
-      final http.Response? response = await _apiClient.callDelete(apiUrl, body: {'reason': '$reason'});
+      Map<String, String> body = {'reason': "$reason"};
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      final http.Response? response = await _apiClient.callDelete(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
     } catch (error) {
@@ -704,6 +712,7 @@ class APiRepository {
       {required Map<String, dynamic> body}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_createStatusToDo";
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
@@ -740,6 +749,7 @@ class APiRepository {
   Future<Map<String, dynamic>?> updateStatusToDo(
       {required Map<String, dynamic> body}) async {
     try {
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String apiUrl = "${Str.BASE_URL}$_updateStatusToDo";
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
@@ -1523,6 +1533,7 @@ Future<Map<String, dynamic>?> getLocations() async {
         "todoDate": date?.toFormat(format: "yyyy-MM-dd"),
         "todoTime" : time?.toHMS()
       };
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       var bodyVal = jsonEncode(body);
       Console.of.log(bodyVal);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
@@ -1537,6 +1548,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_updateToDoApi/$toDoId";
       body.putIfAbsent("type", () => "inline");
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
@@ -1553,6 +1565,7 @@ Future<Map<String, dynamic>?> getLocations() async {
         "to" : "$toId"
       };
       body.putIfAbsent("type", () => "inline");
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
@@ -1627,6 +1640,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
       // body.putIfAbsent("type", () => "inline");
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
@@ -1639,6 +1653,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_completeToDoApi/$todoId";
       body.putIfAbsent("type", () => "inline");
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
       return mapData;
@@ -1651,6 +1666,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
       body.putIfAbsent("type", () => "inline");
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await  _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
       Console.of.log(mapData, name: "ADD_TODO_RESPONSE");
@@ -2020,6 +2036,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> createChecklistTodo({required Map<String, dynamic>? body}) async {
     try {
+      body?.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String apiUrl = "${Str.BASE_URL}$_createChecklistTodo";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl,body: body);
       var mapData = await response.mapData;
@@ -2531,6 +2548,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_uploadTodo";
       Map<String, dynamic> body = { "reservation" : text};
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
@@ -3241,6 +3259,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> cleanCar({required Map<String, dynamic> body}) async {
     String apiUrl = "${Str.BASE_URL}$_addTodo";
+    body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
     final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
     if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
       return response.mapData;
@@ -3306,6 +3325,7 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<Map<String, dynamic>?> vehicleStatusCreateTask({required Map<String, dynamic> body}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_addTodo";
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
         return response.mapData;

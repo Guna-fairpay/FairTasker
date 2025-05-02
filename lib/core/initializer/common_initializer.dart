@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
@@ -76,6 +77,8 @@ class CommonService {
 
   int get departmentId => Session.of.getInt("departmentId") ?? 0;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
+
+  String get currentPlatform => Platform.isAndroid ? "android" : "ios";
 
   bool get showBranchSelection {
     var hasDepartmentId = [6,7,8].contains(departmentId);

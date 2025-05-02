@@ -32,6 +32,7 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
@@ -1218,6 +1219,7 @@ class TodoListRepo {
         "reference_id":createTodoParams.referenceId.toString(),
         "platform": "TaskerApp",
       };
+      body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       // var todoImages = createTodoParams.todoImage.mapIndexed((index, element) => http.MultipartFile.fromString("images[$index]", element.path));
       //debugPrint("createATodo apiUrl: $apiUrl");
       log("${jsonEncode(body)}", name: "POST_BODY");
@@ -1508,7 +1510,7 @@ class TodoListRepo {
     try{
       String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
       String body;
-      body = jsonEncode({
+      Map<String, dynamic> bodyMap = {
         "type": "Inline",
         "expense_id": expenseId,
         "payment_method_id": paymentMethodId,
@@ -1520,7 +1522,9 @@ class TodoListRepo {
         "cohort_id": cohortId,
         "vin": vin,
         "expense_date": expenseDate,
-      });
+      };
+      bodyMap.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      body = jsonEncode({bodyMap});
       debugPrint("editExpenseTodo apiUrl: $apiUrl");
       debugPrint("editExpenseTodo body: $body");
       final http.Response? response =
@@ -2091,6 +2095,7 @@ class TodoListRepo {
       debugPrint("deleteATodo apiUrl: $apiUrl");
       final Map<String, dynamic> map = {};
       map['reason'] = reason;
+      map.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await apiClient.callDelete(apiUrl, body: map);
       if (response != null) {
         if (response.statusCode == 200) {
@@ -2124,7 +2129,9 @@ class TodoListRepo {
       bool statusBool = status == "Completed" ? true : false;
       String apiUrl = "${Str.BASE_URL}complete-todo/${todoId.toString()}";
       debugPrint("completeATodo apiUrl: $apiUrl");
-      String body = jsonEncode({"status": statusBool});
+      Map<String, dynamic> map = {"status": statusBool};
+      map.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      String body = jsonEncode(map);
       debugPrint("completeATodo body: $body");
 
       final http.Response? response =
@@ -3312,7 +3319,7 @@ class TodoListRepo {
       String apiUrl = "${Str.BASE_URL}add-todo";
       String apiUrl1 = "${Str.BASE_URL}update-todo/${createFixTaskData.todoId}";
 
-      String body = jsonEncode({
+      Map<String, dynamic> payload = {
         "identifier_id": createFixTaskData.identifierId,
         "user_group_id": createFixTaskData.userGroupId,
         "user_id": createFixTaskData.userId,
@@ -3334,7 +3341,9 @@ class TodoListRepo {
         "vehicle_number": createFixTaskData.vehicleNumber,
         "platform": "TaskerApp",
         "type" : "inline",
-      });
+      };
+      payload.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      String body = jsonEncode(payload);
 
       log("$body", name: "POST_BODY");
       final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
@@ -3353,31 +3362,26 @@ class TodoListRepo {
       if (newTaskId == null) {
         log("Failed to extract task ID from response");
         return null;
-      } else {
-        fixTasksMap.clear();
       }
-      if(createFixTaskData.fixTasksMap != null){
-        fixTasksMap = Map.of(createFixTaskData.fixTasksMap!);
-      }
+
       // 5. maintenance task ID
       final String? maintenanceId = createFixTaskData.maintenanceTaskId?.split('-').lastOrNull;
       if (maintenanceId != null) {
         fixTasksMap[maintenanceId] = newTaskId;
       }
-      createFixTaskData.fixTasksMap?.addAll({"$maintenanceId" : "$newTaskId"});
 
       var fixTaskBody = {
-        'fix_tasks': createFixTaskData.fixTasksMap,
+        'fix_tasks': fixTasksMap,
         'type': "inline"
       };
-
+      fixTaskBody.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       Console.of.log(fixTaskBody);
       // 6. Update todo with fix tasks
       final updateResponse = await apiClient.callPostMethod(
           apiUrl1,
           body: jsonEncode(fixTaskBody)
       );
-      fixTasksMap.clear();
+
       log("Update response: ${updateResponse?.body}", name: "UPDATE_RESPONSE");
 
     } catch (error) {
@@ -3400,11 +3404,13 @@ class TodoListRepo {
   Future<bool?> UpdateFixTask(int todoId, String notes) async {
     try {
       String apiUrl = "${Str.BASE_URL}update-todo/${todoId}";
-      String body = jsonEncode({
+      Map<String, dynamic> payload = {
         "identifier_id": todoId,
         "notes": notes,
         "type": "inline"
-      });
+      };
+      payload.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      String body = jsonEncode(payload);
       log("$body", name: "POST_BODY");
       final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
 
@@ -3471,6 +3477,7 @@ class TodoListRepo {
 
   Future<Map<String, dynamic>?> addTodo({required Map<String, dynamic> body, required List<File>? images}) async {
     var url = "${Str.BASE_URL}add-todo";
+    body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
     var response = await apiClient.callPostMethodWithBody(url, fieldName: "images", autoIncrement: true, files: images?.map((e) => e.path).toList(), body: body);
     return response.mapData;
   }

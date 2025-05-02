@@ -29,6 +29,7 @@ class _TaskerPickupTaskDialogView extends StatelessWidget {
   final void Function(DateTime date, TimeOfDay time, String? notes)? onSelected;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  final ValueNotifier<bool> _isUpdating = ValueNotifier(false);
   _TaskerPickupTaskDialogView({this.model, this.onSelected}) {
     if (model != null) {
       _selectedDate = model?['todo_date'].toString().toDateTime();
@@ -62,23 +63,33 @@ class _TaskerPickupTaskDialogView extends StatelessWidget {
           children: [
             Utils.getText("Pickup Car Task", size: 17.sp, weight: FontWeight.normal),
             const SizedBox.shrink(),
-            Row(
+            ValueListenableBuilder(valueListenable: _isUpdating, builder: (context, value, child) => Row(
               spacing: 10,
               children: [
                 Expanded(
                     child: CustomDateTimePicker<DateTime>(
-                      format: "yyyy-MM-dd",
+                        onChanged: (value) {
+                          _selectedDate = value;
+                          _isUpdating.value = true;
+                          _isUpdating.notifyListeners();
+                        },
+                        format: "yyyy-MM-dd",
                         suffixIcon: const Icon(Icons.calendar_month_rounded),
                         value: _selectedDate, controller: _dateController)),
                 Expanded(
                     child: CustomDateTimePicker<TimeOfDay>(
-                      format: "HH:mm",
+                      onChanged: (value) {
+                        _selectedTime = value;
+                        _isUpdating.value = true;
+                        _isUpdating.notifyListeners();
+                      },
+                        format: "HH:mm",
                         showAsExpanded: true,
                         textAlign: TextAlign.center,
                         suffixIcon: const Icon(Icons.access_time_rounded),
                         value: _selectedTime, controller: _timeController)),
               ],
-            ),
+            )),
             Utils.getTextFormField("Notes", _notesController,
                 minLines: 3,
                 maxLines: 6,
