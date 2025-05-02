@@ -99,8 +99,21 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
           d.log("${response}", name: "UPDATE_DATA");
           _broadcast.stickyBroadcast("todo_view", value: true);
-          // add(event)
-          emit(const setVehicleLoader());
+
+          final response1 = await getIt<CommonService>().getActiveVehicles(reset: true);
+          dynamic vehicle = event.vin != null ? {} : null;
+          if (response1.isNotEmpty && event.vin != null) {
+            try {
+              vehicle = response1.firstWhere(
+                    (e) => e['vin']?.toString() == event.vin?.toString(),
+                orElse: () => {},
+              );
+            } catch (e) {
+              d.log("Error finding vehicle: $e");
+              vehicle = {};
+            }
+          }
+          emit(setVehicleImageLoaded(currentVehicle: vehicle));
         } catch (error) {
           emit(const VehicleDataError( errorMessage: ''));
         }

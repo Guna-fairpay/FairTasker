@@ -3353,25 +3353,31 @@ class TodoListRepo {
       if (newTaskId == null) {
         log("Failed to extract task ID from response");
         return null;
+      } else {
+        fixTasksMap.clear();
       }
-
+      if(createFixTaskData.fixTasksMap != null){
+        fixTasksMap = Map.of(createFixTaskData.fixTasksMap!);
+      }
       // 5. maintenance task ID
       final String? maintenanceId = createFixTaskData.maintenanceTaskId?.split('-').lastOrNull;
       if (maintenanceId != null) {
         fixTasksMap[maintenanceId] = newTaskId;
       }
+      createFixTaskData.fixTasksMap?.addAll({"$maintenanceId" : "$newTaskId"});
 
       var fixTaskBody = {
-        'fix_tasks': fixTasksMap,
+        'fix_tasks': createFixTaskData.fixTasksMap,
         'type': "inline"
       };
+
       Console.of.log(fixTaskBody);
       // 6. Update todo with fix tasks
       final updateResponse = await apiClient.callPostMethod(
           apiUrl1,
           body: jsonEncode(fixTaskBody)
       );
-
+      fixTasksMap.clear();
       log("Update response: ${updateResponse?.body}", name: "UPDATE_RESPONSE");
 
     } catch (error) {

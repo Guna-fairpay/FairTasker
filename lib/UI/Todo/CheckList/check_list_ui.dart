@@ -204,6 +204,7 @@ class CheckListUI extends StatelessWidget {
                               ? '${checkListData['title']} - ${notesController.text}'
                               : checkListData['title'],
                           checklistId: checkListData['id'],
+                          identifierId: identifierId,
                         ),
                       );
                       FocusScope.of(context).unfocus();
