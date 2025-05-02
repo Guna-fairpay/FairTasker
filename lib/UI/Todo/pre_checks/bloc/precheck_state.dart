@@ -34,4 +34,11 @@ class PreCheckPopupState extends PreCheckState {
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
+class PreCheckDeleteDialogState extends PreCheckState {
+  final dynamic model;
+  PreCheckDeleteDialogState({this.model});
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
 class PreCheckCompleteState extends PreCheckState {}

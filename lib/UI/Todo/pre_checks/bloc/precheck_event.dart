@@ -20,7 +20,12 @@ class PreCheckCheckEvent extends PreCheckEvent {
   List<Object?> get props => [model, isChecked];
 }
 
-class PreCheckSubmitEvent extends PreCheckEvent {}
+class PreCheckSubmitEvent extends PreCheckEvent {
+  final dynamic model;
+  PreCheckSubmitEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
 
 class PreCheckCompleteEvent extends PreCheckEvent {
   final dynamic model;
@@ -31,7 +36,8 @@ class PreCheckCompleteEvent extends PreCheckEvent {
 
 class PreCheckDeleteEvent extends PreCheckEvent {
   final dynamic model;
-  PreCheckDeleteEvent(this.model);
+  final String? reason;
+  PreCheckDeleteEvent(this.model, {this.reason});
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, reason];
 }
