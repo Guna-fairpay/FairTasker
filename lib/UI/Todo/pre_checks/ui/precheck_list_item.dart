@@ -46,9 +46,7 @@ class PreCheckListItem extends StatelessWidget {
             ),
             SuccessButton(
               text: "${(model?['fix_task'] != null)  ? "Update" : "Crate"} Task",
-              onPressed: () {
-
-              },
+              onPressed: onCreateTask,
             )
           ],
         ))

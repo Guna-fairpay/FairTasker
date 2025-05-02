@@ -653,7 +653,7 @@ class APiRepository {
     }
   }
 
-  Future<Map<String,dynamic>?> deleteTodo({String? id, dynamic reason}) async {
+  Future<Map<String,dynamic>?> deleteTodo({dynamic id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
       Map<String, String> body = {'reason': "$reason"};
