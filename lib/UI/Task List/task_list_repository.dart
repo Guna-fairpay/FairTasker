@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:fairpytasker/UI/Task%20List/user_list_response.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:http/http.dart' as http;
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -130,10 +131,12 @@ class TaskListRepository {
 
   Future<bool?> approveTodo(int approve,int id) async {
     try {
-      String body = jsonEncode({
+      Map<String, dynamic> data = {
         "approved": approve,
         "id": id,
-      });
+      };
+      data.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
+      String body = jsonEncode(data);
       String apiUrl = "${Str.BASE_URL}approveTodo";
       debugPrint("getAssignedTo apiUrl: $apiUrl");
       final http.Response? response =

@@ -645,7 +645,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           }
         }
         emit(state.copyWith(isLoading: true));
-        var response = await todoListRepo.cleanCar(body: _cleanCarBody());
+        var response = await _apiRepository.cleanCar(body: _cleanCarBody());
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response != null)
           Toaster.showSuccess(response['message'] ?? "Success");
