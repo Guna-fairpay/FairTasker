@@ -282,9 +282,10 @@ class ToDoTaskerVehicleHistoryTapEvent extends ToDoTaskerEvent {
 
 class ToDoTaskerRefreshEvent extends ToDoTaskerEvent {
   final bool showLoading;
-  ToDoTaskerRefreshEvent({this.showLoading = true});
+  final bool refresh;
+  ToDoTaskerRefreshEvent({this.showLoading = true, this.refresh = true});
   @override
-  List<Object?> get props => [showLoading];
+  List<Object?> get props => [showLoading, refresh];
 }
 
 class ToDoTaskerViewVehicleEvent extends ToDoTaskerEvent {

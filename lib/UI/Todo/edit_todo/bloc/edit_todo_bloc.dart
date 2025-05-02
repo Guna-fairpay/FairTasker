@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
 import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
@@ -542,7 +543,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           var id=List.from(state.apiResponse['parts']).firstWhereOrNull(
                   (element) => element['parts_id'].toString() == event.part['id'].toString())?['id'];
           await _deleteParts(id);
-          _broadcast.stickyBroadcast("todo_view", value: false);
+          // _broadcast.stickyBroadcast("todo_view", value: false);
+          TaskerHelper.instance.withoutLoadingRefresh();
         }
       }
       partsBroadcastEvent(existing);
@@ -564,7 +566,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               element['supplies_id'].toString() ==
                   event.data['id'].toString())?['id'];
          await _deleteSupplies(id);
-          _broadcast.stickyBroadcast("todo_view", value: false);
+          // _broadcast.stickyBroadcast("todo_view", value: false);
+          TaskerHelper.instance.withoutLoadingRefresh();
         }
       }
       emit(state.copyWith(selectedSupplies: existing));
@@ -725,7 +728,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           (element) => event.vehicleId.contains(element),
         );
         await apiRepository.deleteTodoVehicle(id: "$id");
-        _broadcast.stickyBroadcast("todo_view", value: false);
+        // await getIt<CommonService>().getActiveVehicles(reset: true);
+        // _broadcast.stickyBroadcast("todo_view", value: false);
+        TaskerHelper.instance.withoutLoadingRefresh();
         emit(state.copyWith(isLoading: false));
       } catch (e) {
         Toaster.showError("$e");
@@ -874,7 +879,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           Toaster.showSuccess(response?['message']);
         }
         _broadcast.stickyBroadcast("todo_view", value: true);
-        emit(state.copyWith(isLoading: false, isPop: true, isRecurring: false));
+        emit(state.copyWith(isPop: true, isRecurring: false));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');

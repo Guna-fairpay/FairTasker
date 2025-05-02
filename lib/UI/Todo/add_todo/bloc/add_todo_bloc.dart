@@ -594,9 +594,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             images: state.attachments.whereType<File>().toList());
         if (response?.isNotEmpty ?? false)
           Toaster.showSuccess(response?['message'] ?? "Success");
-        emit(state.copyWith(isLoading: false));
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
+        else emit(state.copyWith(isLoading: false));
       } catch (e) {
         Console.of.error("Error", error: e);
         Toaster.showError("$e");
@@ -645,7 +645,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           }
         }
         emit(state.copyWith(isLoading: true));
-        var response = await todoListRepo.cleanCar(body: _cleanCarBody());
+        var response = await _apiRepository.cleanCar(body: _cleanCarBody());
         _broadcast.stickyBroadcast("todo_view", value: true);
         if (response != null)
           Toaster.showSuccess(response['message'] ?? "Success");

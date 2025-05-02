@@ -54,8 +54,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
           //     : await _pickTimePicker(context, onNeutral: onNeutral);
           result = await _pick24hTimePicker(context, onNeutral: onNeutral);
         }
-        if (result != null) onChanged?.call(result);
         controller?.text = Utils.formatDateTime(format: format, input: result);
+        if (result != null) onChanged?.call(result);
       },
       radius: Num.borderRadius,
       borderRadius: BorderRadius.circular(Num.borderRadius),
