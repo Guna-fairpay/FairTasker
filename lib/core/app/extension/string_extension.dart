@@ -71,10 +71,14 @@ extension StringExtension on String? {
   bool get isTuroReservation => this?.toLowerCase() == "Turo Reservation ID".toLowerCase();
 
   DateTime? toDateTime({String inputFormat = "yyyy-MM-dd"}) {
-    var input = this;
-    if ((input == null) || (input.isEmpty) || (isNullOrEmpty) || (input.contains("0000"))) return null;
-    var dateFormat = DateFormat(inputFormat);
-    return dateFormat.parse(input);
+    try {
+      var input = this;
+      if ((input == null) || (input.isEmpty) || (isNullOrEmpty) || (input.contains("0000"))) return null;
+      var dateFormat = DateFormat(inputFormat);
+      return dateFormat.parse(input);
+    } catch (e) {
+      return null;
+    }
   }
 
   get open async {

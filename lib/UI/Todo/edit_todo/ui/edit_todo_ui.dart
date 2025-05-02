@@ -28,10 +28,10 @@ class EditTodoUI extends StatelessWidget {
           EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId")),
       child: BlocListener<EditToDoBloc, EditTodoState>(
         listener: (context, state) {
-          state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           if (state.isPop) {
             context.pop();
           }
+          state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
           if (state.isTimeChange) {
             TaskerTimeChangeReasonDialog.show(
               context,

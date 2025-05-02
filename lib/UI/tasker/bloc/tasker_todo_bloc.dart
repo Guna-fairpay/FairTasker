@@ -107,7 +107,10 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   bool _isCheckInOutTask(Map<String, dynamic>? model) => _checkInOutTask.contains(model?['title']);
 
   void _listenBroadCast() {
-    _fBroadcast.register("todo_view", (value, callback) => add(ToDoTaskerRefreshEvent(showLoading: (value ?? false))));
+    _fBroadcast.register("todo_view", (value, callback) {
+      if (value is Map) add(ToDoTaskerRefreshEvent(showLoading: (value?['showLoading'] ?? false), refresh: (value?['refresh'] ?? false)));
+      else add(ToDoTaskerRefreshEvent(showLoading: (value ?? false)));
+    });
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
   }
@@ -576,6 +579,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         _reFetchToDos();
       }
     } catch (e) {
+      Console.of.error("ON_TIME_CHANGE_ERROR", error: e);
       emit(ToDoTaskerErrorState(e));
     }
   }
@@ -959,7 +963,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onRefreshEvent(ToDoTaskerRefreshEvent event, Emitter<ToDoTaskerState> emit) {
-    _reFetchToDos(showLoading: event.showLoading, refresh: true);
+    _reFetchToDos(showLoading: event.showLoading, refresh: event.refresh);
   }
 
   void _onViewVehicleEvent(ToDoTaskerViewVehicleEvent event, Emitter<ToDoTaskerState> emit) {
