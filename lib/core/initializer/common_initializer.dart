@@ -65,6 +65,7 @@ class CommonService {
   List<Map<String, dynamic>> _privateRentalVehicleList = [];
   List<Map<String, dynamic>> _privateRentalCustomersList = [];
   List<Map<String, dynamic>> _maintenanceCheckList = [];
+  List<Map<String, dynamic>> _checkList = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
@@ -513,11 +514,11 @@ class CommonService {
 
   Future<List<Map<String, dynamic>>> getMaintenanceCheckList({bool reset = false}) async {
     if (reset) _maintenanceCheckList.clear();
-    if (_maintenanceCheckList.isNotEmpty) return _maintenanceCheckList;
+    if (_maintenanceCheckList.isNotEmpty) return List.from(_maintenanceCheckList);
     try {
       var response = await _apiRepository.getMaintenanceCheckList();
       _maintenanceCheckList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
-      return _maintenanceCheckList;
+      return List.from(_maintenanceCheckList);
     }catch (e) {
       Toaster.showError(e.toString());
       return [];
@@ -532,6 +533,18 @@ class CommonService {
     }catch (e) {
       Toaster.showError(e.toString());
       return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCheckList({bool reset = false}) async {
+    if (reset) _checkList.clear();
+    if (_checkList.isNotEmpty) return List.from(_checkList);
+    try {
+      var response = await _apiRepository.getCheckList();
+      _checkList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return List.from(_checkList);
+    }catch (e) {
+      return [];
     }
   }
 
@@ -555,6 +568,7 @@ class CommonService {
     branchList.clear();
     _toDoList.clear();
     _maintenanceCheckList.clear();
+    _checkList.clear();
   }
 
 }
