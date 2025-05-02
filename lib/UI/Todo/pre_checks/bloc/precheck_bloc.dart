@@ -191,8 +191,8 @@ class PreCheckBloc extends Bloc<PreCheckEvent, PreCheckState> {
       }
       emit(PreCheckLoadingState());
       var mapData = {
-        "complete_time_approved" : 1,
-        "complete_time_taken" : "00:15",
+        "complete_time_approved" : fixTask?['complete_time_approved'] ?? 1,
+        "complete_time_taken" : (fixTask?['complete_time_taken']) ?? "00:15",
         "status" : true,
       };
       var response = await _completeToDo(mapData, taskId);
