@@ -17,6 +17,7 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   var checkOutCount = 0;
   final FBroadcast _broadcast = FBroadcast.instance();
   HeaderBloc() : super(HeaderLoadingState()) {
+    getIt<CommonService>().branchUpdate(callback: () => add(HeaderInitialEvent()));
     _broadcast.register(Str.userPunchListRefresh, (value, callback) => add(HeaderInitialEvent()));
    on<HeaderInitialEvent>(_onInitialEvent);
   }
@@ -32,11 +33,13 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
       checkInCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNullOrEmpty).length;
       checkOutCount = _userPunchList.where((element) => element['end_time'].toString().trim().isNotNullOrEmpty).length;
       Console.of.log(_userPunchList, name: "USER_PUNCH_LIST");
+      Console.of.log(_currentBranchHrmIds, name: "CURRENT_BRANCH_IDS");
       Console.of.log("$checkInCount/$checkInCount", name: "CHECK_IN_OUT");
       Console.of.log(_userPunchList.map((e) => e['end_time'].toString().trim().isNullOrEmpty).join(", "), name: "USERPUNCH_1");
       Console.of.log(_userPunchList.map((e) => e['end_time'].toString().trim().isNotNullOrEmpty).join(", "), name: "USERPUNCH_2");
       emit(HeaderCommonState());
     } catch (e) {
+      Console.of.error("Error", error: e);
       emit(HeaderErrorState(e));
     }
   }
