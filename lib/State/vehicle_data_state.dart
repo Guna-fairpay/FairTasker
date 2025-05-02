@@ -82,6 +82,13 @@ class VehicleDataLoading extends VehicleDataState {
   List<Object?> get props => [];
 }
 
+class setVehicleDataLoading extends VehicleDataState {
+  bool pop = false;
+  setVehicleDataLoading({required this.pop});
+  @override
+  List<Object?> get props => [pop];
+}
+
 class setVehicleLoaded extends VehicleDataState {
   final dynamic currentVehicle;
   const setVehicleLoaded( {this.currentVehicle});

@@ -10,9 +10,14 @@ import 'package:fairpytasker/Response/subcategories_response.dart';
 import 'package:fairpytasker/Repository/vehicle_repository.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+import '../Response/create_fix_task_data.dart';
+import '../State/todo_view_state.dart';
+import '../UI/Todo/create_sparekey_data.dart';
 import '../Utilities/Str.dart';
 part '../Event/vehicle_data_event.dart';
 part '../State/vehicle_data_state.dart';
@@ -94,7 +99,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
 //Set vehicle save Bloc
     on<UpdateVehicleDataEvent>((event, emit) async {
       if (event.createVehicleData != null) {
-        emit(const VehicleDataLoading());
+        emit(setVehicleDataLoading(pop: false));
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
           d.log("${response}", name: "UPDATE_DATA");
@@ -123,7 +128,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
     on<setVehicleInitialEvent>((event, emit) async {
       Console.of.log(event.vehicle, name: "VEHICLE_DATA");
       d.log("${event.vehicle}" ,name: "event_vehicle");
-      emit(const VehicleDataLoading());
+      emit(setVehicleDataLoading(pop: false));
       final response = await getIt<CommonService>().getActiveVehicles(reset: true);
       dynamic vehicle = event.vehicle != null ? {} : null;
       if (response.isNotEmpty && event.vehicle != null) {
@@ -138,6 +143,11 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         }
       }
       emit(setVehicleLoaded(currentVehicle: vehicle));
+    });
+    on<AddSpareKeysTask>((event, emit) async {
+       await todoListRepo.spareKeyTask(event.createSpareKeyTaskData!);
+      emit(setVehicleDataLoading(pop: true));
+      Toaster.showSuccess("Sparekey Task created successfully");
     });
 
     on<DeleteSetVehicleImage>((event, emit) async {
@@ -161,6 +171,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
       emit(setVehicleImageLoaded(currentVehicle: vehicle));
       d.log("${response}", name: "VEHICLE_Image");
     });
+
 
     on<MoveRentalData>((event, emit) async {
       emit(const VehicleDataLoading());

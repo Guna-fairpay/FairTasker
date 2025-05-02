@@ -87,6 +87,14 @@ class setVehicleInitialEvent extends VehicleDataEvent {
   List<Object?> get props => [vehicle, todoItems];
 }
 
+
+class AddSpareKeysTask extends VehicleDataEvent {
+  final CreateSpareKeyData? createSpareKeyTaskData;
+  AddSpareKeysTask({required this.createSpareKeyTaskData,});
+  @override
+  List<Object?> get props => [createSpareKeyTaskData];
+}
+
 class MoveRentalData extends VehicleDataEvent {
   final dynamic rentalData;
   const MoveRentalData({
