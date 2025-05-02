@@ -301,6 +301,8 @@ class APiRepository {
 
   String get _deleteTodoMileageAttachment => "deleteTodoMileageAttachment";
 
+  String get _getCheckList => "getCheckList";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3331,6 +3333,16 @@ Future<Map<String, dynamic>?> getLocations() async {
         return response.mapData;
       }
       return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCheckList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getCheckList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      return response.mapData;
     } catch (e) {
       rethrow;
     }
