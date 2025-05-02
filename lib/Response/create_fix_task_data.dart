@@ -23,6 +23,12 @@ class CreateFixTaskData
   String? maintenanceTaskId = '';
   String? vehicleNumber = '';
   String? comments ='';
+  String? address;
   int? branchId;
+  int? cohortId;
+  String? vin;
+  String? vehicleName;
+  int? todoUserTypeId;
   List<dynamic>? vehicleList = [];
+  Map<String, dynamic>? fixTasksMap ={};
 }

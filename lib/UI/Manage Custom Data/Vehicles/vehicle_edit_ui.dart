@@ -291,13 +291,19 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
       ..branchCode = widget.selectedVehicle['branch_code']
       ..vehicleStatus = widget.selectedVehicle['vehicle_status']//
       ..cohortId = widget.selectedVehicle['cohort_id'];
-
     setState(() {
       createVehicleData.insuranceImage = insuranceImage.whereType<File>().toList();
       createVehicleData.tollImage = tollImage.whereType<File>().toList();
       createVehicleData.tireImage = tireImageFile.whereType<File>().toList();
       createVehicleData.uploadRegSticker = uploadRegSticker.whereType<File>().toList();
       vehicleDataBloc.add(UpdateVehicleDataEvent(createVehicleData: createVehicleData, vin: widget.selectedVehicle['vin']));
+      vehicleImageFile.clear();
+      tireImageFile.clear();
+      tollImage.clear();
+      uploadRegSticker.clear();
+      insuranceImage.clear();
+      receiptImageFile.clear();
+      images.clear();
     });
     await _fetchUpdatedImages();
     imageCache.clear();
@@ -412,9 +418,7 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                             ..cohortId = widget.todoItems['cohort_id'] != null
                                 ? int.tryParse(widget.todoItems['cohort_id'].toString())
                                 : null
-                            ..identifierId = widget.todoItems['identifier_id'] != null
-                                ? int.tryParse(widget.todoItems['identifier_id'].toString())
-                                : null
+                            ..identifierId = 105
                             ..location = widget.todoItems['location'] ?? ''
                             ..locationId = widget.todoItems['location_id'] ?? ''
                             ..notes = widget.todoItems['notes'] ?? ''
@@ -437,9 +441,14 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                             ..vehicleNumber = widget.vehicle?['vehicle_number']
                             ..vin = widget.vehicle?['vin'] ?? '';
                           todoViewBloc!.add(AddSpareKeyTask(createSpareKeyTaskData: sparekeyData));
+                          vehicleImageFile.clear();
+                          tireImageFile.clear();
+                          tollImage.clear();
+                          uploadRegSticker.clear();
+                          insuranceImage.clear();
+                          receiptImageFile.clear();
                           formKey.currentState?.save();
-                          FocusScope.of(context).unfocus();
-                          Navigator.pop(context);
+                          Utils.dismissKeyboard(context);
                         }, bgColor: AppC.green),
                         Utils.getAddFilledButton('Cancel', () {
                           Navigator.pop(context);
@@ -602,16 +611,40 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
           frontLicensePlate = (state.currentVehicle['front_license_plate'] == 1);
           tollTags = (state.currentVehicle['toll_tags'] == 1);
         }
+
         else if(state is setVehicleImageLoaded){
+
           EasyLoading.dismiss();
+          images = (state.currentVehicle['images'] as List<dynamic>?) ?? [];
+          var tireImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 2)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          tireImageFile.clear();
+          tireImageFile.addAll(tireImages);
+          var tollImages = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 5)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          tollImage.clear();
+          tollImage.addAll(tollImages);
+          var uploadRegStickers = (state.currentVehicle['images'] as List<dynamic>?)
+              ?.where((image) => image['vehicle_image_type'] == 3)
+              .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
+              .toList() ??
+              [];
+          uploadRegSticker.clear();
+          uploadRegSticker.addAll(uploadRegStickers);
           var insuranceImages = (state.currentVehicle['images'] as List<dynamic>?)
               ?.where((image) => image['vehicle_image_type'] == 4)
               .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
               .toList() ??
               [];
           insuranceImage.clear();
-          receiptImageFile.clear();
           insuranceImage.addAll(insuranceImages);
+          receiptImageFile.clear();
           receiptImageFile.addAll(state.currentVehicle['expenses']?['attachments'] ?? []);
         }
         else {

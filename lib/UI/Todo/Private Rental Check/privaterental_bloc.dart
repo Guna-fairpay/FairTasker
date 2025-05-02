@@ -17,6 +17,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
   Map<String, dynamic> todoItemCopy = {};
   Map<String, dynamic> vehicleCopy = {};
   List<Map<String, dynamic>> matchingTodos = [];
+  Map<String, dynamic> fixTasksMap ={};
 
   PrivateRentalsBloc() : super(const PrivateRentalsState(
     isLoading: false,
@@ -53,7 +54,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
           String? fixTasksJson = todoItem['fix_tasks'];
 
           if (fixTasksJson != null) {
-            Map<String, dynamic> fixTasksMap = jsonDecode(fixTasksJson);
+            fixTasksMap = jsonDecode(fixTasksJson);
             List<dynamic> fixTaskValues = fixTasksMap.values.toList();
 
             print("fixTasksMap: $fixTasksMap");
@@ -145,22 +146,31 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
       try {
         emit(state.copyWith(isLoading: true));
         await todoListRepo.createFixTask(CreateFixTaskData()
-          ..todoId = todoItemCopy['id']
-          ..userId = todoItemCopy['user_id']
-          ..userGroupId = todoItemCopy['user_group_id']
+          ..address = todoItemCopy['address']
+          ..branchId = todoItemCopy['branch_id']
+          ..cohortId = todoItemCopy['cohort_id']
           ..identifierId = event.identifierId
-          ..title = event.title
-          ..notes = event.notes
-          ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""
-          ..startAt = DateTime.now().toFormat() ?? ""
-          ..vehicleList = todoItemCopy['vehicles']
-          ..locationId = todoItemCopy['location']
+          ..location = todoItemCopy['location']
           ..locationId = todoItemCopy['location_id']
+          ..startAt = DateTime.now().toFormat() ?? ""
+          ..timeSensitive = todoItemCopy['time_sensitive'].toString()
+          ..title = event.title
+          ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""
+          ..todoUserTypeId = int.tryParse(todoItemCopy['todo_user_type'].toString())
+          ..userGroupId = todoItemCopy['user_group_id']
+          ..userId = todoItemCopy['user_id']
+          ..vehicleName = vehicleCopy['vehicle_name']
+          ..vehicleList = todoItemCopy['vehicles']
           ..vendorId = todoItemCopy['vendor_id']
           ..vendorName = todoItemCopy['vendor_name']
+          ..vin = vehicleCopy['vin'].toString()
+          ..todoId = todoItemCopy['id']
+          ..notes = event.notes
+          ..todoTypeId = int.tryParse(todoItemCopy['todo_user_type'].toString())
           ..vehicleNumber = vehicleCopy['vehicle_number']
-          ..branchId = todoItemCopy['branch_id']
-          ..maintenanceTaskId = event.id);
+          ..maintenanceTaskId = event.id
+          ..fixTasksMap = fixTasksMap
+        );
         Utils.successMobileToast("Fix Task created successfully");
         emit(state.copyWith(isLoading: false, pop: true));
         _broadcast.stickyBroadcast("todo_view", value: true);

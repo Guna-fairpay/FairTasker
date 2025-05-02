@@ -169,19 +169,27 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
       try {
         emit(state.copyWith(isLoading: true));
         await todoListRepo.createFixTask( CreateFixTaskData()
-            ..branchId = todoItemsCopy['branch_id']
+            ..address = todoItemsCopy['address']//
+            ..branchId = todoItemsCopy['branch_id']//
+            ..cohortId = todoItemsCopy['cohort_id']//
             ..identifierId = event.identifierId
-            ..todoId = todoId
-            ..userId = todoItemsCopy['user_id'].toString()
-            ..userGroupId = int.tryParse(todoItemsCopy['user_group_id'].toString())
+            ..location = todoItemsCopy['location']//
+            ..locationId = todoItemsCopy['location_id']//
+            ..startAt = DateTime.now().toFormat() ?? ""
             ..timeSensitive = todoItemsCopy['time_sensitive'].toString()
             ..title = event.title
-            ..notes = event.notes//
             ..todoTime = DateTime.now().toFormat(format: "HH:mm:ss") ?? ""
-            ..startAt = todoItemsCopy['todo_date'].toString()//
-            ..todoTypeId = int.tryParse(todoItemsCopy['todo_user_type'].toString())
+            ..todoUserTypeId = int.tryParse(todoItemsCopy['todo_user_type'].toString())
+            ..userGroupId = int.tryParse(todoItemsCopy['user_group_id'].toString())
+            ..userId = todoItemsCopy['user_id'].toString()//
+            ..vehicleName = vehiclesCopy['vehicle_name']
             ..vehicleList = todoItemsCopy['vehicles']
+            ..vendorId = todoItemsCopy['vendor_id'].toString()
             ..vendorName = todoItemsCopy['vendor_name'].toString()
+            ..vin = vehiclesCopy['vin'].toString()
+            ..todoId = todoId
+            ..notes = event.notes//
+            ..todoTypeId = int.tryParse(todoItemsCopy['todo_user_type'].toString())
             ..vehicleNumber = vehiclesCopy['vehicle_number'].toString()
             ..maintenanceTaskId = event.checklistId.toString()
         );
