@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/Bloc/vehicle_status_checklist_event.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/Bloc/vehicle_status_checklist_state.dart';
@@ -41,7 +43,7 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
     on<CheckListSelectedEvent>((event, emit) async{
       try {
        emit(VehicleStatusChecklistLoadingState());
-        Console.of.debug('event.data: ${event.isChecked} ${data}');
+        Console.of.debug('CheckListSelectedEvent: ${event.isChecked} ${event.data}');
         var response = await _apiRepository.createChecklistTodo(body: {
           'category_id': event.data['category_id'],
           'checkbox_value': event.isChecked,
@@ -49,7 +51,7 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
           'cohort_id': data['cohort_id'],
           'cohort_name': data['cohort'],
           'config_id': event.data['id'],
-          'task_name': event.data['task_name'],
+          'task_name': event.data['checklist_name']??'',
           'user_id': _userId,
           'vehicle_name': data['vehicle_name'],
           'vehicle_image': List.from(data['images']).firstOrNull?['path'] ?? '',

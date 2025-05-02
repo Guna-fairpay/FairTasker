@@ -183,7 +183,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         tripDrivenController.text = todoResponse?['trip_driven'] ?? '';
         resolutionNotesController.text =
             todoResponse?['resolution_notes'] ?? '';
-        commentsController.text = todoResponse?['comments'] ?? '';
+        if((todoResponse?['comments']) != null) commentsController.text = todoResponse?['comments'] ?? '';
         odometerController.text = "${todoResponse?['mileage'] ?? ''}";
         if (todoResponse?['trip_review'] != null) {
           selectedSentiments = AddToDoConfig.sentiments.firstWhereOrNull(
@@ -877,9 +877,11 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
             body: _editTodoBody());
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message']);
+          _broadcast.stickyBroadcast("todo_view", value: true);
+          emit(state.copyWith(isPop: true, isRecurring: false));
+        } else {
+          emit(state.copyWith(isLoading: false));
         }
-        _broadcast.stickyBroadcast("todo_view", value: true);
-        emit(state.copyWith(isPop: true, isRecurring: false));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');

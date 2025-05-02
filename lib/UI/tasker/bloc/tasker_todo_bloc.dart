@@ -429,7 +429,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           if (isAbleMaintenanceComplete) {
             _insertMaintenanceCheckTask(model, incrementDays: 30);
             _callCompleteApi(model); } else {
+            if(!hasMandatory){
             emit(ToDoTaskerErrorState("Is all maintenance check done is mandatory"));
+            }if(!hasMileage && hasMandatory){
+              emit(ToDoTaskerErrorState("Odometer is mandatory"));
+            }
             emit(ToDoTaskerCompleteMaintenanceCheckState(event.model));
           }
         } break;
