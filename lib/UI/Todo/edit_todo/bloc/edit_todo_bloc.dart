@@ -931,6 +931,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['identifier_id'] = "${state.selectedTask['id'] ?? ''}";
     if (state.isRecurring == false) {
       baseBody['todo_time'] = state.selectedTime.toHMS().toString();
+      if (todoResponse?['todo_date'] != dateController.text)
       baseBody['todo_date'] = dateController.text;
     }
     baseBody['reminder'] =
