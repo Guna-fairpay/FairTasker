@@ -461,8 +461,8 @@ class APiRepository {
           var mapData = await response.mapData;
           log(mapData.toString(), name: "updateToDoApi");
 
-          Toaster.showSuccess(
-              mapData?['message'] ?? "Todo Updated Successfully");
+          // Toaster.showSuccess(
+          //     mapData?['message'] ?? "Todo Updated Successfully");
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
@@ -497,8 +497,8 @@ class APiRepository {
       if (response != null) {
         if (response.isSuccess) {
           var mapData = await response.mapData;
-          Toaster.showSuccess(
-              mapData?['message'] ?? "Todo Updated Successfully");
+          // Toaster.showSuccess(
+          //     mapData?['message'] ?? "Todo Updated Successfully");
           return mapData;
         } else {
           Utils.showSomethingWentWrong();
