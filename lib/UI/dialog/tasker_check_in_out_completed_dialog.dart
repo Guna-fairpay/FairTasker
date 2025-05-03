@@ -155,24 +155,26 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                     ))
               ],
             ),
-            ListView.separated(
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-              var model = context.watch<TCIODBloc>().toDoList[index];
-              return ListTile(
-                dense: true,
-                minLeadingWidth: 0,
-                minVerticalPadding: 0,
-                horizontalTitleGap: 0,
-                leading: Utils.getText(model['title'] ?? "",
-                    color: AppC.appColor, size: 12.sp, weight: FontWeight.bold),
-                trailing: Utils.getText(model['complete_time_taken'] ?? "00:15",
-                    weight: FontWeight.normal, size: 12.sp, color: model['complete_time_taken'].toString().isNullOrEmpty ? AppC.red : AppC.text),
-                contentPadding: 10.horizontalPadding,
-              );
-            },
-              separatorBuilder: (context, index) => Divider(height: 0.2,),
-            itemCount: context.watch<TCIODBloc>().toDoList.length,)
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                var model = context.watch<TCIODBloc>().toDoList[index];
+                return ListTile(
+                  dense: true,
+                  minLeadingWidth: 0,
+                  minVerticalPadding: 0,
+                  horizontalTitleGap: 0,
+                  leading: Utils.getText(model['title'] ?? "",
+                      color: AppC.appColor, size: 12.sp, weight: FontWeight.bold),
+                  trailing: Utils.getText(model['complete_time_taken'] ?? "00:15",
+                      weight: FontWeight.normal, size: 12.sp, color: model['complete_time_taken'].toString().isNullOrEmpty ? AppC.red : AppC.text),
+                  contentPadding: 10.horizontalPadding,
+                );
+              },
+                separatorBuilder: (context, index) => Divider(height: 0.2,),
+              itemCount: context.watch<TCIODBloc>().toDoList.length,),
+            )
           ],
         ),
       ),
