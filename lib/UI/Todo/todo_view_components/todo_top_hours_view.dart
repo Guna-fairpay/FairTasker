@@ -8,6 +8,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TodoTopHoursView extends StatelessWidget {
   final Map<String, dynamic>? model;
@@ -22,9 +23,9 @@ class TodoTopHoursView extends StatelessWidget {
             text: (model?['checkIn'].toString().isNullOrEmpty ?? false) ? "00:00" : (model?['checkIn']).toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a"),
             children: [
               WidgetSpan(child: 3.width),
-              TextSpan(text: "Check in", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))
+              TextSpan(text: "Check in", style: context.textTheme.labelSmall?.copyWith(fontSize: 12.sp, fontWeight: FontWeight.normal))
             ]
-        ), style: context.textTheme.labelMedium?.copyWith(fontSize: 13),
+        ), style: context.textTheme.labelMedium?.copyWith(fontSize: 13.sp),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
@@ -34,9 +35,9 @@ class TodoTopHoursView extends StatelessWidget {
               text: model?['totalHours'] ?? "00:00",
               children: [
                 WidgetSpan(child: 3.width),
-                TextSpan(text: "Hours Active", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))
+                TextSpan(text: "Hours Active", style: context.textTheme.labelSmall?.copyWith(fontSize: 12.sp, fontWeight: FontWeight.normal))
               ]
-          ), style: context.textTheme.labelMedium?.copyWith(fontSize: 13, color: AppC.red, fontWeight: FontWeight.bold),
+          ), style: context.textTheme.labelMedium?.copyWith(fontSize: 13.sp, color: AppC.red, fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -46,9 +47,9 @@ class TodoTopHoursView extends StatelessWidget {
             text: ( (Time.fromStr(model?['checkIn'].toString()) ?? getIt<CommonService>().usNow.time).inMins - (Time.fromStr(model?['checkOut'].toString()) ?? getIt<CommonService>().usNow.time).inMins ).abs().minutesToHourMinute,
             children: [
               WidgetSpan(child: 3.width),
-              TextSpan(text: "Hours Total", style: context.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.normal))
+              TextSpan(text: "Hours Total", style: context.textTheme.labelSmall?.copyWith(fontSize: 12.sp, fontWeight: FontWeight.normal))
             ]
-        ), style: context.textTheme.labelMedium?.copyWith(fontSize: 13, color: AppC.text, fontWeight: FontWeight.bold),
+        ), style: context.textTheme.labelMedium?.copyWith(fontSize: 13.sp, color: AppC.text, fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
