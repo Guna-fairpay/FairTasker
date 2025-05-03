@@ -926,13 +926,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     Console.of.log(state.isRecurring);
     state.selectedVPerson
         .removeWhere((element) => vinList.contains(element['value']['vin']));
+    var title = state.selectedTask['task'] == taskNameController.text
+        ? state.selectedTask['task']
+        : taskNameController.text;
+    var identifierId = state.selectedTask['task'] == taskNameController.text
+        ? state.selectedTask['id']
+        :'';
     Map<String, String> baseBody = {};
-    baseBody['title'] = "${state.selectedTask['task'] ?? taskNameController.text}";
-    baseBody['identifier_id'] = "${state.selectedTask['id'] ?? ''}";
+    baseBody['title'] = title;
+    baseBody['identifier_id'] = "$identifierId";
     if (state.isRecurring == false) {
       baseBody['todo_time'] = state.selectedTime.toHMS().toString();
-      if (todoResponse?['todo_date'] != dateController.text)
-      baseBody['todo_date'] = dateController.text;
+      if (todoResponse?['todo_date'] != dateController.text) {
+        baseBody['todo_date'] = dateController.text;
+      }
     }
     baseBody['reminder'] =
         state.apiResponse['reminder'] == true ? 'true' : 'false';
@@ -944,7 +951,6 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     baseBody['time_sensitive'] = state.isTimeSensitive ? '1' : '0';
     baseBody['todo_user_type'] = "0";
     baseBody['mileage'] = odometerController.text;
-    baseBody['resolution_notes'] = "";
     baseBody['address'] = "${state.addresses.map((e) => e['id']).toList()}";
     baseBody['custom_link_id'] = "${state.selectedLinkOption?['id'] ?? ""}";
     baseBody['trip_review'] = "${state.selectedSentiment?['name'] ?? ""}";

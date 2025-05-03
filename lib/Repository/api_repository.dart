@@ -305,6 +305,8 @@ class APiRepository {
 
   String get _getPrivateRentalCheck => "getPrivateRentalCheck";
 
+  String get _storeExpenseTemp => "storeExpenseTemp";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3354,6 +3356,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.BASE_URL}$_getPrivateRentalCheck";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> storeExpenseTemp(Map<String,dynamic> body) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_storeExpenseTemp";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,body:jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
     }catch(e){

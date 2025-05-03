@@ -35,6 +35,9 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
   final FBroadcast _broadcast = FBroadcast.instance();
   String? resourceId;
   dynamic model;
+  int? get _branch =>  getIt<CommonService>().branchId;
+
+
 
   AddExpenseVehicleBloc() : super(
       AddExpenseVehicleState(
@@ -65,6 +68,8 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         var vehicleList = await getIt<CommonService>().getActiveVehicles();
         var paymentType = await getIt<CommonService>().getPaymentTypes();
         var categories = await getIt<CommonService>().getExpenseCategories();
+
+        vehicleList.removeWhere((element) => element['branch_code'] != _branch,);
 
         if (event.model != null) {
           model = event.model;
