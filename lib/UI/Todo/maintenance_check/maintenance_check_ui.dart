@@ -29,7 +29,7 @@ class MaintenanceCheckUi extends StatelessWidget {
         if (state is MaintenanceCheckLoadingState) {
           EasyLoading.show();
         } else {
-          if (EasyLoading.isShow) EasyLoading.dismiss();
+          if (state is! MaintenanceCheckCompleteState) if (EasyLoading.isShow) EasyLoading.dismiss();
           switch(state) {
             case MaintenanceCheckErrorState(): Toaster.showError(state.message); break;
             case MaintenanceCheckSuccessState(): Toaster.showSuccess(state.message); break;
