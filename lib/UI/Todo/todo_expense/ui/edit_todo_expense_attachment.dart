@@ -131,7 +131,8 @@ class EditTodoExpenseAttachment extends StatelessWidget {
         if (attachments.isNotEmpty)
           SizedBox(
             height: 100,
-            child: GridView.builder(
+            child:
+            GridView.builder(
               shrinkWrap: true,
               itemCount: attachments.length,
               scrollDirection: Axis.horizontal,

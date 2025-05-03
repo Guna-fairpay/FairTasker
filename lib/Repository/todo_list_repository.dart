@@ -3340,6 +3340,8 @@ class TodoListRepo {
         "reference_id": createFixTaskData.referenceId,
         "comments": createFixTaskData.comments,
         "vehicle_number": createFixTaskData.vehicleNumber,
+        "vehicle_name" : createFixTaskData.vehicleName,
+        "time_sensitive" : createFixTaskData.timeSensitive,
         "platform": "TaskerApp",
         "type" : "inline",
       };
@@ -3363,16 +3365,19 @@ class TodoListRepo {
       if (newTaskId == null) {
         log("Failed to extract task ID from response");
         return null;
+      } else {
+        fixTasksMap.clear();
       }
-
+      fixTasksMap.clear();
       // 5. maintenance task ID
       final String? maintenanceId = createFixTaskData.maintenanceTaskId?.split('-').lastOrNull;
       if (maintenanceId != null) {
-        fixTasksMap[maintenanceId] = newTaskId;
+        fixTasksMap[maintenanceId.toString()] = newTaskId;
       }
+      createFixTaskData.fixTasksMap?.addAll(fixTasksMap);
 
       var fixTaskBody = {
-        'fix_tasks': fixTasksMap,
+        'fix_tasks': createFixTaskData.fixTasksMap,
         'type': "inline"
       };
       Console.of.log(fixTaskBody);
@@ -3381,6 +3386,8 @@ class TodoListRepo {
           apiUrl1,
           body: jsonEncode(fixTaskBody)
       );
+      fixTasksMap.clear();
+      createFixTaskData.fixTasksMap?.clear();
 
       log("Update response: ${updateResponse?.body}", name: "UPDATE_RESPONSE");
 

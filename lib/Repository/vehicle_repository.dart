@@ -26,8 +26,6 @@ class VehicleDataRepo {
       if (createVehicleData.id != null) {
         log("vehicle update");
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${createVehicleData.id}";
-      } else {
-        apiUrl = "${Str.LIST_BASE_URL}vehiclesApi";
       }
       print("Repository side Triggered ${createVehicleData.oilGrade} ${createVehicleData.oilChangeOdometer} ${createVehicleData.carNumber} ${createVehicleData.vehicleNumber}");
       Map<String, String> reqMap = {
