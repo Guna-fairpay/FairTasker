@@ -287,20 +287,22 @@ class TodoTaskItemCard extends StatelessWidget {
                         if (model['display']?['hasBouncie'] ?? false)
                         GestureDetector(
                           onTap: onBouncie,
-                          child: Row(
-                            spacing: 5,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (model['display']?['hasDistance'] ?? false) ? Icons.location_on : Icons.location_on_outlined,
-                                color: (model['display']?['hasDistance'] ?? false) ? AppC.green : AppC.red,
-                                size: 17.sp,
-                              ),
-                              if (model['display']?['hasDistance'] ?? false)
-                              Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
-                                  weight: FontWeight.bold, size: 13.sp),
-                              const SizedBox.shrink(),
-                            ],
+                          child: Container(
+                            child: Row(
+                              spacing: 5,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  (model['display']?['hasDistance'] ?? false) ? Icons.location_on : Icons.location_on_outlined,
+                                  color: (model['display']?['hasDistance'] ?? false) ? AppC.green : AppC.red,
+                                  size: 17.sp,
+                                ),
+                                if (model['display']?['hasDistance'] ?? false)
+                                Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
+                                    weight: FontWeight.normal, size: 13.sp, color: AppC.green),
+                                const SizedBox.shrink(),
+                              ],
+                            ),
                           ),
                         ),
                       ],
