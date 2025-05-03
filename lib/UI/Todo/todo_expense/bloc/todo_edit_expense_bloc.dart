@@ -431,8 +431,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       emit(state.copyWith(selectedVehicle: event.selectedVehicle));
     });
 
-    on<TaskListEvent>(
-        (event, emit) => emit(state.copyWith(taskList: event.taskList)));
+    on<TaskListEvent>((event, emit) => emit(state.copyWith(taskList: event.taskList)));
 
     on<SelectedPaymentEvent>((event, emit) =>
         emit(state.copyWith(selectedPayment: event.paymentType)));
