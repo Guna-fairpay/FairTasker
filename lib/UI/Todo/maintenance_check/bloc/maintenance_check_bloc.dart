@@ -90,6 +90,7 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
       for (var element in maintenanceCheckList) {
         for (var child in element['children']) {
           var taskId = fixTaskId[child['id'].toString()];
+          var fixTask = _findToDo(taskId: taskId);
           child['fix_task_id'] = taskId;
           if (child['parent_id'] != 5) {
             child['children'].add({
@@ -105,8 +106,8 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
           }
           child['children'] = List.from(child['children']).distinct((element) => element['id']);
           child['selectedValue'] = _findSelectedValue(taskId: taskId, children: List.from(child['children']));
-          child['fix_task'] = _findToDo(taskId: taskId);
-          child['checked'] = (child['selectedValue']?['name'].toString().toLowerCase() == "good") || (taskId.toString().isNullOrEmpty);
+          child['fix_task'] = fixTask;
+          child['checked'] = (child['selectedValue']?['name'].toString().toLowerCase() == "good") || ((fixTask == null) || (fixTask.isEmpty));
           child['comments'] = TextEditingController(text: _fetchComments(taskId: taskId));
         }
       }
