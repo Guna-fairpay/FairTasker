@@ -5,7 +5,6 @@ import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_bloc.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
