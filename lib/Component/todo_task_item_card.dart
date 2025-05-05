@@ -343,7 +343,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     text: TextSpan(
                                       children: [
-                                        TextSpan(text: "(${parse(model['display']?['notes'] ?? "").body?.text})", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
+                                        TextSpan(text: "(${parse((model['display']?['notes'] ?? "").toString().removeNextLines).body?.text})", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
                                         if (model['display']?['hasTimeChangeReason'] ?? false)
                                         TextSpan(text: "\t${(model['display']?['timeChangeReason'] ?? "").toString().toTitleCase()}", style: context.textTheme.labelMedium?.copyWith(color: null),
                                           recognizer: ((model['display']?['timeChangeReason'] ?? "").toString().length > 10) ? (TapGestureRecognizer()..onTap = ()=> onMore?.call((model['display']?['timeChangeReason'] ?? ""))) : null,
