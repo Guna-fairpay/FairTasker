@@ -60,10 +60,10 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
     List<String> labels = [];
     for (var element in maintenanceCheckList) {
       if (ids.contains(element['id'])) {
-        labels.add(element['name']);
+        labels.add(element['name'].toString().removeNextLines);
         for (var child in element['children']) {
           if (ids.contains(child['id'])) {
-            labels.add(child['name']);
+            labels.add(child['name'].toString().removeNextLines);
             if (List.from(child['children']).isEmpty) {
               labels.add("");
             } else {

@@ -170,4 +170,9 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
 
     return hours * 60 + minutes + (seconds / 60).round();
   }
+
+  String get removeNextLines {
+    if (isNullOrEmpty) return "";
+    return this?.replaceAll(RegExp(r'[\r\n]+'), "") ?? "";
+  }
 }
