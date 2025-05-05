@@ -162,7 +162,6 @@ class SetVehicleUi extends StatelessWidget {
                                   SuccessButton(
                                     text: 'Toll Image',
                                     icon: Icons.cloud_upload,
-                                    iconColor: AppC.blue,
                                     backgroundColor: AppC.white,
                                     foregroundColor: AppC.grey,
                                     onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 5)),
@@ -275,7 +274,6 @@ class SetVehicleUi extends StatelessWidget {
                             SuccessButton(
                               text: 'Tire Image Upload',
                               icon: Icons.cloud_upload,
-                              iconColor: AppC.blue,
                               backgroundColor: AppC.white,
                               foregroundColor: AppC.grey,
                               onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 2)),
@@ -413,7 +411,6 @@ class SetVehicleUi extends StatelessWidget {
                                 child: SuccessButton(
                                   text: 'Upload Reg Sticker',
                                   icon: Icons.cloud_upload,
-                                  iconColor: AppC.blue,
                                   backgroundColor: AppC.white,
                                   foregroundColor: AppC.grey,
                                   onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 3)),
@@ -488,7 +485,6 @@ class SetVehicleUi extends StatelessWidget {
                       child: SuccessButton(
                         text: 'Insurance Image',
                         icon: Icons.cloud_upload,
-                        iconColor: AppC.blue,
                         backgroundColor: AppC.white,
                         foregroundColor: AppC.grey,
                         onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 4)),
