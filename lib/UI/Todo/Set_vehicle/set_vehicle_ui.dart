@@ -517,9 +517,6 @@ class SetVehicleUi extends StatelessWidget {
                       leading: SuccessButton(
                         text: 'Save',
                         onPressed: () {
-                          if (context.read<setVehicleBloc>().formKey.currentState!.validate()) {
-                            context.read<setVehicleBloc>().formKey.currentState!.reset();
-                          }
                             if(context.read<setVehicleBloc>().spareKey == true){
                               context.read<setVehicleBloc>().add(setVehicleSaveEvent());
                             } else {
