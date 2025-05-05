@@ -1,5 +1,7 @@
 
 
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
 abstract class setVehicleEvent extends Equatable {
@@ -25,13 +27,13 @@ class DeleteVehicleImage extends setVehicleEvent {
   List<Object?> get props => [id,];
 }
 
-class setVehicleUpdateEvents extends setVehicleEvent {
-  final dynamic vehicle;
-  final dynamic todoItems;
-  const setVehicleUpdateEvents({this.vehicle,this.todoItems});
-  @override
-  List<Object?> get props => [vehicle, todoItems];
-}
+// class setVehicleUpdateEvents extends setVehicleEvent {
+//   final dynamic vehicle;
+//   final dynamic todoItems;
+//   const setVehicleUpdateEvents({this.vehicle,this.todoItems});
+//   @override
+//   List<Object?> get props => [vehicle, todoItems];
+// }
 
 class setVehicleBouncieEvent extends setVehicleEvent {
   final bool value;
@@ -90,3 +92,31 @@ class setVehicleDatePickerEvent extends setVehicleEvent {
 }
 
 class setVehicleSaveEvent extends setVehicleEvent { }
+
+class createSparekeyTask extends setVehicleEvent { }
+
+class setVehicleAddAttachmentEvent extends setVehicleEvent {
+  final dynamic imageType;
+  setVehicleAddAttachmentEvent({required this.imageType});
+  @override
+  List<Object?> get props => [imageType, Random().nextDouble()];
+}
+
+class setVehicleViewAttachmentEvent extends setVehicleEvent {
+  final dynamic attachment;
+  final List<dynamic> attachments;
+  setVehicleViewAttachmentEvent(this.attachment, this.attachments);
+  @override
+  List<Object?> get props => [attachment, attachments, Random().nextDouble()];
+}
+
+class setVehicleRemoveAttachmentEvent extends setVehicleEvent {
+  final dynamic attachment;
+  final List<dynamic> attachments;
+  final dynamic imageType;
+  setVehicleRemoveAttachmentEvent(this.attachment, this.attachments, this.imageType);
+  @override
+  List<Object?> get props => [attachment, attachments, imageType, Random().nextDouble()];
+}
+
+class ResetAllEvent extends setVehicleEvent {}

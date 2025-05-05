@@ -8,6 +8,8 @@ import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/Set_vehicle/set_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Todo/Set_vehicle/set_vehicle_event.dart';
 import 'package:fairpytasker/UI/Todo/Set_vehicle/set_vehicle_state.dart';
+import 'package:fairpytasker/UI/Todo/Set_vehicle/sparekeyTask_popup.dart';
+import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -27,6 +29,7 @@ class SetVehicleUi extends StatelessWidget {
   SetVehicleUi({super.key, this.selectedVehicle, required this.todoItems});
 
 
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -37,8 +40,12 @@ class SetVehicleUi extends StatelessWidget {
             EasyLoading.show();
           }
           else if(state is setVehicleLoaded){
+            if(state.pop ?? false){
+              context.pop();
+            }
             if (EasyLoading.isShow) EasyLoading.dismiss();
-          } else {
+          }
+          else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
           }
         },
@@ -83,20 +90,6 @@ class SetVehicleUi extends StatelessWidget {
                                   context.read<setVehicleBloc>().add(setVehicleTollTagsEvent(value: value ?? false));
                                 },
                                 label: 'Toll tags',
-                              ),
-                              checkBoxWithSingleText(
-                                value: context.read<setVehicleBloc>().spareKey,
-                                onChanged: (bool? value) {
-                                  context.read<setVehicleBloc>().add(setVehicleSpareKeyEvent(value: value ?? false));
-                                },
-                                label: 'Spare Key',
-                              ),
-                              checkBoxWithSingleText(
-                                value: context.read<setVehicleBloc>().permanentPlate,
-                                onChanged: (bool? value) {
-                                  context.read<setVehicleBloc>().add(setVehiclePermanentPlateEvent(value: value ?? false));
-                                },
-                                label: 'Permanent Plate',
                               ),
                             ],
                           ),
@@ -146,6 +139,8 @@ class SetVehicleUi extends StatelessWidget {
                               if(context.read<setVehicleBloc>().tollTags)...[
                                 Utils.getTextFormField('Enter the toll tag id', context.read<setVehicleBloc>().tollTagsIdController),
                                 Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(vertical: 3),
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                         color: AppC.fieldBase,
@@ -154,27 +149,24 @@ class SetVehicleUi extends StatelessWidget {
                                       borderRadius:
                                       const BorderRadius.all(Radius.circular(Num.subradiusButton))),
                                   child:
-                                  Utils.getOutlinedButton(
-                                    'Toll Image',
-                                        () {
-                                      // Utils.dismissKeyboard(context);
-                                      // var result = await _pickImages2();
-                                      // if (result != null) {
-                                      //   var files = tollImage.whereType<File>().map((e) => e.path);
-                                      //   for (var element in result) {
-                                      //     if (!files.contains(element.path)) {
-                                      //       tollImage.add(element);
-                                      //     }
-                                      //   }
-                                      // }
-                                    },
-                                    iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                    verticalPadding: 0,
-                                    radius: BorderRadius.zero,
-                                    bgColor: AppC.trans,
-                                    borderColor: AppC.trans,
-                                    textColor: AppC.grey,
-                                  ),
+                                  // Utils.getOutlinedButton(
+                                  //   'Toll Image',
+                                  //       () => context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 5)),
+                                  //   iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
+                                  //   verticalPadding: 0,
+                                  //   radius: BorderRadius.zero,
+                                  //   bgColor: AppC.trans,
+                                  //   borderColor: AppC.trans,
+                                  //   textColor: AppC.grey,
+                                  // ),
+                                  SuccessButton(
+                                    text: 'Toll Image',
+                                    icon: Icons.cloud_upload,
+                                    iconColor: AppC.blue,
+                                    backgroundColor: AppC.white,
+                                    foregroundColor: AppC.grey,
+                                    onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 5)),
+                                  )
                                 ),
                               ],
                             ],
@@ -186,24 +178,37 @@ class SetVehicleUi extends StatelessWidget {
                             child:
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: Utils.getTextFormField('e.g.,T165/70D18',
+                              child:
+                              Utils.getTextFormField('e.g.,T165/70D18',
                                   context.read<setVehicleBloc>().spareTireController,
                                   validator: (value){
                                     final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
-                                    if (!SpareTireRegex.hasMatch(value ?? '')) {
-                                      return 'T165/70D18';
+                                    if(value!.isNotEmpty){
+                                      if (!SpareTireRegex.hasMatch(value)) {
+                                        return 'T165/70D18';
+                                      }
                                     }
                                     return null;
                                   }
                               ),
+                              // TextFormField(
+                              //   controller: context.read<setVehicleBloc>().spareTireController,
+                              //   validator: (value){
+                              //     final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
+                              //     if (!SpareTireRegex.hasMatch(value ?? '')) {
+                              //       return 'T165/70D18';
+                              //     }
+                              //     return null;
+                              //   }
+                              // )
                             ),
                           ),
                         ] else...[
-                          const SizedBox()
+                          const Spacer()
                         ],
                       ],
                     ),
-                    Utils.getText("Toll image"),
+                    if(context.read<setVehicleBloc>().tollImage.isNotEmpty)
                     SizedBox(
                       height: 100,
                       child: GridView.builder(
@@ -232,8 +237,27 @@ class SetVehicleUi extends StatelessWidget {
                                 ),
                               ),
                             ],
-                          ))
+                          ),
+                            onTapView:()=> ShowAttachmentsDialog.of.show(context,
+                                attachments: context.read<setVehicleBloc>().tollImage, title: "", currentAttachment: context.read<setVehicleBloc>().tollImage[index]
+                            ),
+                            onTapDelete: () => context.read<setVehicleBloc>().add(setVehicleRemoveAttachmentEvent(context.read<setVehicleBloc>().tollImage[index], context.read<setVehicleBloc>().tollImage, 5)),
+                          )
                       ),
+                    ),
+                    checkBoxWithSingleText(
+                      value: context.read<setVehicleBloc>().spareKey,
+                      onChanged: (bool? value) {
+                        context.read<setVehicleBloc>().add(setVehicleSpareKeyEvent(value: value ?? false));
+                      },
+                      label: 'Spare Key',
+                    ),
+                    checkBoxWithSingleText(
+                      value: context.read<setVehicleBloc>().permanentPlate,
+                      onChanged: (bool? value) {
+                        context.read<setVehicleBloc>().add(setVehiclePermanentPlateEvent(value: value ?? false));
+                      },
+                      label: 'Permanent Plate',
                     ),
                     Row(
                       spacing: 10,
@@ -248,33 +272,13 @@ class SetVehicleUi extends StatelessWidget {
                               ),
                               borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))),
                           child:
-                          // Utils.getOutlinedButton(
-                          //   'Tire Image Upload',
-                          //       () {
-                          //     // var result = await _pickImages2();
-                          //     // if (result != null) {
-                          //     //   var files = tireImageFile.whereType<File>().map((e) => e.path);
-                          //     //   for (var element in result) {
-                          //     //     if (!files.contains(element.path)) {
-                          //     //       tireImageFile.add(element);
-                          //     //     }
-                          //     //   }
-                          //     //   setState(() {});
-                          //     // }
-                          //   },
-                          //   iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                          //   radius: BorderRadius.zero,
-                          //   bgColor: AppC.trans,
-                          //   borderColor: AppC.trans,
-                          //   textColor: AppC.grey,
-                          //   verticalPadding: 0,
-                          // ),
-                            const SuccessButton(
+                            SuccessButton(
                               text: 'Tire Image Upload',
                               icon: Icons.cloud_upload,
                               iconColor: AppC.blue,
                               backgroundColor: AppC.white,
                               foregroundColor: AppC.grey,
+                              onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 2)),
                             )
                         ),
                         Expanded(
@@ -284,6 +288,42 @@ class SetVehicleUi extends StatelessWidget {
                       ],
                     ),
                     //Tire Image Space
+                    if(context.read<setVehicleBloc>().tireImageFile.isNotEmpty)
+                    SizedBox(
+                      height: 100,
+                      child: GridView.builder(
+                          shrinkWrap: true,
+                          itemCount : context.read<setVehicleBloc>().tireImageFile.length,
+                          scrollDirection: Axis.horizontal,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 1, mainAxisSpacing: 10),
+                          itemBuilder: (context, index) => CloseBadge(child: Stack(
+                            children: [
+                              Container(
+                                constraints: BoxConstraints(
+                                  minHeight: MediaQuery.sizeOf(context).height,
+                                  minWidth: MediaQuery.sizeOf(context).width,
+                                ),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: AppC.grey.withValues(alpha: 0.2)),
+                                clipBehavior: Clip.antiAliasWithSaveLayer,
+                                child: ImageViewer(
+                                  fit: BoxFit.cover,
+                                  imageInput: context.read<setVehicleBloc>().tireImageFile[index],
+                                  isNotImage:
+                                  !((context.read<setVehicleBloc>().tireImageFile[index] as Object)
+                                      .isImage),
+                                ),
+                              ),
+                            ],
+                          ),
+                            onTapView:()=> ShowAttachmentsDialog.of.show(context,
+                                attachments: context.read<setVehicleBloc>().tireImageFile, title: "", currentAttachment: context.read<setVehicleBloc>().tireImageFile[index]),
+                            onTapDelete: () => context.read<setVehicleBloc>().add(setVehicleRemoveAttachmentEvent(context.read<setVehicleBloc>().tireImageFile[index], context.read<setVehicleBloc>().tireImageFile, 2)),
+                          )
+                      ),
+                    ),
                     Row(
                       spacing: 10,
                       children: [
@@ -306,8 +346,10 @@ class SetVehicleUi extends StatelessWidget {
                               hintTextColor: AppC.grey,
                               validator: (value){
                                 final FrontTireRegex = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
-                                if (!FrontTireRegex.hasMatch(value ?? '')) {
-                                  return '215/55R17';
+                                if(value!.isNotEmpty){
+                                  if (!FrontTireRegex.hasMatch(value)) {
+                                    return '215/55R17';
+                                  }
                                 }
                                 return null;
                               }
@@ -319,8 +361,10 @@ class SetVehicleUi extends StatelessWidget {
                               hintTextColor: AppC.grey,
                               validator: (value){
                                 final BackTireRegex = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
-                                if (!BackTireRegex.hasMatch(value ?? '')) {
-                                  return '215/55R17';
+                                if(value!.isNotEmpty){
+                                  if (!BackTireRegex.hasMatch(value)) {
+                                    return '215/55R17';
+                                  }
                                 }
                                 return null;
                               }
@@ -328,14 +372,10 @@ class SetVehicleUi extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Align(
-                        alignment: Alignment.centerLeft,
-                        child:
-                        Utils.getText(
-                            'Reg Sticker date',
-                            weight: FontWeight.bold,
-                            align: TextAlign.start)
-                    ),
+                    Utils.getText(
+                        'Reg Sticker date',
+                        weight: FontWeight.bold,
+                        align: TextAlign.start),
                     Row(
                       spacing: 10,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -359,36 +399,6 @@ class SetVehicleUi extends StatelessWidget {
                         Expanded(
                           child: Column(
                             children: [
-                              // Container(
-                              //   height: 48,
-                              //   decoration: BoxDecoration(
-                              //       border: Border.all(
-                              //         color: AppC.fieldBase,
-                              //         width: Num.borderWidthField,
-                              //       ),
-                              //       borderRadius:
-                              //       const BorderRadius.all(Radius.circular(Num.subradiusButton))),
-                              //   child: Utils.getOutlinedButton(
-                              //     'Upload Reg Sticker',
-                              //         () {
-                              //       // var result = await _pickImages2();
-                              //       // if (result != null) {
-                              //       //   var files = uploadRegSticker.whereType<File>().map((e) => e.path);
-                              //       //   for (var element in result) {
-                              //       //     if (!files.contains(element.path)) {
-                              //       //       uploadRegSticker.add(element);
-                              //       //     }
-                              //       //   }
-                              //       // }
-                              //     },
-                              //     iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                              //     verticalPadding: 0,
-                              //     radius: BorderRadius.zero,
-                              //     bgColor: AppC.trans,
-                              //     borderColor: AppC.trans,
-                              //     textColor: AppC.grey,
-                              //   ),
-                              // ),
                               Container(
                                 padding: EdgeInsets.all(0),
                                 decoration: BoxDecoration(
@@ -400,12 +410,13 @@ class SetVehicleUi extends StatelessWidget {
                                         Radius.circular(Num.subradiusButton)
                                     )
                                 ),
-                                child: const SuccessButton(
+                                child: SuccessButton(
                                   text: 'Upload Reg Sticker',
                                   icon: Icons.cloud_upload,
                                   iconColor: AppC.blue,
                                   backgroundColor: AppC.white,
                                   foregroundColor: AppC.grey,
+                                  onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 3)),
                                 ),
                               ),
                             ],
@@ -415,6 +426,42 @@ class SetVehicleUi extends StatelessWidget {
                       ],
                     ),
                     //Upload RegisterSticker
+                    if(context.watch<setVehicleBloc>().uploadRegSticker.isNotEmpty)
+                      SizedBox(
+                        height: 100,
+                        child: GridView.builder(
+                            shrinkWrap: true,
+                            itemCount : context.watch<setVehicleBloc>().uploadRegSticker.length,
+                            scrollDirection: Axis.horizontal,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1, mainAxisSpacing: 10),
+                            itemBuilder: (context, index) => CloseBadge(child: Stack(
+                              children: [
+                                Container(
+                                  constraints: BoxConstraints(
+                                    minHeight: MediaQuery.sizeOf(context).height,
+                                    minWidth: MediaQuery.sizeOf(context).width,
+                                  ),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: AppC.grey.withValues(alpha: 0.2)),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: ImageViewer(
+                                    fit: BoxFit.cover,
+                                    imageInput: context.read<setVehicleBloc>().uploadRegSticker[index],
+                                    isNotImage:
+                                    !((context.read<setVehicleBloc>().uploadRegSticker[index] as Object)
+                                        .isImage),
+                                  ),
+                                ),
+                              ],
+                            ),
+                              onTapView:()=> ShowAttachmentsDialog.of.show(context,
+                                  attachments: context.read<setVehicleBloc>().uploadRegSticker, title: "", currentAttachment: context.read<setVehicleBloc>().uploadRegSticker[index]),
+                              onTapDelete: () => context.read<setVehicleBloc>().add(setVehicleRemoveAttachmentEvent(context.read<setVehicleBloc>().uploadRegSticker[index], context.read<setVehicleBloc>().uploadRegSticker, 3)),
+                            )
+                        ),
+                      ),
                     Row(
                       spacing: 10,
                       children: [
@@ -426,37 +473,6 @@ class SetVehicleUi extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // Container(
-                    //   height: 50,
-                    //   decoration: BoxDecoration(
-                    //       border: Border.all(
-                    //         color: AppC.fieldBase,
-                    //         width: Num.borderWidthField,
-                    //       ),
-                    //       borderRadius: const BorderRadius.all(Radius.circular(Num.subradiusButton))
-                    //   ),
-                    //   child: Utils.getOutlinedButton(
-                    //     'Insurance Image',
-                    //         () {
-                    //       // var result = await _pickImages2();
-                    //       // if (result != null) {
-                    //       //   var files = insuranceImage.whereType<File>().map((e) => e.path);
-                    //       //   for (var element in result) {
-                    //       //     if (!files.contains(element.path)) {
-                    //       //       insuranceImage.add(element);
-                    //       //     }
-                    //       //   }
-                    //       //   setState(() {});
-                    //       // }
-                    //     },
-                    //     iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                    //     verticalPadding: 0,
-                    //     radius: BorderRadius.zero,
-                    //     bgColor: AppC.trans,
-                    //     borderColor: AppC.trans,
-                    //     textColor: AppC.grey,
-                    //   ),
-                    // ),
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(3),
@@ -469,19 +485,70 @@ class SetVehicleUi extends StatelessWidget {
                             Radius.circular(Num.subradiusButton)
                         )
                       ),
-                      child: const SuccessButton(
+                      child: SuccessButton(
                         text: 'Insurance Image',
                         icon: Icons.cloud_upload,
                         iconColor: AppC.blue,
                         backgroundColor: AppC.white,
                         foregroundColor: AppC.grey,
+                        onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 4)),
                       ),
                     ),
+                    if(context.read<setVehicleBloc>().insuranceImage.isNotEmpty)
+                      SizedBox(
+                        height: 100,
+                        child: GridView.builder(
+                            shrinkWrap: true,
+                            itemCount : context.read<setVehicleBloc>().insuranceImage.length,
+                            scrollDirection: Axis.horizontal,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1, mainAxisSpacing: 10),
+                            itemBuilder: (context, index) => CloseBadge(child: Stack(
+                              children: [
+                                Container(
+                                  constraints: BoxConstraints(
+                                    minHeight: MediaQuery.sizeOf(context).height,
+                                    minWidth: MediaQuery.sizeOf(context).width,
+                                  ),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: AppC.grey.withValues(alpha: 0.2)),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: ImageViewer(
+                                    fit: BoxFit.cover,
+                                    imageInput: context.read<setVehicleBloc>().insuranceImage[index],
+                                    isNotImage:
+                                    !((context.read<setVehicleBloc>().insuranceImage[index] as Object)
+                                        .isImage),
+                                  ),
+                                ),
+                              ],
+                            ),
+                              onTapView:()=> ShowAttachmentsDialog.of.show(context,
+                                  attachments: context.read<setVehicleBloc>().insuranceImage, title: "", currentAttachment: context.read<setVehicleBloc>().insuranceImage[index]),
+                              onTapDelete: () => context.read<setVehicleBloc>().add(setVehicleRemoveAttachmentEvent(context.read<setVehicleBloc>().insuranceImage[index], context.read<setVehicleBloc>().insuranceImage, 4)),
+                            )
+                        ),
+                      ),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: SuccessButton(
                         text: 'Save',
-                        onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleSaveEvent()),
+                        onPressed: () {
+                          if (context.read<setVehicleBloc>().formKey.currentState!.validate()) {
+                            context.read<setVehicleBloc>().formKey.currentState!.reset();
+                          }
+                            if(context.read<setVehicleBloc>().spareKey == true){
+                              context.read<setVehicleBloc>().add(setVehicleSaveEvent());
+                            } else {
+                              SpareKeyTaskDialog.show(
+                                  context,
+                                  save: (){context.read<setVehicleBloc>().add(setVehicleSaveEvent());},
+                                  spareKeyCreate: (){context.read<setVehicleBloc>().add(createSparekeyTask());},
+                                  cancel: (){}
+                              );
+                            }
+                        },
                       ),
                     )
                   ],

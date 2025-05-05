@@ -24,7 +24,7 @@ class VehicleDataRepo {
     try {
       String apiUrl = '';
       if (createVehicleData.id != null) {
-        log("vehicle update");
+        log("vehicle update ${createVehicleData.id}");
         apiUrl = "${Str.LIST_BASE_URL}vehiclesApi/${createVehicleData.id}";
       }
       print("Repository side Triggered ${createVehicleData.oilGrade} ${createVehicleData.oilChangeOdometer} ${createVehicleData.carNumber} ${createVehicleData.vehicleNumber}");
@@ -62,12 +62,12 @@ class VehicleDataRepo {
         "rear_tire": createVehicleData.rearTire,
         "insurance_agent": createVehicleData.insuranceAgent.toString(),
         "insurance_cost": createVehicleData.insuranceCost.toString(),
+        "platform_from": 'TaskerApp',
         "employee_id" : createVehicleData.employeeId.toString(),
         "branch_code": createVehicleData.branchCode.toString(),
-        "platform_from": 'TaskerApp',
-        "current_odometer": createVehicleData.currentOdometer,
-        "oil_change_odometer": createVehicleData.oilChangeOdometer,
-        "maintenance_check": createVehicleData.maintenanceCheck,
+        // "current_odometer": createVehicleData.currentOdometer,
+        // "oil_change_odometer": createVehicleData.oilChangeOdometer,
+        // "maintenance_check": createVehicleData.maintenanceCheck,
       };
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
@@ -118,20 +118,6 @@ class VehicleDataRepo {
         ).toList()
       );
 
-      // Add files to the request
-      // for (int i = 0; i < (createVehicleData.chosenFiles.length); i++) {
-      //   var file = createVehicleData.chosenFiles[i];
-      //
-      //   var multipartFile = http.MultipartFile.fromBytes(
-      //     'toll_images[$i],tyre_images[$i],registration_documents[$i],insurance_agent_images[$i]',
-      //     (await file.readAsBytes()).toList(),
-      //     filename: file.path
-      //         .split('/')
-      //         .last,
-      //   );
-      //   request.files.add(multipartFile);
-      // }
-
       var response = await request.send();
       debugPrint('createVehicle.statusCode: ${response.statusCode}');
 
@@ -141,8 +127,11 @@ class VehicleDataRepo {
         return createVehicleResponse;
       } else {
         // Handle error response
+        debugPrint('createVehicle.statusCode: ${response.statusCode}');
         Utils.showSomethingWentWrong();
-        return null;
+        CreateVehicleResponse createVehicleResponse = CreateVehicleResponse();
+        log('createVehicle.response.body: ${await response.stream.bytesToString()}');
+        return createVehicleResponse;
       }
     } catch (error) {
       debugPrint('createVehicle.exception : ${error.toString()}');

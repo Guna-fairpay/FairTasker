@@ -3287,7 +3287,7 @@ class TodoListRepo {
         "location":sparekeyData.location,
         "location_id":sparekeyData.locationId,
         "notes": sparekeyData.notes ,
-        "start_at": sparekeyData.startAt,
+        "start_at": sparekeyData.startAt.toString(),
         'time_sensitive': sparekeyData.timeSensitive,
         "todo_time": DateTime.now().toFormat(format: "HH:mm:ss") ?? "",
         "todo_user_type": sparekeyData.todoUserType,
@@ -3297,12 +3297,15 @@ class TodoListRepo {
         "vehicles": sparekeyData.vehicles,
         "vendor_id": sparekeyData.vendorId,
          "vendor_name": sparekeyData.vendorName,
-        "vin": sparekeyData.vin
+        "vin": sparekeyData.vin,
+        "platform": "TaskerApp",
+        "type": "inline",
       });
       log("$body", name: "POST_BODY");
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
       if (response?.statusCode == 200 || response?.statusCode == 201) {
+        log("${response?.body}");
         return true;
       } else {
         return null;
