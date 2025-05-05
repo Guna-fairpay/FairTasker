@@ -38,6 +38,7 @@ class TaskerHeader extends StatelessWidget {
           ),
           TodoTopHoursView(model: context.watch<ToDoTaskerBloc>().processedWorkingHours),
           TodoTopSearchBar(
+            focusNode: context.read<ToDoTaskerBloc>().searchFocusNode,
             controller: context.read<ToDoTaskerBloc>().searchController,
             onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSearchEvent(value)),
             onAdd: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerOnAddToDoEvent()),

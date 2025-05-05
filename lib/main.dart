@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:fairpytasker/UI/error_screen/error_screen.dart';
+import 'package:fairpytasker/UI/error_screen/error_wrapper.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/build_flavor/flavor.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -34,7 +36,10 @@ void main() {
     await Session.of.init();
     Initializer.of.init(); // GET_IT INITIALIZATION
     if (kDebugMode) await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError = (error) {
+      FlutterError.presentError(error);
+      FirebaseCrashlytics.instance.recordFlutterFatalError(error);
+    };
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
@@ -113,7 +118,9 @@ class MyApp extends StatelessWidget {
               Typography.blackCupertino.copyWith()
           ),
         ),
-        builder: EasyLoading.init(),
+        builder: (context, child) => FlutterErrorWidgetWrapper(
+          child: EasyLoading.init()(context, child),
+        ),
         home: const SplashScreen(),
       ),
     );
