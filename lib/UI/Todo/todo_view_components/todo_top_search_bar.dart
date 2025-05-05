@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 
 class TodoTopSearchBar extends StatelessWidget {
   final VoidCallback? onAdd, onMic;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
-  const TodoTopSearchBar({super.key, this.onAdd, this.onMic, this.controller, this.onChanged});
+  final FocusNode? focusNode;
+  const TodoTopSearchBar({super.key, this.onAdd, this.onMic, this.controller, this.onChanged, this.focusNode});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +20,13 @@ class TodoTopSearchBar extends StatelessWidget {
       leading: IconButton(onPressed: onAdd, icon: const Icon(Icons.add_rounded)),
       title: TextField(
         autofocus: false,
+        focusNode: focusNode,
         controller: controller ?? TextEditingController(),
         onChanged: onChanged,
         textInputAction: TextInputAction.search,
         onSubmitted: onChanged,
-        onTapOutside: (event) => Utils.dismissKeyboard(context),
+        onTap: () => focusNode?.requestFocus(),
+        onTapOutside: (event) => focusNode?.unfocus(),
         decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search_rounded),
             border: OutlineInputBorder(
