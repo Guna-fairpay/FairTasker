@@ -3066,7 +3066,8 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<List<Map<String, dynamic>>?> todo() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_todo";
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      Map<String, dynamic> params = { "date" : DateTime.now().toFormat() };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       var mapData = await response.mapData;
       return List.from(mapData?['todos']);
     } catch (error) {
