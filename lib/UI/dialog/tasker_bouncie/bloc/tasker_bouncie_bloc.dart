@@ -36,7 +36,7 @@ class TaskerBouncieBloc extends Bloc<TaskerBouncieEvent, TaskerBouncieState> {
           hasData = true;
           latLng = LatLng(double.tryParse("${response?['data']?['stats']?['location']?['lat'] ?? 0.0}") ?? 0.0, double.tryParse("${response?['data']?['stats']?['location']?['lon'] ?? 0.0}") ?? 0.0);
           address = response?['data']?['stats']?['location']?['address'] ?? "";
-          fuelLevel = response?['data']?['stats']?['fuelLevel'] ?? "";
+          fuelLevel = num.tryParse("${response?['data']?['stats']?['fuelLevel'] ?? ""}")?.ceil() ?? 0;
           batteryLevel = response?['data']?['stats']?['battery']?['status'] ?? "";
           lastUpdated = DateTime.parse(response?['data']?['stats']?['lastUpdated'] ?? "").toFormat(format: "MM-dd-yyyy hh:mm a");
         } else {

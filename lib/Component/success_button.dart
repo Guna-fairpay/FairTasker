@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class SuccessButton extends StatelessWidget {
   final String? text;
   final IconData? icon;
-  final Color? iconColor;
+  final bool isOutline;
   final double? elevation;
   final VoidCallback? onPressed;
   final Color? backgroundColor, foregroundColor;
@@ -16,9 +16,9 @@ class SuccessButton extends StatelessWidget {
       {super.key,
       this.text,
       this.icon,
-      this.iconColor=AppC.white,
       this.onPressed,
       this.elevation = 0,
+      this.isOutline = false,
       this.backgroundColor = AppC.green,
       this.foregroundColor = Colors.white});
 
@@ -27,7 +27,11 @@ class SuccessButton extends StatelessWidget {
     var style = ButtonStyle(
         shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
-        side: const WidgetStatePropertyAll(BorderSide.none),
+        side: WidgetStatePropertyAll((isOutline)
+            ? BorderSide(
+                color: foregroundColor ?? AppC.appColor,
+                width: Num.borderWidthField)
+            : BorderSide.none),
         elevation: const WidgetStatePropertyAll(0),
         backgroundColor: WidgetStatePropertyAll(backgroundColor),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -36,22 +40,40 @@ class SuccessButton extends StatelessWidget {
         foregroundColor: WidgetStatePropertyAll(foregroundColor),
         visualDensity: VisualDensity.compact,
         textStyle: WidgetStatePropertyAll(context.textTheme.labelLarge
-            ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white,fontSize: 12.sp)));
+            ?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 12.sp)));
     return (icon != null)
-        ? ElevatedButton.icon(
-            key: key,
-            icon: Icon(icon,color:iconColor,),
-            onPressed: onPressed,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            style: style,
-            label: Text(text ?? 'Submit'),
-          )
-        : ElevatedButton(
-            key: key,
-            onPressed: onPressed,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            style: style,
-            child: Text(text ?? 'Submit'),
-          );
+        ? (isOutline)
+            ? OutlinedButton.icon(
+                key: key,
+                icon: Icon(icon),
+                onPressed: onPressed,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                style: style,
+                label: Text(text ?? 'Submit'))
+            : ElevatedButton.icon(
+                key: key,
+                icon: Icon(icon),
+                onPressed: onPressed,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                style: style,
+                label: Text(text ?? 'Submit'),
+              )
+        : (isOutline)
+            ? OutlinedButton(
+                key: key,
+                onPressed: onPressed,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                style: style,
+                child: Text(text ?? 'Submit'))
+            : ElevatedButton(
+                key: key,
+                onPressed: onPressed,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                style: style,
+                child: Text(text ?? 'Submit'),
+              );
   }
 }

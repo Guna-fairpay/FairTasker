@@ -14,7 +14,7 @@ import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:flutter/material.dart' show TextEditingController, TimeOfDay;
+import 'package:flutter/material.dart' show FocusNode, TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -44,6 +44,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   String? get _selectedUserIds => selectedUsers?.map((e) => e['id'].toString()).join(",");
 
   List<String> get _checkInOutTask => ["Check Out", "Check In"];
+
+  final FocusNode searchFocusNode = FocusNode();
 
   bool isTimeSensitive = false;
 

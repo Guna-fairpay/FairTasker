@@ -24,15 +24,26 @@ class TaskerBouncieDialog {
   }
 }
 
-class _TaskerBouncieDialogView extends StatelessWidget {
+class _TaskerBouncieDialogView extends StatefulWidget {
   final Map<String, dynamic>? model;
 
   const _TaskerBouncieDialogView({super.key, this.model});
 
   @override
+  State<_TaskerBouncieDialogView> createState() => _TaskerBouncieDialogViewState();
+}
+
+class _TaskerBouncieDialogViewState extends State<_TaskerBouncieDialogView> {
+
+  @override
+  void dispose() {
+    EasyLoading.dismiss();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      key: key,
       insetPadding: 16.sp.padding,
       contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
       titlePadding: EdgeInsets.zero,
@@ -41,7 +52,7 @@ class _TaskerBouncieDialogView extends StatelessWidget {
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: ListTile(
         // dense: true,
-        title: Text("${model?['display']?['vehicle_name']}"),
+        title: Text("${widget.model?['display']?['vehicle_name']}"),
         titleTextStyle:
             context.textTheme.titleMedium?.copyWith(color: AppC.appColor),
         trailing: GestureDetector(
@@ -52,7 +63,7 @@ class _TaskerBouncieDialogView extends StatelessWidget {
       alignment: Alignment.topCenter,
       content: BlocProvider(
         create: (context) =>
-            TaskerBouncieBloc()..add(TaskerBouncieInitialEvent(model)),
+            TaskerBouncieBloc()..add(TaskerBouncieInitialEvent(widget.model)),
         child: BlocListener<TaskerBouncieBloc, TaskerBouncieState>(
           listener: (context, state) {
             if (state is TaskerBouncieLoadingState) {

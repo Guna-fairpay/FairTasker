@@ -73,7 +73,12 @@ class _MaintenanceCheckConfirmDialog extends StatelessWidget {
                              onComplete?.call();
                              context.popDialog();
                            } else {
-                             _showDropDown.value = true;
+                             if (onUpdate != null) {
+                               _showDropDown.value = true;
+                             } else {
+                               onComplete?.call();
+                               context.popDialog();
+                             }
                            }
                          },
                        ),

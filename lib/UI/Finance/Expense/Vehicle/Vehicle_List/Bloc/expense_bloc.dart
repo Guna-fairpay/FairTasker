@@ -77,6 +77,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   List<Map<String, dynamic>>? expenseCategories =[];
   List <dynamic> apiResponse =[];
   final FBroadcast _broadcast = FBroadcast.instance();
+  int? get _branch =>  getIt<CommonService>().branchId;
+
 
   ExpenseBloc()
       : super(ExpenseState(
@@ -267,7 +269,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         descriptionController.text = apiResponse?['expense_description'] ?? '';
         amountController.text = "${apiResponse?['expense_amount'] ?? ''}";
         dateController.text = apiResponse?['expense_date'] ?? '';
-
+        vehicleList?.removeWhere((element) => element['branch_code'] != _branch,);
         selectedVehicle =
             vehicleList?.where((e) => e['vin'] == apiResponse?['vin']).toList();
         vehicleController.text =
@@ -1075,7 +1077,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         .map((item) => item
       ..['cohortList'] = [
         {"id": "1", "name": "FairPy"},
-        {"id": "4", "name": "${item['cohort']['cohort']}"}
+        {"id": "4", "name": "${item['cohort']?['cohort']}"}
       ])
         .toList();
   }
@@ -1083,41 +1085,30 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   void _resetAll() async {
     try {
       if(!isClosed) emit(state.copyWith(isLoading: true));
-      Console.of.log("LOADING");
       var startDate = DateTime.now()
           .subtract(const Duration(days: 31))
           .toFormat(format: 'yyyy-MM-dd');
       var endDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
-
       var expenseAmountResponse = await _getExpense(startDate, endDate);
       var response = await _getExpense(minDate, maxDate);
       var usersList = await getIt<CommonService>().getUsers();
       var categories = await getIt<CommonService>().getExpenseCategories();
       //var categories = expenseCategories?.expenseData;
-
       ExpenseResponse? expenseResponse = response;
       ExpenseResponse? expenseAmount = expenseAmountResponse;
-
       var apiResponse = expenseResponse?.data;
       var amountResponse = expenseAmount?.data;
-
       apiResponse?.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
       amountResponse?.removeWhere((element) => element['vehicle'].toString().isNullOrEmpty);
       apiResponse?.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
       amountResponse?.removeWhere((element) => element['vehicle']?['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
-
       apiResponse = calculateApprovedAmounts(apiResponse ?? [], amountResponse ?? []);
-
       apiResponse = employeeNames(apiResponse, usersList);
-
       apiResponse = cohortList(apiResponse);
-
       apiResponse.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
           .compareTo(DateTime.parse(a['created_at'] ?? '')));
-
       List<dynamic> filteredResponse =
       filterApprovedResponse(apiResponse, state.isExpenseApproved);
-
       if (state.isExpenseApproved) {
         approvedAmount = filteredResponse
             .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)

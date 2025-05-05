@@ -301,6 +301,18 @@ class APiRepository {
 
   String get _deleteTodoMileageAttachment => "deleteTodoMileageAttachment";
 
+  String get _getCheckList => "getCheckList";
+
+  String get _getPrivateRentalCheck => "getPrivateRentalCheck";
+
+  String get _storeExpenseTemp => "storeExpenseTemp";
+
+  String get _updateExpenseTemp => "updateExpenseTemp";
+
+  String get _update_Expense => "update-expense";
+
+  String get _editExpenseTemp => "editExpenseTemp";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -651,7 +663,7 @@ class APiRepository {
     }
   }
 
-  Future<Map<String,dynamic>?> deleteTodo({String? id, dynamic reason}) async {
+  Future<Map<String,dynamic>?> deleteTodo({dynamic id, dynamic reason}) async {
     try {
       String apiUrl = "${Str.BASE_URL}$_deleteToDoApi/$id";
       Map<String, String> body = {'reason': "$reason"};
@@ -3060,7 +3072,8 @@ Future<Map<String, dynamic>?> getLocations() async {
   Future<List<Map<String, dynamic>>?> todo() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_todo";
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      Map<String, dynamic> params = { "date" : DateTime.now().toFormat() };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       var mapData = await response.mapData;
       return List.from(mapData?['todos']);
     } catch (error) {
@@ -3332,6 +3345,76 @@ Future<Map<String, dynamic>?> getLocations() async {
       }
       return null;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCheckList() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getCheckList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      return response.mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPrivateRentalCheck() async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_getPrivateRentalCheck";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> storeExpenseTemp(
+      {required Map<String, dynamic> body, List<File>? images, dynamic id}) async {
+    try{
+      String apiUrl='';
+      if(id != null){
+        apiUrl = "${Str.LIST_BASE_URL}$_updateExpenseTemp/$id";
+      }else{
+        apiUrl = "${Str.LIST_BASE_URL}$_storeExpenseTemp";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body:body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList(),
+      );
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateExpenseTemp({required Map<String, dynamic> body}) async {
+    try{
+      String apiUrl = "${Str.LIST_BASE_URL}$_update_Expense";
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+        apiUrl,
+        body:body,
+      );
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> editExpenseTemp({dynamic id}) async {
+    try{
+      if (id.toString().isNullOrEmpty) return null;
+      String apiUrl = "${Str.LIST_BASE_URL}$_editExpenseTemp/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
       rethrow;
     }
   }

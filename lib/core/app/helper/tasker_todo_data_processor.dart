@@ -10,7 +10,6 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fairpytasker/utilities/appC.dart';
-import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart' show Color, Colors, Durations;
 
 class ToDoProcessor {
@@ -22,7 +21,7 @@ class ToDoProcessor {
   List<Map<String, dynamic>> get _locationList => getIt<CommonService>().locationsList;
   List<Map<String, dynamic>> get _taskExpenseDatas => getIt<CommonService>().taskExpenseDataList;
   List<Map<String, dynamic>> get _groupPersons => getIt<CommonService>().groupPersonList;
-  List<Map<String, dynamic>> _bouncieVehicles = [];
+  List<Map<String, dynamic>> get _bouncieVehicles => getIt<CommonService>().bouncieVehicles;
   List<Map<String, dynamic>> _relatedToDos = [];
 
   final APiRepository _aPiRepository = APiRepository();
@@ -32,7 +31,7 @@ class ToDoProcessor {
   int? branchId = Session.of.getInt(Str.branchIdPrefText);
 
   Future<void> initialize() async {
-    var response = await Future.wait([
+    await Future.wait([
       _fetchVehicleGroups(),
       _fetchActiveVehicles(),
       _fetchBouncieVehicles(),
@@ -44,15 +43,6 @@ class ToDoProcessor {
       _fetchActiveVehiclesCount(),
       _fetchCurrentToDos(),
     ]);
-    // _groupVehicle = response[0] ?? [];
-    // _activeVehicles = response[1] ?? [];
-    _bouncieVehicles = response[2] ?? [];
-    // _taskExpenseDatas = response[3] ?? [];
-    // _groupPersons = response[4] ?? [];
-    // _usersList = response[5] ?? [];
-    // _vendorsList = response[6] ?? [];
-    // _locationList = response[7] ?? [];
-    // _activeVehiclesCount = response[8] ?? [];
     return;
   }
 
@@ -133,11 +123,12 @@ class ToDoProcessor {
       DateTime selectedDate, bool isCompleted,
       {String? resourceId}) async {
     var response = await Future.wait([
+      _fetchBouncieVehicles(reset: true),
       _fetchGroupPersons(),
       _fetchToDoList(selectedDate, isCompleted, resourceId: resourceId)
     ]);
     // _groupPersons = response[0] ?? [];
-    var todos = response[1] ?? [];
+    var todos = response[2] ?? [];
     if (selectedDate.toFormat() == DateTime.now().toFormat()) getIt<ToDoSupport>().resetting(todos: todos);
     var relatedTaskIds = todos.map((e) => e['related_task_id'] ?? 0).toList();
     relatedTaskIds.removeWhere((element) => element <= 0);

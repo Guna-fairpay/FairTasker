@@ -287,20 +287,22 @@ class TodoTaskItemCard extends StatelessWidget {
                         if (model['display']?['hasBouncie'] ?? false)
                         GestureDetector(
                           onTap: onBouncie,
-                          child: Row(
-                            spacing: 5,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (model['display']?['hasDistance'] ?? false) ? Icons.location_on : Icons.location_on_outlined,
-                                color: (model['display']?['hasDistance'] ?? false) ? AppC.green : AppC.red,
-                                size: 17.sp,
-                              ),
-                              if (model['display']?['hasDistance'] ?? false)
-                              Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
-                                  weight: FontWeight.bold, size: 13.sp),
-                              const SizedBox.shrink(),
-                            ],
+                          child: Container(
+                            child: Row(
+                              spacing: 5,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  ((model['display']?['hasDistance'] ?? false) && ((model['display']['vehicle_distance'].toString().isNotNullOrEmpty))) ? Icons.location_on : Icons.location_on_outlined,
+                                  color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green,
+                                  size: 17.sp,
+                                ),
+                                if (model['display']?['hasDistance'] ?? false)
+                                Utils.getText("${model['display']['vehicle_distance'] ?? ""}",
+                                    weight: FontWeight.normal, size: 13.sp, color: (model['display']['vehicle_distance'].toString().isNullOrEmpty) ? AppC.redAccent : AppC.green),
+                                const SizedBox.shrink(),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -341,7 +343,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     text: TextSpan(
                                       children: [
-                                        TextSpan(text: "(${parse(model['display']?['notes'] ?? "").body?.text})", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
+                                        TextSpan(text: "(${parse((model['display']?['notes'] ?? "").toString().removeNextLines).body?.text})", recognizer: TapGestureRecognizer()..onTapDown = onNotes),
                                         if (model['display']?['hasTimeChangeReason'] ?? false)
                                         TextSpan(text: "\t${(model['display']?['timeChangeReason'] ?? "").toString().toTitleCase()}", style: context.textTheme.labelMedium?.copyWith(color: null),
                                           recognizer: ((model['display']?['timeChangeReason'] ?? "").toString().length > 10) ? (TapGestureRecognizer()..onTap = ()=> onMore?.call((model['display']?['timeChangeReason'] ?? ""))) : null,

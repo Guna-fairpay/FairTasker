@@ -8,6 +8,8 @@ import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_event.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/bloc/edit_todo_state.dart';
 import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_ui.dart';
+import 'package:fairpytasker/UI/Todo/pre_checks/ui/precheck_main_ui.dart';
+import 'package:fairpytasker/UI/Todo/private_rental/UI/private_rental_check_list_page.dart';
 import 'package:fairpytasker/UI/Todo/todo_expense/ui/edit_todo_expense.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +57,8 @@ class EditTodoBottomTabs extends StatelessWidget {
                   : state.selectedBottomTap['id'] == 2
                       ?  CreateTodoUI(showHeader: false, isNextTask: true,selectedDate:state.selectedDate,selectedVPerson: context.read<EditToDoBloc>().vehiclePersonList,)
                   :state.selectedBottomTap['id'] == 3
-                  ?CheckListUI(todoItems: state.apiResponse, vehicle: state.selectedVehicle,)
+                  // ?CheckListUI(todoItems: state.apiResponse, vehicle: state.selectedVehicle,)
+                  ? PreCheckMainUi(model: state.apiResponse)
                   :state.selectedBottomTap['id'] == 4
                   // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)
@@ -63,7 +66,8 @@ class EditTodoBottomTabs extends StatelessWidget {
                   //?VehicleEditUI(vehicle: state.taskHistory.firstOrNull,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   ?SetVehicleUi(todoItems: state.apiResponse,selectedVehicle: state.selectedVehicle,)
                   :state.selectedBottomTap['id'] == 6
-                  ?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.selectedVehicle) //Add by RDB
+                  //?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.selectedVehicle) //Add by RDB
+                  ?PrivateRentalCheckMainPage(todoData: state.apiResponse)
                   :state.selectedBottomTap['id'] == 7
                   ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull, selectedVehicle: state.selectedVehicle) //Add by RDB
                   :const SizedBox(),
