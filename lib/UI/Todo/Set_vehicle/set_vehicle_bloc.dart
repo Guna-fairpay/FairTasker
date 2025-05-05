@@ -24,41 +24,18 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
   VehicleDataRepo vehicleDataRepo = VehicleDataRepo();
   TodoListRepo todoListRepo = TodoListRepo();
   final FBroadcast _broadcast = FBroadcast.instance();
-  final TextEditingController yearController = TextEditingController();
-  final TextEditingController makeController  = TextEditingController();
-  final TextEditingController modelController  = TextEditingController();
   final TextEditingController vehicleNumberController  = TextEditingController();
-  final TextEditingController purchasePriceController  = TextEditingController();
-  final TextEditingController purchaseDateController  = TextEditingController();
-  final TextEditingController vinController  = TextEditingController();
   final TextEditingController vehicleIdController  = TextEditingController();
-  final TextEditingController earningsController  = TextEditingController();
-  final TextEditingController utilizationRateController  = TextEditingController();
-  final TextEditingController platformController  = TextEditingController();
-  final TextEditingController mileageController  = TextEditingController();
-  final TextEditingController wholeSaleAmountController  = TextEditingController();
-  final TextEditingController addressController  = TextEditingController();
   final TextEditingController carNumberController  = TextEditingController();
   final TextEditingController oilGradeController  = TextEditingController();
   final TextEditingController frontTireController  = TextEditingController();
   final TextEditingController rearTireController  = TextEditingController();
   final TextEditingController renewalDateController  = TextEditingController();
-  final TextEditingController plateNumberController = TextEditingController();
   final TextEditingController tollTagsIdController = TextEditingController();
   final TextEditingController spareTireController = TextEditingController();
   final TextEditingController insuranceCostController = TextEditingController();
   final TextEditingController insuranceAgentController = TextEditingController();
-  final TextEditingController currentOdometerController = TextEditingController();
-  final TextEditingController oilChangeOdometerController = TextEditingController();
-  final TextEditingController maintenanceCheckController = TextEditingController();
-  bool loading = false;
-  bool showMore = false;
-  bool isYearFieldEmpty = false;
-  bool isMakeFieldEmpty = false;
-  bool isModelFieldEmpty = false;
-  bool isPurchaseFieldEmpty = false;
-  bool isPurchaseDateFieldEmpty = false;
-  bool categoriesDataIsSelected = false;
+
   bool bouncie = false;
   bool tollTags = false;
   bool airTag = false;
@@ -93,9 +70,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
 
   setVehicleBloc() : super(const setVehicleInitialState()){
     _broadcast.register("set_vehicle_refresh", (value,callback) => add(setVehicleInitialEvents(vehicle: value, todoItems: todoItem)));
-    /*on<ResetAllEvent>((event, emit) async {
 
-    });*/
 
     on<setVehicleInitialEvents>((event, emit) async {
       emit(setVehicleLoading());
@@ -105,7 +80,6 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
         if (response.isNotEmpty && event.vehicle != null) {
           vinNumber = event.vehicle?['vin'];
           vehicleId = event.vehicle?['id'];
-          oldVehicle = event.vehicle;
           todoItem = event.todoItems;
           try {
             newVehicle = response.firstWhere(
@@ -114,63 +88,31 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
             );
 
             //initialize fields
-            yearController.clear();
-            makeController.clear();
-            modelController.clear();
             vehicleNumberController.clear();
-            purchasePriceController.clear();
-            purchaseDateController.clear();
-            vinController.clear();
             vehicleIdController.clear();
-            earningsController.clear();
-            utilizationRateController.clear();
-            platformController.clear();
-            mileageController.clear();
-            wholeSaleAmountController.clear();
-            addressController.clear();
             carNumberController.clear();
             oilGradeController.clear();
             frontTireController.clear();
             rearTireController.clear();
             renewalDateController.clear();
-            plateNumberController.clear();
             tollTagsIdController.clear();
             spareTireController.clear();
             insuranceCostController.clear();
             insuranceAgentController.clear();
-            currentOdometerController.clear();
-            oilChangeOdometerController.clear();
-            maintenanceCheckController.clear();
 
-            yearController.text = newVehicle['year']?.toString() ?? '';
-            makeController.text = newVehicle['make']?.toString() ?? '';
-            modelController.text = newVehicle['model']?.toString() ?? '';
             vehicleNumberController.text = newVehicle['vehicle_number']?.toString() ?? '';
-            purchasePriceController.text = newVehicle['purchase_price']?.toString() ?? '';
-            purchaseDateController.text = newVehicle['created_at']?.toString() ?? '';
-            vinController.text = newVehicle['vin']?.toString() ?? '';
             vehicleIdController.text = newVehicle['vehicle_id']?.toString() ?? '';
-            earningsController.text = newVehicle['earnings']?.toString() ?? '';
-            utilizationRateController.text = newVehicle['utilization_rate']?.toString() ?? '';
-            platformController.text = newVehicle['platform']?.toString() ?? '';
-            mileageController.text = newVehicle['mileage']?.toString() ?? '';
-            wholeSaleAmountController.text = newVehicle['wholesale_amount']?.toString() ?? '';
-            addressController.text = newVehicle['address']?.toString() ?? '';
             carNumberController.text = newVehicle['car_number']?.toString() ?? '';
             oilGradeController.text = newVehicle['oil_grade']?.toString() ?? '';
             frontTireController.text = newVehicle['front_tire']?.toString() ?? '';
             rearTireController.text = newVehicle['rear_tire']?.toString() ?? '';
-            renewalDateController.text = newVehicle['renewal_date']?.toString() ?? '';
-            plateNumberController.text = newVehicle['plate_number']?.toString() ?? '';
+            renewalDateController.text = newVehicle['registration_renewal_date']?.toString() ?? '';
             tollTagsIdController.text = newVehicle['toll_tags_id']?.toString() ?? '';
             spareTireController.text = newVehicle['tire_size']?.toString() ?? '';
             insuranceCostController.text = newVehicle['insurance_cost']?.toString() ?? '';
             insuranceAgentController.text = newVehicle['insurance_agent']?.toString() ?? '';
-            currentOdometerController.text = newVehicle['current_odometer']?.toString() ?? '';
-            oilChangeOdometerController.text = newVehicle['oil_change_odometer']?.toString() ?? '';
-            maintenanceCheckController.text = newVehicle['maintenance_check']?.toString() ?? '';
             renewalDate = (newVehicle['registration_renewal_date'] ?? '').toString().toDateTime(inputFormat: 'yyyy-MM-dd');
-            employeeId = newVehicle['employee_id'];
+            employeeId = newVehicle['expenses']['employee_id'];
             branchCode = newVehicle['branch_code'];
             vehicleStatus = newVehicle['vehicle_status'];
             cohortId = newVehicle['cohort_id'];
@@ -253,19 +195,19 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
         emit(setVehicleLoading());
         final createVehicleData = CreateVehicleData()
           ..id = vehicleId
-          ..year = yearController.text
-          ..make = makeController.text
-          ..model = modelController.text
-          ..vin = vinController.text
-          ..vehicleId = vehicleIdController.text
-          ..earnings = earningsController.text
-          ..utilizationRate = utilizationRateController.text
-          ..platform = platformController.text
-          ..mileage = mileageController.text
-          ..wholesaleAmount = wholeSaleAmountController.text
-          ..purchaseDate = purchaseDateController.text
-          ..purchasePrice = purchasePriceController.text
-          ..address = addressController.text
+          ..year = newVehicle['year'].toString()
+          ..make = newVehicle['make'].toString()
+          ..model = newVehicle['model'].toString()
+          ..vin = newVehicle['vin'].toString()
+          ..vehicleId = newVehicle['vehicle_id'].toString()
+          ..earnings = newVehicle['earnings'].toString()
+          ..utilizationRate = newVehicle['utilization_rate'].toString()
+          ..platform = newVehicle['platform'].toString()
+          ..mileage = newVehicle['mileage'].toString()
+          ..wholesaleAmount = newVehicle['wholesale_amount'].toString()
+          ..purchaseDate = newVehicle['purchase_date'].toString()
+          ..purchasePrice = newVehicle['purchase_price'].toString()
+          ..address = newVehicle['address'].toString()
           ..vehicleNumber = vehicleNumberController.text
           ..carNumber = carNumberController.text
           ..oilGrade = oilGradeController.text
@@ -282,9 +224,9 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
           ..frontLicensePlate = boolToInt(frontLicensePlate)
           ..tireSize = spareTireController.text
           ..regStickerDate = renewalDate.toString()//registration sticker date
-          ..currentOdometer = currentOdometerController.text
-          ..oilChangeOdometer = oilChangeOdometerController.text
-          ..maintenanceCheck = maintenanceCheckController.text
+          ..currentOdometer = newVehicle['current_odometer'].toString()
+          ..oilChangeOdometer = newVehicle['oil_change_controller'].toString()
+          ..maintenanceCheck = newVehicle['maintenance_check'].toString()
           ..tollTagsId = tollTagsIdController.text
           ..selectedVehicleStatus = int.tryParse(selectedVehicleStatus.toString())
           ..selectedCohort = selectedCohortsData?['id']
@@ -607,48 +549,6 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
       emit(setVehicleCommonState());
     });
 
-    // final createVehicleData = CreateVehicleData()
-    //   ..id = vehicleId//
-    //   ..year = yearController.text//
-    //   ..make = makeController.text//
-    //   ..model = modelController.text//
-    //   ..vin = vinController.text//
-    //   ..vehicleId = vehicleIdController.text//
-    //   ..earnings = earningsController.text//
-    //   ..utilizationRate = utilizationRateController.text//
-    //   ..platform = platformController.text//
-    //   ..mileage = mileageController.text//
-    //   ..wholesaleAmount = wholeSaleAmountController.text//
-    //   ..purchaseDate = purchaseDateController.text//
-    //   ..purchasePrice = purchasePriceController.text//
-    //   ..address = addressController.text//
-    //   ..vehicleNumber = vehicleNumberController.text//
-    //   ..carNumber = carNumberController.text//
-    //   ..oilGrade = oilGradeController.text//
-    //   ..frontTire = frontTireController.text
-    //   ..rearTire = rearTireController.text
-    //   ..insuranceAgent = insuranceAgentController.text
-    //   ..insuranceCost = insuranceCostController.text
-    //   ..bouncie = boolToInt(bouncie)//
-    //   ..airTag = boolToInt(airTag)//
-    //   ..permanentPlate = boolToInt(permanentPlate)//
-    //   ..spareTire = boolToInt(spareTire)//
-    //   ..tollTag = boolToInt(tollTags)
-    //   ..spareKey = spareKey == true ? 1 : 0//
-    //   ..frontLicensePlate = boolToInt(frontLicensePlate)
-    //   ..tireSize = spareTireController.text
-    //   ..regStickerDate = renewalDate.toString()//registration sticker date
-    //   ..currentOdometer = currentOdometerController.text
-    //   ..oilChangeOdometer = oilChangeOdometerController.text
-    //   ..maintenanceCheck = maintenanceCheckController.text
-    //   ..tollTagsId = tollTagsIdController.text
-    //   ..selectedVehicleStatus = int.tryParse(selectedVehicleStatus.toString())
-    //   ..selectedCohort = selectedCohortsData?['id']
-    //   ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0
-    //   ..employeeId = employeeId
-    //   ..branchCode = branchCode
-    //   ..vehicleStatus = vehicleStatus//
-    //   ..cohortId = cohortId;
   }
   int boolToInt(bool value) => value ? 1 : 0;
   Future<List<File>> _pickFiles() async {

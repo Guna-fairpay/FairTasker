@@ -55,7 +55,7 @@ class SetVehicleUi extends StatelessWidget {
               minimum: const EdgeInsets.all(8),
               child:
               Form(
-                autovalidateMode: AutovalidateMode.onUnfocus,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 key: context.read<setVehicleBloc>().formKey,
                 child:
                 Column(
@@ -149,16 +149,6 @@ class SetVehicleUi extends StatelessWidget {
                                       borderRadius:
                                       const BorderRadius.all(Radius.circular(Num.subradiusButton))),
                                   child:
-                                  // Utils.getOutlinedButton(
-                                  //   'Toll Image',
-                                  //       () => context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 5)),
-                                  //   iconData: const Icon(Icons.cloud_upload, color: AppC.blue, size: 12),
-                                  //   verticalPadding: 0,
-                                  //   radius: BorderRadius.zero,
-                                  //   bgColor: AppC.trans,
-                                  //   borderColor: AppC.trans,
-                                  //   textColor: AppC.grey,
-                                  // ),
                                   SuccessButton(
                                     text: 'Toll Image',
                                     icon: Icons.cloud_upload,
@@ -190,16 +180,6 @@ class SetVehicleUi extends StatelessWidget {
                                     return null;
                                   }
                               ),
-                              // TextFormField(
-                              //   controller: context.read<setVehicleBloc>().spareTireController,
-                              //   validator: (value){
-                              //     final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
-                              //     if (!SpareTireRegex.hasMatch(value ?? '')) {
-                              //       return 'T165/70D18';
-                              //     }
-                              //     return null;
-                              //   }
-                              // )
                             ),
                           ),
                         ] else...[
@@ -373,7 +353,8 @@ class SetVehicleUi extends StatelessWidget {
                     Utils.getText(
                         'Reg Sticker date',
                         weight: FontWeight.bold,
-                        align: TextAlign.start),
+                        align: TextAlign.start
+                    ),
                     Row(
                       spacing: 10,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -557,7 +538,7 @@ class SetVehicleUi extends StatelessWidget {
   }
 }
 
-//int boolToInt(bool value) => value ? 1 : 0;
+
 Widget checkBoxWithSingleText({
   required bool value,
   required ValueChanged<bool?> onChanged,

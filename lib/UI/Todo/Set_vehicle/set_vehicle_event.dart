@@ -20,20 +20,6 @@ class setVehicleInitialEvents extends setVehicleEvent {
   List<Object?> get props => [vehicle, todoItems];
 }
 
-class DeleteVehicleImage extends setVehicleEvent {
-  final int? id;
-  const DeleteVehicleImage({required this.id,});
-  @override
-  List<Object?> get props => [id,];
-}
-
-// class setVehicleUpdateEvents extends setVehicleEvent {
-//   final dynamic vehicle;
-//   final dynamic todoItems;
-//   const setVehicleUpdateEvents({this.vehicle,this.todoItems});
-//   @override
-//   List<Object?> get props => [vehicle, todoItems];
-// }
 
 class setVehicleBouncieEvent extends setVehicleEvent {
   final bool value;
@@ -102,14 +88,6 @@ class setVehicleAddAttachmentEvent extends setVehicleEvent {
   List<Object?> get props => [imageType, Random().nextDouble()];
 }
 
-class setVehicleViewAttachmentEvent extends setVehicleEvent {
-  final dynamic attachment;
-  final List<dynamic> attachments;
-  setVehicleViewAttachmentEvent(this.attachment, this.attachments);
-  @override
-  List<Object?> get props => [attachment, attachments, Random().nextDouble()];
-}
-
 class setVehicleRemoveAttachmentEvent extends setVehicleEvent {
   final dynamic attachment;
   final List<dynamic> attachments;
@@ -118,5 +96,3 @@ class setVehicleRemoveAttachmentEvent extends setVehicleEvent {
   @override
   List<Object?> get props => [attachment, attachments, imageType, Random().nextDouble()];
 }
-
-class ResetAllEvent extends setVehicleEvent {}
