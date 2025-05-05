@@ -477,8 +477,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       try {
         if(status==true){
           if ((state.apiResponse['identifier_id'] == 257)) {
-            if (odometerController.text.isEmpty) {
-              return Toaster.showError("Please enter odometer");
+            if (odometerController.text.isEmpty || state.apiResponse['mileage']==null) {
+              return Toaster.showError("odometer is mandatory");
             } else if (state.apiResponse['mandatory'] == 1) {
               return Toaster.showError(
                   "is all maintenance check done is mandatory");

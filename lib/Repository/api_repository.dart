@@ -307,6 +307,12 @@ class APiRepository {
 
   String get _storeExpenseTemp => "storeExpenseTemp";
 
+  String get _updateExpenseTemp => "updateExpenseTemp";
+
+  String get _update_Expense => "update-expense";
+
+  String get _editExpenseTemp => "editExpenseTemp";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3364,10 +3370,48 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> storeExpenseTemp(Map<String,dynamic> body) async {
+  Future<Map<String, dynamic>?> storeExpenseTemp(
+      {required Map<String, dynamic> body, List<File>? images, dynamic id}) async {
     try{
-      String apiUrl = "${Str.BASE_URL}$_storeExpenseTemp";
-      final http.Response? response = await _apiClient.callPostMethod(apiUrl,body:jsonEncode(body));
+      String apiUrl='';
+      if(id != null){
+        apiUrl = "${Str.LIST_BASE_URL}$_updateExpenseTemp/$id";
+      }else{
+        apiUrl = "${Str.LIST_BASE_URL}$_storeExpenseTemp";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+          apiUrl,
+          body:body,
+          autoIncrement: true,
+          fieldName: "files",
+          files: images?.map((e) => e.path).toList(),
+      );
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateExpenseTemp({required Map<String, dynamic> body}) async {
+    try{
+      String apiUrl = "${Str.LIST_BASE_URL}$_update_Expense";
+      final http.Response? response = await _apiClient.callPostMethodWithBody(
+        apiUrl,
+        body:body,
+      );
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> editExpenseTemp({dynamic id}) async {
+    try{
+      if (id.toString().isNullOrEmpty) return null;
+      String apiUrl = "${Str.LIST_BASE_URL}$_editExpenseTemp/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     }catch(e){
