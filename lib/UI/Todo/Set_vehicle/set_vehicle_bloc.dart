@@ -44,24 +44,14 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
   bool spareKey = false;
   bool frontLicensePlate = false;
   DateTime? renewalDate;
-  String? selectedVehicleStatus;
   String? vinNumber;
   int? vehicleId;
-  int? cohortId;
-  int? vehicleStatus;
-  int? branchCode;
-  int? employeeId;
-  List<dynamic> vehicleImageFile = [];
-  List<dynamic> receiptImageFile = [];
   List<dynamic> images = List.empty(growable: true);
   List<dynamic> tireImageFile = List.empty(growable: true);
   List<dynamic> tollImage = List.empty(growable: true);
   List<dynamic> uploadRegSticker = List.empty(growable: true);
   List<dynamic> insuranceImage = List.empty(growable: true);
-  dynamic selectedCohortsData;
-  dynamic selectedCategoriesData;
   dynamic newVehicle;
-  dynamic oldVehicle;
   dynamic todoItem;
   List<Map<String, dynamic>> cohortsData = [];
   List<Map<String, dynamic>> categoriesData = [];
@@ -87,50 +77,18 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
               orElse: () => {},
             );
 
-            //initialize fields
-            vehicleNumberController.clear();
-            vehicleIdController.clear();
-            carNumberController.clear();
-            oilGradeController.clear();
-            frontTireController.clear();
-            rearTireController.clear();
-            renewalDateController.clear();
-            tollTagsIdController.clear();
-            spareTireController.clear();
-            insuranceCostController.clear();
-            insuranceAgentController.clear();
-
             vehicleNumberController.text = newVehicle['vehicle_number']?.toString() ?? '';
             vehicleIdController.text = newVehicle['vehicle_id']?.toString() ?? '';
             carNumberController.text = newVehicle['car_number']?.toString() ?? '';
             oilGradeController.text = newVehicle['oil_grade']?.toString() ?? '';
             frontTireController.text = newVehicle['front_tire']?.toString() ?? '';
             rearTireController.text = newVehicle['rear_tire']?.toString() ?? '';
-            renewalDateController.text = newVehicle['registration_renewal_date']?.toString() ?? '';
             tollTagsIdController.text = newVehicle['toll_tags_id']?.toString() ?? '';
             spareTireController.text = newVehicle['tire_size']?.toString() ?? '';
             insuranceCostController.text = newVehicle['insurance_cost']?.toString() ?? '';
             insuranceAgentController.text = newVehicle['insurance_agent']?.toString() ?? '';
             renewalDate = (newVehicle['registration_renewal_date'] ?? '').toString().toDateTime(inputFormat: 'yyyy-MM-dd');
-            employeeId = newVehicle['expenses']['employee_id'];
-            branchCode = newVehicle['branch_code'];
-            vehicleStatus = newVehicle['vehicle_status'];
-            cohortId = newVehicle['cohort_id'];
 
-            for (Map<String, dynamic> c in cohortsData) {
-              if (c['id'] == newVehicle['cohort_id']) {
-                selectedCohortsData = c;
-              }
-            }
-            for (Map<String, dynamic> c in categoriesData) {
-              if (c['id'] == newVehicle['vehicle_status']) {
-                selectedCategoriesData = c;
-              }
-            }
-            selectedVehicleStatus =
-            (newVehicle['active'] ?? vehicleStatusList[1]) == 1
-                ? vehicleStatusList[0]
-                : vehicleStatusList[1];
             bouncie = (newVehicle['bouncie'] == 1);
             airTag = (newVehicle['air_tag'] == 1);
             permanentPlate = (newVehicle['permanent_plate'] == 1);
@@ -139,18 +97,12 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
             permanentPlate = (newVehicle['permanent_plate'] == 1);
             frontLicensePlate = (newVehicle['front_license_plate'] == 1);
             tollTags = (newVehicle['toll_tags'] == 1);
-            vehicleImageFile.clear();
             tireImageFile.clear();
             tollImage.clear();
             uploadRegSticker.clear();
             insuranceImage.clear();
-            receiptImageFile.clear();
 
             images = (newVehicle['images'] as List<dynamic>?) ?? [];
-            vehicleImageFile = (newVehicle['images'] as List<dynamic>?)
-                ?.where((image) => image['vehicle_image_type'] == 1)
-                .toList() ??
-                [];
             var tireImages = (newVehicle['images'] as List<dynamic>?)
                 ?.where((image) => image['vehicle_image_type'] == 2)
                 .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
@@ -175,7 +127,6 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
                 .toList() ??
                 [];
             insuranceImage.addAll(insuranceImages);
-            receiptImageFile.addAll(newVehicle['expenses']?['attachments'] ?? []);
             emit(setVehicleCommonState());
           } catch (e) {
             log("Error finding vehicle: $e");
@@ -228,13 +179,9 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
           ..oilChangeOdometer = newVehicle['oil_change_controller'].toString()
           ..maintenanceCheck = newVehicle['maintenance_check'].toString()
           ..tollTagsId = tollTagsIdController.text
-          ..selectedVehicleStatus = int.tryParse(selectedVehicleStatus.toString())
-          ..selectedCohort = selectedCohortsData?['id']
-          ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0
-          ..employeeId = employeeId
-          ..branchCode = branchCode
-          ..vehicleStatus = vehicleStatus
-          ..cohortId = cohortId;
+          ..branchCode = newVehicle['branch_code']
+          ..vehicleStatus = newVehicle['vehicle_status']
+          ..cohortId = newVehicle['vehicle_id'];
 
         createVehicleData.insuranceImage = insuranceImage.whereType<File>().toList();
         createVehicleData.tollImage = tollImage.whereType<File>().toList();
@@ -251,17 +198,12 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
             orElse: () => {},
           );
           images.clear();
-          vehicleImageFile.clear();
           tireImageFile.clear();
           tollImage.clear();
           uploadRegSticker.clear();
           insuranceImage.clear();
 
           images = (newVehicle['images'] as List<dynamic>?) ?? [];
-          vehicleImageFile = (newVehicle['images'] as List<dynamic>?)
-              ?.where((image) => image['vehicle_image_type'] == 1)
-              .toList() ??
-              [];
           var tireImages = (newVehicle['images'] as List<dynamic>?)
               ?.where((image) => image['vehicle_image_type'] == 2)
               .map((e) => "${Str.STORAGE_BASE_URL}${e['path']}")
@@ -429,7 +371,6 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
                 final response = await vehicleDataRepo.deleteVehicleImages(imageId);
                 if (response != null) tireImageFile.remove(event.attachment);
                 emit(setVehicleCommonState());
-                log("${response}", name: "VEHICLE_Image");
               } else {
                 emit(setVehicleCommonState());
               }
@@ -446,12 +387,10 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
                   event.attachment.split('/').last ==
                       image['path'].split('/').last,
                   orElse: () => null)?['id'];
-              emit(setVehicleCommonState());
               if(imageId != null){
                 final response = await vehicleDataRepo.deleteVehicleImages(imageId);
                 if (response != null) uploadRegSticker.remove(event.attachment);
                 emit(setVehicleCommonState());
-                log("${response}", name: "VEHICLE_Image");
               } else {
                 emit(setVehicleCommonState());
               }
@@ -468,7 +407,6 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
                   event.attachment.split('/').last ==
                       image['path'].split('/').last,
                   orElse: () => null)?['id'];
-
               if(imageId != null){
                 final response = await vehicleDataRepo.deleteVehicleImages(imageId);
                 if (response != null) insuranceImage.remove(event.attachment);
@@ -490,12 +428,10 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
                 event.attachment.split('/').last ==
                     image['path'].split('/').last,
                 orElse: () => null)?['id'];
-
             if(imageId != null){
               final response = await vehicleDataRepo.deleteVehicleImages(imageId);
               if (response != null) tollImage.remove(event.attachment);
               emit(setVehicleCommonState());
-              log("${response}", name: "VEHICLE_Image");
             } else {
               emit(setVehicleCommonState());
             }
@@ -550,6 +486,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
     });
 
   }
+
   int boolToInt(bool value) => value ? 1 : 0;
   Future<List<File>> _pickFiles() async {
     var result = await FilePicker.platform.pickFiles(allowMultiple: true,

@@ -113,17 +113,6 @@ class SetVehicleUi extends StatelessWidget {
                                 },
                                 label: 'Spare Tire',
                               ),
-                              if(context.read<setVehicleBloc>().permanentPlate)...[
-                                checkBoxWithSingleText(
-                                  value: context.read<setVehicleBloc>().frontLicensePlate,
-                                  onChanged: (bool? value) {
-                                    context.read<setVehicleBloc>().add(setVehicleFLicensePlateEvent(value: value ?? false));
-                                  },
-                                  label: 'Front license plate',
-                                ),
-                              ] else ...[
-                                const SizedBox()
-                              ]
                             ],
                           ),
                         ),
@@ -165,21 +154,17 @@ class SetVehicleUi extends StatelessWidget {
                         if(context.read<setVehicleBloc>().spareTire)...[
                           Expanded(
                             child:
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child:
-                              Utils.getTextFormField('e.g.,T165/70D18',
-                                  context.read<setVehicleBloc>().spareTireController,
-                                  validator: (value){
-                                    final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
-                                    if(value!.isNotEmpty){
-                                      if (!SpareTireRegex.hasMatch(value)) {
-                                        return 'T165/70D18';
-                                      }
+                            Utils.getTextFormField('e.g.,T165/70D18',
+                                context.read<setVehicleBloc>().spareTireController,
+                                validator: (value){
+                                  final SpareTireRegex = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
+                                  if(value!.isNotEmpty){
+                                    if (!SpareTireRegex.hasMatch(value)) {
+                                      return 'T165/70D18';
                                     }
-                                    return null;
                                   }
-                              ),
+                                  return null;
+                                }
                             ),
                           ),
                         ] else...[
@@ -231,12 +216,32 @@ class SetVehicleUi extends StatelessWidget {
                       },
                       label: 'Spare Key',
                     ),
-                    checkBoxWithSingleText(
-                      value: context.read<setVehicleBloc>().permanentPlate,
-                      onChanged: (bool? value) {
-                        context.read<setVehicleBloc>().add(setVehiclePermanentPlateEvent(value: value ?? false));
-                      },
-                      label: 'Permanent Plate',
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: checkBoxWithSingleText(
+                            value: context.read<setVehicleBloc>().permanentPlate,
+                            onChanged: (bool? value) {
+                              context.read<setVehicleBloc>().add(setVehiclePermanentPlateEvent(value: value ?? false));
+                            },
+                            label: 'Permanent Plate',
+                          ),
+                        ),
+                        if(context.read<setVehicleBloc>().permanentPlate)...[
+                          Expanded(
+                            child: checkBoxWithSingleText(
+                              value: context.read<setVehicleBloc>().frontLicensePlate,
+                              onChanged: (bool? value) {
+                                context.read<setVehicleBloc>().add(setVehicleFLicensePlateEvent(value: value ?? false));
+                              },
+                              label: 'Front license plate',
+                            ),
+                          ),
+                        ] else ...[
+                          const Spacer()
+                        ]
+                      ],
                     ),
                     Row(
                       spacing: 10,
