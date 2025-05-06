@@ -97,10 +97,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
             permanentPlate = (newVehicle['permanent_plate'] == 1);
             frontLicensePlate = (newVehicle['front_license_plate'] == 1);
             tollTags = (newVehicle['toll_tags'] == 1);
-            tireImageFile.clear();
-            tollImage.clear();
-            uploadRegSticker.clear();
-            insuranceImage.clear();
+
 
             images = (newVehicle['images'] as List<dynamic>?) ?? [];
             var tireImages = (newVehicle['images'] as List<dynamic>?)
