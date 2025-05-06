@@ -33,7 +33,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ExpenseBloc>(
       create: (context) =>
-          ExpenseBloc()..add(GetVehicleExpenseEditData(id: expenseId)),
+          ExpenseBloc(listenBroadcast: false)..add(GetVehicleExpenseEditData(id: expenseId)),
       child: BlocListener<ExpenseBloc, ExpenseState>(
         listener: (context, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
