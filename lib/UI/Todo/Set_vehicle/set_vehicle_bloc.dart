@@ -35,7 +35,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
   final TextEditingController spareTireController = TextEditingController();
   final TextEditingController insuranceCostController = TextEditingController();
   final TextEditingController insuranceAgentController = TextEditingController();
-
+  List<String> vehicleStatusList = ['Active', 'InActive'];
   bool bouncie = false;
   bool tollTags = false;
   bool airTag = false;
@@ -44,6 +44,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
   bool spareKey = false;
   bool frontLicensePlate = false;
   DateTime? renewalDate;
+  String? selectedVehicleStatus;
   String? vinNumber;
   int? vehicleId;
   List<dynamic> images = List.empty(growable: true);
@@ -86,6 +87,10 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
             insuranceAgentController.text = newVehicle['insurance_agent']?.toString() ?? '';
             renewalDate = (newVehicle['registration_renewal_date'] ?? '').toString().toDateTime(inputFormat: 'yyyy-MM-dd');
 
+            selectedVehicleStatus =
+            (newVehicle['active'] ?? vehicleStatusList[1]) == 1
+                ? vehicleStatusList[0]
+                : vehicleStatusList[1];
             bouncie = (newVehicle['bouncie'] == 1);
             airTag = (newVehicle['air_tag'] == 1);
             permanentPlate = (newVehicle['permanent_plate'] == 1);
@@ -140,19 +145,19 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
         emit(setVehicleLoading());
         final createVehicleData = CreateVehicleData()
           ..id = vehicleId
-          ..year = newVehicle['year'].toString()
-          ..make = newVehicle['make'].toString()
-          ..model = newVehicle['model'].toString()
-          ..vin = newVehicle['vin'].toString()
-          ..vehicleId = newVehicle['vehicle_id'].toString()
-          ..earnings = newVehicle['earnings'].toString()
-          ..utilizationRate = newVehicle['utilization_rate'].toString()
-          ..platform = newVehicle['platform'].toString()
-          ..mileage = newVehicle['mileage'].toString()
-          ..wholesaleAmount = newVehicle['wholesale_amount'].toString()
-          ..purchaseDate = newVehicle['purchase_date'].toString()
-          ..purchasePrice = newVehicle['purchase_price'].toString()
-          ..address = newVehicle['address'].toString()
+          ..year = newVehicle['year']?.toString() ?? ''
+          ..make = newVehicle['make']?.toString() ?? ''
+          ..model = newVehicle['model']?.toString() ?? ''
+          ..vin = newVehicle['vin']?.toString() ?? ''
+          ..vehicleId = newVehicle['vehicle_id']?.toString() ?? ''
+          ..earnings = newVehicle['earnings']?.toString() ?? ''
+          ..utilizationRate = newVehicle['utilization_rate']?.toString() ?? ''
+          ..platform = newVehicle['platform']?.toString() ?? ''
+          ..mileage = newVehicle['mileage']?.toString() ?? ''
+          ..wholesaleAmount = newVehicle['wholesale_amount']?.toString() ?? ''
+          ..purchaseDate = newVehicle['purchase_date']?.toString() ?? ''
+          ..purchasePrice = newVehicle['purchase_price']?.toString() ?? ''
+          ..address = newVehicle['address']?.toString() ?? ''
           ..vehicleNumber = vehicleNumberController.text
           ..carNumber = carNumberController.text
           ..oilGrade = oilGradeController.text
@@ -168,14 +173,16 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
           ..spareKey = spareKey == true ? 1 : 0
           ..frontLicensePlate = boolToInt(frontLicensePlate)
           ..tireSize = spareTireController.text
-          ..regStickerDate = renewalDate.toString()//registration sticker date
-          ..currentOdometer = newVehicle['current_odometer'].toString()
-          ..oilChangeOdometer = newVehicle['oil_change_controller'].toString()
-          ..maintenanceCheck = newVehicle['maintenance_check'].toString()
+          ..regStickerDate = (DateTime.tryParse(renewalDate.toString()).toFormat())?.toString() ?? ''//DateTime.tryParse(renewalDate.toString()).toFormat()
+          ..currentOdometer = newVehicle['current_odometer']?.toString() ?? ''
+          ..oilChangeOdometer = newVehicle['oil_change_controller']?.toString() ?? ''
+          ..maintenanceCheck = newVehicle['maintenance_check']?.toString() ?? ''
           ..tollTagsId = tollTagsIdController.text
-          ..branchCode = newVehicle['branch_code']
-          ..vehicleStatus = newVehicle['vehicle_status']
-          ..cohortId = newVehicle['vehicle_id'];
+          ..employeeId = newVehicle['employee_id']?.toString() ?? ''
+          ..isActive = selectedVehicleStatus == 'Active' ? 1 : 0
+          ..branchCode = newVehicle['branch_code']?.toString() ?? ''
+          ..vehicleStatus = newVehicle['vehicle_status']?.toString() ?? ''
+          ..cohortId = newVehicle['cohort_id']?.toString() ?? '';
 
         createVehicleData.insuranceImage = insuranceImage.whereType<File>().toList();
         createVehicleData.tollImage = tollImage.whereType<File>().toList();

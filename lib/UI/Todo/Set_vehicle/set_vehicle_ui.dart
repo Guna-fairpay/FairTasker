@@ -11,6 +11,7 @@ import 'package:fairpytasker/UI/Todo/Set_vehicle/set_vehicle_state.dart';
 import 'package:fairpytasker/UI/Todo/Set_vehicle/sparekeyTask_popup.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
@@ -311,8 +312,11 @@ class SetVehicleUi extends StatelessWidget {
                       spacing: 10,
                       children: [
                         Expanded(
-                          child: Utils.getTextFormField('Car Number', context.read<setVehicleBloc>().carNumberController,
-                              hintTextColor: AppC.grey),
+                          child: Utils.getNumberFormField(
+                              'Car Number',
+                              context.read<setVehicleBloc>().carNumberController,
+                              hintTextColor: AppC.grey,
+                          ),
                         ),
                         Expanded(
                           child: Utils.getTextFormField('Oil grade', context.read<setVehicleBloc>().oilGradeController,
@@ -363,7 +367,6 @@ class SetVehicleUi extends StatelessWidget {
                     Row(
                       spacing: 10,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: CustomDateTimePicker<DateTime>(
@@ -374,9 +377,8 @@ class SetVehicleUi extends StatelessWidget {
                             textAlign: TextAlign.center,
                             value: context.read<setVehicleBloc>().renewalDate,
                             onChanged: (value){
-                              log("Renewal Date: $value");
+                              Utils.dismissKeyboard(context);
                               context.read<setVehicleBloc>().add(setVehicleDatePickerEvent(value: value));
-                                log("Renewal Date: ${context.read<setVehicleBloc>().renewalDate}");
                             },
                           ),
                         ),
@@ -384,7 +386,6 @@ class SetVehicleUi extends StatelessWidget {
                           child: Column(
                             children: [
                               Container(
-                                padding: EdgeInsets.all(0),
                                 decoration: BoxDecoration(
                                     border: Border.all(
                                       color: AppC.fieldBase,
@@ -452,7 +453,7 @@ class SetVehicleUi extends StatelessWidget {
                           child: Utils.getTextFormField('Insurance Agent', context.read<setVehicleBloc>().insuranceAgentController),
                         ),
                         Expanded(
-                          child: Utils.getTextFormField('Insurance Cost', context.read<setVehicleBloc>().insuranceCostController),
+                          child: Utils.getNumberFormField('Insurance Cost', context.read<setVehicleBloc>().insuranceCostController),
                         ),
                       ],
                     ),

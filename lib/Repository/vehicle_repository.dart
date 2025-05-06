@@ -40,7 +40,7 @@ class VehicleDataRepo {
         "platform": createVehicleData.platform,
         "mileage": createVehicleData.mileage,
         "wholesale_amount": createVehicleData.wholesaleAmount,
-        "vehicle_status": createVehicleData.selectedVehicleStatus.toString(),
+        "vehicle_status": createVehicleData.selectedVehicleStatus?.toString() ?? '',
         "active": createVehicleData.isActive.toString(),
         "purchase_price": createVehicleData.purchasePrice.toString(),
         "purchase_date": createVehicleData.purchaseDate.toString(),
@@ -69,6 +69,8 @@ class VehicleDataRepo {
         // "oil_change_odometer": createVehicleData.oilChangeOdometer,
         // "maintenance_check": createVehicleData.maintenanceCheck,
       };
+      log(jsonEncode(reqMap));
+      return null;
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
 
