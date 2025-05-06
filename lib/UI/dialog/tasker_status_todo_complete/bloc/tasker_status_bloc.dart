@@ -69,6 +69,10 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
           Map<String, dynamic> body, dynamic vin) async =>
       await _aPiRepository.vehicleStatusUpdateApi(body: body, vin: vin);
 
+  Future<Map<String, dynamic>?> _ignoreVehicleUpdateStatus(
+      Map<String, dynamic> body) async =>
+      await _aPiRepository.vehicleStatusUpdate(body: body);
+
   List<dynamic> get resourcesList =>
       _resources
           ?.where((element) =>
@@ -97,12 +101,14 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
   }
 
   Map<String, dynamic> get _statusUpdateBody => {
-        "config_id": [ (_model?['vehicle_status_id'] ?? 0) ],
+        "config_id": [(_model?['vehicle_status_id'] ?? 0)],
         "category_id": (_model?['vehicle_status_category'] ?? 0),
         "vin": _model?['vin'] ?? "",
-        "checklist_id": [ (_model?['vehicle_status_checklist'] ?? 0) ],
+        "checklist_id": [(_model?['vehicle_status_checklist'] ?? 0)],
         "checkbox_value": 1
       };
+
+  Map<String, dynamic> get _ignoreBody => {"vin": _model?['vin'] ?? "", "vehicle_status": (_model?['vehicle_status_category'] ?? 0), "vehicle_status_update": null};
 
   Map<String, dynamic> _addToDoBody() {
     Map<String, dynamic>? cohort =
@@ -165,7 +171,8 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
       _locations = await _fetchLocations();
       selectedResource = _resources
           ?.firstWhereOrNull((element) => element['id'] == _currentUserId);
-      _vehicleStatusResponse = await _vehicleUpdateStatus(_statusUpdateBody, _model?['vin']);
+      _vehicleStatusResponse =
+          await _vehicleUpdateStatus(_statusUpdateBody, _model?['vin']);
       Console.of.log(_vehicleStatusResponse, name: "RESPONSE");
       emit(TaskerStatusCommonState());
     } catch (e) {
@@ -221,6 +228,8 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
       if (response != null) {
         TaskerHelper.instance.refresh();
         emit(TaskerStatusCompleteState());
+      } else {
+        emit(TaskerStatusErrorState(response));
       }
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -229,5 +238,19 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
   }
 
   void _onIgnoreEvent(
-      TaskerStatusIgnoreEvent event, Emitter<TaskerStatusState> emit) {}
+      TaskerStatusIgnoreEvent event, Emitter<TaskerStatusState> emit) async {
+    try {
+      emit(TaskerStatusLoadingState());
+      var response = await _ignoreVehicleUpdateStatus(_ignoreBody);
+      if (response != null) {
+        TaskerHelper.instance.refresh();
+        emit(TaskerStatusCompleteState());
+      } else {
+        emit(TaskerStatusErrorState(response));
+      }
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(TaskerStatusErrorState(e));
+    }
+  }
 }
