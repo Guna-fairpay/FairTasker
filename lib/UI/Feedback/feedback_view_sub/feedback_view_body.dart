@@ -8,11 +8,11 @@ class FeedBackViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
         FeedbackSearchbar(),
-        const FeedbackStatuses(),
-        const FeedbackListing(),
+        FeedbackStatuses(),
+        FeedbackListing(),
       ],
     );
   }
