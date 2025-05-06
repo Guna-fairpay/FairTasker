@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:fairpytasker/Event/header_events.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/State/header_states.dart';
@@ -9,8 +8,6 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../Utilities/prefs.dart';
 
 class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   final APiRepository _aPiRepository = APiRepository();

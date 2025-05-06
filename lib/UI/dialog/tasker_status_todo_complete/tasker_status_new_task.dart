@@ -44,7 +44,7 @@ class TaskerStatusNewTask extends StatelessWidget {
               value: e, label: (e['checklist_name'] ?? ""))).toList() ?? [],
         ),
         10.sp.height,
-        CompactTextField(hintText: "Custom Task", controller: context.read<TaskerStatusBloc>().taskController, focusNode: context.read<TaskerStatusBloc>().customFocusNode,),
+        FocusNodeWrapper(builder: (focusNode) => CompactTextField(hintText: "Custom Task", controller: context.read<TaskerStatusBloc>().taskController, focusNode: focusNode)),
         10.sp.height,
         Row(
           spacing: 10,
