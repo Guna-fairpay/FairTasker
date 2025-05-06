@@ -80,7 +80,14 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   int? get _branch =>  getIt<CommonService>().branchId;
 
 
-  ExpenseBloc()
+  @override
+  Future<void> close() {
+    _broadcast.unregister("expense_vehicle_refresh");
+    Console.of.log("ExpenseBloc Closed");
+    return super.close();
+  }
+
+  ExpenseBloc({bool listenBroadcast = true})
       : super(ExpenseState(
           apiResponse: const [],
           filteredResponse: const [],
@@ -123,7 +130,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           popAddPagePop: false,
           popEditPage: false,
         )) {
-    _registerBroadcast();
+    if (listenBroadcast) _registerBroadcast();
+    // else _broadcast.unregister("expense_vehicle_refresh");
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
     });
@@ -140,8 +148,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               .toFormat(format: 'yyyy-MM-dd');
           maxDate = DateTime.now().toFormat(format: 'yyyy-MM-dd');
         }
-
-        _resetAll();
+        add(RefreshEvent());
+        // _resetAll();
 
        /*var startDate = DateTime.now()
             .subtract(const Duration(days: 31))
@@ -434,7 +442,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         }).toList();
         await apiRepository.expenseApprove(
             id: event.model['id'].toString(), approved: event.approved);
-        _resetAll();
+        add(RefreshEvent());
         /*List<dynamic> filteredResponse =
             filterApprovedResponse(existResponse, state.isExpenseApproved);
         approvedAmount = 0;
@@ -488,7 +496,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           //   approvedAmount: approvedAmount,
           //   unApprovedAmount: unApprovedAmount,
           // ));
-          _resetAll();
+          add(RefreshEvent());
         } else {
           emit(state.copyWith(isLoading: false));
         }
@@ -695,7 +703,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           Toaster.showSuccess(response?['message'] ?? "Success");
         }
         emit(state.copyWith(isLoading: false, popEditPage: true));
-        _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+        _broadcast.broadcast("expense_vehicle_refresh", value: true);
         if (response?['status'] == 200) {
           emit(state.copyWith());
         }
@@ -727,7 +735,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             expenseId: "${event.expenseData?['id']}",
             body: _updateCategorys(event.expenseData));
         emit(state.copyWith(isLoading: false, categoriesPop: true));
-        _broadcast.stickyBroadcast("expense_vehicle_refresh", value: true);
+        add(RefreshEvent());
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');
@@ -779,10 +787,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   void _registerBroadcast() {
     _broadcast.register("expense_vehicle_refresh", (value, callback) {
       Console.of.log("expense_vehicle_refresh");
-      _resetAll();
+      add(RefreshEvent());
     });
 
-    getIt<CommonService>().branchUpdate(callback: _resetAll);
+    getIt<CommonService>().branchUpdate(callback: () => add(RefreshEvent()));
+    Console.of.log("Broadcast Registered");
   }
 
   Map<String, String> _updateExpenseData() {

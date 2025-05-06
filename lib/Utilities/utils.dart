@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:date_time/date_time.dart' as dt;
 import 'package:fairpytasker/Component/custom_search_bar.dart';
+import 'package:fairpytasker/Component/focus_node_wrapper.dart';
 import 'package:fairpytasker/Component/tasker_button.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
@@ -475,76 +476,81 @@ class Utils {
       textCapitalization = TextCapitalization.sentences,
       }) {
     // hintText = hintText ?? labelText;
-    return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) => TextFormField(
-        key: key,
-        validator: validator,
-        spellCheckConfiguration: const SpellCheckConfiguration(),
-        autovalidateMode: autoValidate,
-        textInputAction: inputAction ?? TextInputAction.next,
-        onTap: onTapCallback,
-        focusNode: focusNode,
-        autofocus: autoFocus,
-        controller: controller,
-        keyboardType: textType,
-        readOnly: readOnly,
-        maxLength: maxLength,
-        obscureText: obscure,
-        //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-        //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-        onTapOutside: (event) => dismissKeyboard(context),
-        textCapitalization: textCapitalization,
-        inputFormatters: textInputFormatter,
-        textAlign: textAlign,
-        minLines: minLines,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-            contentPadding: contentPadding,
-            constraints: const BoxConstraints(),
-            isDense: isDense,
-            // label: label,
-            labelText: labelText,
-            hintText: hintText,
-            counterText: '',
-            hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
-            labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
-            filled: true,
-            isCollapsed: isCollapsed,
-            fillColor: fillColor,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-              borderSide: BorderSide(
-                color: borderColor,
-                width: borderWidth,
+    return FocusNodeWrapper(
+      builder:(f) => ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => TextFormField(
+          key: key,
+          validator: validator,
+          spellCheckConfiguration: const SpellCheckConfiguration(),
+          autovalidateMode: autoValidate,
+          textInputAction: inputAction ?? TextInputAction.next,
+          onTap: onTapCallback,
+          focusNode: f,
+          autofocus: autoFocus,
+          controller: controller,
+          keyboardType: textType,
+          readOnly: readOnly,
+          maxLength: maxLength,
+          obscureText: obscure,
+          //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+          //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+          onTapOutside: (event) {
+            f.unfocus();
+            dismissKeyboard(context);
+          },
+          textCapitalization: textCapitalization,
+          inputFormatters: textInputFormatter,
+          textAlign: textAlign,
+          minLines: minLines,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+              contentPadding: contentPadding,
+              constraints: const BoxConstraints(),
+              isDense: isDense,
+              // label: label,
+              labelText: labelText,
+              hintText: hintText,
+              counterText: '',
+              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              filled: true,
+              isCollapsed: isCollapsed,
+              fillColor: fillColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                borderSide: BorderSide(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
               ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-              borderSide: BorderSide(
-                color: borderColor,
-                width: borderWidth,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                borderSide: BorderSide(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
               ),
-            ),
-            // focusedBorder: OutlineInputBorder(
-            //     borderSide: BorderSide(
-            //       color: borderColor,
-            //       width: borderWidth,
-            //     ),
-            //     borderRadius: BorderRadius.circular(borderRadius)),
-            suffixIconConstraints: BoxConstraints(),
-            suffixIcon: suffixIcon,
-          prefixIconConstraints: BoxConstraints(),
-          prefixIcon: prefixIcon,
-        ),
-        style: style ?? TextStyle(
-          // fontSize: textSize,
-          color: textColor,
-          fontWeight: fontWeight,
-          fontSize: 12.sp,
-        ),
-        onChanged: onChangeCallback,
-      )
+              // focusedBorder: OutlineInputBorder(
+              //     borderSide: BorderSide(
+              //       color: borderColor,
+              //       width: borderWidth,
+              //     ),
+              //     borderRadius: BorderRadius.circular(borderRadius)),
+              suffixIconConstraints: BoxConstraints(),
+              suffixIcon: suffixIcon,
+            prefixIconConstraints: BoxConstraints(),
+            prefixIcon: prefixIcon,
+          ),
+          style: style ?? TextStyle(
+            // fontSize: textSize,
+            color: textColor,
+            fontWeight: fontWeight,
+            fontSize: 12.sp,
+          ),
+          onChanged: onChangeCallback,
+        )
+      ),
     );
   }
 

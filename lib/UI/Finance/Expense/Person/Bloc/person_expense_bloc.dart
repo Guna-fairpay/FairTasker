@@ -105,6 +105,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       resourceId = id;
     });
     _registerBroadcast();
+
     on<GetPersonExpenseData>((event, emit) async {
       try {
         // emit(state.copyWith(isLoading: true));
@@ -285,13 +286,13 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         }).toList();
         await apiRepository.approvePersonExpense(
             id: event.model['id'].toString(), approved: event.approved);
-        emit(state.copyWith(isLoading: false));
-        _resetAll();
+        //emit(state.copyWith(isLoading: false));
+        //_resetAll();
 
-        // emit(state.copyWith(
-        //   isLoading: false,
-        //   apiResponse: existResponse
-        // ));
+        emit(state.copyWith(
+          isLoading: false,
+          apiResponse: existResponse
+        ));
       } catch (e) {
         log("$e", name: "Error In ApproveEvent");
         emit(state.copyWith(isLoading: false));
@@ -304,7 +305,12 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
        var response = await apiRepository.deletePersonExpense(event.id);
        if(response?.message != null) {
          if (event.isEditPage == false) {
-           _resetAll();
+         List<dynamic> existResponse = state.apiResponse;
+             existResponse.removeWhere((element) => element['id'].toString() == event.id.toString());
+         emit(state.copyWith(
+           isLoading: false,
+           apiResponse: existResponse,
+         ));
          }
          else {
            _broadcast.broadcast("expense_person_refresh");
