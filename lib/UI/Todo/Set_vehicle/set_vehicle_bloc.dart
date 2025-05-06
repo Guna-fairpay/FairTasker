@@ -53,9 +53,6 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
   List<dynamic> insuranceImage = List.empty(growable: true);
   dynamic newVehicle;
   dynamic todoItem;
-  List<Map<String, dynamic>> cohortsData = [];
-  List<Map<String, dynamic>> categoriesData = [];
-  List<String> vehicleStatusList = ['Active', 'InActive'];
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   setVehicleBloc() : super(const setVehicleInitialState()){

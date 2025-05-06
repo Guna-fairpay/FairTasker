@@ -172,7 +172,7 @@ class SetVehicleUi extends StatelessWidget {
                         ],
                       ],
                     ),
-                    if(context.read<setVehicleBloc>().tollImage.isNotEmpty)
+                    if(context.read<setVehicleBloc>().tollImage.isNotEmpty && context.read<setVehicleBloc>().tollTags)
                     SizedBox(
                       height: 100,
                       child: GridView.builder(
