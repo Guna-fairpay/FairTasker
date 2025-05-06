@@ -27,3 +27,5 @@ class TaskerStatusSuccessState extends TaskerStatusState {
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class TaskerStatusCompleteState extends TaskerStatusState {}

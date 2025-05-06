@@ -3,6 +3,7 @@ import 'package:fairpytasker/UI/dialog/tasker_status_todo_complete/bloc/tasker_s
 import 'package:fairpytasker/UI/dialog/tasker_status_todo_complete/bloc/tasker_status_event.dart';
 import 'package:fairpytasker/UI/dialog/tasker_status_todo_complete/bloc/tasker_status_state.dart';
 import 'package:fairpytasker/UI/dialog/tasker_status_todo_complete/tasker_status_new_task.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,8 +22,7 @@ class TaskerToDoCompleteDialog {
 
 class _TaskerToDoCompleteDialog extends StatelessWidget {
   final Map<String, dynamic>? model;
-
-  const _TaskerToDoCompleteDialog(this.model, {super.key});
+  const _TaskerToDoCompleteDialog(this.model);
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +35,11 @@ class _TaskerToDoCompleteDialog extends StatelessWidget {
             if (state is TaskerStatusLoadingState) {
               EasyLoading.show();
             } else {
-              if (EasyLoading.isShow) EasyLoading.dismiss();
+              if (state is! TaskerStatusCompleteState) if (EasyLoading.isShow) EasyLoading.dismiss();
               switch(state){
                 case TaskerStatusErrorState(): Toaster.showError(state.message, context: context); break;
                 case TaskerStatusSuccessState(): Toaster.showSuccess(state.message, context: context); break;
+                case TaskerStatusCompleteState(): context.popDialog(); break;
               }
             }
           },

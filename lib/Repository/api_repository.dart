@@ -315,6 +315,8 @@ class APiRepository {
 
   String get _cumulativeCost => "cumulative_cost";
 
+  String get _vehicleStatusUpdateApi => "vehicleStatusUpdateApi";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3416,6 +3418,17 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> vehicleStatusUpdateApi({Map<String, dynamic>? body, dynamic vin}) async {
+    try{
+      String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusUpdateApi/$vin";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
     }catch(e){
       rethrow;
     }
