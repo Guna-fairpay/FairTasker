@@ -49,10 +49,10 @@ class CreateVehicleData {
   String maintenanceCheck = '';
   List<File> insuranceImage = [];
 
-  int? employeeId;
-  int? branchCode;
-  int? vehicleStatus;
-  int? cohortId;
+  String? employeeId;
+  String? branchCode;
+  String? vehicleStatus;
+  String? cohortId;
   //Constructor
   CreateVehicleData();
 
