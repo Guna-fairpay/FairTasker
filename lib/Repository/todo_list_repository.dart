@@ -3287,7 +3287,7 @@ class TodoListRepo {
         "location":sparekeyData.location,
         "location_id":sparekeyData.locationId,
         "notes": sparekeyData.notes ,
-        "start_at": sparekeyData.startAt,
+        "start_at": sparekeyData.startAt.toString(),
         'time_sensitive': sparekeyData.timeSensitive,
         "todo_time": DateTime.now().toFormat(format: "HH:mm:ss") ?? "",
         "todo_user_type": sparekeyData.todoUserType,
@@ -3297,12 +3297,15 @@ class TodoListRepo {
         "vehicles": sparekeyData.vehicles,
         "vendor_id": sparekeyData.vendorId,
          "vendor_name": sparekeyData.vendorName,
-        "vin": sparekeyData.vin
+        "vin": sparekeyData.vin,
+        "platform": "TaskerApp",
+        "type": "inline",
       });
       log("$body", name: "POST_BODY");
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
       if (response?.statusCode == 200 || response?.statusCode == 201) {
+        log("${response?.body}");
         return true;
       } else {
         return null;
@@ -3340,6 +3343,8 @@ class TodoListRepo {
         "reference_id": createFixTaskData.referenceId,
         "comments": createFixTaskData.comments,
         "vehicle_number": createFixTaskData.vehicleNumber,
+        "vehicle_name" : createFixTaskData.vehicleName,
+        "time_sensitive" : createFixTaskData.timeSensitive,
         "platform": "TaskerApp",
         "type" : "inline",
       };
@@ -3363,16 +3368,19 @@ class TodoListRepo {
       if (newTaskId == null) {
         log("Failed to extract task ID from response");
         return null;
+      } else {
+        fixTasksMap.clear();
       }
-
+      fixTasksMap.clear();
       // 5. maintenance task ID
       final String? maintenanceId = createFixTaskData.maintenanceTaskId?.split('-').lastOrNull;
       if (maintenanceId != null) {
-        fixTasksMap[maintenanceId] = newTaskId;
+        fixTasksMap[maintenanceId.toString()] = newTaskId;
       }
+      createFixTaskData.fixTasksMap?.addAll(fixTasksMap);
 
       var fixTaskBody = {
-        'fix_tasks': fixTasksMap,
+        'fix_tasks': createFixTaskData.fixTasksMap,
         'type': "inline"
       };
       Console.of.log(fixTaskBody);
@@ -3381,6 +3389,8 @@ class TodoListRepo {
           apiUrl1,
           body: jsonEncode(fixTaskBody)
       );
+      fixTasksMap.clear();
+      createFixTaskData.fixTasksMap?.clear();
 
       log("Update response: ${updateResponse?.body}", name: "UPDATE_RESPONSE");
 

@@ -548,6 +548,121 @@ class Utils {
     );
   }
 
+  static Widget getNumberFormField(
+      String? labelText,
+      TextEditingController controller,
+      {Key? key,
+        FocusNode? focusNode,
+        Widget? label,
+        double textSize = 12,
+        Color textColor = AppC.text,
+        FontWeight fontWeight = FontWeight.w400,
+        bool readOnly = false,
+        bool autoFocus = false,
+        ValueChanged? onChangeCallback,
+        TextInputType textType = TextInputType.text,
+        TextInputAction? inputAction,
+        TextStyle? style,
+        int? maxLength,
+        Color borderColor = AppC.fieldBase,
+        Color hintTextColor = AppC.text,
+        String? hintText,
+        Widget? suffixIcon,
+        Widget? prefixIcon,
+        bool obscure = false,
+        bool isDense = true,
+        double? height,
+        TextStyle? hintTextStyle,
+        TextStyle? labelStyle,
+        Color fillColor = AppC.trans,
+        EdgeInsets contentPadding =
+        const EdgeInsets.all(9),
+        // VoidCallback? suffixIconCallback,
+        VoidCallback? onTapCallback,
+        String? Function(String?)? validator,
+        bool showErrorSuffix = false,
+        int minLines = 1,
+        int maxLines = 1,
+        bool isCollapsed = false,
+        AutovalidateMode autoValidate = AutovalidateMode.disabled,
+        List<TextInputFormatter>? textInputFormatter,
+        double borderRadius = Num.subradiusButton,
+        TextAlign textAlign = TextAlign.start,
+        double borderWidth = Num.borderWidthField}) {
+    // hintText = hintText ?? labelText;
+    return ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => TextFormField(
+          key: key,
+          validator: validator,
+          spellCheckConfiguration: const SpellCheckConfiguration(),
+          autovalidateMode: autoValidate,
+          textInputAction: inputAction ?? TextInputAction.next,
+          onTap: onTapCallback,
+          focusNode: focusNode,
+          autofocus: autoFocus,
+          controller: controller,
+          keyboardType: TextInputType.number,
+          readOnly: readOnly,
+          maxLength: maxLength,
+          obscureText: obscure,
+          //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+          //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+          onTapOutside: (event) => dismissKeyboard(context),
+          textCapitalization: TextCapitalization.sentences,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textAlign: textAlign,
+          minLines: minLines,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            contentPadding: contentPadding,
+            constraints: const BoxConstraints(),
+            isDense: isDense,
+            // label: label,
+            labelText: labelText,
+            hintText: hintText,
+            counterText: '',
+            hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+            labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+            filled: true,
+            isCollapsed: isCollapsed,
+            fillColor: fillColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+            // focusedBorder: OutlineInputBorder(
+            //     borderSide: BorderSide(
+            //       color: borderColor,
+            //       width: borderWidth,
+            //     ),
+            //     borderRadius: BorderRadius.circular(borderRadius)),
+            suffixIconConstraints: BoxConstraints(),
+            suffixIcon: suffixIcon,
+            prefixIconConstraints: BoxConstraints(),
+            prefixIcon: prefixIcon,
+          ),
+          style: style ?? TextStyle(
+            // fontSize: textSize,
+            color: textColor,
+            fontWeight: fontWeight,
+            fontSize: 12.sp,
+          ),
+          onChanged: onChangeCallback,
+        )
+    );
+  }
+
   static Widget getTextFormFieldWithMultipleIcon(
       String? labelText,
       TextEditingController controller, {

@@ -152,6 +152,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
           ..identifierId = event.identifierId
           ..location = todoItemCopy['location']
           ..locationId = todoItemCopy['location_id']
+          //..startAt = todoItemCopy['todo_date'].toString()
           ..startAt = DateTime.now().toFormat() ?? ""
           ..timeSensitive = todoItemCopy['time_sensitive'].toString()
           ..title = event.title

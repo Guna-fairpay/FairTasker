@@ -99,12 +99,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
 
                       if (matchedResource != null && matchedResource['branch_id'] != null) {
-                        final branchId = Session.of.getInt(Str.branchIdPrefText)?.toString(); // 🛠️ Corrected
+                        final branchId = Session.of.getInt(Str.branchIdPrefText)?.toString();
                         return matchedResource['branch_id'].toString() == branchId;
                       }
                       return false;
                     } catch (e) {
-                      log('Error inside: $e', name: 'whereConditionError');
+                      log('Error inside: $e', name: 'matchedPunchItem');
                       return false;
                     }
                   },

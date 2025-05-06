@@ -718,8 +718,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       emit(state.copyWith(addresses: existing));
     });
 
-    on<EditToDoSelectTaskHistoryEvent>((event, emit) =>
-        emit(state.copyWith(selectedVehicle: event.selectTaskHistory)));
+    on<EditToDoSelectTaskHistoryEvent>((event, emit) {
+      _broadcast.broadcast("set_vehicle_refresh", value: event.selectTaskHistory);
+      emit(state.copyWith(selectedVehicle: event.selectTaskHistory));
+    });
 
     on<EditToDoDeleteVehicleEvent>((event, emit) async {
       try {

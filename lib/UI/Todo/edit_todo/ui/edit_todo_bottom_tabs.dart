@@ -15,6 +15,8 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../Set_vehicle/set_vehicle_ui.dart';
+
 class EditTodoBottomTabs extends StatelessWidget {
 
   const EditTodoBottomTabs({super.key});
@@ -61,7 +63,8 @@ class EditTodoBottomTabs extends StatelessWidget {
                   // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
                   ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)
                   :state.selectedBottomTap['id'] == 5
-                  ?VehicleEditUI(vehicle: state.taskHistory.firstOrNull,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
+                  //?VehicleEditUI(vehicle: state.taskHistory.firstOrNull,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
+                  ?SetVehicleUi(todoItems: state.apiResponse,selectedVehicle: state.selectedVehicle,)
                   :state.selectedBottomTap['id'] == 6
                   //?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.selectedVehicle) //Add by RDB
                   ?PrivateRentalCheckMainPage(todoData: state.apiResponse)

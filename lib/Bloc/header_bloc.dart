@@ -10,6 +10,8 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../Utilities/prefs.dart';
+
 class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   final APiRepository _aPiRepository = APiRepository();
   List<Map<String, dynamic>> _userPunchList = [];
@@ -23,6 +25,7 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
   }
 
   Future<List<Map<String, dynamic>>?> _getUserPunchList() async => await _aPiRepository.getUserPunchList();
+
   List<dynamic> get _currentBranchHrmIds => getIt<CommonService>().currentBranchHrmIds;
 
   void _onInitialEvent(HeaderInitialEvent event, Emitter<HeaderState> emit) async {
