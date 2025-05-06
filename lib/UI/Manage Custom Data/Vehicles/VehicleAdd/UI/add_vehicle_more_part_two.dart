@@ -7,8 +7,11 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Comp
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/formatter/upper_case_formatter.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddVehicleMoreTwo extends StatelessWidget {
   const AddVehicleMoreTwo({super.key});
@@ -27,7 +30,7 @@ class AddVehicleMoreTwo extends StatelessWidget {
                 Expanded(
                     child: ImageUploadSection(
                       title: 'Upload Tire Image',
-                      borderColor: Colors.blue,
+                      borderColor: Colors.grey,
                       onUpload: () =>context.read<AddVehicleBloc>().add(TireImageEvent()),
                       onRemove: (file) => context.read<AddVehicleBloc>().add(RemoveTireImageEvent(data: file)),
                       images: context.watch<AddVehicleBloc>().tireImage,
@@ -51,8 +54,29 @@ class AddVehicleMoreTwo extends StatelessWidget {
                   child: Column(
                     spacing: 10,
                     children: [
-                      Utils.getTextFormField("Car Number", context.read<AddVehicleBloc>().carNumberController),
-                      Utils.getTextFormField("Front tire e.g., 215/55R17", context.read<AddVehicleBloc>().frontTireController),
+                      Utils.getTextFormField(
+                        "Car Number",
+                        context.read<AddVehicleBloc>().carNumberController,
+                        textType: TextInputType.number,
+                        textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
+                      ),
+                      Utils.getTextFormField(
+                          "Front tire e.g., 215/55R17",
+                          context.read<AddVehicleBloc>().frontTireController,
+                          textType: TextInputType.text,
+                          textCapitalization : TextCapitalization.characters,
+                          textInputFormatter: [UpperCaseFormatter()],
+                          autoValidate: AutovalidateMode.onUserInteraction,
+                          validator: (value){
+                            final reg = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
+                            if(value!.isNotEmpty){
+                              if (!reg.hasMatch(value)) {
+                                return '215/55R17';
+                              }
+                            }
+                            return null;
+                          }
+                      ),
 
                     ],
                   ),
@@ -62,7 +86,23 @@ class AddVehicleMoreTwo extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Utils.getTextFormField("Oil Grade", context.read<AddVehicleBloc>().oilGradeController),
-                      Utils.getTextFormField("Rear tire e.g., 215/55R17", context.read<AddVehicleBloc>().rearTireController),
+                      Utils.getTextFormField(
+                          "Rear tire e.g., 215/55R17",
+                          context.read<AddVehicleBloc>().rearTireController,
+                          textType: TextInputType.text,
+                          textCapitalization : TextCapitalization.characters,
+                          textInputFormatter: [UpperCaseFormatter()],
+                          autoValidate: AutovalidateMode.onUserInteraction,
+                          validator: (value){
+                            final reg = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
+                            if(value!.isNotEmpty){
+                              if (!reg.hasMatch(value)) {
+                                return '215/55R17';
+                              }
+                            }
+                            return null;
+                          }
+                      ),
                     ],
                   ),
                 ),
@@ -82,6 +122,7 @@ class AddVehicleMoreTwo extends StatelessWidget {
                       CustomDateTimePicker<DateTime>(
                         controller:
                         context.read<AddVehicleBloc>().renewalDateController,
+                        padding: 8.sp.padding,
                         format: "MM-dd-yyyy",
                         suffixIcon: Icon(Icons.calendar_month_rounded,
                             size: 18, color: context.theme.hintColor),
@@ -101,7 +142,7 @@ class AddVehicleMoreTwo extends StatelessWidget {
                       Utils.getText(''),
                       ImageUploadSection(
                         title: 'Upload Reg Sticker',
-                        borderColor: Colors.blue,
+                        borderColor: Colors.grey,
                         onUpload: () =>context.read<AddVehicleBloc>().add(UploadRegStickerImageEvent()),
                         onRemove: (file) => context.read<AddVehicleBloc>().add(RemoveRegStickerImageEvent(data: file)),
                         images: context.watch<AddVehicleBloc>().uploadRegSticker,
@@ -132,7 +173,7 @@ class AddVehicleMoreTwo extends StatelessWidget {
             10.height,
             ImageUploadSection(
               title: 'Insurance Image',
-              borderColor: Colors.blue,
+              borderColor: Colors.grey,
               onUpload: () =>context.read<AddVehicleBloc>().add(InsuranceImageEvent()),
               onRemove: (file) => context.read<AddVehicleBloc>().add(RemoveInsuranceImageEvent(data: file)),
               images: context.watch<AddVehicleBloc>().insuranceImage,

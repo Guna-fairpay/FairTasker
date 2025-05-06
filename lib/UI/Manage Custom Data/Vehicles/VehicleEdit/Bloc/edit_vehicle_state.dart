@@ -22,12 +22,12 @@ class EditVehicleErrorState extends EditVehicleState {
   final dynamic message;
   EditVehicleErrorState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class EditVehicleSuccessState extends EditVehicleState {
   final dynamic message;
   EditVehicleSuccessState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }

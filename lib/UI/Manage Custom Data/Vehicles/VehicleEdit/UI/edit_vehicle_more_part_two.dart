@@ -7,8 +7,10 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Comp
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/formatter/upper_case_formatter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditVehicleMoreTwo extends StatelessWidget {
   const EditVehicleMoreTwo({super.key});
@@ -27,7 +29,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                 Expanded(
                   child: ImageUploadSection(
                     title: 'Upload Tire Image',
-                    borderColor: Colors.blue,
+                    borderColor: Colors.grey,
                     onUpload: () =>context.read<EditVehicleBloc>().add(TireImageEvent()),
                     onRemove: (file) => context.read<EditVehicleBloc>().add(RemoveTireImageEvent(data: file)),
                     images: context.watch<EditVehicleBloc>().tireImage,
@@ -52,7 +54,23 @@ class EditVehicleMoreTwo extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Utils.getTextFormField("Car Number", context.read<EditVehicleBloc>().carNumberController),
-                      Utils.getTextFormField("Front tire e.g., 215/55R17", context.read<EditVehicleBloc>().frontTireController),
+                      Utils.getTextFormField(
+                          "Front tire e.g., 215/55R17",
+                          context.read<EditVehicleBloc>().frontTireController,
+                          textType: TextInputType.text,
+                          textCapitalization : TextCapitalization.characters,
+                          textInputFormatter: [UpperCaseFormatter()],
+                          autoValidate: AutovalidateMode.onUserInteraction,
+                          validator: (value){
+                            final reg = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
+                            if(value!.isNotEmpty){
+                              if (!reg.hasMatch(value)) {
+                                return '215/55R17';
+                              }
+                            }
+                            return null;
+                          }
+                      ),
 
                     ],
                   ),
@@ -62,7 +80,23 @@ class EditVehicleMoreTwo extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Utils.getTextFormField("Oil Grade", context.read<EditVehicleBloc>().oilGradeController),
-                      Utils.getTextFormField("Rear tire e.g., 215/55R17", context.read<EditVehicleBloc>().rearTireController),
+                      Utils.getTextFormField(
+                          "Rear tire e.g., 215/55R17",
+                          context.read<EditVehicleBloc>().rearTireController,
+                          textType: TextInputType.text,
+                          textCapitalization : TextCapitalization.characters,
+                          textInputFormatter: [UpperCaseFormatter()],
+                          autoValidate: AutovalidateMode.onUserInteraction,
+                          validator: (value){
+                            final reg = RegExp(r'^\d{3}/\d{2}[A-Z]\d{2}$');
+                            if(value!.isNotEmpty){
+                              if (!reg.hasMatch(value)) {
+                                return '215/55R17';
+                              }
+                            }
+                            return null;
+                          }
+                      ),
                     ],
                   ),
                 ),
@@ -83,6 +117,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                         controller:
                         context.read<EditVehicleBloc>().renewalDateController,
                         format: "MM-dd-yyyy",
+                        padding: 8.sp.padding,
                         suffixIcon: Icon(Icons.calendar_month_rounded,
                             size: 18, color: context.theme.hintColor),
                         textAlign: TextAlign.start,
@@ -94,6 +129,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 Expanded(
                   child: Column(
                     spacing: 5,
@@ -101,7 +137,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                       Utils.getText(''),
                       ImageUploadSection(
                         title: 'Upload Reg Sticker',
-                        borderColor: Colors.blue,
+                        borderColor: Colors.grey,
                         onUpload: () =>context.read<EditVehicleBloc>().add(UploadRegStickerImageEvent()),
                         onRemove: (file) => context.read<EditVehicleBloc>().add(RemoveRegStickerImageEvent(data: file)),
                         images: context.watch<EditVehicleBloc>().uploadRegSticker,
@@ -112,6 +148,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
                 ),
               ],
             ),
+            10.height,
             Row(
               children: [
                 Expanded(child: Utils.getTextFormField("Current Odometer", context.read<EditVehicleBloc>().currentOdometerController),),
@@ -132,7 +169,7 @@ class EditVehicleMoreTwo extends StatelessWidget {
             10.height,
             ImageUploadSection(
               title: 'Insurance Image',
-              borderColor: Colors.blue,
+              borderColor: Colors.grey,
               onUpload: () =>context.read<EditVehicleBloc>().add(InsuranceImageEvent()),
               onRemove: (file) => context.read<EditVehicleBloc>().add(RemoveInsuranceImageEvent(data: file)),
               images: context.watch<EditVehicleBloc>().insuranceImage,

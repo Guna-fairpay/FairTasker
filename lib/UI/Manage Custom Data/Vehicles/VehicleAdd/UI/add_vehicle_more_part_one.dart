@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Comp
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/formatter/upper_case_formatter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -110,7 +111,7 @@ class AddVehicleMorePartOne extends StatelessWidget {
                               10.height,
                               ImageUploadSection(
                                 title: 'Toll Image',
-                                borderColor: Colors.blue,
+                                borderColor: Colors.grey,
                                 onUpload: () =>context.read<AddVehicleBloc>().add(TollImageEvent()),
                                 onRemove: (file) => context.read<AddVehicleBloc>().add(RemoveTollImageEvent(data: file)),
                                 images: context.watch<AddVehicleBloc>().tollImage,
@@ -125,7 +126,21 @@ class AddVehicleMorePartOne extends StatelessWidget {
                         child: Visibility(
                           visible: context.read<AddVehicleBloc>().spareTire,
                             child:Utils.getTextFormField(
-                              'e.g.,T165/70D18',context.read<AddVehicleBloc>().spareTireController,
+                              'e.g.,T165/70D18',
+                              context.read<AddVehicleBloc>().spareTireController,
+                                textType: TextInputType.text,
+                                textCapitalization : TextCapitalization.characters,
+                                textInputFormatter: [UpperCaseFormatter()],
+                                autoValidate: AutovalidateMode.onUserInteraction,
+                                validator: (value){
+                                  final reg = RegExp(r'^[A-Z]?\d{3}/\d{2}[A-Z]\d{2}$');
+                                  if(value!.isNotEmpty){
+                                    if (!reg.hasMatch(value)) {
+                                      return 'T165/70D18';
+                                    }
+                                  }
+                                  return null;
+                                }
                             ) ),
                       ),
                     ],

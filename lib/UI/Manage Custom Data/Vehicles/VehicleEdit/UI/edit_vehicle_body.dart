@@ -1,3 +1,4 @@
+
 import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
@@ -15,7 +16,6 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditVehicleBody extends StatelessWidget {
   final dynamic vehicleData;
@@ -112,7 +112,7 @@ class EditVehicleBody extends StatelessWidget {
             10.height,
             ImageUploadSection(
               title: 'Upload Purchase Receipt',
-              borderColor: Colors.blue,
+              borderColor: Colors.grey,
               onUpload: () => context.read<EditVehicleBloc>().add(PurchaseReceiptImageEvent()),
               onRemove: (file) => context.read<EditVehicleBloc>().add(RemovePurchaseReceiptImageEvent(data: file)),
               images: context.watch<EditVehicleBloc>().receiptImage,
@@ -121,7 +121,7 @@ class EditVehicleBody extends StatelessWidget {
             10.height,
             ImageUploadSection(
               title: 'Upload Vehicle Image',
-              borderColor: Colors.blue,
+              borderColor: Colors.grey,
               onUpload: () => context.read<EditVehicleBloc>().add(VehicleImageEvent()),
               onRemove: (file) => context.read<EditVehicleBloc>().add(RemoveVehicleImageEvent(data: file)),
               images: context.watch<EditVehicleBloc>().vehicleImage,
