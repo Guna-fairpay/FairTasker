@@ -69,8 +69,7 @@ class VehicleDataRepo {
         // "oil_change_odometer": createVehicleData.oilChangeOdometer,
         // "maintenance_check": createVehicleData.maintenanceCheck,
       };
-      log(jsonEncode(reqMap));
-      return null;
+
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
       request.headers.addAll(Utils.getHeaders());
 
