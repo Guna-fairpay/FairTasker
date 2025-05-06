@@ -10,6 +10,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 
@@ -25,7 +26,7 @@ class NextTaskUI extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              Utils.getText("Next Task",),
+              Utils.getText("Next Task", size: 12.sp),
               MultiDropdown<Map<String, dynamic>>(
                 dropdownDecoration: DropdownDecoration(
                   borderRadius: BorderRadius.circular(Num.borderRadius)
