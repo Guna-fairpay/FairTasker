@@ -118,9 +118,7 @@ class MyApp extends StatelessWidget {
               Typography.blackCupertino.copyWith()
           ),
         ),
-        builder: (context, child) => FlutterErrorWidgetWrapper(
-          child: EasyLoading.init()(context, child),
-        ),
+        builder: EasyLoading.init(),
         home: const SplashScreen(),
       ),
     );

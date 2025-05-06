@@ -412,8 +412,6 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           _callCompleteApi(model, showLoading: false);
           (taskTitle == "Check In") ? _callSaveWorkingHour(model) : _callUpdateWorkingHour(model);
         }
-      }else if((["Transport Car-Buy"].contains(taskTitle))){
-        emit(ToDoTaskerCompleteTransportCarState(event.model));
       } else {
         _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
       }
@@ -877,18 +875,24 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     }
   }
 
+  Future<Map<String, dynamic>?> _onCompleteToDo(Map<String, dynamic>? model) async {
+    Map<String, dynamic> body = {
+      "complete_time_approved" : model?['complete_time_approved'],
+      "complete_time_taken" : model?['complete_time_taken'],
+      "status" : true
+    };
+    return await _completeToDo(body : body, todoId: model?['id']);
+  }
+
   void _callCompleteApi(Map<String, dynamic>? model, {bool showLoading = true}) async {
     try {
       if (showLoading) emit(ToDoTaskerLoadingState());
-      Map<String, dynamic> body = {
-        "complete_time_approved" : model?['complete_time_approved'],
-        "complete_time_taken" : model?['complete_time_taken'],
-        "status" : true
-      };
-      var response = await _completeToDo(body : body, todoId: model?['id']);
+      var response = await _onCompleteToDo(model);
       if (response != null) {
-        emit(ToDoTaskerTaskCompletedState(model));
-        _reFetchToDos();
+        Map<String, dynamic> statusToDo = Map.from(response['statusTodo'] ?? {});
+        Console.of.log("HAS STATUSTODO: ${statusToDo.isNotEmpty}");
+        if ((statusToDo.isNotEmpty) && (model?['todo_date'] == DateTime.now().toFormat())) emit(ToDoTaskerCompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
+        emit(ToDoTaskerTaskCompletedState(model)); _reFetchToDos();
       } else {
         emit(ToDoTaskerCommonState());
       }
