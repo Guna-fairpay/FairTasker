@@ -85,7 +85,7 @@ class AddVehicleBody extends StatelessWidget {
             10.height,
             ImageUploadSection(
               title: 'Upload Purchase Receipt',
-              borderColor: Colors.blue,
+              borderColor: Colors.grey,
               onUpload: () =>context.read<AddVehicleBloc>().add(PurchaseReceiptImageEvent()),
               onRemove: (file) => context.read<AddVehicleBloc>().add(RemovePurchaseReceiptImageEvent(data: file)),
               images: context.watch<AddVehicleBloc>().receiptImage,
@@ -94,7 +94,7 @@ class AddVehicleBody extends StatelessWidget {
             10.height,
             ImageUploadSection(
               title: 'Upload Vehicle Image',
-              borderColor: Colors.blue,
+              borderColor: Colors.grey,
               onUpload: () => context.read<AddVehicleBloc>().add(VehicleImageEvent()),
               onRemove: (file) => context.read<AddVehicleBloc>().add(RemoveVehicleImageEvent(data: file)),
               images: context.watch<AddVehicleBloc>().vehicleImage,

@@ -321,10 +321,12 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         addressList = List.from(locations.firstOrNull?['addresses'] ?? [])
             .where((e) => addressIds.contains(e['id']))
             .toList();
-        previousOdometer = await _getPreviousOdometer(
-            date: todoResponse?['todo_date'],
-            vin: List.from(vinList).firstOrNull ?? '',
-            identifierId: todoResponse?['identifier_id']);
+        if(vinList.isNotEmpty){
+          previousOdometer = await _getPreviousOdometer(
+              date: todoResponse?['todo_date'],
+              vin: List.from(vinList).firstOrNull ?? '',
+              identifierId: todoResponse?['identifier_id']);
+        }
         showCleanCar = Str.cleanCarCheckIds.contains(todoResponse?['identifier_id']);
         RegExp dateRegExp = RegExp(r'\d{2}-\d{2}-\d{4}');
         if(todoResponse?['recurring'] != null && todoResponse?['recurring_last_date'] != null){

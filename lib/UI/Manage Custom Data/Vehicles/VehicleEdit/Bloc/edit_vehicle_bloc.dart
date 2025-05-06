@@ -112,11 +112,10 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       expenseDetails = editVehicleExpenseDetailsResponse?['data']??[];
       repairAndMaintenanceDetails = editVehicleExpenseDetailsResponse?['repair_and_maintenance_details']??[];
 
-      selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['cohort_id'].toString(),);
+      selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == ((num.tryParse("${event.vehicleData['cohort_id']}") != 0) ? event.vehicleData['cohort_id'].toString() : 13).toString(),);
       selectedBranch = branch.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['branch_code'].toString(),);
       selectedVehicleStatus = vehicleStatus.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['vehicle_status'].toString(),);
       selectedActiveStatus = activeStatus.firstWhereOrNull((element) => element['id'].toString() == event.vehicleData['active'].toString(),);
-
       yearController.text = "${event.vehicleData['year'] ?? ''}";
       makeController.text = "${event.vehicleData['make'] ?? ''}";
       modelController.text = "${event.vehicleData['model']??''}";
@@ -322,6 +321,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     on<SaveUpdatedVehicle>((event, emit) async {
       if (formKey.currentState?.validate() == false) return;
       try {
+        if(selectedCohort == null)return emit(EditVehicleErrorState("Please select cohort"));
         emit(EditVehicleLoadingState());
         List<Map<String, String?>> infusedFiles = [
           ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),

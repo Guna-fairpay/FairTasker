@@ -471,7 +471,9 @@ class Utils {
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
         TextAlign textAlign = TextAlign.start,
-      double borderWidth = Num.borderWidthField}) {
+      double borderWidth = Num.borderWidthField,
+      textCapitalization = TextCapitalization.sentences,
+      }) {
     // hintText = hintText ?? labelText;
     return ValueListenableBuilder(
       valueListenable: controller,
@@ -492,7 +494,7 @@ class Utils {
         //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
         //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
         onTapOutside: (event) => dismissKeyboard(context),
-        textCapitalization: TextCapitalization.sentences,
+        textCapitalization: textCapitalization,
         inputFormatters: textInputFormatter,
         textAlign: textAlign,
         minLines: minLines,

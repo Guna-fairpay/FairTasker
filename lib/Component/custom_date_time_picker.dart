@@ -4,8 +4,10 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart' hide showTimePicker;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomDateTimePicker<T> extends StatelessWidget {
   final T? value;
@@ -22,6 +24,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final TextEditingController? controller;
   final bool use24HourFormat;
   final bool showAsExpanded;
+  final EdgeInsets? padding;
 
   const CustomDateTimePicker(
       {super.key,
@@ -38,7 +41,9 @@ class CustomDateTimePicker<T> extends StatelessWidget {
       this.onChanged,
       this.onNeutral,
       this.showAsExpanded = false,
-      this.use24HourFormat = true});
+      this.use24HourFormat = true,
+        this.padding,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +61,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
         }
         controller?.text = Utils.formatDateTime(format: format, input: result);
         if (result != null) onChanged?.call(result);
+        Utils.dismissKeyboard(context);
       },
       radius: Num.borderRadius,
       borderRadius: BorderRadius.circular(Num.borderRadius),
@@ -65,7 +71,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
             shape: BoxShape.rectangle,
             border: Border.all(
                 width: Num.borderWidthField, color: AppC.borderColor)),
-        padding: const EdgeInsets.all(10),
+        padding : padding ?? const EdgeInsets.all(10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,7 +83,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
               child: Text(
                 "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
                 overflow: TextOverflow.ellipsis,
-                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: AppC.text),
+                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: (value == null) ? AppC.grey : AppC.text),
                 textAlign: textAlign,
               ),
             ),
@@ -85,7 +91,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
               Text(
                 "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
                 overflow: TextOverflow.ellipsis,
-                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: AppC.text),
+                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: (value == null) ? AppC.grey : AppC.text),
                 textAlign: textAlign,
               ),
             if (suffixIcon != null) suffixIcon!,

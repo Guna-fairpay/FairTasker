@@ -83,7 +83,7 @@ class VehicleStatusCard extends StatelessWidget {
                           style: context.textTheme.labelSmall
                               ?.copyWith(color: AppC.appColor)),
                   ])),
-                  trailing: ([1, 3].contains(categoryId))
+                  trailing: ([ 3].contains(categoryId))
                       ? null
                       : Text.rich(
                     TextSpan(children: [
@@ -113,7 +113,7 @@ class VehicleStatusCard extends StatelessWidget {
                               ?.copyWith(color: AppC.red))
                   ])),
                   textColor: AppC.appColor,
-                  trailing: ([1, 3].contains(categoryId))
+                  trailing: ([ 3].contains(categoryId))
                       ? null
                       : Text.rich(
                     TextSpan(children: [

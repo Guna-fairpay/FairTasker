@@ -11,6 +11,7 @@ class SuccessButton extends StatelessWidget {
   final double? elevation;
   final VoidCallback? onPressed;
   final Color? backgroundColor, foregroundColor;
+  final Alignment? alignment;
 
   const SuccessButton(
       {super.key,
@@ -19,12 +20,14 @@ class SuccessButton extends StatelessWidget {
       this.onPressed,
       this.elevation = 0,
       this.isOutline = false,
+      this.alignment = Alignment.center,
       this.backgroundColor = AppC.green,
       this.foregroundColor = Colors.white});
 
   @override
   Widget build(BuildContext context) {
     var style = ButtonStyle(
+      alignment: alignment,
         shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
         side: WidgetStatePropertyAll((isOutline)

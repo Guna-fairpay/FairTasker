@@ -313,6 +313,8 @@ class APiRepository {
 
   String get _editExpenseTemp => "editExpenseTemp";
 
+  String get _cumulativeCost => "cumulative_cost";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -600,14 +602,14 @@ class APiRepository {
     }
   }
 
-  Future<GeneralResponse?> deleteVehicleExpense(
+  Future<Map<String, dynamic>?> deleteVehicleExpense(
     dynamic vehicleExpenseId,
   ) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_expenses/$vehicleExpenseId";
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
-      return GeneralResponse.fromJson(mapData);
+      return mapData;
     } catch (error) {
       rethrow;
     }
@@ -1241,21 +1243,10 @@ Future<Map<String, dynamic>?> getLocations() async {
           autoIncrement: true,
           fieldName: "files",
           files: images?.map((e) => e.path).toList());
-      if (response != null) {
-        if (response.isSuccess) {
-          var mapData = await response.mapData;
-          Toaster.showSuccess(mapData?['message'] ?? "Expense Added Successfully");
-          return mapData;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
+      var mapData = await response.mapData;
+      return mapData;
     } catch (error) {
-      log('callExpenseAddOrUpdateAPI : ${error.toString()}');
-      return null;
+      rethrow;
     }
   }
 
@@ -3414,6 +3405,17 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getCumulativeExpense({dynamic vin}) async {
+    try{
+      String apiUrl = "${Str.LIST_BASE_URL}$_cumulativeCost/$vin";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
     }catch(e){
       rethrow;
     }

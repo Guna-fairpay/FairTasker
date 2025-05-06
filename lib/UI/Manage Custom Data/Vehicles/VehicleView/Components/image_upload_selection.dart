@@ -18,12 +18,14 @@ class ImageUploadSection extends StatelessWidget {
   final List<dynamic> images;
   final String logName;
   final bool isRequired;
+  final bool isDialog;
 
   const ImageUploadSection({
     Key? key,
     required this.title,
     required this.borderColor,
     this.onUpload,
+    this.isDialog = true,
     required this.onRemove,
     required this.images,
     required this.logName,
@@ -39,16 +41,16 @@ class ImageUploadSection extends StatelessWidget {
           GestureDetector(
             onTap: () => onUpload?.call(),
             child: Container(
-              padding: 5.sp.padding,
+              padding: 8.sp.padding,
               decoration: BoxDecoration(
-                border: Border.all(color: borderColor, width: 1.5),
-                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: borderColor, width: 1.0),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
                 spacing: 5,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
+                  //Icon(Icons.cloud_upload, color: borderColor, size: 13.sp),
                   Utils.getText(title, color: borderColor, weight: FontWeight.bold, size: 12.sp),
                 ],
               ),
@@ -72,13 +74,15 @@ class ImageUploadSection extends StatelessWidget {
                       currentAttachment: images[index]);
                 },
                 onTapDelete: () {
-                  AskPermissionDialog.show(context,
-                      title: "Are you sure?",
-                      description: "Do you want to remove this image?",
-                      positiveText: "Yes, Remove it!",
-                      negativeText: "Cancel",
-                      isReasonRequired: false,
-                      onPositivePressed: () => onRemove(images[index]));
+                  (isDialog)?
+                    AskPermissionDialog.show(context,
+                        title: "Are you sure?",
+                        description: "Do you want to remove this image?",
+                        positiveText: "Yes, Remove it!",
+                        negativeText: "Cancel",
+                        isReasonRequired: false,
+                        onPositivePressed: () => onRemove(images[index]))
+                      : onRemove(images[index]);
                 },
                 child: Container(
                   constraints: BoxConstraints(

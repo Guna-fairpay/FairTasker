@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/Response/create_expense_field_data.dart';
 import 'package:fairpytasker/UI/Todo/add_todo_ui.dart';
+import 'package:fairpytasker/UI/Vehicle%20Status/cumulative_expense/cumulative_expense_view/ui/cumulative_expense_main_page.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/UI/vehicle_status_check_list_body.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/UI/vehicle_status_checklist_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_ui.dart';
@@ -77,7 +78,8 @@ class VehicleStatusListUi extends StatelessWidget {
                           vin: data['vin'] ?? '',
                         ));
                       case VehicleStatusOnPressed.view_expense:
-                        context.push(CumulativeCostListUI(vehicleStatusListData: data, createExpenseFieldData: CreateExpenseFieldData()));
+                        context.push(CumulativeExpenseMainPage(data: data));
+                        // context.push(CumulativeCostListUI(vehicleStatusListData: data, createExpenseFieldData: CreateExpenseFieldData()));
                       case VehicleStatusOnPressed.add_vehicle:
                         context.push(const CreateTodoUI());
                       case VehicleStatusOnPressed.view_notes:
