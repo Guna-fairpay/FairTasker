@@ -77,7 +77,7 @@ class TaskerStatusNewTask extends StatelessWidget {
           (val) => context.read<TaskerStatusBloc>().add(TaskerStatusSelectResourceEvent(val)),
           labelKey: "first_name",
           labelKey2: "last_name",
-          initialSelection: context.watch<TaskerStatusBloc>().selectedResource,
+          initialSelection: context.read<TaskerStatusBloc>().selectedResource,
         ),
         10.sp.height,
         CustomVendorLocationField(
@@ -108,12 +108,12 @@ class TaskerStatusNewTask extends StatelessWidget {
           children: [
             SuccessButton(
               text: "Save",
-              onPressed: () {},
+              onPressed: () => context.read<TaskerStatusBloc>().add(TaskerStatusSaveEvent()),
             ),
             SuccessButton(
               text: "Ignore",
               backgroundColor: AppC.red,
-              onPressed: () {},
+              onPressed: () => context.read<TaskerStatusBloc>().add(TaskerStatusIgnoreEvent()),
             )
           ],
         ),

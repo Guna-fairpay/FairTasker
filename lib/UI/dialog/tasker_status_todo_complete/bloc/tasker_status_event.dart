@@ -53,3 +53,7 @@ class TaskerStatusTimeEvent extends TaskerStatusEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class TaskerStatusSaveEvent extends TaskerStatusEvent {}
+
+class TaskerStatusIgnoreEvent extends TaskerStatusEvent {}
