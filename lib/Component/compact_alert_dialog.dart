@@ -9,10 +9,12 @@ class CompactAlertDialog extends StatelessWidget {
   final String? titleText;
   final Color? titleColor;
   final Widget? content;
+  final TextDirection textDirection;
   final VoidCallback? onCloseDialog;
 
   const CompactAlertDialog(
       {super.key,
+      this.textDirection = TextDirection.ltr,
       this.onCloseDialog,
       this.titleText,
       this.titleColor,
@@ -28,7 +30,7 @@ class CompactAlertDialog extends StatelessWidget {
       shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: textDirection,
         child: ListTile(
           title: (titleText.isNotNullOrEmpty) ? Text("$titleText") : null,
           titleTextStyle:

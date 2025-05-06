@@ -11,6 +11,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/authenticator.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
@@ -188,7 +189,7 @@ class DrawerView extends StatelessWidget {
     return Column(
       children: [
         Padding(padding: 10.sp.padding, child: FutureBuilder(future: PackageInfo.fromPlatform(), builder: (context, snapshot) => Utils.getText(
-          "Version: ${snapshot.data?.version}",
+          "Version: ${snapshot.data?.version} ${flavor.isDebug ? "Dev" : ""}",
           color: Colors.grey.withValues(alpha: 0.99),
         ),)),
         Container(
