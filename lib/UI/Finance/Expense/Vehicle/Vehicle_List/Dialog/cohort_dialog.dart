@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../Utilities/Utils.dart';
@@ -80,18 +81,18 @@ class _CohortDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 spacing: 10,
                 children: [
-                  Utils.getElevatedButton(
+                  SuccessButton(
                       text: 'Save',
-                      () { context
+                     onPressed: () { context
                           .read<ExpenseBloc>()
                           .add(UpdateCohortEvent(expenseData: expense));
                           Navigator.pop(context);
                       },
                   ),
-                  Utils.getElevatedButton(
+                  SuccessButton(
                       text: 'Cancel',
-                      () => Navigator.pop(context),
-                      bgColor: AppC.redAccent),
+                      onPressed:  () => Navigator.pop(context),
+                      backgroundColor: AppC.redAccent),
                 ],
               ),
             ],

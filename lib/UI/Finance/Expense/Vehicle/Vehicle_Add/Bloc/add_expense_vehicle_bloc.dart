@@ -37,8 +37,6 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
   dynamic model;
   int? get _branch =>  getIt<CommonService>().branchId;
 
-
-
   AddExpenseVehicleBloc() : super(
       AddExpenseVehicleState(
         expenseAttachments: const [],
@@ -68,9 +66,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         var vehicleList = await getIt<CommonService>().getActiveVehicles();
         var paymentType = await getIt<CommonService>().getPaymentTypes();
         var categories = await getIt<CommonService>().getExpenseCategories();
-
         vehicleList.removeWhere((element) => element['branch_code'] != _branch,);
-
         if (event.model != null) {
           model = event.model;
           var response = await _apiRepository.getEditBillData(id: event.model['id']);
@@ -78,12 +74,10 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
           attachments?.clear();
           attachments?.addAll(ogAttachments
               ?.map((e) => e['path'].toString().toAttachmentURL)
-              .toList() ??
-              []);
+              .toList() ?? []);
           amountController.text = response?['data']['amount'] ?? '';
           descriptionController.text = response?['data']['title'] ?? '';
         }
-
         emit(state.copyWith(
           isLoading: false,
           vehicleList: vehicleList,
@@ -166,22 +160,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         // LOCAL SELECTION REMOVE
         state.expenseAttachments.remove(event.data);
         attachments = state.expenseAttachments;
-      } /*else if (event.data is String) {
-        // REMOTE SELECTION REMOVE
-        var data = attachments
-            ?.firstWhereOrNull((element) => element == event.data.toString());
-
-        var attachmentId = ogAttachments
-            ?.where((element) =>
-        element['path'] == data.toString().removeStorageUrl)
-            .map((e) => e['id'])
-            .firstOrNull;
-        emit(state.copyWith(isLoading: true));
-        await apiRepository.deleteVehicleExpenseImage(attachmentId);
-        emit(state.copyWith(isLoading: false));
-        // once success remove from attachments
-        attachments?.remove(event.data);
-      }*/
+      }
       emit(state.copyWith(expenseAttachments: attachments));
     });
 
@@ -190,9 +169,12 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
 
     on<SaveExpenseEvent>((event, emit) async {
       try {
+        if(state.selectedVehicle.isEmpty) return Toaster.showError("Please select vehicle");
+        if(amountController.text.isEmpty) return Toaster.showError("Please enter amount");
+        if(state.selectedCategory.isEmpty) return Toaster.showError("Please select category");
+        if(state.selectedSubCategory.isEmpty) return Toaster.showError("Please select subCategory");
+        if(state.selectedCohorts.isEmpty) return Toaster.showError("Please select subCategory");
         emit(state.copyWith(isLoading: true));
-        log("${state.expenseAttachments.whereType<File>().toList()}",
-            name: 'EXPENSE_DATA');
         var response = await _apiRepository.expenseAddOrUpdateApi(
             images: state.expenseAttachments.whereType<File>().toList(),
             body: _saveExpenseData());
@@ -215,7 +197,6 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         emit(state.copyWith(isLoading: false));
       }
     });
-
   }
 
   Map<String, String> _saveExpenseData() {
@@ -235,7 +216,6 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
     }
     baseBody['platform'] = "TaskerApp";
     baseBody['employee_id'] = resourceId ?? '';
-
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
@@ -245,13 +225,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: [
-          'jpg',
-          'jpeg',
-          'png',
-          'mp4',
-          'mov',
-        ]);
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
     return result?.paths
         .where((element) => (element?.isNotEmpty ?? false))
         .map((e) => File(e!))
@@ -264,16 +238,5 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
     await ImagePicker().pickImage(source: ImageSource.camera);
     return (pickedFiles != null) ? File(pickedFiles.path) : null;
   }
-
-  /// API CALL: VEHICLES
-  Future<List<Map<String, dynamic>>?> _getVehicleList() async {
-    return await getIt<CommonService>().getActiveVehicles();
-  }
-
-  /// API CALL: PAYMENT TYPE
-  Future<List<Map<String, dynamic>>?> _getPaymentType() async {
-    return await getIt<CommonService>().getPaymentTypes();
-  }
-
 
 }

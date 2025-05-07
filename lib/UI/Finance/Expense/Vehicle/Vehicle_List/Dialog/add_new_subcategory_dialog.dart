@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
@@ -76,29 +77,24 @@ class _AddNewSubcategoryDialog extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   spacing: 10,
                   children: [
-                    Utils.getElevatedButton(text: 'Save', () {
-                      if (context
-                              .read<ExpenseBloc>()
-                              .subCategoryController
-                              .text
-                              .isNotEmpty &&
-                          state.expenseTo.isNotEmpty) {
+                    SuccessButton(
+                        text: 'Save',
+                        onPressed: () {
+                      if (context.read<ExpenseBloc>().subCategoryController
+                          .text.isNotEmpty && state.expenseTo.isNotEmpty) {
                         context.read<ExpenseBloc>().add(SaveSubcategory(
                             categoryId: categoryId,
-                            name: context
-                                .read<ExpenseBloc>()
-                                .subCategoryController
-                                .text,
+                            name: context.read<ExpenseBloc>().subCategoryController.text,
                             expenseToId: "${state.selectedExpenseTo['id']}"));
                       } else {
                         Toaster.showSuccess('Please fill the fields');
                       }
                       return;
                     }),
-                    Utils.getElevatedButton(
+                    SuccessButton(
                         text: 'Cancel',
-                        () => Navigator.pop(context),
-                        bgColor: AppC.redAccent),
+                        onPressed: () => Navigator.pop(context),
+                        backgroundColor: AppC.redAccent),
                   ],
                 ),
               ],
