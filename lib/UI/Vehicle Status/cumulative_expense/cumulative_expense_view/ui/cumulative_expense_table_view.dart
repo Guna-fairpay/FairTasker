@@ -23,7 +23,7 @@ class CumulativeExpenseTableView extends TableRow {
                 child: Utils.getText(
                     DateTime.tryParse(model?['expense_date'] ?? '')
                         .toFormat(format: "MM-dd-yyy")
-                        .toString()))),
+                        .toString(),size:12.sp))),
         TableRowInkWell(
           child: Padding(
             padding: 10.sp.padding,
@@ -52,7 +52,7 @@ class CumulativeExpenseTableView extends TableRow {
                 padding: 10.sp.padding,
                 child: Align(
                   alignment: Alignment.bottomRight,
-                  child: Utils.getText(
+                  child: Utils.getText(size:12.sp,
                       "\$${model?['expense_amount'].toString() ?? ""}"),
                 ))),
         TableCell(

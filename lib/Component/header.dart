@@ -66,6 +66,7 @@ class HeaderView extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              Badge.count(count: 0, child: const Icon(Icons.email_rounded,color: AppC.appColor,),),
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(
