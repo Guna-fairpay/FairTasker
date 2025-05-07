@@ -159,7 +159,7 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
       _model = event.model;
       _checkLists = List.from(event.model?['statusTodo']?['checklist']);
       selectedCategory = _checkLists?.firstWhereOrNull((element) =>
-          [(_model?['vehicle_status_category'])].contains(element['id']));
+          [(_model?['vehicle_status_checklist'])].contains(element['id']));
       tasks = List.from(selectedCategory?['checklists']);
       controller.addItems(tasks
               ?.map((e) => DropdownItem<Map<String, dynamic>>(
@@ -171,9 +171,9 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
       _locations = await _fetchLocations();
       selectedResource = _resources
           ?.firstWhereOrNull((element) => element['id'] == _currentUserId);
-      _vehicleStatusResponse =
-          await _vehicleUpdateStatus(_statusUpdateBody, _model?['vin']);
-      Console.of.log(_vehicleStatusResponse, name: "RESPONSE");
+      // _vehicleStatusResponse =
+      //     await _vehicleUpdateStatus(_statusUpdateBody, _model?['vin']);
+      // Console.of.log(_vehicleStatusResponse, name: "RESPONSE");
       emit(TaskerStatusCommonState());
     } catch (e) {
       Console.of.error("Error", error: e);

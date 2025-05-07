@@ -884,6 +884,18 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     return await _completeToDo(body : body, todoId: model?['id']);
   }
 
+  Future<Map<String, dynamic>?> _vehicleUpdateStatus(
+      Map<String, dynamic> body, dynamic vin) async =>
+      await _aPiRepository.vehicleStatusUpdateApi(body: body, vin: vin);
+
+  Map<String, dynamic> _statusUpdateBody(Map<String, dynamic>? model) => {
+    "config_id": [(model?['vehicle_status_id'] ?? 0)],
+    "category_id": (model?['vehicle_status_category'] ?? 0),
+    "vin": model?['vin'] ?? "",
+    "checklist_id": [(model?['vehicle_status_checklist'] ?? 0)],
+    "checkbox_value": 1
+  };
+
   void _callCompleteApi(Map<String, dynamic>? model, {bool showLoading = true}) async {
     try {
       if (showLoading) emit(ToDoTaskerLoadingState());
@@ -891,7 +903,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if (response != null) {
         Map<String, dynamic> statusToDo = Map.from(response['statusTodo'] ?? {});
         Console.of.log("HAS STATUSTODO: ${statusToDo.isNotEmpty}");
-        if ((statusToDo.isNotEmpty) && (model?['todo_date'] == DateTime.now().toFormat())) emit(ToDoTaskerCompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
+        // if ((statusToDo.isNotEmpty) && (model?['todo_date'] == DateTime.now().toFormat())) emit(ToDoTaskerCompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
+        if ((statusToDo.isNotEmpty)) {
+          await _vehicleUpdateStatus(_statusUpdateBody(model), model?['vin']);
+          emit(ToDoTaskerCompleteTransportCarState(model?..putIfAbsent("statusTodo", () => statusToDo)));
+        }
         emit(ToDoTaskerTaskCompletedState(model)); _reFetchToDos();
       } else {
         emit(ToDoTaskerCommonState());
