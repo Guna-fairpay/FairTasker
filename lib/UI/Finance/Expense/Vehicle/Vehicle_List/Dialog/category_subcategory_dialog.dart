@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Dialog/add_new_subcategory_dialog.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart';
@@ -118,9 +119,9 @@ final VoidCallback? onCompleted;
                     mainAxisAlignment: MainAxisAlignment.end,
                     spacing: 10,
                     children: [
-                      Utils.getElevatedButton(
+                      SuccessButton(
                         text: 'Save',
-                        () {
+                        onPressed: () {
                           if (state.selectedSubCategory.isNotEmpty) {
                             context.read<ExpenseBloc>().add(UpdateCategoryEvent(expenseData: expense));
                           }else{
@@ -129,10 +130,10 @@ final VoidCallback? onCompleted;
                           return;
                         },
                       ),
-                      Utils.getElevatedButton(
+                      SuccessButton(
                           text: 'Cancel',
-                          () => Navigator.pop(context),
-                          bgColor: AppC.redAccent),
+                          onPressed: () => Navigator.pop(context),
+                          backgroundColor: AppC.redAccent),
                     ],
                   ),
                 ],

@@ -1,5 +1,7 @@
 
 import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_state.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/UI/task_details_view.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -8,15 +10,13 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../Vehicle_List/Bloc/expense_bloc.dart';
-import '../../Vehicle_List/Bloc/expense_state.dart';
 
 class TodoDetailsUI extends StatelessWidget {
   const TodoDetailsUI({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExpenseBloc, ExpenseState>(builder: (context, state) {
+    return BlocBuilder<EditExpenseVehicleBloc, EditExpenseVehicleState>(builder: (context, state) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

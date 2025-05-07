@@ -1,22 +1,17 @@
 
 
 import 'dart:developer';
-import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_state.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_event.dart';
-import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,158 +56,42 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                       children: [
                         Row(
                           spacing: 10,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: GestureDetector(
-                                onTap: () => context.read<AddExpenseVehicleBloc>().add(PickImageEvent()),
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppC.blue,
-                                      width: Num.borderWidthField,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(Num.subradiusButton),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.cloud_upload,
-                                        color: AppC.blue,
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      Utils.getText('Upload',
-                                          color: AppC.blue,
-                                          weight: FontWeight.bold),
-                                    ],
-                                  ),
-                                ),
+                              child: SuccessButton(
+                                text: 'Upload',
+                                icon: Icons.cloud_upload,
+                                foregroundColor: AppC.blue,
+                                backgroundColor: AppC.trans,
+                                isOutline: true,
+                                onPressed: () => context.read<AddExpenseVehicleBloc>().add(PickImageEvent()),
                               ),
                             ),
                             Expanded(
-                              child: GestureDetector(
-                                onTap: () => context
+                              child: SuccessButton(
+                                text: 'Capture',
+                                icon: Icons.camera_enhance,
+                                foregroundColor: AppC.redAccent,
+                                backgroundColor: AppC.trans,
+                                isOutline: true,
+                                onPressed: () => context
                                     .read<AddExpenseVehicleBloc>()
                                     .add(CaptureImageEvent()),
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppC.redAccent,
-                                      width: Num.borderWidthField,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(Num.subradiusButton),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.camera_enhance,
-                                        color: AppC.redAccent,
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
-                                      Utils.getText('Capture',
-                                          color: AppC.redAccent,
-                                          weight: FontWeight.bold),
-                                    ],
-                                  ),
-                                ),
                               ),
                             ),
                           ],
                         ),
-                        10.height,
-                        if (state.expenseAttachments.isNotEmpty)
-                          SizedBox(
-                            height: 100,
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              itemCount: state.expenseAttachments.length,
-                              scrollDirection: Axis.horizontal,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 1, mainAxisSpacing: 10),
-                              itemBuilder: (context, index) => CloseBadge(
-                                  onTapView: () {
-                                    ShowAttachmentsDialog.of.show(context,
-                                        attachments: state.expenseAttachments,
-                                        title: "",
-                                        currentAttachment:
-                                            state.expenseAttachments[index]);
-                                  },
-                                  onTapDelete: () {
-                                    AskPermissionDialog.show(context,
-                                        title: "Are you sure?",
-                                        description: "Do you want to delete this Expense Image?",
-                                        positiveText: "Yes, delete it!",
-                                        negativeText: "Cancel",
-                                        isReasonRequired: false,
-                                        onPositivePressed: () => context.read<AddExpenseVehicleBloc>().add(RemoveImageEvent(data: state.expenseAttachments[index])));
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        constraints: BoxConstraints(
-                                          minHeight:
-                                              MediaQuery.sizeOf(context).height,
-                                          minWidth:
-                                              MediaQuery.sizeOf(context).width,
-                                        ),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            color: AppC.grey
-                                                .withValues(alpha: 0.2)),
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        child: ImageViewer(
-                                          fit: BoxFit.cover,
-                                          imageInput:
-                                              state.expenseAttachments[index],
-                                          isNotImage:
-                                              !((state.expenseAttachments[index]
-                                                      as Object)
-                                                  .isImage),
-                                        ),
-                                      ),
-                                      if ((state.expenseAttachments[index]
-                                              as Object)
-                                          .isPDF)
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: AppC.green,
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                          child: InkWell(
-                                            onTap: () {
-                                              Utils.openURL(state
-                                                  .expenseAttachments[index]);
-                                            },
-                                            child: Padding(
-                                              padding: 4.padding,
-                                              child: const Icon(
-                                                Icons.remove_red_eye_outlined,
-                                                color: AppC.white,
-                                                size: 15,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  )),
-                            ),
+                        if (state.expenseAttachments.isNotEmpty)...[
+                          10.height,
+                          ImageUploadSection(
+                            title: '',
+                            borderColor: Colors.blue,
+                            onRemove: (file)=> context.read<AddExpenseVehicleBloc>().add(RemoveImageEvent(data: file)),
+                            images: state.expenseAttachments,
+                            logName: "expenseAttachmentsEvent",
+                            isRequired: false,
                           ),
+                        ],
                         10.height,
                         CustomSingleSelectionField<Map<String, dynamic>>(
                           suggestionsList: state.vehicleList,
@@ -220,13 +99,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           selected: state.selectedVehicle,
                           labelText: "Vehicle Name",
                           hintText: "",
-                          onSelected: (val) {
-                            context
-                                .read<AddExpenseVehicleBloc>()
-                                .add(VehicleEvent(selectedVehicle: val));
-                          },
-                          controller:
-                              context.read<AddExpenseVehicleBloc>().vehicleController,
+                          onSelected: (val) => context.read<AddExpenseVehicleBloc>().add(VehicleEvent(selectedVehicle: val)),
+                          controller: context.read<AddExpenseVehicleBloc>().vehicleController,
                         ),
                         10.height,
                         Row(
@@ -317,25 +191,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               ),
                             )),
                         10.height,
-                        Utils.getElevatedButton(
-                          () {
-                            if(state.selectedVehicle.isEmpty) {
-                              return Toaster.showError("Please select vehicle");
-                            }
-                            if(context.read<AddExpenseVehicleBloc>().amountController.text.isEmpty) {
-                              return Toaster.showError("Please enter amount");
-                            }
-                            if(state.selectedCategory.isEmpty) {
-                              return Toaster.showError("Please select category");
-                            }
-                            if(/*state.subCategories.isNotEmpty && */state.selectedSubCategory.isEmpty) {
-                              return Toaster.showError("Please select subCategory");
-                            }
-                            if(state.selectedCohorts.isEmpty) {
-                              return Toaster.showError("Please select subCategory");
-                            }
-                            context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent());
-                          }
+                        Utils.getElevatedButton(() => context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent()),
                         )
                       ],
                     ),

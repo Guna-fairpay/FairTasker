@@ -208,7 +208,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       _resetAll();
     });
 
-    on<GetVehicleExpenseEditData>((event, emit) async {
+/*    on<GetVehicleExpenseEditData>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try {
         var response = await _getEditVehicleExpenseDetails(event.id);
@@ -422,7 +422,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         log("$e", name: "Error In Expense Edit Bloc Value");
         emit(state.copyWith(isLoading: false));
       }
-    });
+    });*/
 
     on<ExpenseTapEvent>((event, emit) {
       emit(state.copyWith(selectedTap: event.selectedTap, isLoading: false));
@@ -474,32 +474,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         emit(state.copyWith(isLoading: true));
         await apiRepository.deleteExpenseTodo(event.id);
         await apiRepository.deleteVehicleExpense(event.id);
-        if (event.isEditPage == false) {
-          // var existResponse = state.filteredResponse;
-          // existResponse.removeWhere((e) => e['id'].toString() == event.id);
-          // approvedAmount = 0;
-          // unApprovedAmount = 0;
-          // if (state.isExpenseApproved) {
-          //   approvedAmount = existResponse
-          //       .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
-          //       .sum;
-          // }
-          // if (!state.isExpenseApproved) {
-          //   unApprovedAmount = existResponse
-          //       .map((e) => num.tryParse(e['expense_amount'].toString()) ?? 0)
-          //       .sum;
-          // }
-          //
-          // emit(state.copyWith(
-          //   isLoading: false,
-          //   filteredResponse: existResponse,
-          //   approvedAmount: approvedAmount,
-          //   unApprovedAmount: unApprovedAmount,
-          // ));
-          add(RefreshEvent());
-        } else {
-          emit(state.copyWith(isLoading: false));
-        }
+        add(RefreshEvent());
       } catch (e) {
         emit(state.copyWith(isLoading: false));
         log("$e", name: "Error In DeleteExpenseEvent");
@@ -608,7 +583,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       ));
     });
 
-    on<PickImageEvent>((event, emit) async {
+/*    on<PickImageEvent>((event, emit) async {
       var result = await _pickFiles();
       if (result.isNotEmpty) {
         var attachments = List.from(state.expenseAttachments);
@@ -668,7 +643,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       taxIsTapped = !taxIsTapped;
       emit(state.copyWith());
       _updateExpenseTotal();
-    });
+    });*/
 
     // on<SaveExpenseEvent>((event, emit) async {
     //   try {
@@ -690,7 +665,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     //   }
     // });
 
-    on<UpdateExpenseEvent>((event, emit) async {
+/*    on<UpdateExpenseEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
         log("${state.expenseAttachments.whereType<File>().toList()}",
@@ -712,7 +687,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         log(e.toString(), name: 'ERROR');
         emit(state.copyWith(isLoading: false));
       }
-    });
+    });*/
 
     on<UpdateCategoryEvent>((event, emit) async {
       try {
@@ -794,7 +769,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     Console.of.log("Broadcast Registered");
   }
 
-  Map<String, String> _updateExpenseData() {
+/*  Map<String, String> _updateExpenseData() {
     dynamic splitLabor = {
       "labour": 1,
       "amount": labourCostController.text,
@@ -848,7 +823,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     }
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
-  }
+  }*/
 
   // Map<String, String> _saveExpenseData() {
   //   Map<String, String> baseBody = {};
@@ -890,7 +865,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return baseBody;
   }
 
-  Future<List<File>> _pickFiles() async {
+ /* Future<List<File>> _pickFiles() async {
     var result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         allowCompression: true,
@@ -913,7 +888,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     final XFile? pickedFiles =
         await ImagePicker().pickImage(source: ImageSource.camera);
     return (pickedFiles != null) ? File(pickedFiles.path) : null;
-  }
+  }*/
 
   /// API CALL: Expense Vehicle
   Future<ExpenseResponse?> _getExpense(String? minDate, String? maxDate) async {
@@ -921,7 +896,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         minDate: minDate, maxDate: maxDate);
   }
 
-  /// API CALL: CATEGORIES
+/*  /// API CALL: CATEGORIES
   Future<List<Map<String, dynamic>>?> _getExpenseCategories() async {
     return await getIt<CommonService>().getExpenseCategories(reset: true);
   }
@@ -959,7 +934,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   /// API CALL: SUPPLIES
   Future<List<Map<String, dynamic>>?> _getSuppliesList() async {
     return await getIt<CommonService>().getSuppliesList();
-  }
+  }*/
 
   /// API CALL: SUB CATEGORY EXPENSE TO
   Future<SubCategoriesResponse?> _getSubCategoryExpenseTo() async {
@@ -971,9 +946,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return await apiRepository.getExpenseCategories();
   }
 
-  void calculateTotal() {
-    _updateExpenseTotal();
-  }
+  // void calculateTotal() {
+  //   _updateExpenseTotal();
+  // }
 
   List<dynamic> filterApprovedResponse(
       List<dynamic> existResponse, bool? isApproved) {
@@ -985,6 +960,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     return existResponse;
   }
 
+/*
   List<String> getUserInitials(
       dynamic userIds, List<Map<String, dynamic>> users) {
     if (userIds == null) {
@@ -1011,8 +987,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
       return "$firstInitial$lastInitial";
     }).toList();
   }
+*/
 
-  void _updateExpenseTotal() {
+/*  void _updateExpenseTotal() {
     double totalSuppliesCost = 0;
     double totalParts = 0;
     totalParts = partsList
@@ -1045,7 +1022,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     }
     double totalAmount = subTotal + saleTax + shippingCost;
     totalAmountController.text = totalAmount.toStringAsFixed(2);
-  }
+  }*/
 
   List<Map<String, dynamic>> calculateApprovedAmounts(
       List<Map<String, dynamic>> apiResponse,

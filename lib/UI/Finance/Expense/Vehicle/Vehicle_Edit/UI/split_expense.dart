@@ -1,5 +1,7 @@
 
-import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_List/Bloc/expense_event.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_state.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Edit/Bloc/edit_expense_vehicle_event.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -8,15 +10,13 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../Vehicle_List/Bloc/expense_bloc.dart';
-import '../../Vehicle_List/Bloc/expense_state.dart';
 
 class SplitExpenseUI extends StatelessWidget {
   const SplitExpenseUI({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExpenseBloc, ExpenseState>(
+    return BlocBuilder<EditExpenseVehicleBloc, EditExpenseVehicleState>(
         builder: (context,state) {
           return Column(
               spacing: 10,
@@ -52,7 +52,7 @@ class SplitExpenseUI extends StatelessWidget {
                         ),
                       ),
                       onChangeCallback: (value) => context
-                          .read<ExpenseBloc>()
+                          .read<EditExpenseVehicleBloc>()
                           .calculateTotal(),
                       labelStyle: context.textTheme.labelMedium
                           ?.copyWith(color: context.theme.hintColor),
@@ -89,7 +89,7 @@ class SplitExpenseUI extends StatelessWidget {
                         ),
                       ),
                       onChangeCallback: (value) => context
-                          .read<ExpenseBloc>()
+                          .read<EditExpenseVehicleBloc>()
                           .calculateTotal(),
                       labelStyle: context.textTheme.labelMedium
                           ?.copyWith(color: context.theme.hintColor),
@@ -110,7 +110,7 @@ class SplitExpenseUI extends StatelessWidget {
                   child: Utils.getTextFormField(
                     '',
                     hintText: 'enter a amount',
-                    context.read<ExpenseBloc>().labourCostController,
+                    context.read<EditExpenseVehicleBloc>().labourCostController,
                     textType: const TextInputType.numberWithOptions(decimal: true),
                     inputAction: TextInputAction.done,
                     prefixIcon: const Padding(
@@ -139,7 +139,7 @@ class SplitExpenseUI extends StatelessWidget {
                 Expanded(
                   child: Utils.getTextFormField(
                     '',
-                    context.watch<ExpenseBloc>().subTotalController,
+                    context.watch<EditExpenseVehicleBloc>().subTotalController,
                     textType: TextInputType.number,
                     readOnly: true,
                     fillColor: Colors.grey.shade200,
@@ -166,7 +166,7 @@ class SplitExpenseUI extends StatelessWidget {
                 10.width,
                 InkWell(
                   onTap: () {
-                    context.read<ExpenseBloc>().add(TaxIconEvent());
+                    context.read<EditExpenseVehicleBloc>().add(TaxIconEvent());
                   },
                   child: Container(
                     padding: const EdgeInsets.all(1),
@@ -174,7 +174,7 @@ class SplitExpenseUI extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: AppC.grey, width: 0.5),
                     ),
-                    child: context.watch<ExpenseBloc>().taxIsTapped
+                    child: context.watch<EditExpenseVehicleBloc>().taxIsTapped
                         ? const Icon(
                       Icons.monetization_on_outlined,
                       color: AppC.grey,
@@ -197,7 +197,7 @@ class SplitExpenseUI extends StatelessWidget {
                       Flexible(child: Utils.getTextFormField(
                         '',
                         maxLength: 20,
-                        context.watch<ExpenseBloc>()
+                        context.watch<EditExpenseVehicleBloc>()
                             .percentageOrAmountController,
                         inputAction: TextInputAction.done,
                         contentPadding: const EdgeInsets.symmetric(
@@ -220,7 +220,7 @@ class SplitExpenseUI extends StatelessWidget {
                   child: Utils.getTextFormField(
                     '',
                     readOnly: true,
-                    context.watch<ExpenseBloc>().saleTaxController,
+                    context.watch<EditExpenseVehicleBloc>().saleTaxController,
                     fillColor: Colors.grey.shade200,
                     borderWidth: 0.4,
                     prefixIcon: const Padding(
@@ -246,7 +246,7 @@ class SplitExpenseUI extends StatelessWidget {
                   child: Utils.getTextFormField(
                     '',
                     hintText: 'enter a amount',
-                    context.read<ExpenseBloc>().shippingController,
+                    context.read<EditExpenseVehicleBloc>().shippingController,
                     textType: const TextInputType.numberWithOptions(decimal: true),
                     inputAction: TextInputAction.done,
                     prefixIcon: const Padding(
@@ -275,7 +275,7 @@ class SplitExpenseUI extends StatelessWidget {
                 Expanded(
                   child: Utils.getTextFormField(
                     '',
-                    context.watch<ExpenseBloc>().totalAmountController,
+                    context.watch<EditExpenseVehicleBloc>().totalAmountController,
                     readOnly: true,
                     fillColor: Colors.grey.shade200,
                     borderWidth: 0.4,

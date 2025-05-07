@@ -15,6 +15,7 @@ class CustomCheckboxListTile extends StatefulWidget {
   final MainAxisSize mainAxisSize;
   final Color? activeColor;
   final double radius;
+  final Color borderColor;
 
   const CustomCheckboxListTile({
     Key? key,
@@ -25,6 +26,7 @@ class CustomCheckboxListTile extends StatefulWidget {
     this.padding,
     this.spacing = 3,
     this.useExpand = true,
+    this.borderColor = AppC.borderColor,
     this.mainAxisSize = MainAxisSize.max,
     this.isCheckboxOnRight = false,
     this.activeColor = AppC.appColor,
@@ -54,13 +56,15 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
               size: const Size.fromRadius(14), // Control checkbox radius here
               child: Checkbox(
                 value: widget.value,
-                onChanged: widget.onChanged,
+                onChanged: null,
+                checkColor: AppC.white,
                 tristate: true,
+                fillColor: WidgetStateProperty.resolveWith((states) => (states.contains(WidgetState.selected) ? widget.activeColor : null)),
                 activeColor:widget.activeColor,
                 shape: ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(widget.radius),
                 ),
-                side: const BorderSide(width: 1, color: AppC.borderColor),
+                side: BorderSide(width: 1, color: widget.borderColor),
 
               ),
             ),
@@ -71,13 +75,14 @@ class _CustomCheckboxListTileState extends State<CustomCheckboxListTile> {
               size: const Size.fromRadius(14), // Control checkbox radius here
               child: Checkbox(
                 value: widget.value,
-                onChanged: widget.onChanged,
+                onChanged: null,
+                checkColor: AppC.white,
                 tristate: true,
-                activeColor:widget.activeColor,
+                fillColor: WidgetStateProperty.resolveWith((states) => (states.contains(WidgetState.selected) ? widget.activeColor : null)),
                 shape: ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(widget.radius),
                 ),
-                side: const BorderSide(width: 1, color: AppC.borderColor),
+                side: BorderSide(width: 1, color: widget.borderColor),
               ),
             ),
             (widget.useExpand) ? Expanded(child: widget.title) : widget.title,

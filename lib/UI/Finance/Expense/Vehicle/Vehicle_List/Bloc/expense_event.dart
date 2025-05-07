@@ -56,8 +56,7 @@ class ApproveEvent extends ExpenseEvent {
 
 class DeleteExpenseEvent extends ExpenseEvent {
   final String? id;
-  final bool? isEditPage;
-  const DeleteExpenseEvent({required this.id,required this.isEditPage});
+  const DeleteExpenseEvent({required this.id,});
   @override
   List<Object?> get props => [id];
 }
@@ -90,8 +89,6 @@ class CategoryDialogEvent extends ExpenseEvent {
   List<Object?> get props => [data];
 }
 
-
-
 class CohortDialogEvent extends ExpenseEvent {
   final dynamic data;
   const CohortDialogEvent({required this.data});
@@ -120,22 +117,22 @@ class SelectedPaymentEvent extends ExpenseEvent {
   List<Object?> get props => [paymentType, Random().nextDouble()];
 }
 
-class PickImageEvent extends ExpenseEvent {
-  @override
-  List<Object?> get props => [Random().nextDouble()];
-}
+// class PickImageEvent extends ExpenseEvent {
+//   @override
+//   List<Object?> get props => [Random().nextDouble()];
+// }
 
-class CaptureImageEvent extends ExpenseEvent {
-  @override
-  List<Object?> get props => [Random().nextDouble()];
-}
+// class CaptureImageEvent extends ExpenseEvent {
+//   @override
+//   List<Object?> get props => [Random().nextDouble()];
+// }
 
-class RemoveImageEvent extends ExpenseEvent {
-  final dynamic data;
-  const RemoveImageEvent({required this.data});
-  @override
-  List<Object?> get props => [data];
-}
+// class RemoveImageEvent extends ExpenseEvent {
+//   final dynamic data;
+//   const RemoveImageEvent({required this.data});
+//   @override
+//   List<Object?> get props => [data];
+// }
 
 class VehicleEvent extends ExpenseEvent {
   final dynamic selectedVehicle;
@@ -158,22 +155,22 @@ class DeleteExpenseVehicleEvent extends ExpenseEvent {
   List<Object?> get props => [id];
 }
 
-class TaxIconEvent extends ExpenseEvent {
-  @override
-  List<Object?> get props => [Random().nextDouble()];
-}
+// class TaxIconEvent extends ExpenseEvent {
+//   @override
+//   List<Object?> get props => [Random().nextDouble()];
+// }
 
-class SaveExpenseEvent extends ExpenseEvent {
-  const SaveExpenseEvent();
-  @override
-  List<Object?> get props => [Random().nextDouble()];
-}
+// class SaveExpenseEvent extends ExpenseEvent {
+//   const SaveExpenseEvent();
+//   @override
+//   List<Object?> get props => [Random().nextDouble()];
+// }
 
-class UpdateExpenseEvent extends ExpenseEvent {
-  const UpdateExpenseEvent();
-  @override
-  List<Object?> get props => [Random().nextDouble()];
-}
+// class UpdateExpenseEvent extends ExpenseEvent {
+//   const UpdateExpenseEvent();
+//   @override
+//   List<Object?> get props => [Random().nextDouble()];
+// }
 
 class UpdateCategoryEvent extends ExpenseEvent {
   final dynamic expenseData;

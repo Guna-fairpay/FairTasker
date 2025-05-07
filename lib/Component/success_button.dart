@@ -42,6 +42,7 @@ class SuccessButton extends StatelessWidget {
             EdgeInsets.symmetric(vertical: 5.sp, horizontal: 10.sp)),
         foregroundColor: WidgetStatePropertyAll(foregroundColor),
         visualDensity: VisualDensity.compact,
+        iconColor: WidgetStatePropertyAll(foregroundColor),
         textStyle: WidgetStatePropertyAll(context.textTheme.labelLarge
             ?.copyWith(
                 fontWeight: FontWeight.bold,
