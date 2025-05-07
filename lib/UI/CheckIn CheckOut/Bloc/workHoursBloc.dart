@@ -13,7 +13,6 @@ import '../State/workingHoursState.dart';
 import '../../../../Repository/api_repository.dart';
 
 class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
-  //final TaskRepository taskRepo = TaskRepository();
   final APiRepository apiRepository = APiRepository();
   DateRange? selectedDateRange;
   List<Map<String, dynamic>> formattedResources=[];
@@ -78,10 +77,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               resources=response3.resource!;//3
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
-              List<Map<String, dynamic>> punchListData = response6?.data ?? [];
+
+
+              //log("${workActiveHours}", name: "workActiveHours");
+              List<Map<String, dynamic>> punchListData = response6.data ?? [];
 
               List<Map<String, dynamic>> matchedPunchItem = [];
-
               try {
                 matchedPunchItem = punchListData.where(
                       (punchItem) {
@@ -98,7 +99,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       );
 
 
-                      if (matchedResource != null && matchedResource['branch_id'] != null) {
+                      if (matchedResource['branch_id'] != null) {
                         final branchId = Session.of.getInt(Str.branchIdPrefText)?.toString();
                         return matchedResource['branch_id'].toString() == branchId;
                       }
@@ -121,7 +122,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               userId = await Utils.getStringPreference(Str.userIdPrefText);
               //hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
 
-              log("branchId${branchId} userRole${userRole} userId${userId}");
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
@@ -131,7 +131,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   'branch_id' : '${resource['branch_id']}',
                 };
               }).toList();
-              //print("formattedResources $formattedResources");
               //Helper Function
 
               List<Map<String, dynamic>> combineAndCalculateData(
@@ -143,7 +142,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               {
                 List<Map<String, dynamic>> combinedList = [];
 
-                // Helper function to convert time string to minutes
+                // convert time string to minutes
                 int timeStringToMinutes(String time) {
                   final parts = time.split(':');
                   final hours = int.tryParse(parts[0]) ?? 0;
@@ -158,17 +157,17 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
                 }
 
-                // Helper function to get the first word of a name
+                // get the first word
                 String getFirstWord(String name) {
                   return name.split(' ').first;
                 }
 
-                // Helper function to remove seconds from time string
+                // remove seconds
                 String removeSeconds(String time) {
-                  if (time.length >= 8) { // Check if the time string is in hh:mm:ss format
-                    return time.substring(0, 5); // Extract hh:mm
+                  if (time.length >= 8) { // Check time in hh:mm:ss format
+                    return time.substring(0, 5);
                   }
-                  return time; // Return as-is if not in expected format
+                  return time;
                 }
 
                 for (var workhour in workhours) {
@@ -176,7 +175,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     final userId = workhour['user']['id'];
                     final userName = workhour['user']['name'];
 
-                    // Skip if userId is null
                     if (userId == null) {
                       continue;
                     }
@@ -185,25 +183,23 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     Map<String, dynamic> activeHoursItem = {};
                     Map<String, dynamic> empID = {};
 
-                    // Find matching history item
+                    // matching history item
                     try {
                       historyItem = workhistory.firstWhere(
                             (item) =>
                         item['users'] != null &&
                             item['users']['hrm_id'] == userId &&
-                            formattedResource.any((resource) =>
-                            item['users']['first_name'] == resource['first_name']),
+                            formattedResource.any((resource) => item['users']['first_name'] == resource['first_name']),
                         orElse: () => {},
                       );
                     } catch (e) {
                       print("Error finding history item for user $userId: $e");
                     }
-
-                    // Find matching active hours item
+                    log("${historyItem}", name: "historyItem");
+                    // matching active hours item
                     try {
                       activeHoursItem = workActivehours.firstWhere(
                             (item) =>
-                        item['active_hours'] != "00:00" &&
                             item['hrm_id'] == userId &&
                             formattedResource.any((resource) => item['user_id'] == resource['user_id']),
                         orElse: () => {},
@@ -212,7 +208,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       print("Error finding active hours item for user $userId: $e");
                     }
 
-                    // Find matching employee ID from formattedResource
+                    // matching employee ID from Resource
                     try {
                       empID = formattedResource.firstWhere(
                             (item) => getFirstWord(item['full_name']) == getFirstWord(userName),
@@ -222,12 +218,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       print("Error finding employee ID for user $userId: $e");
                     }
 
-                    // Skip if both taskCount and activeHours are default values
+                    // Skip taskCount and activeHours are default values
                     final taskCount = historyItem['task_count'] ?? 0;
-                    final activeHours = activeHoursItem['active_hours'] ?? "00:00";
-                    if (taskCount == 0 && activeHours == "00:00") {
-                      continue;
-                    }
+                    // final activeHours = activeHoursItem['active_hours'] ?? "00:00";
+                    // if (taskCount == 0 && activeHours == "00:00") {
+                    //   continue;
+                    // }
 
                     // Calculate total hours (#)
                     int lessCount = 0;
@@ -256,18 +252,21 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                           (total, current) => total + timeStringToMinutes(current['active_hours']),
                     );
                     final calculatedActiveHours = minutesToTimeString(totalMinutes);
-
-                    // Format the total working hours to remove seconds
+                    // total working hours to remove seconds
                     final rawHours = workhour['user']['total_working_hours'] ?? "00:00:00";
                     final formattedHours = removeSeconds(rawHours);
+                    log("${calculatedActiveHours}", name: "calculatedActiveHours");
+                    log("${formattedHours}", name: "formattedHours");
+                    log("${taskCount}", name: "taskCount");
+                    log("${totalHoursCount}", name: "totalHoursCount");
 
-                    // Combine data into a single item formatted for the table
+
                     final combinedItem = {
-                      'Employee': historyItem['users']?['first_name'] ?? empID['first_name'] ?? getFirstWord(userName),
-                      'Active': calculatedActiveHours,
-                      'Hours': formattedHours,
-                      'Task': taskCount,
-                      '#': totalHoursCount,
+                      'Employee': empID['first_name'],
+                      'Active': empID['first_name'] != null ? calculatedActiveHours : null,
+                      'Hours': empID['first_name'] != null ? formattedHours : null,
+                      'Task': empID['first_name'] != null ? taskCount : null,
+                      '#': empID['first_name'] != null ? totalHoursCount : null,
                       'hrm_id': historyItem['users']?['hrm_id'] ?? userId,
                       'user_id': historyItem['users']?['id'] ?? '',
                       'list': workhour['user']['list'] ?? [],
@@ -388,7 +387,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
 
 
-              List<Map<String, dynamic>> formattedData = formatEmployeeData(matchedPunchItem ?? [],workActiveHours);
+              List<Map<String, dynamic>> formattedData = formatEmployeeData(matchedPunchItem,workActiveHours);
               log("${formattedData}",name:"FormattedData");
               dropDownResource = formattedResources;
               dropDownResource.insert(0, initialDropDown);
@@ -673,7 +672,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(isEditMode: true,isLoading: false));
     });
 
-
     on<ResetAllEvent>((event, emit) {
       emit(state.copyWith(
         selectedUser: null,
@@ -902,12 +900,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         toDate: event.toDate,
       );
       List<Map<String, dynamic>> hoursData = [];
-      hoursData = data!.data! ?? [];
+      hoursData = data!.data!;
       List<Map<String, dynamic>> history = [];
       history = response?.history! ?? [];
 
-      print("hoursData $hoursData");
-      print("history $history");
 
       List<String> getFromDateAndToDate(String dateRange) {
         try {
@@ -1088,8 +1084,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }
             }
           }
-          log("$classifiedTask",name: "classifiedTask");
-          log("$addedTitles",name: "addedTitles");
 
           // title related to 'Parts'
           for (var title in titles) {
@@ -1133,7 +1127,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           return sortedTask;
         }
         var result = sortTitles(titles, taskCategoryGroup);
-        log("$result",name: "result_title");
 
 
         //Helper Function
@@ -1161,6 +1154,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   matched = true;
                   break;
                 }
+                // else if(taskTitle.toLowerCase().contains(sub['sub_title'].toLowerCase()))
+                // {
+                //   classifiedTasks[category['title']]!.add(task);
+                //   matched = true;
+                //   log("matched ${taskTitle} ${sub['sub_title']}",name: "matched");
+                //   break;
+                // }
               }
               if (matched) break;
             }
@@ -1188,7 +1188,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   "todo_date": task['todo_date'] ?? '',
                   "id": task['id'],
                 });
-              } else if (task['vehicles'] != null && task['vehicles'] is List) {
+              } else if(task['vehicles'] is List && task['vehicles'].isNotEmpty && task['vehicles'].length > 1){
+                vehicles.add({
+                  "vehicle_name": "MV",
+                  "todo_date": task['todo_date'] ?? '',
+                  "id": task['id'],
+                });
+              }
+              else if (task['vehicles'] != null && task['vehicles'] is List) {
                 // Otherwise, check inside `task['vehicles']`
                 vehicles = (task['vehicles'] as List<dynamic>)
                     .map<Map<String, dynamic>>((v) => {
@@ -1231,60 +1238,75 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         }
         //log("$result",name: "result");
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
-        log("$taskData",name: "taskData");
 
-        int _convertToInt(dynamic value) {
-          if (value is int) return value;
-          if (value is double) return value.toInt();
-          if (value is String) return int.tryParse(value) ?? 0;
-          return 0;
-        }
-        int calculateTotalAmount(List<Map<String, dynamic>> taskData, List<Map<String, dynamic>> paymentData,)
+
+        Map<String, dynamic> _calculateTotals(
+            List<Map<String, dynamic>> taskData,
+            List<Map<String, dynamic>> paymentData,
+            )
         {
-          int total = 0;
-          // Create a map of task names to amounts
+          final tasks = <Map<String, dynamic>>[];
+          int totalAmount = 0;
+          int totalCount = 0;
+
           final paymentMap = {
             for (var payment in paymentData.where((p) => p['type'] == 'task'))
-              payment['task_name']?.toString(): _convertToInt(payment['amount'])
+              payment['task_name']?.toString(): _toInt(payment['amount']),
           };
-          log("$paymentMap",name: "paymentMap");
-          // check for partial matches
-          int? findPaymentAmount(String taskName) {
 
-            if (paymentMap.containsKey(taskName)) {
-              return paymentMap[taskName];
-            }
+          final taskGroups = <String, Map<String, dynamic>>{};
 
-            // partial matches
-            for (final paymentTask in paymentMap.keys) {
-              if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
-                return paymentMap[paymentTask];
-              }
-            }
-
-            return null;
-          }
-
-          // Process each task in taskData
           for (final category in taskData) {
             final subcategories = category['subcategory'] as List<dynamic>? ?? [];
 
             for (final subcategory in subcategories) {
               final taskName = subcategory['sub_title']?.toString() ?? '';
-              final count = _convertToInt(subcategory['count'] ?? 0);
+              final count = _toInt(subcategory['count']);
 
-              final amount = findPaymentAmount(taskName);
-              if (amount != null) {
-                total += amount * count;
+              String? matchedTask;
+              if (paymentMap.containsKey(taskName)) {
+                matchedTask = taskName;
+              }
+              else {
+                for (final paymentTask in paymentMap.keys) {
+                  if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
+                    matchedTask = paymentTask;
+                    break;
+                  } else {
+                    matchedTask = paymentTask;
+                  }
+                }
+              }
+              if (matchedTask != null) {
+                final amount = paymentMap[matchedTask];
+                final key = matchedTask;
+
+                taskGroups.update(key, (existing) => {
+                  'name': existing['name'],
+                  'count': (existing['count'] as int) + count,
+                  'amount': (existing['amount'] as int) + (amount! * count),
+                }, ifAbsent: () => {
+                  'name': matchedTask!,
+                  'count': count,
+                  'amount': amount! * count,
+                });
               }
             }
           }
 
-          return total;
-        }
+          tasks.addAll(taskGroups.values);
+          totalAmount = tasks.fold(0, (int sum, task) => sum + (task['amount'] as int));
+          totalCount = tasks.fold(0, (int sum, task) => sum + (task['count'] as int));
 
-        int totalAmount = calculateTotalAmount(taskData,data?.data ?? []);
-        log("$totalAmount",name: "totalAmount");
+          return {
+            'tasks': tasks,
+            'totalAmount': totalAmount,
+            'totalCount': totalCount,
+          };
+
+        }
+        log("${_calculateTotals(taskData, data!.data ?? [])['totalAmount']}",name: "Totals");
+        int totalAmount = _calculateTotals(taskData, data!.data ?? [])['totalAmount'];
 
         emit(state.copyWith(
           isLoading: false,
@@ -1390,6 +1412,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(selectedDateRange: event.selectedRange));
     });
 
+  }
+  int _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 }
 

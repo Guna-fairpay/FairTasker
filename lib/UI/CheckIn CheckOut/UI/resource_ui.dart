@@ -279,7 +279,7 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                           ),
                         ),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
                         Expanded(child:
                         ResourceListingDropdown<Map<String, dynamic>>(
                           items: context.watch<WorkingHoursBloc>().dropDownResource,
@@ -342,6 +342,8 @@ class WorkHoursViewUI extends StatelessWidget {
                               || Session.of.getString(Str.userIdPrefText) == '10'
                               || Session.of.getString(Str.userIdPrefText) == '21'
                               || Session.of.getString(Str.userIdPrefText) == '1'
+                              || Session.of.getString(Str.userIdPrefText) == '23'
+                              || Session.of.getString(Str.userIdPrefText) == '22'
                           ) ?
                           (selectedName == null || selectedName['full_name'] == 'All')
                               ? state.combinedData

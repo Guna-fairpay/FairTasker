@@ -88,8 +88,6 @@ class WorkingHoursTaskUI extends StatelessWidget {
                     builder: (context, state) {
                       int totalAmount = state.totalAmount;
                       int totalCount = getTotalCategoryCount(state.categoryGroupData);
-                      log("Total Count: $totalCount");
-
                       return Row(
                         children: [
                           Container(

@@ -69,7 +69,7 @@ class TaskBasedTab extends StatelessWidget {
           Table(
             columnWidths: const {
               0: FlexColumnWidth(5), // Task name
-              1: FlexColumnWidth(6), // Amount
+              1: FlexColumnWidth(2), // Amount
               2: FlexColumnWidth(3), // Actions
             },
             children:[
@@ -83,9 +83,9 @@ class TaskBasedTab extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                     child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  if(Session.of.getString(Str.userIdPrefText) == '3')
+                  if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+                    padding: EdgeInsets.only(left: 30, top: 8.0, bottom: 8.0, right: 0),
                     child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
@@ -102,7 +102,7 @@ class TaskBasedTab extends StatelessWidget {
                   child:
                   Table(
                     columnWidths: const {
-                      0: FlexColumnWidth(2), // Task name
+                      0: FlexColumnWidth(4), // Task name
                       1: FlexColumnWidth(2), // Amount
                       2: FlexColumnWidth(2), // Actions
                     },
@@ -234,7 +234,7 @@ class HourlyBasedTab extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
                       child: Text('Amount/hr', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    if(Session.of.getString(Str.userIdPrefText) == '3')
+                    if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 9, vertical: 8.0),
                       child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -278,7 +278,7 @@ class HourlyBasedTab extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Utils.getText("\$${task['amount']}"),
                           ),
-                          if(Session.of.getString(Str.userIdPrefText) == '3')
+                          if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(

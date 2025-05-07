@@ -47,18 +47,19 @@ class TaskComponentsSettingView extends StatelessWidget {
           EasyLoading.show();
         } else {
           if (EasyLoading.isShow) EasyLoading.dismiss();
+          log("${Session.of.getStringList(Str.rolePrefText)?.contains("Admin")}  ${Session.of.getString(Str.userIdPrefText)}", name: "role");
           taskNameController.clear();
           amountController.clear();
           taskNameController.text = state.taskNameController?.text ?? '';
           amountController.text = state.amountController?.text ?? '';
           hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
-          FocusScope.of(context).unfocus();
+          Utils.dismissKeyboard(context);
           if (!state.isEditMode) {
             taskNameController.text = state.taskNameController?.text ?? '';
             amountController.text = state.amountController?.text ?? '';
             hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           }
-          FocusScope.of(context).unfocus();
+          Utils.dismissKeyboard(context);
         }
       },
       child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
@@ -119,63 +120,69 @@ class TaskComponentsSettingView extends StatelessWidget {
                           initialSelection: state.selectedBase,
                         ),
                         const SizedBox(height: 16),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
-                        if(!isHourlyBased) ...[
-                          Utils.getTextFormField('Task Name',
-                              taskNameController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Task Name required';
-                              }
-                              return null;
-                            }
-                          ),
-                          const SizedBox(height: 16),
-                          if(Session.of.getString(Str.userIdPrefText) == '3')
-                          Utils.getTextFormField('Amount (\$)',
-                            amountController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Amount required';
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))...[
+                          if(!isHourlyBased) ...[
+                            Utils.getTextFormField('Task Name',
+                                taskNameController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Task Name required';
+                                  }
+                                  return null;
                                 }
-                                return null;
-                              }),
-                          const SizedBox(height: 16),
-                        ] else...[
-                          if(Session.of.getString(Str.userIdPrefText) == '3' && isHourlyBased)
-                            Utils.dropdownBox(
-                              'Select User',
-                              state.userList,
-                                  (value) {
-                                if (value == null) {
-                                  context.read<WorkingHoursBloc>().add(const ClearResourceSelectionEvent());
-                                } else {
-                                  context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
-                                    userId: value['id'],
-                                    amount: hourlyAmountController.text,
-                                  ));
-                                }
-                              },
-                              labelKey: 'first_name',
-                              labelKey2: 'last_name',
-                              initialSelection: state.isEditMode ? state.selectedUser is Map<String, dynamic> ? state.selectedUser : null : null,
-                              selectedKey: ValueKey('dropdown-${state.uniqueId}'),
                             ),
-                          const SizedBox(height: 16),
-                          if(Session.of.getString(Str.userIdPrefText) == '3')
-                          Utils.getTextFormField(
-                              'Amount per hour (\$)',
-                              hourlyAmountController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Amount required';
-                                }
-                                return null;
-                              }
-                          ),
-                          const SizedBox(height: 30),
+                            const SizedBox(height: 16),
+                              Utils.getTextFormField('Amount (\$)',
+                                  amountController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Amount required';
+                                    }
+                                    return null;
+                                  }),
+                            const SizedBox(height: 16),
+                          ] else...[
+                            if(Session.of.getString(Str.userIdPrefText) == '3' || isHourlyBased && Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppC.trans),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Utils.dropdownBox(
+                                  'Select User',
+                                  state.userList,
+                                      (value) {
+                                    if (value == null) {
+                                      context.read<WorkingHoursBloc>().add(const ClearResourceSelectionEvent());
+                                    } else {
+                                      resource = value;
+                                      context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
+                                        userId: value['id'],
+                                        amount: hourlyAmountController.text,
+                                      ));
+                                    }
+                                  },
+                                  labelKey: 'first_name',
+                                  labelKey2: 'last_name',
+                                  initialSelection: state.isEditMode ? state.selectedUser is Map<String, dynamic> ? state.selectedUser : null : null,
+                                  selectedKey: ValueKey('dropdown-${state.uniqueId}'),
+                                ),
+                              ),
+                            const SizedBox(height: 16),
+                              Utils.getTextFormField(
+                                  'Amount per hour (\$)',
+                                  hourlyAmountController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Amount required';
+                                    }
+                                    return null;
+                                  }
+                              ),
+                            const SizedBox(height: 30),
+                          ],
                         ],
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
                         Row(
                           children: [
                             if (!state.isEditMode)
@@ -189,8 +196,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                         amount: amountController.text.toString(),
                                         task: 'task',
                                       ));
-                                  } else {
-                                    Utils.showMobileToast("Please fill all required fields");
+                                    formKey.currentState!;
                                   }
                                 } else {
                                   if (formKey.currentState!.validate() && hourlyAmountController.text.isNotEmpty) {
@@ -198,10 +204,8 @@ class TaskComponentsSettingView extends StatelessWidget {
                                       taskName: '',
                                       amount: hourlyAmountController.text,
                                       task: 'hourly',
-                                      userId: resource['id'] ?? state.selectedUser?['id'],
+                                      userId: state.selectedUser?['id'] ?? resource['id'],
                                     ));
-                                  } else {
-                                    Utils.showMobileToast("Please fill all required fields");
                                   }
                                 }
                               }, bgColor: AppC.green),
