@@ -317,6 +317,8 @@ class APiRepository {
 
   String get _vehicleStatusUpdateApi => "vehicleStatusUpdateApi";
 
+  String get _todoEmailCount => "todoEmailCount";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3427,6 +3429,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.LIST_BASE_URL}$_vehicleStatusUpdateApi/$vin";
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTodoEmailCount({required Map<String,dynamic>body}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_todoEmailCount";
+      final http.Response? response = await _apiClient.callPostMethod(apiUrl,body:jsonEncode(body));
       var mapData = await response.mapData;
       return mapData;
     }catch(e){

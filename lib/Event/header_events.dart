@@ -6,3 +6,4 @@ abstract class HeaderEvent extends Equatable {
 }
 
 class HeaderInitialEvent extends HeaderEvent {}
+class EmailRefreshEvent extends HeaderEvent {}

@@ -19,6 +19,8 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
     getIt<CommonService>().branchUpdate(callback: () => add(HeaderInitialEvent()));
     _broadcast.register(Str.userPunchListRefresh, (value, callback) => add(HeaderInitialEvent()));
    on<HeaderInitialEvent>(_onInitialEvent);
+   on<EmailRefreshEvent>(_onEmailRefreshEvent);
+
   }
 
   Future<List<Map<String, dynamic>>?> _getUserPunchList() async => await _aPiRepository.getUserPunchList();
@@ -39,6 +41,15 @@ class HeaderBloc extends Bloc<HeaderEvent, HeaderState> {
       Console.of.log(_userPunchList.map((e) => e['end_time'].toString().trim().isNotNullOrEmpty).join(", "), name: "USERPUNCH_2");
       emit(HeaderCommonState());
     } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(HeaderErrorState(e));
+    }
+  }
+
+  void _onEmailRefreshEvent(EmailRefreshEvent event, Emitter<HeaderState> emit) async {
+    try {
+     // emit(HeaderLoadingState());
+    }catch (e) {
       Console.of.error("Error", error: e);
       emit(HeaderErrorState(e));
     }
