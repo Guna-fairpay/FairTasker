@@ -31,15 +31,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   TextEditingController taskNameCtrl=TextEditingController();
   TextEditingController amountCtrl=TextEditingController();
   TextEditingController hourlyAmountCtrl=TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-  List<Map<String,dynamic>>?selectedResources=[];
   dynamic userRole;
   String? userId;
-  int? hrmId;
   int? branchId;
   List<Map<String, dynamic>> dropDownResource=[];
   Map<String, dynamic> initialDropDown = {'id':0,'full_name':'All'};
-  dynamic selectedUser;
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -48,11 +44,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       DateTime.now().subtract(const Duration(days: 7)),
       DateTime.now(),
     ),
-  )) {
-
-    String extractDate(String datetime) {
-      return datetime.split(' ').first;
-    }
+  ))
+  {
 
     on<WorkingHoursInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
@@ -61,8 +54,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         initialDropDown = {'id':0,'full_name':'All'};
         if(event.minDate.isNotEmpty || event.maxDate.isNotEmpty)
           {
-            log("${extractDate(event.minDate)} ${extractDate(event.maxDate)}", name: "date print");
-
             final response2 = await apiRepository.getActiveHoursResponse(extractDate(event.minDate), extractDate(event.maxDate));
             final response3 = await apiRepository.getAssignedTo();
             final response4 = await apiRepository.getWorkingHoursData(extractDate(event.minDate), extractDate(event.maxDate));
@@ -70,7 +61,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             final response6 = await apiRepository.fetchPunchList();
             if (response2 != null && response3 != null && response4 != null && response5 != null && response6 != null) {
               workingHistory.clear();
-              workingHistory = response5!.history!;//1
+              workingHistory = response5.history!;//1
               workHours.clear();
               workHours = response4.data!;//2
               resources.clear();
@@ -78,8 +69,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
 
-
-              //log("${workActiveHours}", name: "workActiveHours");
               List<Map<String, dynamic>> punchListData = response6.data ?? [];
 
               List<Map<String, dynamic>> matchedPunchItem = [];
@@ -115,13 +104,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 matchedPunchItem = [];
               }
 
-
-              log("${matchedPunchItem}", name: "temp");
               branchId = await Utils.getIntPreference(Str.branchIdPrefText);
               userRole = await Utils.getStringListPreference(Str.rolePrefText);
               userId = await Utils.getStringPreference(Str.userIdPrefText);
-              //hrmId = await Utils.getIntPreference(Str.hrmIdPrefText);
-
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
@@ -218,7 +203,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       print("Error finding employee ID for user $userId: $e");
                     }
 
-                    // Skip taskCount and activeHours are default values
                     final taskCount = historyItem['task_count'] ?? 0;
                     // final activeHours = activeHoursItem['active_hours'] ?? "00:00";
                     // if (taskCount == 0 && activeHours == "00:00") {
@@ -252,13 +236,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                           (total, current) => total + timeStringToMinutes(current['active_hours']),
                     );
                     final calculatedActiveHours = minutesToTimeString(totalMinutes);
-                    // total working hours to remove seconds
                     final rawHours = workhour['user']['total_working_hours'] ?? "00:00:00";
                     final formattedHours = removeSeconds(rawHours);
-                    log("${calculatedActiveHours}", name: "calculatedActiveHours");
-                    log("${formattedHours}", name: "formattedHours");
-                    log("${taskCount}", name: "taskCount");
-                    log("${totalHoursCount}", name: "totalHoursCount");
 
 
                     final combinedItem = {
@@ -291,7 +270,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   workActiveHours,
                   formattedResources,
               );
-              log("${combinedData}",name:"CombinedData");
 
               //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
@@ -301,7 +279,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               {
                 try {
                   String today = DateFormat("yyyy-MM-dd").format(DateTime.now());
-                  log("$today", name: "Today");
 
                   String formatTime(String timeStr) {
                     if (timeStr.isEmpty) return "";
@@ -388,7 +365,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
 
               List<Map<String, dynamic>> formattedData = formatEmployeeData(matchedPunchItem,workActiveHours);
-              log("${formattedData}",name:"FormattedData");
               dropDownResource = formattedResources;
               dropDownResource.insert(0, initialDropDown);
               //Punch Card Calculation End
@@ -499,7 +475,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             selectedBase: selectedBase,
             resources: formattedResources,
             resource: resource,
-            userList: resources,
+            userList: resources.where((resource) => resource['branch_id'] == branchId).toList(),
             loginUserRole: userRole[0],
               loginUserId: userId,
           ));
@@ -559,12 +535,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             (resource) => resource['id'] == event.userId,
         orElse: () => {},
       );
-      log("${selectedUser}", name: 'TEST1');
       if (event.userId == null) {
         taskNameCtrl.text = event.taskName ?? '';
         amountCtrl.text = event.amount ?? '';
         dynamic selectedBase = base[0];
-        log("${selectedBase}", name: 'TEST2');
         print("Emitting task-based state: selectedUser=null, taskId=${event.id}");
         emit(state.copyWith(
           taskId: event.id,
@@ -578,7 +552,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       } else {
         hourlyAmountCtrl.text = event.amount ?? '';
         dynamic selectedBase = base[1];
-        log("${selectedBase}", name: 'TEST1');
         print("Emitting hourly state: selectedUser=$selectedUser, taskId=${event.id}");
         emit(state.copyWith(
           taskId: event.id,
@@ -710,8 +683,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       ));
       print("Exit edit mode: selectedUser reset to null at ${DateTime.now()}");
     });
-
-
 
     on<TaskDateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
@@ -882,7 +853,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
       ReasonCombinedData = [];
       ReasonCombinedData = List.from(combineData(event.dataList, commentList));
-      log("$ReasonCombinedData",name:"combinedData");
       emit(state.copyWith(
           isLoading: false,comments: ReasonCombinedData));
     });
@@ -1004,7 +974,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
       // Correctly pass history as taskCounts
       combinedData = combineData(event.dataList, history);
-      log("$combinedData", name: "Hours_popup");
       emit(state.copyWith(isLoading: false, hoursData1: combinedData));
     });
 
@@ -1026,7 +995,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       final response2 = await apiRepository.getTaskCategoryGroups();
       List<Map<String, dynamic>> taskCategoryGroup = [];
       taskCategoryGroup = response2?.data ?? [];
-      //log("${response1!.data?[0]['cohort']}",name: "response1");
       try{
         List<String> titles = taskCategoryGroup.map((item) => item['name'].toString()).toList();
 
@@ -1236,7 +1204,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           }
           return finalList;
         }
-        //log("$result",name: "result");
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
 
 
@@ -1305,7 +1272,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           };
 
         }
-        log("${_calculateTotals(taskData, data!.data ?? [])['totalAmount']}",name: "Totals");
         int totalAmount = _calculateTotals(taskData, data!.data ?? [])['totalAmount'];
 
         emit(state.copyWith(
@@ -1350,9 +1316,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
         final userGroupIds = userGroup?['userId']?.toString();
 
-        log("${response.editTodos}", name: "userIds");
-        log("$userGroupIds", name: "userGroupIds");
-
         String getInitials(String ids, List<Map<String, dynamic>> resources) {
           try {
             // Parse IDs string like "[10,16]"
@@ -1391,8 +1354,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         final initials = userGroupIds != null && response1.resource != null
             ? getInitials(userGroupIds, response1.resource!)
             : '';
-        log("Extracted initials: $initials", name: "InitialsResult");
-
 
         emit(state.copyWith(
           isLoading: false,
@@ -1418,6 +1379,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     if (value is double) return value.toInt();
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
+  }
+  String extractDate(String datetime) {
+    return datetime.split(' ').first;
   }
 }
 
