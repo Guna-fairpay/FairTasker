@@ -319,6 +319,12 @@ class APiRepository {
 
   String get _todoEmailCount => "todoEmailCount";
 
+  String get _logs => "logs";
+
+  String get _deleteLogAttachment => "delete-log-attachment";
+
+  String get _updateLogs => "update-logs";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3440,6 +3446,72 @@ Future<Map<String, dynamic>?> getLocations() async {
     try{
       String apiUrl = "${Str.BASE_URL}$_todoEmailCount";
       final http.Response? response = await _apiClient.callPostMethod(apiUrl,body:jsonEncode(body));
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getLogs() async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_logs";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getLog({required dynamic id}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_logs/$id";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> uploadLog({Map<String, dynamic>? body, List<dynamic>? infusedFiles}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_logs";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateLog({required dynamic logId,Map<String, dynamic>? body, List<dynamic>? infusedFiles}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_updateLogs/$logId";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteLogAttachment({required dynamic attachmentId}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_deleteLogAttachment/$attachmentId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteLog({required dynamic logId}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_logs/$logId";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
     }catch(e){

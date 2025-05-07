@@ -3,6 +3,7 @@ import 'package:fairpytasker/Event/header_events.dart';
 import 'package:fairpytasker/State/header_states.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/resource_ui.dart';
 import 'package:fairpytasker/UI/dialog/popup/branch_popup.dart';
+import 'package:fairpytasker/UI/log/log_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -65,6 +66,8 @@ class HeaderView extends StatelessWidget {
                   ),
                 ),
               ),
+              if (getIt<CommonService>().isAdmin)
+                IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: const Icon(Icons.receipt_long_rounded, color: AppC.grey)),
               const Spacer(),
               Badge.count(count: 0, child: const Icon(Icons.email_rounded,color: AppC.appColor,),),
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
