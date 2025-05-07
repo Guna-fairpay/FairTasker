@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EditLog extends StatelessWidget {
-  const EditLog({super.key});
+  final Map<String, dynamic>? model;
+  const EditLog({super.key, this.model});
 
   @override
   Widget build(BuildContext context) {

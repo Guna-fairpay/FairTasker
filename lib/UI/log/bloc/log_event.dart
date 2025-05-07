@@ -48,3 +48,10 @@ class LogViewAttachmentEvent extends LogEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class LogInsertAttachmentEvent extends LogEvent {
+  final dynamic model;
+  LogInsertAttachmentEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}

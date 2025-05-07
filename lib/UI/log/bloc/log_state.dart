@@ -49,7 +49,15 @@ class LogViewAttachmentState extends LogState {
   List<Object?> get props => [model, Random().nextDouble()];
 }
 
-class LogAddAttachmentState extends LogState {}
-class LogAddRecordingState extends LogState {}
-class LogAddVideoState extends LogState {}
-class LogAddViewAttachmentState extends LogState {}
+// class LogAddAttachmentState extends LogState {}
+class LogAddRecordingState extends LogState {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+// class LogAddVideoState extends LogState {}
+class LogAddViewAttachmentState extends LogState {
+  final dynamic model;
+  LogAddViewAttachmentState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
