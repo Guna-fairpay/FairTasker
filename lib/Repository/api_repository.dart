@@ -335,6 +335,8 @@ class APiRepository {
 
   String get _updateLeave => "updateLeave";
 
+  String get _employeeTaskHistoryByDay => "employeeTaskHistoryByDay?date=";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -425,6 +427,17 @@ class APiRepository {
       var mapData = await response.mapData;
       return mapData?['todo'];
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployeeTaskHistoryByDay(dynamic date, dynamic userId) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_employeeTaskHistoryByDay${date}&user_id=${userId}";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch(error){
       rethrow;
     }
   }
@@ -2926,6 +2939,44 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<WorkingTaskResponse?> fetchEmployeeTaskHistoryByTask({
+    required dynamic date,
+    required dynamic userId,
+    required List<dynamic>? cohortIds, // Allow cohortIds to be nullable
+  }) async {
+    try {
+      print("Request parameters - from: $date, userId: $userId, cohortIds: $cohortIds");
+
+      // Construct the base API URL
+      String apiUrl = '${Str.BASE_URL}employeeHistoryByTask?date=$date&user_id=$userId';
+
+      // Append cohort IDs only if they are not null or empty
+      if (cohortIds != null && cohortIds.isNotEmpty) {
+        String cohortQuery = cohortIds.map((id) => 'cohort_id[]=$id').join('&');
+        apiUrl += '&$cohortQuery';
+      }
+
+      print("Final API URL: $apiUrl");
+
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+
+      if (response != null) {
+        print("Response body: ${response.body}");
+        if (response.statusCode == 200) {
+          return WorkingTaskResponse.fromJson(jsonDecode(response.body));
+        } else {
+          print('Failed to load task history. Status code: ${response.statusCode}');
+          throw Exception('Failed to load task history. Status code: ${response.statusCode}');
+        }
+      } else {
+        log('API Response is null');
+        return null;
+      }
+    } catch (e) {
+      print('Exception: Error fetching task history: $e');
+      throw Exception('Error fetching task history: $e');
+    }
+  }
 
   Future<WorkingGetConfigurationResponse?> fetchGetConfiguration() async {
     try{

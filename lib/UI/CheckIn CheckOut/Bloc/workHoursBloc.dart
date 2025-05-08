@@ -34,6 +34,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   dynamic userRole;
   String? userId;
   int? branchId;
+  int selectedTab = 0;
   List<Map<String, dynamic>> dropDownResource=[];
   Map<String, dynamic> initialDropDown = {'id':0,'full_name':'All'};
 
@@ -106,7 +107,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
               branchId = await Utils.getIntPreference(Str.branchIdPrefText);
               userRole = await Utils.getStringListPreference(Str.rolePrefText);
-              userId = await Utils.getStringPreference(Str.userIdPrefText);
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
@@ -127,7 +127,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               {
                 List<Map<String, dynamic>> combinedList = [];
 
-                // convert time string to minutes
+                // time string to minutes
                 int timeStringToMinutes(String time) {
                   final parts = time.split(':');
                   final hours = int.tryParse(parts[0]) ?? 0;
@@ -135,21 +135,21 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   return hours * 60 + minutes;
                 }
 
-                // Helper function to convert minutes to time string
+                // convert minutes to time string
                 String minutesToTimeString(int minutes) {
                   final hours = minutes ~/ 60;
                   final remainingMinutes = minutes % 60;
                   return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
                 }
 
-                // get the first word
+
                 String getFirstWord(String name) {
                   return name.split(' ').first;
                 }
 
-                // remove seconds
+
                 String removeSeconds(String time) {
-                  if (time.length >= 8) { // Check time in hh:mm:ss format
+                  if (time.length >= 8) {
                     return time.substring(0, 5);
                   }
                   return time;
@@ -1045,7 +1045,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
                   classifiedTask[parentCategory['name']]!.add({
                     'title': title,
-                    'id': parentCategory['id'] ?? null // Use id from parent category if it exists
+                    'id': parentCategory['id'] ?? null
                   });
                   addedTitles.add(lowercaseTitle);
                 }
@@ -1095,7 +1095,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           return sortedTask;
         }
         var result = sortTitles(titles, taskCategoryGroup);
-
+        log("result ${result}",name: "result");
 
         //Helper Function
         List<Map<String, dynamic>> formatTaskData(List<Map<String, dynamic>> categoryData, List<Map<String, dynamic>> tasks)
@@ -1149,12 +1149,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               String subTitle = task['title'];
               List<Map<String, dynamic>> vehicles = [];
 
-              if (task['vehicle_name'] != null) {
-                // First check if `task` has a `vehicle_name`
+              if (task['vehicle_name'] != null && task['vehicle_name'] != '' && task['vehicle_name'] != 'null') {
                 vehicles.add({
                   "vehicle_name": task['vehicle_name'],
                   "todo_date": task['todo_date'] ?? '',
                   "id": task['id'],
+                  "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
                 });
               } else if(task['vehicles'] is List && task['vehicles'].isNotEmpty && task['vehicles'].length > 1){
                 vehicles.add({
@@ -1163,21 +1163,20 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   "id": task['id'],
                 });
               }
-              else if (task['vehicles'] != null && task['vehicles'] is List) {
+              else if (task['vehicles'] != null && task['vehicles'] is List && task['vehicles'].isNotEmpty && task['vehicles'] != []) {
                 // Otherwise, check inside `task['vehicles']`
                 vehicles = (task['vehicles'] as List<dynamic>)
                     .map<Map<String, dynamic>>((v) => {
                   "vehicle_name": v['vehicle_name'],
                   "todo_date": task['todo_date'] ?? '',
                   "id": task['id'],
+                  "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
                 }).toList();
-              }
-
-              if (vehicles.isEmpty) {
-                vehicles.add({
-                  "vehicle_name": "",
-                  "todo_date": task['todo_date'] ?? '',
-                });
+              } else {
+                  vehicles.add({
+                    "person": task['person']?.toString() ?? null,
+                    "todo_date": task['todo_date'] ?? '',
+                  });
               }
 
               if (groupedTasks.containsKey(subTitle)) {
@@ -1189,13 +1188,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   "sub_title": subTitle,
                   "count": vehicles.length,
                   "vehicles": vehicles,
-                  "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
                 };
               }
             }
 
             subcategories = groupedTasks.values.toList();
-
+            log("subcategories ${subcategories}",name: "subcategories");
             finalList.add({
               "title": category['title'],
               "count": subcategories.length,
@@ -1207,6 +1205,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
 
 
+        //Total amount calculation
         Map<String, dynamic> _calculateTotals(
             List<Map<String, dynamic>> taskData,
             List<Map<String, dynamic>> paymentData,
@@ -1273,6 +1272,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
         }
         int totalAmount = _calculateTotals(taskData, data!.data ?? [])['totalAmount'];
+        //Total amount calculation End
 
         emit(state.copyWith(
           isLoading: false,
@@ -1369,11 +1369,81 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
-    on<UpdateDateRangeEvent>((event, emit) {
-      emit(state.copyWith(selectedDateRange: event.selectedRange));
+    on<ExtendedDetailsDayEvent>((event, emit) async{
+      emit(state.copyWith(isLoading: true));
+      Map<String, dynamic> checkInDetails = {};
+      final response = await apiRepository.getEmployeeTaskHistoryByDay(event.date,event.userId);
+      final response2 = await apiRepository.getActiveHoursResponse(extractDate(event.startDate), extractDate(event.endDate));
+      final taskHistory = await apiRepository.fetchEmployeeTaskHistoryByTask(
+        date: event.endDate,
+        userId: event.userId, cohortIds: event?.cohortIds ?? [],
+      );
+
+      log("${taskHistory?.allHistory}");
+      final relevantHours = response2?.data?.where(
+            (activeHour) => activeHour['user_id']?.toString() == event.userId.toString() && activeHour['todo_date'].toString() == formatedDate(event.data['date']),
+      );
+      final int? totalMinutes = relevantHours?.fold(
+        0,
+            (total, current) => total! + timeStringToMinutes(current['active_hours']),
+      );
+      final calculatedActiveHours = minutesToTimeString(totalMinutes!);
+      checkInDetails.clear();
+      checkInDetails.addAll({
+        "checkIn": formatedTime(event.data['start_time']),
+        "checkOut": formatedTime(event.data['end_time']),
+        "active_hours": calculatedActiveHours,
+        "total_hours": formatDurationToHM(event.data['total_hours']),
+        "date": formatDate(event.data['date']),
+      });
+      log("${event.data['date']}  ${formatDate(event.data['date'])}");
+      emit(state.copyWith(checkInDetails: checkInDetails, isLoading: false));
+    });
+
+
+    on<TabChangeEvent>((event, emit) {
+      selectedTab = event.tabIndex;
     });
 
   }
+
+  String formatDurationToHM(String durationString) {
+    try {
+      List<String> parts = durationString.split(':');
+      if (parts.length == 3) {
+        int hours = int.parse(parts[0]);
+        int minutes = int.parse(parts[1]);
+        return '${hours}:${minutes}';
+      } else {
+        return 'Invalid format';
+      }
+    } catch (e) {
+      return 'Invalid format';
+    }
+  }
+
+  String formatedDate(String dateString){
+    print(dateString);
+    DateFormat format = DateFormat("dd-MM-yyyy");
+    DateTime date = format.parse(dateString);
+    String formattedDate = DateFormat('yyyy-dd-MM').format(date);
+    return formattedDate;
+  }
+
+  String formatDate(String dateString){
+    DateFormat format = DateFormat("MM-dd-yyyy");
+    DateTime date = format.parse(dateString);
+    String formattedDate = DateFormat('dd-MMM-yyyy').format(date);
+    return formattedDate;
+  }
+
+  String formatedTime(String dateString){
+    DateFormat format = DateFormat("HH:mm:ss");
+    DateTime date = format.parse(dateString);
+    String formattedDate = DateFormat('jm').format(date);
+    return formattedDate;
+  }
+
   int _toInt(dynamic value) {
     if (value is int) return value;
     if (value is double) return value.toInt();
@@ -1382,6 +1452,17 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   }
   String extractDate(String datetime) {
     return datetime.split(' ').first;
+  }
+  String minutesToTimeString(int minutes) {
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    return '${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}';
+  }
+  int timeStringToMinutes(String time) {
+    final parts = time.split(':');
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+    return hours * 60 + minutes;
   }
 }
 

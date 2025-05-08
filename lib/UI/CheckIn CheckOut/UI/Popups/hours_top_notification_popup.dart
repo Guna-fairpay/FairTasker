@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/text_reason_popup.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -10,6 +11,7 @@ import '../../../../Utilities/appC.dart';
 import '../../Bloc/workHoursBloc.dart';
 import '../../Event/workingHoursEvent.dart';
 import '../../State/workingHoursState.dart';
+import '../extended_details_day.dart';
 
 bool loading = false;
 String fromDate = '';
@@ -292,9 +294,12 @@ class HoursPopup {
                                                   ),
                                                   Padding(
                                                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                    child: Utils.getText(
-                                                      entry['task_count'],
-                                                      align: TextAlign.center,
+                                                    child: GestureDetector(
+                                                      onTap: () => context.push(ExtendedDetailsDay(fromDate: fromDate, toDate: toDate, userId: empID, data: entry,), fullscreenDialog: true),
+                                                      child: Utils.getText(
+                                                        entry['task_count'],
+                                                        align: TextAlign.center,
+                                                      ),
                                                     ),
                                                   ),
                                                 ],

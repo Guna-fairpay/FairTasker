@@ -154,6 +154,25 @@ class TaskInitialEvent extends WorkingHoursEvent{
   List<Object?> get props => [to, from, userId, cohortIds];
 }
 
+class ExtendedDetailsDayEvent extends WorkingHoursEvent{
+  final String startDate;
+  final String endDate;
+  final String date;
+  final int? userId;
+  final List<int> cohortIds;
+  final Map<String, dynamic> data;
+  ExtendedDetailsDayEvent({
+    required this.startDate,
+    required this.endDate,
+    required this.date,
+    required this.userId,
+    required this.cohortIds,
+    required this.data,
+  });
+  @override
+  List<Object?> get props => [ startDate, endDate, date, userId, cohortIds, data];
+}
+
 class ExtendedDetailsTaskEvent extends WorkingHoursEvent{
   final int id;
   const ExtendedDetailsTaskEvent({
@@ -187,4 +206,11 @@ class ClearResourceSelectionEvent extends WorkingHoursEvent {
   const ClearResourceSelectionEvent();
   @override
   List<Object?> get props => [];
+}
+
+class TabChangeEvent extends WorkingHoursEvent {
+  final int tabIndex;
+  TabChangeEvent({required this.tabIndex});
+  @override
+  List<Object?> get props => [tabIndex];
 }
