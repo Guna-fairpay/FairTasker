@@ -233,6 +233,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       if ( showLoading && (!isClosed)) emit(ToDoTaskerLoadingState());
       if (refresh) await _toDoProcessor.refresh();
       var response = await _fetchToDoList();
+      processedWorkingHours = await _taskerHoursProcessor.refresh();
       unfiltered = response ?? [];
       toDos = unfiltered;
       _searchTasks();
@@ -393,6 +394,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var identifierId = model?['identifier_id'];
     var taskTitle = model?['title'];
     var taskDate = model?['todo_date'].toString().toDateTime();
+    var maintenanceTaskId = model?['maintenance_task_id'].toString();
     var currentDate = DateTime.now().toFormat().toDateTime();
     var mileage = (num.tryParse("${model?['mileage'] ?? ""}") ?? 0);
     var mandatory = model?['mandatory'];
@@ -413,7 +415,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           (taskTitle == "Check In") ? _callSaveWorkingHour(model) : _callUpdateWorkingHour(model);
         }
       } else {
-        _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
+        if (maintenanceTaskId.isNotNullOrEmpty) {
+          emit(ToDoTaskerMaintenanceCheckTasksCompleteState(model));
+        } else {
+          _callCompleteApi(model, showLoading: !(["Check Out", "Check In"].contains(taskTitle)));
+        }
       }
       switch(taskTitle) {
         case "Check Out": emit(ToDoTaskerCompleteCheckOutState(event.model)); break;
@@ -878,7 +884,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   Future<Map<String, dynamic>?> _onCompleteToDo(Map<String, dynamic>? model) async {
     Map<String, dynamic> body = {
       "complete_time_approved" : model?['complete_time_approved'],
-      "complete_time_taken" : model?['complete_time_taken'],
+      "complete_time_taken" : (model?['display']?['completed_time'] ?? model?['complete_time_taken']),
       "status" : true
     };
     return await _completeToDo(body : body, todoId: model?['id']);

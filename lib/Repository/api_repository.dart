@@ -325,6 +325,8 @@ class APiRepository {
 
   String get _updateLogs => "update-logs";
 
+  String get _getCompletedTodo => "getCompletedTodo";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3514,6 +3516,18 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callDelete(apiUrl);
       var mapData = await response.mapData;
       return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getCompletedTodo() async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_getCompletedTodo";
+      Map<String, dynamic> params = { "from" : DateTime.now().toFormat(), "to" : DateTime.now().toFormat() };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      var mapData = await response.mapData;
+      return List.from(mapData?['data'] ?? []);
     }catch(e){
       rethrow;
     }
