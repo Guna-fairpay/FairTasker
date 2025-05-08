@@ -36,6 +36,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -90,7 +91,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
             case ToDoTaskerShowDropCheckInPopupState(): TaskerTimeChangeReasonDialog.show(context, type: state.type, onSubmitted: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeChangeEvent(state.selectedTime, state.model, type: state.type, reason: value))); break;
             case ToDoTaskerViewBouncieState(): TaskerBouncieDialog.show(context, state.model); break;
-            // case ToDoTaskerCompleteTransportCarState(): TaskerToDoCompleteDialog.show(context, state.model); break; // HOLD DUE TO FLOW INCOMPLETE
+            case ToDoTaskerCompleteTransportCarState(): if (kDebugMode) TaskerToDoCompleteDialog.show(context, state.model); break; // HOLD DUE TO FLOW INCOMPLETE
             case ToDoTaskerMaintenanceCheckTasksCompleteState(): TaskerMaintenanceCompleteDialog.show(context, model: state.model); break;
             default: break;
           }
