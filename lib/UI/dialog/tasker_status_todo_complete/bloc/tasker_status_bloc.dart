@@ -157,10 +157,10 @@ class TaskerStatusBloc extends Bloc<TaskerStatusEvent, TaskerStatusState> {
     try {
       emit(TaskerStatusLoadingState());
       _model = event.model;
-      _checkLists = List.from(event.model?['statusTodo']?['checklist']);
+      _checkLists = List.from(event.model?['statusTodo']?['checklist'] ?? []);
       selectedCategory = _checkLists?.firstWhereOrNull((element) =>
           [(_model?['vehicle_status_checklist'])].contains(element['id']));
-      tasks = List.from(selectedCategory?['checklists']);
+      tasks = List.from(selectedCategory?['checklists'] ?? []);
       controller.addItems(tasks
               ?.map((e) => DropdownItem<Map<String, dynamic>>(
                   value: e, label: (e['checklist_name'] ?? "")))
