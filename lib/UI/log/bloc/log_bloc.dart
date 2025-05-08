@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/log/bloc/log_state.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +23,18 @@ class LogBloc extends Bloc<LogEvent, LogState> {
   int get totalPage => (_totalCount / itemsPerPage).ceil();
   final APiRepository _aPiRepository = APiRepository();
   final TextEditingController titleController = TextEditingController();
+  final FBroadcast _fBroadcast = FBroadcast.instance();
+
+
+  @override
+  Future<void> close() async {
+    _fBroadcast.unregister("log_refresh");
+    _fBroadcast.dispose();
+    return await super.close();
+  }
+
   LogBloc() : super(LogLoadingState()) {
+    _fBroadcast.register("log_refresh", (_, __) => add(LogRefreshEvent()));
     on<LogInitialEvent>(_onInitialEvent);
     on<LogRefreshEvent>(_onRefreshEvent);
     on<LogAddAttachmentEvent>(_onAddAttachmentEvent);

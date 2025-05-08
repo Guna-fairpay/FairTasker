@@ -4,6 +4,7 @@ class Str{
     static String get BASE_URL => flavor.baseUrl;
     static String get GOPORTAL_BASE_URL => flavor.portalUrl;
     static String get STORAGE_BASE_URL => flavor.storageUrl;
+    static String get TASKER_STORAGE_BASE_URL => flavor.taskerStorageUrl;
     static String get LIST_BASE_URL => flavor.returnsUrl;
     static String get TODO_ATTACHMENTS_URL => flavor.attachmentUrl;
 

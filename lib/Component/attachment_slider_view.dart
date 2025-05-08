@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_audio_player.dart';
 import 'package:fairpytasker/Component/compact_doc_viewer.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/Component/video_player_view.dart';
@@ -90,7 +91,7 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
               builder: (context, value, child) {
                 if (!value) return const SizedBox.shrink();
                 if (_getValue.isImageFile) return ImagePreview(imageInput: currentAttachment);
-                if (_getValue.isAudio) return Icon(Icons.audio_file);
+                if (_getValue.isAudio) return CompactAudioPlayer(input: currentAttachment);
                 if (_getValue.isVideo) return VideoPlayerView(videoInput: currentAttachment);
                 return DocumentViewer(input: currentAttachment);
               },

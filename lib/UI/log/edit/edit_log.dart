@@ -1,11 +1,18 @@
-import 'package:fairpytasker/Component/compact_text_field.dart';
-import 'package:fairpytasker/Component/success_button.dart';
-import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/material.dart';
+import 'package:fairpytasker/UI/log/edit/bloc/edit_log_events.dart';
+import 'package:fairpytasker/UI/log/edit/bloc/edit_log_states.dart';
+import 'package:fairpytasker/UI/log/edit/edit_log_attachments.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
+import 'package:fairpytasker/UI/log/edit/edit_log_input_body.dart';
+import 'package:fairpytasker/UI/log/edit/bloc/edit_log_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 
 class EditLog extends StatelessWidget {
   final Map<String, dynamic>? model;
@@ -24,56 +31,33 @@ class EditLog extends StatelessWidget {
           IconButton(onPressed: context.pop, icon: const Icon(Icons.close_rounded))
         ],
       ),
-      body: SafeArea(
-        minimum: 16.sp.padding,
-        child: Column(
-          spacing: 10.sp,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CompactTextField(
-              minLines: 3,
-              maxLines: 7,
-              controller: TextEditingController(),
-              hintText: "Title",
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SuccessButton(
-                  text: "\u{1F4C1} Upload",
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppC.text,
-                  isOutline: true,
-                ),
-                SuccessButton(
-                  text: "\u{1F399} Audio",
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppC.text,
-                  isOutline: true,
-                ),
-                SuccessButton(
-                  text: "\u{1F4F9} Video",
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppC.text,
-                  isOutline: true,
-                )
-                ]
-            ),
-            const SuccessButton(
-              text: "Upload",
-            ),
-            Expanded(child: Material(
-              elevation: 1,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Num.borderRadiusLarge),
-                  color: Color(0xfff6f7f9)
-                ),
+      body: BlocProvider(create: (context) => EditLogBloc()..add(EditLogInitialEvent(model)),
+        child: BlocListener<EditLogBloc, EditLogState>(
+          listener: (context, state) {
+            if (state is EditLogLoadingState) {
+              EasyLoading.show();
+            } else {
+              if (state is! EditLogCompleteState) if (EasyLoading.isShow) EasyLoading.dismiss();
+              switch(state) {
+                case EditLogCompleteState(): context.pop(); break;
+                case EditLogErrorState(): Toaster.showError(state.message, context: context); break;
+                case EditLogSuccessState(): Toaster.showSuccess(state.message, context: context); break;
+                case EditLogRecordState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<EditLogBloc>().add(EditLogInsertAttachmentEvent(file))); break;
+                case EditLogDeletePermissionState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this attachment?", positiveText: "Yes, delete it!", negativeText: "Cancel", onPositivePressed: () => context.read<EditLogBloc>().add(EditLogDeleteAttachmentEvent(state.model))); break;
+              }
+            }
+          },
+            child: SafeArea(
+              minimum: 16.sp.padding,
+              child: Column(
+                spacing: 10.sp,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  EditLogInputBody(),
+                  EditLogAttachments()
+                ],
               ),
-            ))
-          ],
+            )
         ),
       )
     );
