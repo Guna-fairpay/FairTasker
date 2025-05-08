@@ -30,6 +30,7 @@ class Flavor {
   String get _storageUrl => "${_devReturns}storage/";
   String get _fairReturnsUrl => "${_devReturns}api/";
   String get _attachmentUrl => _tasker;
+  String get _taskerStorage => "${_tasker}storage/";
 
   bool get isDebug => type == FlavorType.debug;
   bool get isProduction => type == FlavorType.production;
@@ -39,4 +40,5 @@ class Flavor {
   String get storageUrl => _storageUrl;
   String get returnsUrl => _fairReturnsUrl;
   String get attachmentUrl => _attachmentUrl;
+  String get taskerStorageUrl => _taskerStorage;
 }

@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/focus_node_wrapper.dart';
 import 'package:fairpytasker/UI/log/bloc/log_bloc.dart';
 import 'package:fairpytasker/UI/log/bloc/log_event.dart';
 import 'package:fairpytasker/UI/log/bloc/log_state.dart';
@@ -22,23 +23,27 @@ class LogBottomControllers extends StatelessWidget {
           spacing: 5,
           children: [
             Expanded(
-              child: TextField(
-                controller: context.read<LogBloc>().titleController,
-                textInputAction: TextInputAction.newline,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                keyboardType: TextInputType.multiline,
-                maxLines: 5,
-                minLines: 1,
-                enableIMEPersonalizedLearning: true,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderSide: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor),
-                        borderRadius: BorderRadius.circular(30)),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor),
-                        borderRadius: BorderRadius.circular(30)),
-                    hintText: "Type here...",
-                    hintStyle: context.textTheme.labelLarge?.copyWith(color: AppC.fieldBase)
+              child: FocusNodeWrapper(
+                builder: (focusNode) => TextField(
+                  controller: context.read<LogBloc>().titleController,
+                  textInputAction: TextInputAction.newline,
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  keyboardType: TextInputType.multiline,
+                  focusNode: focusNode,
+                  maxLines: 5,
+                  minLines: 1,
+                  enableIMEPersonalizedLearning: true,
+                  onTapOutside: (event) => focusNode.unfocus(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderSide: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor),
+                          borderRadius: BorderRadius.circular(30)),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor),
+                          borderRadius: BorderRadius.circular(30)),
+                      hintText: "Type here...",
+                      hintStyle: context.textTheme.labelLarge?.copyWith(color: AppC.fieldBase)
+                  ),
                 ),
               ),
             ),

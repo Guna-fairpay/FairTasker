@@ -32,7 +32,7 @@ class LogUi extends StatelessWidget {
               case LogSuccessState(): Toaster.showSuccess(state.message, context: context); break;
               case LogErrorState(): Toaster.showError(state.message, context: context); break;
               case LogDeletePermissionState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this log?", positiveText: "Yes, delete it!", negativeText: "Cancel", onPositivePressed: () => context.read<LogBloc>().add(LogDeleteEvent(state.model))); break;
-              case LogViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: List.from(state.model).map((e) => e['path'].toString().toAttachmentURL).toList(), title: ""); break;
+              case LogViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: List.from(state.model).map((e) => e['path'].toString().toTaskerStorageURL).toList(), title: ""); break;
               case LogAddRecordingState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<LogBloc>().add(LogInsertAttachmentEvent(file))); break;
               case LogAddViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.model, title: ""); break;
               default:
