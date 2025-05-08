@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fairpytasker/utilities/appC.dart';
@@ -386,12 +387,14 @@ class ToDoProcessor {
 
   String _completedTime(Map<String, dynamic> model) {
     var identifierId = model['identifier_id'];
+    var title = model['title'].toString();
+    title = (title.contains("-") ? (title.split("-").firstOrNull ?? "").toLowerCase() : title.toLowerCase());
     var completedTimeTaken = model['complete_time_taken'];
     if (completedTimeTaken.toString().isNotNullOrEmpty) {
       return completedTimeTaken;
     } else if (identifierId.toString().isNotNullOrEmpty) {
       var taken = _taskExpenseDatas.firstWhereOrNull(
-              (element) => element['id'] == identifierId)?['time_taken'] ??
+              (element) => (element['id'] == identifierId) || (element['task'].toString().toLowerCase() == title) )?['time_taken'] ??
           "";
       if (taken.toString().isNotNullOrEmpty) {
         return "00:$taken";
@@ -399,7 +402,12 @@ class ToDoProcessor {
         return "00:15";
       }
     } else {
-      return "00:15";
+      var taken = _taskExpenseDatas.firstWhereOrNull((element) => element['task'].toString().toLowerCase() == title)?['time_taken'];
+      if (taken.toString().isNotNullOrEmpty) {
+        return "00:$taken";
+      } else {
+        return "00:15";
+      }
     }
   }
 

@@ -69,6 +69,8 @@ class CommonService {
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
+  List<Map<String, dynamic>> _leavelistType = [];
+
 
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
   int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
@@ -543,6 +545,18 @@ class CommonService {
       var response = await _apiRepository.getCheckList();
       _checkList = List<Map<String, dynamic>>.from(response?['data'] ?? []);
       return List.from(_checkList);
+    }catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLeaveListType({bool reset = false}) async {
+    if (reset) _leavelistType.clear();
+    if (_leavelistType.isNotEmpty) return List.from(_leavelistType);
+    try {
+      var response = await _apiRepository.getLeaveTypeList();
+      _leavelistType = List<Map<String, dynamic>>.from(response?['data'] ?? []);
+      return List.from(_leavelistType);
     }catch (e) {
       return [];
     }

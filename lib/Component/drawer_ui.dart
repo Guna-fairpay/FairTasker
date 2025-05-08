@@ -1,8 +1,9 @@
-import 'package:fairpytasker/UI/Leave%20Management/leave_management_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Task%20List/tasklist_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/import_task/import_task_main_ui.dart';
+import 'package:fairpytasker/UI/leave_management/backup/leave_management_view_ui.dart';
+import 'package:fairpytasker/UI/leave_management/leave_view/ui/leave_view_main_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
@@ -18,7 +19,6 @@ import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
 import '../UI/Manage Custom Data/reports/reports_view.dart';
 import '../UI/Settings/google_authenticator.dart';
 import '../UI/authentication_ui.dart';
-import '../UI/Import Task/text_upload.dart';
 import '../UI/Manage Custom Data/manage_custom_data_menu_ui.dart';
 import '../UI/Voice To Text/UI/voice_to_text_ui.dart';
 import '../Utilities/str.dart';
@@ -119,7 +119,7 @@ class DrawerView extends StatelessWidget {
                     context,
                       icon:  Icons.work_history,
                       title: "Leave Management",
-                      onTap: () => navigateToPage(context, const LeaveManagementViewUI()),
+                      onTap: () => navigateToPage(context, const LeaveViewMainPage()),///LeaveManagementViewUI
                   ),
                   _buildDivider(),
                   _buildListTile(

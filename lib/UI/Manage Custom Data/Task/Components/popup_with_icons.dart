@@ -1,16 +1,21 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../utilities/appC.dart';
 
 class PopupWithIcons {
-  static Future<void> show(
+  PopupWithIcons._();
+  static void show(
       BuildContext context,
       TapDownDetails? details,
-      {VoidCallback? onEditTap,VoidCallback? onDeleteTap}) async {
+      {IconData icon1 = Icons.edit_outlined,
+        IconData icon2 = Icons.delete_outline,
+        Color color1 = AppC.blue,
+        Color color2 = AppC.redAccent,
+        VoidCallback? onIcon1Tap,
+        VoidCallback? onIcon2Tap}) async {
 
     if (details != null) {
-      await showMenu(
+      await showMenu<dynamic>(
         elevation: 5,
         color: Colors.white,
         context: context,
@@ -34,23 +39,23 @@ class PopupWithIcons {
                 // IconButton(onPressed: onEditTap, icon: Icon(Icons.edit_outlined,color: AppC.blue,size: 16.sp,)),
                 GestureDetector(
                   onTap: () {
-                    onEditTap?.call();
+                    onIcon1Tap?.call();
                     Navigator.of(context).pop();
                   },
-                  child:  const Icon(
-                    Icons.edit_outlined,
-                    color: AppC.blue,
+                  child:   Icon(
+                    icon1,
+                    color: color1,
                     //size: 16.sp,
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
-                    onDeleteTap?.call();
+                    onIcon2Tap?.call();
                   },
-                  child:  const Icon(
-                    Icons.delete_outline,
-                    color: AppC.redAccent,
+                  child:  Icon(
+                    icon2,
+                    color: color2,
                     //size: 16.sp,
                   ),
                 ),
