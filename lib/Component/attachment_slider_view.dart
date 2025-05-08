@@ -1,3 +1,5 @@
+import 'package:fairpytasker/Component/compact_audio_player.dart';
+import 'package:fairpytasker/Component/compact_doc_viewer.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/Component/video_player_view.dart';
 import 'package:fairpytasker/Component/image_preview.dart';
@@ -79,18 +81,20 @@ class _AttachmentSliderViewState extends State<AttachmentSliderView> {
       children: [
         Expanded(
           child: Container(
+            width: double.maxFinite,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withValues(alpha: 0.02)),
             clipBehavior: Clip.antiAliasWithSaveLayer,
             child: ValueListenableBuilder(
               valueListenable: showOrHide,
-              builder: (context, value, child) => (value)
-                  ? (_getValue.isImageFile)
-                      ? ImagePreview(imageInput: currentAttachment)
-                      : (_getValue.isPdf) ? const Icon(Icons.picture_as_pdf_rounded)
-                  : VideoPlayerView(videoInput: currentAttachment)
-                  : Container(),
+              builder: (context, value, child) {
+                if (!value) return const SizedBox.shrink();
+                if (_getValue.isImageFile) return ImagePreview(imageInput: currentAttachment);
+                if (_getValue.isAudio) return CompactAudioPlayer(input: currentAttachment);
+                if (_getValue.isVideo) return VideoPlayerView(videoInput: currentAttachment);
+                return DocumentViewer(input: currentAttachment);
+              },
             ),
           ),
         ),
