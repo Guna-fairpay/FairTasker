@@ -134,14 +134,16 @@ class Utils {
         double bottomLRadius = 4,
         double bottomRRadius = 4,
         double height = 35,
+        Color borderColor = AppC.fieldBase,
+        double borderWidth = Num.borderWidthField,
       }) {
     //Console.of.log("initialSelection${initialSelection}");
     return
       Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: AppC.fieldBase,
-          width: Num.borderWidthField,
+          color: borderColor,
+          width: borderWidth,
         ),
         borderRadius:  BorderRadius.only(
             topLeft: Radius.circular(topLRadius),
@@ -382,12 +384,14 @@ class Utils {
       TextAlign? align,
       Color color = AppC.text,
       TextStyle? style,
+        bool? softWrap,
       FontWeight weight = FontWeight.normal,
       TextDecoration? decoration,
         Color? colorDecoration,
       TextOverflow? overFlow}) {
     return Text(text,
         textAlign: align,
+        softWrap: softWrap,
         style: style ?? TextStyle(
           color: color,
           fontSize: size,

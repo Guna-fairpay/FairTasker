@@ -327,6 +327,14 @@ class APiRepository {
 
   String get _getCompletedTodo => "getCompletedTodo";
 
+  String get _leaveList => "leaveList";
+
+  String get _leaveTypeList => "leaveTypeList";
+
+  String get _addLeave => "addLeave";
+
+  String get _updateLeave => "updateLeave";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -1284,14 +1292,12 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<LeaveManagementEmployeeListResponse?> getEmployeeList() async {
+  Future<Map<String, dynamic>?> getEmployeeList() async {
     try {
       String apiUrl = "${Str.GOPORTAL_BASE_URL}$_getEmployeeList";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
-      return (mapData != null)
-          ? LeaveManagementEmployeeListResponse.fromJson(mapData)
-          : null;
+      return mapData?['data'];
     } catch (e) {
       rethrow;
     }
@@ -3532,5 +3538,50 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
+  Future<Map<String,dynamic>?> getLeaveList()async{
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_leaveList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getLeaveTypeList()async{
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_leaveTypeList";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> addLeave({Map<String,dynamic>? body})async{
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_addLeave/$_hrmId";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> updateLeave({dynamic id,Map<String,dynamic>? body})async{
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_updateLeave/$id";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
+
 
 }
