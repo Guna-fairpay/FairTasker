@@ -113,10 +113,10 @@ class TaskListingPage extends StatelessWidget {
                           GestureDetector(
                             onTapDown: (TapDownDetails details) {
                               PopupWithIcons.show(context, details,
-                                  onEditTap: () => context
+                                  onIcon1Tap: () => context
                                       .read<TaskBloc>()
                                       .add(EditTaskEvent(data: item)),
-                                  onDeleteTap: () {
+                                  onIcon2Tap: () {
                                     AskPermissionDialog.show(context,
                                         title: "Are you sure?",
                                         description:

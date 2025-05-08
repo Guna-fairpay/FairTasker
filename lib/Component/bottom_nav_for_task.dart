@@ -43,7 +43,7 @@ class _BottomNavigationForTaskViewState
       drawer: const DrawerView(),
       extendBody: true,
       appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(30.0),
+        preferredSize: Size.fromHeight(35.0),
         child: HeaderView(),
       ),
       backgroundColor: AppC.white,

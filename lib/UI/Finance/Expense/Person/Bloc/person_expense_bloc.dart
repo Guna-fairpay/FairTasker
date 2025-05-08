@@ -147,7 +147,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         emit(state.copyWith(isLoading: true));
         var employeeResponse = await _getEmployeeList();
         var paymentType = await _getPaymentType();
-        employeeList = employeeResponse?.data;
+        employeeList = employeeResponse?['data'];
         // employeeList
         //     ?.removeWhere((element) => element['user_id'].toString() == '1');
 
@@ -172,7 +172,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
         var response = await _editPersonExpense(event.id);
         var employeeResponse = await _getEmployeeList();
         var paymentType = await _getPaymentType();
-        employeeList = employeeResponse?.data;
+        employeeList = employeeResponse?['data'];
         // employeeList
         //     ?.removeWhere((element) => element['user_id'].toString() == '1');
         descriptionController.text = response?['expense_description'] ?? '';
@@ -477,7 +477,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
   }
 
   /// API CALL: Employee List
-  Future<LeaveManagementEmployeeListResponse?> _getEmployeeList() async {
+  Future<Map<String, dynamic>?> _getEmployeeList() async {
     return await apiRepository.getEmployeeList();
   }
 
@@ -557,7 +557,7 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
       var expenseAmountResponse = await _getPersonExpense(startDate, endDate);
       var response = await _getPersonExpense(minDate, maxDate);
       var employeeResponse = await _getEmployeeList();
-      employeeList = employeeResponse?.data;
+      employeeList = employeeResponse?['data'];
       var apiResponse = response?.data;
       var amountResponse = expenseAmountResponse?.data;
       apiResponse =
