@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 
 class TaskerHoursProcessor {
@@ -37,7 +38,7 @@ class TaskerHoursProcessor {
   int get _totalHours {
     try {
       var workinghours = workingHours.firstOrNull?['total_hours'].toString().parseDurationToMinutes;
-      var completedHours = _completedHours.map((e) => e['complete_time_taken'].toString().parseDurationToMinutes).sum;
+      var completedHours = _completedHours.where((element) => element['user_id'] == (getIt<CommonService>().userId).toString()).map((e) => e['complete_time_taken'].toString().parseDurationToMinutes).sum;
       // return ((workinghours ?? 0) - (completedHours ?? 0)).abs();
       return (completedHours ?? 0);
     } catch (e) {
