@@ -32,6 +32,7 @@ class LeaveVerificationMainPage extends StatelessWidget {
                 EasyLoading.show();
               }else{
                 EasyLoading.dismiss();
+                if(state is LeaveVerificationSuccessState) context.pop();
               }
             },
             child: const LeaveVerificationListingPage(),

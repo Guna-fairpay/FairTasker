@@ -6,9 +6,11 @@ import 'package:fairpytasker/UI/leave_management/leave_verification/ui/leave_ver
 import 'package:fairpytasker/UI/leave_management/leave_view/bloc/leave_view_bloc.dart';
 import 'package:fairpytasker/UI/leave_management/leave_view/bloc/leave_view_event.dart';
 import 'package:fairpytasker/UI/leave_management/leave_view/bloc/leave_view_state.dart';
+import 'package:fairpytasker/UI/leave_management/leave_view/ui/leave_list_view_for_employee.dart';
 import 'package:fairpytasker/UI/leave_management/leave_view/ui/leave_view_listing_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -40,7 +42,7 @@ class LeaveViewMainPage extends StatelessWidget {
               if(state is VerificationPageState) context.push(LeaveVerificationMainPage(data: state.leaveData));
             }
           },
-          child: const LeaveViewListingPage(),
+          child: ((getIt<CommonService>().isAdmin) ? const LeaveViewListingPage() : const LeaveListViewForEmployee()),
         ),
       ),
     );
