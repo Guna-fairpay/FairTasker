@@ -152,10 +152,6 @@ class NotesItemCard extends StatelessWidget {
                               "source" : source,
                               "destination" : destination
                             };
-                            Console.of.log(details.data, name: "onAcceptWithDetails");
-                            Console.of.log(item, name: "OG");
-                            Console.of.log('INDEX $index', name: "OG");
-                            Console.of.log(jsonEncode(body), name: "MAP_BODY");
                             onSwapNoteItems?.call(body);
                           }
                         },
