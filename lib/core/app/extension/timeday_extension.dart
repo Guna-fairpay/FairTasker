@@ -25,4 +25,13 @@ extension TimeExtension on Time? {
     var min = input.minute.toString().padLeft(2, '0');
     return "$hour:$min";
   }
+
+  String toHMS() {
+    var input = this;
+    if (input == null) return "00:00";
+    var hour = input.hour.toString().padLeft(2, '0');
+    var min = input.minute.toString().padLeft(2, '0');
+    var sec = input.second.toString().padLeft(2, '0');
+    return "$hour:$min:$sec";
+  }
 }

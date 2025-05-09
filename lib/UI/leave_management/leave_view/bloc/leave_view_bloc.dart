@@ -17,9 +17,9 @@ class LeaveViewBloc extends Bloc<LeaveViewEvent,LeaveViewState>{
   List<dynamic> employeeList =[];
   List<dynamic> apiResponse =[];
   List<dynamic> filteredResponse =[];
-
+  bool isAdmin = getIt<CommonService>().isAdmin;
   dynamic selectedEmployee = {};
-
+  dynamic hrmId = getIt<CommonService>().hrmId;
   TextEditingController searchController = TextEditingController();
 
   LeaveViewBloc():super(LeaveViewLoadingState()){
@@ -37,13 +37,16 @@ class LeaveViewBloc extends Bloc<LeaveViewEvent,LeaveViewState>{
       emit(LeaveViewLoadingState());
       var response = await _apiRepository.getLeaveList();
       var employeeResponse = await _apiRepository.getEmployeeList();
-       // await getIt<CommonService>().getLeaveListType();
       apiResponse = response?['data'];
+      if(!isAdmin){
+        filteredResponse = apiResponse.where((element) => (element['user_id']).toString() == hrmId.toString()).toList();
+      }else{
+       // await getIt<CommonService>().getLeaveListType();
       filteredResponse = apiResponse;
       employeeList = employeeResponse?['data'];
       employeeList.insert(0, {'id': -1, 'first_name': 'All'});
       selectedEmployee = employeeList.firstOrNull;
-      await filter();
+      await filter();}
       emit(LeaveViewCommonState());
     }catch(e){
       Toaster.showError(e.toString());

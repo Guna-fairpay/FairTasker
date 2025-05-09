@@ -14,7 +14,7 @@ import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:flutter/material.dart' show FocusNode, TextEditingController, TimeOfDay;
+import 'package:flutter/material.dart' show Durations, FocusNode, TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -389,7 +389,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void  _onCompleteEvent(
-      ToDoTaskerCompleteEvent event, Emitter<ToDoTaskerState> emit) {
+      ToDoTaskerCompleteEvent event, Emitter<ToDoTaskerState> emit) async {
     var model = event.model;
     var identifierId = model?['identifier_id'];
     var taskTitle = model?['title'];
@@ -447,6 +447,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         case 28:
         case 210: emit(ToDoTaskerCompleteRentalPickupState(event.model)); break;
         case 27: emit(ToDoTaskerCompleteDropCarState(event.model)); break;
+        case 324: {
+          if (hasMileage) _callCompleteApi(model);
+          else {
+            emit(ToDoTaskerErrorState("Odometer is mandatory"));
+            await Future.delayed(Durations.short1);
+            emit(ToDoTaskerCompleteMaintenanceCheckState(event.model));
+          }
+        } break;
         default: _callCompleteApi(model); break; // CALL API TO COMPLETE TASK
       }
     }

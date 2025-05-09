@@ -335,6 +335,8 @@ class APiRepository {
 
   String get _updateLeave => "updateLeave";
 
+  String get _leaveApprove => "leaveApprove";
+
   String get _employeeTaskHistoryByDay => "employeeTaskHistoryByDay?date=";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -3634,5 +3636,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String,dynamic>?> leaveApprove({dynamic id,Map<String,dynamic>? body})async{
+    try {
+      String apiUrl = "${Str.GOPORTAL_BASE_URL}$_leaveApprove";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
 
 }

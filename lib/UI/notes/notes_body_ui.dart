@@ -19,10 +19,12 @@ class NotesBodyUi extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
                 itemBuilder: (context, index) {
-                  var model = context.read<NotesBloc>().apiResponse?[index];
+                  var allData = context.read<NotesBloc>().apiResponse;
+                  var model = allData?[index];
                   return NotesItemCard(
                     key: Key("${model?['id'] ?? 0}"),
                       model: model,
+                      totalItems: allData,
                       onConfirmDismiss: (direction) async {
                       context.read<NotesBloc>().add((direction == DismissDirection.endToStart) ? NotesSwipeCompleteEvent(model) : NotesSwipeTomorrowEvent(model));
                       return true;

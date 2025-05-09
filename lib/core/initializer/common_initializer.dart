@@ -80,6 +80,7 @@ class CommonService {
 
   int get departmentId => Session.of.getInt("departmentId") ?? 0;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
+  int? get hrmId => Session.of.getInt(Str.hrmIdPrefText);
 
   String get currentPlatform => Platform.isAndroid ? "android" : "ios";
 
