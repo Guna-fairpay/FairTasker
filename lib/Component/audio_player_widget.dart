@@ -1,14 +1,17 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
 
 // This code is also used in the example.md. Please keep it up to date.
 class AudioPlayerWidget extends StatefulWidget {
   final Source source;
-
+  final VoidCallback? onSave, onReset;
   const AudioPlayerWidget({
     required this.source,
+    this.onSave,
+    this.onReset,
     super.key,
   });
 
@@ -79,38 +82,47 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.source.toString());
     final color = Theme.of(context).primaryColor;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Row(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton(
-              key: const Key('play_button'),
-              onPressed: _isPlaying ? null : _play,
-              iconSize: 48.0,
-              icon: const Icon(Icons.play_arrow),
-              color: color,
-            ),
-            IconButton(
-              key: const Key('pause_button'),
-              onPressed: _isPlaying ? _pause : null,
-              iconSize: 48.0,
-              icon: const Icon(Icons.pause),
-              color: color,
-            ),
-            IconButton(
-              key: const Key('stop_button'),
-              onPressed: _isPlaying || _isPaused ? _stop : null,
-              iconSize: 48.0,
-              icon: const Icon(Icons.stop),
-              color: color,
-            ),
-          ],
-        ),
-        Slider(
+          Text(
+            _position != null
+                ? '$_positionText '
+                : '',
+            style: const TextStyle(fontSize: 16.0),
+          ),
+          Expanded(child: Slider(
+            inactiveColor: Colors.grey.shade200,
+            onChanged: (value) {
+              final duration = _duration;
+              if (duration == null) {
+                return;
+              }
+              final position = value * duration.inMilliseconds;
+              player.seek(Duration(milliseconds: position.round()));
+            },
+            value: (_position != null &&
+                _duration != null &&
+                _position!.inMilliseconds > 0 &&
+                _position!.inMilliseconds < _duration!.inMilliseconds)
+                ? _position!.inMilliseconds / _duration!.inMilliseconds
+                : 0.0,
+          )),
+          Text(_duration != null
+              ? _durationText
+              : '',
+            style: const TextStyle(fontSize: 16.0),
+          ),
+        ],),
+        /*Slider(
+          inactiveColor: Colors.grey.shade200,
           onChanged: (value) {
             final duration = _duration;
             if (duration == null) {
@@ -126,13 +138,63 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               ? _position!.inMilliseconds / _duration!.inMilliseconds
               : 0.0,
         ),
-        Text(
-          _position != null
-              ? '$_positionText / $_durationText'
-              : _duration != null
-              ? _durationText
-              : '',
-          style: const TextStyle(fontSize: 16.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _position != null
+                  ? '$_positionText '
+                  : '',
+              style: const TextStyle(fontSize: 16.0),
+            ),
+            Text(_duration != null
+                  ? _durationText
+                  : '',
+              style: const TextStyle(fontSize: 16.0),
+            ),
+          ],
+        ),*/
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.onReset != null)
+            IconButton(
+              key: const Key('reset_button'),
+              onPressed: widget.onReset,
+              iconSize: 30,
+              icon: const Icon(Icons.delete_outline_rounded),
+              color: AppC.redAccent,
+            ),
+            IconButton(
+              key: const Key('play_button'),
+              onPressed: _isPlaying ? null : _play,
+              iconSize: 48.0,
+              icon: const Icon(Icons.play_arrow_rounded),
+              color: color,
+            ),
+            IconButton(
+              key: const Key('pause_button'),
+              onPressed: _isPlaying ? _pause : null,
+              iconSize: 48.0,
+              icon: const Icon(Icons.pause_rounded),
+              color: color,
+            ),
+            IconButton(
+              key: const Key('stop_button'),
+              onPressed: _isPlaying || _isPaused ? _stop : null,
+              iconSize: 48.0,
+              icon: const Icon(Icons.stop_rounded),
+              color: color,
+            ),
+            if (widget.onSave != null)
+            IconButton(
+              key: const Key('save_button'),
+              onPressed: widget.onSave,
+              iconSize: 30,
+              icon: const Icon(Icons.save_rounded),
+              color: AppC.green,
+            ),
+          ],
         ),
       ],
     );
