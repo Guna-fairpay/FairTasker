@@ -114,9 +114,9 @@ class ImportTaskMainUi extends StatelessWidget {
                                     0)
                                 ? context.watch<ImportTaskBloc>().textController
                                 : context.watch<ImportTaskBloc>().turoController,
-                            minLines: 10.sp.ceil(),
+                            minLines: 16.sp.ceil(),
                             maxLines: 16.sp.ceil(),
-                            borderColor: AppC.text,
+                            borderColor: AppC.fieldBase,
                             hintText: "Paste your text here...",
                             validator: (value) =>
                                 (value?.trim().isNullOrEmpty ?? false)
