@@ -89,14 +89,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       isEnable = false;
       selectedData = {};
       taskController.clear();
-      timeTakenController.clear();
+      timeTakenController.text = '30';
       selectedCategory={};
       selectedSubCategory={};
-      selectedUserType={};
-      taskController.removeListener(_listener);
-      emit(TaskCommonState());
-      await Future.delayed(Durations.short4);
-      taskController.addListener(_listener);
+      selectedUserType= usersType.first;
       emit(TaskCommonState());
     });
 
@@ -141,9 +137,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     filteredResponse = paginateList(data: _unfilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
   }
 
-
-  void _listener() {}
-
   void _onDeleteTaskEvent(DeleteTaskEvent event, Emitter<TaskState> emit) async {
     try{
       emit(TaskLoadingState());
@@ -178,7 +171,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     }
   }
 
-  void _onSaveTaskEvent(SaveTaskEvent event, Emitter<TaskState> emit) async {
+  Future<void> _onSaveTaskEvent(SaveTaskEvent event, Emitter<TaskState> emit) async {
+    // if (formKey.currentState?.validate() == false) return;
+    if(taskController.text.isEmpty) return Toaster.showError('Task field is required');
     try{
       emit(TaskLoadingState());
         var data = {
@@ -199,6 +194,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         selectedCategory={};
         selectedSubCategory={};
         selectedUserType={};
+        //formKey.currentState?.reset();
        /* selectedData = null;
         isEdit = false;*/
         if (selectedData != null) {
