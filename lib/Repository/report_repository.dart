@@ -1,17 +1,7 @@
-
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-
-
 import 'package:fairpytasker/Remote/downloader.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/str.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-
-import '../Utilities/Utils.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import '../data/api_client.dart';
 
 class ReportRepository {
@@ -19,36 +9,39 @@ class ReportRepository {
   ApiClient apiClient = ApiClient();
   String _url(path) => "${Str.BASE_URL}$path";
   String _phase1Url(path) => "${Str.LIST_BASE_URL}$path";
-  String _phase2Url(path) => "${Str.BASE_URL}$path";
+  final APiRepository _apiRepository = APiRepository();
 
-  Future downloadMaintenanceReport({Function(String? val)? onError}) async {
+  Future<String?> downloadMaintenanceReport({Function(String? val)? onError}) async {
     var url = _url("getMaintanceCheckSheet");
     return await Downloader.instance.start(url, onError: onError);
   }
 
-  Future downloadVehicleReport({Function(String? val)? onError}) async {
+  Future<String?> downloadVehicleReport({Function(String? val)? onError}) async {
     var url = _url("getOdometerSheet");
     return await Downloader.instance.start(url, onError: onError);
   }
 
-  Future downloadEarningSummary({Function(String? val)? onError}) async {
+  Future<String?> downloadEarningSummary({Function(String? val)? onError}) async {
     var url = _url("getVehicleExpenseSheet");
     return await Downloader.instance.start(url, onError: onError);
   }
 
-  Future downloadVehicleInventoryData({Function(String? val)? onError}) async {
+  Future<String?> downloadVehicleInventoryData({Function(String? val)? onError}) async {
     var url = _phase1Url("vehicle-inventory-data");
     return await Downloader.instance.start(url, onError: onError);
   }
 
-  Future customDownload(String url, {Function(String? val)? onError}) async {
+  Future<String?> customDownload(String url, {Function(String? val)? onError}) async {
     return await Downloader.instance.start(url, onError: onError);
   }
 
 
-  Future<String?> uploadFile(String filePath) async {
+  Future<Map<String, dynamic>?> uploadFile(String filePath) async {
     try {
-      String apiUrl = '${Str.BASE_URL}toll-export';
+      var response = await _apiRepository.tollExport(infusedFile: {"toll": filePath});
+      if (response?['url'].toString().isNotNullOrEmpty ?? false) await customDownload(response?['url'].toString() ?? "");
+      return response;
+      /*String apiUrl = '${Str.BASE_URL}toll-export';
       final http.Response? response = await apiClient.callPostMethodWithBodyDynamic(apiUrl, infusedFiles: {"toll": filePath});
       log("${response?.body}");
 
@@ -73,10 +66,9 @@ class ReportRepository {
         }
       } else {
         return null;
-      }
+      }*/
     } catch (e) {
-      log("Error in upload file: $e");
-      return null;
+      rethrow;
     }
   }
 

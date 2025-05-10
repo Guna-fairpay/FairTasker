@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
@@ -18,9 +17,7 @@ class Downloader {
       // Check and request storage permission
       if (Platform.isAndroid) {
         var status = await Permission.manageExternalStorage.request();
-        if (!status.isGranted) {
-          throw Exception('Storage permission not granted');
-        }
+        if (!status.isGranted) throw Exception('Storage permission not granted');
       }
 
       // Get the Downloads directory
@@ -29,9 +26,7 @@ class Downloader {
         downloadsDirectory = Directory('/storage/emulated/0/Download');
       } else if (Platform.isIOS) {
         downloadsDirectory = await getApplicationDocumentsDirectory();
-      } else {
-        throw Exception('Unsupported platform');
-      }
+      } else throw Exception('Unsupported platform');
 
       // Create Dio instance
       final dio = Dio();
@@ -62,9 +57,7 @@ class Downloader {
       }
 
       // Ensure fileName is not null
-      if (fileName == null || fileName.isEmpty) {
-        throw Exception('Failed to extract file name from headers.');
-      }
+      if (fileName == null || fileName.isEmpty) throw Exception('Failed to extract file name from headers.');
 
       final filePath = '${downloadsDirectory.path}/$fileName';
 
@@ -84,10 +77,15 @@ class Downloader {
     } catch (e) {
       if ((e is DioException) && (e.type == DioExceptionType.badResponse)) {
         var response = e.response?.data;
-        if (response is Map<String, dynamic>) print("Error: ${response.values.last}");
-        if (response is Map<String, dynamic>) onError?.call(response.values.last);
+        if (response is Map<String, dynamic>) {
+          onError?.call(response.values.last);
+          throw Exception(response.values.last);
+        } else {
+          throw Exception("${e.response?.statusCode} : ${e.message}");
+        }
       } else {
         debugPrint('Error downloading file: $e');
+        throw Exception('Error downloading file: $e');
       }
     }
   }
