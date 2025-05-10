@@ -62,6 +62,9 @@ class WorkingHoursState extends Equatable {
   final int? branchID;
   final String? uniqueId;
   final Map<String, dynamic>? checkInDetails;
+  final int? selectedTab;
+  final List<dynamic> byDayData;
+  final List<Map<String, dynamic>> byTaskData;
 
   const WorkingHoursState(
       {
@@ -119,6 +122,9 @@ class WorkingHoursState extends Equatable {
         this.branchID,
         this.uniqueId,
         this.checkInDetails,
+        this.selectedTab,
+        this.byDayData = const [],
+        this.byTaskData = const [],
       });
 
   WorkingHoursState copyWith({
@@ -176,6 +182,9 @@ class WorkingHoursState extends Equatable {
     int? branchID,
     String? uniqueId,
     Map<String, dynamic>? checkInDetails,
+    int? selectedTab,
+    List<dynamic>? byDayData,
+    List<Map<String, dynamic>>? byTaskData,
 }) => WorkingHoursState(
     data: data ?? this.data,
     history: history ?? this.history,
@@ -231,6 +240,9 @@ class WorkingHoursState extends Equatable {
     branchID: branchID ?? this.branchID,
     uniqueId: uniqueId ?? this.uniqueId,
     checkInDetails: checkInDetails ?? this.checkInDetails,
+    selectedTab: selectedTab ?? this.selectedTab,
+    byDayData: byDayData ?? this.byDayData,
+    byTaskData: byTaskData ?? this.byTaskData,
   );
 
   @override
@@ -289,6 +301,10 @@ class WorkingHoursState extends Equatable {
     branchID,
     uniqueId,
     checkInDetails,
+    selectedTab,
+    byDayData,
+    byTaskData,
+
     Random().nextDouble()
   ];
 }

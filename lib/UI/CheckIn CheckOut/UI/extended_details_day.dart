@@ -13,8 +13,11 @@ import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
 import 'Popups/task_filter.dart';
+import 'by_day_view.dart';
+import 'by_task_view.dart';
 
 class ExtendedDetailsDay extends StatelessWidget {
+  final String userName;
   final String fromDate;
   final String toDate;
   final int userId;
@@ -22,6 +25,7 @@ class ExtendedDetailsDay extends StatelessWidget {
   const ExtendedDetailsDay(
       {
         super.key,
+        required this.userName,
         required this.fromDate,
         required this.toDate,
         required this.userId,
@@ -41,7 +45,6 @@ class ExtendedDetailsDay extends StatelessWidget {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            log("${state.checkInDetails}", name: "hoursData1");
           }
         },
         child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
@@ -49,7 +52,7 @@ class ExtendedDetailsDay extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(
                 leadingWidth: 0,
-                title: const Text("Hasnath Mohammed"),
+                title: Text("${userName ?? ''}"),
                 automaticallyImplyLeading: false,
                 actions: [
                   IconButton(
@@ -64,37 +67,40 @@ class ExtendedDetailsDay extends StatelessWidget {
                     child: Column(
                       spacing: 10,
                       children: [
-                        Table(columnWidths: const {
-                          0: FlexColumnWidth(1),
-                          1: FlexColumnWidth(1),
-                          2: FlexColumnWidth(1),
-                          3: FlexColumnWidth(1),
-                        }, children: [
-                          TableRow(children: [
-                            Utils.getText("CheckIn", weight: FontWeight.bold),
-                            Utils.getText("CheckOut", weight: FontWeight.bold),
-                            Utils.getText("Active Hours", weight: FontWeight.bold),
-                            Utils.getText("Total Hours", weight: FontWeight.bold),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Table(columnWidths: const {
+                            0: FlexColumnWidth(1),
+                            1: FlexColumnWidth(1),
+                            2: FlexColumnWidth(1),
+                            3: FlexColumnWidth(1),
+                          }, children: [
+                            TableRow(children: [
+                              Utils.getText("CheckIn", weight: FontWeight.bold),
+                              Utils.getText("CheckOut", weight: FontWeight.bold),
+                              Utils.getText("Active Hours", weight: FontWeight.bold),
+                              Utils.getText("Total Hours", weight: FontWeight.bold),
+                            ]),
+                            TableRow(children: [
+                              Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Utils.getText("${state.checkInDetails?['checkIn'] ?? ''}",),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 10),
+                                child: Utils.getText("${state.checkInDetails?['checkOut'] ?? ''}",),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
+                                child: Utils.getText("${state.checkInDetails?['active_hours'] ?? ''}",),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
+                                child: Utils.getText("${state.checkInDetails?['total_hours'] ?? ''}",),
+                              ),
+                            ]),
                           ]),
-                          TableRow(children: [
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Utils.getText("${state.checkInDetails?['checkIn'] ?? ''}",),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 10),
-                              child: Utils.getText("${state.checkInDetails?['checkOut'] ?? ''}",),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
-                              child: Utils.getText("${state.checkInDetails?['active_hours'] ?? ''}",),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
-                              child: Utils.getText("${state.checkInDetails?['total_hours'] ?? ''}",),
-                            ),
-                          ]),
-                        ]),
+                        ),
                         Container(
                           decoration:const BoxDecoration(
                               border: Border(
@@ -107,40 +113,21 @@ class ExtendedDetailsDay extends StatelessWidget {
                                   buttonText: 'By Task',
                                   value: 0,
                                   selectedValue: context.watch<WorkingHoursBloc>().selectedTab,
-                                  onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))),
+                                  onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))
+                              ),
                               CustomTabButton(
                                   buttonText: 'By Day',
                                   value: 1,
                                   selectedValue: context.watch<WorkingHoursBloc>().selectedTab,
-                                  onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))),
+                                  onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))
+                              ),
                             ],
                           ),
                         ),
-                        ListTile(
-                          leading: Utils.getText("${state.checkInDetails?['date'] ?? ''}",weight: FontWeight.bold,size: 16),
-                          trailing: GestureDetector(
-                          onTap: () {
-                            final workingHoursBloc = context.read<WorkingHoursBloc>();
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) =>
-                                  FilterDialog(
-                                    workingHoursBloc: workingHoursBloc,
-                                    filterOptions: state.cohortsData,
-                                    selectedFilters: selectedFilters,
-                                    onSelectionChanged: (newSelection) {
-                                      selectedFilters = newSelection;
-                                      print("Selected Filters (IDs): $selectedFilters");
-                                    },
-                                    to: fromDate.toString(),
-                                    from: toDate.toString(),
-                                    userId: userId,
-                                  ),
-                            );
-                          },
-                          child: const Icon(Icons.filter_alt_sharp),
-                        ),
-                        ),
+                        if(state.selectedTab == 0)
+                          ByTaskView(data: state.checkInDetails ?? {}, byTaskData: state.byTaskData,fromDate: fromDate, toDate: toDate, userId: userId, date: data['date'],),
+                        if(state.selectedTab == 1)
+                          ByDayView(date: data['date'], userId: userId,),
                       ],
                     ),
                   )

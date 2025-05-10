@@ -214,3 +214,27 @@ class TabChangeEvent extends WorkingHoursEvent {
   @override
   List<Object?> get props => [tabIndex];
 }
+
+class ByDayInitialEvent extends WorkingHoursEvent {
+  final String date;
+  final int? userId;
+  const ByDayInitialEvent({
+    required this.date,
+    required this.userId,
+  });
+  @override
+  List<Object?> get props => [date, userId];
+}
+
+class ByTaskInitialEvent extends WorkingHoursEvent {
+  final String date;
+  final int? userId;
+  final List<int>? cohortIds;
+  const ByTaskInitialEvent({
+    required this.date,
+    required this.userId,
+    this.cohortIds,
+  });
+  @override
+  List<Object?> get props => [date, userId, cohortIds];
+}

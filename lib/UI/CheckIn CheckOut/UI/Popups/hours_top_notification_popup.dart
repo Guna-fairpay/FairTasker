@@ -295,7 +295,7 @@ class HoursPopup {
                                                   Padding(
                                                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                                                     child: GestureDetector(
-                                                      onTap: () => context.push(ExtendedDetailsDay(fromDate: fromDate, toDate: toDate, userId: empID, data: entry,), fullscreenDialog: true),
+                                                      onTap: () => context.push(ExtendedDetailsDay(userName: userName ,fromDate: fromDate, toDate: toDate, userId: empID, data: entry,), fullscreenDialog: true),
                                                       child: Utils.getText(
                                                         entry['task_count'],
                                                         align: TextAlign.center,

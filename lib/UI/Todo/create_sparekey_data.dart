@@ -12,7 +12,7 @@ class CreateSpareKeyData{
   String timeSensitive = '';
   String todoTime = '';
   int? todoUserType;
-  int? userGroupId;
+  String? userGroupId;
   String userId = '';
   String vehicleName = '';
   List<dynamic>? vehicles =[];

@@ -11,9 +11,7 @@ import 'package:fairpytasker/UI/Todo/Set_vehicle/set_vehicle_state.dart';
 import 'package:fairpytasker/UI/Todo/Set_vehicle/sparekeyTask_popup.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -65,7 +63,7 @@ class SetVehicleUi extends StatelessWidget {
                   children: [
                     Utils.getTextFormField(
                       "Address",
-                      TextEditingController(),
+                      context.read<setVehicleBloc>().addressController,
                       inputAction: TextInputAction.newline,
                       textType: TextInputType.multiline,
                       minLines: 3,
@@ -523,7 +521,9 @@ class SetVehicleUi extends StatelessWidget {
                             } else {
                               SpareKeyTaskDialog.show(
                                   context,
-                                  save: (){context.read<setVehicleBloc>().add(setVehicleSaveEvent());},
+                                  save: (){
+                                    context.read<setVehicleBloc>().add(setVehicleSaveEvent());
+                                    },
                                   spareKeyCreate: (){context.read<setVehicleBloc>().add(createSparekeyTask());},
                                   cancel: (){}
                               );

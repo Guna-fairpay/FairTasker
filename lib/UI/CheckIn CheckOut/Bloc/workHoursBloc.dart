@@ -41,6 +41,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
       selectedUser: const {},
+    selectedTab: 0,
     selectedDateRange: DateRange(
       DateTime.now().subtract(const Duration(days: 7)),
       DateTime.now(),
@@ -1204,6 +1205,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         }
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
 
+        log("taskData ${taskData}",name: "taskData");
 
         //Total amount calculation
         Map<String, dynamic> _calculateTotals(
@@ -1369,58 +1371,268 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
     });
 
-    on<ExtendedDetailsDayEvent>((event, emit) async{
+    on<ExtendedDetailsDayEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       Map<String, dynamic> checkInDetails = {};
-      final response = await apiRepository.getEmployeeTaskHistoryByDay(event.date,event.userId);
       final response2 = await apiRepository.getActiveHoursResponse(extractDate(event.startDate), extractDate(event.endDate));
-      final taskHistory = await apiRepository.fetchEmployeeTaskHistoryByTask(
-        date: event.endDate,
+      final response = await apiRepository.fetchEmployeeTaskHistoryByTask(
+        date: formatedDate(event.data['date']),
         userId: event.userId, cohortIds: event?.cohortIds ?? [],
       );
-
-      log("${taskHistory?.allHistory}");
       final relevantHours = response2?.data?.where(
             (activeHour) => activeHour['user_id']?.toString() == event.userId.toString() && activeHour['todo_date'].toString() == formatedDate(event.data['date']),
       );
       final int? totalMinutes = relevantHours?.fold(
-        0,
-            (total, current) => total! + timeStringToMinutes(current['active_hours']),
+        0,(total, current) => total! + timeStringToMinutes(current['active_hours']),
       );
+
       final calculatedActiveHours = minutesToTimeString(totalMinutes!);
       checkInDetails.clear();
       checkInDetails.addAll({
         "checkIn": formatedTime(event.data['start_time']),
         "checkOut": formatedTime(event.data['end_time']),
         "active_hours": calculatedActiveHours,
-        "total_hours": formatDurationToHM(event.data['total_hours']),
+        "total_hours": formatTime(event.data['total_hours']),
         "date": formatDate(event.data['date']),
       });
-      log("${event.data['date']}  ${formatDate(event.data['date'])}");
+
+      //ByTask Tab calculation
+
       emit(state.copyWith(checkInDetails: checkInDetails, isLoading: false));
     });
 
+    on<ByDayInitialEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      final response = await apiRepository.getEmployeeTaskHistoryByDay(formatedDate(event.date),event.userId);
+      log("${response?['data']}");
+      emit(state.copyWith(isLoading: false, byDayData: response?['data']));
+    });
 
-    on<TabChangeEvent>((event, emit) {
+    on<ByTaskInitialEvent>((event, emit) async {
+      emit(state.copyWith(isLoading: true));
+      final response3 = await apiRepository.getTaskCategoryGroups();
+      final response = await apiRepository.fetchEmployeeTaskHistoryByTask(
+        date: formatedDate(event.date),
+        userId: event.userId, cohortIds: event?.cohortIds ?? [],
+      );
+      log("${response?.allHistory}");
+      List<String>? titles = response3?.data?.map((item) => item['name'].toString()).toList();
+
+      List<Map<String, dynamic>> sortTitles(List<String> titles, List<Map<String, dynamic>> taskCategoryGroup) {
+
+        Map<String, List<Map<String, dynamic>>> classifiedTask = {
+          'Other': [],
+          'Parts': []
+        };
+        Set<String> addedTitles = {};
+
+        List<String> categoryOrder = [
+          'Rental',
+          'Repair',
+          'Parts',
+          'Rental Ready',
+          'Maintenance',
+          'Operations',
+          'Other'
+        ];
+        if (taskCategoryGroup.isNotEmpty) {
+          for (var parentCategory in taskCategoryGroup) {
+            if (parentCategory['name'] == 'Sales') continue;
+
+            if (parentCategory['name'] != 'Offshore' && parentCategory['name'] != 'Purchase') {
+              classifiedTask[parentCategory['name']] = [];
+            }
+
+            if (parentCategory.containsKey('subcategories') && parentCategory['subcategories'] is List) {
+              for (var childCategory in parentCategory['subcategories']) {
+                for (var title in titles) {
+                  String lowercaseTitle = title.toLowerCase();
+                  if (lowercaseTitle == childCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
+                    classifiedTask[parentCategory['name']] ??= [];
+                    classifiedTask[parentCategory['name']]!.add({
+                      'title': title,
+                      'id': childCategory['id'] ?? null
+                    });
+                    addedTitles.add(lowercaseTitle);
+                  }
+                }
+              }
+            }
+
+            // Classify titles matching the parent category name
+            for (var title in titles) {
+              String lowercaseTitle = title.toLowerCase();
+              if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
+                classifiedTask[parentCategory['name']]!.add({
+                  'title': title,
+                  'id': parentCategory['id'] ?? null
+                });
+                addedTitles.add(lowercaseTitle);
+              }
+            }
+          }
+        }
+
+        // title related to 'Parts'
+        for (var title in titles) {
+          String lowercaseTitle = title.toLowerCase();
+          if (lowercaseTitle.contains('parts') && !addedTitles.contains(lowercaseTitle)) {
+            classifiedTask['Parts']!.add({
+              'title': title,
+              'id': null
+            });
+            addedTitles.add(lowercaseTitle);
+          }
+        }
+
+        // Add remaining titles to 'Other'
+        for (var title in titles) {
+          String lowercaseTitle = title.toLowerCase();
+          if (!addedTitles.contains(lowercaseTitle)) {
+            classifiedTask['Other']!.add({
+              'title': title,
+              'id': -1,
+            });
+            addedTitles.add(lowercaseTitle);
+          }
+        }
+
+        // Convert classifiedTask map into list format
+        List<Map<String, dynamic>> sortedTask = [];
+
+        for (var category in categoryOrder) {
+          if (classifiedTask.containsKey(category)) {
+            sortedTask.add({
+              "title": category,
+              "subcategory": classifiedTask[category]!.map((e) => {
+                "sub_title": e['title'],
+                "id": e['id'],
+              }).toList()
+            });
+          }
+        }
+
+        return sortedTask;
+      }
+      var result = sortTitles(titles!, response3!.data ?? []);
+
+      List<Map<String, dynamic>> formatTaskData(List<Map<String, dynamic>> categoryData, List<Map<String, dynamic>> tasks)
+      {
+        Map<String, List<Map<String, dynamic>>> classifiedTasks = {};
+
+        // Initialize categories
+        for (var category in categoryData) {
+          bool includeCategory = category['title'] != 'Other' || event.cohortIds!.contains(-1);
+          if (includeCategory) {
+            classifiedTasks[category['title']] = [];
+          }
+        }
+
+        // Classify tasks
+        for (var task in tasks) {
+          String taskTitle = task['title'];
+          bool matched = false;
+
+          for (var category in categoryData) {
+            for (var sub in category['subcategory']) {
+              if (sub['sub_title'].toString().toLowerCase() == taskTitle.toLowerCase()) {
+                classifiedTasks[category['title']]!.add(task);
+                matched = true;
+                break;
+              }
+              // else if(taskTitle.toLowerCase().contains(sub['sub_title'].toLowerCase()))
+              // {
+              //   classifiedTasks[category['title']]!.add(task);
+              //   matched = true;
+              //   log("matched ${taskTitle} ${sub['sub_title']}",name: "matched");
+              //   break;
+              // }
+            }
+            if (matched) break;
+          }
+
+          if (!matched || event.cohortIds!.contains(-1)) {
+            classifiedTasks['Other'] ??= [];
+            classifiedTasks['Other']!.add(task);
+          }
+        }
+
+        List<Map<String, dynamic>> finalList = [];
+
+        for (var category in categoryData) {
+          List<Map<String, dynamic>> subcategories = [];
+          Map<String, Map<String, dynamic>> groupedTasks = {}; // Group by sub_title
+
+          for (var task in classifiedTasks[category['title']] ?? []) {
+            String subTitle = task['title'];
+            List<Map<String, dynamic>> vehicles = [];
+
+            if(task['vehicles'] is List && task['vehicles'].isNotEmpty && task['vehicles'].length > 1){
+              vehicles.add({
+                "vehicle_name": "MV",
+                "todo_date": task['todo_date'] ?? '',
+                "id": task['id'],
+              });
+            }
+            else if (task['vehicle_name'] != null && task['vehicle_name'] != '' && task['vehicle_name'] != 'null') {
+              vehicles.add({
+                "vehicle_name": task['vehicle_name'],
+                "todo_date": task['todo_date'] ?? '',
+                "id": task['id'],
+                "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
+              });
+            }
+            else if (task['vehicles'] != null && task['vehicles'] is List && task['vehicles'].isNotEmpty && task['vehicles'] != []) {
+              // Otherwise, check inside `task['vehicles']`
+              vehicles = (task['vehicles'] as List<dynamic>)
+                  .map<Map<String, dynamic>>((v) => {
+                "vehicle_name": v['vehicle_name'],
+                "todo_date": task['todo_date'] ?? '',
+                "id": task['id'],
+                "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
+              }).toList();
+            } else {
+              vehicles.add({
+                "person": task['person']?.toString() ?? null,
+                "todo_date": task['todo_date'] ?? '',
+              });
+            }
+
+            if (groupedTasks.containsKey(subTitle)) {
+              // Merge vehicles under the same sub_title
+              groupedTasks[subTitle]!['vehicles'].addAll(vehicles);
+              groupedTasks[subTitle]!['count'] += vehicles.length;
+            } else {
+              groupedTasks[subTitle] = {
+                "sub_title": subTitle,
+                "count": vehicles.length,
+                "vehicles": vehicles,
+              };
+            }
+          }
+
+          subcategories = groupedTasks.values.toList();
+          finalList.add({
+            "title": category['title'],
+            "count": subcategories.length,
+            "subcategory": subcategories
+          });
+        }
+        return finalList;
+      }
+      List<Map<String, dynamic>> taskData = formatTaskData(result, response!.allHistory);
+
+      log("taskData ${taskData}",name: "taskData");
+      emit(state.copyWith(isLoading: false, byTaskData: taskData,));
+    });
+
+    on<TabChangeEvent>((TabChangeEvent event, Emitter<WorkingHoursState> emit) {
       selectedTab = event.tabIndex;
+      emit(state.copyWith(selectedTab: selectedTab));
     });
 
   }
 
-  String formatDurationToHM(String durationString) {
-    try {
-      List<String> parts = durationString.split(':');
-      if (parts.length == 3) {
-        int hours = int.parse(parts[0]);
-        int minutes = int.parse(parts[1]);
-        return '${hours}:${minutes}';
-      } else {
-        return 'Invalid format';
-      }
-    } catch (e) {
-      return 'Invalid format';
-    }
-  }
 
   String formatedDate(String dateString){
     print(dateString);
@@ -1441,6 +1653,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     DateFormat format = DateFormat("HH:mm:ss");
     DateTime date = format.parse(dateString);
     String formattedDate = DateFormat('jm').format(date);
+    return formattedDate;
+  }
+
+  String formatTime(String dateString){
+    DateFormat format = DateFormat("HH:mm:ss");
+    DateTime date = format.parse(dateString);
+    String formattedDate = DateFormat('hh:mm').format(date);
     return formattedDate;
   }
 

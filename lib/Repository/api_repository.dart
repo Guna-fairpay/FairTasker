@@ -438,6 +438,7 @@ class APiRepository {
       String apiUrl = "${Str.BASE_URL}$_employeeTaskHistoryByDay${date}&user_id=${userId}";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
+      log("${mapData}", name: "Response_TaskHistoryByDay");
       return mapData;
     } catch(error){
       rethrow;
