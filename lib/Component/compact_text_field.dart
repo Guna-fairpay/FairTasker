@@ -18,9 +18,11 @@ class CompactTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final FocusNode? focusNode;
   final Color? borderColor;
+  final Widget? suffixIcon;
+  final bool obscureText;
   final int? maxLines;
   final int? minLines;
-  const CompactTextField({super.key, this.controller, this.hintText = "Type here", this.labelText, this.prefixIcon, this.autoValidateMode, this.textInputAction, this.keyboardType, this.validator, this.maxLines = 1, this.minLines, this.inputFormatters, this.borderColor = AppC.fieldBase, this.focusNode});
+  const CompactTextField({super.key, this.controller, this.hintText = "Type here", this.labelText, this.prefixIcon, this.autoValidateMode, this.textInputAction, this.keyboardType, this.validator, this.maxLines = 1, this.minLines, this.inputFormatters, this.borderColor = AppC.fieldBase, this.focusNode, this.suffixIcon, this.obscureText = false});
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class CompactTextField extends StatelessWidget {
         focusNode?.unfocus();
         Utils.dismissKeyboard(context);
       },
+      obscureText: obscureText,
       decoration: InputDecoration(
         isDense: true,
         hintText: hintText,
@@ -55,6 +58,7 @@ class CompactTextField extends StatelessWidget {
         focusedBorder: border,
         hintStyle: context.textTheme.labelLarge?.copyWith(color: AppC.fieldBase),
         prefixIcon: (prefixIcon == null) ? null : Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
+        suffixIcon: suffixIcon
       ),
     );
   }
