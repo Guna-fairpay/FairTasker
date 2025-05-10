@@ -156,7 +156,7 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
       }
       else{
         Console.of.log(response,name: 'TESTCASE0');
-        Toaster.showError(response);
+        Toaster.showError(response?['message']);
         emit(CategoryConfigCommonState());
       }
     }catch(e){

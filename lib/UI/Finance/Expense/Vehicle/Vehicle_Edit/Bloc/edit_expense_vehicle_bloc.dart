@@ -484,7 +484,7 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
     baseBody['sales_tax'] = saleTaxController.text;
     baseBody['shipping_and_handling'] = shippingController.text;
     baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
-    baseBody['employee_id'] = state.editResponse?['employee_id'] ?? '';
+    baseBody['employee_id'] = "${state.editResponse?['employee_id'] ?? ''}";
     if (splitParts.isNotEmpty || splitSupplies.isNotEmpty) {
       splits.forEachIndexed((index, element) {
         baseBody['split[$index][${element.keys.first}]'] =

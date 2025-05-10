@@ -55,7 +55,7 @@ class DropdownBoxWithIcon extends StatelessWidget {
               ),
             ),
             child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 8,),
+              padding: EdgeInsets.symmetric(horizontal: 5.5,vertical: 5.5,),
               child: Icon(Icons.add,color: AppC.blue,),
             ),
           ),

@@ -373,6 +373,12 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
 
     on<SavePersonExpenseEvent>((event, emit) async {
+      if (state.selectedPerson.isEmpty) return Toaster.showError("Please select person");
+      if (state.selectedCategory.isEmpty) return Toaster.showError("Please select category");
+      if (state.selectedSubCategory.isEmpty) return Toaster.showError("Please select subCategory");
+      if (state.selectedCohorts.isEmpty) return Toaster.showError("Please select expenseTo");
+      if (amountController.text.isEmpty) return Toaster.showError("Please enter amount");
+      if (state.selectedApproved.isEmpty) return Toaster.showError("Please select approved status");
       try {
         emit(state.copyWith(isLoading: true));
         Console.of.log("Entered");
