@@ -173,6 +173,7 @@ class ReportsBloc extends Bloc<ReportDownloadEvent, ReportState> {
 
   void _onUploadFileEvent(UploadFileEvent event, Emitter<ReportState> emit) async {
     try {
+      if (tollFile == null) return emit(ReportsErrorState("No file selected"));
       emit(ReportsUploadingState());
       var response = await _reportRepository.uploadFile(tollFile?.path.toString() ?? '');
       if ((response != null) && (response.isNotEmpty)) tollFileController.clear();
