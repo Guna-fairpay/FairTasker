@@ -34,8 +34,8 @@ class TaskView extends StatelessWidget {
               Utils.getTextFormField(
                   'Task',
                   context.read<TaskBloc>().taskController,
-                autoValidate: context.watch<TaskBloc>().autoValidateMode,
-                validator: (val) => val!.isEmpty ? 'Please enter task name' : null ,
+                // autoValidate: context.watch<TaskBloc>().autoValidateMode,
+                // validator: (val) => val!.isEmpty ? 'Please enter task name' : null ,
               ),
               10.sp.height,
               DropdownBoxWithIcon(
