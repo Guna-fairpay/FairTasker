@@ -239,30 +239,7 @@ class PersonExpenseAddUI extends StatelessWidget {
                       ),
                     ),
                   15.height,
-                  Utils.getElevatedButton(() {
-                    if (state.selectedPerson.isEmpty) {
-                      return Toaster.showError("Please select person");
-                    }
-                    if (state.selectedCategory.isEmpty) {
-                      return Toaster.showError("Please select category");
-                    }
-                    if (state.selectedSubCategory.isEmpty) {
-                      return Toaster.showError("Please select subCategory");
-                    }
-                    if (state.selectedCohorts.isEmpty) {
-                      return Toaster.showError("Please select expenseTo");
-                    }
-                    if (context.read<PersonExpenseBloc>().amountController.text.isEmpty) {
-                      return Toaster.showError("Please enter amount");
-                    }
-                    if (state.selectedApproved.isEmpty) {
-                      return Toaster.showError("Please select approved status");
-                    }
-                    context.read<PersonExpenseBloc>().add(const SavePersonExpenseEvent());
-                    /*Future.delayed(const Duration(seconds: 1),
-                          () => context.pop(),
-                    );*/
-                  }),
+                  Utils.getElevatedButton(() => context.read<PersonExpenseBloc>().add(const SavePersonExpenseEvent())),
                 ],
               ),
             ),
