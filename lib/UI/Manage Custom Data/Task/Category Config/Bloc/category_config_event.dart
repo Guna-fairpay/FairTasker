@@ -51,7 +51,7 @@ class DeleteCategoryConfigEvent extends CategoryConfigEvent {
   List<Object?> get props => [data];
 }
 
-class EditCloseState extends CategoryConfigEvent {}
+class EditCloseEvent extends CategoryConfigEvent {}
 
 class SaveCategoryConfigEvent extends CategoryConfigEvent {}
 

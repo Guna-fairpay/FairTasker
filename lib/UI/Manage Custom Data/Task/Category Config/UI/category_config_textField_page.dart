@@ -49,7 +49,7 @@ class CategoryConfigTextFieldPage extends StatelessWidget {
                     SuccessButton(text: 'Save',onPressed:() => context.read<CategoryConfigBloc>().add(SaveCategoryConfigEvent())),
                   if(context.read<CategoryConfigBloc>().isEdit)
                     ...[CompactIconButton(icon:Icons.save_outlined,backgroundColor: AppC.green,onPressed: ()=>context.read<CategoryConfigBloc>().add(SaveCategoryConfigEvent()),),
-                      CompactIconButton(icon:Icons.close_outlined,backgroundColor: AppC.redAccent,onPressed: ()=>context.read<CategoryConfigBloc>().add(EditCloseState()),),],
+                      CompactIconButton(icon:Icons.close_outlined,backgroundColor: AppC.redAccent,onPressed: ()=>context.read<CategoryConfigBloc>().add(EditCloseEvent()),),],
                   const Spacer(flex: 1),
                   Flexible(
                     flex: 8,
