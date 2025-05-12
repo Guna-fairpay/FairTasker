@@ -79,7 +79,7 @@ class CategoryConfigListPage extends StatelessWidget {
                                           negativeText: "Cancel",
                                           isReasonRequired: false,
                                           onPositivePressed:
-                                              () {} /*context.read<CategoryConfigBloc>().add(DeleteCategoryConfigEvent(data: item)*/);
+                                              () => context.read<CategoryConfigBloc>().add(DeleteCategoryConfigEvent(data: item)));
                                     },
                                     child: Icon(
                                       Icons.delete_outline,
