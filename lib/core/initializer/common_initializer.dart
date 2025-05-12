@@ -214,12 +214,12 @@ class CommonService {
 
   Future<List<Map<String, dynamic>>> getExpenseCategories({bool reset = false}) async {
     if (reset) expenseCategoriesList.clear();
-    if (expenseCategoriesList.isNotEmpty) return expenseCategoriesList;
+    if (expenseCategoriesList.isNotEmpty) return List.from(expenseCategoriesList);
     try {
       var response = await _getCohortsAll();
       cohortsList = List<Map<String, dynamic>>.from(response?['cohortsData'] ?? []);
       expenseCategoriesList = List<Map<String, dynamic>>.from(response?['expenseCategories'] ?? []);
-      return expenseCategoriesList;
+      return List.from(expenseCategoriesList);
     } catch (e) {
       Toaster.showError(e.toString());
       return [];

@@ -133,6 +133,7 @@ dependencies:
   html_to_flutter: ^0.2.3-dev.8
   html_to_flutter_table: ^0.0.2-dev.7
   html_to_flutter_kit: ^0.0.3-dev.4
+  device_info_plus: ^11.4.0
 
 dev_dependencies:
   flutter_test:
