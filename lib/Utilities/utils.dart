@@ -785,8 +785,8 @@ class Utils {
             suffixIcon: Padding(
               padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 150,
+                constraints: BoxConstraints(
+                  maxWidth: suffixIconData1 != null ? 150 : 50,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,

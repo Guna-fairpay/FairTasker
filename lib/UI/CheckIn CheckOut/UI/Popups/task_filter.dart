@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
@@ -12,8 +13,8 @@ class FilterDialog extends StatefulWidget {
   final List<Map<String, dynamic>> filterOptions;
   final Set<int> selectedFilters;
   final Function(Set<int>) onSelectionChanged;
-  final String to;
-  final String from;
+  final String? to;
+  final String? from;
   final int userId;
 
   const FilterDialog({
@@ -22,8 +23,8 @@ class FilterDialog extends StatefulWidget {
     required this.filterOptions,
     required this.selectedFilters,
     required this.onSelectionChanged,
-    required this.to,
-    required this.from,
+    this.to,
+    this.from,
     required this.userId,
   });
 
@@ -89,13 +90,30 @@ class _FilterDialogState extends State<FilterDialog> {
 
   void _applyFilters() {
     log("Selected Filters: $tempSelectedFilters");
-    widget.workingHoursBloc.add(TaskInitialEvent(
-      to: widget.to,
-      from: widget.from,
-      userId: widget.userId,
-      cohortIds: tempSelectedFilters.toList(),
-    ));
-    widget.onSelectionChanged(tempSelectedFilters);
+    if(widget.to != null && widget.to != ''){
+      log("By Task Initial Event Called ${widget.to}");
+      widget.workingHoursBloc.add(ByTaskInitialEvent(
+        date: widget.to ?? '',
+        userId: widget.userId,
+        cohortIds: tempSelectedFilters.toList(),));
+      widget.onSelectionChanged(tempSelectedFilters);
+    } else {
+      log("Task Initial Event Called");
+      widget.workingHoursBloc.add(TaskInitialEvent(
+        to: widget.to ?? '',
+        from: widget.from ?? '',
+        userId: widget.userId,
+        cohortIds: tempSelectedFilters.toList(),
+      ));
+      widget.onSelectionChanged(tempSelectedFilters);
+    }
+  }
+
+  String formatedDate(String dateString){
+    DateFormat format = DateFormat("dd-MM-yyyy");
+    DateTime date = format.parse(dateString);
+    String formattedDate = DateFormat('yyyy-dd-MM').format(date);
+    return formattedDate;
   }
 
   @override

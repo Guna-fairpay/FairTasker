@@ -1410,12 +1410,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     on<ByTaskInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
+      final response1 = await apiRepository.fetchCohortData();
       final response3 = await apiRepository.getTaskCategoryGroups();
       final response = await apiRepository.fetchEmployeeTaskHistoryByTask(
         date: formatedDate(event.date),
         userId: event.userId, cohortIds: event?.cohortIds ?? [],
       );
-      log("${response?.allHistory}");
+      log("${response?.allHistory}", name: "cohorts_data");
       List<String>? titles = response3?.data?.map((item) => item['name'].toString()).toList();
 
       List<Map<String, dynamic>> sortTitles(List<String> titles, List<Map<String, dynamic>> taskCategoryGroup) {
@@ -1622,8 +1623,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       }
       List<Map<String, dynamic>> taskData = formatTaskData(result, response!.allHistory);
 
-      log("taskData ${taskData}",name: "taskData");
-      emit(state.copyWith(isLoading: false, byTaskData: taskData,));
+
+      emit(state.copyWith(isLoading: false, byTaskData: taskData,cohortsData: response1?.data ?? [],));
     });
 
     on<TabChangeEvent>((TabChangeEvent event, Emitter<WorkingHoursState> emit) {

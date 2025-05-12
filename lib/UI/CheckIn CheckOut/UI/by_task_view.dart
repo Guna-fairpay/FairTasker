@@ -68,8 +68,7 @@ class ByTaskView extends StatelessWidget {
                                       selectedFilters = newSelection;
                                       print("Selected Filters (IDs): $selectedFilters");
                                     },
-                                    to: toDate.toString(),
-                                    from: fromDate.toString(),
+                                    to: date.toString(),
                                     userId: userId,
                                   ),
                             );
