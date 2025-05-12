@@ -185,6 +185,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
             commentAttachments.remove(event.attachment);
           }
         }
+        filePickerController.text=commentAttachments.lastOrNull ?? "";
         emit(FBCommentAttachments(commentAttachments));
       }catch(e){
         Console.of.error(e);

@@ -5,6 +5,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/build_flavor/flavor.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -44,6 +45,7 @@ void main() {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
     };
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     runApp(const MyApp());
     configEasyLoading();
     filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);

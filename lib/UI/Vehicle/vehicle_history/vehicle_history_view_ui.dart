@@ -127,6 +127,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
                 spacing: 10,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SizedBox.shrink(),
                   CompactSearchView(
                     controller: context
                         .read<VehicleHistoryBloc>()

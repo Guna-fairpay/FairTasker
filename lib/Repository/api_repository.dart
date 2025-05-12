@@ -337,6 +337,8 @@ class APiRepository {
 
   String get _leaveApprove => "leaveApprove";
 
+  String get _tollExport => "toll-export";
+
   String get _employeeTaskHistoryByDay => "employeeTaskHistoryByDay?date=";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -2396,20 +2398,11 @@ Future<Map<String, dynamic>?> getLocations() async {
         apiUrl,
         body: body,
       );
-      if (response != null) {
-        if (response.isSuccess) {
-          var mapData = await response.mapData;
-          return mapData;
-        } else {
-          Utils.showSomethingWentWrong();
-          return null;
-        }
-      } else {
-        return null;
-      }
+     var mapData = await response.mapData;
+     return mapData;
     } catch (error) {
       log('callCategoryConfigAddOrUpdateAPI : ${error.toString()}');
-      return null;
+      rethrow;
     }
   }
 
@@ -3643,6 +3636,21 @@ Future<Map<String, dynamic>?> getLocations() async {
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl,body: body);
       var mapData = await response.mapData;
       return mapData?['data'];
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> tollExport({dynamic infusedFile})async{
+    try {
+      String apiUrl = "${Str.BASE_URL}$_tollExport";
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, infusedFiles: infusedFile);
+      if (response?.isSuccess == true) {
+        var mapData = await response.mapData;
+        return mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? "Some thing went wrong, try again later!..."}");
+      }
     }catch(e){
       rethrow;
     }
