@@ -16,7 +16,7 @@ class SubCategorySuccessState extends SubCategoryState {
   final dynamic message;
   SubCategorySuccessState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class SubCategoryErrorState extends SubCategoryState {

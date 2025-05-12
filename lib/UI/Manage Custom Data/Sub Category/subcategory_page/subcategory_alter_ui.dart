@@ -23,6 +23,7 @@ class SubcategoryAlterUi extends StatelessWidget {
           spacing: 10,
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox.shrink(),
             Utils.getTextFormField(
               'Name',
               context.read<SubCategoryBloc>().nameController,
