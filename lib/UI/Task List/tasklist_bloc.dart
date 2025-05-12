@@ -29,9 +29,13 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   final TaskListRepository taskListRepo = TaskListRepository();
   List<Map<String, dynamic>> overtimeTakenData = [];
   List<Map<String, dynamic>> extraHoursData = [];
+  bool isAscending = false;
+  bool offShore = false;
 
   TaskListBloc() : super(TaskListState(
       pop: false,
+    isAscending: false,
+    offShore: false,
     selectedDateRange: DateRange(
       DateTime.now().subtract(const Duration(days: 7)),
       DateTime.now(),
@@ -44,7 +48,6 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
       try {
         final value = await taskListRepo.getTaskList(event.startDate, event.endDate);
         final groupResource = await taskListRepo.fetchUserGroupingList();
-        final resource = await taskListRepo.getAssignedTo();
         final groupVehicle = await taskListRepo.getVehicleGroupData();
         final usersList = await taskListRepo.getUsers();
         final taskExpenseData = await taskListRepo.getTask();
@@ -54,12 +57,9 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         userListData = usersList?.data ?? [];
         groupVehicleData = groupVehicle?.vehicleGroupData ?? [];
         apiResponse = value?.data ?? [];
-        userInitials = resource?.resource ?? [];
         groupUsers = groupResource?.data ?? [];
 
-        apiResponse = apiResponse.map((e) => e..["usersList"] =
-                                                _getUsers(userId: e['user_id'],
-                                                userGroupId: e['user_group_id'])).toList();
+        apiResponse = apiResponse.map((e) => e..["usersList"] = _getUsers(userId: e['user_id'], userGroupId: e['user_group_id'])).toList();
         apiResponse = apiResponse.map((e) => e..["usersName"] =
                                                 List.from(e['usersList']).map((e) => <String>[
                                                   (e['first_name'] ?? ""),
@@ -136,15 +136,21 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
     on<TaskIncompleteEvent>((event, emit) async {
       try{
-        apiResponse.sort((a, b) => b['todo_date'].toString().toDateTime()?.compareTo(a['todo_date'].toString().toDateTime() ?? DateTime.now()) ?? 0);
-        var inComplete = apiResponse.where((element) => element['complete_time_approved'] == 0);
-        var completed = apiResponse.where((element) => element['complete_time_approved'] == 1);
+        List<Map<String, dynamic>> TaskIncomplete = [];
+        TaskIncomplete.clear();
+        TaskIncomplete.addAll(apiResponse);
+        //TaskIncomplete.sort((a, b) => b['todo_date'].toString().toDateTime()?.compareTo(a['todo_date'].toString().toDateTime() ?? DateTime.now()) ?? 0);
+        var inComplete = TaskIncomplete.where((element) => element['complete_time_approved'] == 0);
+        var completed = TaskIncomplete.where((element) => element['complete_time_approved'] == 1);
         if(event.value) {
+          if(state.offShore){
+            add(OffShoreTeamEvent(value: false));
+          }
           log("${event.value} ---> ");
-          apiResponse = [...inComplete, ...completed];
-          emit(state.copyWith(data: apiResponse,isAscending: event.value));
+          TaskIncomplete = [...inComplete, ...completed];
+          emit(state.copyWith(data: TaskIncomplete,isAscending: event.value));
           log("Ascending triggered ---> ");
-        }else {
+        } else {
           log("${event.value} ---> ");
           //apiResponse = [...completed, ...inComplete];
           // apiResponse.sort((a,b) => b['complete_time_approved'].compareTo(a['complete_time_approved']));
@@ -158,14 +164,23 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
     on<OffShoreTeamEvent>((event, emit) async {
       try{
+        List<Map<String, dynamic>> OffShoreTeamData = [];
+        OffShoreTeamData.clear();
+        OffShoreTeamData.addAll(apiResponse);
+        var offShore = OffShoreTeamData.where((element) => element['todo_user_type'] == 1);
+        var inOffShore = OffShoreTeamData.where((element) => element['todo_user_type'] != 1);
         if(event.value){
+          if(state.isAscending){
+            add(OffShoreTeamEvent(value: false));
+          }
           log("${event.value} ---> ");
-          apiResponse.sort((a, b) => b['todo_user_type'].compareTo(a['todo_user_type']));
-          emit(state.copyWith(data: apiResponse,offShore: event.value));
+          OffShoreTeamData = [...offShore, ...inOffShore];
+          //apiResponse.sort((a, b) => b['todo_user_type'].compareTo(a['todo_user_type']));
+          emit(state.copyWith(data: OffShoreTeamData,offShore: event.value));
           log("Ascending triggered ---> ");
         } else {
           log("${event.value} ---> ");
-          apiResponse.sort((a, b) => a['todo_user_type'].compareTo(b['todo_user_type']));
+          //apiResponse.sort((a, b) => a['todo_user_type'].compareTo(b['todo_user_type']));
           emit(state.copyWith(data: apiResponse,offShore: event.value));
           log("Rollback triggered ---> ");
         }
@@ -285,7 +300,11 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
             int remainder_minutes = overtimeTaken % 60;
             task['overtime'] =
             '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}';
-          } else {
+          } else if(completedTime != timeTaken && task['complete_time_approved'] == 1){
+            int leftOverTime = completedTime - timeTaken;
+            log("leftOverTime: $leftOverTime");
+          }
+          else {
             task['overtime'] = '';
           }
         } else {
@@ -322,11 +341,11 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
       case 1:
         return {'text': '(T)', 'color' : Colors.black};
       case 2:
-        return {'text': '(U)', 'color' : Color(0xFF90EE90)};
+        return {'text': '(U)', 'color' : const Color(0xFF90EE90)};
       case 3:
         return {'text': '(P)', 'color' : const Color(0xFFFFCC99)};
       case 4:
-        return {'text': '(G)', 'color' : Color(0xFFFFB6C1)};
+        return {'text': '(G)', 'color' : const Color(0xFFFFB6C1)};
       default:
         return {};
     }

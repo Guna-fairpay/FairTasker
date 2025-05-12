@@ -16,6 +16,7 @@ import '../../../Repository/vehicle_repository.dart';
 import '../../../Response/create_vehicle_data.dart';
 import '../../../Utilities/Str.dart';
 import '../../../core/app/helper/console.dart';
+import '../../../core/app/helper/toaster.dart';
 import '../../../core/initializer/common_initializer.dart';
 import '../create_sparekey_data.dart';
 
@@ -282,6 +283,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
         ..vendorName = todoItem?['vendor_name'] ?? ''
         ..vehicleNumber = vehicleNumberController?.text ?? newVehicle['vehicle_number']
         ..vin = todoItem?['vin'] ?? '';
+      Toaster.showSuccess("SpareKey Task Created");
       try {
         final response = await todoListRepo.spareKeyTask(spareKeyData);
         log("${response}",name: "Create_SpareKey");
