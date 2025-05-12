@@ -34,21 +34,27 @@ class CategoryConfigListPage extends StatelessWidget {
                         .watch<CategoryConfigBloc>()
                         .filteredResponse[index];
                     return SafeArea(
-                      minimum:
-                          EdgeInsets.symmetric(vertical: 5.h, horizontal: 1.w),
+                      minimum: EdgeInsets.symmetric(vertical: 5.h, horizontal: 1.w),
                       child: Row(
                           spacing: 5,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Expanded(
-                              child: Utils.getText(item['name'] ?? '',
-                                  size: 12.sp, overFlow: TextOverflow.visible),
+                              child: GestureDetector(
+                                onTap: () => context.read<CategoryConfigBloc>()
+                                    .add(EditCategoryConfigEvent(data: item)),
+                                child: Utils.getText(item['name'] ?? '',
+                                    size: 12.sp, overFlow: TextOverflow.visible),
+                              ),
                             ),
                             Expanded(
-                                child: Utils.getText(
-                              item['category_name'] ?? '',
-                            )),
+                                child: GestureDetector(
+                                  onTap: () => context
+                                      .read<CategoryConfigBloc>()
+                                      .add(EditCategoryConfigEvent(data: item)),
+                                  child: Utils.getText(item['category_name'] ?? '',),
+                                )),
                             Row(
                               spacing: 5,
                               children: [
@@ -61,7 +67,8 @@ class CategoryConfigListPage extends StatelessWidget {
                                       Icons.edit_outlined,
                                       color: AppC.blue,
                                       size: 20.sp,
-                                    )),
+                                    )
+                                ),
                                 InkWell(
                                     onTap: () {
                                       AskPermissionDialog.show(context,
@@ -78,10 +85,12 @@ class CategoryConfigListPage extends StatelessWidget {
                                       Icons.delete_outline,
                                       color: AppC.redAccent,
                                       size: 20.sp,
-                                    )),
+                                    ),
+                                ),
                               ],
                             )
-                          ]),
+                          ]
+                      ),
                     );
                   }),
           CompactPagination(

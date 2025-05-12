@@ -103,3 +103,5 @@ class GetOdometerEvent extends TodoEditExpenseEvent {
   @override
   List<Object?> get props => [vin,Random().nextDouble()];
 }
+
+class SaveCategoryEvent extends TodoEditExpenseEvent {}
