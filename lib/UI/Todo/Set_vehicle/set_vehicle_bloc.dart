@@ -500,7 +500,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
     var result = await FilePicker.platform.pickFiles(allowMultiple: true,
         allowCompression: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov']
+        allowedExtensions: ['jpg', 'jpeg', 'png',]
     );
     return result?.paths.where((element) => (element?.isNotEmpty ?? false)).map((e) => File(e!)).toList() ?? [];
   }
