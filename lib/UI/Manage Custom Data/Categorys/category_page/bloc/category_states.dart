@@ -17,19 +17,19 @@ class CategoryErrorState extends CategoryState {
   final dynamic message;
   CategoryErrorState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class CategorySuccessState extends CategoryState {
   final dynamic message;
   CategorySuccessState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class CategoryDeleteTapState extends CategoryState {
   final dynamic model;
   CategoryDeleteTapState(this.model);
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, Random().nextDouble()];
 }

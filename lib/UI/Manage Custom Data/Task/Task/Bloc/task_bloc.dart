@@ -28,8 +28,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   // List<Map<String, dynamic>> noCategoryResponse = [];
   List<Map<String, dynamic>> _unfilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
-  List<dynamic>category=[];
-  List<dynamic>subcategory=[];
+  List<dynamic> get category => getIt<CommonService>().expenseCategoriesList;
+  List<dynamic> get subcategory => List.from(selectedCategory?['sub_categories'] ?? []);
   List<dynamic>listSubcategory=[];
   List<dynamic>usersType=[{'id': 0, 'name': 'Select'}, {'id': 1, 'name': 'Support Task'}];
   dynamic selectedCategory;
@@ -78,7 +78,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       selectedCategory={};
       selectedSubCategory={};
       selectedCategory=category.firstWhereOrNull((element) => element['id'].toString()==event.data['category_id'].toString());
-      subcategory=selectedCategory?['sub_categories']??[];
+      // subcategory=selectedCategory?['sub_categories']??[];
       selectedSubCategory=subcategory.firstWhereOrNull((element) => element['id'].toString()==event.data['subcategory_id'].toString());
       selectedUserType=usersType.firstWhere((element) => element['id'].toString()==event.data['user_type'].toString());
       emit(TaskCommonState());
@@ -98,9 +98,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
     on<CategoryDropDownEvent>((event, emit) {
       selectedCategory = event.data;
-      subcategory=[];
+      // subcategory=[];
       selectedSubCategory={};
-      subcategory=event.data['sub_categories'];
+      // subcategory=event.data['sub_categories'];
       emit(TaskCommonState());
     });
 
@@ -241,7 +241,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     }
     var response= await getIt<CommonService>().getTaskExpenseData(reset: true);
     var categories = await getIt<CommonService>().getExpenseCategories();
-    category=List.from(categories);
+    // category=List.from(categories);
     response.removeWhere((element) => element['deleted_at'].toString().isNotNullOrEmpty);
     response.sort((a, b) => b['id'].compareTo(a['id']));
     selectedUserType = usersType[0];

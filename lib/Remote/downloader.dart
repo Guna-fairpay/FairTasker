@@ -1,5 +1,9 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/device_info_helper.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -11,12 +15,12 @@ class Downloader {
 
   static final Downloader instance = Downloader._();
 
-  Future<String?> start(String path, {Function(String?)? onError}) async {
+  Future<String?> start(String path, {Function(String?)? onError, bool openFile = false}) async {
 
     try {
       // Check and request storage permission
       if (Platform.isAndroid) {
-        var status = await Permission.manageExternalStorage.request();
+        var status = (await DeviceInfoHelper.of.isBelow13) ? await Permission.storage.request() : await Permission.manageExternalStorage.request();
         if (!status.isGranted) throw Exception('Storage permission not granted');
       }
 
@@ -71,6 +75,10 @@ class Downloader {
           }
         },
       );
+      if (openFile) {
+        Toaster.showSuccess("File downloaded successfully!");
+        filePath.open;
+      }
 
       print('File downloaded to: $filePath');
       return filePath;
