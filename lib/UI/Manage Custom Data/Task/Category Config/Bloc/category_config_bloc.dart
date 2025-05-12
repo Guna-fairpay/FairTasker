@@ -92,15 +92,15 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
     try{
       emit(CategoryConfigLoadingState());
       var response = await _apiRepository.deleteCategoryConfigData(event.data['id']);
-      if(response?['message']!=null){
+     // if(response?['message']!=null){
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
         _unFilteredResponse = apiResponse;
         filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-        Toaster.showSuccess(response?['message']);
+        //Toaster.showSuccess(response?['message']);
         _search();
         emit(CategoryConfigCommonState());
-      }
+     // }
     }catch(e){
       Toaster.showError(e.toString());
       emit(CategoryConfigCommonState());

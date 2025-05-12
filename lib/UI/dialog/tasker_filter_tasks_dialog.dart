@@ -102,7 +102,7 @@ class _TaskerFilterTasksDialogContentView extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 20.sp),
                   children: [
                 CustomCheckboxListTile(
-                  title: const Text("All Todo"),
+                  title: Text("All Todo",style: TextStyle(fontSize: 12.sp),),
                   mainAxisSize: MainAxisSize.min,
                   padding: 10.horizontalPadding,
                   value: context.watch<TFTDBloc>().isSelectedAll,
