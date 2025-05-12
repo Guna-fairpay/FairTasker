@@ -3280,15 +3280,16 @@ class TodoListRepo {
       //title branch_id cohort_id identifier_id location location_id notes start_at time_sensitive(false) title todo_time todo_user_type user_group_id user_id
       //vehicle_name vehicles vendor_id vendor_name vin
       String body = jsonEncode({
-        "title": sparekeyData.title,
+        "address": sparekeyData.address,
         "branch_id":sparekeyData.branchId,
         "cohort_id":sparekeyData.cohortId,
         "identifier_id":sparekeyData.identifierId,
         "location":sparekeyData.location,
         "location_id":sparekeyData.locationId,
-        "notes": sparekeyData.notes ,
+        "notes": sparekeyData.notes,
         "start_at": sparekeyData.startAt.toString(),
         'time_sensitive': sparekeyData.timeSensitive,
+        "title": sparekeyData.title,
         "todo_time": DateTime.now().toFormat(format: "HH:mm:ss") ?? "",
         "todo_user_type": sparekeyData.todoUserType,
         "user_group_id": sparekeyData.userGroupId,
@@ -3298,8 +3299,6 @@ class TodoListRepo {
         "vendor_id": sparekeyData.vendorId,
          "vendor_name": sparekeyData.vendorName,
         "vin": sparekeyData.vin,
-        "platform": "TaskerApp",
-        "type": "inline",
       });
       log("$body", name: "POST_BODY");
       final http.Response? response =

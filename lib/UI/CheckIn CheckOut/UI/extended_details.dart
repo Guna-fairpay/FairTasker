@@ -49,11 +49,13 @@ class ExtendedDetailsTask extends StatelessWidget {
               EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
-              final attachmentMap = jsonDecode(state.extendedDetails['expense_attachment']);
-              final imagePath = attachmentMap.values.first;
-              imageName = imagePath.split('/').last;
-              final baseUrl = 'https://phase1.fairreturns.in/storage/expenses/';
-              imageUrl = '$baseUrl$imagePath';
+              if(state.extendedDetails['expense_attachment'] != null){
+                final attachmentMap = jsonDecode(state.extendedDetails['expense_attachment']);
+                final imagePath = attachmentMap.values.first;
+                imageName = imagePath.split('/').last;
+                final baseUrl = 'https://phase1.fairreturns.in/storage/expenses/';
+                imageUrl = '$baseUrl$imagePath';
+              }
             }
           },
           child: BlocBuilder<WorkingHoursBloc, WorkingHoursState>(

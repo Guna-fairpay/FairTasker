@@ -9,7 +9,6 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_l
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_type_view.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,8 +20,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../Component/custom_compact_pagination.dart';
 import '../../../../Utilities/utils.dart';
 import '../../../../Utilities/appC.dart';
-import '../../../dialog/ask_permission_dialog.dart';
-import '../../../dialog/show_attachments_dialog.dart';
 import '../Bloc/vendor_data_bloc.dart';
 
 class VendorView extends StatelessWidget {
@@ -67,182 +64,161 @@ class VendorView extends StatelessWidget {
                   minimum: EdgeInsets.only(bottom: 10.sp, top: 10.sp),
                   child: Padding(
                     padding: EdgeInsets.all(10.sp),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Form(
-                            key: formKey,
-                            child: ListView(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 10.0),
-                                  child: Utils.getTextFormField(
-                                    'Vendor Name',
-                                    context.read<VendorDataBloc>().nameController,
-                                    validator: (val) => val == null || val.isEmpty ? 'Please enter vendor name' : null,
-                                  ),
-                                ),
-                                10.height,
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child:
-                                      SuggestionSearchBar<Map<String, dynamic>>(
-                                        suggestions: context.read<VendorDataBloc>().vendorTypeData.where((item) => item['name']?.trim().isNotEmpty ?? false).toList(),
-                                        displayString: (item) => item['name']?.trim().replaceAll('\n', ' ') ?? '',
-                                        getId: (item) => item['id'],
-                                        searchController: context.read<VendorDataBloc>().searchController,
-                                        hintText: "Search Vendor Name",
-                                        onChanged: (val) {
-                                          log("SuggestionSearchBar $val");
-                                          context.read<VendorDataBloc>().add(FilterVendorTypeEvent(searchTerm: val));
-                                        },
-                                        onSelected: (item) {
-                                          selectedVendorType = item;
-                                          print('Selected item: ${selectedVendorType['id']} ${selectedVendorType['name']}');
-                                        },
-                                        onIconTap: () {
-                                          print("Triggered onIconTap");
-                                          Navigator.of(context).push(MaterialPageRoute(
-                                            builder: (context) =>
-                                                const VendorTypeView(),
-                                          ));
-                                        },
-                                      ),
+                    child: GestureDetector(
+                      onTap: () => Utils.dismissKeyboard(context),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Form(
+                              key: formKey,
+                              child: ListView(
+                                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10.0),
+                                    child: Utils.getTextFormField(
+                                      'Vendor Name',
+                                      context.read<VendorDataBloc>().nameController,
+                                      validator: (val) => val == null || val.isEmpty ? 'Please enter vendor name' : null,
                                     ),
-                                  ],
-                                ),
-                                10.height,
-                                Utils.getTextFormFieldWithMultipleIcon(
-                                  'Address',
-                                  context.read<VendorDataBloc>().addressController,
-                                  hintText: 'Address',
-                                  suffixIconData: Icons.location_on_outlined,
-                                  onSuffixTap: () {
-                                    _getCurrentLocation(context);
-                                  },
-                                  suffixIconData1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? Icons.navigation_outlined
-                                      : null,
-                                  iconColor1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? AppC.green
-                                      : null,
-                                  onSuffixTap1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? () async{
-                                    final Uri mapsUri = Uri(
-                                      scheme: 'https',
-                                      host: 'www.google.com',
-                                      path:
-                                      '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
-                                      queryParameters: {
-                                        'q':
-                                        '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'
-                                      },
-                                    );
-                                    if (await canLaunchUrl(mapsUri)) {
-                                      await launchUrl(mapsUri,
-                                          mode: LaunchMode
-                                              .externalApplication);
-                                    } else {
-                                      throw 'Could not open the map.';
-                                    }
-                                  } : (){},
-                                  suffixIconData2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? Icons.close
-                                      : null,
-                                  iconColor2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? AppC.red
-                                      : null,
-                                  onSuffixTap2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? () {
-                                    context.read<VendorDataBloc>().add(const ResetLocationEvent());
-                                  }
-                                      : (){},
-                                  bottomTrailingText: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
-                                      ? "Lat : ${context.watch<VendorDataBloc>().latitude} Long : ${context.watch<VendorDataBloc>().longitude}"
-                                      : null,
-                                ),
-                                10.height,
-                                Utils.getTextFormField(
-                                    'Phone',
-                                    context
-                                        .read<VendorDataBloc>()
-                                        .phoneController,
-                                    textType: TextInputType.phone),
-                                10.height,
-                                Utils.getTextFormField(
-                                    'Website',
-                                    context
-                                        .read<VendorDataBloc>()
-                                        .websiteController),
-                                10.height,
-                                Utils.getBorderedMultilineTextField(
-                                    'Expertise',
-                                    context
-                                        .read<VendorDataBloc>()
-                                        .expertiseController,
-                                    minLines: 2,
-                                    maxLines: 4),
-                                10.height,
-                                Utils.getBorderedMultilineTextField(
-                                    'Description',
-                                    context
-                                        .read<VendorDataBloc>()
-                                        .descriptionController,
-                                    minLines: 2,
-                                    maxLines: 4),
-                                10.height,
-                                VendorImageUploadSection(
-                                  title: 'Upload Business Card',
-                                  borderColor: Colors.blue,
-                                  onUpload: () => context.read<VendorDataBloc>().add(VendorImageEvent()),
-                                  onRemove: (index) => context.read<VendorDataBloc>().add(RemoveVendorImageEvent(index: index)),
-                                  images: context.watch<VendorDataBloc>().vendorImage,
-                                  logName: "",
-                                ),
-                                10.height,
-                                Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  ),
+                                  10.height,
+                                  Row(
                                     children: [
-                                      if (!context
-                                          .watch<VendorDataBloc>()
-                                          .isEditMode)
-                                        SuccessButton(
-                                          text: 'Save',
-                                          onPressed: () {
-                                            if(formKey.currentState!.validate()){
-                                              if(context.read<VendorDataBloc>().nameController.text.isEmpty){
-                                                formKey.currentState!.reset();
-                                                return;
-                                              }
-                                              context.read<VendorDataBloc>().add(AddVendorData(
-                                                name: context.read<VendorDataBloc>().nameController.text,
-                                                vendorTypeId: selectedVendorType?['id'] ?? null,
-                                                address: context.read<VendorDataBloc>().addressController.text,
-                                                phone: context.read<VendorDataBloc>().phoneController.text,
-                                                expertise: context.read<VendorDataBloc>().expertiseController.text,
-                                                description: context.read<VendorDataBloc>().descriptionController.text,
-                                                latitude: context.read<VendorDataBloc>().latitude?.toString(),
-                                                longitude: context.read<VendorDataBloc>().longitude?.toString(),
-                                                website: context.read<VendorDataBloc>().websiteController.text,
-                                                images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
-                                                id: null,
-                                              ));
-                                              selectedVendorType = null;
-                                              formKey.currentState!.reset();
-                                            }
+                                      Expanded(
+                                        child:
+                                        SuggestionSearchBar<Map<String, dynamic>>(
+                                          suggestions: context.read<VendorDataBloc>().vendorTypeData.where((item) => item['name']?.trim().isNotEmpty ?? false).toList(),
+                                          displayString: (item) => item['name']?.trim().replaceAll('\n', ' ') ?? '',
+                                          getId: (item) => item['id'],
+                                          searchController: context.read<VendorDataBloc>().searchController,
+                                          hintText: "Search Vendor Name",
+                                          onChanged: (val) {
+                                            log("SuggestionSearchBar $val");
+                                            context.read<VendorDataBloc>().add(FilterVendorTypeEvent(searchTerm: val));
+                                          },
+                                          onSelected: (item) {
+                                            selectedVendorType = item;
+                                            print('Selected item: ${selectedVendorType['id']} ${selectedVendorType['name']}');
+                                          },
+                                          onIconTap: () {
+                                            print("Triggered onIconTap");
+                                            Navigator.of(context).push(MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const VendorTypeView(),
+                                            ));
                                           },
                                         ),
-                                      if (context
-                                          .watch<VendorDataBloc>()
-                                          .isEditMode) ...[
-                                        SuccessButton(
-                                          text: 'Update',
-                                          onPressed: () {
-                                            context.read<VendorDataBloc>().add(AddVendorData(
+                                      ),
+                                    ],
+                                  ),
+                                  10.height,
+                                  Utils.getTextFormFieldWithMultipleIcon(
+                                    'Address',
+                                    context.read<VendorDataBloc>().addressController,
+                                    hintText: 'Address',
+                                    suffixIconData: Icons.location_on_outlined,
+                                    onSuffixTap: () {
+                                      _getCurrentLocation(context);
+                                    },
+                                    suffixIconData1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? Icons.navigation_outlined
+                                        : null,
+                                    iconColor1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? AppC.green
+                                        : null,
+                                    onSuffixTap1: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? () async{
+                                      final Uri mapsUri = Uri(
+                                        scheme: 'https',
+                                        host: 'www.google.com',
+                                        path:
+                                        '/maps/search/ ${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}',
+                                        queryParameters: {
+                                          'q':
+                                          '${context.read<VendorDataBloc>().latitude}, ${context.read<VendorDataBloc>().longitude}'
+                                        },
+                                      );
+                                      if (await canLaunchUrl(mapsUri)) {
+                                        await launchUrl(mapsUri,
+                                            mode: LaunchMode
+                                                .externalApplication);
+                                      } else {
+                                        throw 'Could not open the map.';
+                                      }
+                                    } : (){},
+                                    suffixIconData2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? Icons.close
+                                        : null,
+                                    iconColor2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? AppC.red
+                                        : null,
+                                    onSuffixTap2: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? () {
+                                      context.read<VendorDataBloc>().add(const ResetLocationEvent());
+                                    }
+                                        : (){},
+                                    bottomTrailingText: (context.read<VendorDataBloc>().latitude != null && context.read<VendorDataBloc>().longitude != null)
+                                        ? "Lat : ${context.watch<VendorDataBloc>().latitude} Long : ${context.watch<VendorDataBloc>().longitude}"
+                                        : null,
+                                  ),
+                                  10.height,
+                                  Utils.getTextFormField(
+                                      'Phone',
+                                      context
+                                          .read<VendorDataBloc>()
+                                          .phoneController,
+                                      textType: TextInputType.phone),
+                                  10.height,
+                                  Utils.getTextFormField(
+                                      'Website',
+                                      context
+                                          .read<VendorDataBloc>()
+                                          .websiteController),
+                                  10.height,
+                                  Utils.getBorderedMultilineTextField(
+                                      'Expertise',
+                                      context
+                                          .read<VendorDataBloc>()
+                                          .expertiseController,
+                                      minLines: 2,
+                                      maxLines: 4),
+                                  10.height,
+                                  Utils.getBorderedMultilineTextField(
+                                      'Description',
+                                      context
+                                          .read<VendorDataBloc>()
+                                          .descriptionController,
+                                      minLines: 2,
+                                      maxLines: 4),
+                                  10.height,
+                                  VendorImageUploadSection(
+                                    title: 'Upload Business Card',
+                                    borderColor: Colors.blue,
+                                    onUpload: () => context.read<VendorDataBloc>().add(VendorImageEvent()),
+                                    onRemove: (index) => context.read<VendorDataBloc>().add(RemoveVendorImageEvent(index: index)),
+                                    images: context.watch<VendorDataBloc>().vendorImage,
+                                    logName: "",
+                                  ),
+                                  10.height,
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        if (!context
+                                            .watch<VendorDataBloc>()
+                                            .isEditMode)
+                                          SuccessButton(
+                                            text: 'Save',
+                                            onPressed: () {
+                                              if(formKey.currentState!.validate()){
+                                                if(context.read<VendorDataBloc>().nameController.text.isEmpty){
+                                                  formKey.currentState!.reset();
+                                                  return;
+                                                }
+                                                context.read<VendorDataBloc>().add(AddVendorData(
                                                   name: context.read<VendorDataBloc>().nameController.text,
-                                                  vendorTypeId: selectedVendorType != null ? selectedVendorType['id'] ?? '' : context.read<VendorDataBloc>().vendorTypeId,
+                                                  vendorTypeId: selectedVendorType?['id'] ?? null,
                                                   address: context.read<VendorDataBloc>().addressController.text,
                                                   phone: context.read<VendorDataBloc>().phoneController.text,
                                                   expertise: context.read<VendorDataBloc>().expertiseController.text,
@@ -251,190 +227,107 @@ class VendorView extends StatelessWidget {
                                                   longitude: context.read<VendorDataBloc>().longitude?.toString(),
                                                   website: context.read<VendorDataBloc>().websiteController.text,
                                                   images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
-                                                  id: context.read<VendorDataBloc>().vendorId,
+                                                  id: null,
                                                 ));
-                                            selectedVendorType = null;
-                                          },
+                                                selectedVendorType = null;
+                                                formKey.currentState!.reset();
+                                              }
+                                            },
+                                          ),
+                                        if (context
+                                            .watch<VendorDataBloc>()
+                                            .isEditMode) ...[
+                                          SuccessButton(
+                                            text: 'Update',
+                                            onPressed: () {
+                                              context.read<VendorDataBloc>().add(AddVendorData(
+                                                    name: context.read<VendorDataBloc>().nameController.text,
+                                                    vendorTypeId: selectedVendorType != null ? selectedVendorType['id'] ?? '' : context.read<VendorDataBloc>().vendorTypeId,
+                                                    address: context.read<VendorDataBloc>().addressController.text,
+                                                    phone: context.read<VendorDataBloc>().phoneController.text,
+                                                    expertise: context.read<VendorDataBloc>().expertiseController.text,
+                                                    description: context.read<VendorDataBloc>().descriptionController.text,
+                                                    latitude: context.read<VendorDataBloc>().latitude?.toString(),
+                                                    longitude: context.read<VendorDataBloc>().longitude?.toString(),
+                                                    website: context.read<VendorDataBloc>().websiteController.text,
+                                                    images: context.read<VendorDataBloc>().vendorImage.whereType<File>().map((e) => e).toList(),
+                                                    id: context.read<VendorDataBloc>().vendorId,
+                                                  ));
+                                              selectedVendorType = null;
+                                            },
+                                          ),
+                                          SuccessButton(
+                                            text: 'Cancel',
+                                            backgroundColor: AppC.red,
+                                            onPressed: () {
+                                              context.read<VendorDataBloc>().add(ExitEditModeEvent());
+                                              selectedVendorType = null;
+                                            },
+                                          ),
+                                        ],
+                                        SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.5,
+                                            child:
+                                          CompactSearchView(
+                                            controller: context.read<VendorDataBloc>().vendorSearchController,
+                                            onChanged: (val) {
+                                              context.read<VendorDataBloc>().add(FilterVendorsEvent(searchTerm: val));
+                                            },
+                                          ),
+                                        )
+                                      ]),
+                                  20.height,
+                                  Table(
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(3),
+                                      1: FlexColumnWidth(1),
+                                      2: FlexColumnWidth(2),
+                                      3: FlexColumnWidth(2),
+                                    },
+                                    children: [
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade100,
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(4),
+                                            topRight: Radius.circular(4),
+                                          ),
                                         ),
-                                        SuccessButton(
-                                          text: 'Cancel',
-                                          backgroundColor: AppC.red,
-                                          onPressed: () {
-                                            context.read<VendorDataBloc>().add(ExitEditModeEvent());
-                                            selectedVendorType = null;
-                                          },
-                                        ),
-                                      ],
-                                      SizedBox(
-                                          width: MediaQuery.of(context).size.width * 0.5,
-                                          child:
-                                        CompactSearchView(
-                                          controller: context.read<VendorDataBloc>().vendorSearchController,
-                                          onChanged: (val) {
-                                            context.read<VendorDataBloc>().add(FilterVendorsEvent(searchTerm: val));
-                                          },
-                                        ),
-                                      )
-                                    ]),
-                                20.height,
-                                Table(
-                                  columnWidths: const {
-                                    0: FlexColumnWidth(3),
-                                    1: FlexColumnWidth(1),
-                                    2: FlexColumnWidth(2),
-                                    3: FlexColumnWidth(2),
-                                  },
-                                  children: [
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.shade100,
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(4),
-                                          topRight: Radius.circular(4),
-                                        ),
+                                        children: const [
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 8.0),
+                                            child: Text('Vendor Name',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold)),
+                                          ),
+                                          Text('',),
+                                          Text('',),
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 15, vertical: 8.0),
+                                            child: Text('Actions',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold)),
+                                          ),
+                                        ],
                                       ),
-                                      children: const [
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 8.0),
-                                          child: Text('Vendor Name',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Text('',),
-                                        Text('',),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 15, vertical: 8.0),
-                                          child: Text('Actions',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                      ],
-                                    ),
-                                    // ...context.read<VendorDataBloc>().filterPage.map((vendor) {
-                                    //   return
-                                    //     TableRow(
-                                    //       decoration: BoxDecoration(
-                                    //         border: Border(
-                                    //       bottom: BorderSide(
-                                    //           color: Colors.grey.shade300,
-                                    //           width: 1),
-                                    //       )),
-                                    //       children: [
-                                    //       Padding(
-                                    //         padding: const EdgeInsets.symmetric(
-                                    //             horizontal: 10, vertical: 10),
-                                    //         child: GestureDetector(
-                                    //           onTap: () { context.read<VendorDataBloc>().add(EnterEditModeEvent(vendor: vendor));},
-                                    //             child: Text(vendor['name'] ?? '')
-                                    //         ),
-                                    //       ),
-                                    //       Padding(
-                                    //           padding:
-                                    //               const EdgeInsets.symmetric(vertical: 10),
-                                    //           child: (vendor['images'].length > 0)
-                                    //               ? GestureDetector(
-                                    //                   onTap: () {
-                                    //                     ShowAttachmentsDialog.of.show(
-                                    //                         context,
-                                    //                         attachments: vendor['images']?.map((e) => e['path'].toString().toStorageURL).toList(), title: vendor['name'] ?? '');
-                                    //                   },
-                                    //                   child: const Icon(
-                                    //                     Icons.visibility,
-                                    //                     color: AppC.appColor,
-                                    //                     size: 20,
-                                    //                   ),
-                                    //                 )
-                                    //               : Utils.getText("")
-                                    //       ),
-                                    //       Padding(
-                                    //         padding: const EdgeInsets.symmetric(vertical: 10),
-                                    //         child: (vendor['latitude'] != null && vendor['longitude'] != null)
-                                    //             ? GestureDetector(
-                                    //                 onTap: () async {
-                                    //                   final Uri mapsUri = Uri(
-                                    //                     scheme: 'https',
-                                    //                     host: 'www.google.com',
-                                    //                     path: '/maps/search/ ${vendor['latitude']}, ${vendor['longitude']}',
-                                    //                     queryParameters: {'q': '${vendor['latitude']}, ${vendor['longitude']}'},
-                                    //                   );
-                                    //                   if (await canLaunchUrl(
-                                    //                       mapsUri)) {
-                                    //                     await launchUrl(mapsUri,
-                                    //                         mode: LaunchMode
-                                    //                             .externalApplication);
-                                    //                   } else {
-                                    //                     throw 'Could not open the map.';
-                                    //                   }
-                                    //                 },
-                                    //                 child: Transform(
-                                    //                     alignment: Alignment.center,
-                                    //                     transform: Matrix4.rotationZ(50 * math.pi / 180),
-                                    //                     child: const Icon(Icons.navigation_outlined, color: AppC.green)
-                                    //                 ),
-                                    //             )
-                                    //             : Utils.getText(""),
-                                    //       ),
-                                    //       Padding(
-                                    //           padding:
-                                    //               const EdgeInsets.symmetric(
-                                    //                   vertical: 10
-                                    //               ),
-                                    //           child: Row(
-                                    //             spacing: 20,
-                                    //             children: [
-                                    //               GestureDetector(
-                                    //                 onTap: () {
-                                    //                   context.read<VendorDataBloc>().add(EnterEditModeEvent(vendor: vendor));
-                                    //                 },
-                                    //                 child: const Icon(
-                                    //                   Icons.edit_outlined,
-                                    //                   color: AppC.appColor,
-                                    //                   size: 20,
-                                    //                 ),
-                                    //               ),
-                                    //               GestureDetector(
-                                    //                 onTap: () {
-                                    //                   AskPermissionDialog.show(
-                                    //                     context,
-                                    //                     title: "Are you sure?",
-                                    //                     description:
-                                    //                         "Do you want to delete this vendor?",
-                                    //                     positiveText:
-                                    //                         "Yes, Delete it!",
-                                    //                     negativeText: "Cancel",
-                                    //                     isReasonRequired: false,
-                                    //                     onPositivePressed: () => context.read<VendorDataBloc>().add(DeleteVendorEvent(id: vendor['id'])),
-                                    //                   );
-                                    //                 },
-                                    //                 child: const Icon(
-                                    //                   Icons.delete_outline,
-                                    //                   color: AppC.red,
-                                    //                   size: 20,
-                                    //                 ),
-                                    //               ),
-                                    //             ],
-                                    //           )
-                                    //       )
-                                    //       ],
-                                    //     );
-                                    // }).toList(),
-                                    ...context.read<VendorDataBloc>().filterPage.map((vendor) =>
-                                    VendorListItem(vendor: vendor, context: context)
-                                    ).toList(),
-                                  ],
-                                ),
-                                CompactPagination(
-                                  currentPage: context.watch<VendorDataBloc>().currentIndex,
-                                  totalPages: (context.watch<VendorDataBloc>().totalCount / context.watch<VendorDataBloc>().itemsPerPage).ceil(),
-                                  onPageChanged: (value) => context.read<VendorDataBloc>().add(VendorPaginationEvent(page: value)),
-                                ),
-                              ],
+                                      ...context.read<VendorDataBloc>().filterPage.map((vendor) =>
+                                      VendorListItem(vendor: vendor, context: context)
+                                      ).toList(),
+                                    ],
+                                  ),
+                                  CompactPagination(
+                                    currentPage: context.watch<VendorDataBloc>().currentIndex,
+                                    totalPages: (context.watch<VendorDataBloc>().totalCount / context.watch<VendorDataBloc>().itemsPerPage).ceil(),
+                                    onPageChanged: (value) => context.read<VendorDataBloc>().add(VendorPaginationEvent(page: value)),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ));
             }),

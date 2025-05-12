@@ -178,27 +178,31 @@ Map<String, dynamic> _calculateTotals(
       String? matchedTask;
       if (paymentMap.containsKey(taskName)) {
         matchedTask = taskName;
-      } else {
+        print("Matched Task: $matchedTask");
+      }
+      else {
         for (final paymentTask in paymentMap.keys) {
+          print("Checking paymentTask: $paymentTask");
           if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
             matchedTask = paymentTask;
             break;
+          } else {
+            matchedTask = paymentTask;
           }
         }
       }
-
       if (matchedTask != null) {
-        final amount = paymentMap[matchedTask]!;
+        final amount = paymentMap[matchedTask];
         final key = matchedTask;
 
         taskGroups.update(key, (existing) => {
           'name': existing['name'],
           'count': (existing['count'] as int) + count,
-          'amount': (existing['amount'] as int) + (amount * count),
+          'amount': (existing['amount'] as int) + (amount! * count),
         }, ifAbsent: () => {
           'name': matchedTask!,
           'count': count,
-          'amount': amount * count,
+          'amount': amount! * count,
         });
       }
     }

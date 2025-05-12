@@ -600,76 +600,81 @@ class Utils {
         TextAlign textAlign = TextAlign.start,
         double borderWidth = Num.borderWidthField}) {
     // hintText = hintText ?? labelText;
-    return ValueListenableBuilder(
-        valueListenable: controller,
-        builder: (context, value, child) => TextFormField(
-          key: key,
-          validator: validator,
-          spellCheckConfiguration: const SpellCheckConfiguration(),
-          autovalidateMode: autoValidate,
-          textInputAction: inputAction ?? TextInputAction.next,
-          onTap: onTapCallback,
-          focusNode: focusNode,
-          autofocus: autoFocus,
-          controller: controller,
-          keyboardType: TextInputType.number,
-          readOnly: readOnly,
-          maxLength: maxLength,
-          obscureText: obscure,
-          //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-          //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-          onTapOutside: (event) => dismissKeyboard(context),
-          textCapitalization: TextCapitalization.sentences,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          textAlign: textAlign,
-          minLines: minLines,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            contentPadding: contentPadding,
-            constraints: const BoxConstraints(),
-            isDense: isDense,
-            // label: label,
-            labelText: labelText,
-            hintText: hintText,
-            counterText: '',
-            hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
-            labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
-            filled: true,
-            isCollapsed: isCollapsed,
-            fillColor: fillColor,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-              borderSide: BorderSide(
-                color: borderColor,
-                width: borderWidth,
+    return FocusNodeWrapper(
+      builder:(f) => ValueListenableBuilder(
+          valueListenable: controller,
+          builder: (context, value, child) => TextFormField(
+            key: key,
+            validator: validator,
+            spellCheckConfiguration: const SpellCheckConfiguration(),
+            autovalidateMode: autoValidate,
+            textInputAction: inputAction ?? TextInputAction.next,
+            onTap: onTapCallback,
+            focusNode: focusNode,
+            autofocus: autoFocus,
+            controller: controller,
+            keyboardType: TextInputType.number,
+            readOnly: readOnly,
+            maxLength: maxLength,
+            obscureText: obscure,
+            //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+            //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
+            onTapOutside: (event){
+              f.unfocus();
+              dismissKeyboard(context);
+            },
+            textCapitalization: TextCapitalization.sentences,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            textAlign: textAlign,
+            minLines: minLines,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              contentPadding: contentPadding,
+              constraints: const BoxConstraints(),
+              isDense: isDense,
+              // label: label,
+              labelText: labelText,
+              hintText: hintText,
+              counterText: '',
+              hintStyle: hintTextStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              labelStyle: labelStyle ??  TextStyle(color: AppC.grey,fontSize: 12.sp,fontWeight: FontWeight.w300),
+              filled: true,
+              isCollapsed: isCollapsed,
+              fillColor: fillColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                borderSide: BorderSide(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
               ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-              borderSide: BorderSide(
-                color: borderColor,
-                width: borderWidth,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                borderSide: BorderSide(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
               ),
+              // focusedBorder: OutlineInputBorder(
+              //     borderSide: BorderSide(
+              //       color: borderColor,
+              //       width: borderWidth,
+              //     ),
+              //     borderRadius: BorderRadius.circular(borderRadius)),
+              suffixIconConstraints: BoxConstraints(),
+              suffixIcon: suffixIcon,
+              prefixIconConstraints: BoxConstraints(),
+              prefixIcon: prefixIcon,
             ),
-            // focusedBorder: OutlineInputBorder(
-            //     borderSide: BorderSide(
-            //       color: borderColor,
-            //       width: borderWidth,
-            //     ),
-            //     borderRadius: BorderRadius.circular(borderRadius)),
-            suffixIconConstraints: BoxConstraints(),
-            suffixIcon: suffixIcon,
-            prefixIconConstraints: BoxConstraints(),
-            prefixIcon: prefixIcon,
-          ),
-          style: style ?? TextStyle(
-            // fontSize: textSize,
-            color: textColor,
-            fontWeight: fontWeight,
-            fontSize: 12.sp,
-          ),
-          onChanged: onChangeCallback,
-        )
+            style: style ?? TextStyle(
+              // fontSize: textSize,
+              color: textColor,
+              fontWeight: fontWeight,
+              fontSize: 12.sp,
+            ),
+            onChanged: onChangeCallback,
+          )
+      ),
     );
   }
 
@@ -723,128 +728,131 @@ class Utils {
         Color? iconColor2,
         String?  bottomTrailingText,
       }) {
-    return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) => TextFormField(
-        key: key,
-        validator: validator,
-        spellCheckConfiguration: const SpellCheckConfiguration(),
-        autovalidateMode: autoValidate,
-        textInputAction: inputAction ?? TextInputAction.next,
-        onTap: onTapCallback,
-        focusNode: focusNode,
-        autofocus: autoFocus,
-        controller: controller,
-        keyboardType: textType,
-        readOnly: readOnly,
-        maxLength: maxLength,
-        obscureText: obscure,
-        onTapOutside: (event) {
-          FocusScope.of(context).requestFocus(FocusNode());
-        },
-        textCapitalization: TextCapitalization.sentences,
-        inputFormatters: textInputFormatter,
-        textAlign: textAlign,
-        minLines: minLines,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          contentPadding: contentPadding,
-          constraints: const BoxConstraints(),
-          isDense: isDense,
-          labelText: labelText,
-          hintText: hintText,
-          counterText: bottomTrailingText,
-          counterStyle: counterTextStyle ?? const TextStyle(color: AppC.red),
-          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-          labelStyle: labelStyle ?? const TextStyle(color: AppC.grey, fontSize: 13),
-          filled: true,
-          isCollapsed: isCollapsed,
-          fillColor: fillColor,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
-            ),
-          ),
-          suffixIconConstraints: const BoxConstraints(),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 150,
+    return FocusNodeWrapper(
+      builder:(f) => ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => TextFormField(
+          key: key,
+          validator: validator,
+          spellCheckConfiguration: const SpellCheckConfiguration(),
+          autovalidateMode: autoValidate,
+          textInputAction: inputAction ?? TextInputAction.next,
+          onTap: onTapCallback,
+          focusNode: focusNode,
+          autofocus: autoFocus,
+          controller: controller,
+          keyboardType: textType,
+          readOnly: readOnly,
+          maxLength: maxLength,
+          obscureText: obscure,
+          onTapOutside: (event){
+            f.unfocus();
+            dismissKeyboard(context);
+          },
+          textCapitalization: TextCapitalization.sentences,
+          inputFormatters: textInputFormatter,
+          textAlign: textAlign,
+          minLines: minLines,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            contentPadding: contentPadding,
+            constraints: const BoxConstraints(),
+            isDense: isDense,
+            labelText: labelText,
+            hintText: hintText,
+            counterText: bottomTrailingText,
+            counterStyle: counterTextStyle ?? const TextStyle(color: AppC.red),
+            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey, fontSize: 13),
+            filled: true,
+            isCollapsed: isCollapsed,
+            fillColor: fillColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  InkWell(
-                    onTap: onSuffixTap,
-                    child:
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: borderColor,width: 0.2),
-                        color: AppC.blue50,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                        child: Icon(suffixIconData, color: iconColor),
-                      ),
-                    ),
-                  ),
-                  if(suffixIconData1 != null)
-                  InkWell(
-                    onTap: onSuffixTap1,
-                    child:
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: borderColor,width: 0.2),
-                        color: AppC.blue50,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                        child: Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.rotationZ(50 * math.pi / 180),
-                          child: Icon(suffixIconData1, color: iconColor1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
+            ),
+            suffixIconConstraints: const BoxConstraints(),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: suffixIconData1 != null ? 150 : 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: onSuffixTap,
+                      child:
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: borderColor,width: 0.2),
+                          color: AppC.blue50,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                          child: Icon(suffixIconData, color: iconColor),
                         ),
                       ),
                     ),
-                  ),
-                  if(suffixIconData2 != null)
-                  InkWell(
-                    onTap: onSuffixTap2,
-                    child:
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: borderColor,width: 0.2),
-                        color: AppC.blue50,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                        child: Icon(suffixIconData2, color: iconColor2),
+                    if(suffixIconData1 != null)
+                    InkWell(
+                      onTap: onSuffixTap1,
+                      child:
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: borderColor,width: 0.2),
+                          color: AppC.blue50,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.rotationZ(50 * math.pi / 180),
+                            child: Icon(suffixIconData1, color: iconColor1),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    if(suffixIconData2 != null)
+                    InkWell(
+                      onTap: onSuffixTap2,
+                      child:
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: borderColor,width: 0.2),
+                          color: AppC.blue50,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                          child: Icon(suffixIconData2, color: iconColor2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            prefixIconConstraints: const BoxConstraints(),
+            prefixIcon: prefixIcon,
           ),
-          prefixIconConstraints: const BoxConstraints(),
-          prefixIcon: prefixIcon,
+          style: style ??
+              TextStyle(
+                color: textColor,
+                fontWeight: fontWeight,
+              ),
+          onChanged: onChangeCallback,
         ),
-        style: style ??
-            TextStyle(
-              color: textColor,
-              fontWeight: fontWeight,
-            ),
-        onChanged: onChangeCallback,
       ),
     );
   }
@@ -890,86 +898,89 @@ class Utils {
         VoidCallback? onSuffixTap,
         IconData suffixIconData = Icons.add,
       }) {
-    return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) => TextFormField(
-        key: key,
-        validator: validator,
-        spellCheckConfiguration: const SpellCheckConfiguration(),
-        autovalidateMode: autoValidate,
-        textInputAction: inputAction ?? TextInputAction.next,
-        onTap: onTapCallback,
-        focusNode: focusNode,
-        autofocus: autoFocus,
-        controller: controller,
-        keyboardType: textType,
-        readOnly: readOnly,
-        maxLength: maxLength,
-        obscureText: obscure,
-        onTapOutside: (event) {
-          FocusScope.of(context).requestFocus(FocusNode());
-        },
-        textCapitalization: TextCapitalization.sentences,
-        inputFormatters: textInputFormatter,
-        textAlign: textAlign,
-        minLines: minLines,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          contentPadding: contentPadding,
-          constraints: const BoxConstraints(),
-          isDense: isDense,
-          labelText: labelText,
-          hintText: hintText,
-          counterText: '',
-          hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
-          labelStyle: labelStyle ?? const TextStyle(color: AppC.grey, fontSize: 13),
-          filled: true,
-          isCollapsed: isCollapsed,
-          fillColor: fillColor,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
+    return FocusNodeWrapper(
+      builder:(f) => ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => TextFormField(
+          key: key,
+          validator: validator,
+          spellCheckConfiguration: const SpellCheckConfiguration(),
+          autovalidateMode: autoValidate,
+          textInputAction: inputAction ?? TextInputAction.next,
+          onTap: onTapCallback,
+          focusNode: focusNode,
+          autofocus: autoFocus,
+          controller: controller,
+          keyboardType: textType,
+          readOnly: readOnly,
+          maxLength: maxLength,
+          obscureText: obscure,
+          onTapOutside: (event){
+            f.unfocus();
+            dismissKeyboard(context);
+          },
+          textCapitalization: TextCapitalization.sentences,
+          inputFormatters: textInputFormatter,
+          textAlign: textAlign,
+          minLines: minLines,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            contentPadding: contentPadding,
+            constraints: const BoxConstraints(),
+            isDense: isDense,
+            labelText: labelText,
+            hintText: hintText,
+            counterText: '',
+            hintStyle: hintTextStyle ?? const TextStyle(color: AppC.grey),
+            labelStyle: labelStyle ?? const TextStyle(color: AppC.grey, fontSize: 13),
+            filled: true,
+            isCollapsed: isCollapsed,
+            fillColor: fillColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: BorderSide(
-              color: borderColor,
-              width: borderWidth,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              borderSide: BorderSide(
+                color: borderColor,
+                width: borderWidth,
+              ),
             ),
-          ),
-          suffixIconConstraints: const BoxConstraints(),
-          suffixIcon: InkWell(
-            onTap: onSuffixTap,
-            child:
-            Padding(
-              padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(4),
-                    bottomRight: Radius.circular(4),
+            suffixIconConstraints: const BoxConstraints(),
+            suffixIcon: InkWell(
+              onTap: onSuffixTap,
+              child:
+              Padding(
+                padding: const EdgeInsets.only(top: 1.5,bottom: 1.5,right: 1.5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(4),
+                      bottomRight: Radius.circular(4),
+                    ),
+                    color: AppC.blue50,
                   ),
-                  color: AppC.blue50,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                  child: Icon(suffixIconData, color: AppC.appColor),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                    child: Icon(suffixIconData, color: AppC.appColor),
+                  ),
                 ),
               ),
             ),
+            prefixIconConstraints: const BoxConstraints(),
+            prefixIcon: prefixIcon,
           ),
-          prefixIconConstraints: const BoxConstraints(),
-          prefixIcon: prefixIcon,
+          style: style ??
+              TextStyle(
+                color: textColor,
+                fontWeight: fontWeight,
+              ),
+          onChanged: onChangeCallback,
         ),
-        style: style ??
-            TextStyle(
-              color: textColor,
-              fontWeight: fontWeight,
-            ),
-        onChanged: onChangeCallback,
       ),
     );
   }

@@ -29,12 +29,8 @@ import 'Popups/resource_listing_dropdown.dart';
 class WorkHoursViewUI extends StatelessWidget {
   WorkHoursViewUI({super.key});
   List<Map<String, dynamic>> filteredData=[];
-  // List<Map<String, dynamic>> dropDownResource=[];
   Map<String, String> dates={};
-  // dynamic selectedName;
   DateRange? selectedDateRange;
-  DateRange? temporarySelectedDateRange;
-  // dynamic initialDropDown;
   String startDate='';
   String endDate='';
 
@@ -87,7 +83,7 @@ class WorkHoursViewUI extends StatelessWidget {
               EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
-              filteredData = state?.combinedData ?? [];
+              filteredData = state.combinedData ?? [];
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
@@ -279,7 +275,7 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                           ),
                         ),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
                         Expanded(child:
                         ResourceListingDropdown<Map<String, dynamic>>(
                           items: context.watch<WorkingHoursBloc>().dropDownResource,
@@ -342,8 +338,11 @@ class WorkHoursViewUI extends StatelessWidget {
                               || Session.of.getString(Str.userIdPrefText) == '10'
                               || Session.of.getString(Str.userIdPrefText) == '21'
                               || Session.of.getString(Str.userIdPrefText) == '1'
+                              || Session.of.getString(Str.userIdPrefText) == '23'
+                              || Session.of.getString(Str.userIdPrefText) == '22'
+                              || Session.of.getStringList(Str.rolePrefText)!.contains("Admin")
                           ) ?
-                          (selectedName == null || selectedName['full_name'] == 'All')
+                          (selectedName['full_name'] == 'All')
                               ? state.combinedData
                               : state.combinedData?.where((item) {
                                 return
@@ -356,15 +355,13 @@ class WorkHoursViewUI extends StatelessWidget {
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();
                           }
-                          log("${dataList} final_data");
                           return ListView.builder(
                             shrinkWrap: true,
                               itemCount: dataList?.length ?? 0,
                               itemBuilder: (context, index) {
                               final employee = dataList?[index];
-                              //final activeHours = employee?['Active'] ?? '00:00';
-                              final taskCount = employee?['#']?.toString() ?? '0';
-                              if (taskCount != '0')
+                              //final taskCount = employee?['#']?.toString() ?? '0';
+                              if (employee?['#'] != '0' && employee?['#'] != null)
                               {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 2),
@@ -385,11 +382,11 @@ class WorkHoursViewUI extends StatelessWidget {
                                         Expanded(
                                           flex: 5,
                                           child: Utils.getText(employee?['Employee'] ?? ''), // Resource Name
-                                        ), // Employee
+                                        ),
                                         Expanded(
                                           flex: 3,
                                           child: Utils.getText(employee?['Active'] ?? ''), // Active Hours
-                                        ), // Active
+                                        ),
                                         Expanded(
                                           flex: 3,
                                           child: GestureDetector(
@@ -405,8 +402,8 @@ class WorkHoursViewUI extends StatelessWidget {
                                                 toDate: endDate,
                                               );
                                             },
-                                            child: Utils.getText(employee?['Hours'] ?? ''),
-                                          ), // Hours
+                                            child: Utils.getText(employee?['Hours'] ?? ''),// Hours
+                                          ),
                                         ),
                                         Expanded(
                                           flex: 2,
@@ -422,8 +419,8 @@ class WorkHoursViewUI extends StatelessWidget {
                                                 ),
                                               );
                                             },
-                                            child: Utils.getText(employee?['Task'].toString() ?? ''),
-                                          ), // Task
+                                            child: Utils.getText(employee?['Task'].toString() ?? ''),// Task
+                                          ),
                                         ),
                                         Expanded(
                                           flex: 2,
@@ -442,7 +439,7 @@ class WorkHoursViewUI extends StatelessWidget {
                                                   endDate: endDate,
                                                 );
                                               },
-                                              child: Utils.getText(employee?['#'].toString() ?? ''),
+                                              child: Utils.getText(employee?['#'].toString() ?? ''),//#
                                             ),
                                           ),
                                         ),

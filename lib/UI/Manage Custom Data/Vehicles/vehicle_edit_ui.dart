@@ -427,9 +427,9 @@ class _VehicleEditUIState extends State<VehicleEditUI> {
                             ..todoUserType = widget.todoItems['todo_user_type'] != null
                                 ? int.tryParse(widget.todoItems['todo_user_type'].toString())
                                 : null
-                            ..userGroupId = widget.todoItems['user_group_id'] != null
-                                ? int.tryParse(widget.todoItems['user_group_id'].toString())
-                                : null
+                            // ..userGroupId = widget.todoItems['user_group_id'] != null
+                            //     ? int.tryParse(widget.todoItems['user_group_id'].toString())
+                            //     : null
                             ..userId = widget.todoItems['user_id'] ?? ''
                             ..vehicleName = widget.vehicle?['vehicle_name'] ?? ''
                             ..vehicles = widget.todoItems['vehicles'] ?? []

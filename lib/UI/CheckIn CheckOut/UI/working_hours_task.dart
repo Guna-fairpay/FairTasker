@@ -88,8 +88,6 @@ class WorkingHoursTaskUI extends StatelessWidget {
                     builder: (context, state) {
                       int totalAmount = state.totalAmount;
                       int totalCount = getTotalCategoryCount(state.categoryGroupData);
-                      log("Total Count: $totalCount");
-
                       return Row(
                         children: [
                           Container(
@@ -217,12 +215,13 @@ class WorkingHoursTaskUI extends StatelessWidget {
                                     leadingText: subTitle,
                                     titleText: "${vehicles.length}",
                                     children: vehicles.map<Widget>((vehicle) {
-                                      return TaskExpansionListTile(
-                                        leadingText: vehicle['vehicle_name'] ?? '',
+                                      return
+                                        TaskExpansionListTile(
+                                        leadingText: vehicle['vehicle_name'] ?? vehicle['person'] ?? '',
                                         dateText: vehicle['todo_date'] != null
                                             ? formatDate(vehicle['todo_date'])
                                             : "",
-                                        timeText: subcategory['complete_time_taken']
+                                        timeText: vehicle['complete_time_taken']
                                             ?.toString() ??
                                             '',
                                         id: vehicle?['id'] ?? 0,
