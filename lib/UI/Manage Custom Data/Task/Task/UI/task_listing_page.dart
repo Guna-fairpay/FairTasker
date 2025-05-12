@@ -80,8 +80,10 @@ class TaskListingPage extends StatelessWidget {
                               child: Utils.dropdownBox(
                                   'select category',
                                   context.watch<TaskBloc>().category,
-                                  (value) => context.read<TaskBloc>().add(
-                                      ListCategoryDropDownSelectionEvent(dropDownData: value, listModel: item)),
+                                  (value) {
+                                    context.read<TaskBloc>().add(ListCategoryDropDownSelectionEvent(dropDownData: value, listModel: item));
+                                    Utils.dismissKeyboard(context);
+                                    },
                                   labelKey: "name",
                                   initialSelection: (item['category_id'].toString().isNullOrEmpty) ? null : context
                                       .watch<TaskBloc>()
@@ -99,9 +101,10 @@ class TaskListingPage extends StatelessWidget {
                                   List<Map<String, dynamic>>.from(context
                                       .watch<TaskBloc>()
                                       .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString())?['sub_categories'] ?? []),
-                                  (value) => context.read<TaskBloc>().add(
-                                      ListSubCategoryDropDownSelectionEvent(
-                                          dropDownData: value, listModel: item)),
+                                  (value) {
+                                    context.read<TaskBloc>().add(ListSubCategoryDropDownSelectionEvent(dropDownData: value, listModel: item));
+                                    Utils.dismissKeyboard(context);
+                                  },
                                   labelKey: 'name',
                                   initialSelection: List<Map<String, dynamic>>.from(context
                                       .watch<TaskBloc>()
