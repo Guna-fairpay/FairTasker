@@ -34,7 +34,10 @@ class DropdownBoxWithIcon extends StatelessWidget {
           child: Utils.dropdownBox(
             hindText,
             list,
-            onChanged,
+            (selectedValue) {
+              onChanged.call(selectedValue);
+              Utils.dismissKeyboard(context);
+            },
             labelKey: label,
             initialSelection: initialSelection,
             selectedKey: selectedKey,

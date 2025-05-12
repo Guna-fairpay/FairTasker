@@ -84,7 +84,7 @@ class DeleteTaskEvent extends TaskEvent {
   List<Object?> get props => [data];
 }
 
-class EditCloseState extends TaskEvent {}
+class EditCloseEvent extends TaskEvent {}
 
 class ListCategoryDropDownSelectionEvent extends TaskEvent {
   final dynamic dropDownData;

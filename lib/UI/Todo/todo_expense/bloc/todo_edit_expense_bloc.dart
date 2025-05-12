@@ -60,6 +60,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   Map<String, dynamic>? invoiceData;
   dynamic selectedVendor={};
   dynamic todoItem;
+  dynamic selectedVehicle;
 
   bool isEdit = false;
   bool isSaveCategory = false;
@@ -147,19 +148,24 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     on<GetTodoExpenseInitialEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: true));
-        expenseId = event.expenseId;
-        if(event.todoItem != null){
-        todoItem = event.todoItem;}
+        todoItem = event.todoItem;
+
+        expenseId = event.expenseId ?? List.from(todoItem['vehicles'] ?? []).firstOrNull?['expense_id']??'';
         if(event.selectedParts != null){
           selectedPart = event.selectedParts??[];
         }
         if(event.selectedSupplies != null){
           selectedSupplies = event.selectedSupplies??[];
         }
+
+        dynamic tempId = todoItem?['expense_temp_id'] ?? List.from(todoItem['vehicles'] ?? []).firstOrNull?['expense_temp_id'];
         // selectedPart = event.selectedParts??[];
         // selectedSupplies = event.selectedSupplies??[];
+
         selectedVendor = event.selectedVendor;
-        var response = await apiRepository.getEditVehicleExpense(id:expenseId);
+        Map<String, dynamic>? response;
+        response = await apiRepository.getEditVehicleExpense(id:expenseId);
+        response ??= await apiRepository.editExpenseTemp(id: "$tempId");
         Console.of.log(response?['expenses']);
         var expenseDetailResponse = response?['expenses'];
         var taskExpenseResponse = await getIt<CommonService>().getTaskExpenseData();
@@ -226,11 +232,17 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
-        if((vehicleList.length == 1 && vehicleList.first?['expense_id'] == null) || todoItem['expense_id'] == null){
+        if((vehicleList.length == 1 && vehicleList.first?['expense_id'] == null)
+            || todoItem['expense_id'] == null){
           isSaveCategory = true;
         }else{
           isSaveCategory = false;
         }
+
+      if(vehicleList.isNotEmpty && vehicleList.length == 1){
+        selectedVehicle = vehicleList.first;
+      }
+
         String laborAmount =
             (expenseDetailResponse?['split_expenses'] ?? [])
                     .firstWhere((element) => element['labour'] == 1,
@@ -312,12 +324,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           subCategories: subCategories ?? [],
           vehicleList: vehicleList,
           partsList: partsList,
+          selectedVehicle: selectedVehicle,
           suppliesList: suppliesList,
           vendorList: vendor.firstOrNull?['value'] ?? [],
         ));
       } catch (e) {
         Utils.showMobileToast(e.toString());
-        log("$e", name: 'Error');
+        log("$e", name: 'Error in GetTodoExpenseInitialEvent');
         emit(state.copyWith(isLoading: false));
       }
     });
@@ -422,10 +435,16 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       }
     });
 
-    on<SelectedVehicleEvent>((event, emit) {
+    on<SelectedVehicleEvent>((event, emit) async {
       if (event.selectedVehicle['expense_id'] == null) {
         isSaveCategory = true;
       }else{
+        if(event.selectedVehicle['expense_id'] != event.selectedVehicle['expense_id'])
+          {
+          //  var response = await apiRepository.getEditVehicleExpense(id: event.selectedVehicle['expense_id']);
+            //var expenseDetailResponse = response?['expenses'];
+
+          }
         isSaveCategory = false;
       }
       emit(state.copyWith(selectedVehicle: event.selectedVehicle));
@@ -518,6 +537,45 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         emit(state.copyWith(isLoading: false));
       }
     });
+
+    on<SaveCategoryEvent>((event, emit) async {
+      if(state.selectedVehicle == null || (state.apiResponse['vin'] != null
+          && List.from(state.apiResponse['vehicles']).isNotEmpty)){
+        return Toaster.showError("vehicle is required");
+      }
+      if(state.apiResponse['expense_id'] == null
+          ||amountController.text.isEmpty
+          || totalAmountController.text.isEmpty){
+        try{
+          if(state.apiResponse['expense_temp_id'] == null && state.selectedVehicle['expense_temp_id'] == null){
+            emit(state.copyWith(isLoading: true));
+            var response = await apiRepository.storeExpenseTemp(
+                images: state.expenseAttachments.whereType<File>().toList(),
+                body: _expenseData(),
+               id: state.selectedVehicle?['expense_temp_id'],
+            );
+            Console.of.log(response, name: 'RESPONSE');
+            if (response?.isNotEmpty ?? false) {
+              await apiRepository.updateExpenseTemp(body: {
+                "expense_temp_id": response?['data']?['id'],
+                "id": state.selectedVehicle?['id'] ?? vehicleList.first['id'],
+                "todo_id": response?['expense']?['id'],
+              });
+            }
+            emit(state.copyWith(isLoading: false));
+          }else{
+
+          }
+          emit(state.copyWith(isLoading: false));
+        }catch(e){
+          // Toaster.showError("$e");
+          log(e.toString(), name: 'ERROR');
+          emit(state.copyWith(isLoading: false));
+        }
+      }else{
+        add(const SaveExpenseEvent()); 
+      }
+    });
   }
 
   Map<String, String> _expenseData() {
@@ -538,13 +596,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       ...splitSupplies,
       ...[splitLabor]
     ];
-
     String expenseAmount = '';
     if(splitParts.isNotEmpty || splitSupplies.isNotEmpty){
      expenseAmount = totalAmountController.text;
     }else{
      expenseAmount = amountController.text;
-    };
+    }
     log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
     baseBody['category_name'] = "${state.selectedMainCategory?['name'] ?? ''}";

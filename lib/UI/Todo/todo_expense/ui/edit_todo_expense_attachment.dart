@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
+import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -41,91 +42,33 @@ class EditTodoExpenseAttachment extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: GestureDetector(
-                onTap: () => pickImageEvent?.call(),
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppC.blue,
-                      width: Num.borderWidthField,
-                    ),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(Num.subradiusButton),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.cloud_upload,
-                        color: AppC.blue,
-                      ),
-                      const SizedBox(width: 5,),
-                      Utils.getText('Upload',color: AppC.blue, weight: FontWeight.bold),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                child: SuccessButton(
+                  text: 'Upload',
+                  icon: Icons.cloud_upload_rounded,
+                  foregroundColor: AppC.blue,
+                  backgroundColor: AppC.trans,
+                  isOutline: true,
+                  onPressed: () => pickImageEvent?.call(),
+                )),
             Expanded(
-              child: GestureDetector(
-                onTap: () => captureImageEvent?.call(),
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppC.redAccent,
-                      width: Num.borderWidthField,
-                    ),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(Num.subradiusButton),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.camera_enhance,
-                        color: AppC.redAccent,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Utils.getText('Capture',
-                          color: AppC.redAccent, weight: FontWeight.bold),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                child: SuccessButton(
+                  text: 'Capture',
+                  icon: Icons.camera_enhance_rounded,
+                  foregroundColor: AppC.redAccent,
+                  backgroundColor: AppC.trans,
+                  isOutline: true,
+                  onPressed: () => pickImageEvent?.call(),
+                )),
             if (vendorList.isNotEmpty)
               Expanded(
-                child: InkWell(
-                  onTap:()=> invoiceEvent?.call(),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppC.blue,
-                        width: Num.borderWidthField,
-                      ),
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(Num.subradiusButton),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.receipt_long, color: AppC.blue),
-                        const SizedBox(width: 5),
-                        Utils.getText('Invoice',
-                            color: AppC.blue, weight: FontWeight.bold),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                  child: SuccessButton(
+                    text: 'Invoice',
+                    icon: Icons.receipt_long_rounded,
+                    foregroundColor: AppC.blue,
+                    backgroundColor: AppC.trans,
+                    isOutline: true,
+                    onPressed: () => invoiceEvent?.call(),
+                  )),
           ],
         ),
         if (attachments.isNotEmpty)

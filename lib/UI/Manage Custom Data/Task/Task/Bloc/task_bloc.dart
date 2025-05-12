@@ -84,17 +84,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       emit(TaskCommonState());
     });
 
-    on<EditCloseState>((event, emit) async {
-      isEdit = false;
-      isEnable = false;
-      selectedData = {};
-      taskController.clear();
-      timeTakenController.text = '30';
-      selectedCategory={};
-      selectedSubCategory={};
-      selectedUserType= usersType.first;
-      emit(TaskCommonState());
-    });
+    on<EditCloseEvent>(_onEditCloseEvent);
 
     on<CategoryDropDownEvent>((event, emit) {
       selectedCategory = event.data;
@@ -153,12 +143,13 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         _unfilteredResponse = result;
         _paginate();
         Toaster.showSuccess(response?['message']);
-          isEdit = false;
-          selectedData = null;
-          taskController.clear();
-          timeTakenController.clear();
-          selectedCategory={};
-          selectedSubCategory = {};
+        isEdit = false;
+        selectedData = null;
+        taskController.clear();
+        timeTakenController.text = '30';
+        selectedCategory={};
+        selectedSubCategory = {};
+        selectedUserType= usersType.first;
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
@@ -190,10 +181,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       if (response?["data"] != null) {
         final newData = response?["data"];
         taskController.clear();
-        timeTakenController.clear();
+        timeTakenController.text = '30';
         selectedCategory={};
         selectedSubCategory={};
-        selectedUserType={};
+        selectedUserType= usersType.first;
         //formKey.currentState?.reset();
        /* selectedData = null;
         isEdit = false;*/
@@ -231,6 +222,18 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       _search();
       emit(TaskCommonState());
     }
+  }
+
+  void _onEditCloseEvent(EditCloseEvent event, Emitter<TaskState> emit) {
+    isEdit = false;
+    isEnable = false;
+    selectedData = {};
+    taskController.clear();
+    timeTakenController.text = '30';
+    selectedCategory={};
+    selectedSubCategory={};
+    selectedUserType= usersType.first;
+    emit(TaskCommonState());
   }
 
   void _onTaskInitialEvent(TaskInitialEvent event, Emitter<TaskState> emit) async {

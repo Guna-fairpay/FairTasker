@@ -25,13 +25,19 @@ class CategoryConfigTextFieldPage extends StatelessWidget {
               Utils.getTextFormField('Name', context.read<CategoryConfigBloc>().nameController),
               Utils.dropdownBox('Select Category',
                   context.read<CategoryConfigBloc>().category,
-                      (v)=>context.read<CategoryConfigBloc>().add(CategoryDropDownEvent(data: v)),
+                      (v){
+                context.read<CategoryConfigBloc>().add(CategoryDropDownEvent(data: v));
+                Utils.dismissKeyboard(context);
+                },
                   labelKey: 'name',
                 initialSelection: context.read<CategoryConfigBloc>().selectedCategory,
                 selectedKey: context.read<CategoryConfigBloc>().selectedCategory,
               ),
               Utils.dropdownBox('Select', context.read<CategoryConfigBloc>().usersType,
-                      (v)=>context.read<CategoryConfigBloc>().add(UserTypeDropDownEvent(data: v)),
+                      (v){
+                context.read<CategoryConfigBloc>().add(UserTypeDropDownEvent(data: v));
+                Utils.dismissKeyboard(context);
+                },
                   labelKey: 'name',
                 initialSelection: context.read<CategoryConfigBloc>().selectedUserType,
                 selectedKey: context.read<CategoryConfigBloc>().selectedUserType,

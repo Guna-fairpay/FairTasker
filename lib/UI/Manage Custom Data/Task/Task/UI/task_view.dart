@@ -26,7 +26,7 @@ class TaskView extends StatelessWidget {
     return BlocBuilder<TaskBloc, TaskState>(
       builder: (context, state) {
         return Form(
-          key: context.read<TaskBloc>().formKey,
+          //key: context.read<TaskBloc>().formKey,
           // autovalidateMode: AutovalidateMode.onUnfocus,
           child: Column(
             children: [
@@ -80,7 +80,7 @@ class TaskView extends StatelessWidget {
                   SuccessButton(text: 'Save',onPressed:() => context.read<TaskBloc>().add(SaveTaskEvent())),
                   if(context.read<TaskBloc>().isEdit)
                     ...[CompactIconButton(icon:Icons.save_outlined,backgroundColor: AppC.green,onPressed: ()=>context.read<TaskBloc>().add(SaveTaskEvent()),),
-                      CompactIconButton(icon:Icons.close_outlined,backgroundColor: AppC.redAccent,onPressed: ()=>context.read<TaskBloc>().add(EditCloseState()),),],
+                      CompactIconButton(icon:Icons.close_outlined,backgroundColor: AppC.redAccent,onPressed: ()=>context.read<TaskBloc>().add(EditCloseEvent()),),],
                   Checkbox(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

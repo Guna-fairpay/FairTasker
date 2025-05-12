@@ -56,7 +56,7 @@ class TodoExpense extends StatelessWidget {
                   showTotalAmount: false,
                 )),
                 child: Utils.getText(
-                  'Expense Summary - ${state.vehicleList.firstOrNull['vehicle_name']}',
+                  'Expense Summary - ${state.selectedVehicle?['vehicle_name']}',
                   color: AppC().base,
                 ),
               ),
@@ -169,7 +169,7 @@ class TodoExpense extends StatelessWidget {
                 if (context.read<TodoEditExpenseBloc>().isSaveCategory)
                   SuccessButton(
                     text: 'Save Category',
-                    onPressed: () {},
+                    onPressed: ()=>context.read<TodoEditExpenseBloc>().add(SaveCategoryEvent()),
                     backgroundColor: AppC.appColor,
                   ),
               ],
