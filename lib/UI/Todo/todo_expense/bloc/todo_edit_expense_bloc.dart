@@ -166,8 +166,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         Map<String, dynamic>? response;
         response = await apiRepository.getEditVehicleExpense(id:expenseId);
         response ??= await apiRepository.editExpenseTemp(id: "$tempId");
-        Console.of.log(response?['expenses']);
-        var expenseDetailResponse = response?['expenses'];
+        Console.of.log(response);
+        var expenseDetailResponse = response?['expenses'] ?? response?['data'] ;
         var taskExpenseResponse = await getIt<CommonService>().getTaskExpenseData();
         var paymentResponse = await getIt<CommonService>().getPaymentTypes();
         var cohortsResponse = await getIt<CommonService>().getExpenseCategories();
@@ -311,6 +311,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             }
           }
         }
+
         emit(state.copyWith(
           isLoading: false,
           apiResponse: expenseDetailResponse,
@@ -540,7 +541,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
     on<SaveCategoryEvent>((event, emit) async {
       if(state.selectedVehicle == null || (state.apiResponse['vin'] != null
-          && List.from(state.apiResponse['vehicles']).isNotEmpty)){
+          && List.from(state.apiResponse['vehicles'] ?? []).isNotEmpty)){
         return Toaster.showError("vehicle is required");
       }
       if(state.apiResponse['expense_id'] == null
@@ -557,13 +558,18 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             Console.of.log(response, name: 'RESPONSE');
             if (response?.isNotEmpty ?? false) {
               await apiRepository.updateExpenseTemp(body: {
-                "expense_temp_id": response?['data']?['id'],
+                "expense_temp_id": response?['expense']?['id'],
                 "id": state.selectedVehicle?['id'] ?? vehicleList.first['id'],
                 "todo_id": response?['expense']?['id'],
               });
             }
             emit(state.copyWith(isLoading: false));
           }else{
+              // await apiRepository.updateExpenseTemp(body: {
+              //   "expense_temp_id": response?['data']?['id'],
+              //   "id": state.selectedVehicle?['id'] ?? vehicleList.first['id'],
+              //   "todo_id": response?['expense']?['id'],
+              // });
 
           }
           emit(state.copyWith(isLoading: false));
@@ -615,7 +621,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['expense_amount'] = expenseAmount;
     baseBody['expense_description'] = descriptionController.text;
     baseBody['expense_date'] = DateTime.now().format('yyyy-MM-dd').toString();
-    baseBody['cohort_id'] = "${todoItem["cohort_id"] ?? ''}";
+    baseBody['cohort_id'] = "${todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']}";
     baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
     if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
     baseBody['type'] = "inline";

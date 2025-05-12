@@ -3451,7 +3451,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> updateExpenseTemp({required Map<String, dynamic> body}) async {
     try{
-      String apiUrl = "${Str.LIST_BASE_URL}$_update_Expense";
+      String apiUrl = "${Str.BASE_URL}$_update_Expense";
       final http.Response? response = await _apiClient.callPostMethodWithBody(
         apiUrl,
         body:body,
