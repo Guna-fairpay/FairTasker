@@ -112,6 +112,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
                   'id': resource['id'],
+                  'hrm_id': resource['hrm_id'],
                   'full_name': "${resource['first_name']} ${resource['last_name']}",
                   'first_name': '${resource['first_name']}',
                   'branch_id' : '${resource['branch_id']}',
@@ -161,6 +162,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     final userId = workhour['user']['id'];
                     final userName = workhour['user']['name'];
 
+                    var empUserId;
+                    var foundItems = formattedResource.where((e) => e['hrm_id'].toString() == userId.toString()).toList();
+                    if (foundItems.isNotEmpty) {
+                      empUserId = foundItems.first['id'];
+                    }
+
                     if (userId == null) {
                       continue;
                     }
@@ -168,7 +175,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     Map<String, dynamic> historyItem = {};
                     Map<String, dynamic> activeHoursItem = {};
                     Map<String, dynamic> empID = {};
-
                     // matching history item
                     try {
                       historyItem = workhistory.firstWhere(
@@ -248,7 +254,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       'Task': empID['first_name'] != null ? taskCount : null,
                       '#': empID['first_name'] != null ? totalHoursCount : null,
                       'hrm_id': historyItem['users']?['hrm_id'] ?? userId,
-                      'user_id': historyItem['users']?['id'] ?? '',
+                      'user_id': empUserId ?? '',
                       'list': workhour['user']['list'] ?? [],
                       'first_name': historyItem['users']?['first_name'] ?? empID['first_name'] ?? '',
                       'last_name': historyItem['users']?['last_name'] ?? '',
@@ -271,7 +277,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   workActiveHours,
                   formattedResources,
               );
-
+              log("${combinedData}", name: "combinedData");
               //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
                   List<Map<String, dynamic>> rawData,
@@ -1661,6 +1667,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     DateFormat format = DateFormat("HH:mm:ss");
     DateTime date = format.parse(dateString);
     String formattedDate = DateFormat('hh:mm').format(date);
+
     return formattedDate;
   }
 

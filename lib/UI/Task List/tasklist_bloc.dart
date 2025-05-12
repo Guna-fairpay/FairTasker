@@ -146,7 +146,7 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
           log("Ascending triggered ---> ");
         }else {
           log("${event.value} ---> ");
-          apiResponse = [...completed, ...inComplete];
+          //apiResponse = [...completed, ...inComplete];
           // apiResponse.sort((a,b) => b['complete_time_approved'].compareTo(a['complete_time_approved']));
           emit(state.copyWith(data: apiResponse,isAscending: event.value));
           log("Rollback triggered ---> ");
