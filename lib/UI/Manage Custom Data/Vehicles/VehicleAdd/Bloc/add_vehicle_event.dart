@@ -108,6 +108,20 @@ class BranchDropDownEvent extends AddVehicleEvent {
   List<Object?> get props => [selectedBranch, Random().nextDouble()];
 }
 
+class VehicleStatusDropDownEvent extends AddVehicleEvent {
+  final dynamic model;
+  VehicleStatusDropDownEvent({required this.model});
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleActiveDropDownEvent extends AddVehicleEvent {
+  final dynamic model;
+  VehicleActiveDropDownEvent({required this.model});
+  @override
+  List<Object?> get props => [model];
+}
+
 class AddVehicleShowMoreEvent extends AddVehicleEvent {
   @override
   List<Object?> get props => [Random().nextDouble()];

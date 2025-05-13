@@ -8,6 +8,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Comp
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/formatter/upper_case_formatter.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -39,11 +40,13 @@ class AddVehicleMorePartOne extends StatelessWidget {
               10.height,
               Utils.getTextFormField(
                 "Whole Sale Amount",context.read<AddVehicleBloc>().wholeSaleAmountController,
+                textType: TextInputType.number,
+                textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
               ),
               10.height,
-              Utils.dropdownBox('Select Vehicle Status', context.read<AddVehicleBloc>().vehicleStatus, (value){}, labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedVehicleStatus),
+              Utils.dropdownBox('Select Vehicle Status', context.read<AddVehicleBloc>().vehicleStatus, (value) => context.read<AddVehicleBloc>().add(VehicleStatusDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedVehicleStatus),
               10.height,
-              Utils.dropdownBox('Select Active Status', context.read<AddVehicleBloc>().activeStatus, (value){}, labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedActiveStatus),
+              Utils.dropdownBox('Select Active Status', context.read<AddVehicleBloc>().activeStatus, (value) => context.read<AddVehicleBloc>().add(VehicleActiveDropDownEvent(model: value)), labelKey: 'category_name',initialSelection: context.read<AddVehicleBloc>().selectedActiveStatus),
               10.height,
               Utils.getTextFormField(
                 'Address',context.read<AddVehicleBloc>().addressController,
