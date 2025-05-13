@@ -535,7 +535,7 @@ class APiRepository {
       String? expenseId}) async {
     try {
       String apiUrl = '';
-      if (expenseId != null) {
+      if (expenseId.isNotNullOrEmpty) {
         apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}$_expenses";

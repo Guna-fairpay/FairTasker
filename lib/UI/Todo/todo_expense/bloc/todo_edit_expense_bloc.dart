@@ -255,7 +255,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         if ((todoItem?['identifier_id'] == 166) && (todoItem?['person_id'].toString().isNotNullOrEmpty ?? false)) { // 166 : Pay partime
           selectedVehicle = getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == "1234");
         }
-
+        Console.of.log(selectedVehicle, name: "SELECTED_VEHICLE");
         String laborAmount =
             (expenseDetailResponse?['split_expenses'] ?? [])
                     .firstWhere((element) => element['labour'] == 1,
@@ -527,25 +527,45 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           return;
         }
         if (((todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']) == null) || (((selectedVehicle?['vin']) ?? (state.vehicleList.firstOrNull?['vin'])) == null)) {
-          Toaster.showError("Please update vehicle details to save expense ${(todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id'])}");
+          Toaster.showError("Please update vehicle details to save expense");
+          return;
+        }
+        if((todoItem?['identifier_id'] == 166) && (selectedVehicle != null)
+            && (state.selectedMainCategory?['id'].toString() != '76'
+                || state.selectedSubCategory?['id'].toString() != '100')){
+          Toaster.showError("Please update vehicle details to save expense");
           return;
         }
         Console.of.log(jsonEncode(_expenseData()));
-        return;
+        //return;
         emit(state.copyWith(isLoading: true));
         log("${state.expenseAttachments.whereType<File>().toList()}", name: 'EXPENSE_DATA');
+        var expenseId = todoItem?['expense_id'].toString().getExpenseId;
         var response = await apiRepository.updateTodoExpense(
-            expenseId: todoItem['expense_id'],
+            expenseId: "${expenseId ?? ""}",
             images: state.expenseAttachments.whereType<File>().toList(),
             body: _expenseData());
         final int? newExpenseId =
             (response?['data'] as List?)?.firstOrNull?['id'];
         if (todoItem['expense_id'] == null && newExpenseId != null) {
-          await apiRepository.updateToDoApi(
-              images: [],
-              body: _expenseData()
-                ..putIfAbsent("expense_id", () => (newExpenseId.toString())),
-              todoId: "${todoItem['id']}");
+          // check vehicles array not empty in todoItem
+          if (List.from(todoItem['vehicles'] ?? []).length > 1) {
+            var id = List.from(todoItem['vehicles'] ?? []).firstWhereOrNull((element) => element['vin'] == selectedVehicle?['vin'],)?['id'];
+            await apiRepository.updateExpenseTemp(body: {
+              "expense_id": newExpenseId,
+              "id": id,
+              "todo_id": todoItem?['id'],
+              "vin": "${selectedVehicle?['vin']}",
+            });
+          } else {
+            String expenseId = "$newExpenseId";
+            if(todoItem['vehicle_group_id'].toString().isNotNullOrEmpty) expenseId = "${[newExpenseId]}";
+            await apiRepository.updateToDoApi(
+                images: [],
+                body: _expenseData()
+                  ..putIfAbsent("expense_id", () => expenseId),
+                todoId: "${todoItem['id']}");
+          }
         }
         if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");

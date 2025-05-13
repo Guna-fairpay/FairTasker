@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:date_time/date_time.dart' show Time;
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
@@ -182,5 +184,12 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
   String get removeNextLines {
     if (isNullOrEmpty) return "";
     return this?.replaceAll(RegExp(r'[\r\n]+'), "") ?? "";
+  }
+
+  int? get getExpenseId {
+    if (isNullOrEmpty) return null;
+    var output = jsonDecode(this ?? "");
+    if (output is List<dynamic>) return output.firstOrNull;
+    else return output;
   }
 }
