@@ -183,12 +183,10 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
           ..insuranceCost = insuranceCostController.text
           ..employeeId = newVehicle['employee_id']?.toString() ?? ''
           ..branchCode = newVehicle['branch_code']?.toString() ?? ''
-
-          ..vehicleId = newVehicle['vehicle_id']?.toString() ?? '';
-
-          // ..currentOdometer = newVehicle['current_odometer']?.toString() ?? ''
-          // ..oilChangeOdometer = newVehicle['oil_change_controller']?.toString() ?? ''
-          // ..maintenanceCheck = newVehicle['maintenance_check']?.toString() ?? ''
+          ..vehicleId = newVehicle['vehicle_id']?.toString() ?? ''
+          ..currentOdometer = newVehicle['current_odometer']?.toString() ?? ''
+          ..oilChangeOdometer = newVehicle['oil_change_odometer']?.toString() ?? ''
+          ..maintenanceCheck = newVehicle['maintenance_check']?.toString() ?? '';
           // ..vehicleStatus = newVehicle['vehicle_status']?.toString() ?? '';
 
 

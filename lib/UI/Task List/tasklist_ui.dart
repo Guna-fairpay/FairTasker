@@ -307,12 +307,20 @@ class TasklistUi extends StatelessWidget {
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          if (taskList["overtime"] != null && taskList["overtime"] != '')
+                                          //if (taskList["overtime"] != null && taskList["overtime"] != '')
+                                          if(taskList["time_taken"] != null && taskList["time_taken"] != '')...[
                                             Utils.getText(
-                                              "${taskList["overtime"]} - ",
+                                              "${taskList["time_taken"]} - ",
+                                              color: AppC.red,
+                                              weight: FontWeight.bold,
+                                            ),
+                                          ] else...[
+                                            Utils.getText(
+                                              "",
                                               color: textColor,
                                               weight: FontWeight.bold,
                                             ),
+                                          ],
                                           if (taskList["notes_complete"] != null &&
                                               taskList["notes_complete"] != '')
                                             Expanded(

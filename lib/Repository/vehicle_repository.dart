@@ -65,9 +65,9 @@ class VehicleDataRepo {
         "platform_from": 'TaskerApp',
         "employee_id" : createVehicleData.employeeId.toString(),
         "branch_code": createVehicleData.branchCode.toString(),
-        // "current_odometer": createVehicleData.currentOdometer,
-        // "oil_change_odometer": createVehicleData.oilChangeOdometer,
-        // "maintenance_check": createVehicleData.maintenanceCheck,
+        "current_odometer": createVehicleData.currentOdometer,
+        "oil_change_odometer": createVehicleData.oilChangeOdometer,
+        "maintenance_check": createVehicleData.maintenanceCheck,
       };
 
       var request = http.MultipartRequest("POST", Utils.getUri(apiUrl));
