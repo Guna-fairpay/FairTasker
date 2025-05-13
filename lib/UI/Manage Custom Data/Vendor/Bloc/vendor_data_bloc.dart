@@ -56,6 +56,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   List<Map<String, dynamic>> filteredVendors = [];
   List<Map<String, dynamic>> vendorsData = [];
   List<Map<String, dynamic>> vendorTypeData = [];
+  List<Map<String, dynamic>> vendorSearchData = [];
   List<Map<String, dynamic>> filteredVendorType = [];
   List<Map<String, dynamic>> filterPage = [];
   List<File> localImages = []; // For locally picked files
@@ -87,9 +88,13 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       vendorTypeData = vendorType ?? [];
       d.log("${vendorTypeData}", name: "vendor_type_data");
       filteredVendorType = vendorType ?? [];
-
+      vendorSearchData = vendorType ?? [];
       vendorsData = vendor ?? [];
       filteredVendors = vendor ?? [];
+      FBroadcast.instance().register("vendor type data", (value, callback){
+        vendorSearchData = value;
+        emit(VendorDataCommonState());
+      });
 
       filteredVendors.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
       filteredVendorType.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
@@ -236,6 +241,10 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(const VendorDataLoading());
       final vendorType =  await _fetchVendorType();
       vendorTypes = vendorType ?? [];
+      FBroadcast.instance().broadcast(
+        "vendor type data",
+        value: vendorTypes,
+      );
       vendorTypes.sort((a,b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
       filterPage1 = paginateList(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
       vendorTypeTotalCount = vendorTypes.length;
