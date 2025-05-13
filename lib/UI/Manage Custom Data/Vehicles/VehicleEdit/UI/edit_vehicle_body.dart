@@ -92,6 +92,8 @@ class EditVehicleBody extends StatelessWidget {
             Utils.getTextFormField(
               "Vehicle Id",
               context.read<EditVehicleBloc>().vehicleIdController,
+                textType: TextInputType.number,
+                textInputFormatter: [FilteringTextInputFormatter.digitsOnly]
             ),
             10.height,
             CustomDateTimePicker<DateTime>(
@@ -106,6 +108,8 @@ class EditVehicleBody extends StatelessWidget {
             Utils.getTextFormField(
               "Purchase Price",
               context.read<EditVehicleBloc>().purchasePriceController,
+              textType: TextInputType.number,
+              textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
               autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
             ),

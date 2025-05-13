@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -216,7 +217,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     });
 
     on<SaveNewVehicleEvent>((event, emit) async {
-      if (formKey.currentState?.validate() == false) return;
+      if ((formKey.currentState?.validate() == false) && (_isFormValid == false)) return;
       try {
         emit(AddVehicleLoadingState());
         List<Map<String, String?>> infusedFiles = [
@@ -232,8 +233,8 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
           body: _save(),
         );
         (response?.containsKey("error") ?? false)
-            ? Toaster.showError(response?['error'] ?? "")
-            : Toaster.showSuccess(response?['message'] ?? "");
+            ? emit(AddVehicleErrorState(response?['error'] ?? ""))
+            : emit(AddVehicleSuccessState(response?['message'] ?? ""));
         if ((response?.isNotEmpty ?? false) && (response?.containsKey("message") ?? false)) {
          if(response?['data']?['vin']!=null) {
            Console.of.log(response?['data']);
@@ -272,7 +273,12 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
     });
 
+    on<VehicleStatusDropDownEvent>(_onVehicleStatusDropDownEvent);
+    on<VehicleActiveDropDownEvent>(_onVehicleActiveDropDownEvent);
+
   }
+
+  bool get _isFormValid => (yearController.text.isNotEmpty && makeController.text.isNotEmpty && modelController.text.isNotEmpty && purchasePriceController.text.isNotEmpty && purchaseDateController.text.isNotEmpty);
 
   Map<String, String> _save() {
     Map<String, String> baseBody = {};
@@ -432,4 +438,13 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
   }
 
+  void _onVehicleStatusDropDownEvent(VehicleStatusDropDownEvent event, Emitter<AddVehicleState> emit) {
+    selectedVehicleStatus = event.model;
+    emit(AddVehicleCommonState());
+  }
+
+  void _onVehicleActiveDropDownEvent(VehicleActiveDropDownEvent event, Emitter<AddVehicleState> emit) {
+    selectedActiveStatus = event.model;
+    emit(AddVehicleCommonState());
+  }
 }

@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -319,7 +320,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     });
 
     on<SaveUpdatedVehicle>((event, emit) async {
-      if (formKey.currentState?.validate() == false) return;
+      if ((formKey.currentState?.validate() == false) && (_isFormValid == false)) return;
       try {
         if(selectedCohort == null)return emit(EditVehicleErrorState("Please select cohort"));
         emit(EditVehicleLoadingState());
@@ -358,7 +359,13 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
       }
     });
 
+    on<VehicleStatusDropDownEvent>(_onVehicleStatusDropDownEvent);
+    on<VehicleActiveDropDownEvent>(_onVehicleActiveDropDownEvent);
+
+
   }
+
+  bool get _isFormValid => (yearController.text.isNotEmpty && makeController.text.isNotEmpty && modelController.text.isNotEmpty && purchasePriceController.text.isNotEmpty && purchaseDateController.text.isNotEmpty);
 
   Map<String, String> _save() {
     Map<String, String> baseBody = {};
@@ -514,5 +521,15 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   Future<Map<String, dynamic>?> _getEditVehicleExpenseDetails({String? vin}) async =>
       await _apiRepository.getEditVehicleExpenseDetails(vin:vin);
 
+
+  void _onVehicleStatusDropDownEvent(VehicleStatusDropDownEvent event, Emitter<EditVehicleState> emit) {
+    selectedVehicleStatus = event.model;
+    emit(EditVehicleCommonState());
+  }
+
+  void _onVehicleActiveDropDownEvent(VehicleActiveDropDownEvent event, Emitter<EditVehicleState> emit) {
+    selectedActiveStatus = event.model;
+    emit(EditVehicleCommonState());
+  }
 }
 
