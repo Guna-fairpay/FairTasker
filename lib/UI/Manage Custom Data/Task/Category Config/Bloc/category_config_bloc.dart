@@ -123,39 +123,41 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
       Console.of.log(data);
       var response = await _apiRepository.categoryConfigAddOrUpdate(body: data,id: selectedData?['id']);
       if (response?["data"] != null) {
-        final newData = response!["data"];
+        final newData = response?["data"];
         nameController.clear();
         selectedCategory={};
         selectedUserType={};
         if (selectedData != null) {
           isEdit = false;
           selectedData = null;
-          apiResponse.removeWhere((e) => e['id'] == newData['id']);
-          newData.putIfAbsent('category_name', () => newData['parent_id'] != null
-              ? category.firstWhere(
-                (cat) => cat['id'].toString() == newData['parent_id'].toString(),
-            orElse: () => {'name': ''},)['name'] : ''
-          );
-          apiResponse.add(newData);
+          add(CategoryConfigInitialEvent());
+          // apiResponse.removeWhere((e) => e['id'] == newData['id']);
+          // newData.putIfAbsent('category_name', () => newData['parent_id'] != null
+          //     ? category.firstWhere(
+          //       (cat) => cat['id'].toString() == newData['parent_id'].toString(),
+          //   orElse: () => {'name': ''},)['name'] : ''
+          // );
+          // apiResponse.add(newData);
         } else {
-          newData.putIfAbsent('category_name', () => newData['parent_id'] != null
-              ? category.firstWhere(
-                (cat) => cat['id'].toString() == newData['parent_id'].toString(),
-            orElse: () => {'name': ''},)['name'] : ''
-          );
-          apiResponse.add(newData);
+          add(CategoryConfigInitialEvent());
+          // newData.putIfAbsent('category_name', () => newData['parent_id'] != null
+          //     ? category.firstWhere(
+          //       (cat) => cat['id'].toString() == newData['parent_id'].toString(),
+          //   orElse: () => {'name': ''},)['name'] : ''
+          // );
+          // apiResponse.add(newData);
         }
-        apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
-        totalCount = apiResponse.length;
-        _unFilteredResponse = apiResponse;
-        filteredResponse = paginateList(
-          data: _unFilteredResponse,
-          currentPage: currentIndex,
-          itemsPerPage: itemsPerPage,
-        );
-        Toaster.showSuccess(response['message']);
-        _search();
-        emit(CategoryConfigCommonState());
+        // apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
+        // totalCount = apiResponse.length;
+        // _unFilteredResponse = apiResponse;
+        // filteredResponse = paginateList(
+        //   data: _unFilteredResponse,
+        //   currentPage: currentIndex,
+        //   itemsPerPage: itemsPerPage,
+        // );
+        // Toaster.showSuccess(response?['message']);
+        // _search();
+        // emit(CategoryConfigCommonState());
       }
       else{
         Console.of.log(response,name: 'TESTCASE0');
