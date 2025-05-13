@@ -85,6 +85,7 @@ class VehicleListingUI extends StatelessWidget {
                                   read.add(SelectedVehicleEvent(
                                     vehicleId: vehicleId,
                                     isSelected: value ?? false,
+                                     vehicle: vehicle
                                   ));
                                 },
                               ),

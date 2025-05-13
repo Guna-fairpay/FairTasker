@@ -23,9 +23,10 @@ class SearchVehicleEvent extends VehicleEvent {
 class SelectedVehicleEvent extends VehicleEvent {
   final int vehicleId;
   final bool isSelected;
-  SelectedVehicleEvent({required this.vehicleId,required this.isSelected});
+  final dynamic vehicle;
+  SelectedVehicleEvent({required this.vehicleId,required this.isSelected, this.vehicle});
   @override
-  List<Object?> get props => [vehicleId,isSelected];
+  List<Object?> get props => [vehicleId,isSelected, vehicle];
 }
 
 class VehicleDeleteEvent extends VehicleEvent {

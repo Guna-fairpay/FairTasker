@@ -286,25 +286,32 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     baseBody['utilization_rate'] = utilizationRateController.text;
     baseBody['platform'] = platformController.text;
     baseBody['mileage'] = mileageController.text;
-    baseBody['whole_sale_amount'] = wholeSaleAmountController.text;
+    baseBody['wholesale_amount'] = wholeSaleAmountController.text;
     baseBody['vehicle_status'] = "${selectedVehicleStatus['id'] ?? ''}";
     baseBody['active'] = "${selectedActiveStatus['id'] ?? ''}";
     baseBody['purchase_price'] = purchasePriceController.text;
     baseBody['purchase_date'] = selectedPurchaseDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['vehicle_number'] = numberPlateController.text;
     baseBody['address'] = addressController.text;
-    baseBody['bouncie'] = bouncie ? "1" : "0";
-    baseBody['air_tag'] = airTag ? "1" : "0";
-    baseBody['spare_tire'] = spareTire ? "1" : "0";
-    baseBody['spare_key'] = spareKey ? "1" : "0";
-    baseBody['permanent_plate'] = permanentPlate ? "1" : "0";
+    // baseBody['bouncie'] = bouncie ? "1" : "0";
+    baseBody['bouncie'] = "$bouncie";
+    // baseBody['air_tag'] = airTag ? "1" : "0";
+    baseBody['air_tag'] = "$airTag";
+    // baseBody['spare_tire'] = spareTire ? "1" : "0";
+    baseBody['spare_tire'] = "$spareTire";
+    // baseBody['spare_key'] = spareKey ? "1" : "0";
+    baseBody['spare_key'] = "$spareKey";
+    // baseBody['permanent_plate'] = permanentPlate ? "1" : "0";
+    baseBody['permanent_plate'] = "$permanentPlate";
     baseBody['car_number'] = carNumberController.text;
     baseBody['oil_grade'] = oilGradeController.text;
     baseBody['branch_code'] = '${selectedBranch['id'] ?? ''}';
     baseBody['registration_renewal_date'] = selectedRegStickerDate?.toFormat(format: 'yyyy-MM-dd')??'';
-    baseBody['toll_tags'] = tollTags ? "1" : "0";
+    // baseBody['toll_tags'] = tollTags ? "1" : "0";
+    baseBody['toll_tags'] = "$tollTags";
     baseBody['toll_tags_id'] = tollTagsController.text;
-    baseBody['front_license_plate'] = frontLicensePlate ? "1" : "0";
+    // baseBody['front_license_plate'] = frontLicensePlate ? "1" : "0";
+    baseBody['front_license_plate'] = "$frontLicensePlate";
     baseBody['tire_size'] = spareTireController.text;
     baseBody['front_tire'] = frontTireController.text;
     baseBody['rear_tire'] = rearTireController.text;
@@ -319,12 +326,12 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     return baseBody;
   }
 
-  Future<List<File>> _pickFiles() async {
+  Future<List<File>> _pickFiles({FileType type = FileType.custom, List<String>? extensions}) async {
     var result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         allowCompression: true,
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
+        type: type,
+        allowedExtensions: extensions);
     return result?.paths
         .where((element) => (element?.isNotEmpty ?? false))
         .map((e) => File(e!))
@@ -334,7 +341,8 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
   Future<void> _handleFileSelection(
       List<dynamic> fileList, String logName, Emitter emit) async {
-    var result = await _pickFiles();
+    var extensions = (logName == "receiptImageFile") ? null : ['jpg', 'jpeg', 'png'];
+    var result = await _pickFiles(type: (logName == "receiptImageFile") ? FileType.any : FileType.custom, extensions: extensions);
     if (result.isNotEmpty) {
       var existingAttachments =
       fileList.whereType<File>().map((e) => e.path).toList();
