@@ -243,6 +243,19 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         selectedVehicle = vehicleList.first;
       }
 
+        if (todoItem?['vehicle_group_id'].toString().isNotNullOrEmpty ?? false) {
+          Console.of.log(todoItem?['vehicle_group_id'], name: "vehicle_group_id");
+          var groupVehicles = getIt<CommonService>().groupVehicleList.firstWhereOrNull((element) => element['id'] == todoItem?['vehicle_group_id']);
+          var vins = List.from(jsonDecode(groupVehicles?['vin'] ?? ""));
+          Console.of.log(vins.firstOrNull, name: "VIN_GROUP");
+          selectedVehicle = getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == vins.firstOrNull);
+          Console.of.log(selectedVehicle, name: "SELECTED_VEHICLE");
+        }
+
+        if ((todoItem?['identifier_id'] == 166) && (todoItem?['person_id'].toString().isNotNullOrEmpty ?? false)) { // 166 : Pay partime
+          selectedVehicle = getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == "1234");
+        }
+
         String laborAmount =
             (expenseDetailResponse?['split_expenses'] ?? [])
                     .firstWhere((element) => element['labour'] == 1,
@@ -448,7 +461,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           }
         isSaveCategory = false;
       }
-      emit(state.copyWith(selectedVehicle: event.selectedVehicle));
+      selectedVehicle = event.selectedVehicle;
+      emit(state.copyWith(selectedVehicle: selectedVehicle));
     });
 
     on<TaskListEvent>((event, emit) => emit(state.copyWith(taskList: event.taskList)));
@@ -512,6 +526,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           Toaster.showError("Please select subCategory");
           return;
         }
+        if (((todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']) == null) || (((selectedVehicle?['vin']) ?? (state.vehicleList.firstOrNull?['vin'])) == null)) {
+          Toaster.showError("Please update vehicle details to save expense ${(todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id'])}");
+          return;
+        }
+        Console.of.log(jsonEncode(_expenseData()));
+        return;
         emit(state.copyWith(isLoading: true));
         log("${state.expenseAttachments.whereType<File>().toList()}", name: 'EXPENSE_DATA');
         var response = await apiRepository.updateTodoExpense(
@@ -607,6 +627,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     }else{
      expenseAmount = amountController.text;
     }
+    String vin = "${((selectedVehicle?['vin']) ?? (state.vehicleList.firstOrNull?['vin'])) ?? ''}";
+    if (todoItem?['vehicle_group_id'].toString().isNotNullOrEmpty ?? false) {
+      var groupVehicles = getIt<CommonService>().groupVehicleList.firstWhereOrNull((element) => element['id'] == todoItem?['vehicle_group_id']);
+      var vins = List.from(jsonDecode(groupVehicles?['vin'] ?? ""));
+      vin = vins.firstOrNull ?? "";
+    }
     log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
     baseBody['category_name'] = "${state.selectedMainCategory?['name'] ?? ''}";
@@ -621,7 +647,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['expense_description'] = descriptionController.text;
     baseBody['expense_date'] = DateTime.now().format('yyyy-MM-dd').toString();
     baseBody['cohort_id'] = "${todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']}";
-    baseBody['vin'] = "${state.vehicleList.firstOrNull?['vin'] ?? ''}";
+    baseBody['vin'] = vin;
     if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
     baseBody['type'] = "inline";
     baseBody['platform'] = "TaskerApp";
@@ -639,6 +665,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             element[element.keys.last].toString();
       });
     }
+    baseBody['approved'] = "${(state.apiResponse['approved'] ?? 0)}";
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }
