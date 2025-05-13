@@ -143,13 +143,15 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         _unfilteredResponse = result;
         _paginate();
         Toaster.showSuccess(response?['message']);
-        isEdit = false;
-        selectedData = null;
-        taskController.clear();
-        timeTakenController.text = '30';
-        selectedCategory={};
-        selectedSubCategory = {};
-        selectedUserType= usersType.first;
+        if(selectedData == event.data) {
+          isEdit = false;
+          selectedData = null;
+          taskController.clear();
+          timeTakenController.text = '30';
+          selectedCategory = {};
+          selectedSubCategory = {};
+          selectedUserType = usersType.first;
+        }
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);

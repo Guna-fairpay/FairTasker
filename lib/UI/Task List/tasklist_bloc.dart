@@ -27,11 +27,16 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   List<Map<String,dynamic>> vehicleData =[];
   List<dynamic> userIDs=[];
   final TaskListRepository taskListRepo = TaskListRepository();
+  List<Map<String, dynamic>> extraHoursCheckData = [];
   List<Map<String, dynamic>> overtimeTakenData = [];
   List<Map<String, dynamic>> extraHoursData = [];
+  bool isAscending = false;
+  bool offShore = false;
 
   TaskListBloc() : super(TaskListState(
       pop: false,
+    isAscending: false,
+    offShore: false,
     selectedDateRange: DateRange(
       DateTime.now().subtract(const Duration(days: 7)),
       DateTime.now(),
@@ -44,7 +49,6 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
       try {
         final value = await taskListRepo.getTaskList(event.startDate, event.endDate);
         final groupResource = await taskListRepo.fetchUserGroupingList();
-        final resource = await taskListRepo.getAssignedTo();
         final groupVehicle = await taskListRepo.getVehicleGroupData();
         final usersList = await taskListRepo.getUsers();
         final taskExpenseData = await taskListRepo.getTask();
@@ -54,16 +58,14 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         userListData = usersList?.data ?? [];
         groupVehicleData = groupVehicle?.vehicleGroupData ?? [];
         apiResponse = value?.data ?? [];
-        userInitials = resource?.resource ?? [];
         groupUsers = groupResource?.data ?? [];
 
-        apiResponse = apiResponse.map((e) => e..["usersList"] =
-                                                _getUsers(userId: e['user_id'],
-                                                userGroupId: e['user_group_id'])).toList();
+        apiResponse = apiResponse.map((e) => e..["usersList"] = _getUsers(userId: e['user_id'], userGroupId: e['user_group_id'])).toList();
         apiResponse = apiResponse.map((e) => e..["usersName"] =
                                                 List.from(e['usersList']).map((e) => <String>[
                                                   (e['first_name'] ?? ""),
                                                   (e['last_name'] ?? "")].toInitial).join(", ")).toList();
+        apiResponse = apiResponse.map((e) => e..["time_taken"] = e['complete_time_taken'] != null ? overTime(taskExpense,apiResponse,e['complete_time_taken']) : "").toList();
 
         calculateAndAddOvertime(apiResponse, taskExpense, vehicleData);
         emit(state.copyWith(
@@ -111,7 +113,8 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
     on<ExtraHoursEvent>((event, emit) async {
       try {
-        List<Map<String, dynamic>> newData;
+        List<Map<String, dynamic>> newData = [];
+        newData.clear();
         if (event.value) {
           var copy = List<Map<String, dynamic>>.from(state.taskExpense);
           calculateOvertimeTaken(copy, apiResponse);
@@ -136,15 +139,21 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
     on<TaskIncompleteEvent>((event, emit) async {
       try{
-        apiResponse.sort((a, b) => b['todo_date'].toString().toDateTime()?.compareTo(a['todo_date'].toString().toDateTime() ?? DateTime.now()) ?? 0);
-        var inComplete = apiResponse.where((element) => element['complete_time_approved'] == 0);
-        var completed = apiResponse.where((element) => element['complete_time_approved'] == 1);
+        List<Map<String, dynamic>> TaskIncomplete = [];
+        TaskIncomplete.clear();
+        TaskIncomplete.addAll(apiResponse);
+        //TaskIncomplete.sort((a, b) => b['todo_date'].toString().toDateTime()?.compareTo(a['todo_date'].toString().toDateTime() ?? DateTime.now()) ?? 0);
+        var inComplete = TaskIncomplete.where((element) => element['complete_time_approved'] == 0);
+        var completed = TaskIncomplete.where((element) => element['complete_time_approved'] == 1);
         if(event.value) {
+          // if(state.offShore){
+          //   add(OffShoreTeamEvent(value: false));
+          // }
           log("${event.value} ---> ");
-          apiResponse = [...inComplete, ...completed];
-          emit(state.copyWith(data: apiResponse,isAscending: event.value));
+          TaskIncomplete = [...inComplete, ...completed];
+          emit(state.copyWith(data: TaskIncomplete,isAscending: event.value));
           log("Ascending triggered ---> ");
-        }else {
+        } else {
           log("${event.value} ---> ");
           //apiResponse = [...completed, ...inComplete];
           // apiResponse.sort((a,b) => b['complete_time_approved'].compareTo(a['complete_time_approved']));
@@ -158,14 +167,23 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
     on<OffShoreTeamEvent>((event, emit) async {
       try{
+        List<Map<String, dynamic>> OffShoreTeamData = [];
+        OffShoreTeamData.clear();
+        OffShoreTeamData.addAll(apiResponse);
+        var offShore = OffShoreTeamData.where((element) => element['todo_user_type'] == 1);
+        var inOffShore = OffShoreTeamData.where((element) => element['todo_user_type'] != 1);
         if(event.value){
+          // if(state.isAscending){
+          //   add(OffShoreTeamEvent(value: false));
+          // }
           log("${event.value} ---> ");
-          apiResponse.sort((a, b) => b['todo_user_type'].compareTo(a['todo_user_type']));
-          emit(state.copyWith(data: apiResponse,offShore: event.value));
+          OffShoreTeamData = [...offShore, ...inOffShore];
+          //apiResponse.sort((a, b) => b['todo_user_type'].compareTo(a['todo_user_type']));
+          emit(state.copyWith(data: OffShoreTeamData,offShore: event.value));
           log("Ascending triggered ---> ");
         } else {
           log("${event.value} ---> ");
-          apiResponse.sort((a, b) => a['todo_user_type'].compareTo(b['todo_user_type']));
+          //apiResponse.sort((a, b) => a['todo_user_type'].compareTo(b['todo_user_type']));
           emit(state.copyWith(data: apiResponse,offShore: event.value));
           log("Rollback triggered ---> ");
         }
@@ -201,6 +219,8 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
   }
 
+
+
   List<dynamic> _getUsers({dynamic userId, dynamic userGroupId}) {
     // userInitials; // RESOURCES
     // groupUsers; // GROUP PERSON
@@ -223,9 +243,51 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
     int minutes = int.parse(parts[1]);
     return hours * 60 + minutes;
   }
+
+  String overTime(List<Map<String, dynamic>> expenseData,List<Map<String, dynamic>> filteredTasks, String timeTaken) {
+    for (var item in filteredTasks) {
+      if (item['complete_time_taken'] != null) {
+        String taskName = item['title'];
+
+        dynamic matchingRecord = expenseData.firstWhere(
+              (record) =>
+          record['task'] == taskName,
+          orElse: () => {},
+        );
+        if (matchingRecord == null) continue;
+
+        int actualTime = matchingRecord['time_taken'] is String
+            ? int.tryParse(matchingRecord['time_taken']) ?? 0
+            : 0;
+        int completedTime = timeToMinutes(timeTaken);
+        //log("timeTaken ${completedTime} actualTime ${actualTime}", name: "overTime_Before");
+        if (completedTime < actualTime) {
+          int overtimeTaken = actualTime - completedTime;
+          //log("timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken}",name: "overTime_Extra_true");
+          int hours = overtimeTaken ~/ 60;
+          int remainder_minutes = overtimeTaken % 60;
+
+          return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+        }
+        else if(completedTime > actualTime){
+          int overtimeTaken = completedTime - actualTime;
+          log("timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken}",name: "overTime_Extra_false");
+          int hours = overtimeTaken ~/ 60;
+          int remainder_minutes = overtimeTaken % 60;
+          return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+        } else {
+          return "";
+        }
+      }
+    }
+    return "";
+  }
+
+
   void calculateOvertimeTaken(List<Map<String, dynamic>> expenseData,
       List<Map<String, dynamic>> filteredTasks)
   {
+    overtimeTakenData.clear();
     for (var item in filteredTasks) {
       if (item['complete_time_taken'] != null) {
         String taskName = item['title'].contains('-')
@@ -239,12 +301,14 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         );
         if (matchingRecord == null) continue;
 
-        int timeTaken = matchingRecord['time_taken'] is String
+        int actualTime = matchingRecord['time_taken'] is String
             ? int.tryParse(matchingRecord['time_taken']) ?? 0
             : 0;
+        //log("actualTime ${actualTime} time_taken ${timeToMinutes(item['complete_time_taken'])}",name: "overTime");
         int completedTime = timeToMinutes(item['complete_time_taken']);
-        if (completedTime != timeTaken && item['complete_time_approved'] == 0) {
-          int overtimeTaken = completedTime - timeTaken;
+        if (completedTime != actualTime && item['complete_time_approved'] == 0) {
+          int overtimeTaken = completedTime - actualTime;
+          //log("timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken}",name: "overTime");
           int hours = overtimeTaken ~/ 60;
           int remainder_minutes = overtimeTaken % 60;
           Map<String, dynamic> fullRecord = Map<String, dynamic>.from(item);
@@ -285,7 +349,10 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
             int remainder_minutes = overtimeTaken % 60;
             task['overtime'] =
             '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}';
-          } else {
+          } else if(completedTime != timeTaken && task['complete_time_approved'] == 1){
+            int leftOverTime = completedTime - timeTaken;
+          }
+          else {
             task['overtime'] = '';
           }
         } else {
@@ -322,11 +389,11 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
       case 1:
         return {'text': '(T)', 'color' : Colors.black};
       case 2:
-        return {'text': '(U)', 'color' : Color(0xFF90EE90)};
+        return {'text': '(U)', 'color' : const Color(0xFF90EE90)};
       case 3:
         return {'text': '(P)', 'color' : const Color(0xFFFFCC99)};
       case 4:
-        return {'text': '(G)', 'color' : Color(0xFFFFB6C1)};
+        return {'text': '(G)', 'color' : const Color(0xFFFFB6C1)};
       default:
         return {};
     }

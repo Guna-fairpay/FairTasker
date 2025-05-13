@@ -70,7 +70,7 @@ class TodoExpense extends StatelessWidget {
                   if (selectedValue['expense_id'] != null) {
                     context.read<TodoEditExpenseBloc>().add(
                         GetTodoExpenseInitialEvent(
-                            expenseId: selectedValue['expense_id']));
+                             expenseId: selectedValue['expense_id']));
                   }
                 },
                 labelKey: 'vehicle_name',

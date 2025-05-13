@@ -27,19 +27,8 @@ class TasklistUi extends StatelessWidget {
   TasklistUi({super.key});
 
 
-  int convertTimeToMinutes(String? time) {
-    if (time == null || time.isEmpty) {
-      return 0;
-    }
-    return Time.fromStr(time)?.inMins ?? 0;
-  }
-
-
-
   @override
   Widget build(BuildContext context) {
-    bool isAscending = false;
-    bool offShore = false;
     return BlocProvider(create: (context) =>
     TaskListBloc()..add(TaskListInitial(
       selectedDateRange?.start.toString() ?? DateTime.now().subtract(const Duration(days: 7)).toString(),
@@ -131,12 +120,12 @@ class TasklistUi extends StatelessWidget {
                             color: Colors.white,
                             onSelected: (int selectedValue) {
                               if (selectedValue == 1) {
-                                isAscending = !isAscending;
-                                context.read<TaskListBloc>().add(TaskIncompleteEvent(value: isAscending
+                                context.read<TaskListBloc>().isAscending = !context.read<TaskListBloc>().isAscending;
+                                context.read<TaskListBloc>().add(TaskIncompleteEvent(value: context.read<TaskListBloc>().isAscending
                                 ));
                               } else if (selectedValue == 2) {
-                                offShore = !offShore;
-                                context.read<TaskListBloc>().add(OffShoreTeamEvent(value: offShore
+                                context.read<TaskListBloc>().offShore = !context.read<TaskListBloc>().offShore;
+                                context.read<TaskListBloc>().add(OffShoreTeamEvent(value: context.read<TaskListBloc>().offShore
                                 ));
                               }
                             },
@@ -208,29 +197,6 @@ class TasklistUi extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        /*(taskList['complete_time_taken'] != '' &&
-                                            taskList['complete_time_taken'] != null) ?
-                                        Utils.getText(
-                                          "${taskList['title']} (${taskList['complete_time_taken']})",
-                                          color: textColor,
-                                          weight: FontWeight.bold,
-                                        ) : Utils.getText(
-                                          "${taskList['title']}",
-                                          color: textColor,
-                                          weight: FontWeight.bold,
-                                        ),
-                                        Utils.getText(
-                                          taskList['todo_date']?.substring(5) ?? '',
-                                          color: textColor,
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Utils.getText(
-                                          taskList['todo_time'].toString()
-                                              .toDateTime(inputFormat: "HH:mm:ss")
-                                              .toFormat(format: "hh:mm a")
-                                              .toString(),
-                                          color: textColor,
-                                        ),*/
                                         Utils.getText(
                                           "${taskList['title']} ",
                                           color: textColor,
@@ -275,7 +241,7 @@ class TasklistUi extends StatelessWidget {
                                                   : taskList['vehicle_name'] ??
                                                   state.groupVehicle.firstWhereOrNull(
                                                           (element) => element['id'] == taskList['vehicle_group_id']
-                                                  )?['name'] ?? '',),
+                                                  )?['name'] ?? taskList['person'] ?? '',),
                                               if(taskList['rental_status'] !=null && taskList['rental_status_color'] != null)
                                                 ...[
                                                   WidgetSpan(child: 10.width),
@@ -341,12 +307,20 @@ class TasklistUi extends StatelessWidget {
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          if (taskList["overtime"] != null && taskList["overtime"] != '')
+                                          //if (taskList["overtime"] != null && taskList["overtime"] != '')
+                                          if(taskList["time_taken"] != null && taskList["time_taken"] != '')...[
                                             Utils.getText(
-                                              "${taskList["overtime"]} - ",
+                                              "${taskList["time_taken"]} - ",
+                                              color: AppC.red,
+                                              weight: FontWeight.bold,
+                                            ),
+                                          ] else...[
+                                            Utils.getText(
+                                              "",
                                               color: textColor,
                                               weight: FontWeight.bold,
                                             ),
+                                          ],
                                           if (taskList["notes_complete"] != null &&
                                               taskList["notes_complete"] != '')
                                             Expanded(

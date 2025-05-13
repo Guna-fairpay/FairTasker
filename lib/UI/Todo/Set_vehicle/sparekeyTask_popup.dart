@@ -59,6 +59,7 @@ class _SpareKeyTaskDialogView extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
             ),
             Row(
+              spacing: 10,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Utils.getAddFilledButton(
