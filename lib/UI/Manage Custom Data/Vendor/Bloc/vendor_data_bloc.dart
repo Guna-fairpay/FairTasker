@@ -85,6 +85,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       d.log("${vendorType}", name: "vendor_type");
 
       vendorTypeData = vendorType ?? [];
+      d.log("${vendorTypeData}", name: "vendor_type_data");
       filteredVendorType = vendorType ?? [];
 
       vendorsData = vendor ?? [];
@@ -283,8 +284,8 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       await apiRepository.createVendorType(event.id, event.name??'',).then((value) {
         isVendorTypeEdit = false;
         vendorTypeNameController.clear();
-        emit(VendorDataCommonState());
         add(const GetVendorTypeList());
+        emit(VendorDataCommonState());
       });
     });
 

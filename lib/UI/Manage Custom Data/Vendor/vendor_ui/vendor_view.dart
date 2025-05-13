@@ -88,7 +88,7 @@ class VendorView extends StatelessWidget {
                                       Expanded(
                                         child:
                                         SuggestionSearchBar<Map<String, dynamic>>(
-                                          suggestions: context.read<VendorDataBloc>().vendorTypeData.where((item) => item['name']?.trim().isNotEmpty ?? false).toList(),
+                                          suggestions: context.watch<VendorDataBloc>().vendorTypeData.where((item) => item['name']?.trim().isNotEmpty ?? false).toList(),
                                           displayString: (item) => item['name']?.trim().replaceAll('\n', ' ') ?? '',
                                           getId: (item) => item['id'],
                                           searchController: context.read<VendorDataBloc>().searchController,

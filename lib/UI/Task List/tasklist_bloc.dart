@@ -65,7 +65,7 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
                                                 List.from(e['usersList']).map((e) => <String>[
                                                   (e['first_name'] ?? ""),
                                                   (e['last_name'] ?? "")].toInitial).join(", ")).toList();
-        apiResponse = apiResponse.map((e) => e..["time_taken"] = e['complete_time_taken'] != null ? overTime(taskExpense,apiResponse,e['complete_time_taken']) : "").toList();
+        apiResponse = apiResponse.map((e) => e..["time_taken"] = e['complete_time_taken'] != null ? overTime(taskExpense,value?.data ?? [],e['complete_time_taken'], e['title']) : "").toList();
 
         calculateAndAddOvertime(apiResponse, taskExpense, vehicleData);
         emit(state.copyWith(
@@ -139,53 +139,62 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
 
     on<TaskIncompleteEvent>((event, emit) async {
       try{
-        List<Map<String, dynamic>> TaskIncomplete = [];
-        TaskIncomplete.clear();
-        TaskIncomplete.addAll(apiResponse);
-        //TaskIncomplete.sort((a, b) => b['todo_date'].toString().toDateTime()?.compareTo(a['todo_date'].toString().toDateTime() ?? DateTime.now()) ?? 0);
-        var inComplete = TaskIncomplete.where((element) => element['complete_time_approved'] == 0);
-        var completed = TaskIncomplete.where((element) => element['complete_time_approved'] == 1);
-        if(event.value) {
-          // if(state.offShore){
-          //   add(OffShoreTeamEvent(value: false));
-          // }
-          log("${event.value} ---> ");
-          TaskIncomplete = [...inComplete, ...completed];
-          emit(state.copyWith(data: TaskIncomplete,isAscending: event.value));
-          log("Ascending triggered ---> ");
-        } else {
-          log("${event.value} ---> ");
-          //apiResponse = [...completed, ...inComplete];
-          // apiResponse.sort((a,b) => b['complete_time_approved'].compareTo(a['complete_time_approved']));
-          emit(state.copyWith(data: apiResponse,isAscending: event.value));
-          log("Rollback triggered ---> ");
+        if(!state.extraHours){
+          List<Map<String, dynamic>> TaskIncomplete = [];
+          TaskIncomplete.clear();
+          TaskIncomplete.addAll(apiResponse);
+          //TaskIncomplete.sort((a, b) => b['todo_date'].toString().toDateTime()?.compareTo(a['todo_date'].toString().toDateTime() ?? DateTime.now()) ?? 0);
+          var inComplete = TaskIncomplete.where((element) => element['complete_time_approved'] == 0);
+          var completed = TaskIncomplete.where((element) => element['complete_time_approved'] == 1);
+          if(event.value) {
+            if(offShore){
+              emit(state.copyWith(offShore: false));
+            }
+            log("${event.value} ---> ");
+            TaskIncomplete = [...inComplete, ...completed];
+            emit(state.copyWith(data: TaskIncomplete,isAscending: event.value));
+            log("Ascending triggered ---> ");
+          } else {
+            if(offShore){
+              emit(state.copyWith(offShore: false));
+            }
+            log("${event.value} ---> ");
+            apiResponse = [...completed, ...inComplete];
+            // apiResponse.sort((a,b) => b['complete_time_approved'].compareTo(a['complete_time_approved']));
+            emit(state.copyWith(data: apiResponse,isAscending: event.value));
+            log("Rollback triggered ---> ");
+          }
         }
-      }catch (e){
+      } catch (e) {
         log(e.toString());
       }
     });
 
     on<OffShoreTeamEvent>((event, emit) async {
       try{
-        List<Map<String, dynamic>> OffShoreTeamData = [];
-        OffShoreTeamData.clear();
-        OffShoreTeamData.addAll(apiResponse);
-        var offShore = OffShoreTeamData.where((element) => element['todo_user_type'] == 1);
-        var inOffShore = OffShoreTeamData.where((element) => element['todo_user_type'] != 1);
-        if(event.value){
-          // if(state.isAscending){
-          //   add(OffShoreTeamEvent(value: false));
-          // }
-          log("${event.value} ---> ");
-          OffShoreTeamData = [...offShore, ...inOffShore];
-          //apiResponse.sort((a, b) => b['todo_user_type'].compareTo(a['todo_user_type']));
-          emit(state.copyWith(data: OffShoreTeamData,offShore: event.value));
-          log("Ascending triggered ---> ");
-        } else {
-          log("${event.value} ---> ");
-          //apiResponse.sort((a, b) => a['todo_user_type'].compareTo(b['todo_user_type']));
-          emit(state.copyWith(data: apiResponse,offShore: event.value));
-          log("Rollback triggered ---> ");
+        if(!state.extraHours){
+          List<Map<String, dynamic>> OffShoreTeamData = [];
+          OffShoreTeamData.clear();
+          OffShoreTeamData.addAll(apiResponse);
+          var offShore = OffShoreTeamData.where((element) => element['todo_user_type'] == 1);
+          var inOffShore = OffShoreTeamData.where((element) => element['todo_user_type'] != 1);
+          if(event.value){
+            if(isAscending){
+              emit(state.copyWith(isAscending: false));
+            }
+            log("${event.value} ---> ");
+            OffShoreTeamData = [...offShore, ...inOffShore];
+            emit(state.copyWith(data: OffShoreTeamData,offShore: event.value));
+            log("Ascending triggered ---> ");
+          } else {
+            if(isAscending){
+              emit(state.copyWith(isAscending: false));
+            }
+            log("${event.value} ---> ");
+            //apiResponse.sort((a, b) => a['todo_user_type'].compareTo(b['todo_user_type']));
+            emit(state.copyWith(data: apiResponse,offShore: event.value));
+            log("Rollback triggered ---> ");
+          }
         }
       } catch (e) {
         log(e.toString());
@@ -244,14 +253,13 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
     return hours * 60 + minutes;
   }
 
-  String overTime(List<Map<String, dynamic>> expenseData,List<Map<String, dynamic>> filteredTasks, String timeTaken) {
+  String overTime(List<Map<String, dynamic>> expenseData,List<Map<String, dynamic>> filteredTasks, String timeTaken, String taskTitle) {
+    //log("title ${taskTitle} ",name: "overTime");
     for (var item in filteredTasks) {
       if (item['complete_time_taken'] != null) {
-        String taskName = item['title'];
-
         dynamic matchingRecord = expenseData.firstWhere(
               (record) =>
-          record['task'] == taskName,
+          record['task'].toString().toLowerCase() == taskTitle.toString().toLowerCase(),
           orElse: () => {},
         );
         if (matchingRecord == null) continue;
@@ -260,25 +268,25 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
             ? int.tryParse(matchingRecord['time_taken']) ?? 0
             : 0;
         int completedTime = timeToMinutes(timeTaken);
-        //log("timeTaken ${completedTime} actualTime ${actualTime}", name: "overTime_Before");
-        if (completedTime < actualTime) {
+        //log("title ${taskTitle} timeTaken ${completedTime} actualTime ${actualTime} expenseTitle ${matchingRecord['task']}", name: "overTime_Before");
+        if (completedTime < actualTime && completedTime != actualTime) {
           int overtimeTaken = actualTime - completedTime;
-          //log("timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken}",name: "overTime_Extra_true");
+          //log("title ${taskTitle} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTitle ${matchingRecord['task']}",name: "overTime_Extra_true");
           int hours = overtimeTaken ~/ 60;
           int remainder_minutes = overtimeTaken % 60;
 
           return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
         }
-        else if(completedTime > actualTime){
+        else if(completedTime > actualTime && completedTime != actualTime){
           int overtimeTaken = completedTime - actualTime;
-          log("timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken}",name: "overTime_Extra_false");
+          //log("title ${item['title']} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTile ${matchingRecord['task']}",name: "overTime_Extra_true");
           int hours = overtimeTaken ~/ 60;
           int remainder_minutes = overtimeTaken % 60;
           return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
         } else {
           return "";
         }
-      }
+      } else {return "";}
     }
     return "";
   }
@@ -349,8 +357,6 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
             int remainder_minutes = overtimeTaken % 60;
             task['overtime'] =
             '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}';
-          } else if(completedTime != timeTaken && task['complete_time_approved'] == 1){
-            int leftOverTime = completedTime - timeTaken;
           }
           else {
             task['overtime'] = '';
