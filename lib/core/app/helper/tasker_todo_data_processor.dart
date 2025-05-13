@@ -5,9 +5,9 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
 import 'package:fairpytasker/utilities/appC.dart';
@@ -397,14 +397,14 @@ class ToDoProcessor {
               (element) => (element['id'] == identifierId) || (element['task'].toString().toLowerCase() == title) )?['time_taken'] ??
           "";
       if (taken.toString().isNotNullOrEmpty) {
-        return "00:$taken";
+        return "00:$taken".parseDurationToMinutes.minutesToHourMinute;
       } else {
         return "00:15";
       }
     } else {
       var taken = _taskExpenseDatas.firstWhereOrNull((element) => element['task'].toString().toLowerCase() == title)?['time_taken'];
       if (taken.toString().isNotNullOrEmpty) {
-        return "00:$taken";
+        return "00:$taken".parseDurationToMinutes.minutesToHourMinute;
       } else {
         return "00:15";
       }

@@ -8,6 +8,7 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/formatter/upper_case_formatter.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -53,7 +54,9 @@ class EditVehicleMoreTwo extends StatelessWidget {
                   child: Column(
                     spacing: 10,
                     children: [
-                      Utils.getTextFormField("Car Number", context.read<EditVehicleBloc>().carNumberController),
+                      Utils.getTextFormField("Car Number", context.read<EditVehicleBloc>().carNumberController,
+                        textType: TextInputType.number,
+                        textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],),
                       Utils.getTextFormField(
                           "Front tire e.g., 215/55R17",
                           context.read<EditVehicleBloc>().frontTireController,
@@ -163,7 +166,10 @@ class EditVehicleMoreTwo extends StatelessWidget {
               children: [
                 Expanded(child: Utils.getTextFormField("Insurance Agent", context.read<EditVehicleBloc>().insuranceAgentController),),
                 10.width,
-                Expanded(child: Utils.getTextFormField("Insurance Cost", context.read<EditVehicleBloc>().insuranceCostController),),
+                Expanded(child: Utils.getTextFormField("Insurance Cost", context.read<EditVehicleBloc>().insuranceCostController,
+                  textType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
+                ),),
               ],
             ),
             10.height,

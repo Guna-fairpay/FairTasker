@@ -4,6 +4,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CompactSearchView extends StatelessWidget {
   final bool? filled;
@@ -28,20 +29,20 @@ class CompactSearchView extends StatelessWidget {
       keyboardType: TextInputType.text,
       maxLines: 1,
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      style: context.textTheme.titleSmall?.copyWith(color: AppC.appColor),
+      style: context.textTheme.labelLarge?..copyWith(color: AppC.appColor),
       onTapOutside: (event) => Utils.dismissKeyboard(context),
       decoration: InputDecoration(
         isDense: true,
         hintText: hintText,
         labelText: labelText,
-        contentPadding: padding ?? 7.padding,
+        contentPadding: padding ?? 7.sp.padding,
         fillColor: fillColor,
         filled: filled,
         prefixIconConstraints: const BoxConstraints(),
         border: border,
         enabledBorder: border,
         focusedBorder: border,
-        hintStyle: context.textTheme.titleSmall?.copyWith(color: AppC.text),
+        hintStyle: context.textTheme.labelLarge?..copyWith(color: AppC.text),
         prefixIcon: Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
       ),
     );

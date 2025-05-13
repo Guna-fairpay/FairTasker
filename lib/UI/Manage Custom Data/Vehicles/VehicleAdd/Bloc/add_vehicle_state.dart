@@ -21,14 +21,14 @@ class AddVehicleErrorState extends AddVehicleState {
   final dynamic message;
   AddVehicleErrorState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class AddVehicleSuccessState extends AddVehicleState {
   final dynamic message;
   AddVehicleSuccessState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 

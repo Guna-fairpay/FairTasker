@@ -2,6 +2,7 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -21,6 +22,10 @@ class AddVehicleUI extends StatelessWidget {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
+            switch(state) {
+              case AddVehicleErrorState(): Toaster.showError(state.message, context: context); break;
+              case AddVehicleSuccessState(): Toaster.showSuccess(state.message, context: context); break;
+            }
           }
         },
         child: SafeArea(

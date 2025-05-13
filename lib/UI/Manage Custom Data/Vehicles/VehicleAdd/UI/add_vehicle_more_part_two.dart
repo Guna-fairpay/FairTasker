@@ -58,7 +58,7 @@ class AddVehicleMoreTwo extends StatelessWidget {
                         "Car Number",
                         context.read<AddVehicleBloc>().carNumberController,
                         textType: TextInputType.number,
-                        textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
+                        textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                       ),
                       Utils.getTextFormField(
                           "Front tire e.g., 215/55R17",
@@ -167,7 +167,12 @@ class AddVehicleMoreTwo extends StatelessWidget {
               children: [
                 Expanded(child: Utils.getTextFormField("Insurance Agent", context.read<AddVehicleBloc>().insuranceAgentController),),
                 10.width,
-                Expanded(child: Utils.getTextFormField("Insurance Cost", context.read<AddVehicleBloc>().insuranceCostController),),
+                Expanded(child: Utils.getTextFormField("Insurance Cost", context.read<AddVehicleBloc>().insuranceCostController,
+                  textType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputFormatter: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                  ]
+                ),),
               ],
             ),
             10.height,
