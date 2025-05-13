@@ -146,9 +146,9 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         var inComplete = TaskIncomplete.where((element) => element['complete_time_approved'] == 0);
         var completed = TaskIncomplete.where((element) => element['complete_time_approved'] == 1);
         if(event.value) {
-          if(state.offShore){
-            add(OffShoreTeamEvent(value: false));
-          }
+          // if(state.offShore){
+          //   add(OffShoreTeamEvent(value: false));
+          // }
           log("${event.value} ---> ");
           TaskIncomplete = [...inComplete, ...completed];
           emit(state.copyWith(data: TaskIncomplete,isAscending: event.value));
@@ -173,9 +173,9 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         var offShore = OffShoreTeamData.where((element) => element['todo_user_type'] == 1);
         var inOffShore = OffShoreTeamData.where((element) => element['todo_user_type'] != 1);
         if(event.value){
-          if(state.isAscending){
-            add(OffShoreTeamEvent(value: false));
-          }
+          // if(state.isAscending){
+          //   add(OffShoreTeamEvent(value: false));
+          // }
           log("${event.value} ---> ");
           OffShoreTeamData = [...offShore, ...inOffShore];
           //apiResponse.sort((a, b) => b['todo_user_type'].compareTo(a['todo_user_type']));
