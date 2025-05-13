@@ -223,15 +223,15 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         vinList.removeWhere((element) => element.toString().isNullOrEmpty);
         vinList = vinList.unique((element) => element);
         if (vinList.isNotEmpty) {
-          vehicleList = todoItem['vehicles']
-              .where((element) => vinList.contains(element['vin'].toString()))
-              .toList();
-        }
-        if(vinList.isNotEmpty && vehicleList.isEmpty){
           vehicleList = vehicleResponse
               .where((element) => vinList.contains(element['vin'].toString()))
               .toList();
         }
+        // if(vinList.isNotEmpty && vehicleList.isEmpty){
+        //   vehicleList = vehicleResponse
+        //       .where((element) => vinList.contains(element['vin'].toString()))
+        //       .toList();
+        // }
         if((vehicleList.length == 1 && vehicleList.first?['expense_id'] == null)
             || todoItem['expense_id'] == null){
           isSaveCategory = true;
@@ -570,7 +570,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               //   "id": state.selectedVehicle?['id'] ?? vehicleList.first['id'],
               //   "todo_id": response?['expense']?['id'],
               // });
-
           }
           emit(state.copyWith(isLoading: false));
         }catch(e){
