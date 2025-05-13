@@ -21,6 +21,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   List<Map<String, dynamic>> apiResponse = [];
   Map<String, dynamic>? selectedVehicle;
   Map<int, bool> selectedVehicles = {};
+  List<dynamic> _selectedVehicleList = [];
   List<int> selectedIds = [];
   int itemsPerPage = 10;
   int currentIndex = 1;
@@ -95,10 +96,12 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
     final updatedSelectedIds = List<int>.from(selectedIds);
     updatedSelectedVehicles[event.vehicleId] = event.isSelected;
     if (event.isSelected) {
+      if (!_selectedVehicleList.contains(event.vehicle)) _selectedVehicleList.add(event.vehicle);
       if (!updatedSelectedIds.contains(event.vehicleId)) {
         updatedSelectedIds.add(event.vehicleId);
       }
     } else {
+      _selectedVehicleList.remove(event.vehicle);
       updatedSelectedIds.remove(event.vehicleId);
     }
     selectedVehicles = updatedSelectedVehicles;
@@ -167,6 +170,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
 
   void _onGroupingTapEvent(VehicleGroupingTapEvent event, Emitter<VehicleState> emit) {
     var selectedVids = selectedVehicles.keys.toSet();
-    emit(VehicleGroupingTapState(vehiclesData: selectedVids));
+    var selectedVehicleIDS = _selectedVehicleList.map((e) => e['id']).toSet();
+    emit(VehicleGroupingTapState(vehiclesData: selectedVehicleIDS));
   }
 }

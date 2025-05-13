@@ -145,6 +145,7 @@ class _TaskerCompletedTimeDialogView extends StatelessWidget {
              );
             }),
             Utils.getFilledButton('Submit', () {
+              if (timeTakenController.text.isNotNullOrEmpty && (timeTakenController.text.isValidCompletedTime == false)) return;
               if (_selectedCompletedTime.contains(">") && timeTakenController.text.isEmpty && reasonController.text.trim().isEmpty && !(timeTakenController.text.isValidCompletedTime)) return;
               if ((_selectedCompletedTime != (model?['display']?['completed_time'] ?? "")) && reasonController.text.trim().isNullOrEmpty) return;
               var reason = (_selectedCompletedTime != (model?['display']?['completed_time'] ?? "")) ? reasonController.text : null;

@@ -131,7 +131,7 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
     if (isNullOrEmpty) return false;
     var value = this;
     var time = Time.fromStr(value);
-    var result = time != null;
+    var result = (time != null) && (time.inMins <= Time.minutesInDay);
     Console.of.log("$time $result");
     return result;
   }
