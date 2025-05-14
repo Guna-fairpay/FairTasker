@@ -6,7 +6,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/Bloc/add_vehicle_state.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleAdd/UI/add_vehicle_more_part_one.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/services.dart';
@@ -29,9 +29,9 @@ class AddVehicleBody extends StatelessWidget {
             10.height,
             Utils.getTextFormField(
                 "Year",context.read<AddVehicleBloc>().yearController,
-              autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter year' : null,
               textType: TextInputType.number,
+              autoValidate: context.watch<AddVehicleBloc>().autoValidateMode,
               textInputFormatter:[
                 FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}'))
               ],
@@ -39,13 +39,13 @@ class AddVehicleBody extends StatelessWidget {
             10.height,
             Utils.getTextFormField(
               "Make",context.read<AddVehicleBloc>().makeController,
-              autoValidate: AutovalidateMode.onUserInteraction,
+              autoValidate: context.watch<AddVehicleBloc>().autoValidateMode,
               validator: (val) => val!.isEmpty ? 'Please enter make' : null,
             ),
             10.height,
             Utils.getTextFormField(
               "Model",context.read<AddVehicleBloc>().modelController,
-              autoValidate: AutovalidateMode.onUserInteraction,
+              autoValidate: context.watch<AddVehicleBloc>().autoValidateMode,
               validator: (val) => val!.isEmpty ? 'Please enter model' : null,
             ),
             10.height,
@@ -54,7 +54,9 @@ class AddVehicleBody extends StatelessWidget {
               context.read<AddVehicleBloc>().cohort,
                 (value)=>context.read<AddVehicleBloc>().add(CohortDropDownEvent(selectedCohort: value)),
               labelKey: 'cohort',
-              initialSelection : context.read<AddVehicleBloc>().selectedCohort,
+              initialSelection : context.watch<AddVehicleBloc>().selectedCohort,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) => (value == null) ? "Please select cohort" : null,
             ),
             10.height,
             Utils.getTextFormField(
@@ -71,10 +73,13 @@ class AddVehicleBody extends StatelessWidget {
               controller:
               context.read<AddVehicleBloc>().purchaseDateController,
               format: "MM-dd-yyyy",
+              labelText: "dd-mm-yyyy",
               suffixIcon: Icon(Icons.calendar_month_rounded,
                   size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
               value: context.read<AddVehicleBloc>().selectedPurchaseDate,
+              validator: (value) => (value == null) ? "Please select date" : null,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (value) => context
                   .read<AddVehicleBloc>().add(DateChangeEvent(selectedDate: value)),
             ),
@@ -82,8 +87,8 @@ class AddVehicleBody extends StatelessWidget {
             Utils.getTextFormField(
               "Purchase Price",context.read<AddVehicleBloc>().purchasePriceController,
               textType: TextInputType.number,
+              autoValidate: context.watch<AddVehicleBloc>().autoValidateMode,
               textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-              autoValidate: AutovalidateMode.onUserInteraction,
               validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
             ),
             10.height,

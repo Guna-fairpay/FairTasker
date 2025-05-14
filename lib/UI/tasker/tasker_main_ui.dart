@@ -1,6 +1,5 @@
 import 'package:fairpytasker/UI/dialog/tasker_maintenance_complete_dialog/tasker_maintenance_complete_dialog.dart';
 import 'package:fairpytasker/UI/dialog/tasker_status_todo_complete/tasker_status_todo_complete_dialog.dart';
-import 'package:fairpytasker/UI/dialog/transport_car_dialog/UI/transportcar_pop.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/UI/vehicle_main_view_ui.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
@@ -68,8 +67,8 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerVehiclePersonTapState(): TaskerVehiclesChangeDialog.show(context, state.model, onSelected: (mapData, value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveVehiclesPersonsEvent(model: mapData, selected: value)), onDeleted: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerRemoveVehiclePersonEvent(value))); break;
             case ToDoTaskerResourceTapState(): TaskerResourceDialog.show(context, state.model, onSelected: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveResourcesEvent(state.model, value))); break;
             case ToDoTaskerAddressTapState(): TaskerAddressChangeDialog.show(context, state.model, onSelected: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveAddressEvent(state.model, value))); break;
-            case ToDoTaskerPartsTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: true, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSavePartsSuppliesEvent(model: state.model, parts: value)), onDelete: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent(showLoading: false))); break;
-            case ToDoTaskerSuppliesTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: false, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSavePartsSuppliesEvent(model: state.model, supplies: value)), onDelete: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent(showLoading: false))); break;
+            case ToDoTaskerPartsTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: true, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSavePartsSuppliesEvent(model: state.model, parts: value)), onDelete: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent(showLoading: true))); break;
+            case ToDoTaskerSuppliesTapState(): TaskerPartsSuppliesDialog.show(context, state.model, isParts: false, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSavePartsSuppliesEvent(model: state.model, supplies: value)), onDelete: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent(showLoading: true))); break;
             case ToDoTaskerMoveTomorrowState(): TaskerMoveTomorrowDialog.show(context, state.model, state.models, onChanged: (models, date, time) => context.read<ToDoTaskerBloc>().add(ToDoTaskerMoveTomorrowEvent(models, date, time))); break;
             case ToDoTaskerDateChangeTapState(): Utils.showPickerDate(context, value: state.model?['todo_date'].toString().toDateTime(), onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateChangeEvent(val, state.model))); break;
             case ToDoTaskerCompletedTimeTapState(): TaskerCompletedTimeDialog.show(context, state.model, onChanged: (timeTaken, reason) => context.read<ToDoTaskerBloc>().add(ToDoTaskerCompletedTimeChangeEvent(state.model, timeTaken, reason))); break;

@@ -41,7 +41,9 @@ import '../Utilities/str.dart' show Str;
 class APiRepository {
   final ApiClient _apiClient = ApiClient();
 
-  String get _searchHistoryApi => "get-vehicle-search-history";
+  String get _searchHistoryApi => "get-vehicle-history";
+
+  String get _getVehicleSearchHistory => "get-vehicle-search-history";
 
   String get _editToDoApi => "edit-todo";
 
@@ -350,7 +352,7 @@ class APiRepository {
   Future<VehicleHistoryResponse?> getVehicleHistoryList(
       {String? vin, dynamic groupId, int? currentPage, int itemsPerPage = 5, String? search}) async {
     try {
-      String apiUrl = '${Str.BASE_URL}$_searchHistoryApi';
+      String apiUrl = (search?.trim().isNotNullOrEmpty ?? false) ? '${Str.BASE_URL}$_getVehicleSearchHistory' : '${Str.BASE_URL}$_searchHistoryApi';
       final Map<String, dynamic> map = {};
       map['page'] = currentPage;
       if (vin.isNotNullOrEmpty) map['vin'] = vin;
@@ -535,7 +537,7 @@ class APiRepository {
       String? expenseId}) async {
     try {
       String apiUrl = '';
-      if (expenseId != null) {
+      if (expenseId.isNotNullOrEmpty) {
         apiUrl = "${Str.LIST_BASE_URL}$_updateExpense/$expenseId";
       } else {
         apiUrl = "${Str.LIST_BASE_URL}$_expenses";
@@ -1777,6 +1779,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs";
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateExpenseLogs({required Map<String, dynamic>? body, required dynamic logId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs/$logId";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
       return mapData;
     } catch (e) {

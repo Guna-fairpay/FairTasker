@@ -13,6 +13,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fairpytasker/main.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   List<dynamic> uploadRegSticker = [];
   List<dynamic> insuranceImage = [];
 
-  dynamic selectedCohort = {};
+  dynamic selectedCohort;
   dynamic selectedBranch = {};
   dynamic selectedActiveStatus = {};
   dynamic selectedVehicleStatus = {};
@@ -69,8 +70,8 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   TextEditingController maintenanceCheckController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  DateTime? selectedPurchaseDate = DateTime.now();
-  DateTime? selectedRegStickerDate = DateTime.now();
+  DateTime? selectedPurchaseDate;
+  DateTime? selectedRegStickerDate;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
 
   bool showMore = false;
@@ -82,6 +83,8 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   bool spareKey = false;
   bool frontLicensePlate = false;
   final FBroadcast _broadcast = FBroadcast.instance();
+
+  AutovalidateMode? autoValidateMode;
 
   AddVehicleBloc() : super(AddVehicleLoadingState()) {
 
@@ -217,8 +220,10 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     });
 
     on<SaveNewVehicleEvent>((event, emit) async {
-      if ((formKey.currentState?.validate() == false) && (_isFormValid == false)) return;
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if ((formKey.currentState?.validate() == false) && (_isFormValid == false)) return emit(AddVehicleCommonState());
       try {
+        autoValidateMode = null;
         emit(AddVehicleLoadingState());
         List<Map<String, String?>> infusedFiles = [
           ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),
@@ -256,12 +261,12 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
            await _apiRepository.setDefaultVehicleConfig(
                vin: body['vin'] ?? "");
            await _apiRepository.addToDo(body: body);
+           clearFields();
            _broadcast.broadcast("todo_view");
          }
           _broadcast.stickyBroadcast("vehicle_refresh", value: true);
           _broadcast.broadcast(Str.addToDoRefresh);
           _broadcast.broadcast(Str.editToDoRefresh);
-          clearFields();
         }
         emit(AddCompletedState());
         // _broadcast.stickyBroadcast("expense_person_refresh", value: true);
@@ -278,7 +283,7 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
 
   }
 
-  bool get _isFormValid => (yearController.text.isNotEmpty && makeController.text.isNotEmpty && modelController.text.isNotEmpty && purchasePriceController.text.isNotEmpty && purchaseDateController.text.isNotEmpty);
+  bool get _isFormValid => (yearController.text.isNotEmpty && makeController.text.isNotEmpty && modelController.text.isNotEmpty && purchasePriceController.text.isNotEmpty && purchaseDateController.text.isNotEmpty && (selectedCohort != null));
 
   Map<String, String> _save() {
     Map<String, String> baseBody = {};
@@ -287,14 +292,14 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
     baseBody['make'] = makeController.text;
     baseBody['model'] = modelController.text;
     baseBody['year'] =  yearController.text;
-    baseBody['cohort_id'] = '${selectedCohort['id'] ?? ''}';
+    baseBody['cohort_id'] = '${selectedCohort?['id'] ?? ''}';
     baseBody['earnings'] = earningsController.text;
     baseBody['utilization_rate'] = utilizationRateController.text;
     baseBody['platform'] = platformController.text;
     baseBody['mileage'] = mileageController.text;
     baseBody['wholesale_amount'] = wholeSaleAmountController.text;
-    baseBody['vehicle_status'] = "${selectedVehicleStatus['id'] ?? ''}";
-    baseBody['active'] = "${selectedActiveStatus['id'] ?? ''}";
+    baseBody['vehicle_status'] = "${selectedVehicleStatus?['id'] ?? ''}";
+    baseBody['active'] = "${selectedActiveStatus?['id'] ?? ''}";
     baseBody['purchase_price'] = purchasePriceController.text;
     baseBody['purchase_date'] = selectedPurchaseDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['vehicle_number'] = numberPlateController.text;
@@ -390,52 +395,60 @@ class AddVehicleBloc extends Bloc<AddVehicleEvent, AddVehicleState>{
   Future<List<Map<String, dynamic>>?> _getVehicleStatusCategories() async =>
       await getIt<CommonService>().getActiveVehiclesCount();
 
-  void clearFields() {
-    yearController.clear();
-    makeController.clear();
-    modelController.clear();
-    purchasePriceController.clear();
-    purchaseDateController.clear();
-    vinController.clear();
-    vehicleIdController.clear();
-    earningsController.clear();
-    utilizationRateController.clear();
-    platformController.clear();
-    mileageController.clear();
-    wholeSaleAmountController.clear();
-    addressController.clear();
-    carNumberController.clear();
-    oilGradeController.clear();
-    frontTireController.clear();
-    rearTireController.clear();
-    renewalDateController.clear();
-    numberPlateController.clear();
-    tollTagsController.clear();
-    spareTireController.clear();
-    insuranceCostController.clear();
-    insuranceAgentController.clear();
-    currentOdometerController.clear();
-    oilChangeOdometerController.clear();
-    maintenanceCheckController.clear();
-    receiptImage.clear();
-    vehicleImage.clear();
-    tireImage.clear();
-    tollImage.clear();
-    uploadRegSticker.clear();
-    insuranceImage.clear();
-    selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == "13",);
-    selectedBranch = branch.firstWhereOrNull((element) => element['id'].toString() == branchId.toString(),);
-    selectedVehicleStatus = vehicleStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
-    selectedActiveStatus = activeStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
-    showMore = false;
-    bouncie = false;
-    tollTags = false;
-    airTag = false;
-    permanentPlate = false;
-    spareTire = false;
-    spareKey = false;
-    frontLicensePlate = false;
-
+  void clearFields() async {
+    try {
+      formKey.currentState?.reset();
+      await Future.delayed(Durations.short1);
+      yearController.clear();
+      makeController.clear();
+      modelController.clear();
+      purchasePriceController.clear();
+      purchaseDateController.clear();
+      vinController.clear();
+      vehicleIdController.clear();
+      earningsController.clear();
+      utilizationRateController.clear();
+      platformController.clear();
+      mileageController.clear();
+      wholeSaleAmountController.clear();
+      addressController.clear();
+      carNumberController.clear();
+      oilGradeController.clear();
+      frontTireController.clear();
+      rearTireController.clear();
+      renewalDateController.clear();
+      numberPlateController.clear();
+      tollTagsController.clear();
+      spareTireController.clear();
+      insuranceCostController.clear();
+      insuranceAgentController.clear();
+      currentOdometerController.clear();
+      oilChangeOdometerController.clear();
+      maintenanceCheckController.clear();
+      receiptImage.clear();
+      vehicleImage.clear();
+      tireImage.clear();
+      tollImage.clear();
+      uploadRegSticker.clear();
+      insuranceImage.clear();
+      selectedCohort = cohort.firstWhereOrNull((element) => element['id'].toString() == "13",);
+      selectedBranch = branch.firstWhereOrNull((element) => element['id'].toString() == branchId.toString(),);
+      selectedVehicleStatus = vehicleStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
+      selectedActiveStatus = activeStatus.firstWhereOrNull((element) => element['id'].toString() == "1",);
+      showMore = false;
+      bouncie = false;
+      tollTags = false;
+      airTag = false;
+      permanentPlate = false;
+      spareTire = false;
+      spareKey = false;
+      frontLicensePlate = false;
+      purchaseDateController.clear();
+      selectedPurchaseDate = null;
+      selectedRegStickerDate = null;
+    } catch (e) {
+      Console.of.error("Error Clear", error: e);
+    }
   }
 
   void _onVehicleStatusDropDownEvent(VehicleStatusDropDownEvent event, Emitter<AddVehicleState> emit) {

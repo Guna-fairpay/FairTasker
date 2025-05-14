@@ -4,6 +4,7 @@ import 'package:delightful_toast/toast/utils/enums.dart'
     show DelightSnackbarPosition;
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -11,6 +12,7 @@ class Toaster {
   Toaster._();
 
   static showSuccess(dynamic message, {BuildContext? context, String title = "Success"}) {
+    context ??= CommonHelper.instance.navigatorKey.currentContext;
     if (context != null) {
       _delightToast(context,
           title: title,
@@ -28,6 +30,7 @@ class Toaster {
   }
 
   static showError(dynamic message, {BuildContext? context, String title = "Error"}) {
+    context ??= CommonHelper.instance.navigatorKey.currentContext;
     if (context != null) {
       _delightToast(context,
           title: title,
@@ -45,6 +48,7 @@ class Toaster {
   }
 
   static showWarning(dynamic message, {BuildContext? context, String title = "Warning"}) {
+    context ??= CommonHelper.instance.navigatorKey.currentContext;
     if (context != null) {
       _delightToast(context,
           title: title,
@@ -62,6 +66,7 @@ class Toaster {
   }
 
   static showInfo(dynamic message, {BuildContext? context, String title = "Info"}) {
+    context ??= CommonHelper.instance.navigatorKey.currentContext;
     if (context != null) {
       _delightToast(context,
           title: title,
@@ -105,6 +110,8 @@ class Toaster {
     DelightToastBar(
         autoDismiss: true,
         animationCurve: Curves.easeInQuad,
+        animationDuration: Durations.long1,
+        snackbarDuration: const Duration(seconds: 7),
         builder: (context) => ToastCard(
               title: Text(
                 "$title",

@@ -6,7 +6,9 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/v
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log_bloc/vehicle_log_states.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/expense_log_attachment_dialog.dart';
+import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,7 @@ class VehicleLogUI extends StatelessWidget {
                 case VehicleLogSuccessState(): Toaster.showSuccess(state.message); break;
                 case VehicleLogDeleteTapState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this vehicle log?", negativeText: "No", positiveText: "Yes", isReasonRequired: false, onPositivePressed: () => context.read<VehicleLogBloc>().add(VehicleLogDeleteEvent(state.model))); break;
                 case VehicleLogViewAttachmentState(): ExpenseLogAttachmentDialog.show(context, model: state.model); break;
-                // case VehicleLogAddState(): context.push(AddVehicleLogView(vin: state.vin), fullscreenDialog: true); break;
+                case VehicleLogNotesTapState(): NotesDialog.show(context, message: (state.model?['notes'] ?? ""), barrierDismissible: false, onSave: (value) => context.read<VehicleLogBloc>().add(VehicleLogNotesUpdateEvent(state.model, value))); break;
               }
             }
           },

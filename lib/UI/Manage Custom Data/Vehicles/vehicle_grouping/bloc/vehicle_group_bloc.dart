@@ -91,6 +91,7 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
   }
 
   void _onEditEvent(VehicleGroupEditEvent event, Emitter<VehicleGroupState> emit) {
+    formKey.currentState?.reset();
     selectedModel = event.model;
     var vins = (selectedModel?['vin'].toString().isNullOrEmpty ?? false) ? [] : List<String>.from(jsonDecode(selectedModel?['vin'] ?? ""));
     Console.of.log("VINS ${vins}");
@@ -126,6 +127,7 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
   }
 
   void _onCancelEvent(VehicleGroupCancelEvent event, Emitter<VehicleGroupState> emit) {
+    formKey.currentState?.reset();
     selectedVehicles.clear();
     groupNameController.clear();
     selectedModel = null;
@@ -140,10 +142,7 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
   void _onSaveEvent(VehicleGroupSaveEvent event, Emitter<VehicleGroupState> emit) async {
     try {
       if (formKey.currentState?.validate() ?? false) {
-        if (selectedVehicles.isEmpty) {
-
-          return;
-        }
+        if (selectedVehicles.isEmpty) return;
         emit(VehicleGroupLoadingState());
         if (selectedModel == null) {
           var response = await _saveGroupVehicles({
@@ -164,11 +163,11 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
             _apiResponse[_apiResponse.indexWhere((element) => element['id'] == selectedModel?['id'])] = Map<String, dynamic>.from(response['data']);
           }
         }
+        _totalCount = _apiResponse.length;
+        filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+        _clearControllers();
+        emit(VehicleGroupCommonState());
       }
-      _totalCount = _apiResponse.length;
-      filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
-      _clearControllers();
-      emit(VehicleGroupCommonState());
     } catch (e) {
       Console.of.error("Error occurred", error: e);
       emit(VehicleGroupErrorState(e));
