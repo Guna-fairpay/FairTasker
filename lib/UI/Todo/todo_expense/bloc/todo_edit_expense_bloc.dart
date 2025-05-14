@@ -11,11 +11,13 @@ import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/device_info_helper.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -38,7 +40,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   String? categoryId;
   String? subcategoryId;
   String? userId;
-  dynamic expenseId = "";
+  dynamic expenseId;
+  dynamic tempExpenseId;
 
   List<Map<String, dynamic>>? categories = [];
   List<dynamic>? ogAttachments = [];
@@ -150,23 +153,25 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         todoItem = event.todoItem;
-
-        expenseId = event.expenseId ?? List.from(todoItem['vehicles'] ?? []).firstOrNull?['expense_id']??'';
+        var vehs =  List.from(todoItem['vehicles'] ?? []);
+        var exTmpId = (vehs.length == 1) ? (vehs.firstOrNull?['expense_temp_id']) : null;
+        var exId = (vehs.length == 1) ? (vehs.firstOrNull?['expense_id']) : null;
+        expenseId = (exId ?? todoItem?['expense_id'] ?? event.expenseId).toString().getExpenseId;
+        tempExpenseId = (exTmpId ?? todoItem?['expense_temp_id'] ?? event.tempExpenseId).toString().getExpenseId;
         if(event.selectedParts != null){
           selectedPart = event.selectedParts??[];
         }
         if(event.selectedSupplies != null){
           selectedSupplies = event.selectedSupplies??[];
         }
-
-        dynamic tempId = todoItem?['expense_temp_id'] ?? List.from(todoItem['vehicles'] ?? []).firstOrNull?['expense_temp_id'];
-        // selectedPart = event.selectedParts??[];
-        // selectedSupplies = event.selectedSupplies??[];
-
         selectedVendor = event.selectedVendor;
+        Console.of.log("${expenseId == null} $expenseId ${tempExpenseId == null} $tempExpenseId", name: "expenseId");
         Map<String, dynamic>? response;
-        response = await apiRepository.getEditVehicleExpense(id:expenseId);
-        response ??= await apiRepository.editExpenseTemp(id: "$tempId");
+        if (expenseId != null) {
+          response = await apiRepository.getEditVehicleExpense(id: expenseId);
+        }else{
+          response = await apiRepository.editExpenseTemp(id: "$tempExpenseId");
+        }
         Console.of.log(response);
         var expenseDetailResponse = response?['expenses'] ?? response?['data'] ;
         var taskExpenseResponse = await getIt<CommonService>().getTaskExpenseData();
@@ -409,35 +414,59 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     });
 
     on<InvoiceEvent>((event, emit) async {
-      invoiceData = {
-        'amount': totalAmountController.text,
-        'odometer': odometerController.text,
-        'tax': saleTaxController.text,
-        'total': totalAmountController.text,
-        'sub_total': subTotalController.text,
-        'shipping': shippingController.text,
-        'title': state.vendorList['name']??'',
-        'phone': state.vendorList['phone']??'',
-        'address': state.vendorList['address']??'',
-        'invoiceId': "INV${todoItem['id']??''}",
-        'date': DateTime.now().format('MM-dd-yyyy').toString(),
-        'plateNo': state.vehicleList.firstOrNull ? ['vehicle_number'] ??'',
-        'vehicleName': state.vehicleList.firstOrNull ? ['vehicle_name'] ??'',
-        'sales_tax_percentage': percentageOrAmountController.text,
-        'itemList': [
-          ...cleanList(partsList),
-          ...cleanList(suppliesList),
-         /* ...partsList
-            ..forEach(
-              (e) => (e as Map<String, dynamic>)..putIfAbsent("rate",
-                  () => (e['controller'] as TextEditingController).text),
-            ),
-          ...suppliesList
-            ..forEach((e) => (e as Map<String, dynamic>)..putIfAbsent(
-                "rate", () => (e['controller'] as TextEditingController).text),),*/
-        ],
-      };
-      emit(state.copyWith());
+      try {
+        String total = totalAmountController.text;
+        String subTotal = subTotalController.text;
+        if(state.partsList.isEmpty && state.suppliesList.isEmpty){
+          total = amountController.text;
+          subTotal = amountController.text;
+        }
+
+        invoiceData = {
+          'amount': totalAmountController.text,
+          'description': descriptionController.text,
+          'odometer': odometerController.text,
+          'tax': saleTaxController.text,
+          'total': total,
+          'sub_total': subTotal,
+          'shipping': shippingController.text,
+          'title': state.vendorList['name'] ?? '',
+          'phone': state.vendorList['phone'] ?? '',
+          'address': state.vendorList['address'] ?? '',
+          'invoiceId': "INV${todoItem?['id'] ?? ''}",
+          'date': DateTime.now().format('MM-dd-yyyy').toString(),
+          'plateNo': state.vehicleList.firstOrNull?['vehicle_number'] ??'',
+          'vehicleName': state.vehicleList.firstOrNull?['vehicle_name'] ??'',
+          'sales_tax_percentage': percentageOrAmountController.text,
+          'itemList': [
+            ...cleanList(partsList),
+            ...cleanList(suppliesList),
+            if(partsList.isEmpty && suppliesList.isEmpty){
+              ...{
+                "id":"1",
+                "quantity":"1",
+                "description":descriptionController.text,
+                "rate":amountController.text,
+                "total":amountController.text,
+              }
+            }
+           /* ...partsList
+              ..forEach(
+                (e) => (e as Map<String, dynamic>)..putIfAbsent("rate",
+                    () => (e['controller'] as TextEditingController).text),
+              ),
+            ...suppliesList
+              ..forEach((e) => (e as Map<String, dynamic>)..putIfAbsent(
+                  "rate", () => (e['controller'] as TextEditingController).text),),*/
+          ],
+        };
+        Console.of.log(invoiceData, name: 'INVOICE_DATA');
+        emit(state.copyWith(isLoading: false));
+      }  catch (e) {
+        Console.of.error("Error", error: e);
+        Toaster.showError(e);
+        emit(state.copyWith(isLoading: false));
+      }
     });
 
     on<CaptureImageEvent>((event, emit) async {
@@ -451,19 +480,21 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     });
 
     on<SelectedVehicleEvent>((event, emit) async {
-      if (event.selectedVehicle['expense_id'] == null) {
-        isSaveCategory = true;
-      }else{
-        if(event.selectedVehicle['expense_id'] != event.selectedVehicle['expense_id'])
-          {
-          //  var response = await apiRepository.getEditVehicleExpense(id: event.selectedVehicle['expense_id']);
-            //var expenseDetailResponse = response?['expenses'];
+      var vehicle = List.from(todoItem?['vehicles']).firstWhereOrNull((element) => element['vin'] == event.selectedVehicle['vin']);
+      (vehicle['expense_id'] == null) ? isSaveCategory = true :isSaveCategory = false;
+     // if(vehicle['vin'] != event.selectedVehicle['vin']) {
 
-          }
-        isSaveCategory = false;
-      }
+     // }
       selectedVehicle = event.selectedVehicle;
       emit(state.copyWith(selectedVehicle: selectedVehicle));
+      await Future.delayed(Durations.short1);
+      add(GetTodoExpenseInitialEvent(
+          expenseId: "${vehicle?['expense_id']}",
+          tempExpenseId: "${vehicle?['expense_temp_id']}",
+          todoItem: todoItem,
+          selectedParts: selectedPart,
+          selectedSupplies: selectedSupplies,
+          selectedVendor: selectedVendor));
     });
 
     on<TaskListEvent>((event, emit) => emit(state.copyWith(taskList: event.taskList)));
@@ -488,8 +519,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       try {
         emit(state.copyWith(isLoading: true));
         log("${_invoiceData()}", name: 'INVOICE_DATA');
-        await Permission.storage.request();
-        var status = await Permission.manageExternalStorage.status;
+        var status = (await DeviceInfoHelper.of.isBelow13) ? await Permission.storage.request() : await Permission.manageExternalStorage.request();
         if (status.isGranted) {
           var response = await apiRepository.generateInvoice(body: _invoiceData());
           // if (response?.isNotEmpty ?? false)
@@ -658,16 +688,14 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     baseBody['company_address'] = "${invoiceData?['address'] ?? ''}";
     baseBody['company_name'] = invoiceData?['title'] ?? '';
     baseBody['company_phone'] = invoiceData?['phone'] ?? '';
-    baseBody['expense_amount'] = invoiceData?['total'] ?? '';
+    baseBody['expense_amount'] = invoiceData?['total'] ?? invoiceData?['amount'] ?? '';
     baseBody['invoice_date'] = invoiceData?['date'] ?? '';
     baseBody['invoice_no'] = invoiceData?['invoiceId'] ?? '';
     baseBody['sales_tax'] = invoiceData?['tax'] ?? '';
-    baseBody['sales_tax_percentage'] =
-        invoiceData?['sales_tax_percentage'] ?? '';
+    baseBody['sales_tax_percentage'] = invoiceData?['sales_tax_percentage'] ?? '';
     baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
     baseBody['shipping_and_handling'] = invoiceData?['shipping'] ?? '';
-    baseBody['to_address'] =
-        "Hasanath Mohammed,\n FairPY INC, \n 4443 Zahir Ct, \n Irving TX, 75061";
+    baseBody['to_address'] = "Hasanath Mohammed,\n FairPY INC, \n 4443 Zahir Ct, \n Irving TX, 75061";
     baseBody['to_phone'] = "5025921994";
     baseBody['items'] = invoiceData?['itemList']?.isEmpty ?? true
         ? []

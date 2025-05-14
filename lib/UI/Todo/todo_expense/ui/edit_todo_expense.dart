@@ -64,15 +64,9 @@ class TodoExpense extends StatelessWidget {
               Utils.dropdownBox(
                 'Select Vehicle',
                 state.vehicleList,
-                (selectedValue) {
+                (selectedValue) =>
                   context.read<TodoEditExpenseBloc>().add(
-                      SelectedVehicleEvent(selectedVehicle: selectedValue));
-                  if (selectedValue['expense_id'] != null) {
-                    context.read<TodoEditExpenseBloc>().add(
-                        GetTodoExpenseInitialEvent(
-                             expenseId: selectedValue['expense_id']));
-                  }
-                },
+                      SelectedVehicleEvent(selectedVehicle: selectedValue)),
                 labelKey: 'vehicle_name',
                 initialSelection: state.selectedVehicle,
               ),
@@ -82,6 +76,7 @@ class TodoExpense extends StatelessWidget {
               captureImageEvent: () => context.read<TodoEditExpenseBloc>().add(CaptureImageEvent()),
               invoiceEvent: () async {
                 context.read<TodoEditExpenseBloc>().add(InvoiceEvent());
+                await Future.delayed(Durations.short1);
                 InvoiceDialog.show(context);
               },
               removeImageEvent: (data) => context.read<TodoEditExpenseBloc>().add(RemoveImageEvent(data: data)),

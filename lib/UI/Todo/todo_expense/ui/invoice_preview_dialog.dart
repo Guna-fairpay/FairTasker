@@ -53,7 +53,7 @@ class _InvoiceDialog extends StatelessWidget {
                           Utils.getText('Invoice Preview', weight: FontWeight.w900,size: 15.sp),
                           const Spacer(),
                           InkWell(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () => context.pop(),
                             child: const Icon(Icons.close_outlined,color: AppC.grey,),
                           ),
                         ],
@@ -156,10 +156,10 @@ class _InvoiceDialog extends StatelessWidget {
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 12.sp))),
                                     ]),
-                                ...invoiceData?['itemList']
+                                ...List.from(invoiceData?['itemList'] ??[])
                                     .map((e) => InvoiceTable(
                                   model: e,
-                                  index: invoiceData['itemList'].indexOf(e),
+                                  index: List.from(invoiceData?['itemList'] ?? []).indexOf(e),
                                 )).toList()
                               ],
                             ),
