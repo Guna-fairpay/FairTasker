@@ -79,6 +79,8 @@ class EditPrivateRentalBody extends StatelessWidget {
             10.height,
             Utils.getTextFormField("CheckOut Mileage", context.read<EditPrivateRentalBloc>().checkOutMileageController,textType: TextInputType.number,),
             10.height,
+            ValueListenableBuilder(valueListenable: context.read<EditPrivateRentalBloc>().vehicleController, builder: (_, value, __) => Text("${context.watch<EditPrivateRentalBloc>().selectedStatus?['id'] ?? ""} ${value.text}" )),
+            10.height,
             Utils.dropdownBox(
               'Validation',
               context.read<EditPrivateRentalBloc>().validation,

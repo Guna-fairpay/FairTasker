@@ -4,6 +4,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class VehicleDetailsUi extends StatelessWidget {
@@ -18,6 +19,7 @@ class VehicleDetailsUi extends StatelessWidget {
         spacing: 10,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          if (kDebugMode) SelectableText(model?['vin']),
           VehicleDetailDualValueItem(
             firstLabel: "Year",
             lastLabel: "Make",
@@ -82,7 +84,7 @@ class VehicleDetailsUi extends StatelessWidget {
               ),
               VehicleDetailDualValueItem(
                 firstLabel: (model?['toll_tags_id'].toString().isNullOrEmpty ?? false) ? null : "Toll Tag ID",
-                lastLabel: (model?['tire_size'].toString().isNullOrEmpty ?? false) ? null : "Tire Size",
+                lastLabel: "Tire Size",
                 firstValue: model?['toll_tags_id'],
                 lastValue: model?['tire_size'],
               ),

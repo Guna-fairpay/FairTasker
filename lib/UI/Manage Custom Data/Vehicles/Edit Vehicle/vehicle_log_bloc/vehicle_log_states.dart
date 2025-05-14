@@ -48,3 +48,10 @@ class VehicleLogViewAttachmentState extends VehicleLogState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class VehicleLogNotesTapState extends VehicleLogState {
+  final Map<String, dynamic>? model;
+  VehicleLogNotesTapState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
