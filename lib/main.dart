@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/error_screen/error_wrapper.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/build_flavor/flavor.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) => MaterialApp(
+        navigatorKey: CommonHelper.instance.navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'Fair Returns',
         theme: ThemeData(
