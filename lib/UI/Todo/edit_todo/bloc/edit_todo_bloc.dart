@@ -199,16 +199,18 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         if (linkSelection.isEmpty) {
           linkSelection = [AddToDoConfig.customOptions[1]];
         }
-        vinList = [todoResponse?['vin']];
-        var vVins = List.from(todoResponse?['vehicles']).map((e) => e['vin']);
-        vinList.addAll(vVins);
-        vinList.removeWhere((element) => element.toString().isNullOrEmpty);
-        vinList = vinList.unique((element) => element);
-        Console.of.log("Vins $vinList");
-        if (vinList.isNotEmpty) {
-          vehicleList = vehicleResponse
-              .where((element) => vinList.contains(element['vin'].toString()))
-              .toList();
+        if(todoResponse?['vehicle_group_id'] == null){
+          vinList = [todoResponse?['vin']];
+          var vVins = List.from(todoResponse?['vehicles']).map((e) => e['vin']);
+          vinList.addAll(vVins);
+          vinList.removeWhere((element) => element.toString().isNullOrEmpty);
+          vinList = vinList.unique((element) => element);
+          Console.of.log("Vins $vinList");
+          if (vinList.isNotEmpty) {
+            vehicleList = vehicleResponse
+                .where((element) => vinList.contains(element['vin'].toString()))
+                .toList();
+          }
         }
         if (todoResponse?['location_id'] != null) {
           locations = locationResponse
