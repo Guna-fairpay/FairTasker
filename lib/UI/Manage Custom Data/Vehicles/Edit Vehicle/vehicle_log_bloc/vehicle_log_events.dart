@@ -42,3 +42,18 @@ class VehicleLogDeleteTapEvent extends VehicleLogEvent {
   List<Object?> get props => [model];
 }
 
+class VehicleLogNotesTapEvent extends VehicleLogEvent {
+  final Map<String, dynamic>? model;
+  VehicleLogNotesTapEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class VehicleLogNotesUpdateEvent extends VehicleLogEvent {
+  final Map<String, dynamic>? model;
+  final String? notes;
+  VehicleLogNotesUpdateEvent(this.model, this.notes);
+  @override
+  List<Object?> get props => [model, notes];
+}
+

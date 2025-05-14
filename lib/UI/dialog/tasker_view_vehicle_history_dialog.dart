@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -98,8 +99,8 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
               ),
             ), suffixChild: GestureDetector(
               onTap: () async {
-                String imageUrl = model?['display']?['vehicle_image'];
-                if (imageUrl.isNotEmpty) {
+                String imageUrl = model?['display']?['vehicle_image'] ?? "";
+                if (imageUrl.isNotNullOrEmpty) {
                   final mailUri = Uri.parse("mailto:email?subject=Check out this image!&body=Check out this image! $imageUrl");
                   await launchUrl(mailUri);
                   // Utils.openURL(emailUri.toString());

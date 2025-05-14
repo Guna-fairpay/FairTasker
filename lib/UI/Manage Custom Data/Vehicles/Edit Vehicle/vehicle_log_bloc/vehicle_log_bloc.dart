@@ -5,6 +5,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log_bloc/vehicle_log_events.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log_bloc/vehicle_log_states.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,8 @@ class VehicleLogBloc extends Bloc<VehicleLogEvent, VehicleLogState> {
     on<VehicleLogViewAttachmentEvent>(_onViewAttachmentEvent);
     on<VehicleLogDeleteEvent>(_onDeleteEvent);
     on<VehicleLogDeleteTapEvent>(_onDeleteTapEvent);
+    on<VehicleLogNotesTapEvent>(_onNotesTapEvent);
+    on<VehicleLogNotesUpdateEvent>(_onNotesUpdateEvent);
   }
 
   Future<Map<String, dynamic>?> _deleteExpenseLog({required int? id}) async =>
@@ -115,6 +118,22 @@ class VehicleLogBloc extends Bloc<VehicleLogEvent, VehicleLogState> {
       if (response != null) _refresh();
     } catch (e) {
       if (!isClosed) emit(VehicleLogErrorState(e));
+    }
+  }
+
+  void _onNotesTapEvent(VehicleLogNotesTapEvent event, Emitter<VehicleLogState> emit) {
+    emit(VehicleLogNotesTapState(event.model));
+  }
+
+  void _onNotesUpdateEvent(VehicleLogNotesUpdateEvent event, Emitter<VehicleLogState> emit) async {
+    try {
+      emit(VehicleLogLoadingState());
+      var body = {"user_id": getIt<CommonService>().userId ,"notes":event.notes ?? "","vin":"${event.model?['vin'] ?? ""}"};
+      var response = await _aPiRepository.updateExpenseLogs(logId: event.model?['id'], body: body);
+      if (response != null) _refresh();
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(VehicleLogErrorState(e));
     }
   }
 }

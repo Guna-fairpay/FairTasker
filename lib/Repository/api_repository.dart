@@ -1784,6 +1784,17 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String, dynamic>?> updateExpenseLogs({required Map<String, dynamic>? body, required dynamic logId}) async {
+    try {
+      String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs/$logId";
+      final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>?> deleteExpenseLog({dynamic logId}) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_expenseLogs/$logId";
