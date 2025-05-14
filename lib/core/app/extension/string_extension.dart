@@ -147,6 +147,7 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
   }
 
   String get toDoubleDigit {
+    if (isNullOrEmpty) return "0";
     var doubleValue = double.tryParse(this ?? "0");
     var numberFormat = NumberFormat("0.00");
     return numberFormat.format(doubleValue);

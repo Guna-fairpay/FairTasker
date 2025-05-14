@@ -617,7 +617,7 @@ class APiRepository {
   }
 
   Future<Map<String, dynamic>?> getEditVehicleExpense(
-      {String? id}) async {
+      {dynamic id}) async {
     if (id.toString().isNullOrEmpty) return null;
     try {
       String apiUrl = '${Str.LIST_BASE_URL}$_expenses/$id/edit';
@@ -3478,6 +3478,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<Map<String, dynamic>?> editExpenseTemp({dynamic id}) async {
     try{
+      Console.of.log(id, name: "id");
       if (id.toString().isNullOrEmpty) return null;
       String apiUrl = "${Str.LIST_BASE_URL}$_editExpenseTemp/$id";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
