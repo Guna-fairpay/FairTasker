@@ -144,7 +144,10 @@ class _CustomAutoSearchFieldState<T extends Object> extends State<CustomAutoSear
               textEditingController.value = widget.controller.value;
               widget.onChanged?.call(value);
             },
-            onTapUpOutside: (event)=> Utils.dismissKeyboard(context),
+            onTapUpOutside: (event) {
+              focusNode.unfocus();
+              Utils.dismissKeyboard(context);
+            },
             textInputAction: TextInputAction.done,
             style: context.textTheme.labelLarge?.copyWith(fontFamily: "Lato"),
             decoration: InputDecoration(

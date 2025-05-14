@@ -12,31 +12,32 @@ class VehicleExpenseDetailsListItem extends StatelessWidget {
   final Map<String, dynamic> model;
   const VehicleExpenseDetailsListItem({super.key, required this.model});
 
+  Color getCategoryColor(String category) {
+    switch (category) {
+      case 'Fair Returns LP LLC':
+        return Colors.blue;
+      case 'Fair Returns Prime LP':
+        return Colors.green;
+      case 'FairFund 2024':
+        return Colors.purple;
+      case 'Fair Returns Fall 2023':
+        return Colors.black;
+      case 'Personal Car':
+        return Colors.brown;
+      case 'Unassigned':
+        return Colors.orange;
+      default:
+        return const Color.fromRGBO(9, 131, 74, 1);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cohort = model['expense_to'] == 1
-        ? "${model['expense_to_data']['expense_to'] ?? ''}"
+        ? "${model['expense_to_data']?['expense_to'] ?? ''}"
         : model['expense_to'] == 4
         ? '${model['cohort']?['cohort'] ?? ''}'
         : "";
-    Color getCategoryColor(String category) {
-      switch (category) {
-        case 'Fair Returns LP LLC':
-          return Colors.blue;
-        case 'Fair Returns Prime LP':
-          return Colors.green;
-        case 'FairFund 2024':
-          return Colors.purple;
-        case 'Fair Returns Fall 2023':
-          return Colors.black;
-        case 'Personal Car':
-          return Colors.brown;
-        case 'Unassigned':
-          return Colors.orange;
-        default:
-          return const Color.fromRGBO(9, 131, 74, 1);
-      }
-    }
     List<dynamic> images = model['attachments'];
     Color categoryColor = (model['payment_method_id']).toString() == '4'
         ? const Color(0xFF13b3b3)
@@ -63,7 +64,7 @@ class VehicleExpenseDetailsListItem extends StatelessWidget {
                   ),
                   Expanded(
                     child: Utils.getText(
-                        "${model['vehicle']['vehicle_name']} ",
+                        "${model['vehicle']?['vehicle_name'] ?? ""} ",
                         overFlow: TextOverflow.ellipsis,
                         weight: FontWeight.bold),
                   )
@@ -118,14 +119,14 @@ class VehicleExpenseDetailsListItem extends StatelessWidget {
               ),
               Utils.getText(" | ", weight: FontWeight.w900),
               Utils.getText(
-                '${model['category']['name']} ',
+                '${model['category']?['name'] ?? ""} ',
                 overFlow: TextOverflow.ellipsis,
                 color: categoryColor,
               ),
               Utils.getText(" | ", weight: FontWeight.w900),
               Expanded(
                 child: Utils.getText(
-                  '${model['subcategory']['name']}',
+                  '${model['subcategory']?['name'] ?? ""}',
                   overFlow: TextOverflow.ellipsis,
                   color: categoryColor,
                 ),

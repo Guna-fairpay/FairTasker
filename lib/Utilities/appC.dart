@@ -60,4 +60,6 @@ static const redAccent = Color(0xffd01601);
   static const chipBackgroundUnselected = Color(0xFFf3f6f9);
   static const chipBackgroundUnselectedBorder = Color(0xFF334371);
 
+  static const errorTextColor = Color(0xffd5423f);
+
 }

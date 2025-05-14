@@ -7,7 +7,7 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/Bloc/edit_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/UI/edit_vehicle_more_part_one.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -54,7 +54,7 @@ class EditVehicleBody extends StatelessWidget {
             Utils.getTextFormField(
               "Year",
               context.read<EditVehicleBloc>().yearController,
-              autoValidate: AutovalidateMode.onUserInteraction,
+              autoValidate: context.watch<EditVehicleBloc>().autoValidateMode,
               validator: (val) => val!.isEmpty ? 'Please enter year' : null,
               textType: TextInputType.number,
               textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'^\d{0,4}'))],
@@ -63,14 +63,14 @@ class EditVehicleBody extends StatelessWidget {
             Utils.getTextFormField(
               "Make",
               context.read<EditVehicleBloc>().makeController,
-              autoValidate: AutovalidateMode.onUserInteraction,
+              autoValidate: context.watch<EditVehicleBloc>().autoValidateMode,
               validator: (val) => val!.isEmpty ? 'Please enter make' : null,
             ),
             10.height,
             Utils.getTextFormField(
               "Model",
               context.read<EditVehicleBloc>().modelController,
-              autoValidate: AutovalidateMode.onUserInteraction,
+              autoValidate: context.watch<EditVehicleBloc>().autoValidateMode,
               validator: (val) => val!.isEmpty ? 'Please enter model' : null,
             ),
             10.height,
@@ -101,6 +101,9 @@ class EditVehicleBody extends StatelessWidget {
               format: "MM-dd-yyyy",
               suffixIcon: Icon(Icons.calendar_month_rounded, size: 18, color: context.theme.hintColor),
               textAlign: TextAlign.center,
+              labelText: "dd-mm-yyyy",
+              validator: (value) => (value == null) ? "Please select date" : null,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               value: context.read<EditVehicleBloc>().selectedPurchaseDate,
               onChanged: (value) => context.read<EditVehicleBloc>().add(DateChangeEvent(selectedDate: value)),
             ),
@@ -110,7 +113,7 @@ class EditVehicleBody extends StatelessWidget {
               context.read<EditVehicleBloc>().purchasePriceController,
               textType: TextInputType.number,
               textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-              autoValidate: AutovalidateMode.onUserInteraction,
+              autoValidate: context.watch<EditVehicleBloc>().autoValidateMode,
               validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
             ),
             10.height,
