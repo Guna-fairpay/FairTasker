@@ -58,9 +58,10 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
             borderRadius: BorderRadius.circular(8)
         ),
         padding: 16.sp.padding,
-        child: Column(
-          spacing: 10.sp,
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
+          // spacing: 10.sp,
+          // mainAxisSize: MainAxisSize.min,
+          shrinkWrap: true,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -144,15 +145,14 @@ class _TaskerViewVehicleHistoryView extends StatelessWidget {
                 },
               ),
             )),
-            Flexible(
-              child: VehicleHistoryViewUI(
-                vin: model?['display']?['vins']?[0],
-                vehicleName: model?['display']?['vehicle_name'] ?? '',
-                title: model?['display']?['task_title'],
-                showHeader: false,
-                showSameTask: true,
-                itemPerPage: 5,
-              ),
+            VehicleHistoryViewUI(
+              vin: model?['display']?['vins']?[0],
+              vehicleName: model?['display']?['vehicle_name'] ?? '',
+              title: model?['display']?['task_title'],
+              showHeader: false,
+              showSameTask: true,
+              additionalScroll: false,
+              itemPerPage: 5,
             ),
           ],
         ),

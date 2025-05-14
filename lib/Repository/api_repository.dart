@@ -41,7 +41,9 @@ import '../Utilities/str.dart' show Str;
 class APiRepository {
   final ApiClient _apiClient = ApiClient();
 
-  String get _searchHistoryApi => "get-vehicle-search-history";
+  String get _searchHistoryApi => "get-vehicle-history";
+
+  String get _getVehicleSearchHistory => "get-vehicle-search-history";
 
   String get _editToDoApi => "edit-todo";
 
@@ -350,7 +352,7 @@ class APiRepository {
   Future<VehicleHistoryResponse?> getVehicleHistoryList(
       {String? vin, dynamic groupId, int? currentPage, int itemsPerPage = 5, String? search}) async {
     try {
-      String apiUrl = '${Str.BASE_URL}$_searchHistoryApi';
+      String apiUrl = (search?.trim().isNotNullOrEmpty ?? false) ? '${Str.BASE_URL}$_getVehicleSearchHistory' : '${Str.BASE_URL}$_searchHistoryApi';
       final Map<String, dynamic> map = {};
       map['page'] = currentPage;
       if (vin.isNotNullOrEmpty) map['vin'] = vin;

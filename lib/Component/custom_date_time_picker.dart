@@ -1,4 +1,3 @@
-
 import 'package:fairpytasker/Component/custom_time_picker.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -25,78 +24,104 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final bool use24HourFormat;
   final bool showAsExpanded;
   final EdgeInsets? padding;
+  final FormFieldValidator<T>? validator;
+  final AutovalidateMode? autovalidateMode;
 
-  const CustomDateTimePicker(
-      {super.key,
-      this.labelText = "Select",
-      this.neutralText,
-      this.confirmText,
-      this.format,
-      this.value,
-      required this.controller,
-      this.prefixIcon,
-      this.suffixIcon,
-      this.textStyle,
-      this.textAlign,
-      this.onChanged,
-      this.onNeutral,
-      this.showAsExpanded = false,
-      this.use24HourFormat = true,
-        this.padding,
-      });
+  const CustomDateTimePicker({
+    super.key,
+    this.labelText = "Select",
+    this.neutralText,
+    this.confirmText,
+    this.format,
+    this.value,
+    required this.controller,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.textStyle,
+    this.textAlign,
+    this.onChanged,
+    this.onNeutral,
+    this.showAsExpanded = false,
+    this.use24HourFormat = true,
+    this.padding,
+    this.validator,
+    this.autovalidateMode
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        dynamic result;
-        if (runtimeType == CustomDateTimePicker<DateTime>) {
-          result = await _pickDatePicker(context);
-        }
-        else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
-          // result = use24HourFormat
-          //     ? await _pick24hTimePicker(context, onNeutral: onNeutral)
-          //     : await _pickTimePicker(context, onNeutral: onNeutral);
-          result = await _pick24hTimePicker(context, onNeutral: onNeutral);
-        }
-        controller?.text = Utils.formatDateTime(format: format, input: result);
-        if (result != null) onChanged?.call(result);
-        Utils.dismissKeyboard(context);
-      },
-      radius: Num.borderRadius,
-      borderRadius: BorderRadius.circular(Num.borderRadius),
-      child: Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Num.borderRadius),
-            shape: BoxShape.rectangle,
-            border: Border.all(
-                width: Num.borderWidthField, color: AppC.borderColor)),
-        padding : padding ?? const EdgeInsets.all(10),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          spacing: 5,
-          children: [
-            if (prefixIcon != null) prefixIcon!,
-            if (showAsExpanded)
-            Expanded(
-              child: Text(
-                "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
-                overflow: TextOverflow.ellipsis,
-                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: (value == null) ? AppC.grey : AppC.text),
-                textAlign: textAlign,
+    return FormField<T>(
+      key: key,
+      validator: validator,
+      autovalidateMode: autovalidateMode,
+      initialValue: value,
+      builder: (field) => Column(
+        spacing: 3,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(Num.borderRadius),
+                shape: BoxShape.rectangle,
+                border: Border.all(
+                    width: Num.borderWidthButton, color: (field.hasError) ? AppC.errorTextColor : AppC.borderColor)),
+            padding: padding ?? const EdgeInsets.all(10),
+            child: InkWell(
+              onTap: () async {
+                dynamic result;
+                if (runtimeType == CustomDateTimePicker<DateTime>) {
+                  result = await _pickDatePicker(context);
+                } else if (runtimeType == CustomDateTimePicker<TimeOfDay>) {
+                  result = await _pick24hTimePicker(context, onNeutral: onNeutral);
+                }
+                controller?.text =
+                    Utils.formatDateTime(format: format, input: result);
+                field.didChange(result ?? value);
+                if (result != null) onChanged?.call(result);
+                Utils.dismissKeyboard(context);
+              },
+              radius: Num.borderRadius,
+              borderRadius: BorderRadius.circular(Num.borderRadius),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                spacing: 5,
+                children: [
+                  if (prefixIcon != null) prefixIcon!,
+                  if (showAsExpanded)
+                    Expanded(
+                      child: Text(
+                        "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
+                        overflow: TextOverflow.ellipsis,
+                        style: textStyle ??
+                            context.textTheme.labelLarge?.copyWith(
+                                color: (value == null) ? AppC.grey : AppC.text),
+                        textAlign: textAlign,
+                      ),
+                    ),
+                  if (!showAsExpanded)
+                    Text(
+                      "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
+                      overflow: TextOverflow.ellipsis,
+                      style: textStyle ??
+                          context.textTheme.labelLarge?.copyWith(
+                              color: (value == null) ? AppC.grey : AppC.text),
+                      textAlign: textAlign,
+                    ),
+                  if (suffixIcon != null) suffixIcon!,
+                ],
               ),
             ),
-            if (!showAsExpanded)
-              Text(
-                "${(value == null) ? labelText : Utils.formatDateTime(input: value, format: format)}",
-                overflow: TextOverflow.ellipsis,
-                style: textStyle ?? context.textTheme.labelLarge?.copyWith(color: (value == null) ? AppC.grey : AppC.text),
-                textAlign: textAlign,
-              ),
-            if (suffixIcon != null) suffixIcon!,
-          ],
-        ),
+          ),
+          if (field.hasError)
+            Row(
+              spacing: 8,
+              children: [
+                const SizedBox.shrink(),
+                Text(field.errorText ?? "", style: context.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
+              ],
+            )
+        ],
       ),
     );
   }
@@ -113,37 +138,39 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     return result;
   }
 
-  Future<TimeOfDay?> _pickTimePicker(BuildContext context, {ValueChanged<TimeOfDay>? onNeutral}) async {
+  Future<TimeOfDay?> _pickTimePicker(BuildContext context,
+      {ValueChanged<TimeOfDay>? onNeutral}) async {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
     var result = await showTimerPicker(
       confirmText: confirmText,
       neutralText: neutralText,
       context: context,
       onNeutral: onNeutral,
-      initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
+      initialTime:
+          (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
       initialEntryMode: TimerPickerEntryMode.dialOnly,
     );
     return result;
   }
 
-  Future<TimeOfDay?> _pick24hTimePicker(BuildContext context, {ValueChanged<TimeOfDay>? onNeutral}) async {
+  Future<TimeOfDay?> _pick24hTimePicker(BuildContext context,
+      {ValueChanged<TimeOfDay>? onNeutral}) async {
     if ((runtimeType != CustomDateTimePicker<TimeOfDay>)) return null;
     var result = await showTimerPicker(
-      context: context,
+        context: context,
         confirmText: confirmText,
         neutralText: neutralText,
-      onNeutral: onNeutral,
-      initialTime: (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
-      initialEntryMode: TimerPickerEntryMode.dialOnly,
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            alwaysUse24HourFormat: true,
-          ),
-          child: child!);
-      }
-    );
+        onNeutral: onNeutral,
+        initialTime:
+            (value as TimeOfDay?) ?? TimeOfDay.fromDateTime(DateTime.now()),
+        initialEntryMode: TimerPickerEntryMode.dialOnly,
+        builder: (context, child) {
+          return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                alwaysUse24HourFormat: true,
+              ),
+              child: child!);
+        });
     return result;
   }
-
 }

@@ -93,6 +93,8 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
   bool frontLicensePlate = false;
   final FBroadcast _broadcast = FBroadcast.instance();
 
+  AutovalidateMode? autoValidateMode;
+
   EditVehicleBloc() : super(EditVehicleLoadingState()) {
 
 
@@ -320,9 +322,11 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
     });
 
     on<SaveUpdatedVehicle>((event, emit) async {
-      if ((formKey.currentState?.validate() == false) && (_isFormValid == false)) return;
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if ((formKey.currentState?.validate() == false) && (_isFormValid == false)) return emit(EditVehicleCommonState());
       try {
         if(selectedCohort == null)return emit(EditVehicleErrorState("Please select cohort"));
+        autoValidateMode = null;
         emit(EditVehicleLoadingState());
         List<Map<String, String?>> infusedFiles = [
           ...vehicleImage.whereType<File>().map((e) => {"images" : e.path}),
@@ -365,7 +369,7 @@ class EditVehicleBloc extends Bloc<EditVehicleEvent, EditVehicleState>{
 
   }
 
-  bool get _isFormValid => (yearController.text.isNotEmpty && makeController.text.isNotEmpty && modelController.text.isNotEmpty && purchasePriceController.text.isNotEmpty && purchaseDateController.text.isNotEmpty);
+  bool get _isFormValid => (yearController.text.isNotEmpty && makeController.text.isNotEmpty && modelController.text.isNotEmpty && purchasePriceController.text.isNotEmpty && purchaseDateController.text.isNotEmpty && (selectedCohort != null));
 
   Map<String, String> _save() {
     Map<String, String> baseBody = {};

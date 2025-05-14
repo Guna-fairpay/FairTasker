@@ -112,7 +112,8 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                   children: [
                     const SizedBox.shrink(),
                     if (dateText.isNotNullOrEmpty)
-                    Padding(padding: 16.sp.topPadding, child: Text.rich(TextSpan(text: "$dateText"))),
+                    Padding(padding: 16.sp.topPadding, child: Text.rich(TextSpan(text: dateText), style: context.textTheme.labelLarge
+                        ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted) ? AppC.green : null))),
                     Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -130,7 +131,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                       ]
                                     ),
                                     style: context.textTheme.labelLarge
-                                        ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted ?? false) ? AppC.green : null),
+                                        ?.copyWith(fontWeight: FontWeight.w600, color: (isCompleted) ? AppC.green : null),
                                   ),
                             subtitle: (((cleanCarText?.length ?? 0) != 0) && cleanCarText.isNotNullOrEmpty)
                                 ? Text("(\t$cleanCarText\t)")

@@ -11,8 +11,11 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -136,60 +139,78 @@ class Utils {
         double height = 35,
         Color borderColor = AppC.fieldBase,
         double borderWidth = Num.borderWidthField,
+        AutovalidateMode? autovalidateMode,
+        FormFieldValidator<dynamic>? validator,
       }) {
-    //Console.of.log("initialSelection${initialSelection}");
-    return
-      Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: borderColor,
-          width: borderWidth,
-        ),
-        borderRadius:  BorderRadius.only(
-            topLeft: Radius.circular(topLRadius),
-            topRight: Radius.circular(topRRadius),
-            bottomLeft: Radius.circular(bottomLRadius),
-            bottomRight: Radius.circular(bottomRRadius),),
-      ),
-      child:
-      DropdownMenu<dynamic>(
-        key: ValueKey(selectedKey),
-        initialSelection: initialSelection,
-        hintText: hintText,
-        menuHeight: 250,
-        textStyle: TextStyle(
-          color: AppC.text,
-            overflow: TextOverflow.ellipsis,
-          fontSize: 12.sp
-        ),
-        inputDecorationTheme:  InputDecorationTheme(
-          hintStyle: const TextStyle(color: AppC.grey),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-          border: InputBorder.none,
-          isCollapsed: true,
-          isDense: true,
-          suffixIconConstraints: const BoxConstraints.tightFor(width: 30),
-          constraints: BoxConstraints(maxHeight: height)
-        ),
-        menuStyle: MenuStyle(
-          backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-          visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
-        ),
-        expandedInsets: const EdgeInsets.only(top: 50),
-        dropdownMenuEntries:
-            listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
-          (dynamic value){
-            return  DropdownMenuEntry<Map<String, dynamic>>(
-              value: value,
-              label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
-            );
-          },
-        ).toList(),
-        onSelected: (selectedValue) {
-          onSelected(selectedValue);
-        },
-      ),
+    return FormField<dynamic>(
+      initialValue: initialSelection,
+      autovalidateMode: autovalidateMode,
+      validator: validator,
+      builder: (field) {
+        var border = OutlineInputBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(topLRadius),
+              topRight: Radius.circular(topRRadius),
+              bottomLeft: Radius.circular(bottomLRadius),
+              bottomRight: Radius.circular(bottomRRadius),),
+            borderSide: BorderSide(color: (field.hasError) ? AppC.errorTextColor : borderColor, width:  (field.hasError) ? Num.borderWidthButton : borderWidth,)
+        );
+        return Column(
+          spacing: 3,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownMenu<dynamic>(
+              key: ValueKey(selectedKey),
+              initialSelection: initialSelection,
+              hintText: hintText,
+              menuHeight: 250,
+              textStyle: TextStyle(
+                  color: AppC.text,
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 12.sp
+              ),
+              inputDecorationTheme:  InputDecorationTheme(
+                hintStyle: const TextStyle(color: AppC.grey),
+                contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
+                border: border,
+                enabledBorder: border,
+                isCollapsed: true,
+                isDense: true,
+                suffixIconConstraints: const BoxConstraints.tightFor(width: 30),
+                constraints: BoxConstraints(maxHeight: height.sp)
+              ),
+              menuStyle: MenuStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+              ),
+              expandedInsets: 0.padding,
+              dropdownMenuEntries:
+              listData.map<DropdownMenuEntry<Map<String, dynamic>>>(
+                    (dynamic value){
+                  return  DropdownMenuEntry<Map<String, dynamic>>(
+                    value: value,
+                    label: '${value[labelKey]??''} ${value[labelKey2]??''}'.trim(),
+                  );
+                },
+              ).toList(),
+              onSelected: (selectedValue) {
+                onSelected(selectedValue);
+                field.didChange(selectedValue ?? initialSelection);
+              },
+            ),
+              if (field.hasError)
+                Row(
+                  spacing: 8,
+                  children: [
+                    const SizedBox.shrink(),
+                    Text(field.errorText ?? "", style: CommonHelper.instance.navigatorKey.currentContext?.textTheme.labelMedium?.copyWith(color: AppC.errorTextColor, fontWeight: FontWeight.w100))
+                  ],
+                )
+          ],
+        );
+      },
     );
+
   }
 
   static Widget dropdownSearchBox(
@@ -472,7 +493,7 @@ class Utils {
         int minLines = 1,
         int maxLines = 1,
         bool isCollapsed = false,
-      AutovalidateMode autoValidate = AutovalidateMode.disabled,
+      AutovalidateMode? autoValidate,
       List<TextInputFormatter>? textInputFormatter,
       double borderRadius = Num.subradiusButton,
         TextAlign textAlign = TextAlign.start,
