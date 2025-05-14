@@ -61,6 +61,7 @@ class SetVehicleUi extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 8,
                   children: [
+                    Utils.getText("${selectedVehicle['vehicle_name'] ?? ''}", weight: FontWeight.bold),
                     Utils.getTextFormField(
                       "Address",
                       context.read<setVehicleBloc>().addressController,

@@ -341,7 +341,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
           allowMultiple: true,
           allowCompression: true,
           type: FileType.custom,
-          allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov',]);
+          allowedExtensions: ['jpg', 'jpeg', 'png',]);
       return result?.paths
           .where((element) => (element?.isNotEmpty ?? false))
           .map((e) => File(e!))
