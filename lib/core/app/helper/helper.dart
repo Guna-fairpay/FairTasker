@@ -10,6 +10,8 @@ class CommonHelper {
 
   static final CommonHelper instance = CommonHelper._();
 
+  final navigatorKey = GlobalKey<NavigatorState>();
+
   Future<void> waitForPostFrameCallback() {
     final Completer<void> completer = Completer<void>();
     WidgetsBinding.instance.addPostFrameCallback((_) => completer.complete());
