@@ -16,6 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class LeaveAddEditBloc extends Bloc<LeaveAddEditEvent, LeaveAddEditState> {
 
   final APiRepository _apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
 
   TextEditingController startDateController = TextEditingController();
   TextEditingController endDateController = TextEditingController();
@@ -141,9 +143,10 @@ class LeaveAddEditBloc extends Bloc<LeaveAddEditEvent, LeaveAddEditState> {
   }
 
   Future<void> _onSaveLeaveEvent(SaveLeaveEvent event, Emitter<LeaveAddEditState> emit) async {
-    if(selectedLeaveType == null) return Toaster.showError('Please select leave type');
-    if(reasonController.text.isEmpty) return Toaster.showError('Please enter reason');
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(LeaveAddEditCommonState());
     try{
+      autoValidateMode = null;
       emit(LeaveAddEditLoadingState());
       Console.of.log(_saveLeaveData());
       if(model != null){
