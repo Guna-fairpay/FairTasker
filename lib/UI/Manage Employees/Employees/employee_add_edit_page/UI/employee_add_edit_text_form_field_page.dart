@@ -45,7 +45,7 @@ class EmployeeAddEditTextFormFieldPage extends StatelessWidget {
               Utils.getTextFormField(
                   null, context.read<EmployeeAddEditBloc>().emailController,
                   autoValidate: context.read<EmployeeAddEditBloc>().autoValidateMode,
-                  validator: (value)=>((context.read<EmployeeAddEditBloc>().emailController.text.isValidEmail()) && (value?.isEmpty??true))?'Please enter email address':null,
+                  validator: (value)=>(/*(context.read<EmployeeAddEditBloc>().emailController.text.isValidEmail()) || */(value?.isEmpty??true))?'Please enter email address':null,
                   hintText: 'Enter a valid email address',
                   inputAction: TextInputAction.done,textType: TextInputType.emailAddress),
               if(id==null)...[
