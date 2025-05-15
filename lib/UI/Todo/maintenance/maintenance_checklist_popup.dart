@@ -1,13 +1,9 @@
-
-
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/Utilities/num.dart';
 import 'package:flutter/material.dart';
-
-import '../../../Utilities/Utils.dart';
-import '../../../Utilities/appC.dart';
-import '../../../Utilities/num.dart';
 
 class MaintenanceChecklistPopup{
   MaintenanceChecklistPopup._();

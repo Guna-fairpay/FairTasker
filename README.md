@@ -6,3 +6,4 @@
 # vehicle page are pending for completion.
 # todo Expense not allow any video file to upload.
 #
+```dart run build_runner build --delete-conflicting-outputs ```

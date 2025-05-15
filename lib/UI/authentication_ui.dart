@@ -1,8 +1,5 @@
-import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/compact_text_field_with_label_title.dart';
-import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/Component/bottom_nav_for_task.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -94,40 +91,6 @@ class _AuthenticationUIState extends State<AuthenticationUI> {
                         keyboardType: TextInputType.visiblePassword,
                         validator: (value) => (value.isNullOrEmpty) ? "Please enter password" : (value?.isValidPassword() == false) ? "Please enter valid password" : null,
                       ),
-                      /*Utils.getTextFormField(
-                            'Email', context.read<AuthenticationBloc>().emailController,
-                            readOnly: false,
-                            hintText: 'Enter Email ID',
-                            hintTextColor: AppC.fieldBase,
-                            inputAction: TextInputAction.next,
-                            hintTextStyle: context.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.normal, color: context.theme.hintColor),
-                            textType:
-                            TextInputType.emailAddress,
-                            onTapCallback: () {},
-                            label: Utils.getText('Email')),
-                        Utils
-                            .getTextFormField(
-                          'Password',
-                          context.read<AuthenticationBloc>().passwordController,
-                          hintText: 'Enter Password',
-                          hintTextColor: AppC.fieldBase,
-                          hintTextStyle: context.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.normal, color: context.theme.hintColor),
-                          inputAction: TextInputAction.done,
-                          obscure: showPassword,
-                          label: Utils.getText('Password'),
-                          suffixIcon: InkWell(
-                              child: Padding(
-                                padding: 10.padding,
-                                child: Icon(showPassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons
-                                    .remove_red_eye_outlined,size: 16,),
-                              ),
-                              onTap: () {
-                                showPassword = !showPassword;
-                                setState(() {});
-                              }),
-                        ),*/
                       Utils.getFilledButton(
                         'Sign In',
                             () => context.read<AuthenticationBloc>().add(DoLoginEvent()),

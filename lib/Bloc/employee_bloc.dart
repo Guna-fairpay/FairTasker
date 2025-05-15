@@ -5,8 +5,6 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:fbroadcast/fbroadcast.dart';
 import '../Event/employee_event.dart';
 import '../Repository/department_repository.dart';
 import '../Repository/employee_repository.dart';

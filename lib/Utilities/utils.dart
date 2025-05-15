@@ -16,8 +16,6 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
-import 'package:fairpytasker/main.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -35,11 +33,6 @@ enum ImageUploadType {
   gallery,
   camera,
 }
-
-/*enum ImageSource {
-  camera,
-  gallery,
-}*/
 
 class Utils {
   static final Connectivity _connectivity = Connectivity();
