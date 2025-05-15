@@ -77,10 +77,10 @@ class TasklistUi extends StatelessWidget {
                                 Console.of.log("DATE_RANGE ${range}");
                                 context.read<TaskListBloc>().add(
                                     UpdateDateRangeEvent(selectedRange: range));
-                
+
                                 String startDate = range.start.toString();
                                 String endDate = range.end.toString();
-                
+
                                 context.read<TaskListBloc>().add(
                                     TaskListInitial(
                                         startDate, endDate));
@@ -99,9 +99,9 @@ class TasklistUi extends StatelessWidget {
                                     onChanged: (bool? value){
                                       context.read<TaskListBloc>().add(HideSupportEvent(
                                         value: value ?? false,
-                
+
                                       ));
-                
+
                                     },),
                                 CustomCheckboxListTile(title: Text("Extra Hours"), value:  state.extraHours,
                                   mainAxisSize: MainAxisSize.min,
@@ -179,10 +179,7 @@ class TasklistUi extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final taskList = state.data[index];
                             final isApproved = taskList['complete_time_approved'] == 1;
-                            final hasTimeMismatch = !isApproved &&
-                                taskList['complete_time_taken'] != null &&
-                                ((int.tryParse(state.taskExpense.firstWhereOrNull((element) => element['task'].toString().toLowerCase() == taskList['title'].toString().toLowerCase())?['time_taken'] ?? "") ?? 0)) != (Time.fromStr(taskList['complete_time_taken'] ?? "")?.inMins ?? 0);
-                            final textColor = isApproved ? AppC.appColor : (hasTimeMismatch ? AppC.red : AppC.appColor);
+                            final textColor = isApproved ? AppC.appColor : !isApproved && taskList['time_taken'] != "" ? AppC.red : AppC.appColor;
                             return
                               Card(
                                 margin: const EdgeInsets.symmetric(vertical: 4),

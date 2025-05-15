@@ -633,7 +633,7 @@ class Utils {
             autovalidateMode: autoValidate,
             textInputAction: inputAction ?? TextInputAction.next,
             onTap: onTapCallback,
-            focusNode: focusNode,
+            focusNode: f,
             autofocus: autoFocus,
             controller: controller,
             keyboardType: TextInputType.number,
@@ -642,7 +642,7 @@ class Utils {
             obscureText: obscure,
             //onTapUpOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
             //onTapOutside: (event) => controller.value.copyWith(selection: const TextSelection.collapsed(offset: 0)),
-            onTapOutside: (event){
+            onTapOutside: (event) {
               f.unfocus();
               dismissKeyboard(context);
             },
@@ -761,7 +761,7 @@ class Utils {
           autovalidateMode: autoValidate,
           textInputAction: inputAction ?? TextInputAction.next,
           onTap: onTapCallback,
-          focusNode: focusNode,
+          focusNode: f,
           autofocus: autoFocus,
           controller: controller,
           keyboardType: textType,
@@ -931,7 +931,7 @@ class Utils {
           autovalidateMode: autoValidate,
           textInputAction: inputAction ?? TextInputAction.next,
           onTap: onTapCallback,
-          focusNode: focusNode,
+          focusNode: f,
           autofocus: autoFocus,
           controller: controller,
           keyboardType: textType,
