@@ -23,7 +23,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
   final TextEditingController nameController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
 
-  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
+  AutovalidateMode? autoValidateMode;
 
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> _unFilteredResponse = [];
@@ -90,10 +90,12 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         _unFilteredResponse = apiResponse;
         _pagenate();
         Toaster.showSuccess(response?['message']);
-        isEdit = false;
-        selectedData = null;
-        nameController.clear();
-        notesController.clear();
+        if(selectedData == event.data){
+          isEdit = false;
+          selectedData = null;
+          nameController.clear();
+          notesController.clear();
+        }
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
@@ -107,11 +109,10 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
   }
 
   void _onSaveTaskEvent(SaveSuppliesEvent event, Emitter<SuppliesState> emit) async {
+    autoValidateMode  = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(SuppliesCommonState());
     try{
-      if(nameController.text.isEmpty){
-        Toaster.showError('Please enter name');
-        return;
-      }
+      autoValidateMode = null;
       emit(SuppliesLoadingState());
       var data = {
         'name':nameController.text,
@@ -131,14 +132,15 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
           selectedData = null;
           apiResponse.removeWhere((e) => e['id'] == newData['id']);
           apiResponse.add(newData);
+          Toaster.showSuccess("Supplies updated successfully");
         } else {
           apiResponse.add(newData);
+          Toaster.showSuccess("Supplies added successfully");
         }
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         totalCount = apiResponse.length;
         _unFilteredResponse = apiResponse;
         _pagenate();
-        Toaster.showSuccess("Supplies added successfully");
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);

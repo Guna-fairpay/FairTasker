@@ -13,8 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
   final APiRepository _apiRepository = APiRepository();
-  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
 
   final TextEditingController searchController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -91,13 +91,18 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
   void _onDeleteTaskEvent(DeleteCategoryConfigEvent event, Emitter<CategoryConfigState> emit) async {
     try{
       emit(CategoryConfigLoadingState());
-      var response = await _apiRepository.deleteCategoryConfigData(event.data['id']);
-     // if(response?['message']!=null){
+       await _apiRepository.deleteCategoryConfigData(event.data['id']);
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
         _unFilteredResponse = apiResponse;
         filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-        //Toaster.showSuccess(response?['message']);
+        if(selectedData == event.data){
+          nameController.clear();
+          selectedCategory={};
+          selectedUserType=usersType.first;
+          isEdit = false;
+          selectedData = null;
+        }
         _search();
         emit(CategoryConfigCommonState());
      // }
@@ -108,11 +113,10 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
   }
 
   void _onSaveTaskEvent(SaveCategoryConfigEvent event, Emitter<CategoryConfigState> emit) async {
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if (formKey.currentState?.validate() == false) return emit(CategoryConfigCommonState());
     try{
-      if(nameController.text.isEmpty){
-        Toaster.showError('Please enter name');
-        return;
-      }
+      autoValidateMode = null;
       emit(CategoryConfigLoadingState());
       Console.of.log(selectedCategory.toString(),name: 'TESTCASE1');
       var data = {
@@ -123,7 +127,7 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
       Console.of.log(data);
       var response = await _apiRepository.categoryConfigAddOrUpdate(body: data,id: selectedData?['id']);
       if (response?["data"] != null) {
-        final newData = response?["data"];
+
         nameController.clear();
         selectedCategory={};
         selectedUserType={};
@@ -131,33 +135,9 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
           isEdit = false;
           selectedData = null;
           add(CategoryConfigInitialEvent());
-          // apiResponse.removeWhere((e) => e['id'] == newData['id']);
-          // newData.putIfAbsent('category_name', () => newData['parent_id'] != null
-          //     ? category.firstWhere(
-          //       (cat) => cat['id'].toString() == newData['parent_id'].toString(),
-          //   orElse: () => {'name': ''},)['name'] : ''
-          // );
-          // apiResponse.add(newData);
         } else {
           add(CategoryConfigInitialEvent());
-          // newData.putIfAbsent('category_name', () => newData['parent_id'] != null
-          //     ? category.firstWhere(
-          //       (cat) => cat['id'].toString() == newData['parent_id'].toString(),
-          //   orElse: () => {'name': ''},)['name'] : ''
-          // );
-          // apiResponse.add(newData);
         }
-        // apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
-        // totalCount = apiResponse.length;
-        // _unFilteredResponse = apiResponse;
-        // filteredResponse = paginateList(
-        //   data: _unFilteredResponse,
-        //   currentPage: currentIndex,
-        //   itemsPerPage: itemsPerPage,
-        // );
-        // Toaster.showSuccess(response?['message']);
-        // _search();
-        // emit(CategoryConfigCommonState());
       }
       else{
         Console.of.log(response,name: 'TESTCASE0');

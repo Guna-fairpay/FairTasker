@@ -15,7 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditState>{
 
   final APiRepository _apiRepository = APiRepository();
-  final FBroadcast _broadcast = FBroadcast.instance();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController firstNameController = TextEditingController();
@@ -24,13 +23,13 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
+  AutovalidateMode? autoValidateMode;
 
   Map<String, dynamic> apiResponse = {};
   List<Map<String, dynamic>> roleList = [];
   List<Map<String, dynamic>> departmentList = [];
-  dynamic selectedRole={};
-  dynamic selectedDepartment={};
+  dynamic selectedRole;
+  dynamic selectedDepartment;
   bool isEdit = false;
   bool isShow = true;
 
@@ -83,16 +82,10 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
   }
 
   void _onEmployeeSaveEvent(EmployeeSaveEvent event, Emitter<EmployeeAddEditState> emit) async {
-    if(firstNameController.text.isEmpty || lastController.text.isEmpty
-        ||emailController.text.isEmpty || mobileController.text.isEmpty
-        || (selectedRole==null) || (selectedRole.toString().isNullOrEmpty)
-    || !(emailController.text.isValidEmail()) || ((Map.from(selectedRole).isEmpty))
-         || ( (!isEdit) ? passwordController.text.isEmpty : false) )
-    {
-      Toaster.showError(((emailController.text.isValidEmail())) ? "Please fill all required fields" : "Please enter valid email");
-      return;
-    }else{
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(EmployeeAddEditCommonState());
       try{
+        autoValidateMode = null;
         emit(EmployeeAddEditLoadingState());
         Map<String, String> data = {
           "first_name": firstNameController.text,
@@ -148,7 +141,6 @@ class EmployeeAddEditBloc extends Bloc<EmployeeAddEditEvent, EmployeeAddEditStat
         Toaster.showError(e.toString());
         emit(EmployeeAddEditCommonState());
       }
-    }
   }
 
   void _onRoleSelectionEvent(RoleSelectionEvent event, Emitter<EmployeeAddEditState> emit) {

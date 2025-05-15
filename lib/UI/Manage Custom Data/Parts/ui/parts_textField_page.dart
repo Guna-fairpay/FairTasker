@@ -26,9 +26,10 @@ class PartsTextFieldPage extends StatelessWidget {
                     Utils.getTextFormField(
                       "Name",
                       context.read<PartsBloc>().nameController,
+                      autoValidate: context.watch<PartsBloc>().autoValidateMode,
                       validator: (value) =>
-                          (value?.trim().isNullOrEmpty ?? false)
-                              ? "Required"
+                      (value?.trim().isNullOrEmpty ?? false)
+                              ? "Please enter name"
                               : null,
                     ),
                     Utils.getTextFormField(

@@ -26,16 +26,14 @@ class TaskView extends StatelessWidget {
     return BlocBuilder<TaskBloc, TaskState>(
       builder: (context, state) {
         return Form(
-          //key: context.read<TaskBloc>().formKey,
-          // autovalidateMode: AutovalidateMode.onUnfocus,
+          key: context.read<TaskBloc>().formKey,
           child: Column(
             children: [
               10.sp.height,
               Utils.getTextFormField(
-                  'Task',
-                  context.read<TaskBloc>().taskController,
-                // autoValidate: context.watch<TaskBloc>().autoValidateMode,
-                // validator: (val) => val!.isEmpty ? 'Please enter task name' : null ,
+                'Task', context.read<TaskBloc>().taskController,
+                autoValidate: context.watch<TaskBloc>().autoValidateMode,
+                validator: (val) => val!.isEmpty ? 'Please enter task name' : null ,
               ),
               10.sp.height,
               DropdownBoxWithIcon(

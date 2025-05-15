@@ -25,6 +25,8 @@ import 'package:permission_handler/permission_handler.dart';
 class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
   final APiRepository apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController partsCostController = TextEditingController();
@@ -69,6 +71,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   bool isEdit = false;
   bool isSaveCategory = false;
   bool taxIsTapped = false;
+  bool requireAllFields = true;
 
   TodoEditExpenseBloc()
       : super(const TodoExpenseState(
@@ -80,8 +83,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           apiResponse: {},
           isLoading: false,
           selectedPayment: {},
-          selectedMainCategory: {},
-          selectedSubCategory: {},
+          selectedMainCategory: null,
+          selectedSubCategory: null,
           vehicleList: [],
           selectedVehicle: {},
           partsList: [],
@@ -544,19 +547,11 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
     });
 
     on<SaveExpenseEvent>((event, emit) async {
+      requireAllFields = true;
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if (formKey.currentState?.validate() == false) return emit(state.copyWith());
       try {
-        if((state.partsList.isEmpty && state.suppliesList.isEmpty) && amountController.text.isEmpty) {
-          Toaster.showError("Please enter amount");
-          return;
-        }
-        if(state.selectedMainCategory.isEmpty) {
-          Toaster.showError("Please select category");
-          return;
-        }
-        if(state.selectedSubCategory.isEmpty) {
-          Toaster.showError("Please select subCategory");
-          return;
-        }
+        autoValidateMode = null;
         if (((todoItem?["cohort_id"] ?? selectedVehicle?['cohort_id']) == null) || (((selectedVehicle?['vin']) ?? (state.vehicleList.firstOrNull?['vin'])) == null)) {
           Toaster.showError("Please update vehicle details to save expense");
           return;
@@ -780,12 +775,16 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
 
   void _onSaveCategoryEvent(SaveCategoryEvent event, Emitter<TodoExpenseState> emit) async {
+    requireAllFields = false;
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(state.copyWith());
     if(state.selectedVehicle == null || (state.apiResponse['vin'] != null && List.from(state.apiResponse['vehicles'] ?? []).isNotEmpty)){
       Toaster.showError("Vehicle is required");
       return;
     }
     if (!_isValidSaveCategory) return add(const SaveExpenseEvent());
     try{
+      autoValidateMode = null;
       int? expenseTempId = "${state.selectedVehicle?['expense_temp_id'] ?? todoItem?['expense_temp_id']}".getExpenseId;
       emit(state.copyWith(isLoading: true));
       if((expenseTempId == null) || (expenseTempId <= 0)) {
