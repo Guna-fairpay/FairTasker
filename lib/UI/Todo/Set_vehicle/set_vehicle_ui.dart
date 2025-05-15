@@ -376,9 +376,10 @@ class SetVehicleUi extends StatelessWidget {
                             textAlign: TextAlign.center,
                             value: context.read<setVehicleBloc>().renewalDate,
                             onChanged: (value){
-                              Utils.dismissKeyboard(context);
+                              //Utils.dismissKeyboard(context);
                               context.read<setVehicleBloc>().add(setVehicleDatePickerEvent(value: value));
                             },
+                            labelText: "mm-dd-yyyy",
                           ),
                         ),
                         Expanded(

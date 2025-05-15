@@ -77,6 +77,23 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
               orElse: () => {},
             );
 
+            tollTagsIdController.clear();
+            spareTireController.clear();
+            vehicleNumberController.clear();
+            carNumberController.clear();
+            oilGradeController.clear();
+            frontTireController.clear();
+            rearTireController.clear();
+            renewalDateController.clear();
+            insuranceCostController.clear();
+            insuranceAgentController.clear();
+            vehicleIdController.clear();
+            images.clear();
+            tollImage.clear();
+            tireImageFile.clear();
+            uploadRegSticker.clear();
+            insuranceImage.clear();
+
             addressController.text = newVehicle['address']?.toString() ?? '';
             vehicleNumberController.text = newVehicle['vehicle_number']?.toString() ?? '';
             vehicleIdController.text = newVehicle['vehicle_id']?.toString() ?? '';

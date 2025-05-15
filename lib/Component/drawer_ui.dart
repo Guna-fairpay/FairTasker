@@ -50,6 +50,7 @@ class DrawerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<String> userId = ['20','31','3','17','2','1'];
+    List<String> approveTask = ['3','6','1','2',];
     return Drawer(
       backgroundColor: Colors.transparent,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -108,6 +109,7 @@ class DrawerView extends StatelessWidget {
                       ),
                     ],
                   _buildDivider(),
+                  if(approveTask.contains(Session.of.getString(Str.userIdPrefText)))
                   _buildListTile(
                     context,
                     icon: Icons.task_rounded,

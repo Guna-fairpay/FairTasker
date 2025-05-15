@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
-import '../../Utilities/appC.dart';
 
 class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   
@@ -32,6 +31,8 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   List<Map<String, dynamic>> extraHoursData = [];
   bool isAscending = false;
   bool offShore = false;
+  String? startDate;
+  String? endDate;
 
   TaskListBloc() : super(TaskListState(
       pop: false,
@@ -59,7 +60,8 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
         groupVehicleData = groupVehicle?.vehicleGroupData ?? [];
         apiResponse = value?.data ?? [];
         groupUsers = groupResource?.data ?? [];
-
+        startDate = event.startDate;
+        endDate = event.endDate;
         apiResponse = apiResponse.map((e) => e..["usersList"] = _getUsers(userId: e['user_id'], userGroupId: e['user_group_id'])).toList();
         apiResponse = apiResponse.map((e) => e..["usersName"] =
                                                 List.from(e['usersList']).map((e) => <String>[
@@ -214,7 +216,13 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
             element['complete_time_approved'] = event.value ? 1 : 0;
           }
         });
-        emit(state.copyWith(isLoading: false, isChecked: event.value, data: apiResponse));
+        if(state.extraHours){
+          add(TaskListInitial(startDate ?? (DateTime.now().subtract(const Duration(days: 7))).toString(), endDate ?? DateTime.now().toString()));
+          emit(state.copyWith(extraHours : true));
+        } else {
+          emit(state.copyWith(isLoading: false, isChecked: event.value, data: apiResponse));
+        }
+        emit(state.copyWith(isLoading: false));
       }
       catch (e){
         log(e.toString());
@@ -262,32 +270,40 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
           record['task'].toString().toLowerCase() == taskTitle.toString().toLowerCase(),
           orElse: () => {},
         );
-        if (matchingRecord == null) continue;
+        if (matchingRecord == {} && matchingRecord['task'] == null){
+          taskTitle = '';
+          continue;
+        }
 
         int actualTime = matchingRecord['time_taken'] is String
             ? int.tryParse(matchingRecord['time_taken']) ?? 0
             : 0;
         int completedTime = timeToMinutes(timeTaken);
         //log("title ${taskTitle} timeTaken ${completedTime} actualTime ${actualTime} expenseTitle ${matchingRecord['task']}", name: "overTime_Before");
-        if (completedTime < actualTime && completedTime != actualTime) {
-          int overtimeTaken = actualTime - completedTime;
-          //log("title ${taskTitle} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTitle ${matchingRecord['task']}",name: "overTime_Extra_true");
-          int hours = overtimeTaken ~/ 60;
-          int remainder_minutes = overtimeTaken % 60;
-
-          return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+        if(matchingRecord != {}){
+          if (completedTime < actualTime && completedTime != actualTime && matchingRecord != {} && matchingRecord['task'] != null) {
+            int overtimeTaken = actualTime - completedTime;
+            //log("title ${taskTitle} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTitle ${matchingRecord['task']}",name: "overTime_Extra_true");
+            int hours = overtimeTaken ~/ 60;
+            int remainder_minutes = overtimeTaken % 60;
+            taskTitle = '';
+            return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          }
+          else if(completedTime > actualTime && completedTime != actualTime && matchingRecord != {} && matchingRecord['task'] != null){
+            int overtimeTaken = completedTime - actualTime;
+            //log("title ${item['title']} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTile ${matchingRecord['task']}",name: "overTime_Extra_false");
+            int hours = overtimeTaken ~/ 60;
+            int remainder_minutes = overtimeTaken % 60;
+            taskTitle = '';
+            return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          } else {
+            taskTitle = '';
+            return "";
+          }
         }
-        else if(completedTime > actualTime && completedTime != actualTime){
-          int overtimeTaken = completedTime - actualTime;
-          //log("title ${item['title']} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTile ${matchingRecord['task']}",name: "overTime_Extra_true");
-          int hours = overtimeTaken ~/ 60;
-          int remainder_minutes = overtimeTaken % 60;
-          return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
-        } else {
-          return "";
-        }
-      } else {return "";}
+      } else {taskTitle = ''; return "";}
     }
+    taskTitle = '';
     return "";
   }
 
