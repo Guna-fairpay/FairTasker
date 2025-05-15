@@ -17,7 +17,6 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/main.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -164,6 +163,8 @@ class Utils {
               initialSelection: initialSelection,
               hintText: hintText,
               menuHeight: 250,
+              selectedTrailingIcon: const Icon(Icons.keyboard_arrow_up_sharp,color: AppC.appColor,),
+              trailingIcon: const Icon(Icons.keyboard_arrow_down_sharp,color: AppC.appColor,),
               textStyle: TextStyle(
                   color: AppC.text,
                   overflow: TextOverflow.ellipsis,

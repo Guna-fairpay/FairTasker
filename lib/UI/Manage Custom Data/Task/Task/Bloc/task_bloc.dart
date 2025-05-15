@@ -18,32 +18,37 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
   final APiRepository _apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
+  final FBroadcast _broadcast = FBroadcast.instance();
+
   final TextEditingController searchController = TextEditingController();
   final TextEditingController taskController = TextEditingController();
   final TextEditingController timeTakenController = TextEditingController();
-  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
-  final FBroadcast _broadcast = FBroadcast.instance();
+
 
   List<Map<String, dynamic>> apiResponse = [];
-  // List<Map<String, dynamic>> noCategoryResponse = [];
   List<Map<String, dynamic>> _unfilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
-  List<dynamic> get category => getIt<CommonService>().expenseCategoriesList;
-  List<dynamic> get subcategory => List.from(category.firstWhereOrNull((element) => element['id'] == selectedCategory?['id'])?['sub_categories'] ?? []);
   List<dynamic>listSubcategory=[];
   List<dynamic>usersType=[{'id': 0, 'name': 'Select'}, {'id': 1, 'name': 'Support Task'}];
+
+  List<dynamic> get category => getIt<CommonService>().expenseCategoriesList;
+  List<dynamic> get subcategory => List.from(category.firstWhereOrNull((element) => element['id'] == selectedCategory?['id'])?['sub_categories'] ?? []);
+
   dynamic selectedCategory;
   dynamic selectedSubCategory;
   dynamic selectedUserType;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  dynamic selectedData;
+
   int itemsPerPage = 10;
   int currentIndex = 1;
   int totalCount = 0;
+  int selectedTab = 0;
+
   bool noCategory = false;
   bool isEdit = false;
   bool isEnable = true;
-  dynamic selectedData;
-  int selectedTab = 0;
 
   TaskBloc() : super(TaskLoadingState()){
 
@@ -78,7 +83,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       selectedCategory={};
       selectedSubCategory={};
       selectedCategory=category.firstWhereOrNull((element) => element['id'].toString()==event.data['category_id'].toString());
-      // subcategory=selectedCategory?['sub_categories']??[];
       selectedSubCategory=subcategory.firstWhereOrNull((element) => element['id'].toString()==event.data['subcategory_id'].toString());
       selectedUserType=usersType.firstWhere((element) => element['id'].toString()==event.data['user_type'].toString());
       emit(TaskCommonState());
@@ -88,9 +92,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
 
     on<CategoryDropDownEvent>((event, emit) {
       selectedCategory = event.data;
-      // subcategory=[];
       selectedSubCategory={};
-      // subcategory=event.data['sub_categories'];
       emit(TaskCommonState());
     });
 
@@ -165,9 +167,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   }
 
   Future<void> _onSaveTaskEvent(SaveTaskEvent event, Emitter<TaskState> emit) async {
-    // if (formKey.currentState?.validate() == false) return;
-    if(taskController.text.isEmpty) return Toaster.showError('Task field is required');
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if (formKey.currentState?.validate() == false) return emit(TaskCommonState());
     try{
+      autoValidateMode = null;
       emit(TaskLoadingState());
         var data = {
           'category_id': "${selectedCategory?['id']??''}",
@@ -179,17 +182,15 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         };
       Console.of.log(data);
         var response = await _apiRepository.taskAddOrUpdate(body: data,id: selectedData?['id']);
-        /*var taskResponse= */await getIt<CommonService>().getTaskExpenseData(reset: true);
+       await getIt<CommonService>().getTaskExpenseData(reset: true);
       if (response?["data"] != null) {
         final newData = response?["data"];
+        formKey.currentState?.reset();
         taskController.clear();
         timeTakenController.text = '30';
         selectedCategory={};
         selectedSubCategory={};
         selectedUserType= usersType.first;
-        //formKey.currentState?.reset();
-       /* selectedData = null;
-        isEdit = false;*/
         if (selectedData != null) {
           selectedData = null;
           isEdit = false;
@@ -198,7 +199,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
         } else {
           apiResponse.add(newData);
         }
-        //apiResponse=taskResponse;
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         final List<Map<String, dynamic>> result = noCategory
             ? apiResponse.where((e) => e['subcategory_id'].toString().isNullOrEmpty).toList()
@@ -227,6 +227,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   }
 
   void _onEditCloseEvent(EditCloseEvent event, Emitter<TaskState> emit) {
+    formKey.currentState?.reset();
     isEdit = false;
     isEnable = false;
     selectedData = {};
@@ -245,8 +246,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       taskController.text=event.title.toString();
     }
     var response= await getIt<CommonService>().getTaskExpenseData(reset: true);
-    var categories = await getIt<CommonService>().getExpenseCategories();
-    // category=List.from(categories);
+    await getIt<CommonService>().getExpenseCategories();
     response.removeWhere((element) => element['deleted_at'].toString().isNotNullOrEmpty);
     response.sort((a, b) => b['id'].compareTo(a['id']));
     selectedUserType = usersType[0];
@@ -273,8 +273,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       'user_type': "${itemModel['user_type']}",
       'platform':'tasker-app',
     };
-    var response = await _apiRepository.taskAddOrUpdate(body: data,id: itemModel['id']);
-    // emit(TaskCommonState());
+    await _apiRepository.taskAddOrUpdate(body: data,id: itemModel['id']);
   }
 
   Future<void> _onListSubCategoryDropDownSelectionEvent(ListSubCategoryDropDownSelectionEvent event, Emitter<TaskState> emit) async {
@@ -292,8 +291,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
       'time_taken': "${itemModel['time_taken']}",
       'user_type': "${itemModel['user_type']}",
       'platform':'tasker-app'};
-    var response = await _apiRepository.taskAddOrUpdate(body:data,id: itemModel['id']);
-    // emit(TaskCommonState());
+    await _apiRepository.taskAddOrUpdate(body:data,id: itemModel['id']);
   }
 
   void _onTabChangeEvent(TaskTabChangeEvent event, Emitter<TaskState> emit) {
