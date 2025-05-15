@@ -26,7 +26,7 @@ class _VehicleMainViewUiState extends State<VehicleMainViewUi> {
 
   @override
   void dispose() {
-    EasyLoading.dismiss();
+    if (EasyLoading.isShow) EasyLoading.dismiss();
     super.dispose();
   }
 

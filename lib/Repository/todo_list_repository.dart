@@ -659,7 +659,7 @@ class TodoListRepo {
         "vehicle_status_id": statusId,
         "vin": vinNumber,
         "title": title,
-        "user_id": int.parse(userIdGlobal) == 1 ? 2 : 1,
+        "user_id": getIt<CommonService>().userId == 1 ? 2 : 1,
         "cohort_id": cohortId,
         "start_at": startAt,
         "todo_time": todoTime,

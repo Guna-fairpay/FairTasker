@@ -4,6 +4,7 @@ import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,7 @@ class _ChatUIState extends State<ChatUI> {
     // Replace YOUR_APP_KEY, YOUR_CLUSTER, and YOUR_CHANNEL_NAME with your actual Pusher credentials
 /*    pusher = PusherClient(Str.apiKeyPusher, PusherOptions(cluster: Str.clusterKeyPusher));
 
-    channel = pusher.subscribe(Str.formGeneralChatPuKey(int.parse(userIdGlobal), widget.resource!.id!));
+    channel = pusher.subscribe(Str.formGeneralChatPuKey(getIt<CommonService>().userId, widget.resource!.id!));
     channel.bind('general-chat', (event) {
       debugPrint('New message: ${event?.data}');
       // Handle the received message
@@ -91,7 +92,7 @@ class _ChatUIState extends State<ChatUI> {
               InkWell(
                   onTap: () {
                     todoBloc!.add(GetChatMessagesList(
-                        sender: int.parse(userIdGlobal),
+                        sender: getIt<CommonService>().userId,
                         receiver: widget.resource!['id']!));
                   },
                   child: const Padding(
@@ -102,7 +103,7 @@ class _ChatUIState extends State<ChatUI> {
         body: BlocProvider(
             create: (context) => todoBloc!
               ..add(GetChatMessagesList(
-                  sender: int.parse(userIdGlobal),
+                  sender: getIt<CommonService>().userId,
                   receiver: widget.resource!['id']!)),
             child: BlocConsumer<TodoViewBloc, TodoViewState>(
                 listener: (context, state) async {
@@ -133,7 +134,7 @@ class _ChatUIState extends State<ChatUI> {
               } else if (state is ChatSendLoaded) {
                 if (state.result != null && state.result!) {
                   todoBloc!.add(GetChatMessagesList(
-                      sender: int.parse(userIdGlobal),
+                      sender: getIt<CommonService>().userId,
                       receiver: widget.resource!['id']!));
                 }
               }
@@ -147,7 +148,7 @@ class _ChatUIState extends State<ChatUI> {
                         child: RefreshIndicator(
                           onRefresh: () async {
                             todoBloc!.add(GetChatMessagesList(
-                                sender: int.parse(userIdGlobal),
+                                sender: getIt<CommonService>().userId,
                                 receiver: widget.resource!['id']!));
                           },
                           child: SingleChildScrollView(
@@ -266,7 +267,7 @@ class _ChatUIState extends State<ChatUI> {
                                                   // const Spacer(),
                                                   // const SizedBox(width: 12,),
                                                   Visibility(
-                                                    visible: userIdGlobal ==
+                                                    visible: getIt<CommonService>().userId ==
                                                         chats[chatIndex]
                                                             ['sender'],
                                                     child: Align(
@@ -395,11 +396,11 @@ class _ChatUIState extends State<ChatUI> {
                                        {"createdAt": Utils.convertDateTimeToTheFormat(''),
                                         "message": chatEditingController.text,
                                         "receiver": widget.resource!.id!,
-                                        "sender": int.parse(userIdGlobal)
+                                        "sender": getIt<CommonService>().userId
                                       });*/
 
                                   todoBloc!.add(SendChatMessage(
-                                      sender: int.parse(userIdGlobal),
+                                      sender: getIt<CommonService>().userId,
                                       receiver: widget.resource!['id']!,
                                       createdAt:
                                           Utils.convertDateTimeToTheFormat(''),

@@ -33,3 +33,10 @@ class AddVehicleLogRecorderAudioState extends AddVehicleLogState {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class AddVehicleLogDeleteAttachmentState extends AddVehicleLogState {
+  final dynamic type;
+  AddVehicleLogDeleteAttachmentState(this.type);
+  @override
+  List<Object?> get props => [Random().nextDouble(), type];
+}

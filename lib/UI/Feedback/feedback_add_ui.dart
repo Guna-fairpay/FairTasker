@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/Feedback/feedback_add/bloc/feedback_add_events.d
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -67,76 +68,80 @@ class _FeedbackAddBodyUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FeedbackAddBloc, FeedbackAddState>(
-        builder: (context, state) => ListView(
-              shrinkWrap: true,
-              padding: 10.padding,
-              children: [
-                Utils.getTextFormField(
-                  'Title',
-                  context.read<FeedbackAddBloc>().titleController,
-                  label: Utils.getText('Title', color: AppC.grey),
-                ),
-                10.height,
-                Utils.buildDropdownButton(
-                  'Select Priority',
-                  context.read<FeedbackAddBloc>().priority,
-                  context.watch<FeedbackAddBloc>().selectedPriority,
-                  (value) => context.read<FeedbackAddBloc>().add(FeedbackSelectedPriorityEvent(value)),
-                ),
-                10.height,
-                CustomQuillEditor(
-                    controller:
-                        context.read<FeedbackAddBloc>().descriptionController,
-                    hintText: "Description"),
-                ListTile(
-                  title: const Text("Attachments"),
-                  trailing: const Icon(Icons.add_rounded),
-                  titleTextStyle: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.sp),
-                  onTap: () => context
-                      .read<FeedbackAddBloc>()
-                      .add(FeedbackAddAttachmentEvent()),
-                ),
-                10.height,
-                GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            childAspectRatio: 0.9,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10),
-                    itemBuilder: (context, index) {
-                      var model =
-                          context.read<FeedbackAddBloc>().attachments[index];
-                      return CloseBadge(
-                          onTapDelete: () => context
-                              .read<FeedbackAddBloc>()
-                              .add(FeedbackDeleteAttachmentEvent(model)),
-                          onTapView: () => context
-                              .read<FeedbackAddBloc>()
-                              .add(FeedbackViewAttachmentEvent(model)),
-                          child: Container(
-                            constraints: BoxConstraints(
-                              minHeight: MediaQuery.sizeOf(context).height,
-                              minWidth: MediaQuery.sizeOf(context).width,
-                            ),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: AppC.grey.withValues(alpha: 0.2)),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            child: ImageViewer(
-                              fit: BoxFit.cover,
-                              imageInput: model,
-                              isNotImage: !((model as Object).isImage),
-                            ),
-                          ));
-                    },
-                    shrinkWrap: true,
-                    itemCount:
-                        context.watch<FeedbackAddBloc>().attachments.length),
-                10.height,
-                Utils.getFilledButton("Save", () => context.read<FeedbackAddBloc>().add(FeedbackSubmitEvent())),
-              ],
-            ));
+        builder: (context, state) => Form(
+          key: context.read<FeedbackAddBloc>().formKey,
+          child: ListView(
+                shrinkWrap: true,
+                padding: 10.padding,
+                children: [
+                  Utils.getTextFormField(
+                    'Title',
+                    context.read<FeedbackAddBloc>().titleController,
+                    validator: (value) => value.isNullOrEmpty ? 'Please enter a title' : null,
+                    label: Utils.getText('Title', color: AppC.grey),
+                  ),
+                  10.height,
+                  Utils.buildDropdownButton(
+                    'Select Priority',
+                    context.read<FeedbackAddBloc>().priority,
+                    context.watch<FeedbackAddBloc>().selectedPriority,
+                    (value) => context.read<FeedbackAddBloc>().add(FeedbackSelectedPriorityEvent(value)),
+                  ),
+                  10.height,
+                  CustomQuillEditor(
+                      controller:
+                          context.read<FeedbackAddBloc>().descriptionController,
+                      hintText: "Description"),
+                  ListTile(
+                    title: const Text("Attachments"),
+                    trailing: const Icon(Icons.add_rounded),
+                    titleTextStyle: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.sp),
+                    onTap: () => context
+                        .read<FeedbackAddBloc>()
+                        .add(FeedbackAddAttachmentEvent()),
+                  ),
+                  10.height,
+                  GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              childAspectRatio: 0.9,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10),
+                      itemBuilder: (context, index) {
+                        var model =
+                            context.read<FeedbackAddBloc>().attachments[index];
+                        return CloseBadge(
+                            onTapDelete: () => context
+                                .read<FeedbackAddBloc>()
+                                .add(FeedbackDeleteAttachmentEvent(model)),
+                            onTapView: () => context
+                                .read<FeedbackAddBloc>()
+                                .add(FeedbackViewAttachmentEvent(model)),
+                            child: Container(
+                              constraints: BoxConstraints(
+                                minHeight: MediaQuery.sizeOf(context).height,
+                                minWidth: MediaQuery.sizeOf(context).width,
+                              ),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: AppC.grey.withValues(alpha: 0.2)),
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              child: ImageViewer(
+                                fit: BoxFit.cover,
+                                imageInput: model,
+                                isNotImage: !((model as Object).isImage),
+                              ),
+                            ));
+                      },
+                      shrinkWrap: true,
+                      itemCount:
+                          context.watch<FeedbackAddBloc>().attachments.length),
+                  10.height,
+                  Utils.getFilledButton("Save", () => context.read<FeedbackAddBloc>().add(FeedbackSubmitEvent())),
+                ],
+              ),
+        ));
   }
 }
 

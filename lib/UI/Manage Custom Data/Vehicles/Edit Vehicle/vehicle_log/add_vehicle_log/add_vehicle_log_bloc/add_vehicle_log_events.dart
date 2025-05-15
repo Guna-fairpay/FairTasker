@@ -28,3 +28,11 @@ class AddVehicleLogAudioInsertEvent extends AddVehicleLogEvent {
   @override
   List<Object?> get props => [file];
 }
+
+class AddVehicleLogDeleteAttachmentEvent extends AddVehicleLogEvent {
+  final dynamic type;
+  final bool delete;
+  AddVehicleLogDeleteAttachmentEvent({this.type = 'image', this.delete = false});
+  @override
+  List<Object?> get props => [delete, type];
+}
