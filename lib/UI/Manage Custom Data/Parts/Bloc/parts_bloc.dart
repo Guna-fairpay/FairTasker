@@ -23,7 +23,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
   final TextEditingController nameController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
 
-  AutovalidateMode autoValidateMode = AutovalidateMode.onUserInteraction;
+  AutovalidateMode? autoValidateMode;
 
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> _unFilteredResponse = [];
@@ -88,10 +88,12 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
         _unFilteredResponse = apiResponse;
         filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
         Toaster.showSuccess(response?['message']);
-        isEdit = false;
-        selectedData = null;
-        nameController.clear();
-        notesController.clear();
+        if(selectedData == event.data){
+          isEdit = false;
+          selectedData = null;
+          nameController.clear();
+          notesController.clear();
+        }
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
@@ -104,11 +106,10 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
   }
 
   void _onSaveTaskEvent(SavePartsEvent event, Emitter<PartsState> emit) async {
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(PartsCommonState());
     try{
-      if(nameController.text.isEmpty){
-        Toaster.showError('Please enter name');
-        return;
-      }
+      autoValidateMode = null;
       emit(PartsLoadingState());
       var data = {
         'name':nameController.text,

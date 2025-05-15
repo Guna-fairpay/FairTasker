@@ -1,12 +1,10 @@
-import 'package:delightful_toast/delight_toast.dart';
-import 'package:delightful_toast/toast/components/toast_card.dart';
-import 'package:delightful_toast/toast/utils/enums.dart'
-    show DelightSnackbarPosition;
-import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
-import 'package:flutter/material.dart';
+import 'package:delightful_toast/delight_toast.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/material.dart';
 
 class Toaster {
   Toaster._();
@@ -109,7 +107,7 @@ class Toaster {
       int type = 1}) {
     DelightToastBar(
         autoDismiss: true,
-        animationCurve: Curves.easeInQuad,
+        animationCurve: Curves.easeInOut,
         animationDuration: Durations.long1,
         snackbarDuration: const Duration(seconds: 7),
         builder: (context) => ToastCard(
@@ -133,7 +131,7 @@ class Toaster {
               subtitle: Text(
                 "$message",
                 maxLines: 5,
-                style: context.textTheme.labelSmall?.copyWith(
+                style: context.textTheme.labelMedium?.copyWith(
                   color: textColor,
                 ),
               ),

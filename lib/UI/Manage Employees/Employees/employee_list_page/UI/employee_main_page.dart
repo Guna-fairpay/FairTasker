@@ -1,8 +1,8 @@
 
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/Bloc/employees_view_bloc.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/Bloc/employees_view_event.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/Bloc/employees_view_state.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_list_page.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_list_page/Bloc/employees_view_bloc.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_list_page/Bloc/employees_view_event.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_list_page/Bloc/employees_view_state.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_list_page/UI/employee_list_page.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/UI/employee_add_edit_main_page.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';

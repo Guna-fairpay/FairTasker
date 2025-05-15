@@ -12,7 +12,7 @@ class DropdownBoxWithIcon extends StatelessWidget {
   final dynamic selectedKey;
   final dynamic initialSelection;
   final VoidCallback onTap;
-
+  final String? Function(dynamic)? validator;
   final Function(dynamic) onChanged;
 
   const DropdownBoxWithIcon({
@@ -24,6 +24,7 @@ class DropdownBoxWithIcon extends StatelessWidget {
      this.selectedKey,
     required this.onChanged,
     required this.onTap,
+    this.validator,
   });
 
   @override
@@ -43,6 +44,7 @@ class DropdownBoxWithIcon extends StatelessWidget {
             selectedKey: selectedKey,
             topRRadius: 0,
             bottomRRadius: 0,
+            validator: validator,
           ),
         ),
         InkWell(
