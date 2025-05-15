@@ -49,6 +49,8 @@ class Utils {
 
   static String get returnBearerToken => Session.of.getString(Str.frBearerToken).toBearer;
 
+  static String get bearerToken => Session.of.getString(Str.accessTokenPrefText).toBearer;
+
   static Future<List<File>> pickImages(ImageSource source) async {
     List<File> images = [];
 
@@ -1568,11 +1570,10 @@ class Utils {
   }
 
   static Map<String, String> getHeadersWithToken({required String url}) {
-    debugPrint('accessTokenGlobal: $accessTokenGlobal');
     return {
       'accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': (url.isFairReturns) ? returnBearerToken : 'Bearer $accessTokenGlobal'
+      'Authorization': (url.isFairReturns) ? returnBearerToken : bearerToken
     };
   }
 
@@ -2038,17 +2039,17 @@ class Utils {
     int hrmId,
   ) async {
     // accessTokenGlobal = token; Str.userPermissionPrefText
-    userPermissionsGlobal = [];
-    userPermissionsGlobal!.addAll(userPermissionList);
+    // userPermissionsGlobal = [];
+    // userPermissionsGlobal!.addAll(userPermissionList);
     // userRole=[];
     // userRole!.addAll(roleList);
-    accessTokenGlobal = token;
-    userIdGlobal = userId.toString();
+    // accessTokenGlobal = token;
+    // userIdGlobal = userId.toString();
     Session.of
     ..set(Str.loginPrefText, token.isNotEmpty)
     ..set("name", name)
     ..set(Str.rolePrefText, role ?? [])
-    ..set(Str.userPermissionPrefText, (userPermissionsGlobal ?? []))
+    ..set(Str.userPermissionPrefText, (userPermissionList ?? []))
     ..set(Str.passwordPrefText, password.toString())
     ..set(Str.userIdPrefText, userId.toString())
     ..set(Str.branchIdPrefText, branchId)
@@ -2059,7 +2060,7 @@ class Utils {
     Utils.setStringPreference("name", name.toString());
     Utils.setStringListPreference(Str.rolePrefText, role ?? []);
     Utils.setStringListPreference(
-        Str.userPermissionPrefText, (userPermissionsGlobal ?? []));
+        Str.userPermissionPrefText, (userPermissionList ?? []));
     Utils.setStringPreference(Str.passwordPrefText, password.toString());
     Utils.setStringPreference(Str.userIdPrefText, userId.toString());
     Utils.setIntPreference(Str.branchIdPrefText, branchId);

@@ -1,3 +1,4 @@
+/*
 
 import 'dart:async';
 import 'dart:convert';
@@ -20,6 +21,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -303,7 +305,7 @@ class _TodoViewUIState extends State<TodoViewUI> {
                       } else if (state is TodoListLoaded) {
                         todoList = [];
                         todoListTemp = [];
-                        var userId = userIdGlobal == "1" ? "2" : userIdGlobal;
+                        var userId = getIt<CommonService>().userId == 1 ? 2 : getIt<CommonService>().userId;
                         var list1 = state.todoList
                                 ?.where((todo) =>
                                     todo['user_id'] == userId &&
@@ -392,9 +394,11 @@ class _TodoViewUIState extends State<TodoViewUI> {
                           branchId: branchNO.toString(),
                         ));
                         if (state.isDate != null && state.isDate!) {
-                          /*if(overlay != null) {
+                          */
+/*if(overlay != null) {
                     overlay?.remove();
-                  }*/
+                  }*//*
+
                           show(context, 'Task moved Successfully', '',
                               (state.todoId ?? ''), (state.date ?? ''));
                         }
@@ -2295,7 +2299,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
               ),
             ),
             confirmDismiss: (direction) async {
-              /*if (direction == DismissDirection.startToEnd) {
+              */
+/*if (direction == DismissDirection.startToEnd) {
                 showDialog(
                   useSafeArea: true,
                   context: context,
@@ -2394,7 +2399,8 @@ class _TodoViewUIState extends State<TodoViewUI> {
                   }
                 });
               }
-              }*/
+              }*//*
+
               if (direction == DismissDirection.startToEnd) {
                 todoTimeController.text=todos['todo_time'];
                 editSelectedDate =
@@ -2550,14 +2556,16 @@ class _TodoViewUIState extends State<TodoViewUI> {
                     );
                   }
                   else {
-                    /*Navigator.push(
+                    */
+/*Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => EditTodoReworkUI(
                                  todoId: todos['id'],
                             ),
                         ),
-                    );*/
+                    );*//*
+
                   }
                 }
                 return false;
@@ -2624,9 +2632,11 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                             selectedVehicleGroupList.add(vd);
                                           }
                                         }
-                                        /*if (element1.id.toString() == element.supplyId) {
+                                        */
+/*if (element1.id.toString() == element.supplyId) {
                                       element1.isSelected = true;
-                                    }*/
+                                    }*//*
+
                                       }
                                     }
                                   }
@@ -2640,14 +2650,16 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                 MaterialPageRoute(
                                   builder: (context) =>EditTodoUI(
                                     todoId: todos['id'].toString(),
-                                  ), /*EditTodoUI(
+                                  ), */
+/*EditTodoUI(
                                       todoItem: todos,
                                       userGroupList: userGroupList,
                                       resourceList: resourceList,
                                       categoriesListData: categoriesListData,
                                       addressesList: addresses,
                                       multipleLocationList:
-                                          multipleLocationAddressList),*/
+                                          multipleLocationAddressList),*//*
+
                                 ),
                               );
                            //   if (result != null && result) {
@@ -3416,7 +3428,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                             onChangeCallback: (value) {
                                                               if(value.isNotEmpty) {
                                                                 editPartsSuggestionList.clear();
-                                                                List<dynamic> partsList = editPartsList /*.map((e) =>'${e.name}').toList()*/;
+                                                                List<dynamic> partsList = editPartsList */
+/*.map((e) =>'${e.name}').toList()*//*
+;
                                                                 editPartsSuggestionList.addAll(Utils.searchObjectList(partsList, value));
                                                                 editShowPartsList = editPartsSuggestionList.isNotEmpty;
                                                               } else {
@@ -3602,7 +3616,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                                               onChangeCallback: (value) {
                                                                 if(value.isNotEmpty){
                                                                 editSuppliesSuggestionList.clear();
-                                                                List<dynamic> supplyList = editSuppliesList /*.map((e) =>'${e.name}').toList()*/;
+                                                                List<dynamic> supplyList = editSuppliesList */
+/*.map((e) =>'${e.name}').toList()*//*
+;
                                                             editSuppliesSuggestionList.addAll(
                                                                 Utils.searchObjectList(supplyList, value)
                                                             );
@@ -4090,7 +4106,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                               Radius.circular(0)),
                                           border: Border.all(
                                               color: AppC
-                                                  .fieldBase /*, width: 0.2*/)),
+                                                  .fieldBase */
+/*, width: 0.2*//*
+)),
                                       child: Icon(
                                         Icons.check,
                                         color: AppC().base,
@@ -4113,7 +4131,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                                             Radius.circular(0)),
                                         border: Border.all(
                                             color: AppC
-                                                .fieldBase /*, width: 0.2*/)),
+                                                .fieldBase */
+/*, width: 0.2*//*
+)),
                                     child: const Icon(
                                       Icons.clear_rounded,
                                       color: AppC.red,
@@ -4449,7 +4469,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
         }
         return '';
       } else {
-        return null /*getVehicleText(todos)*/;
+        return null */
+/*getVehicleText(todos)*//*
+;
       }
     } else {
       return null;
@@ -4579,7 +4601,9 @@ class _TodoViewUIState extends State<TodoViewUI> {
                   readOnly: false, onChangeCallback: (value) {
                 editMultipleAddressSuggestionList.clear();
                 List<Map<String, dynamic>> supplyList =
-                    editMultipleAddressList /*.map((e) =>'${e.name}').toList()*/;
+                    editMultipleAddressList */
+/*.map((e) =>'${e.name}').toList()*//*
+;
                 editMultipleAddressSuggestionList.addAll(
                     Utils.searchObjectList(supplyList, value, isAddress: true));
                 editShowMultipleAddressList =
@@ -4824,3 +4848,4 @@ class _TodoViewUIState extends State<TodoViewUI> {
     return null;
   }
 }
+*/

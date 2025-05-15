@@ -1,11 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fairpytasker/Component/audio_player_widget.dart';
+import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Component/video_player_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/add_vehicle_log/add_vehicle_log_bloc/add_vehicle_log_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/add_vehicle_log/add_vehicle_log_bloc/add_vehicle_log_events.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Edit%20Vehicle/vehicle_log/add_vehicle_log/add_vehicle_log_bloc/add_vehicle_log_states.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -39,6 +41,7 @@ class AddVehicleLogView extends StatelessWidget {
               case AddVehicleLogSuccessState() : Toaster.showSuccess(state.message); break;
               case AddVehicleLogCompletedState() : Navigator.pop(context); break;
               case AddVehicleLogRecorderAudioState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<AddVehicleLogBloc>().add(AddVehicleLogAudioInsertEvent(file))); break;
+              case AddVehicleLogDeleteAttachmentState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete this attachment?", negativeText: "No", positiveText: "Yes", isReasonRequired: false, onPositivePressed: () => context.read<AddVehicleLogBloc>().add(AddVehicleLogDeleteAttachmentEvent(type: state.type, delete: true))); break;
             }
           }
         },
@@ -89,10 +92,13 @@ class _AddVehicleLogBodyView extends StatelessWidget {
                 if (context.watch<AddVehicleLogBloc>().video != null)
                   ...[
                     10.height,
-                    SizedBox(
-                      width: double.maxFinite,
-                      height: context.height * 0.3,
-                      child: VideoPlayerView(videoInput: context.watch<AddVehicleLogBloc>().video,autoPlay: false)
+                    CloseBadge(
+                      onTapDelete: () => context.read<AddVehicleLogBloc>().add(AddVehicleLogDeleteAttachmentEvent(type: "video")),
+                      child: SizedBox(
+                        width: double.maxFinite,
+                        height: context.height * 0.3,
+                        child: VideoPlayerView(videoInput: context.watch<AddVehicleLogBloc>().video,autoPlay: false)
+                      ),
                     ),
                   ],
                 10.height,
@@ -121,9 +127,12 @@ class _AddVehicleLogBodyView extends StatelessWidget {
                 if (context.watch<AddVehicleLogBloc>().audio != null)
                   ...[
                     10.height,
-                    SizedBox(
-                        width: double.maxFinite,
-                        child: AudioPlayerWidget(source: DeviceFileSource(context.watch<AddVehicleLogBloc>().audio?.path ?? ""))
+                    CloseBadge(
+                      onTapDelete: () => context.read<AddVehicleLogBloc>().add(AddVehicleLogDeleteAttachmentEvent(type: "audio")),
+                      child: SizedBox(
+                          width: double.maxFinite,
+                          child: AudioPlayerWidget(source: DeviceFileSource(context.watch<AddVehicleLogBloc>().audio?.path ?? ""))
+                      ),
                     ),
                   ],
                 10.height,
@@ -152,10 +161,13 @@ class _AddVehicleLogBodyView extends StatelessWidget {
                 if (context.watch<AddVehicleLogBloc>().image != null)
                   ...[
                     10.height,
-                    SizedBox(
-                        width: double.maxFinite,
-                        height: context.height * 0.3,
-                        child: ImageViewer(imageInput: context.watch<AddVehicleLogBloc>().image, fit: BoxFit.cover,)
+                    CloseBadge(
+                      onTapDelete: () => context.read<AddVehicleLogBloc>().add(AddVehicleLogDeleteAttachmentEvent(type: "image")),
+                      child: SizedBox(
+                          width: double.maxFinite,
+                          height: context.height * 0.3,
+                          child: ImageViewer(imageInput: context.watch<AddVehicleLogBloc>().image, fit: BoxFit.cover,)
+                      ),
                     ),
                   ],
                 10.height,

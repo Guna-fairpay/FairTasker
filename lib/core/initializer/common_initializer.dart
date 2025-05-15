@@ -84,6 +84,8 @@ class CommonService {
 
   String get currentPlatform => Platform.isAndroid ? "android" : "ios";
 
+  List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
+
   bool get showBranchSelection {
     var hasDepartmentId = [6,7,8].contains(departmentId);
     var hasHrmId = Session.of.getInt(Str.hrmIdPrefText) != 0;

@@ -4,6 +4,7 @@ import 'package:fairpytasker/State/todo_view_state.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,7 +60,7 @@ class _ChatUITestState extends State<ChatUITest> {
             InkWell(
                 onTap: () {
                   todoBloc!.add(GetChatMessagesList(
-                      sender: int.parse(userIdGlobal),
+                      sender: getIt<CommonService>().userId,
                       receiver: widget.resource!['id']!));
                 },
                 child: const Padding(
@@ -70,14 +71,14 @@ class _ChatUITestState extends State<ChatUITest> {
       body: BlocProvider<TodoViewBloc>(
         create: (context) => todoBloc!
           ..add(GetChatMessagesList(
-              sender: int.parse(userIdGlobal),
+              sender: getIt<CommonService>().userId,
               receiver: widget.resource!['id']!)),
         child: BlocConsumer<TodoViewBloc, TodoViewState>(
           listener: (context, state) async {
             if (state is ChatSendLoaded) {
               if (state.result != null && state.result!) {
                 todoBloc!.add(GetChatMessagesList(
-                    sender: int.parse(userIdGlobal),
+                    sender: getIt<CommonService>().userId,
                     receiver: widget.resource!['id']!));
               }
             }
@@ -92,7 +93,7 @@ class _ChatUITestState extends State<ChatUITest> {
                       child: RefreshIndicator(
                         onRefresh: () async {
                           todoBloc!.add(GetChatMessagesList(
-                              sender: int.parse(userIdGlobal),
+                              sender: getIt<CommonService>().userId,
                               receiver: widget.resource!['id']!));
                         },
                         child: SingleChildScrollView(
@@ -294,7 +295,7 @@ class _ChatUITestState extends State<ChatUITest> {
                                                       // const Spacer(),
                                                       // const SizedBox(width: 12,),
                                                       Visibility(
-                                                        visible: userIdGlobal ==
+                                                        visible: getIt<CommonService>().userId ==
                                                             chats[chatIndex]
                                                                 ['sender'],
                                                         child: Align(
@@ -420,7 +421,7 @@ class _ChatUITestState extends State<ChatUITest> {
                                   .trim()
                                   .isNotEmpty) {
                                 todoBloc!.add(SendChatMessage(
-                                    sender: int.parse(userIdGlobal),
+                                    sender: getIt<CommonService>().userId,
                                     receiver: widget.resource!['id']!,
                                     createdAt:
                                         Utils.convertDateTimeToTheFormat(''),

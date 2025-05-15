@@ -23,7 +23,7 @@ class EditVehicleUI extends StatelessWidget {
           if (state is EditVehicleLoadingState) {
             if (!EasyLoading.isShow) EasyLoading.show();
           } else {
-            if (EasyLoading.isShow) EasyLoading.dismiss();
+            if (state is! EditCompletedState) if (EasyLoading.isShow) EasyLoading.dismiss();
             // if (state is EditCompletedState) onClear?.call();
             switch(state) {
               case EditVehicleSuccessState(): Toaster.showSuccess(state.message, context: context); break;
