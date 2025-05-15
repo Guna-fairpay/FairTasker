@@ -2,8 +2,8 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/Bloc/employees_view_event.dart';
-import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/Bloc/employees_view_state.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_list_page/Bloc/employees_view_event.dart';
+import 'package:fairpytasker/UI/Manage%20Employees/Employees/employee_list_page/Bloc/employees_view_state.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
