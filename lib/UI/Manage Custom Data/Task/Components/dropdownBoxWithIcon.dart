@@ -1,7 +1,9 @@
 
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../utilities/utils.dart';
 
@@ -59,9 +61,9 @@ class DropdownBoxWithIcon extends StatelessWidget {
                 right: BorderSide(width: Num.borderWidthField, color: AppC.fieldBase),
               ),
             ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.5,vertical: 5.5,),
-              child: Icon(Icons.add,color: AppC.blue,),
+            child: Padding(
+              padding: (5.5).sp.padding,
+              child: const Icon(Icons.add,color: AppC.blue,),
             ),
           ),
         ),

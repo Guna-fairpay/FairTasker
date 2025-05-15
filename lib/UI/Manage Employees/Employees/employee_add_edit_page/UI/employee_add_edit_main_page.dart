@@ -18,7 +18,7 @@ class EmployeeAddEditMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Employee'),
+        title:  Text(id==null?'Add Employee':'Edit Employee'),
         titleTextStyle:
         context.textTheme.titleMedium?.copyWith(color: AppC.white, fontWeight: FontWeight.bold),
         backgroundColor: AppC.appColor,
@@ -49,21 +49,8 @@ class EmployeeAddEditMainPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all( color: AppC.grey,width: 0.5)
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding:  EdgeInsets.all(16.sp),
-                        child: Utils.getText(
-                            id==null?'Add User':'Edit User',size: 16.sp,weight: FontWeight.bold),
-                      ),
-                      const Divider(thickness: 0.5,height: 0.5,),
-                      Padding(
-                        padding: EdgeInsets.all(16.sp),
-                        child: EmployeeAddEditTextFormFieldPage(id: id,),
-                      )
-                    ],
-                  ),
+                    padding: EdgeInsets.all(16.sp),
+                  child: EmployeeAddEditTextFormFieldPage(id: id,)
                 ),
               ],
             ),
