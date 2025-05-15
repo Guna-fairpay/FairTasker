@@ -42,7 +42,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
 
   String? categoryId;
   String? subcategoryId;
-  String? userId = Session.of.getString(Str.userIdPrefText);
+  String? get userId => Session.of.getString(Str.userIdPrefText);
   dynamic expenseId;
   dynamic tempExpenseId;
 
