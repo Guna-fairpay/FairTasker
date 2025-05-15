@@ -75,14 +75,21 @@ class VehicleStatusCard extends StatelessWidget {
                   minLeadingWidth: 0,
                   minTileHeight: 0,
                   minVerticalPadding: 0,
-                  title: Text.rich(TextSpan(children: [
-                    TextSpan(text: "${model['vehicle_name']}"),
-                    if (!model['vehicle_number'].toString().isNullOrEmpty)
-                      TextSpan(
-                          text: "\t(${model['vehicle_number']})",
+                  title: GestureDetector(
+                    onTap: () => onPressed?.call(VehicleStatusOnPressed.vehicle_page),
+                    child: Text.rich(TextSpan(children: [
+                      TextSpan(text: "${model['vehicle_name']}"),
+                      (!model['vehicle_number'].toString().isNullOrEmpty)?
+                        TextSpan(
+                            text: "\t/${model['vehicle_number']}",
+                            style: context.textTheme.labelSmall
+                                ?.copyWith(color: AppC.blue,fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis))
+                      :TextSpan(
+                          text: "\t /No Plate",
                           style: context.textTheme.labelSmall
-                              ?.copyWith(color: AppC.appColor)),
-                  ])),
+                              ?.copyWith(color: AppC.redAccent, fontWeight: FontWeight.bold,overflow: TextOverflow.ellipsis)),
+                    ])),
+                  ),
                   trailing: ([ 3].contains(categoryId))
                       ? null
                       : Text.rich(
@@ -155,7 +162,7 @@ class VehicleStatusCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                if ((model['details'] != null) && ([7, 3].contains(categoryId)))
+                if ((model['details'] != null) && ([3].contains(categoryId)))
                   Row(
                     spacing: 10,
                     children: [
@@ -210,7 +217,7 @@ class VehicleStatusCard extends StatelessWidget {
                     displayTextStyle: context.textTheme.labelMedium!.copyWith(
                         color: AppC.white, fontWeight: FontWeight.bold),
                   ),
-                if (context.read<VehicleStatusBloc>().selectedCategory?['id'] == 3)
+                if (context.read<VehicleStatusBloc>().selectedCategory?['id'] == 7)
                 Text.rich(TextSpan(
                   children: [
                     WidgetSpan(child: Icon(CupertinoIcons.tag_fill, color: AppC().base, size: 18)),

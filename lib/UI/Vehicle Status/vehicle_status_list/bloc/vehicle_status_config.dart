@@ -46,5 +46,6 @@ enum VehicleStatusOnPressed {
   view_history,
   view_expense,
   add_vehicle,
-  view_notes
+  view_notes,
+  vehicle_page,
 }

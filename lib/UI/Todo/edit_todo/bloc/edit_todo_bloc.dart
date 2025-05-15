@@ -287,20 +287,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           if (!['Check In', 'Check Out'].contains(title))
             {"id": 1, "title": "Expense"},
           {"id": 2, "title": "Next Task"},
-          if (title == 'Pre Checks') {"id": 3, "title": "Check List"},
-          if (title == 'Maintenance Check') {"id": 4, "title": "Maintenance"},
+          if (todoResponse?['identifier_id'] == 219) {"id": 3, "title": "Check List"},
+          if (todoResponse?['identifier_id'] == 257) {"id": 4, "title": "Maintenance"},
           if (['Oil change'.toLowerCase(), 'OilChange Check'.toLowerCase(), 'Oil Change Check'.toLowerCase()].contains(title.toString().toLowerCase()))
             {"id": 7, "title": "Odometer"}, //Add by RDB
           if (!['Check In', 'Check Out'].contains(title) && vehicleExists)
             {"id": 5, "title": "Set Vehicle"},
-          if (title == 'Private Rental Check')
-            {"id": 6, "title": "Private Rental Check"}, //Add by RDB
+          if (todoResponse?['identifier_id'] == 324)
+            {"id": 6, "title": "Private Rental Check"},
         ];
         selectionTaps = tabs.firstWhere(
           (e) =>
-              (title == "Pre Checks" && e['title'] == "Check List") ||
-              (title == "Maintenance Check" && e['title'] == "Maintenance") ||
-                  (title == "Private Rental Check" && e['title'] == "Private Rental Check") ||
+              (todoResponse?['identifier_id'] == 219 && e['title'] == "Check List") ||
+              (todoResponse?['identifier_id'] == 257 && e['title'] == "Maintenance") ||
+                  (todoResponse?['identifier_id'] == 324 && e['title'] == "Private Rental Check") ||
                   ((title == 'Oil change' || title == 'OilChange Check' || title == 'Oil Change Check') && e['title'] == "Odometer"),
           orElse: () => tabs.isNotEmpty ? tabs[0] : {},
         );
