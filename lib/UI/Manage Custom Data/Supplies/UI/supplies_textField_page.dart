@@ -28,8 +28,9 @@ class SuppliesTextFieldPage extends StatelessWidget {
                   context.read<SuppliesBloc>().nameController,
                   validator: (value) =>
                   (value?.trim().isNullOrEmpty ?? false)
-                      ? "Required"
+                      ? "Please enter name"
                       : null,
+                  autoValidate: context.read<SuppliesBloc>().autoValidateMode,
                 ),
                 Utils.getTextFormField(
                   "Description",
