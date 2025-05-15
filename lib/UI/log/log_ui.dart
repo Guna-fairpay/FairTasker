@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/log/bloc/log_bloc.dart';
 import 'package:fairpytasker/UI/log/bloc/log_event.dart';
 import 'package:fairpytasker/UI/log/bloc/log_state.dart';
 import 'package:fairpytasker/UI/log/edit/edit_log.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/UI/log/log_bottom_controllers.dart';
 import 'package:fairpytasker/UI/log/logs_table.dart';
@@ -42,6 +43,8 @@ class LogUi extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
+            backgroundColor: AppC.appColor,
+            foregroundColor: AppC.white,
             title: const Text("Logs"),
             actions: [
               IconButton(

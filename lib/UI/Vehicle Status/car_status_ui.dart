@@ -17,6 +17,7 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
@@ -129,7 +130,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
 
   Future<Map<String, dynamic>?> getSelectedResource() async {
     for (var element in widget.resourceList!) {
-      if (element['id'] == int.parse(userIdGlobal)) {
+      if (element['id'] == getIt<CommonService>().userId) {
         // selectedResource = element;
         return element;
       }
@@ -224,7 +225,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                               state.vehicleStatusListDataList?['cohort_id'],
                           cohortName:
                               state.vehicleStatusListDataList?['cohort'],
-                          userId: int.parse(userIdGlobal),
+                          userId: getIt<CommonService>().userId,
                           vehImage: state.vehicleStatusListDataList?[
                                           'images'] !=
                                       null &&
@@ -755,8 +756,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                         cohortName:
                                                             vehicleStatusListDataList[index]
                                                                 ['cohort'],
-                                                        userId: int.parse(
-                                                            userIdGlobal),
+                                                        userId: getIt<CommonService>().userId,
                                                         vehImage: vehicleStatusListDataList[index]['images'] != null &&
                                                                 vehicleStatusListDataList[index]['images']!
                                                                     .isNotEmpty
@@ -786,8 +786,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                         cohortName:
                                                             vehicleStatusListDataList[index]
                                                                 ['cohort'],
-                                                        userId: int.parse(
-                                                            userIdGlobal),
+                                                        userId: getIt<CommonService>().userId,
                                                         vehImage: vehicleStatusListDataList[index]['images'] != null &&
                                                                 vehicleStatusListDataList[index]['images']!
                                                                     .isNotEmpty
@@ -818,8 +817,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                         cohortName:
                                                             vehicleStatusListDataList[index]
                                                                 ['cohort'],
-                                                        userId: int.parse(
-                                                            userIdGlobal),
+                                                        userId: getIt<CommonService>().userId,
                                                         vehImage: vehicleStatusListDataList[index]['images'] != null && vehicleStatusListDataList[index]['images']!.isNotEmpty
                                                             ? (vehicleStatusListDataList[index]
                                                                         ['images']?[0]
@@ -850,8 +848,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                         cohortName:
                                                             vehicleStatusListDataList[index]
                                                                 ['cohort'],
-                                                        userId: int.parse(
-                                                            userIdGlobal),
+                                                        userId: getIt<CommonService>().userId,
                                                         vehImage: vehicleStatusListDataList[index]['images'] != null && vehicleStatusListDataList[index]['images']!.isNotEmpty
                                                             ? (vehicleStatusListDataList[index]
                                                                         ['images']?[0]
@@ -883,8 +880,7 @@ class _CarStatusWithoutScaffoldState extends State<CarStatusWithoutScaffold> {
                                                             cohortName:
                                                                 vehicleStatusListDataList[index]
                                                                     ['cohort'],
-                                                            userId: int.parse(
-                                                                userIdGlobal),
+                                                            userId: getIt<CommonService>().userId,
                                                             vehImage: vehicleStatusListDataList[index]['images'] !=
                                                                         null &&
                                                                     vehicleStatusListDataList[index]['images']!

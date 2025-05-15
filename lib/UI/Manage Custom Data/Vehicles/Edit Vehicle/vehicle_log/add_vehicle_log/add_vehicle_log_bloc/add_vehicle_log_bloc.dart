@@ -30,6 +30,7 @@ class AddVehicleLogBloc extends Bloc<AddVehicleLogEvent, AddVehicleLogState> {
     on<AddVehicleLogUploadImageEvent>(_onUploadImageEvent);
     on<AddVehicleLogSubmitEvent>(_onSubmitEvent);
     on<AddVehicleLogAudioInsertEvent>(_onAudioInsertEvent);
+    on<AddVehicleLogDeleteAttachmentEvent>(_onDeleteAttachmentEvent);
   }
 
   Future<Map<String, dynamic>?> _uploadLog(
@@ -96,7 +97,7 @@ class AddVehicleLogBloc extends Bloc<AddVehicleLogEvent, AddVehicleLogState> {
       var response = await _uploadLog(body: mapData, files: fileFusion);
       emit(AddVehicleLogCommonState());
       if (response != null) {
-        _broadcast.stickyBroadcast("vehicle_log", value: true);
+        _broadcast.broadcast("vehicle_log", value: true);
         _clearAll();
         emit(AddVehicleLogCommonState());
       } else {
@@ -126,5 +127,19 @@ class AddVehicleLogBloc extends Bloc<AddVehicleLogEvent, AddVehicleLogState> {
       AddVehicleLogAudioInsertEvent event, Emitter<AddVehicleLogState> emit) {
     audio = event.file;
     emit(AddVehicleLogCommonState());
+  }
+
+  void _onDeleteAttachmentEvent(AddVehicleLogDeleteAttachmentEvent event, Emitter<AddVehicleLogState> emit) {
+    if (event.delete) {
+      // DELETE ATTACHMENT
+      switch(event.type) {
+        case "image": image = null; break;
+        case "video": video = null; break;
+        case "audio": audio = null; break;
+      }
+      emit(AddVehicleLogCommonState());
+    } else {
+      emit(AddVehicleLogDeleteAttachmentState(event.type));
+    }
   }
 }

@@ -54,10 +54,7 @@ class HeaderView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: GestureDetector(
-                  onTap: () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(
-                    selectedIndex: 0,
-                    message: '',
-                  )),
+                  onTap: () => context.pushAndRemoveUntil(const BottomNavigationForTaskView(selectedIndex: 0)),
                   child: Image.asset(
                     Assets.favicon,
                     width: 24.sp,

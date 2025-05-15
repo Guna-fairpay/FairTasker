@@ -41,7 +41,7 @@ class _BottomNavigationForTaskViewState
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const DrawerView(),
-      extendBody: true,
+      extendBody: false,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(35.0),
         child: HeaderView(),

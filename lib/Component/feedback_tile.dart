@@ -85,7 +85,7 @@ class FeedBackTile extends StatelessWidget {
                       style: context.textTheme.labelLarge?.copyWith(
                           color: AppC.white, fontWeight: FontWeight.bold)),
                 ),
-                Flexible(child: Text(feedback?.feedbackDateTime.toDate.findAgo ?? ""))
+                Flexible(child: Text(feedback?.updatedAt.toDate.findAgo ?? ""))
               ],
             ),
             title: Text("${feedback?.title}"),

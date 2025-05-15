@@ -20,10 +20,9 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    userIdGlobal = Session.of.getString(Str.userIdPrefText) ?? "";
-    userPermissionsGlobal =
-        Session.of.getStringList(Str.userPermissionPrefText) ?? [];
-    accessTokenGlobal = Session.of.getString(Str.accessTokenPrefText) ?? "";
+    // userIdGlobal = Session.of.getString(Str.userIdPrefText) ?? "";
+    // userPermissionsGlobal = Session.of.getStringList(Str.userPermissionPrefText) ?? [];
+    // accessTokenGlobal = Session.of.getString(Str.accessTokenPrefText) ?? "";
     var isLoggedIn = Session.of.getBool(Str.loginPrefText) ?? false;
     Timer(const Duration(seconds: 2), () => context.pushReplacement(( isLoggedIn ? const LocalAuthenticationUI() : const AuthenticationUI() )));
   }

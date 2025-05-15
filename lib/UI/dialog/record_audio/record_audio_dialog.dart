@@ -127,7 +127,7 @@ class _RecordAudioDialogContentView extends StatelessWidget {
                               .read<RecordAudioBloc>()
                               .add(RecordAudioStopEvent()),
                           child: Chip(
-                              label: const Text('Tap here to sop'),
+                              label: const Text('Tap here to stop'),
                               backgroundColor: AppC.lightGrey,
                               side: BorderSide.none,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)), avatar: Icon(Icons.mic_off_rounded, color: AppC.redAccent)),

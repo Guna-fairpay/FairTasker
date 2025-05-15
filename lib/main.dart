@@ -22,12 +22,12 @@ import 'UI/Splash/splash_ui.dart';
 import 'package:intl/intl.dart';
 
 
-String accessTokenGlobal = '';
-String userIdGlobal = '';
-List<String>? userPermissionsGlobal;
-String? filterDate;
-String? formattedDate;
-DateTime selectedDate = DateTime.now();
+// String accessTokenGlobal = '';
+// String userIdGlobal = '';
+// List<String>? userPermissionsGlobal;
+// String? filterDate;
+// String? formattedDate;
+// DateTime selectedDate = DateTime.now();
 
 final Flavor flavor = Flavor.debug; // SHOULD NOT CHANGE UNTIL GET PROPER PERMISSION FROM THE LEAD
 
@@ -49,8 +49,8 @@ void main() {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     runApp(const MyApp());
     configEasyLoading();
-    filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-    formattedDate = DateFormat('MMM dd').format(selectedDate);
+    // filterDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+    // formattedDate = DateFormat('MMM dd').format(selectedDate);
   }, (error, stack) => FirebaseCrashlytics.instance.recordError(error, stack, printDetails: true, fatal: true));
 }
 

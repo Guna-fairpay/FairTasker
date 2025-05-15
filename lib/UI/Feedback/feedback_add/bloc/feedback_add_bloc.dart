@@ -22,6 +22,7 @@ class FeedbackAddBloc extends Bloc<FeedbackAddEvent, FeedbackAddState> {
   List<File> attachments = [];
   final APiRepository _apiRepository = APiRepository();
   final FBroadcast _broadcast = FBroadcast.instance();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   FeedbackAddBloc() : super(FeedbackAddLoadingState()) {
     on<FeedbackAddAttachmentEvent>(_onFeedbackAddAttachmentEvent);
     on<FeedbackSelectedPriorityEvent>(_onFeedbackSelectedPriorityEvent);
@@ -60,6 +61,7 @@ class FeedbackAddBloc extends Bloc<FeedbackAddEvent, FeedbackAddState> {
   }
 
   void _onFeedbackSubmitEvent(FeedbackSubmitEvent event, Emitter<FeedbackAddState> emit) async {
+    if ( (formKey.currentState?.validate() == false) || (titleController.text.isNullOrEmpty)) return;
     try {
       var plainText = descriptionController.document.toPlainText();
       var mapData = <String, String>{

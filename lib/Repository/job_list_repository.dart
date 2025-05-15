@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
@@ -25,7 +26,7 @@ class JobListRepo {
   Future<JobListResponse?> callJobListAPI(String? selectedDate) async {
     try {
       String apiUrl =
-          "${Str.BASE_URL}task-data?resource=$userIdGlobal&date=${selectedDate ?? DateTime.now()}";
+          "${Str.BASE_URL}task-data?resource=${getIt<CommonService>().userId}&date=${selectedDate ?? DateTime.now()}";
       debugPrint("callJobListAPI apiUrl: $apiUrl");
       final http.Response? response = await apiClient.callGetMethod(
         apiUrl,

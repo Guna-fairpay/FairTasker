@@ -6,6 +6,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -134,7 +135,7 @@ class _ExpenseSummaryDetailUIState extends State<ExpenseSummaryDetailUI>
                                         Icons.monetization_on_outlined,
                                         '${expenseSummaryData?['expense_amount'] ?? 0}')),
                                 Visibility(
-                                  visible: (userPermissionsGlobal ?? [])
+                                  visible: (getIt<CommonService>().userPermissions ?? [])
                                       .contains(Str.editExpensePermission),
                                   child: InkWell(
                                     onTap: () async {
