@@ -1,7 +1,8 @@
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
+import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
-
 
 class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
   final List<T> suggestionsList;
@@ -9,6 +10,8 @@ class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
   final void Function(T val)? onSelected;
   final ItemAsString<T> itemAsString;
   final TextEditingController controller;
+  final FormFieldValidator<T>? validator;
+  final AutovalidateMode autoValidateMode;
   final String? labelText;
   final String? hintText;
 
@@ -19,6 +22,8 @@ class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
       this.onSelected,
       this.labelText,
       this.hintText,
+      this.validator,
+      this.autoValidateMode = AutovalidateMode.disabled,
       required this.itemAsString,
       required this.controller});
 
@@ -29,14 +34,18 @@ class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: showEmptyNotifier,
       builder: (context, value, child) => CustomAutoSearchField<T>(
+          value: selected,
           controller: controller,
           labelText: labelText,
           hintText: hintText,
+          validator: validator,
+          autoValidateMode: autoValidateMode,
           onSelected: _onSuggested,
           showEmptyWidget: value,
           onEmptyWidgetTapDown: (details) {},
           itemAsString: itemAsString,
-          optionsBuilder: (textEditingValue) => onSearch(textEditingValue)),
+          optionsBuilder: (textEditingValue) =>
+              onSearch(textEditingValue)),
     );
   }
 

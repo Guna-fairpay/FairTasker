@@ -52,6 +52,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
               body: SafeArea(
                   minimum: 10.padding,
                   child: Form(
+                    key: context.read<AddExpenseVehicleBloc>().formKey,
                     child: ListView(
                       children: [
                         Row(
@@ -101,6 +102,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           hintText: "",
                           onSelected: (val) => context.read<AddExpenseVehicleBloc>().add(VehicleEvent(selectedVehicle: val)),
                           controller: context.read<AddExpenseVehicleBloc>().vehicleController,
+                          validator: (value) => (value?.isEmpty ?? false) ? 'Please select vehicle' : null,
+                          autoValidateMode: AutovalidateMode.onUserInteraction,
                         ),
                         10.height,
                         Row(
@@ -191,8 +194,11 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               ),
                             )),
                         10.height,
-                        Utils.getElevatedButton(() => context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent()),
+                        SuccessButton(
+                          text: "Save",
+                          onPressed: () => context.read<AddExpenseVehicleBloc>().add(SaveExpenseEvent()),
                         )
+                        // Utils.getElevatedButton(() => context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent()))
                       ],
                     ),
                   )));

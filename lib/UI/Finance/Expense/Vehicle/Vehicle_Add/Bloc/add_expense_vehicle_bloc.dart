@@ -22,7 +22,7 @@ import 'package:image_picker/image_picker.dart';
 
 class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehicleState> {
   final APiRepository _apiRepository = APiRepository();
-
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
   TextEditingController vehicleController = TextEditingController();
@@ -168,6 +168,7 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         emit(state.copyWith(selectedDate: event.selectedDate)));
 
     on<SaveExpenseEvent>((event, emit) async {
+      if (formKey.currentState?.validate() == false) return emit(state.copyWith());
       try {
         if(state.selectedVehicle.isEmpty) return Toaster.showError("Please select vehicle");
         if(amountController.text.isEmpty) return Toaster.showError("Please enter amount");

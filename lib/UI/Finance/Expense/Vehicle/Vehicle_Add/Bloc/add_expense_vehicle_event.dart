@@ -74,8 +74,4 @@ class DateChangeEvent extends AddExpenseVehicleEvent {
   List<Object?> get props => [selectedDate];
 }
 
-class SaveExpenseEvent extends AddExpenseVehicleEvent {
-  const SaveExpenseEvent();
-  @override
-  List<Object?> get props => [Random().nextDouble()];
-}
+class SaveExpenseEvent extends AddExpenseVehicleEvent {}
