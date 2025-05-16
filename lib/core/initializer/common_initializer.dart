@@ -184,11 +184,11 @@ class CommonService {
 
   Future<List<Map<String, dynamic>>> getUsers({bool reset = false}) async {
     if (reset) usersList.clear();
-    if (usersList.isNotEmpty) return usersList;
+    if (usersList.isNotEmpty) return List.from(usersList);
     try {
       var response = await _apiRepository.getUsers();
       usersList = List<Map<String, dynamic>>.from(response?['usersList'] ?? []);
-      return usersList;
+      return List.from(usersList);
     } catch (e) {
       Toaster.showError(e.toString());
       return [];
