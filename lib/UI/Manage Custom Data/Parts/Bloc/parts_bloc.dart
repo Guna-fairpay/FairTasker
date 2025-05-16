@@ -1,5 +1,3 @@
-
-import 'dart:async';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Parts/Bloc/parts_state.dart';
@@ -38,44 +36,38 @@ class PartsBloc extends Bloc<PartsEvent, PartsState>{
 
   dynamic selectedData;
 
-
   PartsBloc() : super(PartsLoadingState()){
-
     on<PartsInitialEvent>(_onPartsInitialEvent);
     on<DeletePartsEvent>(_onDeleteTaskEvent);
     on<SavePartsEvent>(_onSaveTaskEvent);
-
-    on<PartsPaginationEvent>((event, emit) {
-      currentIndex = event.page;
-      filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
-      emit(PartsCommonState());
-    });
-
+    on<PartsPaginationEvent>(_onPartsPaginationEvent);
     on<SearchPartsEvent>(_onSearchPartsEvent);
-
-    on<EditPartsEvent>((event, emit) {
-      Console.of.log(event.data);
-      isEdit = true;
-      selectedData = event.data;
-      nameController.text=event.data['name'];
-      notesController.text=event.data['note']??'';
-      emit(PartsCommonState());
-    });
-
-    on<EditCloseEvent>((event, emit) async {
-      isEdit = false;
-      selectedData = null;
-      nameController.clear();
-      notesController.clear();
-      emit(PartsCommonState());
-      await Future.delayed(Durations.short4);
-      nameController.addListener(_listener);
-      emit(PartsCommonState());
-    });
-
+    on<EditPartsEvent>(_onEditPartsEvent);
+    on<EditCloseEvent>(_onEditCloseEvent);
   }
 
-  void _listener() {}
+  void _onEditCloseEvent(EditCloseEvent event, Emitter<PartsState> emit) async {
+    autoValidateMode = null;
+    isEdit = false;
+    selectedData = null;
+    nameController.clear();
+    notesController.clear();
+    emit(PartsCommonState());
+  }
+
+  void _onEditPartsEvent(EditPartsEvent event, Emitter<PartsState> emit) async {
+    isEdit = true;
+    selectedData = event.data;
+    nameController.text=event.data['name']??'';
+    notesController.text=event.data['note']??'';
+    emit(PartsCommonState());
+  }
+
+  void _onPartsPaginationEvent(PartsPaginationEvent event, Emitter<PartsState> emit) async {
+    currentIndex = event.page;
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    emit(PartsCommonState());
+  }
 
   void _onDeleteTaskEvent(DeletePartsEvent event, Emitter<PartsState> emit) async {
     try{

@@ -30,7 +30,7 @@ class PartsListingPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Utils.getText('Name', weight: FontWeight.bold)),
+                  Expanded(child: Utils.getText('Parts Name', weight: FontWeight.bold)),
                   Utils.getText('Action', weight: FontWeight.bold),
                 ],
               ),

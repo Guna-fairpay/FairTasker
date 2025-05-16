@@ -1,4 +1,3 @@
-
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Category%20Config/Bloc/category_config_event.dart';
@@ -170,6 +169,7 @@ class CategoryConfigBloc extends Bloc<CategoryConfigEvent, CategoryConfigState>{
   }
 
   void _onEditCloseEvent(EditCloseEvent event, Emitter<CategoryConfigState> emit) async {
+    autoValidateMode = null;
     isEdit = false;
     selectedData = {};
     nameController.clear();

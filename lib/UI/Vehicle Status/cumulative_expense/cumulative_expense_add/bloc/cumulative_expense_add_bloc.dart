@@ -14,6 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, CumulativeExpenseAddState> {
 
   final APiRepository _apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
 
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
@@ -25,10 +27,10 @@ class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, Cumulativ
   List<Map<String, dynamic>> categoryList = [];
   List<Map<String, dynamic>> subCategoryList = [];
   List<dynamic> files = [];
-  Map<String, dynamic> selectedVehicle = {};
-  Map<String, dynamic> selectedCategory = {};
-  Map<String, dynamic> selectedSubCategory = {};
-  Map<String, dynamic> selectedCohort = {};
+  Map<String, dynamic>? selectedVehicle;
+  Map<String, dynamic>? selectedCategory;
+  Map<String, dynamic>? selectedSubCategory;
+  Map<String, dynamic>? selectedCohort;
   DateTime? selectedDate;
 
   CumulativeExpenseAddBloc() : super(CumulativeExpenseAddLoadingState()) {
@@ -56,7 +58,7 @@ class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, Cumulativ
           .where((element) =>
       element['id'].toString() == event.data['cohort_id'].toString())
           .first;
-      vehicleList = List.from(selectedCohort['vehicles']);
+      vehicleList = List.from(selectedCohort?['vehicles']);
       selectedVehicle = vehicleList
           .where((element) =>
       element['vin'].toString() == event.data['vin'].toString())
@@ -86,8 +88,8 @@ class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, Cumulativ
     try {
       selectedCohort = event.selectedCohort;
       vehicleList = [];
-      selectedVehicle = {};
-      vehicleList = List.from(selectedCohort['vehicles']);
+      selectedVehicle = null;
+      vehicleList = List.from(selectedCohort?['vehicles']);
       emit(CumulativeExpenseAddCommonState());
     } catch (e) {
       Toaster.showError(e.toString());
@@ -101,8 +103,8 @@ class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, Cumulativ
     try {
       selectedCategory = event.selectedCategory;
       subCategoryList = [];
-      selectedSubCategory = {};
-      subCategoryList = List.from(selectedCategory['sub_categories'] ?? []);
+      selectedSubCategory = null;
+      subCategoryList = List.from(selectedCategory?['sub_categories'] ?? []);
       emit(CumulativeExpenseAddCommonState());
     } catch (e) {
       Toaster.showError(e.toString());
@@ -173,24 +175,11 @@ class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, Cumulativ
   }
 
   Future<void> _onCumulativeExpenseAddSaveEvent(CumulativeExpenseAddSaveEvent event, Emitter<CumulativeExpenseAddState> emit) async {
+    autoValidateMode = AutovalidateMode.onUserInteraction;
+    if(formKey.currentState?.validate() == false) return emit(CumulativeExpenseAddCommonState());
     try{
+      autoValidateMode = null;
       emit(CumulativeExpenseAddLoadingState());
-      if(selectedDate == null){
-        Toaster.showError("Please select date");
-        return;
-      }
-      if(selectedCategory.isEmpty){
-        Toaster.showError("Please select category");
-        return;
-      }
-      if(selectedSubCategory.isEmpty){
-        Toaster.showError("Please select sub category");
-        return;
-      }
-      if(amountController.text.isEmpty){
-        Toaster.showError("Please enter amount");
-        return;
-      }
       var response = await _apiRepository.expenseAddOrUpdateApi(
          body:  _saveExpenseData(),
         images: files.whereType<File>().toList(),
@@ -209,14 +198,14 @@ class CumulativeExpenseAddBloc extends Bloc<CumulativeExpenseAddEvent, Cumulativ
 
   Map<String, String> _saveExpenseData() {
     Map<String, String> baseBody = {};
-    baseBody['category_id'] = "${selectedCategory['id'] ?? ''}";
-    baseBody['subcategory_id'] = "${selectedSubCategory['id'] ?? ''}";
-    baseBody['expense_to'] = "${selectedSubCategory['expense_to'] ?? ''}";
+    baseBody['category_id'] = "${selectedCategory?['id'] ?? ''}";
+    baseBody['subcategory_id'] = "${selectedSubCategory?['id'] ?? ''}";
+    baseBody['expense_to'] = "${selectedSubCategory?['expense_to'] ?? ''}";
     baseBody['expense_amount'] = amountController.text;
     baseBody['expense_description'] = descriptionController.text;
     baseBody['expense_date'] = selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
-    baseBody['cohort_id'] = "${selectedVehicle["cohort_id"] ?? ''}";
-    baseBody['vin'] = "${selectedVehicle['vin'] ?? ''}";
+    baseBody['cohort_id'] = "${selectedVehicle?["cohort_id"] ?? ''}";
+    baseBody['vin'] = "${selectedVehicle?['vin'] ?? ''}";
     baseBody['platform'] = "TaskerApp";
 
     Console.of.log(jsonEncode(baseBody), name: "Expense_Body");
