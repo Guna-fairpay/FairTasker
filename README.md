@@ -1,6 +1,6 @@
-# 📱 <Your Flutter App Name>
+# 📱 FairTasker
 
-<Brief description of what your app does.>
+Streamline your daily operations with our task management app designed specifically for car rental businesses. Easily assign tasks to your team, track progress, and allow employees to complete or reschedule tasks as needed. Whether you're on Android, iOS, or web, stay organized and keep your support staff and drivers aligned—anytime, anywhere.
 
 ---
 
@@ -13,18 +13,17 @@
 - [Command Line Cheatsheet](#command-line-cheatsheet)
 - [Dependencies](#dependencies)
 - [Folder Structure](#folder-structure)
-- [Contributing](#contributing)
 - [License](#license)
 
 ---
 
-## 📝 Overview
+## 📝 #Overview
 
 - **Platform:** Flutter (iOS & Android)
-- **State Management:** <e.g., Riverpod / Bloc / Provider>
-- **Storage:** <e.g., Hive / SQLite / SharedPreferences>
-- **Backend:** <e.g., Firebase / REST API>
-- **Status:** 🚧 _In Development_ / ✅ _Production_
+- **State Management:** Bloc
+- **Storage:** SharedPreferences
+- **Backend:** REST API
+- **Status:** 🚧✅ _Development && Production_
 
 ---
 
@@ -47,15 +46,15 @@
 
 ### 🔧 Prerequisites
 
-- Flutter SDK (`>=3.x.x`)
-- Dart SDK (`>=3.x.x`)
+- Flutter SDK (`>=3.2.0`)
+- Dart SDK (`>=3.0.0`)
 - IDE: Android Studio / VS Code
 
 ### ⬇️ Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd <project-folder> 
+git clone https://github.com/Guna-fairpay/FairTasker.git
+cd FairTasker 
 ```
 ### 📦 Install Dependencies
 
@@ -64,7 +63,7 @@ flutter pub get
 ```
 ### 🛠️ Code Generation (if applicable)
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 ### 📱 Run the App
 ```bash
@@ -115,17 +114,6 @@ json_serializable
 ```
 
 Update this list based on your pubspec.yaml.
-
-### 🤝 Contributing
-Fork the project
-
-Create your feature branch (git checkout -b feature/YourFeature)
-
-Commit your changes (git commit -am 'Add feature')
-
-Push to the branch (git push origin feature/YourFeature)
-
-Open a Pull Request
 
 ### 📄 License
 Distributed under the MIT License. See LICENSE for more information.
