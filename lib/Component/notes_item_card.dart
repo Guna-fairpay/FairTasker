@@ -105,7 +105,6 @@ class NotesItemCard extends StatelessWidget {
                   var list = List.from(model?['note_items'] ?? []);
                   var totalIndex = list.length - 1;
                   var item = (index > totalIndex) ? null : list[index];
-                  Console.of.log("INDEX $index : $totalIndex ${item == null}");
                   return (item == null) ? DragTarget<Map<String, dynamic>>(
                     key: Key("$index"),
                     builder: (context, candidateData, rejectedData) => Container(
