@@ -38,7 +38,7 @@ class CumulativeExpenseTableView extends TableRow {
                       TextSpan(text: model?['subcategory']?['name'].toString()),
                       TextSpan(
                           text:
-                              "\t(${model?['expense_description'].toString()})",
+                              "\t(${model?['expense_description']?.toString() ?? ''})",
                           style: context.textTheme.labelSmall
                               ?.copyWith(color: AppC.blue))
                     ],

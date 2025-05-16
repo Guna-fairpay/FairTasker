@@ -85,7 +85,7 @@ class CumulativeExpenseListingPage extends StatelessWidget {
                       ]),
                   ...context
                       .watch<CumulativeExpenseBloc>()
-                      .apiResponse
+                      .filteredResponse
                       .map((e) => CumulativeExpenseTableView(context,
                     model: e,
                     onDelete: () {
@@ -105,7 +105,7 @@ class CumulativeExpenseListingPage extends StatelessWidget {
               const Divider(height: 0.5,thickness: 0.1,),
               Align(
                   alignment: Alignment.centerRight,
-                  child: Utils.getText('Total : \$${context.watch<CumulativeExpenseBloc>().total??''}',color: const Color(0xff495057),weight: FontWeight.bold)),
+                  child: Utils.getText('Total : \$${context.watch<CumulativeExpenseBloc>().total?.toStringAsFixed(2) ?? ''}',color: const Color(0xff495057),weight: FontWeight.bold)),
               CompactPagination(
                 currentPage: context.watch<CumulativeExpenseBloc>().currentIndex,
                 totalPages: (context.watch<CumulativeExpenseBloc>().totalCount /

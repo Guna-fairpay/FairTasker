@@ -53,7 +53,7 @@ class VehicleStatusCarListing extends StatelessWidget {
                               )),
                               TextSpan(
                                   text:
-                                      "\t\$ ${(model['wholesale_amount'] ?? 0).toStringAsFixed(2)}")
+                                      "\t \$ ${(model['wholesale_amount'] ?? 0).toStringAsFixed(2)}")
                             ])),
                           ),
                         );
