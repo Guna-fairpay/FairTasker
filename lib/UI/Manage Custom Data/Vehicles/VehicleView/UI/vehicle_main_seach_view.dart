@@ -22,6 +22,7 @@ class VehicleMainSearchView extends StatelessWidget {
                 children: [
                   CompactIconButton(
                     icon: Icons.add_rounded,
+                    backgroundColor: AppC.bouncieButtonColor,
                     onPressed: () => context.read<VehicleBloc>().add(VehicleGroupingTapEvent()),
                   ),
                   Expanded(child: CompactSearchView(

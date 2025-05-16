@@ -17,6 +17,7 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
   final TextEditingController groupNameController = TextEditingController();
   final TextEditingController vehicleController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
+  AutovalidateMode? autoValidateMode;
   List<Map<String, dynamic>> _apiResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
   List<Map<String, dynamic>> apiResponseVehicles = [];
@@ -141,33 +142,33 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
 
   void _onSaveEvent(VehicleGroupSaveEvent event, Emitter<VehicleGroupState> emit) async {
     try {
-      if (formKey.currentState?.validate() ?? false) {
-        if (selectedVehicles.isEmpty) return;
-        emit(VehicleGroupLoadingState());
-        if (selectedModel == null) {
-          var response = await _saveGroupVehicles({
-            "name": groupNameController.text,
-            "vin": selectedVehicles.map((e) => e['vin']).toList(),
-          });
-          if ((response != null) && (response['data'] != null)) {
-            _apiResponse.add(Map<String, dynamic>.from(response['data']));
-          }
-        } else {
-          // UPDATE
-          var response = await _updateGroupVehicles({
-            "name": groupNameController.text,
-            "vin": selectedVehicles.map((e) => e['vin']).toList(),
-          });
-          Console.of.log("Response $response");
-          if ((response != null) && (response['data'] != null)) {
-            _apiResponse[_apiResponse.indexWhere((element) => element['id'] == selectedModel?['id'])] = Map<String, dynamic>.from(response['data']);
-          }
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if ((formKey.currentState?.validate() == false) || (selectedVehicles.isEmpty)) return emit(VehicleGroupCommonState());
+      autoValidateMode = null;
+      emit(VehicleGroupLoadingState());
+      if (selectedModel == null) {
+        var response = await _saveGroupVehicles({
+          "name": groupNameController.text,
+          "vin": selectedVehicles.map((e) => e['vin']).toList(),
+        });
+        if ((response != null) && (response['data'] != null)) {
+          _apiResponse.add(Map<String, dynamic>.from(response['data']));
         }
-        _totalCount = _apiResponse.length;
-        filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
-        _clearControllers();
-        emit(VehicleGroupCommonState());
+      } else {
+        // UPDATE
+        var response = await _updateGroupVehicles({
+          "name": groupNameController.text,
+          "vin": selectedVehicles.map((e) => e['vin']).toList(),
+        });
+        Console.of.log("Response $response");
+        if ((response != null) && (response['data'] != null)) {
+          _apiResponse[_apiResponse.indexWhere((element) => element['id'] == selectedModel?['id'])] = Map<String, dynamic>.from(response['data']);
+        }
       }
+      _totalCount = _apiResponse.length;
+      filteredResponse = paginateList(data: _apiResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);
+      _clearControllers();
+      emit(VehicleGroupCommonState());
     } catch (e) {
       Console.of.error("Error occurred", error: e);
       emit(VehicleGroupErrorState(e));

@@ -112,9 +112,11 @@ class _VehicleGroupingDialogCreateView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 spacing: 10,
                 children: [
+                  const SizedBox.shrink(),
                   Utils.getTextFormField('Group Name', context
                       .read<VehicleGroupBloc>()
                       .groupNameController,
+                    autoValidate: context.watch<VehicleGroupBloc>().autoValidateMode,
                     validator: (value) =>
                     (value
                         ?.trim()
