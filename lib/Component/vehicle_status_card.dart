@@ -100,7 +100,7 @@ class VehicleStatusCard extends StatelessWidget {
                             size: 18,
                             color: AppC().base,
                           )),
-                      TextSpan(text: "${model['cumulative_cost']}", recognizer: TapGestureRecognizer()..onTap = ()=> onPressed?.call(VehicleStatusOnPressed.view_expense))
+                      TextSpan(text: "\$${model['cumulative_cost']}", recognizer: TapGestureRecognizer()..onTap = ()=> onPressed?.call(VehicleStatusOnPressed.view_expense))
                     ]),
                     textAlign: TextAlign.center,
                   ),
@@ -130,7 +130,7 @@ class VehicleStatusCard extends StatelessWidget {
                             size: 14,
                             color: AppC().base,
                           )),
-                      TextSpan(text: "${model['wholesale_amount'] ?? 0}")
+                      TextSpan(text: "\$${model['wholesale_amount'] ?? 0}")
                     ]),
                     textAlign: TextAlign.center,
                   ),
