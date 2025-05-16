@@ -12,6 +12,7 @@ import 'package:fairpytasker/UI/Todo/Set_vehicle/sparekeyTask_popup.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -59,7 +60,7 @@ class SetVehicleUi extends StatelessWidget {
                 child:
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
+                  spacing: 10,
                   children: [
                     Utils.getText("${selectedVehicle['vehicle_name'] ?? ''}", weight: FontWeight.bold),
                     Utils.getTextFormField(
@@ -324,6 +325,7 @@ class SetVehicleUi extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 10,
                       children: [
                         Expanded(
