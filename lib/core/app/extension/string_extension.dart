@@ -36,7 +36,7 @@ extension StringExtension on String? {
 
   bool get isAudio => ((this?.endsWith('.m4a') ?? false) || (this?.endsWith('.mp3') ?? false) || (this?.endsWith('.wav') ?? false) || (this?.endsWith('.aac') ?? false) || (this?.endsWith('.webm') ?? false));
 
-  bool get isVideo => ((this?.endsWith('.mp4') ?? false) || (this?.endsWith('.3gp') ?? false) || (this?.endsWith('.mkv') ?? false) || (this?.endsWith('.bin') ?? false) );
+  bool get isVideo => ((this?.endsWith('.mp4') ?? false) || (this?.endsWith('.3gp') ?? false) || (this?.endsWith('.mkv') ?? false) || (this?.endsWith('.bin') ?? false) || (this?.endsWith('.mov') ?? false) );
 
   String get toAttachmentURL => "${Str.TODO_ATTACHMENTS_URL}$this";
 

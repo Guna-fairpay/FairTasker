@@ -100,11 +100,61 @@ class NotesItemCard extends StatelessWidget {
                 buildDefaultDragHandles: false,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: 26.sp.horizontalPadding.copyWith(bottom: 10.sp),
-                itemCount: List.from(model?['note_items'] ?? []).length,
+                itemCount: (List.from(model?['note_items'] ?? []).length) + 1,
                 itemBuilder: (context, index) {
                   var list = List.from(model?['note_items'] ?? []);
-                  var item = list[index];
-                  return Column(
+                  var totalIndex = list.length - 1;
+                  var item = (index > totalIndex) ? null : list[index];
+                  return (item == null) ? DragTarget<Map<String, dynamic>>(
+                    key: Key("$index"),
+                    builder: (context, candidateData, rejectedData) => Container(
+                      padding: (candidateData.isNotEmpty ? 20 : 8).padding,
+                      color: candidateData.isNotEmpty
+                          ? AppC.blue50
+                          : Colors.transparent,
+                    ),
+                    onAcceptWithDetails: (details) {
+                      var data = details.data;
+                      if (data['note_id'] == model?['id']) { // JUST NORMAL SWAP
+                        var list = List.from(model?['note_items'] ?? []);
+                        var oldIndex = data['item_index'];
+                        var newModel = list[index];
+                        var oldModel = model;
+                        var body = {
+                          "items" : [
+                            {"id" : oldModel?['id'], "item_index" : index},
+                            {"id" : newModel?['id'], "item_index" : oldIndex},
+                          ],
+                          "note_id" : newModel?['note_id']
+                        };
+                        Console.of.log(body);
+                        onSwapNoteItems?.call(body);
+                      } else { // SWAP WITH DIFFERENT PARENT
+                        var oldListIds = List.from(totalItems?.firstWhereOrNull((element) => element['id'] == data['note_id'])?['note_items'] ?? []).whereNot((element) => element['id'] == data['id']).map((e) => e['id']).toList();
+                        Map<String, dynamic> source = {
+                          "note_id" : data['note_id'],
+                          "items" : oldListIds.mapIndexed((index, element) => {
+                            "id" : element,
+                            "item_index" : index,
+                          }).toList(),
+                        };
+                        var newListIds = list.map((e) => e['id']).toList();
+                        newListIds.insert(index, data['id']);
+                        Map<String, dynamic> destination = {
+                          "note_id" : model?['id'],
+                          "items" : newListIds.mapIndexed((index, element) => {
+                            "id" : element,
+                            "item_index" : index,
+                          }).toList(),
+                        };
+                        Map<String, dynamic> body = {
+                          "source" : source,
+                          "destination" : destination
+                        };
+                        onSwapNoteItems?.call(body);
+                      }
+                    },
+                  ) : Column(
                     key: Key("${item['id']}"),
                     children: [
                       DragTarget<Map<String, dynamic>>(
@@ -170,7 +220,7 @@ class NotesItemCard extends StatelessWidget {
                               contentPadding: EdgeInsets.zero,
                               minVerticalPadding: 0,
                               leading: Checkbox(
-                                value: (item['complete_status'] == 1),
+                                value: (item['todos']?['status'].toString().isNotNullOrEmpty ?? false) ? (item['todos']?['status'] == "Completed") : (item['complete_status'] == 1),
                                 side:
                                 const BorderSide(width: Num.borderWidthThinField),
                                 onChanged: (value) => onTaskComplete?.call(item, value),

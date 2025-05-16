@@ -3,9 +3,11 @@ import 'package:fairpytasker/UI/notes/bloc/notes_events.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_states.dart';
 import 'package:fairpytasker/Component/notes_item_card.dart';
 import 'package:fairpytasker/UI/notes/bloc/notes_bloc.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotesBodyUi extends StatelessWidget {
   const NotesBodyUi({super.key});
@@ -18,6 +20,7 @@ class NotesBodyUi extends StatelessWidget {
                 key: UniqueKey(),
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
+                padding: 16.sp.horizontalPadding,
                 itemBuilder: (context, index) {
                   var allData = context.read<NotesBloc>().apiResponse;
                   var model = allData?[index];
