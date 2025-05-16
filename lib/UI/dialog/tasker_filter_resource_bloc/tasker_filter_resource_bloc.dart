@@ -34,6 +34,13 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
       selected = event.selected;
       var response = (await _fetchUsers());
       users = List.from(response ?? []);
+      for (var element in (users ?? [])) {
+        if ((element['id'] == 77)) {
+          element['department'] = "9";
+          element['departments']?['id'] = 9;
+          element['departments']?['name'] = "Freelancer";
+        }
+      }
       var acceptDepartmentIds = [isAdmin ? "8" : "", "7"];
       acceptDepartmentIds.removeWhere((element) => element.isNullOrEmpty);
       users?.removeWhere((element) => (element['deleted_at'].toString().isNotNullOrEmpty) || (element['branch_id'].toString().isNullOrEmpty) || ((element['branch_id'] != branchId) && (!acceptDepartmentIds.contains(element['department'])) && (element['id'] != 3)));

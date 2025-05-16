@@ -696,7 +696,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
             : "";
     baseBody['weekDay'] =
         (state.selectedRecurring?['label'].toString().isWeekly ?? false)
-            ? (state.selectedRecurringDays).toString()
+            ? "${state.selectedRecurringDays.map((e) => jsonEncode(e.toString().toLowerCase())).toList()}"
             : "";
     baseBody['recur_monthly_type'] = "${state.isRecurringMonthOccurrence}";
     baseBody['repeatDateMonth'] = state.isRecurringMonthOccurrence
