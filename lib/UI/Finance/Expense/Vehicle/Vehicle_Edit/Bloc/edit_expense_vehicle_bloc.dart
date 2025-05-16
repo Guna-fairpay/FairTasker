@@ -22,6 +22,8 @@ import 'package:image_picker/image_picker.dart';
 
 class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVehicleState> {
   final APiRepository _apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
 
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
@@ -68,12 +70,12 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
       EditExpenseVehicleState(
         expenseAttachments: const [],
         isLoading: true,
-        selectedCategory: const {},
-        selectedSubCategory: const {},
+        selectedCategory: null,
+        selectedSubCategory: null,
         categories: const [],
         subCategories: const [],
         cohorts: const [],
-        selectedCohorts: const {},
+        selectedCohorts: null,
         vehicleList: const [],
         selectedVehicle: const {},
         paymentType: const [],
@@ -416,7 +418,10 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
     });
 
     on<UpdateExpenseEvent>((event, emit) async {
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if (formKey.currentState?.validate() == false) return emit(state.copyWith());
       try {
+        autoValidateMode = null;
         if(state.selectedVehicle.isEmpty) return Toaster.showError("Please select vehicle");
         if(amountController.text.isEmpty) return Toaster.showError("Please enter amount");
         if(state.selectedCategory.isEmpty) return Toaster.showError("Please select category");

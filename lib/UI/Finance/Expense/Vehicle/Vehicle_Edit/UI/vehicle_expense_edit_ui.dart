@@ -81,147 +81,162 @@ class ExpenseVehicleEditUI extends StatelessWidget {
               ),
               body: SafeArea(
                   minimum: 10.padding,
-                  child: ListView(
-                    children: [
-                      Row(
-                        spacing: 10,
-                        children: [
-                          Expanded(
-                            child: SuccessButton(
-                              text: 'Upload',
-                              icon: Icons.cloud_upload,
-                              foregroundColor: AppC.blue,
-                              backgroundColor: AppC.trans,
-                              isOutline: true,
-                              onPressed: () => context
-                                  .read<EditExpenseVehicleBloc>()
-                                  .add(PickImageEvent()),
+                  child: Form(
+                    key: context.read<EditExpenseVehicleBloc>().formKey,
+                    child: ListView(
+                      children: [
+                        Row(
+                          spacing: 10,
+                          children: [
+                            Expanded(
+                              child: SuccessButton(
+                                text: 'Upload',
+                                icon: Icons.cloud_upload,
+                                foregroundColor: AppC.blue,
+                                backgroundColor: AppC.trans,
+                                isOutline: true,
+                                onPressed: () => context
+                                    .read<EditExpenseVehicleBloc>()
+                                    .add(PickImageEvent()),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: SuccessButton(
-                              text: 'Capture',
-                              icon: Icons.camera_enhance,
-                              foregroundColor: AppC.redAccent,
-                              backgroundColor: AppC.trans,
-                              isOutline: true,
-                              onPressed: () => context
-                                  .read<EditExpenseVehicleBloc>()
-                                  .add(CaptureImageEvent()),
+                            Expanded(
+                              child: SuccessButton(
+                                text: 'Capture',
+                                icon: Icons.camera_enhance,
+                                foregroundColor: AppC.redAccent,
+                                backgroundColor: AppC.trans,
+                                isOutline: true,
+                                onPressed: () => context
+                                    .read<EditExpenseVehicleBloc>()
+                                    .add(CaptureImageEvent()),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      if (state.expenseAttachments.isNotEmpty)...[
-                        10.height,
-                        ImageUploadSection(
-                          title: '',
-                          borderColor: Colors.blue,
-                          onRemove: (file)=> context.read<EditExpenseVehicleBloc>().add(RemoveImageEvent(data: file)),
-                          images: state.expenseAttachments,
-                          logName: "expenseAttachmentsEvent",
-                          isRequired: false,
+                          ],
                         ),
-                      ],
-                      10.height,
-                      CustomSingleSelectionField<Map<String, dynamic>>(
-                        suggestionsList: state.vehicleList,
-                        itemAsString: (item) => item['vehicle_name'] ?? '',
-                        selected: state.selectedVehicle,
-                        labelText: "Vehicle Name",
-                        hintText: "",
-                        onSelected: (val) {
-                          context
-                              .read<EditExpenseVehicleBloc>()
-                              .add(VehicleEvent(selectedVehicle: val));
-                        },
-                        controller:
-                            context.read<EditExpenseVehicleBloc>().vehicleController,
-                      ),
-                      10.height,
-                      Row(
-                        spacing: 10,
-                        children: [
-                          if(state.splitExpense.isEmpty)
-                          Expanded(
-                            child: Utils.getTextFormField(
-                              'Amount in dollars',
-                              context.read<EditExpenseVehicleBloc>().amountController,
-                              textType: TextInputType.numberWithOptions(decimal: true),
-                              inputAction: TextInputAction.done,
-                              textInputFormatter:[
-                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Utils.dropdownBox(
-                              'Select Payment Method',
-                              state.paymentType,
-                              (value) => context.read<EditExpenseVehicleBloc>().add(
-                                  SelectedPaymentEvent(paymentType: value)),
-                              labelKey: 'name',
-                              initialSelection: state.selectedPaymentType,
-                            ),
+                        if (state.expenseAttachments.isNotEmpty)...[
+                          10.height,
+                          ImageUploadSection(
+                            title: '',
+                            borderColor: Colors.blue,
+                            onRemove: (file)=> context.read<EditExpenseVehicleBloc>().add(RemoveImageEvent(data: file)),
+                            images: state.expenseAttachments,
+                            logName: "expenseAttachmentsEvent",
+                            isRequired: false,
                           ),
                         ],
-                      ),
-                      10.height,
-                      Utils.getTextFormField(
-                        'Enter Description',
-                        context.read<EditExpenseVehicleBloc>().descriptionController,
-                        inputAction: TextInputAction.done,
-                      ),
-                      10.height,
-                      Utils.dropdownBox(
-                        'Select Category',
-                        state.categories,
-                        (value) => context
-                            .read<EditExpenseVehicleBloc>()
-                            .add(CategoryListEvent(selectedCategory: value)),
-                        labelKey: 'name',
-                        initialSelection: state.selectedCategory,
-                      ),
-                      10.height,
-                      Utils.dropdownBox(
-                          'Select Sub Category',
-                          state.subCategories,
-                          (value) => context.read<EditExpenseVehicleBloc>().add(
-                              SubCategoryListEvent(selectedSubCategory: value)),
+                        10.height,
+                        CustomSingleSelectionField<Map<String, dynamic>>(
+                          suggestionsList: state.vehicleList,
+                          itemAsString: (item) => item['vehicle_name'] ?? '',
+                          selected: state.selectedVehicle,
+                          labelText: "Vehicle Name",
+                          hintText: "",
+                          onSelected: (val) {
+                            context
+                                .read<EditExpenseVehicleBloc>()
+                                .add(VehicleEvent(selectedVehicle: val));
+                          },
+                          controller:
+                              context.read<EditExpenseVehicleBloc>().vehicleController,
+                          validator: (value) => (value?.isEmpty ?? false) ? 'Please select vehicle' : null,
+                          autoValidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        10.height,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10,
+                          children: [
+                            if(state.splitExpense.isEmpty)
+                            Expanded(
+                              child: Utils.getTextFormField(
+                                'Amount in dollars',
+                                context.read<EditExpenseVehicleBloc>().amountController,
+                                textType: TextInputType.numberWithOptions(decimal: true),
+                                inputAction: TextInputAction.done,
+                                textInputFormatter:[
+                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                                ],
+                                validator: (value) => (value?.isEmpty ?? false) ? 'Please enter amount' : null,
+                                autoValidate: context.read<EditExpenseVehicleBloc>().autoValidateMode,
+                              ),
+                            ),
+                            Expanded(
+                              child: Utils.dropdownBox(
+                                'Select Payment Method',
+                                state.paymentType,
+                                (value) => context.read<EditExpenseVehicleBloc>().add(
+                                    SelectedPaymentEvent(paymentType: value)),
+                                labelKey: 'name',
+                                initialSelection: state.selectedPaymentType,
+                              ),
+                            ),
+                          ],
+                        ),
+                        10.height,
+                        Utils.getTextFormField(
+                          'Enter Description',
+                          context.read<EditExpenseVehicleBloc>().descriptionController,
+                          inputAction: TextInputAction.done,
+                        ),
+                        10.height,
+                        Utils.dropdownBox(
+                          'Select Category',
+                          state.categories,
+                          (value) => context
+                              .read<EditExpenseVehicleBloc>()
+                              .add(CategoryListEvent(selectedCategory: value)),
                           labelKey: 'name',
-                          selectedKey: state.selectedSubCategory,
-                          initialSelection: state.selectedSubCategory),
-                      10.height,
-                      Utils.dropdownBox(
-                        'Select Expense To',
-                        state.cohorts,
-                        (value) => context.read<EditExpenseVehicleBloc>().add(
-                            CohortListEvent(selectedCohort: value)),
-                        labelKey: 'name',
-                        selectedKey: state.selectedCohorts,
-                        initialSelection: state.selectedCohorts,
-                      ),
-                      10.height,
-                      CustomDateTimePicker<DateTime>(
-                        controller: context.read<EditExpenseVehicleBloc>().dateController,
-                        format: "dd-MM-yyyy",
-                        suffixIcon: Icon(Icons.calendar_month_rounded,
-                            size: 18, color: context.theme.hintColor),
-                        textAlign: TextAlign.center,
-                        value: state.selectedDate,
-                        onChanged: (value) => context
-                            .read<EditExpenseVehicleBloc>()
-                            .add(DateChangeEvent(selectedDate: value)),
-                      ),
-                      10.height,
-                      Utils.getElevatedButton(() => context.read<EditExpenseVehicleBloc>().add(const UpdateExpenseEvent())),
-                      10.height,
-                      if(state.todoDetails.isNotEmpty)
-                      const TodoDetailsUI(),
-                      10.height,
-                      if(state.splitExpense.isNotEmpty)
-                      const SplitExpenseUI(),
-                    ],
+                          initialSelection: state.selectedCategory,
+                          validator: (value) => (value == null) ? 'Please select category' : null,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        10.height,
+                        Utils.dropdownBox(
+                            'Select Sub Category',
+                            state.subCategories,
+                            (value) => context.read<EditExpenseVehicleBloc>().add(
+                                SubCategoryListEvent(selectedSubCategory: value)),
+                            labelKey: 'name',
+                            selectedKey: state.selectedSubCategory,
+                            initialSelection: state.selectedSubCategory,
+                            validator: (value) => (value == null) ? 'Please select sub category' : null,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        10.height,
+                        Utils.dropdownBox(
+                          'Select Expense To',
+                          state.cohorts,
+                          (value) => context.read<EditExpenseVehicleBloc>().add(
+                              CohortListEvent(selectedCohort: value)),
+                          labelKey: 'name',
+                          selectedKey: state.selectedCohorts,
+                          initialSelection: state.selectedCohorts,
+                          validator: (value) => (value == null) ? 'Please select expense to' : null,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        10.height,
+                        CustomDateTimePicker<DateTime>(
+                          controller: context.read<EditExpenseVehicleBloc>().dateController,
+                          format: "dd-MM-yyyy",
+                          suffixIcon: Icon(Icons.calendar_month_rounded,
+                              size: 18, color: context.theme.hintColor),
+                          textAlign: TextAlign.center,
+                          value: state.selectedDate,
+                          onChanged: (value) => context
+                              .read<EditExpenseVehicleBloc>()
+                              .add(DateChangeEvent(selectedDate: value)),
+                        ),
+                        10.height,
+                        SuccessButton(text: 'Update', onPressed: () => context.read<EditExpenseVehicleBloc>().add(const UpdateExpenseEvent())),
+                        10.height,
+                        if(state.todoDetails.isNotEmpty)
+                        const TodoDetailsUI(),
+                        10.height,
+                        if(state.splitExpense.isNotEmpty)
+                        const SplitExpenseUI(),
+                      ],
+                    ),
                   )));
         }),
       ),
