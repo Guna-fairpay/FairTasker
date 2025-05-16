@@ -107,6 +107,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         ),
                         10.height,
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Utils.getTextFormField(
@@ -117,6 +118,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                                 textInputFormatter:[
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
                                 ],
+                                autoValidate: context.read<AddExpenseVehicleBloc>().autoValidateMode,
+                                validator: (value) => (value?.isEmpty ?? false) ? 'Please enter amount' : null,
                               ),
                             ),
                             10.width,
@@ -147,6 +150,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               .add(CategoryListEvent(selectedCategory: value)),
                           labelKey: 'name',
                           initialSelection: state.selectedCategory,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) => (value == null) ? 'Please select category' : null,
                         ),
                         10.height,
                         Utils.dropdownBox(
@@ -157,6 +162,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           labelKey: 'name',
                           selectedKey: state.selectedSubCategory,
                           initialSelection: state.selectedSubCategory,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) => (value == null) ? 'Please select sub category' : null,
                         ),
                         10.height,
                         Utils.dropdownBox(
@@ -168,6 +175,8 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           labelKey: 'name',
                           selectedKey: state.selectedCohorts,
                           initialSelection: state.selectedCohorts,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) => (value == null) ? 'Please select expense to' : null,
                         ),
                         10.height,
                         CustomDateTimePicker<DateTime>(
@@ -198,7 +207,6 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           text: "Save",
                           onPressed: () => context.read<AddExpenseVehicleBloc>().add(SaveExpenseEvent()),
                         )
-                        // Utils.getElevatedButton(() => context.read<AddExpenseVehicleBloc>().add(const SaveExpenseEvent()))
                       ],
                     ),
                   )));

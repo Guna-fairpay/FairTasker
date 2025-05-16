@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as m;
 import 'package:collection/collection.dart';
-import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
+import 'package:fairpytasker/Repository/api_repository.dart';
+import 'package:fairpytasker/Response/expense_response.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Person/Bloc/person_expense_event.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Person/Bloc/persion_expense_state.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -18,12 +19,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../../../../Repository/api_repository.dart';
-import '../../../../../Response/expense_response.dart';
+
 
 class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
   final APiRepository apiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
+
   dynamic selectedCategory;
   dynamic selectedSubCategory;
   List<dynamic>? subCategories = [
@@ -74,8 +76,8 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           expenseAttachments: const [],
           editResponse: const {},
           isLoading: false,
-          selectedCategory: const {},
-          selectedSubCategory: const {},
+          selectedCategory: null,
+          selectedSubCategory: null,
           categories: const [],
           subCategories: const [],
           cohorts: const [],
@@ -90,9 +92,9 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
           selectedPaymentType: const {},
           selectedDate: DateTime.now(),
           persons: const [],
-          selectedPerson: const {},
+          selectedPerson: null,
           approved: const [],
-          selectedApproved: const {},
+          selectedApproved: null,
           personExpenseHistory: const [],
           totalAmount: 0.0,
           popEditPage: false,
@@ -373,13 +375,10 @@ class PersonExpenseBloc extends Bloc<PersonExpenseEvent, PersonExpenseState> {
 
 
     on<SavePersonExpenseEvent>((event, emit) async {
-      if (state.selectedPerson.isEmpty) return Toaster.showError("Please select person");
-      if (state.selectedCategory.isEmpty) return Toaster.showError("Please select category");
-      if (state.selectedSubCategory.isEmpty) return Toaster.showError("Please select subCategory");
-      if (state.selectedCohorts.isEmpty) return Toaster.showError("Please select expenseTo");
-      if (amountController.text.isEmpty) return Toaster.showError("Please enter amount");
-      if (state.selectedApproved.isEmpty) return Toaster.showError("Please select approved status");
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if (formKey.currentState?.validate() == false) return emit(state.copyWith());
       try {
+        autoValidateMode = null;
         emit(state.copyWith(isLoading: true));
         Console.of.log("Entered");
         var response = await apiRepository.personExpenseAddOrUpdateApi(

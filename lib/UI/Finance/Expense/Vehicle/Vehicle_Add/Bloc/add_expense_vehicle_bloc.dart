@@ -23,6 +23,7 @@ import 'package:image_picker/image_picker.dart';
 class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehicleState> {
   final APiRepository _apiRepository = APiRepository();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  AutovalidateMode? autoValidateMode;
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
   TextEditingController vehicleController = TextEditingController();
@@ -41,12 +42,12 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
       AddExpenseVehicleState(
         expenseAttachments: const [],
         isLoading: true,
-        selectedCategory: const {},
-        selectedSubCategory: const {},
+        selectedCategory: null,
+        selectedSubCategory: null,
         categories: const [],
         subCategories: const [],
         cohorts: const [],
-        selectedCohorts: const {},
+        selectedCohorts: null,
         vehicleList: const [],
         selectedVehicle: const {},
         paymentType: const [],
@@ -168,13 +169,10 @@ class AddExpenseVehicleBloc extends Bloc<AddExpenseVehicleEvent, AddExpenseVehic
         emit(state.copyWith(selectedDate: event.selectedDate)));
 
     on<SaveExpenseEvent>((event, emit) async {
+      autoValidateMode = AutovalidateMode.onUserInteraction;
       if (formKey.currentState?.validate() == false) return emit(state.copyWith());
       try {
-        if(state.selectedVehicle.isEmpty) return Toaster.showError("Please select vehicle");
-        if(amountController.text.isEmpty) return Toaster.showError("Please enter amount");
-        if(state.selectedCategory.isEmpty) return Toaster.showError("Please select category");
-        if(state.selectedSubCategory.isEmpty) return Toaster.showError("Please select subCategory");
-        if(state.selectedCohorts.isEmpty) return Toaster.showError("Please select subCategory");
+        autoValidateMode = null;
         emit(state.copyWith(isLoading: true));
         var response = await _apiRepository.expenseAddOrUpdateApi(
             images: state.expenseAttachments.whereType<File>().toList(),
