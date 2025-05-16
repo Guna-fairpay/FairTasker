@@ -753,21 +753,20 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           var response = await apiRepository.deleteTodo(
               id: event.todoId, reason: event.reason);
           _broadcast.stickyBroadcast("todo_view", value: true);
-          if (response?['status'] == 200)
-            Toaster.showSuccess(response?['message']);
+          if (response?['status'] == 200) Toaster.showSuccess(response?['message']);
         } else if (event.isRecurring) {
           await apiRepository.deleteRecurringTodo(
-            id: event.data['recurring_id'],
-            reason: state.selectedEndDate.toFormat(),
-            from: event.reason,
-            to: state.selectedStartDate.toFormat(),
+            id: "${event.data['recurring_id']}",
+            reason: event.reason,
+            from: "${state.selectedStartDate.toFormat()}",
+            to: "${state.selectedEndDate.toFormat()}",
           );
           _broadcast.stickyBroadcast("todo_view", value: true);
         } else {
           await apiRepository.deleteTodo(id: event.todoId, reason: event.reason);
           _broadcast.stickyBroadcast("todo_view", value: true);
         }
-        emit(state.copyWith(isLoading: false, isPop: true));
+        emit(state.copyWith(isPop: true));
       } catch (e) {
         Toaster.showError("$e");
         log(e.toString(), name: 'ERROR');

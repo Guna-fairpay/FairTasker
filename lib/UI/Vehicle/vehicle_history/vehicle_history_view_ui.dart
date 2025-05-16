@@ -27,6 +27,7 @@ class VehicleHistoryViewUI extends StatelessWidget {
   final bool additionalScroll;
   final int itemPerPage;
   final bool showLoading;
+  final bool isAsset;
 
   const VehicleHistoryViewUI(
       {super.key,
@@ -38,7 +39,9 @@ class VehicleHistoryViewUI extends StatelessWidget {
       this.showLoading = true,
       this.showHeader = true,
       this.showSameTask = false,
-      this.additionalScroll = true});
+      this.additionalScroll = true,
+      this.isAsset = false,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +72,9 @@ class VehicleHistoryViewUI extends StatelessWidget {
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
             switch (state) {
-              case VehicleHistorySelectTaskState(): (context.read<VehicleHistoryBloc>().isAdmin)
-                  ? context.push(EditTodoUI(todoId: state.selectedTask?['id']),
-                  fullscreenDialog: true)
+              case VehicleHistorySelectTaskState():
+                (context.read<VehicleHistoryBloc>().isAdmin && !isAsset)
+                  ? context.push(EditTodoUI(todoId: state.selectedTask?['id']), fullscreenDialog: true)
                   : VehicleHistoryDetailsUiDialog.show(context,
                   mapData: state.selectedTask);
               break;

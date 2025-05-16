@@ -70,6 +70,7 @@ class VehicleStatusListUi extends StatelessWidget {
                         context.push(VehicleHistoryViewUI(
                           vehicleName: data['vehicle_name'] ?? '',
                           vin: data['vin'] ?? '',
+                          isAsset: true,
                         ));
                       case VehicleStatusOnPressed.date_pickup:
                         Utils.showPickerDate(context, value: (data['followup_date'] ?? "").toString().toDateTime(inputFormat: "yyyy-MM-dd"), onChanged: (value) => context.read<VehicleStatusBloc>().add(VehicleStatusSaveDateEvent(data, value)));
@@ -77,6 +78,7 @@ class VehicleStatusListUi extends StatelessWidget {
                         context.push(VehicleHistoryViewUI(
                           vehicleName: data['vehicle_name'] ?? '',
                           vin: data['vin'] ?? '',
+                          isAsset: true,
                         ));
                       case VehicleStatusOnPressed.view_expense:
                         context.push(CumulativeExpenseMainPage(data: data));

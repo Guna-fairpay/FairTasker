@@ -194,6 +194,7 @@ class EditTodoUI extends StatelessWidget {
                                     startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
                                     selectedEndDate: state.selectedEndDate,
                                     selectedStartDate: state.selectedStartDate,
+                                    positiveText: 'Delete',
                                     onStartDate: (value) => context
                                         .read<EditToDoBloc>()
                                         .add(EditToDoStartDateChangeEvent(
