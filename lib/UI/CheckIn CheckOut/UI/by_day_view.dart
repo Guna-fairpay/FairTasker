@@ -38,7 +38,7 @@ class ByDayView extends StatelessWidget {
                     children: [
                       ListView.separated(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         itemCount: state.byDayData.length,
                         itemBuilder: (context, index){
                           final item = state.byDayData[index];

@@ -78,7 +78,7 @@ class ByTaskView extends StatelessWidget {
                       ),
                       ListView.separated(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         itemCount: state.byTaskData.length,
                         itemBuilder: (context, index) {
                           final category = state.byTaskData[index];
