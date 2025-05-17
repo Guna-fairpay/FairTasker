@@ -94,7 +94,7 @@ class VehicleGroupBloc extends Bloc<VehicleGroupEvent, VehicleGroupState> {
     formKey.currentState?.reset();
     selectedModel = event.model;
     var vins = (selectedModel?['vin'].toString().isNullOrEmpty ?? false) ? [] : List<String>.from(jsonDecode(selectedModel?['vin'] ?? ""));
-    Console.of.log("VINS ${vins}");
+    Console.of.log("VINS $vins");
     groupNameController.text = (selectedModel?['name'] ?? "");
     selectedVehicles = apiResponseVehicles.where((element) => vins.contains(element['vin'])).toList();
     emit(VehicleGroupCommonState());

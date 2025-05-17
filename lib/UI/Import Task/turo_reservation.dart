@@ -3,11 +3,8 @@ import 'package:fairpytasker/Bloc/text_upload_bloc.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/Event/text_upload_event.dart';
 import 'package:fairpytasker/State/text_upload_state.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -91,7 +88,7 @@ class _TuroReservationState extends State<TuroReservation> {
                     children: [
                       SuccessButton(
                         text: "Submit",
-                        onPressed: () => context.read<TextUploadBloc>().add(TuroReservationEvent(text: '')),
+                        onPressed: () => context.read<TextUploadBloc>().add(const TuroReservationEvent(text: '')),
                       )
                     ],
                   ),

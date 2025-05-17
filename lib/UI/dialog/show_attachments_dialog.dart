@@ -26,7 +26,7 @@ class _ShowAttachmentsDialogView extends StatelessWidget {
   final String? title;
   final dynamic currentAttachment;
   final void Function(dynamic value)? onDeleted;
-  const _ShowAttachmentsDialogView({super.key, required this.attachments, required this.title, this.currentAttachment, this.onDeleted});
+  const _ShowAttachmentsDialogView({required this.attachments, required this.title, this.currentAttachment, this.onDeleted});
 
   @override
   Widget build(BuildContext context) {

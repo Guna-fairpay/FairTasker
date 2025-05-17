@@ -11,9 +11,9 @@ class ReasonDivider extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         child,
-        SizedBox(height: 5),
-        Divider(),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
+        const Divider(),
+        const SizedBox(height: 5),
       ],
     );
   }

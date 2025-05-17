@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import '../../../Utilities/Utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
@@ -38,7 +37,7 @@ class ByDayView extends StatelessWidget {
                     children: [
                       ListView.separated(
                         shrinkWrap: true,
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         itemCount: state.byDayData.length,
                         itemBuilder: (context, index){
                           final item = state.byDayData[index];
@@ -51,7 +50,7 @@ class ByDayView extends StatelessWidget {
                             vendorName: item['vendor_name'] ?? item['location'] ?? '',
                           );
                         },
-                        separatorBuilder: (context, index) => SizedBox(),
+                        separatorBuilder: (context, index) => const SizedBox(),
                       )
                     ],
                   )

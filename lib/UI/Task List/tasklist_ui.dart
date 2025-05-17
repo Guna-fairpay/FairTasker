@@ -1,5 +1,4 @@
 
-import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' hide DateRange;
@@ -74,7 +73,7 @@ class TasklistUi extends StatelessWidget {
                             DateRangePicker(
                               selectedDateRange: state.selectedDateRange,
                               onDateRangeSelected: (range) {
-                                Console.of.log("DATE_RANGE ${range}");
+                                Console.of.log("DATE_RANGE $range");
                                 context.read<TaskListBloc>().add(
                                     UpdateDateRangeEvent(selectedRange: range));
                 
@@ -87,14 +86,14 @@ class TasklistUi extends StatelessWidget {
                               },
                             ),
                           ),
-                          SizedBox(width: 10,),
+                          const SizedBox(width: 10,),
                           Expanded(
                             child:
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CustomCheckboxListTile(title: Text("Hide Support"), value:  state.hideSupport,
+                                CustomCheckboxListTile(title: const Text("Hide Support"), value:  state.hideSupport,
                                   padding: 0.padding,
                                     onChanged: (bool? value){
                                       context.read<TaskListBloc>().add(HideSupportEvent(
@@ -103,7 +102,7 @@ class TasklistUi extends StatelessWidget {
                                       ));
                 
                                     },),
-                                CustomCheckboxListTile(title: Text("Extra Hours"), value:  state.extraHours,
+                                CustomCheckboxListTile(title: const Text("Extra Hours"), value:  state.extraHours,
                                   mainAxisSize: MainAxisSize.min,
                                   padding: 0.padding,
                                   onChanged: (bool? value){

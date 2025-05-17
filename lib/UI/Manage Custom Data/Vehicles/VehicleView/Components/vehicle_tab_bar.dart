@@ -42,7 +42,7 @@ class VehicleTabBar extends StatelessWidget {
         ),
       ),
         body: TabBarView(
-          physics:  NeverScrollableScrollPhysics(),
+          physics:  const NeverScrollableScrollPhysics(),
           children: [
           SafeArea(
               minimum: 10.padding,

@@ -35,7 +35,6 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/converter.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
@@ -1223,7 +1222,7 @@ class TodoListRepo {
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       // var todoImages = createTodoParams.todoImage.mapIndexed((index, element) => http.MultipartFile.fromString("images[$index]", element.path));
       //debugPrint("createATodo apiUrl: $apiUrl");
-      log("${jsonEncode(body)}", name: "POST_BODY");
+      log(jsonEncode(body), name: "POST_BODY");
       final http.Response? response =
       await apiClient.callPostMethodWithBody(apiUrl, body: body, files: createTodoParams.todoImage.map((e) => e.path).toList());
       if (response != null) {
@@ -3055,11 +3054,11 @@ class TodoListRepo {
         "platform": "TaskerApp",
         "status": "1"
       });
-      log("${body}  Category config  body");
+      log("$body  Category config  body");
       String apiUrl = '';
       http.Response? response;
       if(id != null) {
-        log("${id}  delete");
+        log("$id  delete");
         apiUrl = "${Str.LIST_BASE_URL}task-expenses-data/$id";
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);
@@ -3094,7 +3093,7 @@ class TodoListRepo {
       final http.Response? response = await apiClient.callDelete(apiUrl);
 
       if (response != null) {
-        log("${response.body}",name:"categoryconfig");
+        log(response.body,name:"categoryconfig");
         TaskResponse taskResponse =
         TaskResponse.fromJson(json.decode(response.body));
 
@@ -3240,8 +3239,8 @@ class TodoListRepo {
         "type" : "inline",
         "mandatory" : fixTask.mandatory
       });
-      print("${fixTask}");
-      log("$body", name: "POST_BODY");
+      print("$fixTask");
+      log(body, name: "POST_BODY");
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
 
@@ -3300,7 +3299,7 @@ class TodoListRepo {
          "vendor_name": sparekeyData.vendorName,
         "vin": sparekeyData.vin,
       });
-      log("$body", name: "POST_BODY");
+      log(body, name: "POST_BODY");
       final http.Response? response =
       await apiClient.callPostMethod(apiUrl, body: body);
       if (response?.statusCode == 200 || response?.statusCode == 201) {
@@ -3350,7 +3349,7 @@ class TodoListRepo {
       payload.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String body = jsonEncode(payload);
 
-      log("$body", name: "POST_BODY");
+      log(body, name: "POST_BODY");
       final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
 
       if (response == null) {
@@ -3397,6 +3396,7 @@ class TodoListRepo {
       log('addVehicleCreateTodo.exception : ${error.toString()}');
       return null;
     }
+    return null;
   }
   // Helper function to safely extract task ID
   int? _extractTaskId(dynamic responseData) {
@@ -3412,7 +3412,7 @@ class TodoListRepo {
 
   Future<bool?> UpdateFixTask(int todoId, String notes) async {
     try {
-      String apiUrl = "${Str.BASE_URL}update-todo/${todoId}";
+      String apiUrl = "${Str.BASE_URL}update-todo/$todoId";
       Map<String, dynamic> payload = {
         "identifier_id": todoId,
         "notes": notes,
@@ -3420,7 +3420,7 @@ class TodoListRepo {
       };
       payload.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       String body = jsonEncode(payload);
-      log("$body", name: "POST_BODY");
+      log(body, name: "POST_BODY");
       final http.Response? response = await apiClient.callPostMethod(apiUrl, body: body);
 
       if (response == null) {

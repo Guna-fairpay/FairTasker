@@ -2,7 +2,6 @@
 
 import 'dart:math';
 
-import 'package:date_time/date_time.dart' hide DateRange;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';

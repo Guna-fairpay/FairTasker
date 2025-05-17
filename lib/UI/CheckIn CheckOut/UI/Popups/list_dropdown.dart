@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../Utilities/appC.dart';
 import '../../../../Utilities/num.dart';
-import '../../../../Component/custom_search_field.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 
 typedef ItemAsString<T> = String Function(T item);
@@ -50,14 +49,14 @@ class ListDropDown<T extends Object> extends StatelessWidget {
         isDense: true,
         border: border,
         enabledBorder: border,
-        contentPadding: EdgeInsets.symmetric(horizontal: 10,vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 8),
         constraints: const BoxConstraints(maxHeight: 40),
       ),
       hint: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           hintText ?? "",
-          style: TextStyle(color: AppC.grey),
+          style: const TextStyle(color: AppC.grey),
         ),
       ),
       dropdownStyleData: DropdownStyleData(

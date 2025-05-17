@@ -1,7 +1,6 @@
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart' show BottomNavigationBarItem, BoxFit, BuildContext, Column, FontWeight, GlobalKey, Icon, Icons, Image, MainAxisAlignment, Offset, PopupMenuItem, RelativeRect, RenderBox, Row, Size, SizedBox, Widget, showMenu;
 
 class BottomMenuHelper {

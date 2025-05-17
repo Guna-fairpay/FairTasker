@@ -1,9 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:http/http.dart' as http;
-import 'package:open_file/open_file.dart' show OpenFile;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -46,7 +44,7 @@ class FileSaver {
       throw Exception('Failed to extract file name from headers.');
     }
 
-    var filePath = '${downloadsDirectory?.path}/$fileName';
+    var filePath = '${downloadsDirectory.path}/$fileName';
     File newFile = File(filePath);
     if (!(await newFile.exists())) {
       await newFile.create(recursive: true);

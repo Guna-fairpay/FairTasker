@@ -368,7 +368,7 @@ class CommonService {
     try {
       final response = await _apiRepository.getVendorsType();
 
-      if (response != null && response is List) {
+      if (response != null) {
         vendorsTypeList = List<Map<String, dynamic>>.from(
           response.whereType<Map<String, dynamic>>(),
         );
@@ -379,7 +379,7 @@ class CommonService {
       return vendorsTypeList;
     } catch (e) {
       Toaster.showError(e.toString());
-      log("${e.toString()}", name: "getVendorTypeList");
+      log(e.toString(), name: "getVendorTypeList");
       return [];
     }
   }
@@ -533,8 +533,8 @@ class CommonService {
   Future<Map<String, dynamic>?> findVehicleReservation({required String vin}) async {
     try {
       var response = await _apiRepository.getVehicleHistory(vin: vin);
-      var _vehileHisory = List<Map<String, dynamic>>.from(response?['todo']?['data'] ?? []);
-      return _vehileHisory.where((element) => element['todo_date'] == (DateTime.now().toFormat())).firstOrNull;
+      var vehileHisory = List<Map<String, dynamic>>.from(response?['todo']?['data'] ?? []);
+      return vehileHisory.where((element) => element['todo_date'] == (DateTime.now().toFormat())).firstOrNull;
     }catch (e) {
       Toaster.showError(e.toString());
       return null;

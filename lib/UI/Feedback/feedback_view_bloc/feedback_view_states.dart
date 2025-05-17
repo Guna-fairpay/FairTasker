@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Response/feedback_status_response.dart';
 import 'package:fairpytasker/Response/feedback_view_response.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
 
 abstract class FeedBackViewState extends Equatable {
   @override

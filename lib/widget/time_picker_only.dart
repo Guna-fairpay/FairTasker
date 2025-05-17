@@ -28,7 +28,7 @@ class _TimePickerViewOnlyState extends State<TimePickerViewOnly> {
             width: Num.borderWidthField,
           )),
       child: Padding(
-        padding:  widget.padding ?? EdgeInsets.symmetric(horizontal: 5),
+        padding:  widget.padding ?? const EdgeInsets.symmetric(horizontal: 5),
         child: InkWell(
           onTap: () {
             _selectTime(context, TextEditingController());

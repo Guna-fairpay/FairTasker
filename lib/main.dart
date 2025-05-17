@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:fairpytasker/UI/error_screen/error_screen.dart';
-import 'package:fairpytasker/UI/error_screen/error_wrapper.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/build_flavor/flavor.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -19,7 +17,6 @@ import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter/material.dart';
 import 'UI/Splash/splash_ui.dart';
-import 'package:intl/intl.dart';
 
 
 // String accessTokenGlobal = '';
@@ -88,7 +85,6 @@ class MyApp extends StatelessWidget {
         title: 'Fair Returns',
         theme: ThemeData(
           cardColor: Colors.white,
-          dialogBackgroundColor: Colors.white,
           appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 5, scrolledUnderElevation: 0),
           dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           searchBarTheme: SearchBarThemeData(

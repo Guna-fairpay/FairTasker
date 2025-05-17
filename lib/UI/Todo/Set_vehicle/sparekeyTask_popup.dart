@@ -4,7 +4,6 @@
 
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Utilities/Utils.dart';
@@ -54,7 +53,7 @@ class _SpareKeyTaskDialogView extends StatelessWidget {
               leading: Utils.getText("Confirmation",size: 16),
               trailing: GestureDetector(
                 onTap: ()=> context.pop(),
-                  child: Icon(Icons.close, color: AppC.grey, size: 25)
+                  child: const Icon(Icons.close, color: AppC.grey, size: 25)
               ),
               contentPadding: EdgeInsets.zero,
             ),

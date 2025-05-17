@@ -1,6 +1,5 @@
 import 'package:fairpytasker/Component/compact_text_field.dart';
 import 'package:fairpytasker/Component/focus_node_wrapper.dart';
-import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

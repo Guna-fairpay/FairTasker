@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
-import '../../Utilities/appC.dart';
 
 class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
   
@@ -209,11 +208,11 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
           event.value ? 1 : 0,
           event.id,
         );
-        apiResponse.forEach((element) {
+        for (var element in apiResponse) {
           if (element['id'] == event.id) {
             element['complete_time_approved'] = event.value ? 1 : 0;
           }
-        });
+        }
         emit(state.copyWith(isLoading: false, isChecked: event.value, data: apiResponse));
       }
       catch (e){
@@ -273,16 +272,16 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
           int overtimeTaken = actualTime - completedTime;
           //log("title ${taskTitle} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTitle ${matchingRecord['task']}",name: "overTime_Extra_true");
           int hours = overtimeTaken ~/ 60;
-          int remainder_minutes = overtimeTaken % 60;
+          int remainderMinutes = overtimeTaken % 60;
 
-          return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          return '${hours.toString().padLeft(2, '0')}:${remainderMinutes.toString().padLeft(2, '0')}'; // Format as HH:MM
         }
         else if(completedTime > actualTime && completedTime != actualTime){
           int overtimeTaken = completedTime - actualTime;
           //log("title ${item['title']} timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken} expenseTile ${matchingRecord['task']}",name: "overTime_Extra_true");
           int hours = overtimeTaken ~/ 60;
-          int remainder_minutes = overtimeTaken % 60;
-          return '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          int remainderMinutes = overtimeTaken % 60;
+          return '${hours.toString().padLeft(2, '0')}:${remainderMinutes.toString().padLeft(2, '0')}'; // Format as HH:MM
         } else {
           return "";
         }
@@ -318,10 +317,10 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
           int overtimeTaken = completedTime - actualTime;
           //log("timeTaken ${completedTime} actualTime ${actualTime} remainingTime ${overtimeTaken}",name: "overTime");
           int hours = overtimeTaken ~/ 60;
-          int remainder_minutes = overtimeTaken % 60;
+          int remainderMinutes = overtimeTaken % 60;
           Map<String, dynamic> fullRecord = Map<String, dynamic>.from(item);
           fullRecord['overtime'] =
-          '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}'; // Format as HH:MM
+          '${hours.toString().padLeft(2, '0')}:${remainderMinutes.toString().padLeft(2, '0')}'; // Format as HH:MM
           overtimeTakenData.add(fullRecord);
         }
       }
@@ -354,9 +353,9 @@ class TaskListBloc extends Bloc<TaskListEvent, TaskListState> {
           if (completedTime != timeTaken && task['complete_time_approved'] == 0) {
             int overtimeTaken = completedTime - timeTaken;
             int hours = overtimeTaken ~/ 60;
-            int remainder_minutes = overtimeTaken % 60;
+            int remainderMinutes = overtimeTaken % 60;
             task['overtime'] =
-            '${hours.toString().padLeft(2, '0')}:${remainder_minutes.toString().padLeft(2, '0')}';
+            '${hours.toString().padLeft(2, '0')}:${remainderMinutes.toString().padLeft(2, '0')}';
           }
           else {
             task['overtime'] = '';

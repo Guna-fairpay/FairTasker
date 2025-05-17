@@ -2,7 +2,6 @@
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/leave_management/leave_add_edit/bloc/leave_add_edit_event.dart';
 import 'package:fairpytasker/UI/leave_management/leave_add_edit/bloc/leave_add_edit_state.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';

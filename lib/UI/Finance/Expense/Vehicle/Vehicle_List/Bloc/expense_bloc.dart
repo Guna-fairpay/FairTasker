@@ -1,7 +1,6 @@
 
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Response/cohorts_response.dart';
 import 'package:fairpytasker/Response/subcategories_response.dart';
@@ -17,15 +16,12 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../../../../Repository/api_repository.dart';
 import '../../../../../../Repository/todo_list_repository.dart';
 import '../../../../../Todo/add_todo/add_todo_const.dart';
-import '../../../../../Vehicle/vehicle_expense_history/response/vehicle_expense_history_response.dart';
 import '../../../../../../Response/expense_response.dart';
 
 class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {

@@ -108,10 +108,10 @@ class TaskListingPage extends StatelessWidget {
                                   labelKey: 'name',
                                   initialSelection: List<Map<String, dynamic>>.from(context
                                       .watch<TaskBloc>()
-                                      .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString())?['sub_categories'] ?? [])?.firstWhereOrNull((element) => element['id'].toString() == item['subcategory_id'].toString()) ?? {},
+                                      .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString())?['sub_categories'] ?? []).firstWhereOrNull((element) => element['id'].toString() == item['subcategory_id'].toString()) ?? {},
                                   selectedKey: List<Map<String, dynamic>>.from(context
                                       .watch<TaskBloc>()
-                                      .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString())?['sub_categories'] ?? [])?.firstWhereOrNull((element) => element['id'].toString() == item['subcategory_id'].toString()) ?? {},
+                                      .category.firstWhereOrNull((element) => element['id'].toString() == item['category_id'].toString())?['sub_categories'] ?? []).firstWhereOrNull((element) => element['id'].toString() == item['subcategory_id'].toString()) ?? {},
                                   height: 30.sp)),
                           GestureDetector(
                             onTapDown: (TapDownDetails details) {

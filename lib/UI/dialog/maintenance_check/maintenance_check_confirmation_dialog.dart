@@ -22,7 +22,7 @@ class _MaintenanceCheckConfirmDialog extends StatelessWidget {
   final VoidCallback? onDelete, onComplete;
   final ValueChanged<Map<dynamic, dynamic>?>? onUpdate;
   late ValueNotifier<Map<String, dynamic>?> _selectedDropDown;
-  _MaintenanceCheckConfirmDialog({super.key, this.model, this.onDelete, this.onComplete, this.onUpdate}) {
+  _MaintenanceCheckConfirmDialog({this.model, this.onDelete, this.onComplete, this.onUpdate}) {
     _selectedDropDown = ValueNotifier(model?['selectedValue']);
   }
   final ValueNotifier<bool> _showDropDown = ValueNotifier(false);

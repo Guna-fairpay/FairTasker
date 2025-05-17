@@ -7,7 +7,6 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as d;
 
 class CustomAutoSearchField<T extends Object> extends StatefulWidget {
   final String? labelText;
@@ -25,7 +24,7 @@ class CustomAutoSearchField<T extends Object> extends StatefulWidget {
   final bool autoClear;
   final Function(FocusNode focusNode)? onFieldFocusCreated;
 
-  CustomAutoSearchField(
+  const CustomAutoSearchField(
       {super.key,
       this.labelText,
       this.hintText,

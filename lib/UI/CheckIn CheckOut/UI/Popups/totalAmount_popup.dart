@@ -41,7 +41,7 @@ void showHoursSummaryPopup(BuildContext context, {
                   Expanded(
                     child: Text(
                       '${totals['name']} - Hours Summary',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppC.appColor),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppC.appColor),
                     ),
                   ),
                   IconButton(

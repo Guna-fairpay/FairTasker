@@ -95,7 +95,7 @@ class _StatementUIState extends State<StatementUI> {
                               child:
                                   Utils.getText("Cancel", color: AppC.appColor),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
 
                             // Confirm Button - Saves the selected date range
                             GestureDetector(
@@ -111,7 +111,7 @@ class _StatementUIState extends State<StatementUI> {
                               child: Utils.getText("Confirm",
                                   color: AppC.appColor),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                           ],
                         ),
                       )
@@ -244,9 +244,7 @@ class _StatementUIState extends State<StatementUI> {
                                       nameController: nameController,
                                       valueController: valueController,
                                       cohortController: CohortController,
-                                      totalCash: item['value'] != null
-                                          ? item['value'].toString()
-                                          : null,
+                                      totalCash: item['value']?.toString(),
                                     ),
                                   10.height,
                                 ],

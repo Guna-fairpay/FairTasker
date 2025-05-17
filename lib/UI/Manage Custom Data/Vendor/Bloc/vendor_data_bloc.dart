@@ -83,10 +83,10 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(const VendorDataLoading());
       final vendor = await _fetchVendors();
       final vendorType = await _fetchVendorType();
-      d.log("${vendorType}", name: "vendor_type");
+      d.log("$vendorType", name: "vendor_type");
 
       vendorTypeData = vendorType ?? [];
-      d.log("${vendorTypeData}", name: "vendor_type_data");
+      d.log("$vendorTypeData", name: "vendor_type_data");
       filteredVendorType = vendorType ?? [];
       vendorSearchData = vendorType ?? [];
       vendorsData = vendor ?? [];
@@ -174,7 +174,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       _broadcast.broadcast(Str.editToDoRefresh);
       _broadcast.broadcast(Str.refetchVendorLocation);
       emit(VendorDataCommonState());
-      d.log("response added ${response}");
+      d.log("response added $response");
       add(const GetVendorList());
     });
 
@@ -336,7 +336,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     });
 
 
-    Future<List<File>> _pickFiles() async {
+    Future<List<File>> pickFiles() async {
       var result = await FilePicker.platform.pickFiles(
           allowMultiple: true,
           allowCompression: true,
@@ -350,8 +350,8 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     }
 
 
-    Future<void> _handleFileSelection(Emitter emit) async {
-      final result = await _pickFiles();
+    Future<void> handleFileSelection(Emitter emit) async {
+      final result = await pickFiles();
       if (result.isNotEmpty) {
         final existingFiles = vendorImage.whereType<File>().map((e) => e.path).toList();
         final newFiles = result.where((file) => !existingFiles.contains(file.path)).toList();
@@ -362,7 +362,7 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
     }
 
     on<VendorImageEvent>((event, emit) async {
-      await _handleFileSelection(emit);
+      await handleFileSelection(emit);
     });
 
     on<DeleteImage>((event, emit) async {

@@ -60,7 +60,7 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
   {
     final newPersonList = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) =>  OtherAddUi()),
+      MaterialPageRoute(builder: (context) =>  const OtherAddUi()),
     );
     if (newPersonList != null)
     {
@@ -218,7 +218,7 @@ class _OtherExpenseViewUIState extends State<OtherExpenseViewUI> {
                       icon: const Icon(Icons.fullscreen),
                       onPressed: () {
                         final List<String> imageUrls = imagePaths; // Replace with your image URLs
-                        final int initialIndex = 0; // Or any index from your list
+                        const int initialIndex = 0; // Or any index from your list
                         _showFullScreenImage(context, imageUrls, initialIndex);
                       },
                     )

@@ -86,8 +86,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
   String? get taskName {
     var selectedTask = state.selectedTaskIdentifier[1];
-    if ( (selectedTask != null) && ((selectedTask as Map?)?.isNotEmpty ?? false)) return selectedTask?['name'];
-    else return null;
+    if ( (selectedTask != null) && ((selectedTask as Map?)?.isNotEmpty ?? false)) {
+      return selectedTask?['name'];
+    } else {
+      return null;
+    }
   }
 
   List<Map<String, dynamic>> get locations => getIt<CommonService>().locationsList;
@@ -245,8 +248,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         existing.addAll(event.selectedTaskIdentifier);
       }
       if (existing.containsKey(1)) {
-        if (((existing[1] as Map).isEmpty) && (taskNameController.text.isNullOrEmpty)) taskNameController.clear();
-        else taskNameController.text = existing[1]?['name'] ?? "";
+        if (((existing[1] as Map).isEmpty) && (taskNameController.text.isNullOrEmpty)) {
+          taskNameController.clear();
+        } else {
+          taskNameController.text = existing[1]?['name'] ?? "";
+        }
       }
       var existingVPersons =
           List<Map<String, dynamic>>.from(state.selectedVPerson);
@@ -267,7 +273,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       showCleanCar = Str.cleanCarCheckIds.contains(taskId);
       showPlatformCheck = Str.platFormCheckIds.contains(taskId);
       var selectedLink = Str.getAroundIds.contains(taskId);
-      if (existingVPersons?.length == 1) {
+      if (existingVPersons.length == 1) {
         await _findReservationColor(existingVPersons.firstOrNull?['value']?['vin']);
       }
       emit(state.copyWith(
@@ -288,8 +294,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       var oldIdentifier = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       if (input.isEmpty) {
         oldIdentifier[2] = {};
-        if (existingRefId.toString().isNotNullOrEmpty)
+        if (existingRefId.toString().isNotNullOrEmpty) {
           customLinkController.clear();
+        }
         existingRefId = null;
         emit(state.copyWith(
             selectedVPerson: [], selectedTaskIdentifier: oldIdentifier));
@@ -359,10 +366,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       if (existing.containsKey(3) &&
           (existing[3] != null) &&
           (Map.from(existing[3]).isNotEmpty)) {
-        if ((selectedVLocation != existing[3]))
+        if ((selectedVLocation != existing[3])) {
           selectedVLocation = Map<String, dynamic>.from(existing[3]);
-        if ((existing[3]?['name'] ?? "") != vLocationController.text)
+        }
+        if ((existing[3]?['name'] ?? "") != vLocationController.text) {
           vLocationController.text = existing[3]?['name'] ?? "";
+        }
       } else {
         selectedVLocation?.clear();
         vLocationController.clear();
@@ -592,11 +601,15 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         var response = await todoListRepo.addTodo(
             body: _addTodoBody(),
             images: state.attachments.whereType<File>().toList());
-        if (response?.isNotEmpty ?? false)
+        if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
+        }
         _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response?['status'] == 200) emit(state.copyWith(redirect: true));
-        else emit(state.copyWith(isLoading: false));
+        if (response?['status'] == 200) {
+          emit(state.copyWith(redirect: true));
+        } else {
+          emit(state.copyWith(isLoading: false));
+        }
       } catch (e) {
         Console.of.error("Error", error: e);
         Toaster.showError("$e");
@@ -647,8 +660,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         emit(state.copyWith(isLoading: true));
         var response = await _apiRepository.cleanCar(body: _cleanCarBody());
         _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response != null)
+        if (response != null) {
           Toaster.showSuccess(response['message'] ?? "Success");
+        }
         emit(state.copyWith(isLoading: false));
       } catch (e) {
         Toaster.showError("$e");
@@ -730,7 +744,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         (state.selectedLinkOption?['id'] == 1) ? customLinkController.text : "";
     baseBody['reference_id'] =
         (state.selectedLinkOption?['id'] != 1) ? customLinkController.text : "";
-    log("${jsonEncode(baseBody)}", name: "ADD_TODO_BODY");
+    log(jsonEncode(baseBody), name: "ADD_TODO_BODY");
     return baseBody;
   }
 
@@ -810,7 +824,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       "time_sensitive": "${state.isTimeSensitive}",
       "branch_id": "$branchId",
     };
-    log("${jsonEncode(jsonBody)}", name: "CLEAN_CAR_JSON_BODY");
+    log(jsonEncode(jsonBody), name: "CLEAN_CAR_JSON_BODY");
     return jsonBody;
   }
 
@@ -871,8 +885,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         var response =
             await _apiRepository.addToDo(body: body, infusedFiles: attachments);
         _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response?.isNotEmpty ?? false)
+        if (response?.isNotEmpty ?? false) {
           Toaster.showSuccess(response?['message'] ?? "Success");
+        }
         emit(state.copyWith(isLoading: false));
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
       } else {
@@ -886,8 +901,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         var response =
             await _apiRepository.addToDo(body: body, infusedFiles: attachments);
         _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response != null)
+        if (response != null) {
           Toaster.showSuccess(response['message'] ?? "Success");
+        }
         emit(state.copyWith(isLoading: false));
       }
     } catch (e) {

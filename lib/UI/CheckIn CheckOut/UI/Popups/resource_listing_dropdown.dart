@@ -108,7 +108,7 @@ class ResourceListingDropdown<T extends Object> extends StatelessWidget {
             ),
           );
         }).toList()
-            : [DropdownMenuItem<T>(value: null, child: Text("${hintText}", style: TextStyle(color: AppC.grey),))],
+            : [DropdownMenuItem<T>(value: null, child: Text("$hintText", style: const TextStyle(color: AppC.grey),))],
         onChanged: onChanged,
       ),
     );

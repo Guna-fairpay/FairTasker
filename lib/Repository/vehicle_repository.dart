@@ -11,7 +11,6 @@ import 'package:fairpytasker/data/api_client.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 
 import '../Response/todo_list_response.dart';
 import '../Response/vehicle_grouping_response.dart';
@@ -306,13 +305,7 @@ class VehicleDataRepo {
 
           GeneralResponse generalResponse =
           GeneralResponse.fromJson(json.decode(response.body));
-          // if (generalResponse.status == 200 || generalResponse.status == 201) {
-          // Utils.showNoResultFound();
           return true;
-          // }else {
-          // debugPrint('---------------> ${TodoListResponse.status!}');
-          return false;
-          // }
         } else {
           Utils.showSomethingWentWrong();
           return null;

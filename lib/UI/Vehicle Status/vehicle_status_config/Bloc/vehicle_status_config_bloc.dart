@@ -47,7 +47,7 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
         });
         Console.of.debug('response: $response');
        if (response != null) {
-          vehicleConfigData.forEach((element) {
+          for (var element in vehicleConfigData) {
             if (element['id'] == event.data['category_id']) {
               element['checklists'].forEach((checklist) {
                 if (checklist['id'] == event.data['id']) {
@@ -55,7 +55,7 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
                 }
               });
             }
-          });
+          }
         }
 
         emit(VehicleStatusConfigCommonState());
@@ -84,14 +84,14 @@ class VehicleStatusConfigBloc extends Bloc<VehicleStatusConfigEvent, VehicleStat
           ids = event.data.map((e) => e['id']).toList();
         }
        if(response != null) {
-          vehicleConfigData.forEach((element) {
+          for (var element in vehicleConfigData) {
             if (ids.contains(element['id'])) {
               element['checklists'].forEach((checklist) {
                 checklist['checked'] = event.isAllChecked ?? 0;
               });
               element['checked'] = event.isAllChecked ?? 0;
             }
-          });
+          }
         }
         emit(VehicleStatusConfigCommonState());
       }catch (e) {

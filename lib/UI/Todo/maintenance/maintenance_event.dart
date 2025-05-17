@@ -76,7 +76,7 @@ class FetchTodoListEvent extends MaintenanceEvent {
   final String? selectedDate;
   final String? status;
   final String? resourceId;
-  FetchTodoListEvent({this.selectedDate, this.status, this.resourceId});
+  const FetchTodoListEvent({this.selectedDate, this.status, this.resourceId});
 }
 
 

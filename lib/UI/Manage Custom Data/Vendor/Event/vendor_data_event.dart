@@ -145,14 +145,14 @@ class FilterVendorEvent extends VendorDataEvent {
 
 class VendorPaginationEvent extends VendorDataEvent {
   final int page;
-  VendorPaginationEvent({required this.page});
+  const VendorPaginationEvent({required this.page});
   @override
   List<Object?> get props => [page];
 }
 
 class VendorTypePaginationEvent extends VendorDataEvent {
   final int page;
-  VendorTypePaginationEvent({required this.page});
+  const VendorTypePaginationEvent({required this.page});
   @override
   List<Object?> get props => [page];
 }
@@ -164,7 +164,7 @@ class VendorImageEvent extends VendorDataEvent {
 
 class RemoveVendorImageEvent extends VendorDataEvent {
   final int index;
-  RemoveVendorImageEvent({required this.index});
+  const RemoveVendorImageEvent({required this.index});
 }
 
 class ResetLocationEvent extends VendorDataEvent {

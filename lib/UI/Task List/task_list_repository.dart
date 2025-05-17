@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:fairpytasker/UI/Task%20List/user_list_response.dart';
-import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:http/http.dart' as http;
 import 'package:fairpytasker/Utilities/str.dart';

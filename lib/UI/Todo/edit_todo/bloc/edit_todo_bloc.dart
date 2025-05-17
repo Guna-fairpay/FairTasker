@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import '../../../../Repository/todo_list_repository.dart';
 import '../../../../Utilities/str.dart';
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/prefs.dart';
@@ -353,7 +352,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         cleanCarIsActive=true;
 
         if((todoResponse?['identifier_id'] == null) || (selectedTask == null)
-            || (selectedTask?['task'] != (todoResponse?['title'] ?? '')) ){
+            || (selectedTask['task'] != (todoResponse?['title'] ?? '')) ){
           Console.of.debug(todoResponse?['title']);
           taskNameController.text = todoResponse?['title'] ?? '';
           selectedTask=null;
@@ -753,8 +752,9 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           var response = await apiRepository.deleteTodo(
               id: event.todoId, reason: event.reason);
           _broadcast.stickyBroadcast("todo_view", value: true);
-          if (response?['status'] == 200)
+          if (response?['status'] == 200) {
             Toaster.showSuccess(response?['message']);
+          }
         } else if (event.isRecurring) {
           await apiRepository.deleteRecurringTodo(
             id: event.data['recurring_id'],

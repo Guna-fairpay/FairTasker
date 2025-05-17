@@ -21,7 +21,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   List<Map<String, dynamic>> apiResponse = [];
   Map<String, dynamic>? selectedVehicle;
   Map<int, bool> selectedVehicles = {};
-  List<dynamic> _selectedVehicleList = [];
+  final List<dynamic> _selectedVehicleList = [];
   List<int> selectedIds = [];
   int itemsPerPage = 10;
   int currentIndex = 1;
@@ -46,13 +46,13 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState>{
   }
   Future<List<Map<String, dynamic>>?> _getVehicle() async => await getIt<CommonService>().getActiveVehicles(reset: true);
   Future<void> _prepare({dynamic vin}) async {
-    final Completer _completer = Completer();
+    final Completer completer = Completer();
     filteredResponse.clear();
     if (vin.toString().isNotNullOrEmpty) selectedVehicle = apiResponse.firstWhereOrNull((element) => element['vin'] == vin);
     filteredResponse = paginateList(data: apiResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
     totalCount = apiResponse.length;
-    _completer.complete();
-    return _completer.future;
+    completer.complete();
+    return completer.future;
   }
   void _registerBroadcast() => _broadcast.register("vehicle_refresh", (value, callback) => add(VehicleInitialEvent()));
   void _onPaginationEvent(VehiclePaginationEvent event, Emitter<VehicleState> emit) {

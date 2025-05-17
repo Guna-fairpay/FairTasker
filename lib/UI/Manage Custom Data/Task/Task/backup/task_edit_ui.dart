@@ -5,7 +5,6 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../../Bloc/todo_view_bloc.dart';
-import '../../../../../Component/drawer_ui.dart';
 import '../../../../../Event/todo_view_event.dart';
 import '../../../../../Utilities/appC.dart';
 import '../../../../../Utilities/num.dart';

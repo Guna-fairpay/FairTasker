@@ -1,5 +1,4 @@
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

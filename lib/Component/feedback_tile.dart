@@ -7,7 +7,6 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart' hide Feedback;
-import 'package:html/parser.dart' show parse;
 
 class FeedBackTile extends StatelessWidget {
   final bool isOdd;

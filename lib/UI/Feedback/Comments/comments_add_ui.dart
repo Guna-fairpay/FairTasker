@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Utilities/appC.dart';
 import '../../../Utilities/utils.dart';
 
@@ -161,7 +159,7 @@ class _CommentsAddUIState extends State<CommentsAddUI> {
         backgroundColor: AppC.appColor,
         leading: Container(),
         leadingWidth: 0,
-        title: Text("Add Comments"),
+        title: const Text("Add Comments"),
         titleTextStyle: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontFamily: "Lato", fontWeight: FontWeight.w600),
         actions: [
           IconButton(

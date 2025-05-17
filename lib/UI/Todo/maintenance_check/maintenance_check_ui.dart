@@ -6,7 +6,6 @@ import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_all_ui.
 import 'package:fairpytasker/UI/Todo/maintenance_check/maintenance_check_list_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/maintenance_check/maintenance_check_confirmation_dialog.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';

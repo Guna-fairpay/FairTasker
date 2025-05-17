@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import '../../../Utilities/num.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
-import 'Popups/task_filter.dart';
 import 'by_day_view.dart';
 import 'by_task_view.dart';
 
@@ -52,7 +50,7 @@ class ExtendedDetailsDay extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(
                 leadingWidth: 0,
-                title: Text("${userName ?? ''}"),
+                title: Text(userName ?? ''),
                 automaticallyImplyLeading: false,
                 actions: [
                   IconButton(
@@ -62,7 +60,7 @@ class ExtendedDetailsDay extends StatelessWidget {
                 backgroundColor: AppC.appColor,
               ),
               body: SafeArea(
-                  minimum: EdgeInsets.all(8.0),
+                  minimum: const EdgeInsets.all(8.0),
                   child: SingleChildScrollView(
                     child: Column(
                       spacing: 10,

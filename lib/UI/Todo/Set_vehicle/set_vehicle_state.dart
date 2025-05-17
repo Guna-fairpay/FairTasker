@@ -34,7 +34,7 @@ class setVehicleCommonState extends setVehicleState {
 class setVehicleViewAttachmentState extends setVehicleState {
   final dynamic attachment;
   final List<dynamic> attachments;
-  setVehicleViewAttachmentState(this.attachment, this.attachments);
+  const setVehicleViewAttachmentState(this.attachment, this.attachments);
   @override
   List<Object?> get props => [attachment, attachments, Random().nextDouble()];
 }

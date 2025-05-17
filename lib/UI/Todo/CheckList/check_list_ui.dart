@@ -85,7 +85,7 @@ class CheckListUI extends StatelessWidget {
 
     String extractedText = notesController.text.split('-').length > 1 ? notesController.text.split('-')[1].trim() : notesController.text;
     String extractedData = '';
-    print("extractedData: ${extractedData} CheckListUI");
+    print("extractedData: $extractedData CheckListUI");
     notesController.text = parse(extractedText).body?.text ?? extractedText;
     bool hasNotes = notesController.text.isNotEmpty;
     bool isChecked = checkBoxStates[itemId] ?? !hasNotes;
@@ -107,7 +107,7 @@ class CheckListUI extends StatelessWidget {
                         (todo) => todo['checklist_id'] == itemId,
                     orElse: () => {},
                   );
-                  log("${matchingTodo.toString()}", name: "matchingTodo");
+                  log(matchingTodo.toString(), name: "matchingTodo");
                   if (value && matchingTodo.isNotEmpty) {
                     PrivateRentalDialog.show(context,
                       onCompleted: ()
@@ -172,11 +172,11 @@ class CheckListUI extends StatelessWidget {
                             (todo) => todo['checklist_id'] == itemId,
                         orElse: () => {},
                       );
-                      log("${matchingTodo}", name: "matchingTodo");
+                      log("$matchingTodo", name: "matchingTodo");
                       context.read<CheckListBloc>().add(
                           UpdateFixTaskEvent(
                             todoId: matchingTodo['id'],
-                            notes: '${notesController.text}',
+                            notes: notesController.text,
                           ),
                       );
                     },

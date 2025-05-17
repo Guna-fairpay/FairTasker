@@ -1,5 +1,4 @@
 import 'package:fairpytasker/Component/custom_compact_pagination.dart';
-import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Bloc/vehicle_state.dart';
@@ -8,11 +7,9 @@ import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:number_pagination/number_pagination.dart';
 
 class VehicleListingUI extends StatelessWidget {
   const VehicleListingUI({super.key});

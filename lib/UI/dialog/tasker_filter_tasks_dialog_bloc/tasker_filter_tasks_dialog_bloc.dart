@@ -4,7 +4,6 @@ import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_fi
 import 'package:fairpytasker/UI/dialog/tasker_filter_tasks_dialog_bloc/tasker_filter_tasks_dialog_states.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

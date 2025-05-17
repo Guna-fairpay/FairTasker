@@ -107,10 +107,10 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           emit(state.copyWith(isLoading: false));
           return;
         }
-        log("${fixTasksMap}", name:'fixTasksMap');//{4: 43536, 5: 43537, 6: 43538}
+        log("$fixTasksMap", name:'fixTasksMap');//{4: 43536, 5: 43537, 6: 43538}
 
         List<dynamic> fixTaskValues = fixTasksMap.values.toList();
-        log("${fixTaskValues}", name:'fixTaskValues');//[43536, 43537, 43538]
+        log("$fixTaskValues", name:'fixTaskValues');//[43536, 43537, 43538]
 
 
         // In your MaintenanceBloc, modify the parseMaintenanceData function:
@@ -146,7 +146,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
             .where((todo) => fixTaskValues.contains(todo['id']) && todo['status'] != "Completed")
             .map((todo) {
           String? maintenanceTaskId = todo["maintenance_task_id"];
-          log("${maintenanceTaskId}", name:'maintenanceTaskId');
+          log("$maintenanceTaskId", name:'maintenanceTaskId');
           if (maintenanceTaskId == null) return null;
 
           List<String> parts = maintenanceTaskId.trim().split("-");
@@ -168,10 +168,10 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
             .cast<Map<String, dynamic>>()
             .toList();
 
-        log("${matchingTodos}", name:'matchingTodos');
+        log("$matchingTodos", name:'matchingTodos');
 
         parsedData = parseMaintenanceData(matchingTodos);
-        log("${parsedData}", name:'parsedData');
+        log("$parsedData", name:'parsedData');
 
         // Update selectedDropdownValues and checkboxStates based on parsedData
         for (var data in parsedData) {
@@ -197,7 +197,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
                 if (secondTaskId != -1 && notesControllers.containsKey(secondTaskId)) {
                   String commentsValue = data["comments"];
                   notesControllers[secondTaskId]!.text = commentsValue;
-                  log("${notesControllers[secondTaskId]!.text}", name:'notesControllers');
+                  log(notesControllers[secondTaskId]!.text, name:'notesControllers');
                 }
               }
             }else {
@@ -356,9 +356,9 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
           return matchingIds;
         }
         result = getMatchingIds(itemCopy, matchingTodos);
-        print("final value ${result}");
+        print("final value $result");
         deleteTodoID = result?.first.toString();
-        print("final value ${deleteTodoID}");
+        print("final value $deleteTodoID");
         await todoListRepo.deleteATodo(deleteTodoID!,'');
       }
       catch(e){
@@ -392,7 +392,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
         }
         result = getMatchingIds(itemCopy, matchingTodos);
         completeTodoID = result?.first.toString();
-        print("final value ${completeTodoID}"); // Output: [33646]
+        print("final value $completeTodoID"); // Output: [33646]
         //Api Update Part
         await todoListRepo.completeATodo(completeTodoID,"Completed");
       }
@@ -406,7 +406,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
 
 
 // Helper function to get matching todos
-    List<Map<String, dynamic>> _getMatchingTodos({
+    List<Map<String, dynamic>> getMatchingTodos({
       required List<Map<String, dynamic>> todoList,
       required Map<String, dynamic> fixTasksMap,
     }) {
@@ -427,7 +427,7 @@ class MaintenanceBloc extends Bloc<MaintenanceEvent, MaintenanceState> {
     }
 
 // Helper function to merge and clean data
-    List<Map<String, dynamic>> _mergeAndCleanData({
+    List<Map<String, dynamic>> mergeAndCleanData({
       required List<Map<String, dynamic>> matchingTodos,
       required List<Map<String, dynamic>> checklistData,
     }) {

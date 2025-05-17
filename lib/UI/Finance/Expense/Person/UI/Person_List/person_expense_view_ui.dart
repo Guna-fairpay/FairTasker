@@ -57,7 +57,7 @@ class PersonExpenseViewUI extends StatelessWidget {
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PersonExpenseAddUI(),
+                              builder: (context) => const PersonExpenseAddUI(),
                             )),
                         child: Container(
                           height: 40,

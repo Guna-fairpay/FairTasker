@@ -13,8 +13,6 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,16 +55,16 @@ class PersonExpenseEditUI extends StatelessWidget {
                                 context.read<PersonExpenseBloc>().add(DeletePersonExpenseEvent(id: id,isEditPage: true));
                               });
                         },
-                        icon: Icon(Icons.delete_outline)
+                        icon: const Icon(Icons.delete_outline)
                     ),
                     IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(Icons.close)
+                        icon: const Icon(Icons.close)
                     ),
                   ],
                 ),
                 body: SafeArea(
-                  minimum: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  minimum: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   child: ListView(
                     children: [
                       Row(
@@ -135,7 +133,7 @@ class PersonExpenseEditUI extends StatelessWidget {
                               child: Utils.getTextFormField(
                                 "Expense Amount",
                                 context.read<PersonExpenseBloc>().amountController,
-                                textType: TextInputType.numberWithOptions(decimal: true),
+                                textType: const TextInputType.numberWithOptions(decimal: true),
                                 inputAction: TextInputAction.done,
                                 textInputFormatter:[
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))

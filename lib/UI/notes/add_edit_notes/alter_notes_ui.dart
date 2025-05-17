@@ -1,5 +1,3 @@
-import 'package:fairpytasker/Component/notes_task_component.dart';
-import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/multioption_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/popup/resource_selection_popup.dart';
 import 'package:fairpytasker/UI/notes/add_edit_notes/alter_notes_body.dart';

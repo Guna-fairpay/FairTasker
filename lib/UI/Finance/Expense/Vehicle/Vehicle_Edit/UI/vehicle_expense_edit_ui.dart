@@ -13,14 +13,11 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../Vehicle_List/Bloc/expense_bloc.dart';
-import '../../Vehicle_List/Bloc/expense_state.dart';
 
 class ExpenseVehicleEditUI extends StatelessWidget {
   final String? expenseId;
@@ -147,7 +144,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                             child: Utils.getTextFormField(
                               'Amount in dollars',
                               context.read<EditExpenseVehicleBloc>().amountController,
-                              textType: TextInputType.numberWithOptions(decimal: true),
+                              textType: const TextInputType.numberWithOptions(decimal: true),
                               inputAction: TextInputAction.done,
                               textInputFormatter:[
                                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))

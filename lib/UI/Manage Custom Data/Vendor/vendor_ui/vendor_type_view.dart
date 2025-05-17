@@ -1,11 +1,9 @@
 
 
 
-import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -125,7 +123,7 @@ class VendorTypeView extends StatelessWidget {
                                                   FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
+                                          padding: EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 8.0),
                                           child: Text('Actions',
                                               style: TextStyle(

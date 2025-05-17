@@ -19,7 +19,7 @@ class TaskerBouncieBloc extends Bloc<TaskerBouncieEvent, TaskerBouncieState> {
   dynamic batteryLevel;
   bool hasData = false;
   final MapController mapController = MapController();
-  LatLng latLng = LatLng(0.0, 0.0);
+  LatLng latLng = const LatLng(0.0, 0.0);
   TaskerBouncieBloc() : super(TaskerBouncieLoadingState()) {
     on<TaskerBouncieInitialEvent>(_onInitialEvent);
   }

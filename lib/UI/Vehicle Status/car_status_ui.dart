@@ -8,7 +8,6 @@ import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_notes_page/UI/vehicle_notes_history_main_ui.dart';
 import 'package:fairpytasker/UI/cumulative_cost_list_ui.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_config/UI/vehicle_status_config_ui.dart';
-import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/UI/vehicle_status_check_list_body.dart';
 import 'package:fairpytasker/Bloc/todo_view_bloc.dart';
 import 'package:fairpytasker/Event/todo_view_event.dart';
 import 'package:fairpytasker/State/todo_view_state.dart';
@@ -18,7 +17,6 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Response/create_vehicle_data.dart';
 import 'package:fairpytasker/Bloc/vehicle_data_bloc.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

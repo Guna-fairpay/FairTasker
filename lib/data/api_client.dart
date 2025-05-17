@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:fairpytasker/Utilities/str.dart';
@@ -12,7 +11,6 @@ import 'package:http/http.dart' as http;
 import 'package:talker/talker.dart' show Talker;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:talker_http_logger/talker_http_logger.dart';
-import 'package:talker_http_logger/talker_http_logger_settings.dart';
 
 class ApiClient {
   // get client => http.Client()
@@ -198,7 +196,7 @@ class ApiClient {
   Future<http.Response> _postMultiPartCompute(dynamic message) async {
     var files = List<String>.from(message['files'] ?? []);
     List<http.MultipartFile> multiPartFiles = [];
-    if (files != null && files.isNotEmpty) {
+    if (files.isNotEmpty) {
       if (message['fieldName'] != null) {
         multiPartFiles = (await Converter.instance.convertFilePathToMultipart(
                 message['fieldName'],
@@ -214,7 +212,9 @@ class ApiClient {
             [];
       }
     }
-    if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:	${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
+    if (multiPartFiles.isNotEmpty) for (var element in multiPartFiles) {
+   Console.of.debug("TYPE:	${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES");
+ }
     var request = http.MultipartRequest("POST", message['url'])
       ..headers.addAll(message['token'])
       // ..fields.addAll(message['fields'])
@@ -244,7 +244,9 @@ class ApiClient {
         multiPartFiles = (await Converter.instance.convertFilePathToMultipartDynamicMap(files: infusedFiles)) ?? [];
       }
     }
-    if (multiPartFiles.isNotEmpty) multiPartFiles.forEach((element) => Console.of.debug("TYPE:\t${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES"));
+    if (multiPartFiles.isNotEmpty) for (var element in multiPartFiles) {
+   Console.of.debug("TYPE:\t${element.field} ${element.filename} ${element.contentType.type}", name: "MULTIPART_IMAGES");
+ }
     var request = http.MultipartRequest("POST", message['url']);
     if (multiPartFiles.isNotEmpty) request.files.addAll(multiPartFiles);
     if (message['fields'] != null) {

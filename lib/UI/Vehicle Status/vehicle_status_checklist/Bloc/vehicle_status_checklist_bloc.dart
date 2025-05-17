@@ -1,5 +1,4 @@
 
-import 'dart:math';
 
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_checklist/Bloc/vehicle_status_checklist_event.dart';
@@ -78,7 +77,7 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
           Console.of.debug('vehicle-response: $response');
         }
         if ((response?['status']==200)) {
-          vehicleConfigData.forEach((element) {
+          for (var element in vehicleConfigData) {
             if (element['id'] == event.data['category_id']) {
               element['checklists'].forEach((checklist) {
                 if (checklist['id'] == event.data['id']) {
@@ -86,7 +85,7 @@ class VehicleStatusChecklistBloc extends Bloc<VehicleStatusChecklistEvent, Vehic
                 }
               });
             }
-          });
+          }
          }
         _fBroadcast.broadcast("vehicleStatus",value: true);
         emit(VehicleStatusChecklistCommonState());

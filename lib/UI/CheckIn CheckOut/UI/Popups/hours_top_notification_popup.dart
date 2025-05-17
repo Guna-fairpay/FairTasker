@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/Popups/text_reason_popup.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,7 +73,7 @@ class HoursPopup {
       }
     }
 
-    final ScrollController _tableScrollController = ScrollController();
+    final ScrollController tableScrollController = ScrollController();
 
     showGeneralDialog(
       context: context,
@@ -235,14 +234,14 @@ class HoursPopup {
                                         interactive: true,
                                       ),
                                       child: Scrollbar(
-                                        controller: _tableScrollController,
+                                        controller: tableScrollController,
                                         thumbVisibility: true,
                                         trackVisibility: true,
                                         thickness: 10.0,
                                         interactive: true,
                                         radius: const Radius.circular(3.0),
                                         child: SingleChildScrollView(
-                                          controller: _tableScrollController,
+                                          controller: tableScrollController,
                                           child: Table(
                                             columnWidths: const {
                                               0: FlexColumnWidth(3), // Date

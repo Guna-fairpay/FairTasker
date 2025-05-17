@@ -4,14 +4,11 @@ import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/Bloc/employees_view_state.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_list_page.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_add_edit_page/UI/employee_add_edit_main_page.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EmployeeMainPage extends StatelessWidget {
   const EmployeeMainPage({super.key});

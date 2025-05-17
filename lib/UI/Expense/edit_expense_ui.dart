@@ -273,9 +273,9 @@ class _EditExpenseUIState extends State<EditExpenseUI>
                             // setState(() {});
                           },
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               borderRadius:
-                                  const BorderRadius.all(Radius.circular(12)),
+                                  BorderRadius.all(Radius.circular(12)),
                               color: AppC.red,
                             ),
                             padding: const EdgeInsets.symmetric(

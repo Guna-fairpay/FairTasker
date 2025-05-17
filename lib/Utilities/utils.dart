@@ -557,9 +557,9 @@ class Utils {
               //       width: borderWidth,
               //     ),
               //     borderRadius: BorderRadius.circular(borderRadius)),
-              suffixIconConstraints: BoxConstraints(),
+              suffixIconConstraints: const BoxConstraints(),
               suffixIcon: suffixIcon,
-            prefixIconConstraints: BoxConstraints(),
+            prefixIconConstraints: const BoxConstraints(),
             prefixIcon: prefixIcon,
           ),
           style: style ?? TextStyle(
@@ -677,9 +677,9 @@ class Utils {
               //       width: borderWidth,
               //     ),
               //     borderRadius: BorderRadius.circular(borderRadius)),
-              suffixIconConstraints: BoxConstraints(),
+              suffixIconConstraints: const BoxConstraints(),
               suffixIcon: suffixIcon,
-              prefixIconConstraints: BoxConstraints(),
+              prefixIconConstraints: const BoxConstraints(),
               prefixIcon: prefixIcon,
             ),
             style: style ?? TextStyle(
@@ -1084,7 +1084,7 @@ class Utils {
           textCapitalization: TextCapitalization.sentences,
           textInputAction: inputAction ?? TextInputAction.next,
           decoration: InputDecoration(
-            constraints: BoxConstraints(),
+            constraints: const BoxConstraints(),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
             //label: Utils.getText(labelText,color: AppC.grey),
             hintText: labelText,
@@ -1407,8 +1407,7 @@ class Utils {
         return Theme(
           data: ThemeData.light().copyWith(
             primaryColor: AppC().base,
-            colorScheme: ColorScheme.light(primary: AppC().base),
-            dialogBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.light(primary: AppC().base), dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           ),
           child: dialog,
         );

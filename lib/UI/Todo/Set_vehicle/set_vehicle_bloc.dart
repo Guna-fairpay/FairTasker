@@ -63,7 +63,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
 
 
     on<setVehicleInitialEvents>((event, emit) async {
-      emit(setVehicleLoading());
+      emit(const setVehicleLoading());
       Console.of.debug('setVehicleInitialEvents');
       try{
         final response = await getIt<CommonService>().getActiveVehicles(reset: true);
@@ -145,7 +145,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
 
     on<setVehicleSaveEvent> ((event, emit) async{
       try{
-        emit(setVehicleLoading());
+        emit(const setVehicleLoading());
         final createVehicleData = CreateVehicleData()
           ..id = vehicleId
           ..vehicleId = newVehicle['vehicle_id'].toString()
@@ -239,7 +239,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
           emit(setVehicleCommonState());
         } else {
           emit(setVehicleCommonState());
-          log("Error in save event ${response}");
+          log("Error in save event $response");
         }
       } catch (e) {
         emit(setVehicleCommonState());
@@ -279,12 +279,12 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
             ? int.tryParse(todoItem['vendor_id'].toString())
             : null
         ..vendorName = todoItem?['vendor_name'] ?? ''
-        ..vehicleNumber = vehicleNumberController?.text ?? newVehicle['vehicle_number']
+        ..vehicleNumber = vehicleNumberController.text ?? newVehicle['vehicle_number']
         ..vin = todoItem?['vin'] ?? '';
       Toaster.showSuccess("SpareKey Task Created");
       try {
         final response = await todoListRepo.spareKeyTask(spareKeyData);
-        log("${response}",name: "Create_SpareKey");
+        log("$response",name: "Create_SpareKey");
         _broadcast.stickyBroadcast("todo_view", value: true);
         emit(setVehicleLoaded(pop: true));
       } catch (e) {
@@ -419,7 +419,7 @@ class setVehicleBloc extends Bloc<setVehicleEvent,setVehicleState>{
                 final response = await vehicleDataRepo.deleteVehicleImages(imageId);
                 if (response != null) insuranceImage.remove(event.attachment);
                 emit(setVehicleCommonState());
-                log("${response}", name: "VEHICLE_Image");
+                log("$response", name: "VEHICLE_Image");
               } else {
                 emit(setVehicleCommonState());
               }

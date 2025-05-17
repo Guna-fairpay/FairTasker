@@ -90,7 +90,7 @@ class setVehicleInitialEvent extends VehicleDataEvent {
 
 class AddSpareKeysTask extends VehicleDataEvent {
   final CreateSpareKeyData? createSpareKeyTaskData;
-  AddSpareKeysTask({required this.createSpareKeyTaskData,});
+  const AddSpareKeysTask({required this.createSpareKeyTaskData,});
   @override
   List<Object?> get props => [createSpareKeyTaskData];
 }

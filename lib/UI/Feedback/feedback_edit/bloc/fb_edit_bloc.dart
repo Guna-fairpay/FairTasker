@@ -328,7 +328,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
       ConverterOptions.forEmail(),
     );
     var htmlContent = converter.convert();
-    d.log(" $lastVideoIndex, $lastImageIndex, ${imageFiles.length} ${videoFiles.length} ${htmlContent}", name: "BODY_DATA");
+    d.log(" $lastVideoIndex, $lastImageIndex, ${imageFiles.length} ${videoFiles.length} $htmlContent", name: "BODY_DATA");
     return await _feedBackRepository.updateFeedback(feedBackId, title: feedTitleController.text, description: htmlContent, priority: priority, status: status, files: [...imageFiles, ...videoFiles], lastImageIndex: lastImageIndex.toPositive, lastVideoIndex: lastVideoIndex.toPositive);
 
   }

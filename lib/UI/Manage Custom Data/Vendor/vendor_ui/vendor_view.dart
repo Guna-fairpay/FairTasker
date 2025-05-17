@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:math' as math;
 import 'package:fairpytasker/Component/custom_compact_search_view.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/suggestion_search_bar.dart';
@@ -9,7 +8,6 @@ import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_l
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_ui/vendor_type_view.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -218,7 +216,7 @@ class VendorView extends StatelessWidget {
                                                 }
                                                 context.read<VendorDataBloc>().add(AddVendorData(
                                                   name: context.read<VendorDataBloc>().nameController.text,
-                                                  vendorTypeId: selectedVendorType?['id'] ?? null,
+                                                  vendorTypeId: selectedVendorType?['id'],
                                                   address: context.read<VendorDataBloc>().addressController.text,
                                                   phone: context.read<VendorDataBloc>().phoneController.text,
                                                   expertise: context.read<VendorDataBloc>().expertiseController.text,

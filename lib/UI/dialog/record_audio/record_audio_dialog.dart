@@ -3,20 +3,16 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/Component/audio_player_widget.dart';
-import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_bloc.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_events.dart';
 import 'package:fairpytasker/UI/dialog/record_audio/record_audio_states.dart';
 import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RecordAudioDialog {
   RecordAudioDialog._();
@@ -81,7 +77,7 @@ class _RecordAudioDialogView extends StatelessWidget {
 }
 
 class _RecordAudioDialogContentView extends StatelessWidget {
-  const _RecordAudioDialogContentView({super.key});
+  const _RecordAudioDialogContentView();
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +106,7 @@ class _RecordAudioDialogContentView extends StatelessWidget {
                           label: const Text('Tap here to record'),
                           backgroundColor: AppC.lightGrey,
                           side: BorderSide.none,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)), avatar: Icon(Icons.mic),),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)), avatar: const Icon(Icons.mic),),
                     ),
                   ],
                   if (context.watch<RecordAudioBloc>().isRecording) ...[
@@ -130,7 +126,7 @@ class _RecordAudioDialogContentView extends StatelessWidget {
                               label: const Text('Tap here to stop'),
                               backgroundColor: AppC.lightGrey,
                               side: BorderSide.none,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)), avatar: Icon(Icons.mic_off_rounded, color: AppC.redAccent)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Num.borderRadiusXLarge)), avatar: const Icon(Icons.mic_off_rounded, color: AppC.redAccent)),
                         ),
                       ],
                     ),),

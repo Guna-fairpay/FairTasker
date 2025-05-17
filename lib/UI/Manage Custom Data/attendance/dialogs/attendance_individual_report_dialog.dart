@@ -1,5 +1,4 @@
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/attendance/dialogs/attendance_dialog_label_widget.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

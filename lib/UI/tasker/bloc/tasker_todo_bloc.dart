@@ -3,7 +3,6 @@ import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
 import 'package:collection/collection.dart';
 import 'package:date_time/date_time.dart' show DateTimeExtensions, Time;
-import 'package:fairpytasker/UI/dialog/transport_car_dialog/UI/transportcar_pop.dart';
 import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -110,8 +109,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
   void _listenBroadCast() {
     _fBroadcast.register("todo_view", (value, callback) {
-      if (value is Map) add(ToDoTaskerRefreshEvent(showLoading: (value?['showLoading'] ?? false), refresh: (value?['refresh'] ?? false)));
-      else add(ToDoTaskerRefreshEvent(showLoading: (value ?? false)));
+      if (value is Map) {
+        add(ToDoTaskerRefreshEvent(showLoading: (value['showLoading'] ?? false), refresh: (value['refresh'] ?? false)));
+      } else {
+        add(ToDoTaskerRefreshEvent(showLoading: (value ?? false)));
+      }
     });
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
@@ -350,8 +352,11 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         };
         emit(ToDoTaskerLoadingState());
         var response = await _updateToDo(body: body, todoId: model?['id']);
-        if (response != null) _reFetchToDos();
-        else emit(ToDoTaskerCommonState());
+        if (response != null) {
+          _reFetchToDos();
+        } else {
+          emit(ToDoTaskerCommonState());
+        }
       }
     } catch (e) {
       emit(ToDoTaskerErrorState(e));
@@ -401,7 +406,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     var hasMileage = (mileage > 0);
     var hasMandatory = ( mandatory == 0);
     var isAbleMaintenanceComplete = (hasMileage && hasMandatory);
-    Console.of.log("TASK COMPLETE ${identifierId} $taskTitle MILEAGE $hasMileage ($mileage) MANDATORY $hasMandatory ($mandatory) ${hasMileage && hasMandatory}");
+    Console.of.log("TASK COMPLETE $identifierId $taskTitle MILEAGE $hasMileage ($mileage) MANDATORY $hasMandatory ($mandatory) ${hasMileage && hasMandatory}");
     if (identifierId.toString().isNullOrEmpty) {
       /// CUSTOM TASK
       Console.of.log("CUSTOM TASK COMPLETE");
@@ -448,8 +453,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         case 210: emit(ToDoTaskerCompleteRentalPickupState(event.model)); break;
         case 27: emit(ToDoTaskerCompleteDropCarState(event.model)); break;
         case 324: {
-          if (hasMileage) _callCompleteApi(model);
-          else {
+          if (hasMileage) {
+            _callCompleteApi(model);
+          } else {
             emit(ToDoTaskerErrorState("Odometer is mandatory"));
             await Future.delayed(Durations.short1);
             emit(ToDoTaskerCompleteMaintenanceCheckState(event.model));

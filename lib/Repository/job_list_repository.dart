@@ -5,7 +5,6 @@ import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/create_job_params.dart';
 import 'package:fairpytasker/Response/general_response.dart';

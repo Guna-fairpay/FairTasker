@@ -16,7 +16,6 @@ import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -101,12 +100,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               .map((e) => e..["controller"] = TextEditingController())
               .toList();
         } else {
-          List<Map<String, dynamic>>.from(value).forEach((element) {
+          for (var element in List<Map<String, dynamic>>.from(value)) {
             if (partsList.map((e) => e['id']).contains(element['id']) ==
                 false) {
               partsList.add(element..["controller"] = TextEditingController());
             }
-          });
+          }
         }
         var currentIds =
             List<Map<String, dynamic>>.from(value).map((e) => e['id']);
@@ -123,13 +122,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           suppliesList = List<Map<String, dynamic>>.from(value)
               .map((e) => e..["controller"] = TextEditingController()).toList();
         } else {
-          List<Map<String, dynamic>>.from(value).forEach((element) {
+          for (var element in List<Map<String, dynamic>>.from(value)) {
             if (suppliesList.map((e) => e['id']).contains(element['id']) ==
                 false) {
               suppliesList.add(
                   element..["controller"] = TextEditingController());
             }
-          });
+          }
         }
         var suppliesIds = List<Map<String, dynamic>>.from(value).map((e) =>
             e['id']);
@@ -278,11 +277,11 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               .map((e) => e..["controller"] = TextEditingController()).toList();
           _updateExpenseTotal();
         } else {
-          selectedPart.forEach((element) {
+          for (var element in selectedPart) {
             if (partsList.map((e) => e['id']).contains(element['id']) == false) {
               partsList.add(element..["controller"] = TextEditingController());
             }
-          });
+          }
         }
         var currentIds = selectedPart.map((e) => e['id']);
         partsList.removeWhere((element) => !currentIds.contains(element['id']));
@@ -290,12 +289,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           suppliesList = selectedSupplies
               .map((e) => e..["controller"] = TextEditingController()).toList();
         }else{
-          selectedSupplies.forEach((element) {
+          for (var element in selectedSupplies) {
             if (suppliesList.map((e) => e['id']).contains(element['id']) == false) {
               suppliesList.add(
                   element..["controller"] = TextEditingController());
             }
-          });
+          }
         }
         var suppliesIds = selectedSupplies.map((e) => e['id']);
         suppliesList.removeWhere((element) => !suppliesIds.contains(element['id']));
@@ -304,20 +303,20 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           if (splitExpenses is List) {
             for (var expense in splitExpenses) {
               if (expense['parts_id'] != null) {
-                partsList.forEach((element) {
+                for (var element in partsList) {
                   if (element['id'] == expense['parts_id']) {
                     element['controller'].text = expense['amount'].toString();
                   }
-                });
+                }
                 _updateExpenseTotal();
               }
               if (expense['supplies_id'] != null) {
-                suppliesList.forEach((element) {
+                for (var element in suppliesList) {
                   if (element['id'] == expense['supplies_id']) {
                     element['controller'].text = expense['amount'].toString();
                   }
                   _updateExpenseTotal();
-                });
+                }
               }
             }
           }
@@ -705,7 +704,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               "rate": e['rate'] ?? 0,
               "total": e['rate'] ?? 0,
             }).toList();
-    log("${jsonEncode(baseBody)}", name: "Invoice_body");
+    log(jsonEncode(baseBody), name: "Invoice_body");
     return baseBody;
   }
 

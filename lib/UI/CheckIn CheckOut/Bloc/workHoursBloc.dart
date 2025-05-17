@@ -187,7 +187,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     } catch (e) {
                       print("Error finding history item for user $userId: $e");
                     }
-                    log("${historyItem}", name: "historyItem");
+                    log("$historyItem", name: "historyItem");
                     // matching active hours item
                     try {
                       activeHoursItem = workActivehours.firstWhere(
@@ -277,7 +277,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   workActiveHours,
                   formattedResources,
               );
-              log("${combinedData}", name: "combinedData");
+              log("$combinedData", name: "combinedData");
               //Punch Card Calculation Start
               List<Map<String, dynamic>> formatEmployeeData(
                   List<Map<String, dynamic>> rawData,
@@ -300,7 +300,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
                   String calculateElapsedTime(String startTime) {
                     DateTime startDateTime = DateFormat("dd-MM-yyyy HH:mm:ss").parseUtc(startTime);
-                    DateTime now = DateTime.now().toUtc().subtract(Duration(hours: 5));
+                    DateTime now = DateTime.now().toUtc().subtract(const Duration(hours: 5));
 
                     if (now.isBefore(startDateTime)) return "00:00";
 
@@ -705,11 +705,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       List<Map<String, dynamic>> commentList = [];
       commentList.clear();
       commentList = comment!.comments!;
-      print("comment ${commentList}");
+      print("comment $commentList");
 
       //Helper Function
 
-      DateTime _parseAnyDateFormat(String dateStr) {
+      DateTime parseAnyDateFormat(String dateStr) {
         final possibleFormats = [
           'dd/MM/yyyy',
           'MM/dd/yyyy',
@@ -747,12 +747,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
           // Handle case where input might be "null" as string
           if (dateRange.toLowerCase() == 'null') {
-            throw FormatException('Explicit "null" string provided');
+            throw const FormatException('Explicit "null" string provided');
           }
 
           // Check for single date
           if (!dateRange.contains('-') && !dateRange.contains('/') && !dateRange.contains(' ')) {
-            final singleDate = _parseAnyDateFormat(dateRange);
+            final singleDate = parseAnyDateFormat(dateRange);
             final formatted = DateFormat('yyyy-MM-dd').format(singleDate);
             return [formatted, formatted];
           }
@@ -769,7 +769,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           }
 
           if (separator == null) {
-            throw FormatException('No valid range separator found. Use " - ", " to ", or similar');
+            throw const FormatException('No valid range separator found. Use " - ", " to ", or similar');
           }
 
           final parts = dateRange.split(separator);
@@ -777,11 +777,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             throw FormatException('Expected exactly two dates separated by "$separator"');
           }
 
-          final fromDate = _parseAnyDateFormat(parts[0].trim());
-          final toDate = _parseAnyDateFormat(parts[1].trim());
+          final fromDate = parseAnyDateFormat(parts[0].trim());
+          final toDate = parseAnyDateFormat(parts[1].trim());
 
           if (toDate.isBefore(fromDate)) {
-            throw FormatException('End date cannot be before start date');
+            throw const FormatException('End date cannot be before start date');
           }
 
           return [
@@ -992,7 +992,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       final taskHistory = await apiRepository.fetchEmployeeTaskHistory(
         to: event.to,
         from: event.from,
-        userId: event.userId, cohortIds: event?.cohortIds ?? [],
+        userId: event.userId, cohortIds: event.cohortIds ?? [],
       );
       List<Map<String, dynamic>> combinedHistory = [];
       combinedHistory.addAll(taskHistory?.allHistory ?? []);
@@ -1038,7 +1038,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                       classifiedTask[parentCategory['name']] ??= [];
                       classifiedTask[parentCategory['name']]!.add({
                         'title': title,
-                        'id': childCategory['id'] ?? null
+                        'id': childCategory['id']
                       });
                       addedTitles.add(lowercaseTitle);
                     }
@@ -1052,7 +1052,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
                   classifiedTask[parentCategory['name']]!.add({
                     'title': title,
-                    'id': parentCategory['id'] ?? null
+                    'id': parentCategory['id']
                   });
                   addedTitles.add(lowercaseTitle);
                 }
@@ -1102,7 +1102,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           return sortedTask;
         }
         var result = sortTitles(titles, taskCategoryGroup);
-        log("result ${result}",name: "result");
+        log("result $result",name: "result");
 
         //Helper Function
         List<Map<String, dynamic>> formatTaskData(List<Map<String, dynamic>> categoryData, List<Map<String, dynamic>> tasks)
@@ -1181,7 +1181,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 }).toList();
               } else {
                   vehicles.add({
-                    "person": task['person']?.toString() ?? null,
+                    "person": task['person']?.toString(),
                     "todo_date": task['todo_date'] ?? '',
                   });
               }
@@ -1200,7 +1200,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
 
             subcategories = groupedTasks.values.toList();
-            log("subcategories ${subcategories}",name: "subcategories");
+            log("subcategories $subcategories",name: "subcategories");
             finalList.add({
               "title": category['title'],
               "count": subcategories.length,
@@ -1211,10 +1211,10 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         }
         List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
 
-        log("taskData ${taskData}",name: "taskData");
+        log("taskData $taskData",name: "taskData");
 
         //Total amount calculation
-        Map<String, dynamic> _calculateTotals(
+        Map<String, dynamic> calculateTotals(
             List<Map<String, dynamic>> taskData,
             List<Map<String, dynamic>> paymentData,
             )
@@ -1279,7 +1279,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           };
 
         }
-        int totalAmount = _calculateTotals(taskData, data!.data ?? [])['totalAmount'];
+        int totalAmount = calculateTotals(taskData, data!.data ?? [])['totalAmount'];
         //Total amount calculation End
 
         emit(state.copyWith(
@@ -1289,7 +1289,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           cohortsData: response1?.data ?? [],
           totalAmount: totalAmount,
           taskData: taskData,
-          amountData: data?.data ?? [],
+          amountData: data.data ?? [],
         ));
       }
       catch (e){
@@ -1383,7 +1383,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       final response2 = await apiRepository.getActiveHoursResponse(extractDate(event.startDate), extractDate(event.endDate));
       final response = await apiRepository.fetchEmployeeTaskHistoryByTask(
         date: formatedDate(event.data['date']),
-        userId: event.userId, cohortIds: event?.cohortIds ?? [],
+        userId: event.userId, cohortIds: event.cohortIds ?? [],
       );
       final relevantHours = response2?.data?.where(
             (activeHour) => activeHour['user_id']?.toString() == event.userId.toString() && activeHour['todo_date'].toString() == formatedDate(event.data['date']),
@@ -1420,7 +1420,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       final response3 = await apiRepository.getTaskCategoryGroups();
       final response = await apiRepository.fetchEmployeeTaskHistoryByTask(
         date: formatedDate(event.date),
-        userId: event.userId, cohortIds: event?.cohortIds ?? [],
+        userId: event.userId, cohortIds: event.cohortIds ?? [],
       );
       log("${response?.allHistory}", name: "cohorts_data");
       List<String>? titles = response3?.data?.map((item) => item['name'].toString()).toList();
@@ -1458,7 +1458,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                     classifiedTask[parentCategory['name']] ??= [];
                     classifiedTask[parentCategory['name']]!.add({
                       'title': title,
-                      'id': childCategory['id'] ?? null
+                      'id': childCategory['id']
                     });
                     addedTitles.add(lowercaseTitle);
                   }
@@ -1472,7 +1472,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
                 classifiedTask[parentCategory['name']]!.add({
                   'title': title,
-                  'id': parentCategory['id'] ?? null
+                  'id': parentCategory['id']
                 });
                 addedTitles.add(lowercaseTitle);
               }
@@ -1600,7 +1600,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               }).toList();
             } else {
               vehicles.add({
-                "person": task['person']?.toString() ?? null,
+                "person": task['person']?.toString(),
                 "todo_date": task['todo_date'] ?? '',
               });
             }

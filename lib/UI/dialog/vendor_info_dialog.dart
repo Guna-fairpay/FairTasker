@@ -21,7 +21,7 @@ class VendorInfoDialog {
 class _VendorInfoDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
 
-  const _VendorInfoDialogView({super.key, this.model});
+  const _VendorInfoDialogView({this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +47,11 @@ class _VendorInfoDialogView extends StatelessWidget {
       ),
       content: Container(
         width: double.maxFinite,
-        decoration: BoxDecoration(),
+        decoration: const BoxDecoration(),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         padding: 10.sp.padding,
         child: Table(
-          columnWidths: {
+          columnWidths: const {
             0: FlexColumnWidth(),
             1: FlexColumnWidth(2),
           },

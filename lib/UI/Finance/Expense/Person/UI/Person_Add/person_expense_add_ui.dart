@@ -12,8 +12,6 @@ import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
-import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +25,7 @@ class PersonExpenseAddUI extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<PersonExpenseBloc>(
       create: (context) =>
-          PersonExpenseBloc()..add(GetPersonExpenseAddData()),
+          PersonExpenseBloc()..add(const GetPersonExpenseAddData()),
       child: BlocListener<PersonExpenseBloc, PersonExpenseState>(
         listener: (_, state) {
           state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
@@ -49,11 +47,11 @@ class PersonExpenseAddUI extends StatelessWidget {
               actions: [
                 IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.close))
+                    icon: const Icon(Icons.close))
               ],
             ),
             body: SafeArea(
-              minimum: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+              minimum: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
               child: ListView(
                 children: [
                   Row(

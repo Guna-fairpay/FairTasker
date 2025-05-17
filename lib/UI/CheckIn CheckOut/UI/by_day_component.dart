@@ -47,7 +47,7 @@ class ByDayComponent extends StatelessWidget {
               ),
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('${title ?? ''}',
+                title: Text(title ?? '',
                     style: const TextStyle(fontWeight: FontWeight.bold,color: AppC.appColor,)),
                 subtitle: SizedBox(
                   width: 100,
@@ -55,16 +55,16 @@ class ByDayComponent extends StatelessWidget {
                     spacing: 4,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Utils.getText("${vehicleName ?? ''}",),
+                    Utils.getText(vehicleName ?? '',),
                     Row(
                       spacing: 5,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Utils.getText("${vendorName ?? ''}",overFlow: TextOverflow.ellipsis),
+                        Utils.getText(vendorName ?? '',overFlow: TextOverflow.ellipsis),
                         if(notes != null && notes!.isNotEmpty && notes != '')...[
                           Expanded(child: Utils.getText("(${notes ?? ''})",color: AppC.appColor,overFlow: TextOverflow.ellipsis))
                         ] else...[
-                          SizedBox()
+                          const SizedBox()
                         ],
                       ],
                     )
@@ -74,9 +74,9 @@ class ByDayComponent extends StatelessWidget {
                   spacing: 2,
                   children:[
                     Padding(
-                      padding: EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                        '${time ?? ''}',
+                        time ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -84,7 +84,7 @@ class ByDayComponent extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${resource ?? ''}',
+                      resource ?? '',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,

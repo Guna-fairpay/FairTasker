@@ -136,7 +136,7 @@ class EditPrivateRentalBloc extends Bloc<EditPrivateRentalEvent, EditPrivateRent
   Map<String, String> _saveRental() {
     Map<String, String> baseBody = {};
     baseBody['vin'] = "${selectedVehicle['vin'] ?? ''}";
-    baseBody['customer_id'] = "${selectedCustomer?['id'] ??''}";
+    baseBody['customer_id'] = "${selectedCustomer['id'] ??''}";
     baseBody['check_in_date'] = selectedCheckInDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['check_out_date'] = selectedCheckOutDate?.toFormat(format: 'yyyy-MM-dd')??'';
     baseBody['check_in_mileage'] =  checkInMileageController.text;

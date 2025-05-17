@@ -220,7 +220,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                           children: [
                                             Utils.getBorderedMultilineTextField(
                                               'Notes',
-                                              state.notesControllers?[item['id']] ??
+                                              state.notesControllers[item['id']] ??
                                                   TextEditingController(),
                                               minLines: 2,
                                             ),
@@ -240,7 +240,7 @@ class MaintenanceCheckListUI extends StatelessWidget {
                                                     e['name'] == state.selectedDropdownValues[item['id']]).isEmpty ? 0 : item['children'].firstWhere((e) =>
                                                     e['name'] == state.selectedDropdownValues[item['id']])['id']}',
                                                     notes:
-                                                    '${maintenanceCheckListData?['name'] ?? 'Other'}-${item?['name'] ?? ''}-${state.selectedDropdownValues[item['id']] ?? "Unknown"}',
+                                                    '${maintenanceCheckListData['name'] ?? 'Other'}-${item?['name'] ?? ''}-${state.selectedDropdownValues[item['id']] ?? "Unknown"}',
                                                     comments:
                                                     state.notesControllers[item['id']]!.text,
                                                     item: item['id'],

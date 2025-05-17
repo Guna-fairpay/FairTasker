@@ -200,7 +200,7 @@ class _SuggestionSearchBarState<T> extends State<SuggestionSearchBar<T>> {
             borderRadius: BorderRadius.circular(Num.subradiusButton),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppC.appColor, width: Num.borderWidthField),
+            borderSide: const BorderSide(color: AppC.appColor, width: Num.borderWidthField),
             borderRadius: BorderRadius.circular(Num.subradiusButton),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),

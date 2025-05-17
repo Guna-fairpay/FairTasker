@@ -67,7 +67,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
               try {
                 checklistId = int.tryParse(fixTasksMap.entries
                     .firstWhere((entry) => entry.value == todo['id'],
-                    orElse: () => MapEntry('', null))
+                    orElse: () => const MapEntry('', null))
                     .key.toString()) ??
                     0;
               } catch (e) {
@@ -110,7 +110,7 @@ class PrivateRentalsBloc extends Bloc<PrivateRentalsEvent, PrivateRentalsState> 
               String noteContent = todo['notes'];
               String notesPrefix = todo['notePrefix'];
               if (controllers.containsKey(checklistId)) {
-                controllers[checklistId]!.text = noteContent != '' ? '$noteContent' : notesPrefix != '' ? notesPrefix : '';
+                controllers[checklistId]!.text = noteContent != '' ? noteContent : notesPrefix != '' ? notesPrefix : '';
                 checkBoxStates[checklistId] = false;
               }
             }

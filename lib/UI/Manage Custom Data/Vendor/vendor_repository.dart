@@ -1,16 +1,5 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:fairpytasker/Response/vendor_type_response.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:fairpytasker/Utilities/str.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/data/api_client.dart';
-import 'package:fairpytasker/Response/general_response.dart';
-import 'package:flutter/cupertino.dart';
 
-import '../../../Response/vendor_response.dart';
 
 class VendorDataRepo {
   ApiClient apiClient = ApiClient();

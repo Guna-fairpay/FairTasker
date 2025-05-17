@@ -21,7 +21,7 @@ class TaskerMaintenanceCompleteDialog {
 
 class _TaskerMaintenanceCompleteDialog extends StatelessWidget {
   final Map<String, dynamic>? model;
-  const _TaskerMaintenanceCompleteDialog({super.key, this.model});
+  const _TaskerMaintenanceCompleteDialog({this.model});
 
   @override
   Widget build(BuildContext context) {

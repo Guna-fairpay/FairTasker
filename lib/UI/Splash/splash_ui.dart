@@ -6,7 +6,6 @@ import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/main.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

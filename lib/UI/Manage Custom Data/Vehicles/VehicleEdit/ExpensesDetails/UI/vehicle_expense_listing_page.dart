@@ -57,7 +57,7 @@ class VehicleExpenseListingPageUI extends StatelessWidget {
 
 class _VehicleExpenseListingPageContentUI extends StatelessWidget {
   final ScrollPhysics? physics;
-  const _VehicleExpenseListingPageContentUI({super.key, this.physics = const NeverScrollableScrollPhysics()});
+  const _VehicleExpenseListingPageContentUI({this.physics = const NeverScrollableScrollPhysics()});
 
   @override
   Widget build(BuildContext context) {

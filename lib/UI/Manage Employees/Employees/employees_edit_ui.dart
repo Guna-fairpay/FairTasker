@@ -1,15 +1,7 @@
-import 'package:fairpytasker/Bloc/department_bloc.dart';
-import 'package:fairpytasker/Bloc/roles_bloc.dart';
-import 'package:fairpytasker/Event/department_event.dart';
-import 'package:fairpytasker/Event/roles_event.dart';
-import 'package:fairpytasker/State/department_state.dart';
-import 'package:fairpytasker/State/roles_state.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/employee_bloc.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Event/employee_event.dart';
 import '../../../State/employee_state.dart';
 import '../../../Utilities/appC.dart';

@@ -38,7 +38,7 @@ class FeedbackCommentAttachments extends StatelessWidget {
             itemBuilder: (context, index) {
               int? attachmentId;
               var model = context.read<FBEditBloc>().commentAttachments[index];
-              if(context.read<FBEditBloc>().attachmentMetadata != null && context.read<FBEditBloc>().attachmentMetadata.isNotEmpty && (model is File)){
+              if(context.read<FBEditBloc>().attachmentMetadata.isNotEmpty && (model is File)){
                 // var metadata = context.read<FBEditBloc>().attachmentMetadata?[index];
                 // attachmentId = metadata?['id'];
                 attachmentId = 0;

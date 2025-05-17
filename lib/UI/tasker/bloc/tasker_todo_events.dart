@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/gestures.dart' show TapDownDetails;
 import 'package:flutter/material.dart';
 
 abstract class ToDoTaskerEvent extends Equatable {

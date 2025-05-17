@@ -7,8 +7,6 @@ import 'package:fairpytasker/Response/create_fix_task_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Repository/todo_list_repository.dart';
-import '../../../Utilities/Str.dart';
-import '../../../Utilities/prefs.dart';
 import '../../../Utilities/utils.dart';
 import 'check_list_event.dart';
 import 'check_list_state.dart';
@@ -85,7 +83,7 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
               try{
                 checklistId = int.tryParse(fixTasksMap.entries
                     .firstWhere((entry) => entry.value == todo['id'],
-                    orElse: () => MapEntry('', null))
+                    orElse: () => const MapEntry('', null))
                     .key.toString()) ?? 0;
               } catch (e){
                 log("Error finding checklistId for todo['id']: ${todo['id']}, error: $e", name: "CheckListBloc");
@@ -132,14 +130,14 @@ class CheckListBloc extends Bloc<CheckListEvent, CheckListState> {
               String noteContent = todo['notes'];
               String notesPrefix = todo['notePrefix'];
               if (controllers.containsKey(checklistId)) {
-                controllers[checklistId]!.text = noteContent != '' ? '$noteContent' : notesPrefix != '' ? notesPrefix : '';
+                controllers[checklistId]!.text = noteContent != '' ? noteContent : notesPrefix != '' ? notesPrefix : '';
                 checkBoxStates[checklistId] = false;
               }
             }
           }
         }
-        log("${checkBoxStates}" , name: "checkBoxStates");
-        log("${notesValues}" , name: "notesValues");
+        log("$checkBoxStates" , name: "checkBoxStates");
+        log("$notesValues" , name: "notesValues");
 
         emit(state.copyWith(
           isLoading: false,

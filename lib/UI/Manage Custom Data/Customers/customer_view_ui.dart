@@ -1,5 +1,4 @@
 
-import 'dart:developer';
 
 import 'package:fairpytasker/Bloc/private_rental_bloc.dart';
 import 'package:fairpytasker/Event/private_rental_event.dart';

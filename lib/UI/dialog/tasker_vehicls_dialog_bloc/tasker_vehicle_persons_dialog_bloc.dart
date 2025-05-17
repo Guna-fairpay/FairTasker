@@ -47,13 +47,13 @@ class TVPDBloc extends Bloc<TVPDEvents, TVPDStates> {
 
   Map<String, dynamic>? _removeExisting(Map<String, dynamic>? model) {
     Console.of.log("Removing_Model $model");
-    var _vehicles = selectedModel?['display']?['vehicles'];
-    var _persons = (selectedModel?['display']?['personId'].toString().isNotNullOrEmpty ?? false) ? persons.where((element) => element['id'].toString() == selectedModel?['display']?['personId']).toList() : [];
-    var _groupVehicles = (selectedModel?['display']?['vehicleGroupId'].toString().isNotNullOrEmpty ?? false) ? groupVehicles.where((element) => element['id'] == selectedModel?['display']?['vehicleGroupId']).toList() : [];
+    var vehicles = selectedModel?['display']?['vehicles'];
+    var person = (selectedModel?['display']?['personId'].toString().isNotNullOrEmpty ?? false) ? persons.where((element) => element['id'].toString() == selectedModel?['display']?['personId']).toList() : [];
+    var groupVehicle = (selectedModel?['display']?['vehicleGroupId'].toString().isNotNullOrEmpty ?? false) ? groupVehicles.where((element) => element['id'] == selectedModel?['display']?['vehicleGroupId']).toList() : [];
     if (model?['type'] == 'vehicles') {
       var vin = model?['value']?['vin'];
-      _vehicles.removeWhere((element) => element['id'] == model?['id']);
-      selectedModel?['display']?['vehicles'] = _vehicles;
+      vehicles.removeWhere((element) => element['id'] == model?['id']);
+      selectedModel?['display']?['vehicles'] = vehicles;
       var result = List.from(selectedModel?['vehicles']).firstWhereOrNull((element) => element['vin'] == vin);
       List.from(selectedModel?['vehicles']).removeWhere((element) => element['vin'] == vin);
       return result;

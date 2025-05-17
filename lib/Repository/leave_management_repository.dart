@@ -1,7 +1,6 @@
 
 import 'dart:convert';
 import 'dart:developer';
-import 'package:fairpytasker/Response/department_response.dart';
 import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
 import 'package:http/http.dart' as http;
 import 'package:fairpytasker/Utilities/str.dart';
@@ -65,7 +64,6 @@ class LeaveManagementRepository {
       String apiUrl = '';
       http.Response? response;
       if(id != null) {
-        print(body);
         apiUrl = "${Str.GOPORTAL_BASE_URL}updateLeave/$id";
         debugPrint("getAssignedTo apiUrl: $apiUrl");
         response = await apiClient.callPostMethod(apiUrl, body: body);

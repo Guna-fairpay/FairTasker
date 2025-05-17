@@ -13,12 +13,8 @@ import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
-import '../Response/create_fix_task_data.dart';
-import '../State/todo_view_state.dart';
 import '../UI/Todo/create_sparekey_data.dart';
-import '../Utilities/Str.dart';
 part '../Event/vehicle_data_event.dart';
 part '../State/vehicle_data_state.dart';
 
@@ -102,7 +98,7 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
         emit(setVehicleDataLoading(pop: false));
         try {
           final response = await vehicleDataRepo.createVehicle(event.createVehicleData!);
-          d.log("${response}", name: "UPDATE_DATA");
+          d.log("$response", name: "UPDATE_DATA");
           _broadcast.stickyBroadcast("todo_view", value: true);
 
           final response1 = await getIt<CommonService>().getActiveVehicles(reset: true);
@@ -167,9 +163,9 @@ class VehicleDataBloc extends Bloc<VehicleDataEvent, VehicleDataState> {
           vehicle = {};
         }
       }
-      d.log("${vehicle}", name: "VEHICLE_Image");
+      d.log("$vehicle", name: "VEHICLE_Image");
       emit(setVehicleImageLoaded(currentVehicle: vehicle));
-      d.log("${response}", name: "VEHICLE_Image");
+      d.log("$response", name: "VEHICLE_Image");
     });
 
 

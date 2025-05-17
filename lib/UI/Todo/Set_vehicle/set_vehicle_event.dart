@@ -23,56 +23,56 @@ class setVehicleInitialEvents extends setVehicleEvent {
 
 class setVehicleBouncieEvent extends setVehicleEvent {
   final bool value;
-  setVehicleBouncieEvent({required this.value});
+  const setVehicleBouncieEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehicleAirTagEvent extends setVehicleEvent {
   final bool value;
-  setVehicleAirTagEvent({required this.value});
+  const setVehicleAirTagEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehicleSpareTireEvent extends setVehicleEvent {
   final bool value;
-  setVehicleSpareTireEvent({required this.value});
+  const setVehicleSpareTireEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehicleTollTagsEvent extends setVehicleEvent {
   final bool value;
-  setVehicleTollTagsEvent({required this.value});
+  const setVehicleTollTagsEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehicleSpareKeyEvent extends setVehicleEvent {
   final bool value;
-  setVehicleSpareKeyEvent({required this.value});
+  const setVehicleSpareKeyEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehiclePermanentPlateEvent extends setVehicleEvent {
   final bool value;
-  setVehiclePermanentPlateEvent({required this.value});
+  const setVehiclePermanentPlateEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehicleFLicensePlateEvent extends setVehicleEvent {
   final bool value;
-  setVehicleFLicensePlateEvent({required this.value});
+  const setVehicleFLicensePlateEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
 
 class setVehicleDatePickerEvent extends setVehicleEvent {
   final dynamic value;
-  setVehicleDatePickerEvent({required this.value});
+  const setVehicleDatePickerEvent({required this.value});
   @override
   List<Object?> get props => [value];
 }
@@ -83,7 +83,7 @@ class createSparekeyTask extends setVehicleEvent { }
 
 class setVehicleAddAttachmentEvent extends setVehicleEvent {
   final dynamic imageType;
-  setVehicleAddAttachmentEvent({required this.imageType});
+  const setVehicleAddAttachmentEvent({required this.imageType});
   @override
   List<Object?> get props => [imageType, Random().nextDouble()];
 }
@@ -92,7 +92,7 @@ class setVehicleRemoveAttachmentEvent extends setVehicleEvent {
   final dynamic attachment;
   final List<dynamic> attachments;
   final dynamic imageType;
-  setVehicleRemoveAttachmentEvent(this.attachment, this.attachments, this.imageType);
+  const setVehicleRemoveAttachmentEvent(this.attachment, this.attachments, this.imageType);
   @override
   List<Object?> get props => [attachment, attachments, imageType, Random().nextDouble()];
 }

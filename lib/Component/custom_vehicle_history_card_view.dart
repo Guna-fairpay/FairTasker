@@ -184,10 +184,10 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                         ?.copyWith(color: AppC.redAccent),
                                   )),
                               // TODO USER NAME
-                              if (userNameText?.isNotEmpty ?? false)
+                              if (userNameText.isNotEmpty ?? false)
                               GestureDetector(
                                 onTapDown: (details) => onUserTap?.call(users),
-                                child: Text("$userNameText",
+                                child: Text(userNameText,
                                     style: context.textTheme.labelLarge?.copyWith(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13.sp,
@@ -257,7 +257,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (hasCustom && (customText?.isNotEmpty ?? false))
+                    if (hasCustom && (customText.isNotEmpty ?? false))
                       InkWell(
                         onTap: () => onCustom?.call(customId, customLink),
                         borderRadius: const BorderRadius.only(
@@ -272,7 +272,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                   bottomRight: Radius.circular(6.0)),
                               color: Colors.black),
                           child: Text(
-                            "$customText",
+                            customText,
                             style: context.textTheme.labelSmall?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),

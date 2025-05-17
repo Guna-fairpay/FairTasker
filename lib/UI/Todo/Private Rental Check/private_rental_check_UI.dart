@@ -171,11 +171,11 @@ class PrivateRentalCheckUi extends StatelessWidget {
                             (todo) => todo['checklist_id'] == itemId,
                         orElse: () => {},
                       );
-                      log("${matchingTodo}", name: "matchingTodo");
+                      log("$matchingTodo", name: "matchingTodo");
                       context.read<PrivateRentalsBloc>().add(
                         UpdateFixTaskEvent(
                           todoId: matchingTodo['id'],
-                          notes: '${notesController.text}',
+                          notes: notesController.text,
                         ),
                       );
                     },

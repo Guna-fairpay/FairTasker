@@ -136,7 +136,7 @@ class _VendorAddUIState extends State<VendorAddUI> {
     }
     final newVendor = {
       'name': nameController.text,
-      'vendor_type': selectedVendorType?['id'] ?? null,
+      'vendor_type': selectedVendorType?['id'],
       'address': addressController.text,
       'phone': phoneController.text,
       'expertise': expertiseController.text,

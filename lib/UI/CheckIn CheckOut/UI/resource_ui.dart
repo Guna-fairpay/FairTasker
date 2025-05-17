@@ -2,7 +2,6 @@
 
 // working_hours_view_ui.dart
 import 'dart:developer';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -184,35 +183,35 @@ class WorkHoursViewUI extends StatelessWidget {
                                   ),
                                   children: [
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                                       child: Text(
                                         "${item['User'] ?? ''}",
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                                       child: Text(
                                         "${item['CheckIn'] ?? ''}",
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                                       child: Text(
                                         "${item['CheckOut'] ?? ''}",
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                                       child: Text(
                                         "${item['Active'] ?? ''}",
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                                       child: Text(
                                         "${item['Total'] ?? ''}",
                                         textAlign: TextAlign.center,
@@ -271,7 +270,7 @@ class WorkHoursViewUI extends StatelessWidget {
                               context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(minDate: startDate, maxDate: endDate));
                               dates.clear();
                               dates = generateDateList(startDate, endDate);
-                              log("${dates}", name: "dates");
+                              log("$dates", name: "dates");
                             },
                           ),
                         ),

@@ -3,9 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:fairpytasker/Response/assigned_to_response.dart';
 import 'package:fairpytasker/Response/cohorts_response.dart';
-import 'package:fairpytasker/Response/employee_response.dart';
 import 'package:fairpytasker/Response/general_response.dart';
-import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
@@ -20,7 +18,6 @@ import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/data/api_client.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 import '../Response/GetActiveHoursResponse.dart';
 import '../Response/GetWorkingHoursData.dart';
 import '../Response/punchList_Response.dart';
@@ -439,10 +436,10 @@ class APiRepository {
 
   Future<Map<String, dynamic>?> getEmployeeTaskHistoryByDay(dynamic date, dynamic userId) async {
     try{
-      String apiUrl = "${Str.BASE_URL}$_employeeTaskHistoryByDay${date}&user_id=${userId}";
+      String apiUrl = "${Str.BASE_URL}$_employeeTaskHistoryByDay$date&user_id=$userId";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
-      log("${mapData}", name: "Response_TaskHistoryByDay");
+      log("$mapData", name: "Response_TaskHistoryByDay");
       return mapData;
     } catch(error){
       rethrow;
@@ -746,9 +743,10 @@ class APiRepository {
   Future<Map<String, dynamic>?> saveNote(
       {required dynamic vin, required DateTime? date}) async {
     try {
-      if ((vin.toString().isNullOrEmpty) || (date == null))
+      if ((vin.toString().isNullOrEmpty) || (date == null)) {
         throw Exception(
             (vin.toString().isNullOrEmpty) ? "Invalid VIN" : "Invalid Date");
+      }
       String apiUrl = "${Str.LIST_BASE_URL}$_saveNote$vin";
       Map<String, dynamic> body = {
         "followup_date": date.toFormat(format: "yyyy-MM-dd") ?? ""
@@ -839,7 +837,7 @@ class APiRepository {
         "model": model,
         "filter_data": filterData
       };
-      log("${jsonEncode(body)}", name: "UPLOAD_BODY");
+      log(jsonEncode(body), name: "UPLOAD_BODY");
       final http.Response? response =
           await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
       var mapData = await response.mapData;
@@ -1363,7 +1361,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
   Future<bool?> createLocation({int? id, String? name, List<dynamic>? address}) async {
     try {
-      log(" id - ${id} name - ${name} address - ${address}");
+      log(" id - $id name - $name address - $address");
       Map<String, dynamic> body = {
         "platform": 'TaskerApp',
         "status": "1",

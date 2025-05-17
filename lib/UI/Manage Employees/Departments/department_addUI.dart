@@ -2,12 +2,9 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../Bloc/users_bloc.dart';
-import '../../../Component/drawer_ui.dart';
-import '../../../Component/header.dart';
 import '../../../Event/users_event.dart';
 import '../../../State/user_state.dart';
 import '../../../Utilities/appC.dart';
-import '../../../Utilities/num.dart';
 import '../../../Utilities/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

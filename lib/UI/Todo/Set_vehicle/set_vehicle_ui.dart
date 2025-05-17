@@ -1,7 +1,6 @@
 
 
 
-import 'dart:developer';
 
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/success_button.dart';
@@ -25,7 +24,7 @@ import '../../../Utilities/utils.dart';
 class SetVehicleUi extends StatelessWidget {
   final dynamic selectedVehicle;
   final Map<String, dynamic> todoItems;
-  SetVehicleUi({super.key, this.selectedVehicle, required this.todoItems});
+  const SetVehicleUi({super.key, this.selectedVehicle, required this.todoItems});
 
 
 
@@ -129,7 +128,7 @@ class SetVehicleUi extends StatelessWidget {
                                 Utils.getTextFormField('Enter the toll tag id', context.read<setVehicleBloc>().tollTagsIdController),
                                 Container(
                                   width: double.infinity,
-                                  padding: EdgeInsets.symmetric(vertical: 3),
+                                  padding: const EdgeInsets.symmetric(vertical: 3),
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                         color: AppC.fieldBase,
@@ -143,7 +142,7 @@ class SetVehicleUi extends StatelessWidget {
                                     icon: Icons.cloud_upload,
                                     backgroundColor: AppC.white,
                                     foregroundColor: AppC.grey,
-                                    onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 5)),
+                                    onPressed: ()=> context.read<setVehicleBloc>().add(const setVehicleAddAttachmentEvent(imageType: 5)),
                                   )
                                 ),
                               ],
@@ -248,7 +247,7 @@ class SetVehicleUi extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 2),
                           decoration: BoxDecoration(
                               border: Border.all(
                                 color: AppC.fieldBase,
@@ -261,7 +260,7 @@ class SetVehicleUi extends StatelessWidget {
                               icon: Icons.cloud_upload,
                               backgroundColor: AppC.white,
                               foregroundColor: AppC.grey,
-                              onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 2)),
+                              onPressed: ()=> context.read<setVehicleBloc>().add(const setVehicleAddAttachmentEvent(imageType: 2)),
                             )
                         ),
                         Expanded(
@@ -399,7 +398,7 @@ class SetVehicleUi extends StatelessWidget {
                                   icon: Icons.cloud_upload,
                                   backgroundColor: AppC.white,
                                   foregroundColor: AppC.grey,
-                                  onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 3)),
+                                  onPressed: ()=> context.read<setVehicleBloc>().add(const setVehicleAddAttachmentEvent(imageType: 3)),
                                 ),
                               ),
                             ],
@@ -458,7 +457,7 @@ class SetVehicleUi extends StatelessWidget {
                     ),
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(3),
+                      padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: AppC.fieldBase,
@@ -473,7 +472,7 @@ class SetVehicleUi extends StatelessWidget {
                         icon: Icons.cloud_upload,
                         backgroundColor: AppC.white,
                         foregroundColor: AppC.grey,
-                        onPressed: ()=> context.read<setVehicleBloc>().add(setVehicleAddAttachmentEvent(imageType: 4)),
+                        onPressed: ()=> context.read<setVehicleBloc>().add(const setVehicleAddAttachmentEvent(imageType: 4)),
                       ),
                     ),
                     if(context.read<setVehicleBloc>().insuranceImage.isNotEmpty)

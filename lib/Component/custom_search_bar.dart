@@ -23,8 +23,8 @@ class CustomSearchBar extends StatelessWidget {
         contentPadding: padding ?? 10.padding,
         filled: true,
         fillColor: context.theme.hintColor.withValues(alpha: 0.07),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: BorderSide(width: 0.2)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: BorderSide(width: 0.2)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(width: 0.2)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: const BorderSide(width: 0.2)),
         hintText: hintText,
         hintStyle: context.textTheme.labelLarge?.copyWith(
             color: context.theme.hintColor

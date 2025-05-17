@@ -80,7 +80,7 @@ class _OtherAddUiState extends State<OtherAddUi> {
       'expense_to': subcategory[0]['expense_to'], // Add this field
       'attachments': _images.map((e) => e.path).toList(), // Image paths if any
     };
-    print("Add page: ${newData}");
+    print("Add page: $newData");
     Navigator.of(context).pop(newData);
   }
 

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:equatable/equatable.dart';
 
 abstract class VehicleEvent extends Equatable {

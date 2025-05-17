@@ -67,14 +67,14 @@ class _TaskerCompleteCheckInOutView extends StatelessWidget {
                 }
               }
             },
-            child: _TaskerCompleteCheckInOutContentView(),
+            child: const _TaskerCompleteCheckInOutContentView(),
           ),
         ));
   }
 }
 
 class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
-  const _TaskerCompleteCheckInOutContentView({super.key});
+  const _TaskerCompleteCheckInOutContentView();
 
   @override
   Widget build(BuildContext _) {
@@ -172,7 +172,7 @@ class _TaskerCompleteCheckInOutContentView extends StatelessWidget {
                   contentPadding: 10.horizontalPadding,
                 );
               },
-                separatorBuilder: (context, index) => Divider(height: 0.2,),
+                separatorBuilder: (context, index) => const Divider(height: 0.2,),
               itemCount: context.watch<TCIODBloc>().toDoList.length,),
             )
           ],

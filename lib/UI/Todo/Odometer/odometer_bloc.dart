@@ -2,13 +2,10 @@
 
 import 'dart:developer';
 
-import 'package:fairpytasker/core/app/extension/response_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart' as http;
 
 import '../../../Repository/api_repository.dart';
-import '../../../Utilities/Str.dart';
 import '../../../data/api_client.dart';
 import 'odometer_event.dart';
 import 'odometer_repository.dart';
@@ -31,7 +28,7 @@ class OdometerBloc extends Bloc<OdometerEvent, OdometerState>{
   {
     oilChangeController.addListener(_updateNextOdometer);
     nextMilesCheckController.addListener(_updateNextOdometer);
-    Future<Map<String, dynamic>?> _getToDoOdometer({required dynamic todoId}) async => await _aPiRepository.getTodoOdometer(toDoId: todoId);
+    Future<Map<String, dynamic>?> getToDoOdometer({required dynamic todoId}) async => await _aPiRepository.getTodoOdometer(toDoId: todoId);
 
     on<OdometerInitialEvent>((event, emit) async {
       try{
@@ -41,7 +38,7 @@ class OdometerBloc extends Bloc<OdometerEvent, OdometerState>{
           event.todoItems['identifier_id'],
           event.vehicle['vin'].toString()
         );
-        var response1 = await _getToDoOdometer(todoId: event.todoItems['id']);
+        var response1 = await getToDoOdometer(todoId: event.todoItems['id']);
         log("response: ${response?.data}", name: "odometer_data");
         log("response1: ${response1 ?? []}", name: "odometer_data");
 

@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
@@ -113,6 +112,6 @@ class FeedbackEditForm extends StatelessWidget {
                   child: const Text("Submit"),
                 ),
               ],
-            ))) : SizedBox.shrink());
+            ))) : const SizedBox.shrink());
   }
 }

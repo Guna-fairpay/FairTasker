@@ -579,6 +579,7 @@ class GetWorkingHistoryLoaded extends TodoViewState{
 class GetActiveHoursLoaded extends TodoViewState{
   final List<Map<String, dynamic>> data;
   const GetActiveHoursLoaded({required this.data});
+  @override
   List<Object?> get props => [data];
 }
 

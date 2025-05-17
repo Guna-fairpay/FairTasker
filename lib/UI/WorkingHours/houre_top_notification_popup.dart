@@ -38,7 +38,7 @@ class TopNotificationPopup {
             borderRadius: BorderRadius.circular(10.0), // Rounded corners
           ),
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min, // Important for fitting content
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,16 +48,16 @@ class TopNotificationPopup {
                   children: [
                     Utils.getText(userName, weight: FontWeight.bold, size: 18),
                     IconButton(
-                      icon: Icon(Icons.close, color: Colors.black),
+                      icon: const Icon(Icons.close, color: Colors.black),
                       onPressed: () {
 
                       },
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Utils.getText(selectedDateRange.toString(), size: 14),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Container(
                   child: ListView.builder(itemCount: dataList.length,
                       itemBuilder: (context, index)
@@ -74,12 +74,13 @@ class TopNotificationPopup {
                                 DataCell(Text('${data['date']}')),
                                 DataCell(Text(data['start_time'].substring(0, 5) ?? '')),
                                 DataCell(Text(data['end_time'] ?? '')),
-                                DataCell(Text('10h45m')),
+                                const DataCell(Text('10h45m')),
                                 DataCell(Text(formatDurationToHM(data['total_hours']))),
                               ],
                             ),
                           ],
                         );
+                        return null;
                       }),
                 ),
 

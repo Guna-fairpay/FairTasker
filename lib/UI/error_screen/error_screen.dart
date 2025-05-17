@@ -34,12 +34,12 @@ class ErrorScreen extends StatelessWidget {
                   ? errorDetails.exceptionAsString()
                   : "We encountered an error and we've notified our engineering team about it. Sorry for the inconvenience caused.",
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black, fontSize: 14),
+              style: const TextStyle(color: Colors.black, fontSize: 14),
             ),
             SuccessButton(
               icon: Icons.refresh_rounded,
               text: 'Refresh',
-              onPressed: () => context.pushReplacement(SplashScreen()),
+              onPressed: () => context.pushReplacement(const SplashScreen()),
             )
           ],
         ),

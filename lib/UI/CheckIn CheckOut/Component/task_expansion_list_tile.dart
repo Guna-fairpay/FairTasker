@@ -12,7 +12,7 @@ class TaskExpansionListTile extends StatelessWidget {
   final Color timeTextColor;
   final int id;
 
-  const TaskExpansionListTile({Key? key,required this.leadingText,
+  const TaskExpansionListTile({super.key, required this.leadingText,
     required this.dateText,
     required this.timeText,
     this.timeTextColor = Colors.black,
@@ -39,7 +39,7 @@ class TaskExpansionListTile extends StatelessWidget {
             maxWidth: MediaQuery.of(context).size.width * 0.6, // Adjust this value as needed
           ),
           child:
-          Text("$leadingText",maxLines: 2,overflow: TextOverflow.clip,style: TextStyle(fontSize: 14),),
+          Text(leadingText,maxLines: 2,overflow: TextOverflow.clip,style: const TextStyle(fontSize: 14),),
         ),
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

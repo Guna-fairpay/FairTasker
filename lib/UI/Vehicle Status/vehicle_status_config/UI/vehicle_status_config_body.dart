@@ -127,7 +127,7 @@ class VehicleStatusConfigBody extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  CustomCheckboxListTile(title: Text('Check All'),
+                                  CustomCheckboxListTile(title: const Text('Check All'),
                                     mainAxisSize: MainAxisSize.min,
                                     useExpand: false,
                                     padding: 10.padding,

@@ -1,5 +1,3 @@
-import 'package:fairpytasker/Component/custom_auto_search_field.dart';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleEdit/ExpensesDetails/UI/vehicle_expense_ui.dart';
@@ -32,7 +30,7 @@ class TaskerVehicleSearchDialog {
 }
 
 class _TaskerVehicleSearchDialog extends StatelessWidget {
-  const _TaskerVehicleSearchDialog({super.key});
+  const _TaskerVehicleSearchDialog();
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +71,7 @@ class _TaskerVehicleSearchDialog extends StatelessWidget {
 }
 
 class _TaskerVehicleSearchDialogView extends StatelessWidget {
-  const _TaskerVehicleSearchDialogView({super.key});
+  const _TaskerVehicleSearchDialogView();
 
   @override
   Widget build(BuildContext context) {

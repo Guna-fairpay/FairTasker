@@ -1,14 +1,9 @@
-import 'dart:developer';
 import 'dart:io';
-import 'package:date_time/date_time.dart';
-import 'package:fairpytasker/Component/close_badge.dart';
-import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_bloc.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_events.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_comment_attachments.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -124,11 +119,11 @@ class FeedbackEditComments extends StatelessWidget {
                                                   child: (context.watch<FBEditBloc>().selectedCommentModel != model) ?
                                                   GestureDetector(
                                                       onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
-                                                      child: Icon(Icons.edit_outlined, color:AppC.appColor)
+                                                      child: const Icon(Icons.edit_outlined, color:AppC.appColor)
                                                   ) :
                                                   GestureDetector(
                                                     onTap: ()=> context.read<FBEditBloc>().add(FBCommentsEditCancelEvent()),
-                                                      child: Icon(Icons.cancel_outlined, color: AppC.red,)
+                                                      child: const Icon(Icons.cancel_outlined, color: AppC.red,)
                                                   ),
                                                 ),
                                                 if((model?['attachments'] != null) && (model?['attachments']is List) && (model?['attachments'] as List).isNotEmpty)...[

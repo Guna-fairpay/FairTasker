@@ -32,6 +32,15 @@ class TaskExpansion extends StatelessWidget {
         weight: FontWeight.bold,
         align: TextAlign.end,
         ),
+        collapsedShape: ContinuousRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        ),
+        shape: ContinuousRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: AppC.black, width: 0.15),
+        ),
+        backgroundColor: const Color(0xFFEAF0FA),
+        collapsedBackgroundColor: const Color(0xFFEAF0FA),
         children: [
         Container(
           width: MediaQuery.sizeOf(context).width,
@@ -42,15 +51,6 @@ class TaskExpansion extends StatelessWidget {
           ),
         ),
         ],
-        collapsedShape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        ),
-        shape: ContinuousRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(color: AppC.black, width: 0.15),
-        ),
-        backgroundColor: const Color(0xFFEAF0FA),
-        collapsedBackgroundColor: const Color(0xFFEAF0FA),
       );
   }
 }

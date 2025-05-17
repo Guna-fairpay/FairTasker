@@ -54,7 +54,7 @@ class VehicleHistoryDetailsUi extends StatelessWidget {
             foregroundColor: Colors.white,
             leading: IconButton(
                 onPressed: () => context.popDialog(),
-                icon: Icon(Icons.clear_rounded)),
+                icon: const Icon(Icons.clear_rounded)),
             leadingWidth: 30,
             title: (mapData['title'] != null)
                 ? Text("${mapData['title'] ?? ""}")

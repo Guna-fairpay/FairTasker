@@ -11,7 +11,6 @@ import '../../../Utilities/utils.dart';
 import '../Bloc/workHoursBloc.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
-import 'Popups/resource_listing_dropdown.dart';
 
 
 class TaskComponentsSettingsUI extends StatelessWidget {

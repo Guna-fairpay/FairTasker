@@ -162,7 +162,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
     on<DeleteLocationEvent>((event, emit) async {//c
       emit(const LocationDataLoading());
       final success = await apiRepository.deleteLocation(event.id);
-      d.log("${success} delete location");
+      d.log("$success delete location");
       if (success == true) {
         if (isEditMode) {
           addressesList.removeWhere((addr) => addr['id'] == event.id);
@@ -200,7 +200,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       isEditMode = true;
       locationId = event.location['id'];
       tempLocation = [event.location];
-      d.log("${locationId} location_id");
+      d.log("$locationId location_id");
       locationController.text = event.location['name'];
       // Use the latest location data from the location list
       final updatedLocation = location.firstWhere(

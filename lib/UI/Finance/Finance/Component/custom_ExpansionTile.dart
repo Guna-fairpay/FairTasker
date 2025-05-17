@@ -27,7 +27,7 @@ class _CustomExpansionTileState extends State<CustomExpansionTile> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      title: widget.totalCash!=null?Utils.getText("\$${widget.totalCash}",align: TextAlign.right,weight: FontWeight.w900):SizedBox(),
+      title: widget.totalCash!=null?Utils.getText("\$${widget.totalCash}",align: TextAlign.right,weight: FontWeight.w900):const SizedBox(),
       leading: Utils.getText(
         widget.title,
         weight: FontWeight.w900,

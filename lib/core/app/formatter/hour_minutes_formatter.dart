@@ -9,7 +9,7 @@ class HourMinsFormatter extends TextInputFormatter {
 
   String pack(String value) {
     if (value.length != 4) return value;
-    return value.substring(0, 2) + ':' + value.substring(2, 4);
+    return '${value.substring(0, 2)}:${value.substring(2, 4)}';
   }
 
   String unpack(String value) {
@@ -41,10 +41,11 @@ class HourMinsFormatter extends TextInputFormatter {
 
     toRender = '';
     if (newText.length < 5) {
-      if (newText == '00:0')
+      if (newText == '00:0') {
         toRender = '';
-      else
+      } else {
         toRender = pack(complete(unpack(newText)));
+      }
     } else if (newText.length == 6) {
       toRender = pack(limit(unpack(newText)));
     }

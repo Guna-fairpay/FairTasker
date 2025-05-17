@@ -202,7 +202,7 @@ class TodoTaskCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30)),
                   ),
                 ],)),
-                Text.rich(TextSpan(children: [
+                const Text.rich(TextSpan(children: [
                   WidgetSpan(
                       child: Icon(
                         Icons.location_on_rounded,

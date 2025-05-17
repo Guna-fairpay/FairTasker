@@ -61,7 +61,7 @@ class ExitEditModeEvent extends LocationDataEvent {}
 
 class LocationPaginationEvent extends LocationDataEvent {
   final int page;
-  LocationPaginationEvent({required this.page});
+  const LocationPaginationEvent({required this.page});
   @override
   List<Object?> get props => [page];
 }

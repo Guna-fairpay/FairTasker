@@ -1,11 +1,9 @@
 import 'package:fairpytasker/Component/custom_compact_pagination.dart';
-import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/AddPrivateRental/UI/private_rental_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/EditPrivateRental/UI/private_rental_edit_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/ViewPrivateRental/UI/private_rental_search_view.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/Private%20Rental/ViewPrivateRental/private_rental_list_item.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';

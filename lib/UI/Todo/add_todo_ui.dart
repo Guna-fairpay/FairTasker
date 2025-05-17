@@ -6,8 +6,6 @@ import 'package:fairpytasker/UI/dialog/reclean/reclean_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -69,7 +67,7 @@ class CreateTodoUI extends StatelessWidget {
                           .shrinkWrap, // the '2023' part
                     ),
                   ),
-                  if (state.attachments.isNotEmpty && state.attachments.length > 0)
+                  if (state.attachments.isNotEmpty && state.attachments.isNotEmpty)
                     IconButton(
                       onPressed: () => ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "Add ToDo", onDeleted: (value) => context.read<AddToDoBloc>().add(AddToDoDeleteAttachment(value))),
                       icon: const Icon(Icons.remove_red_eye_outlined),

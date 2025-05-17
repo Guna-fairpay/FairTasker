@@ -85,7 +85,7 @@ class _SearchableMultiSelectDropdownState extends State<SearchableMultiSelectDro
               style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
             ),
             items: [
-              DropdownMenuItem(
+              const DropdownMenuItem(
                 value: "Select All",
                 child: Text('Select All',
                     style: TextStyle(fontWeight: FontWeight.bold)),
@@ -148,7 +148,7 @@ class _SearchableMultiSelectDropdownState extends State<SearchableMultiSelectDro
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     hintText: 'Search...',
                     hintStyle: const TextStyle(fontSize: 12),
-                    suffixIcon: Icon(Icons.search_outlined),
+                    suffixIcon: const Icon(Icons.search_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

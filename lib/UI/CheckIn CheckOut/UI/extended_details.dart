@@ -1,6 +1,5 @@
 
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Bloc/workHoursBloc.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +16,9 @@ import '../State/workingHoursState.dart';
 
 class ExtendedDetailsTask extends StatelessWidget {
   final int id;
-  late final imageUrl;
-  late final imageName;
-  ExtendedDetailsTask({super.key, required this.id});
+  late dynamic imageUrl;
+  late dynamic imageName;
+  ExtendedDetailsTask({super.key, required this.id, this.imageUrl, this.imageName});
 
   String formatTime(String time) {
     try {
@@ -53,7 +52,7 @@ class ExtendedDetailsTask extends StatelessWidget {
                 final attachmentMap = jsonDecode(state.extendedDetails['expense_attachment']);
                 final imagePath = attachmentMap.values.first;
                 imageName = imagePath.split('/').last;
-                final baseUrl = 'https://phase1.fairreturns.in/storage/expenses/';
+                const baseUrl = 'https://phase1.fairreturns.in/storage/expenses/';
                 imageUrl = '$baseUrl$imagePath';
               }
             }
@@ -93,7 +92,7 @@ class ExtendedDetailsTask extends StatelessWidget {
                               children: [
                                 Utils.getText(formatDate(state.extendedDetails['todo_date'] ?? '')),
                                 const SizedBox(width: 5),
-                                Utils.getText(formatTime(state?.extendedDetails['todo_time'] ?? ''))
+                                Utils.getText(formatTime(state.extendedDetails['todo_time'] ?? ''))
                               ],
                             ),
                           ),

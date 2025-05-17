@@ -123,7 +123,7 @@ class _FeedbackEditViewUIState extends State<FeedbackEditViewUi> {
       selection: const TextSelection.collapsed(offset: 0),
     );
     imagePaths =
-        widget.feedbacks?["attachments"]?.map((e) => e['path']).toList() ?? [];
+        widget.feedbacks["attachments"]?.map((e) => e['path']).toList() ?? [];
     selectedPriority = widget.feedbacks['priority'];
     selectedStatus = widget.status;
   }

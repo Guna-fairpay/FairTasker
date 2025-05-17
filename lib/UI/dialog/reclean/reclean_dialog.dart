@@ -93,7 +93,7 @@ class _RecleanDialogContentView extends StatelessWidget {
                   spacing: 10.sp,
                   children: [
                     Text(
-                      "Already assigned to ${<String>[(context.watch<RecleanBloc>().model?['users']?['first_name'] ?? ""), (context.watch<RecleanBloc>().model?['users']?['last_name'] ?? "")].toInitial}",
+                      "Already assigned to ${<String>[(context.watch<RecleanBloc>().model['users']?['first_name'] ?? ""), (context.watch<RecleanBloc>().model['users']?['last_name'] ?? "")].toInitial}",
                       style: context.textTheme.labelLarge?.copyWith(
                           color: AppC.redAccent, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.start,

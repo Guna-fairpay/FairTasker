@@ -3,14 +3,11 @@ import 'dart:io';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../../Component/drawer_ui.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
-import '../../Component/header.dart';
 import '../../Utilities/appC.dart';
 import '../../Utilities/utils.dart';
 import 'Comments/feedback_comments_ui.dart';
-import 'feedback_edit_view_ui.dart';
 
 class FeedbackListViewUI extends StatefulWidget {
   final Map<String, dynamic> feedbacks;
@@ -179,9 +176,9 @@ class _FeedbackListViewUIState extends State<FeedbackListViewUI> {
         backgroundColor: AppC.white,
         appBar: AppBar(
           backgroundColor: AppC.appColor,
-          leading: SizedBox.shrink(),
+          leading: const SizedBox.shrink(),
           leadingWidth: 0,
-          title: Text("Selected title"),
+          title: const Text("Selected title"),
           titleTextStyle: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
           actions: [
             IconButton(
