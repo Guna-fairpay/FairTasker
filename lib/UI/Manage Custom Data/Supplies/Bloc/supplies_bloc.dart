@@ -1,5 +1,3 @@
-
-import 'dart:async';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/Bloc/supplies_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Supplies/Bloc/supplies_state.dart';
@@ -44,40 +42,30 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     on<DeleteSuppliesEvent>(_onDeleteTaskEvent);
     on<SaveSuppliesEvent>(_onSaveTaskEvent);
     on<SearchSuppliesEvent>(_onSearchSuppliesEvent);
-
-    on<SuppliesPaginationEvent>((event, emit) {
-      currentIndex = event.page;
-      _pagenate();
-      emit(SuppliesCommonState());
-    });
-
-    on<EditSuppliesEvent>((event, emit) {
-      Console.of.log(event.data);
-      isEdit = true;
-      selectedData = event.data;
-      nameController.text=event.data['name']??'';
-      notesController.text=event.data['description']??'';
-      emit(SuppliesCommonState());
-    });
-
-    on<EditCloseEvent>((event, emit) async {
-      isEdit = false;
-      selectedData = null;
-      nameController.clear();
-      notesController.clear();
-      emit(SuppliesCommonState());
-      await Future.delayed(Durations.short4);
-      nameController.addListener(_listener);
-      emit(SuppliesCommonState());
-    });
-
+    on<SuppliesPaginationEvent>(_onSuppliesPaginationEvent);
+    on<EditSuppliesEvent>(_onEditTaskEvent);
+    on<EditCloseEvent>(_onEditCloseEvent);
   }
 
-  void _pagenate() {
-    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+  void _onSuppliesInitialEvent(SuppliesInitialEvent event, Emitter<SuppliesState> emit) async {
+    try{
+      emit(SuppliesLoadingState());
+      if(event.title!=null){
+        nameController.text = event.title??'';
+      }
+      var response = await getIt<CommonService>().getSuppliesList(reset: true);
+      apiResponse =List.from(response);
+      apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
+      filteredResponse.clear();
+      _unFilteredResponse = apiResponse;
+      _pagination();
+      totalCount = apiResponse.length;
+      emit(SuppliesCommonState());
+    }catch(e){
+      Toaster.showError(e.toString());
+      emit(SuppliesCommonState());
+    }
   }
-
-  void _listener() {}
 
   void _onDeleteTaskEvent(DeleteSuppliesEvent event, Emitter<SuppliesState> emit) async {
     try{
@@ -88,7 +76,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         apiResponse.removeWhere((element) => element['id'] == event.data['id']);
         totalCount = apiResponse.length;
         _unFilteredResponse = apiResponse;
-        _pagenate();
+        _pagination();
         Toaster.showSuccess(response?['message']);
         if(selectedData == event.data){
           isEdit = false;
@@ -140,7 +128,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
         apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
         totalCount = apiResponse.length;
         _unFilteredResponse = apiResponse;
-        _pagenate();
+        _pagination();
         _search();
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
@@ -160,24 +148,31 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     }
   }
 
-  void _onSuppliesInitialEvent(SuppliesInitialEvent event, Emitter<SuppliesState> emit) async {
-    try{
-      emit(SuppliesLoadingState());
-      if(event.title!=null){
-        nameController.text = event.title??'';
-      }
-      var response = await getIt<CommonService>().getSuppliesList(reset: true);
-      apiResponse =List.from(response);
-      apiResponse.sort((a, b) => b['id'].compareTo(a['id']));
-      filteredResponse.clear();
-      _unFilteredResponse = apiResponse;
-      _pagenate();
-      totalCount = apiResponse.length;
-      emit(SuppliesCommonState());
-    }catch(e){
-      Toaster.showError(e.toString());
-      emit(SuppliesCommonState());
-    }
+  void _onSearchSuppliesEvent(SearchSuppliesEvent event, Emitter<SuppliesState> emit) {
+    _search();
+    emit(SuppliesCommonState());
+  }
+
+  void _onSuppliesPaginationEvent(SuppliesPaginationEvent event, Emitter<SuppliesState> emit) async {
+    currentIndex = event.page;
+    _pagination();
+    emit(SuppliesCommonState());
+  }
+
+  void _onEditTaskEvent(EditSuppliesEvent event, Emitter<SuppliesState> emit) async {
+    isEdit = true;
+    selectedData = event.data;
+    nameController.text=event.data['name']??'';
+    notesController.text=event.data['description']??'';
+    emit(SuppliesCommonState());
+  }
+
+  void _onEditCloseEvent(EditCloseEvent event, Emitter<SuppliesState> emit) async {
+    autoValidateMode = null;
+    isEdit = false;
+    selectedData = null;
+    nameController.clear();
+    notesController.clear();
   }
 
   void _search(){
@@ -196,12 +191,11 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     currentIndex=1;
     totalCount = filteredData.length;
     _unFilteredResponse = filteredData;
-    _pagenate();
+    _pagination();
   }
 
-  void _onSearchSuppliesEvent(SearchSuppliesEvent event, Emitter<SuppliesState> emit) {
-    _search();
-     emit(SuppliesCommonState());
+  void _pagination() {
+    filteredResponse = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
   }
 
 }

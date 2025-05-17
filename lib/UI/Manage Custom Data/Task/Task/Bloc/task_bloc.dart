@@ -1,6 +1,4 @@
-
 import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/Bloc/task_event.dart';
@@ -26,7 +24,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   final TextEditingController taskController = TextEditingController();
   final TextEditingController timeTakenController = TextEditingController();
 
-
   List<Map<String, dynamic>> apiResponse = [];
   List<Map<String, dynamic>> _unfilteredResponse = [];
   List<Map<String, dynamic>> filteredResponse = [];
@@ -51,68 +48,70 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   bool isEnable = true;
 
   TaskBloc() : super(TaskLoadingState()){
-
     on<TaskInitialEvent>(_onTaskInitialEvent);
-
-    on<TaskPaginationEvent>((event, emit) {
-      currentIndex = event.page;
-      _paginate();
-      emit(TaskCommonState());
-    });
-
-    on<NoCategoryEvent>((event, emit) {
-      noCategory = !noCategory;
-      List<Map<String, dynamic>> result = [];
-      if(noCategory){
-        result = apiResponse.where((element) => element['subcategory_id'].toString().isNullOrEmpty).toList();
-      }else{
-        result = apiResponse.where((element) => element['subcategory_id'].toString().isNotNullOrEmpty).toList();
-      }
-      currentIndex = 1;
-      totalCount = result.length;
-      _unfilteredResponse = result;
-      _paginate();
-      emit(TaskCommonState());
-    });
-
-    on<EditTaskEvent>((event, emit) {
-      isEdit = true;
-      selectedData = event.data;
-      taskController.text = "${event.data['task']??''}";
-      timeTakenController.text = "${event.data['time_taken']??''}";
-      selectedCategory={};
-      selectedSubCategory={};
-      selectedCategory=category.firstWhereOrNull((element) => element['id'].toString()==event.data['category_id'].toString());
-      selectedSubCategory=subcategory.firstWhereOrNull((element) => element['id'].toString()==event.data['subcategory_id'].toString());
-      selectedUserType=usersType.firstWhere((element) => element['id'].toString()==event.data['user_type'].toString());
-      emit(TaskCommonState());
-    });
-
+    on<TaskPaginationEvent>(_onTaskPaginationEvent);
+    on<NoCategoryEvent>(_onNoCategoryEvent);
+    on<EditTaskEvent>(_onEditTaskEvent);
     on<EditCloseEvent>(_onEditCloseEvent);
-
-    on<CategoryDropDownEvent>((event, emit) {
-      selectedCategory = event.data;
-      selectedSubCategory={};
-      emit(TaskCommonState());
-    });
-
-    on<SubcategoryDropDownEvent>((event, emit) {
-      selectedSubCategory = event.data;
-      emit(TaskCommonState());
-    });
-
-    on<UserTypeDropDownEvent>((event, emit) {
-      selectedUserType = event.data;
-      emit(TaskCommonState());
-    });
-
+    on<CategoryDropDownEvent>(_onCategoryDropDownEvent);
+    on<SubcategoryDropDownEvent>(_onSubCategoryDropDownEvent);
+    on<UserTypeDropDownEvent>(_onUserTypeDropDownEvent);
     on<DeleteTaskEvent>(_onDeleteTaskEvent);
     on<SearchTaskEvent>(_onSearchEvent);
     on<SaveTaskEvent>(_onSaveTaskEvent);
     on<ListCategoryDropDownSelectionEvent>(_onListCategoryDropDownSelectionEvent);
     on<ListSubCategoryDropDownSelectionEvent>(_onListSubCategoryDropDownSelectionEvent);
     on<TaskTabChangeEvent>(_onTabChangeEvent);
+  }
 
+  void _onUserTypeDropDownEvent(UserTypeDropDownEvent event, Emitter<TaskState> emit) {
+    selectedUserType = event.data;
+    emit(TaskCommonState());
+  }
+
+  void _onSubCategoryDropDownEvent(SubcategoryDropDownEvent event, Emitter<TaskState> emit) {
+    selectedSubCategory = event.data;
+    emit(TaskCommonState());
+  }
+
+  void _onCategoryDropDownEvent(CategoryDropDownEvent event, Emitter<TaskState> emit) {
+    selectedCategory = event.data;
+    selectedSubCategory=null;
+    emit(TaskCommonState());
+  }
+
+  void _onEditTaskEvent(EditTaskEvent event, Emitter<TaskState> emit) {
+    isEdit = true;
+    selectedData = event.data;
+    taskController.text = "${event.data['task']??''}";
+    timeTakenController.text = "${event.data['time_taken']??''}";
+    selectedCategory={};
+    selectedSubCategory={};
+    selectedCategory=category.firstWhereOrNull((element) => element['id'].toString()==event.data['category_id'].toString());
+    selectedSubCategory=subcategory.firstWhereOrNull((element) => element['id'].toString()==event.data['subcategory_id'].toString());
+    selectedUserType=usersType.firstWhere((element) => element['id'].toString()==event.data['user_type'].toString());
+    emit(TaskCommonState());
+  }
+
+  void _onNoCategoryEvent(NoCategoryEvent event, Emitter<TaskState> emit) {
+    noCategory = !noCategory;
+    List<Map<String, dynamic>> result = [];
+    if(noCategory){
+      result = apiResponse.where((element) => element['subcategory_id'].toString().isNullOrEmpty).toList();
+    }else{
+      result = apiResponse.where((element) => element['subcategory_id'].toString().isNotNullOrEmpty).toList();
+    }
+    currentIndex = 1;
+    totalCount = result.length;
+    _unfilteredResponse = result;
+    _paginate();
+    emit(TaskCommonState());
+  }
+
+  void _onTaskPaginationEvent(TaskPaginationEvent event, Emitter<TaskState> emit) {
+    currentIndex = event.page;
+    _paginate();
+    emit(TaskCommonState());
   }
 
   List<Map<String, dynamic>> get noCategoryResponse {
@@ -227,7 +226,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   }
 
   void _onEditCloseEvent(EditCloseEvent event, Emitter<TaskState> emit) {
-    formKey.currentState?.reset();
+    autoValidateMode = null;
     isEdit = false;
     isEnable = false;
     selectedData = {};
@@ -303,7 +302,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
   void _search(){
     var query = searchController.text.toLowerCase();
     List<Map<String, dynamic>> filteredData = [];
-
     if (query.trim().isNotNullOrEmpty) {
       filteredData = apiResponse.where((element) {
         return [
@@ -325,6 +323,5 @@ class TaskBloc extends Bloc<TaskEvent, TaskState>{
     _search();
     emit(TaskCommonState());
   }
-
 
 }
