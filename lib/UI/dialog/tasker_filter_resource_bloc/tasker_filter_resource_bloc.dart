@@ -31,6 +31,7 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
   void _onInitialEvent(TFRDInitialEvent event, Emitter<TFRDStates> emit) async {
     try {
       emit(TFRDLoadingState());
+      Console.of.log(event.selected, name: "SELECTED_USERS");
       selected = event.selected;
       var response = (await _fetchUsers());
       users = List.from(response ?? []);
@@ -66,8 +67,8 @@ class TFRDBloc extends Bloc<TFRDEvents, TFRDStates> {
   }
 
   void _onSelectEvent(TFRDSelectEvent event, Emitter<TFRDStates> emit) {
-    if (selected?.contains(event.model) ?? false) {
-      selected?.remove(event.model);
+    if (selected?.map((e) => e['id']).contains(event.model?['id']) ?? false) {
+      selected?.removeWhere((element) => element['id'] == event.model?['id']);
     } else {
       selected?.add(event.model ?? {});
     }

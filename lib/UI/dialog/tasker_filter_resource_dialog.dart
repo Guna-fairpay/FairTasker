@@ -137,11 +137,11 @@ class _TaskerFilterResourceDialogContentView extends StatelessWidget {
                                       .toString()
                                       .isNotNullOrEmpty)
                                       ? Text(
-                                      "${model['from_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")} - ${model['to_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")}",
+                                      (model['unavailable_days'] == DateTime.now().dayName) ? "Unavailable" : "${model['from_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")} - ${model['to_time'].toString().toDateTime(inputFormat: "HH:mm:ss").toFormat(format: "hh:mm a")}",
                                     style: context.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
                                   )
                                       : null,
-                                  value: (context.watch<TFRDBloc>().selected?.contains(model) ?? false),
+                                  value: (context.watch<TFRDBloc>().selected?.map((e) => e['id']).contains(model?['id']) ?? false),
                                   onChanged: (value) => context.read<TFRDBloc>().add(TFRDSelectEvent(model)),
                                 );
                               }),

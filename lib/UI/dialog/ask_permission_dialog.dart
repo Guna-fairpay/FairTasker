@@ -143,7 +143,7 @@ class _AskPermissionDialogView extends StatelessWidget {
                   ValueListenableBuilder(
                       valueListenable: _reasonController,
                       builder: (context, value, child) => SuccessButton(
-                    text: positiveText??'Yas,delete it!',
+                    text: positiveText??'Yes,delete it!',
                     backgroundColor: (value.text.trim().isNullOrEmpty && (isReasonRequired ?? false)) ? Colors.blue.shade100 : AppC.blue,
                     foregroundColor: AppC.white,
                     onPressed: (value.text.trim().isNullOrEmpty && (isReasonRequired ?? false)) ? null : (){

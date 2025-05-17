@@ -16,7 +16,7 @@ class FeedbackAddErrorState extends FeedbackAddState {
   final dynamic message;
   FeedbackAddErrorState(this.message);
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, Random().nextDouble()];
 }
 
 class FeedbackAddCompletedState extends FeedbackAddState {}

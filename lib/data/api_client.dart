@@ -226,7 +226,7 @@ class ApiClient {
     }
     var streamedResponse = await client.send(request);
     var response = await streamedResponse.stream.bytesToString();
-    Console.of.log(response, name: "RESPONSE");
+    Console.of.log("${streamedResponse.statusCode}: $response", name: "RESPONSE");
     return http.Response(response, streamedResponse.statusCode);
   }
 
