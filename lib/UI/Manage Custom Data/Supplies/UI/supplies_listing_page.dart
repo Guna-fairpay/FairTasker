@@ -30,7 +30,7 @@ class SuppliesListingPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Utils.getText('Name', weight: FontWeight.bold)),
+                  Expanded(child: Utils.getText('Supplies Name', weight: FontWeight.bold)),
                   Utils.getText('Action', weight: FontWeight.bold),
                 ],
               ),
@@ -54,8 +54,11 @@ class SuppliesListingPage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Expanded(
-                            child: Utils.getText(item['name'] ?? '',
-                                size: 12.sp, overFlow: TextOverflow.visible),
+                            child: GestureDetector(
+                              onTap: () => context.read<SuppliesBloc>().add(EditSuppliesEvent(data: item)),
+                              child: Utils.getText(item['name'] ?? '',
+                                  size: 12.sp, overFlow: TextOverflow.visible),
+                            ),
                           ),
                           Row(
                             spacing: 5,
