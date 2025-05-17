@@ -72,6 +72,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               workActiveHours = response2.data!;//4
 
               List<Map<String, dynamic>> punchListData = response6.data ?? [];
+              DateTime startDate = DateTime.parse(event.minDate);
+              DateTime endDate = DateTime.parse(event.maxDate);
+
+              // Create DateTimeRange
+              DateRange dateRange = DateRange(startDate,endDate);
+              log("${dateRange}", name: "dateRange");
 
               List<Map<String, dynamic>> matchedPunchItem = [];
               try {
@@ -384,7 +390,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 resources: formattedResources,
                 startDate: event.minDate,
                 endDate: event.maxDate,
-                selectedDateRange: selectedDateRange,
+                selectedDateRange: dateRange,
                 punchListData: formattedData,
                 loginUserId: userId,
                 loginUserRole: userRole[0]
@@ -986,7 +992,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
 
     //Task page initial Event
-    on<TaskInitialEvent>((event, emit) async{
+    on<TaskInitialEvent>((event, emit) async {
       //Api fetching
       emit(state.copyWith(isLoading: true));
       final taskHistory = await apiRepository.fetchEmployeeTaskHistory(
@@ -1046,7 +1052,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 }
               }
 
-              // Classify titles matching the parent category name
               for (var title in titles) {
                 String lowercaseTitle = title.toLowerCase();
                 if (lowercaseTitle == parentCategory['name'].toLowerCase() && !addedTitles.contains(lowercaseTitle)) {
@@ -1060,7 +1065,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           }
 
-          // title related to 'Parts'
           for (var title in titles) {
             String lowercaseTitle = title.toLowerCase();
             if (lowercaseTitle.contains('parts') && !addedTitles.contains(lowercaseTitle)) {
@@ -1072,7 +1076,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           }
 
-          // Add remaining titles to 'Other'
           for (var title in titles) {
             String lowercaseTitle = title.toLowerCase();
             if (!addedTitles.contains(lowercaseTitle)) {
@@ -1084,7 +1087,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           }
 
-          // Convert classifiedTask map into list format
           List<Map<String, dynamic>> sortedTask = [];
 
           for (var category in categoryOrder) {
@@ -1109,7 +1111,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         {
           Map<String, List<Map<String, dynamic>>> classifiedTasks = {};
 
-          // Initialize categories
           for (var category in categoryData) {
             bool includeCategory = category['title'] != 'Other' || event.cohortIds.contains(-1);
             if (includeCategory) {
@@ -1117,40 +1118,59 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           }
 
-          // Classify tasks
-          for (var task in tasks) {
-            String taskTitle = task['title'];
-            bool matched = false;
+          try{
+            for (var task in tasks) {
+              String taskTitle = task['title'];
+              String normalizedTaskTitle = taskTitle.replaceAll(RegExp(r'\s*-\s*'), '-');
+              String taskTitleLower = normalizedTaskTitle.toLowerCase();
+              bool matched = false;
 
-            for (var category in categoryData) {
-              for (var sub in category['subcategory']) {
-                if (sub['sub_title'].toString().toLowerCase() == taskTitle.toLowerCase()) {
-                  classifiedTasks[category['title']]!.add(task);
-                  matched = true;
-                  break;
+              if (taskTitleLower.contains('parts')) {
+                classifiedTasks['Parts']!.add(task);
+                matched = true;
+                for (var category in categoryData) {
+                  if (category['title'] == 'Parts') {
+                    for (var sub in category['subcategory']) {
+                      String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
+                      if (subTitleLower == taskTitleLower) {
+                        log("Exact match (Parts forced): task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category 'Parts'", name: "task_match");
+                        break;
+                      }
+                    }
+                    break;
+                  }
                 }
-                // else if(taskTitle.toLowerCase().contains(sub['sub_title'].toLowerCase()))
-                // {
-                //   classifiedTasks[category['title']]!.add(task);
-                //   matched = true;
-                //   log("matched ${taskTitle} ${sub['sub_title']}",name: "matched");
-                //   break;
-                // }
+                if (!matched){}
+              } else {
+                for (var category in categoryData) {
+                  for (var sub in category['subcategory']) {
+                    String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
+                    if (subTitleLower == taskTitleLower && taskTitleLower != 'parts') {
+                      classifiedTasks[category['title']]?.add(task);
+                      matched = true;
+                      log("Exact match: task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category '${category['title']}'", name: "task_match");
+                      break;
+                    }
+                  }
+                  if (matched) break;
+                }
               }
-              if (matched) break;
-            }
 
-            if (!matched || event.cohortIds.contains(-1)) {
-              classifiedTasks['Other'] ??= [];
-              classifiedTasks['Other']!.add(task);
+              if (!matched || event.cohortIds.contains(-1)) {
+                classifiedTasks['Other'] ??= [];
+                classifiedTasks['Other']!.add(task);
+                log("Task '${taskTitle}' not matched, added to 'Other'", name: "task_unmatched");
+              }
             }
+          } catch(e){
+            log("error ${e}",name: "error match by");
           }
 
           List<Map<String, dynamic>> finalList = [];
 
           for (var category in categoryData) {
             List<Map<String, dynamic>> subcategories = [];
-            Map<String, Map<String, dynamic>> groupedTasks = {}; // Group by sub_title
+            Map<String, Map<String, dynamic>> groupedTasks = {};
 
             for (var task in classifiedTasks[category['title']] ?? []) {
               String subTitle = task['title'];
@@ -1180,14 +1200,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
                 }).toList();
               } else {
-                  vehicles.add({
-                    "person": task['person']?.toString() ?? null,
-                    "todo_date": task['todo_date'] ?? '',
-                  });
+                vehicles.add({
+                  "person": task['person']?.toString() ?? null,
+                  "todo_date": task['todo_date'] ?? '',
+                });
               }
 
               if (groupedTasks.containsKey(subTitle)) {
-                // Merge vehicles under the same sub_title
                 groupedTasks[subTitle]!['vehicles'].addAll(vehicles);
                 groupedTasks[subTitle]!['count'] += vehicles.length;
               } else {
