@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fairpytasker/data/base_response.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'tasker_service.g.dart';
 

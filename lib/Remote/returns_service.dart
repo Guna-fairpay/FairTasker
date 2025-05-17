@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fairpytasker/data/base_response.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'returns_service.g.dart';
 
@@ -14,12 +12,16 @@ abstract class ReturnsService {
   Future<BaseResponse> getVehicleCategories();
 
   @GET("vehicleStatusApi")
-  Future<BaseResponse> getVehicleStatus({@Query("vehicle_status") dynamic vehicleStatus, @Query("cohort_id") dynamic cohortId, @Query("branch_code") dynamic branchCode});
+  Future<BaseResponse> getVehicleStatus({@Query("vehicle_status") String? vehicleStatus, @Query("cohort_id") int? cohortId, @Query("branch_code") String? branchCode});
 
   @GET("getCohortsData")
   Future<BaseResponse> getCohorts();
 
   @POST("expenses")
   @MultiPart()
-  Future<BaseResponse> getExpenses({@Body() dynamic body});
+  Future<BaseResponse> uploadExpenses(@Body() Map<String, dynamic> body);
+
+  @POST("expenses_update/{id}")
+  @MultiPart()
+  Future<BaseResponse> updateExpenses(@Path("id") dynamic id, @Body() Map<String, dynamic> body);
 }
