@@ -43,8 +43,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   String? categoryId;
   String? subcategoryId;
   String? get userId => Session.of.getString(Str.userIdPrefText);
-  dynamic expenseId;
-  dynamic tempExpenseId;
 
   List<Map<String, dynamic>>? categories = [];
   List<dynamic>? ogAttachments = [];
@@ -65,9 +63,12 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic> selectedSupplies = [];
 
   Map<String, dynamic>? invoiceData;
-  dynamic selectedVendor={};
+
+  dynamic selectedVendor;
   dynamic todoItem;
   dynamic selectedVehicle;
+  dynamic expenseId;
+  dynamic tempExpenseId;
 
   bool isEdit = false;
   bool isSaveCategory = false;
