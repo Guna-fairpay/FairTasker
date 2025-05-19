@@ -8,6 +8,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -48,10 +49,10 @@ class FeedbackAddUI extends StatelessWidget {
               if (!EasyLoading.isShow) EasyLoading.show();
             } else {
               if (EasyLoading.isShow) EasyLoading.dismiss();
-              if (state is FeedbackAddCompletedState) {
-                Navigator.pop(context);
-              } else if (state is FeedbackAddCommonState) {
-                Utils.dismissKeyboard(context);
+              switch(state) {
+                case FeedbackAddErrorState(): Toaster.showError(state.message); break;
+                case FeedbackAddCompletedState(): context.pop(); break;
+                case FeedbackAddCommonState(): Utils.dismissKeyboard(context); break;
               }
             }
           },

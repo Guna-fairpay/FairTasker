@@ -42,7 +42,9 @@ class FeedbackAddBloc extends Bloc<FeedbackAddEvent, FeedbackAddState> {
       var newFilePaths = files.map((e) => p.basename(e.path));
       Console.of.log(filePaths);
       Console.of.warning(newFilePaths);
-      var picked = files.where((element) => !filePaths.contains(p.basename(element.path)));
+      var picked = files.where((element) => (element.lengthSync() / (1024 * 1024)) < 20).where((element) => !filePaths.contains(p.basename(element.path)));
+      var largeFiles = files.where((element) => (element.lengthSync() / (1024 * 1024)) > 20);
+      if (files.length == largeFiles.length) return emit(FeedbackAddErrorState("File size should be less than 20 MB"));
       if (picked.isNotEmpty) attachments.addAll(picked);
       emit(FeedbackAddCommonState());
     } catch (e) {

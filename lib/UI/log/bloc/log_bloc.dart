@@ -145,6 +145,7 @@ class LogBloc extends Bloc<LogEvent, LogState> {
       if ((response != null) && (response['status'] == true)) {
         _clearControllers();
         _logResponse.add(response['data']);
+        _logResponse.sort((a, b) => DateTime.tryParse(b['updated_at'])?.compareTo(DateTime.tryParse(a['updated_at']) ?? DateTime.now()) ?? 0);
         _totalCount = _logResponse.length;
         currentPage = 1;
         filteredResponse = paginateList(data: _logResponse, currentPage: currentPage, itemsPerPage: itemsPerPage);

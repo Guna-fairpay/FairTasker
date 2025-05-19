@@ -5,6 +5,7 @@ import 'package:fairpytasker/UI/Feedback/feedback_edit/bloc/fb_edit_states.dart'
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_form.dart';
 import 'package:fairpytasker/UI/Feedback/feedback_edit/feedback_edit_header.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,12 +36,10 @@ class FeedbackEditViewUI extends StatelessWidget {
             EasyLoading.show();
           } else {
             if (EasyLoading.isShow) EasyLoading.dismiss();
-            if (state is FBErrorState) {
-              Utils.showMobileToast(state.message);
-            } else if (state is FBSuccessState) {
-              Utils.showMobileToast(state.message);
-            } else if (state is FBFeedViewAttachmentState) {
-              ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "", currentAttachment: state.attachment);
+            switch(state) {
+              case FBErrorState(): Toaster.showError(state.message); break;
+              case FBSuccessState(): Toaster.showSuccess(state.message); break;
+              case FBFeedViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "", currentAttachment: state.attachment); break;
             }
           }
         },
