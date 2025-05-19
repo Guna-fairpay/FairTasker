@@ -1429,12 +1429,13 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<ByDayInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       final response = await apiRepository.getEmployeeTaskHistoryByDay(formatedDate(event.date),event.userId);
-      log("${response?['data']}");
+      log("${response?['data']}", name: "by_day_data");
       emit(state.copyWith(isLoading: false, byDayData: response?['data']));
     });
 
     on<ByTaskInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
+      log("${event.date} ${formatedDate(event.date)}", name: "by_task_data");
       final response1 = await apiRepository.fetchCohortData();
       final response3 = await apiRepository.getTaskCategoryGroups();
       final response = await apiRepository.fetchEmployeeTaskHistoryByTask(
@@ -1661,10 +1662,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
 
   String formatedDate(String dateString){
-    print(dateString);
-    DateFormat format = DateFormat("dd-MM-yyyy");
+    DateFormat format = DateFormat("MM-dd-yyyy");
     DateTime date = format.parse(dateString);
-    String formattedDate = DateFormat('yyyy-dd-MM').format(date);
+    String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     return formattedDate;
   }
 
@@ -1676,10 +1676,16 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   }
 
   String formatedTime(String dateString){
-    DateFormat format = DateFormat("HH:mm:ss");
-    DateTime date = format.parse(dateString);
-    String formattedDate = DateFormat('jm').format(date);
-    return formattedDate;
+    log("${dateString}",name: "date_string");
+    if(dateString != ''){
+      DateFormat format = DateFormat("HH:mm:ss");
+      DateTime date = format.parse(dateString);
+      String formattedDate = DateFormat('jm').format(date);
+      return formattedDate;
+    } else {
+      return "";
+    }
+
   }
 
   String formatTime(String dateString){
