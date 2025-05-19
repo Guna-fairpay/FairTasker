@@ -48,7 +48,7 @@ class ByTaskView extends StatelessWidget {
           BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
             builder: (context, state){
               return SafeArea(
-                  minimum: const EdgeInsets.only(left: 10,right: 10,bottom: 10),
+                  minimum: const EdgeInsets.only(left: 10,right: 10),
                   child: Column(
                     children: [
                       ListTile(
@@ -76,50 +76,52 @@ class ByTaskView extends StatelessWidget {
                           child: const Icon(Icons.filter_alt_sharp),
                         ),
                       ),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: state.byTaskData.length,
-                        itemBuilder: (context, index) {
-                          final category = state.byTaskData[index];
-                          final subcategories =
-                          category['subcategory'] as List<dynamic>;
-                          final categoryCount = subcategories.fold<int>(
-                              0, (sum, item) => sum + (item['count'] as int));
-
-                          return TaskExpansion(
-                            leadingText: "${category['title']}",
-                            titleText: "$categoryCount",
-                            isInitialExpand: category['count'] > 0 ? true : false,
-                            children: subcategories.map<Widget>((subcategory) {
-                              final subTitle = subcategory['sub_title'];
-                              final vehicles =
-                              subcategory['vehicles'] as List<dynamic>;
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                child: TaskExpansion(
-                                  leadingText: subTitle,
-                                  titleText: "${vehicles.length}",
-                                  children: vehicles.map<Widget>((vehicle) {
-                                    return
-                                      TaskExpansionListTile(
-                                        leadingText: vehicle['vehicle_name'] ?? vehicle['person'] ?? '',
-                                        dateText: vehicle['todo_date'] != null
-                                            ? formatDate(vehicle['todo_date'])
-                                            : "",
-                                        timeText: vehicle['complete_time_taken']
-                                            ?.toString() ??
-                                            '',
-                                        id: vehicle?['id'] ?? 0,
-                                      );
-                                  }).toList(),
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
-                        separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
+                      SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.7,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: state.byTaskData.length,
+                          itemBuilder: (context, index) {
+                            final category = state.byTaskData[index];
+                            final subcategories =
+                            category['subcategory'] as List<dynamic>;
+                            final categoryCount = subcategories.fold<int>(
+                                0, (sum, item) => sum + (item['count'] as int));
+                            return TaskExpansion(
+                              leadingText: "${category['title']}",
+                              titleText: "$categoryCount",
+                              isInitialExpand: category['count'] > 0 ? true : false,
+                              children: subcategories.map<Widget>((subcategory) {
+                                final subTitle = subcategory['sub_title'];
+                                final vehicles =
+                                subcategory['vehicles'] as List<dynamic>;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                  child: TaskExpansion(
+                                    leadingText: subTitle,
+                                    titleText: "${vehicles.length}",
+                                    children: vehicles.map<Widget>((vehicle) {
+                                      return
+                                        TaskExpansionListTile(
+                                          leadingText: vehicle['vehicle_name'] ?? vehicle['person'] ?? '',
+                                          dateText: vehicle['todo_date'] != null
+                                              ? formatDate(vehicle['todo_date'])
+                                              : "",
+                                          timeText: vehicle['complete_time_taken']
+                                              ?.toString() ??
+                                              '',
+                                          id: vehicle?['id'] ?? 0,
+                                        );
+                                    }).toList(),
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
+                          separatorBuilder: (context, index) =>
+                          const SizedBox(height: 10),
+                        ),
                       ),
                     ],
                   )
