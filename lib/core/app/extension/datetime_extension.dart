@@ -27,4 +27,10 @@ extension DatetimeExtension on DateTime? {
     return '$month $day$suffix $year';
   }
 
+  String get dayName {
+    final day = (this ?? DateTime.now());
+    final date = DateFormat.EEEE();
+    return date.format(day);
+  }
+
 }

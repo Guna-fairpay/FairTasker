@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as d;
 import 'package:collection/collection.dart';
@@ -122,8 +123,13 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
       try {
         var response = await _updateFeedBack();
         d.log("$response", name: "UPLOAD_COMMENT_RESPONSE");
-        if (response != null && response['status'] == 200) {
-
+        if (response?['status'] == 200) {
+          emit(FBSuccessState(response?['message'] ?? "Updated successfully!"));
+        }  else {
+          var errors = Map<String, dynamic>.from(response?['errors'] ?? {});
+          var message = errors.values.firstOrNull;
+          message = (message is List) ? message.firstOrNull : message;
+          emit(FBErrorState(message ?? "Something went wrong!"));
         }
         emit(FBLoadedState());
       } catch (e) {
