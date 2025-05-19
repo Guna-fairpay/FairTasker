@@ -1,8 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../Bloc/workHoursBloc.dart';
@@ -90,15 +87,13 @@ class _FilterDialogState extends State<FilterDialog> {
 
   void _applyFilters() {
     log("Selected Filters: $tempSelectedFilters");
-    if(widget.to != null && widget.to != ''){
-      log("By Task Initial Event Called ${widget.to}");
+    if(widget.from == null && widget.from == ''){
       widget.workingHoursBloc.add(ByTaskInitialEvent(
         date: widget.to ?? '',
         userId: widget.userId,
         cohortIds: tempSelectedFilters.toList(),));
       widget.onSelectionChanged(tempSelectedFilters);
     } else {
-      log("Task Initial Event Called");
       widget.workingHoursBloc.add(TaskInitialEvent(
         to: widget.to ?? '',
         from: widget.from ?? '',
@@ -107,13 +102,6 @@ class _FilterDialogState extends State<FilterDialog> {
       ));
       widget.onSelectionChanged(tempSelectedFilters);
     }
-  }
-
-  String formatedDate(String dateString){
-    DateFormat format = DateFormat("dd-MM-yyyy");
-    DateTime date = format.parse(dateString);
-    String formattedDate = DateFormat('yyyy-dd-MM').format(date);
-    return formattedDate;
   }
 
   @override

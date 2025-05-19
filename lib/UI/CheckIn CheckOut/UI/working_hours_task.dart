@@ -66,7 +66,7 @@ class WorkingHoursTaskUI extends StatelessWidget {
         ..add(TaskInitialEvent(
             to: dateRange['to'].toString(),
             from: dateRange['from'].toString(),
-            userId: workingHoursData['empID'], cohortIds: selectedFilters?.toList() ?? [])),
+            userId: workingHoursData['empID'], cohortIds: selectedFilters.toList() ?? [])),
           child: Scaffold(
           backgroundColor: AppC.white,
           appBar:
