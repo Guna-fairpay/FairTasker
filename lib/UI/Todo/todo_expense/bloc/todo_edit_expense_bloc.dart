@@ -43,8 +43,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   String? categoryId;
   String? subcategoryId;
   String? get userId => Session.of.getString(Str.userIdPrefText);
-  dynamic expenseId;
-  dynamic tempExpenseId;
 
   List<Map<String, dynamic>>? categories = [];
   List<dynamic>? ogAttachments = [];
@@ -65,9 +63,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic> selectedSupplies = [];
 
   Map<String, dynamic>? invoiceData;
-  dynamic selectedVendor={};
+
+  dynamic selectedVendor;
   dynamic todoItem;
   dynamic selectedVehicle;
+  dynamic expenseId;
+  dynamic tempExpenseId;
+  dynamic vehicle;
 
   bool isEdit = false;
   bool isSaveCategory = false;
@@ -215,7 +217,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       if (response?.isNotEmpty ?? false) {
         Toaster.showSuccess(response?['message'] ?? "Success");
       }
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false,pop: true));
       if (response?['status'] == 200) emit(state.copyWith());
     } catch (e) {
       Toaster.showError("$e");
@@ -275,20 +277,23 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   }
 
   Future<void> _onSelectedVehicleEvent(SelectedVehicleEvent event, Emitter<TodoExpenseState> emit) async {
-    var vehicle = List.from(todoItem?['vehicles']).firstWhereOrNull((element) => element['vin'] == event.selectedVehicle['vin']);
+    vehicle = List.from(todoItem?['vehicles']).firstWhereOrNull((element) => element['vin'] == event.selectedVehicle['vin']);
+    Console.of.log(vehicle, name: 'VEHICLE');
     (vehicle['expense_id'] == null) ? isSaveCategory = true :isSaveCategory = false;
-    // if(vehicle['vin'] != event.selectedVehicle['vin']) {
-    // }
-    selectedVehicle = event.selectedVehicle;
-    emit(state.copyWith(selectedVehicle: selectedVehicle));
-    await Future.delayed(Durations.short1);
-    add(GetTodoExpenseInitialEvent(
-        expenseId: "${vehicle?['expense_id']}",
-        tempExpenseId: "${vehicle?['expense_temp_id']}",
-        todoItem: todoItem,
-        selectedParts: selectedPart,
-        selectedSupplies: selectedSupplies,
-        selectedVendor: selectedVendor));
+    Console.of.log(isSaveCategory, name: 'isSaveCategory');
+    if(selectedVehicle != event.selectedVehicle) {
+      selectedVehicle = event.selectedVehicle;
+      emit(state.copyWith(selectedVehicle: selectedVehicle));
+      await Future.delayed(Durations.short1);
+      add(GetTodoExpenseInitialEvent(
+          expenseId: "${vehicle?['expense_id']}",
+          tempExpenseId: "${vehicle?['expense_temp_id']}",
+          todoItem: todoItem,
+          selectedParts: selectedPart,
+          selectedSupplies: selectedSupplies,
+          selectedVendor: selectedVendor));
+    }
+
   }
 
   Future<void> _onCaptureImageEvent(CaptureImageEvent event, Emitter<TodoExpenseState> emit) async {
@@ -329,13 +334,22 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         'itemList': [
           ...cleanList(partsList),
           ...cleanList(suppliesList),
+          if(labourCostController.text.isNotEmpty){
+            ...{
+              "id" : "1",
+              "quantity" : "1",
+              "name": "Labour",
+              "rate" : labourCostController.text,
+              "total" : labourCostController.text,
+            }
+          },
           if(partsList.isEmpty && suppliesList.isEmpty){
             ...{
-              "id":"1",
-              "quantity":"1",
-              "description":descriptionController.text,
-              "rate":amountController.text,
-              "total":amountController.text,
+              "id" : "1",
+              "quantity" : "1",
+              "name" : descriptionController.text.isEmpty ? 'No description' : descriptionController.text,
+              "rate" : amountController.text,
+              "total" : amountController.text,
             }
           }
           /* ...partsList
@@ -471,7 +485,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           );
         }
       }
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false,pop: true));
     } catch(e) {
       Toaster.showError("$e");
       log(e.toString(), name: 'ERROR');
@@ -567,13 +581,14 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       //       .where((element) => vinList.contains(element['vin'].toString()))
       //       .toList();
       // }
-      if((vehicleList.length == 1 && vehicleList.first?['expense_id'] == null)
-          && todoItem['expense_id'] == null){
+      if(selectedVehicle == null && todoItem['expense_id'] == null){
         isSaveCategory = true;
-      }else{
+      }else if(vehicle != null && vehicle['expense_id'] != null){
         isSaveCategory = false;
+      }else{
+        isSaveCategory = true;
       }
-
+      Console.of.log(isSaveCategory, name: 'isSaveCategory');
       if(vehicleList.isNotEmpty && vehicleList.length == 1){
         selectedVehicle = vehicleList.first;
       }
@@ -584,13 +599,11 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         var vins = List.from(jsonDecode(groupVehicles?['vin'] ?? ""));
         Console.of.log(vins.firstOrNull, name: "VIN_GROUP");
         selectedVehicle = getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == vins.firstOrNull);
-        Console.of.log(selectedVehicle, name: "SELECTED_VEHICLE");
       }
 
       if ((todoItem?['identifier_id'] == 166) && (todoItem?['person_id'].toString().isNotNullOrEmpty ?? false)) { // 166 : Pay partime
         selectedVehicle = getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == "1234");
       }
-      Console.of.log(selectedVehicle, name: "SELECTED_VEHICLE");
       String laborAmount =
           (expenseDetailResponse?['split_expenses'] ?? [])
               .firstWhere((element) => element['labour'] == 1,
@@ -772,7 +785,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         ? []
         : invoiceData?['itemList']?.map((e) => <String, dynamic>{
               "quantity": 1,
-              "description": e['name'] ?? "",
+              "description": e['name'] ?? "No description",
               "rate": e['rate'] ?? 0,
               "total": e['rate'] ?? 0,
             }).toList();
@@ -801,7 +814,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   }
 
   void _updateExpenseTotal() {
-    if(partsList.isEmpty && suppliesList.isEmpty){
+    if(partsList.isEmpty && suppliesList.isEmpty && selectedVehicle != null){
       labourCostController.clear();
       saleTaxController.clear();
       shippingController.clear();

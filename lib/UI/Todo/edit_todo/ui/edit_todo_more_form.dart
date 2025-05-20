@@ -310,7 +310,9 @@ class EditTodoMoreForm extends StatelessWidget {
                           .add(EditToDoOpenCustomLinkEvent())),
                 textAlign: TextAlign.end,
                 style: context.textTheme.labelMedium?.copyWith(
-                    color:state.apiResponse['status']=='In Progress'? AppC.appColor:AppC.green,
+                    color:[209,211].contains(state.apiResponse['identifier_id'])? AppC.green
+                        :[210,212].contains(state.apiResponse['identifier_id'])? AppC.redAccent
+                        : AppC.appColor,
                     fontSize: 12.sp,
                     decoration: TextDecoration.underline,
                     decorationColor: AppC.appColor),

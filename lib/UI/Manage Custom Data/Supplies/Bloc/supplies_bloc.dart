@@ -173,6 +173,7 @@ class SuppliesBloc extends Bloc<SuppliesEvent, SuppliesState>{
     selectedData = null;
     nameController.clear();
     notesController.clear();
+    emit(SuppliesCommonState());
   }
 
   void _search(){

@@ -40,14 +40,13 @@ class SuppliesTextFieldPage extends StatelessWidget {
                   spacing: 10,
                   children: [
                     SuccessButton(
-                        text: (context.watch<SuppliesBloc>().selectedData !=
-                            null)
+                        text: (context.watch<SuppliesBloc>().isEdit)
                             ? "Update"
                             : "Save",
                         onPressed: () => context
                             .read<SuppliesBloc>()
                             .add(SaveSuppliesEvent())),
-                    if (context.watch<SuppliesBloc>().selectedData != null)
+                    if (context.watch<SuppliesBloc>().isEdit)
                       SuccessButton(text: "Cancel", backgroundColor: AppC.redAccent,
                           onPressed: () => context.read<SuppliesBloc>().add(EditCloseEvent())),
                     const Spacer(flex: 1),
