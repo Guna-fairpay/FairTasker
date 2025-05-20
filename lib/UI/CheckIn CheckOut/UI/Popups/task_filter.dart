@@ -14,7 +14,7 @@ class FilterDialog extends StatefulWidget {
   final String? from;
   final int userId;
 
-  const FilterDialog({
+  FilterDialog({
     super.key,
     required this.workingHoursBloc,
     required this.filterOptions,
@@ -23,7 +23,9 @@ class FilterDialog extends StatefulWidget {
     this.to,
     this.from,
     required this.userId,
-  });
+  }){
+    log("taskFilters: $to $from");
+  }
 
   @override
   State<FilterDialog> createState() => _FilterDialogState();
@@ -87,13 +89,15 @@ class _FilterDialogState extends State<FilterDialog> {
 
   void _applyFilters() {
     log("Selected Filters: $tempSelectedFilters");
-    if(widget.from == null && widget.from == ''){
+    if(widget.from == null){
+      log("ByTaskInitialEvent");
       widget.workingHoursBloc.add(ByTaskInitialEvent(
         date: widget.to ?? '',
         userId: widget.userId,
         cohortIds: tempSelectedFilters.toList(),));
       widget.onSelectionChanged(tempSelectedFilters);
     } else {
+      log("TaskInitialEvent");
       widget.workingHoursBloc.add(TaskInitialEvent(
         to: widget.to ?? '',
         from: widget.from ?? '',
