@@ -19,6 +19,7 @@ class TodoExpenseState extends Equatable {
   final List<dynamic> suppliesList;
   final dynamic vendorList;
   final String? odometerMessage;
+  final bool pop;
 
   const TodoExpenseState({
     required this.taskList,
@@ -37,6 +38,7 @@ class TodoExpenseState extends Equatable {
     required this.suppliesList,
     required this.vendorList,
     required this.odometerMessage,
+    this.pop = false,
 
   });
 
@@ -57,6 +59,7 @@ class TodoExpenseState extends Equatable {
     List<dynamic>? suppliesList,
     dynamic vendorList,
     String? odometerMessage,
+    bool? pop,
 
   }) => TodoExpenseState(
     taskList: taskList ?? this.taskList,
@@ -75,6 +78,8 @@ class TodoExpenseState extends Equatable {
         suppliesList: suppliesList ?? this.suppliesList,
         vendorList: vendorList ?? this.vendorList,
         odometerMessage: odometerMessage ?? this.odometerMessage,
+        pop: pop ?? this.pop,
+
   );
   @override
   List<Object?> get props =>
@@ -95,6 +100,7 @@ class TodoExpenseState extends Equatable {
         suppliesList,
         vendorList,
         odometerMessage,
+        pop,
 
         Random().nextDouble(),
       ];

@@ -41,6 +41,7 @@ class TodoExpense extends StatelessWidget {
       child: BlocListener<TodoEditExpenseBloc, TodoExpenseState>(
           listener: (context, state) {
         state.isLoading ? EasyLoading.show() : EasyLoading.dismiss();
+        if(state.pop) context.pop();
       }, child: BlocBuilder<TodoEditExpenseBloc, TodoExpenseState>(
               builder: (context, state) {
         return Form(
@@ -174,7 +175,7 @@ class TodoExpense extends StatelessWidget {
                         .read<TodoEditExpenseBloc>()
                         .add(const SaveExpenseEvent()),
                   ),
-                  if (context.read<TodoEditExpenseBloc>().isSaveCategory)
+                  if (context.watch<TodoEditExpenseBloc>().isSaveCategory)
                     SuccessButton(
                       text: 'Save Category',
                       onPressed: ()=>context.read<TodoEditExpenseBloc>().add(SaveCategoryEvent()),

@@ -12,6 +12,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Component/close_badge.dart';
 import '../../../../Component/image_viewer.dart';
 import '../../../../Utilities/Utils.dart';
+import '../../../../core/initializer/common_initializer.dart';
 import '../../../dialog/show_attachments_dialog.dart';
 import '../bloc/vehicle_expense_history_bloc.dart';
 import '../event/vehicle_expense_history_event.dart';
@@ -171,23 +172,6 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                                               .isImage),
                                         ),
                                       ),
-                                      // Add download button only for PDF
-                                      if ((state.expenseAttachments[index] as Object).isPDF)
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: AppC.green,
-                                            borderRadius: BorderRadius.circular(16),
-
-                                          ),
-                                          child: InkWell(
-                                            onTap: () {
-                                              Utils.openURL(state.expenseAttachments[index]);
-                                            },child:Padding(
-                                              padding: 1.padding,
-                                              child: const Icon(Icons.download,color: AppC.white,),
-                                            ),),
-                                        ),
-                                        
                                     ],
                                   ),
                               ),
@@ -196,22 +180,26 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                       ],
                     ),
                   ),
-                  10.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Utils.getElevatedButton(
-                        () => context.pushReplacement(
-                            VehicleExpenseHistoryEditPage(
-                              id: "${state.editResponse['id']}",
-                              showTotalAmount: showTotalAmount,
-                              currentExpenseAmount: currentExpenseAmount,
-                            ), fullscreenDialog: true
+
+                  if (getIt<CommonService>().isAdmin)...[
+                    10.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Utils.getElevatedButton(
+                              () => context.pushReplacement(
+                              VehicleExpenseHistoryEditPage(
+                                id: "${state.editResponse['id']}",
+                                showTotalAmount: showTotalAmount,
+                                currentExpenseAmount: currentExpenseAmount,
+                              ), fullscreenDialog: true
+                          ),
+                          text: 'Edit',
                         ),
-                        text: 'Edit',
-                      ),
-                    ],
-                  )
+                      ],
+                    )
+                  ],
+
                 ],
               ),
             ),

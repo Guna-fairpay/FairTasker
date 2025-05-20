@@ -13,7 +13,7 @@ class InvoiceTable extends TableRow {
   @override
   List<Widget> get children => [
     TableRowInkWell(child: Padding(padding: 5.sp.padding, child: Utils.getText("${index+1}",size: 12.sp))),
-    TableRowInkWell(child: Padding(padding: 5.sp.padding, child: Utils.getText("${model?['name'] ?? model?['description'] ?? ""}",size: 12.sp))),
+    TableRowInkWell(child: Padding(padding: 5.sp.padding, child: Utils.getText("${model?['name'] ?? "No description"}",size: 12.sp))),
     TableRowInkWell(child: Padding(padding: 5.sp.padding, child: Utils.getText("1",size: 12.sp,align: TextAlign.center))),
     TableRowInkWell(child: Padding(padding: 5.sp.padding, child: Utils.getText("\$${model?['rate']?.toString().toDoubleDigit ?? '0.00'}",size: 12.sp))),
     TableRowInkWell(child: Padding(padding: 5.sp.padding, child: Utils.getText("\$${model?['rate']?.toString().toDoubleDigit ?? '0.00'}",size: 12.sp))),

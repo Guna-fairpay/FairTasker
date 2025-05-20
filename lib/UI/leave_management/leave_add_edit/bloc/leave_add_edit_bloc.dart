@@ -167,7 +167,7 @@ class LeaveAddEditBloc extends Bloc<LeaveAddEditEvent, LeaveAddEditState> {
     String endT = '';
     if(['8','9'].contains(selectedLeaveType['id']?.toString())) {
       startT = startTime.toHMS() ?? '';
-      endT = startTime.toHMS() ?? '';
+      endT = endTime.toHMS() ?? '';
     }
     Map<String,String> data = {};
     data['end_date'] = endDate.toFormat() ?? '';
