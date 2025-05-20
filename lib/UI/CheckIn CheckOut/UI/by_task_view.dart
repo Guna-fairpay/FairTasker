@@ -77,7 +77,7 @@ class ByTaskView extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        height: MediaQuery.sizeOf(context).height * 0.7,
+                        height: MediaQuery.sizeOf(context).height * 0.65,
                         child: ListView.separated(
                           shrinkWrap: true,
                           physics: const BouncingScrollPhysics(),

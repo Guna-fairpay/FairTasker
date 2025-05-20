@@ -12,7 +12,7 @@ class FilterDialog extends StatefulWidget {
   final Function(Set<int>) onSelectionChanged;
   final String? to;
   final String? from;
-  final int userId;
+  final int? userId;
 
   FilterDialog({
     super.key,
