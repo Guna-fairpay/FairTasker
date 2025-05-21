@@ -63,73 +63,71 @@ class ExtendedDetailsDay extends StatelessWidget {
               ),
               body: SafeArea(
                   minimum: EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      spacing: 10,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Table(columnWidths: const {
-                            0: FlexColumnWidth(1),
-                            1: FlexColumnWidth(1),
-                            2: FlexColumnWidth(1),
-                            3: FlexColumnWidth(1),
-                          }, children: [
-                            TableRow(children: [
-                              Utils.getText("CheckIn", weight: FontWeight.bold),
-                              Utils.getText("CheckOut", weight: FontWeight.bold),
-                              Utils.getText("Active Hours", weight: FontWeight.bold),
-                              Utils.getText("Total Hours", weight: FontWeight.bold),
-                            ]),
-                            TableRow(children: [
-                              Padding(
-                                padding: const EdgeInsets.all(3.0),
-                                child: Utils.getText("${state.checkInDetails?['checkIn'] ?? ''}",),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 10),
-                                child: Utils.getText("${state.checkInDetails?['checkOut'] ?? ''}",),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
-                                child: Utils.getText("${state.checkInDetails?['active_hours'] ?? ''}",),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
-                                child: Utils.getText("${state.checkInDetails?['total_hours'] ?? ''}",),
-                              ),
-                            ]),
+                  child: Column(
+                    spacing: 10,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Table(columnWidths: const {
+                          0: FlexColumnWidth(1),
+                          1: FlexColumnWidth(1),
+                          2: FlexColumnWidth(1),
+                          3: FlexColumnWidth(1),
+                        }, children: [
+                          TableRow(children: [
+                            Utils.getText("CheckIn", weight: FontWeight.bold),
+                            Utils.getText("CheckOut", weight: FontWeight.bold),
+                            Utils.getText("Active Hours", weight: FontWeight.bold),
+                            Utils.getText("Total Hours", weight: FontWeight.bold),
                           ]),
+                          TableRow(children: [
+                            Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: Utils.getText("${state.checkInDetails?['checkIn'] ?? ''}",),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 10),
+                              child: Utils.getText("${state.checkInDetails?['checkOut'] ?? ''}",),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
+                              child: Utils.getText("${state.checkInDetails?['active_hours'] ?? ''}",),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 20),
+                              child: Utils.getText("${state.checkInDetails?['total_hours'] ?? ''}",),
+                            ),
+                          ]),
+                        ]),
+                      ),
+                      Container(
+                        decoration:const BoxDecoration(
+                            border: Border(
+                                bottom: BorderSide(width: Num.borderWidthThinField)
+                            )
                         ),
-                        Container(
-                          decoration:const BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(width: Num.borderWidthThinField)
-                              )
-                          ),
-                          child:  Row(
-                            children: [
-                              CustomTabButton(
-                                  buttonText: 'By Task',
-                                  value: 0,
-                                  selectedValue: context.watch<WorkingHoursBloc>().selectedTab,
-                                  onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))
-                              ),
-                              CustomTabButton(
-                                  buttonText: 'By Day',
-                                  value: 1,
-                                  selectedValue: context.watch<WorkingHoursBloc>().selectedTab,
-                                  onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))
-                              ),
-                            ],
-                          ),
+                        child:  Row(
+                          children: [
+                            CustomTabButton(
+                                buttonText: 'By Task',
+                                value: 0,
+                                selectedValue: context.watch<WorkingHoursBloc>().selectedTab,
+                                onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))
+                            ),
+                            CustomTabButton(
+                                buttonText: 'By Day',
+                                value: 1,
+                                selectedValue: context.watch<WorkingHoursBloc>().selectedTab,
+                                onPressed:(val)=> context.read<WorkingHoursBloc>().add(TabChangeEvent(tabIndex: val))
+                            ),
+                          ],
                         ),
-                        if(state.selectedTab == 0)
-                          ByTaskView(data: state.checkInDetails ?? {}, byTaskData: state.byTaskData,fromDate: fromDate, toDate: toDate, userId: userId, date: data['date'],),
-                        if(state.selectedTab == 1)
-                          ByDayView(date: data['date'], userId: userId,),
-                      ],
-                    ),
+                      ),
+                      if(state.selectedTab == 0)
+                        ByTaskView(data: state.checkInDetails ?? {}, byTaskData: state.byTaskData,fromDate: fromDate, toDate: toDate, userId: userId, date: data['date'],),
+                      if(state.selectedTab == 1)
+                        ByDayView(date: data['date'], userId: userId,),
+                    ],
                   )
               ),
             );

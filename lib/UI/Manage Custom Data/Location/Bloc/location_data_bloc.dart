@@ -111,6 +111,9 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
         } else {
           isEditMode = false;
           selectedAddressIndex = null;
+          locationController.clear();
+          addressController.clear();
+          addressesList.clear();
         }
       } else {
         d.log("Update failed, address sent: $formattedAddresses, success: $success");

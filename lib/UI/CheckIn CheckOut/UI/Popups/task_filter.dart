@@ -1,8 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-
 import '../../../../Utilities/Utils.dart';
 import '../../../../Utilities/appC.dart';
 import '../../Bloc/workHoursBloc.dart';
@@ -15,9 +12,9 @@ class FilterDialog extends StatefulWidget {
   final Function(Set<int>) onSelectionChanged;
   final String? to;
   final String? from;
-  final int userId;
+  final int? userId;
 
-  const FilterDialog({
+  FilterDialog({
     super.key,
     required this.workingHoursBloc,
     required this.filterOptions,
@@ -26,7 +23,9 @@ class FilterDialog extends StatefulWidget {
     this.to,
     this.from,
     required this.userId,
-  });
+  }){
+    log("taskFilters: $to $from");
+  }
 
   @override
   State<FilterDialog> createState() => _FilterDialogState();
@@ -90,15 +89,15 @@ class _FilterDialogState extends State<FilterDialog> {
 
   void _applyFilters() {
     log("Selected Filters: $tempSelectedFilters");
-    if(widget.to != null && widget.to != ''){
-      log("By Task Initial Event Called ${widget.to}");
+    if(widget.from == null){
+      log("ByTaskInitialEvent");
       widget.workingHoursBloc.add(ByTaskInitialEvent(
         date: widget.to ?? '',
         userId: widget.userId,
         cohortIds: tempSelectedFilters.toList(),));
       widget.onSelectionChanged(tempSelectedFilters);
     } else {
-      log("Task Initial Event Called");
+      log("TaskInitialEvent");
       widget.workingHoursBloc.add(TaskInitialEvent(
         to: widget.to ?? '',
         from: widget.from ?? '',
@@ -107,13 +106,6 @@ class _FilterDialogState extends State<FilterDialog> {
       ));
       widget.onSelectionChanged(tempSelectedFilters);
     }
-  }
-
-  String formatedDate(String dateString){
-    DateFormat format = DateFormat("dd-MM-yyyy");
-    DateTime date = format.parse(dateString);
-    String formattedDate = DateFormat('yyyy-dd-MM').format(date);
-    return formattedDate;
   }
 
   @override
