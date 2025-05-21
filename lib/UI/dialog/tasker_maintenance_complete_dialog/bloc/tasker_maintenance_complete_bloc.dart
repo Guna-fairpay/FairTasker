@@ -6,6 +6,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/dialog/tasker_maintenance_complete_dialog/bloc/tasker_maintenance_complete_event.dart';
 import 'package:fairpytasker/UI/dialog/tasker_maintenance_complete_dialog/bloc/tasker_maintenance_complete_state.dart';
 import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
@@ -29,7 +30,7 @@ class TaskerMaintenanceBloc extends Bloc<TaskerMaintenanceCompleteEvent, TaskerM
   List<Map<String, dynamic>> get tasks {
     var list = (List<Map<String, dynamic>>.from(_selectedChild?['children'] ?? []));
     if (list.isEmpty) return [];
-    return (_parentId != 5)
+    (_parentId != 5)
     ? (list..add({
       "id": 99,
       "name": "Other",
@@ -40,6 +41,8 @@ class TaskerMaintenanceBloc extends Bloc<TaskerMaintenanceCompleteEvent, TaskerM
       "updated_at": null,
       "children": []
     })) : list;
+    list = list.distinct((element) => element['id']);
+    return list;
   }
 
   List<String> _getLabels(List<dynamic> ids) {

@@ -24,6 +24,7 @@ class CustomDateTimePicker<T> extends StatelessWidget {
   final bool use24HourFormat;
   final bool showAsExpanded;
   final EdgeInsets? padding;
+  final DateTime? firstDate;
   final FormFieldValidator<T>? validator;
   final AutovalidateMode? autovalidateMode;
 
@@ -45,7 +46,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     this.use24HourFormat = true,
     this.padding,
     this.validator,
-    this.autovalidateMode
+    this.autovalidateMode,
+    this.firstDate
   });
 
   @override
@@ -130,7 +132,8 @@ class CustomDateTimePicker<T> extends StatelessWidget {
     if ((runtimeType != CustomDateTimePicker<DateTime>)) return null;
     var result = await showDatePicker(
         context: context,
-        firstDate: DateTime.now().subtract(const Duration(days: 180)),
+        // firstDate: firstDate ?? DateTime.now().subtract(const Duration(days: 180)),
+        firstDate: firstDate ?? DateTime(2000),
         currentDate: DateTime.now(),
         initialDate: value as DateTime?,
         initialEntryMode: DatePickerEntryMode.calendarOnly,

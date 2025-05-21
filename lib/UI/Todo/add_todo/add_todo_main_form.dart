@@ -4,6 +4,7 @@ import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_task_identifier.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/Component/page_keep_aliver.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_more_form.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_recurring_form.dart';
@@ -93,19 +94,19 @@ class AddTodoMainForm extends StatelessWidget {
                 .lastOrNull,
             builder: (context, state) => ((state != null) &&
                     (state.isNotEmpty ?? false))
-                ? VehicleHistoryViewUI(
-                    showSameTask: true,
-                    title: context.watch<AddToDoBloc>().taskName,
-                    itemPerPage: 5,
-                    additionalScroll: false,
-                    showLoading: false,
-                    vin: ((state['type'] == "vehicles")
-                        ? (state['value']?['vin'])
-                        : null),
-                    vehicleName: state['name'],
-                    groupId:
-                        (state['type'] == "g_vehicles") ? state['id'] : null,
-                    showHeader: false)
+                ? PageKeepAliver(key: const PageStorageKey("vehicle_history"), child: VehicleHistoryViewUI(
+                showSameTask: true,
+                title: context.watch<AddToDoBloc>().taskName,
+                itemPerPage: 5,
+                additionalScroll: false,
+                showLoading: false,
+                vin: ((state['type'] == "vehicles")
+                    ? (state['value']?['vin'])
+                    : null),
+                vehicleName: state['name'],
+                groupId:
+                (state['type'] == "g_vehicles") ? state['id'] : null,
+                showHeader: false))
                 : const SizedBox.shrink(),
           ),
       ],

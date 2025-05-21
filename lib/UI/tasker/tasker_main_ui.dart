@@ -87,7 +87,7 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerFilterTaskState(): TaskerFilterTasksDialog.show(context, toDos: context.read<ToDoTaskerBloc>().unfiltered, selected: context.read<ToDoTaskerBloc>().selectedTasks, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTaskFilterEvent(value))); break;
             case ToDOTaskerViewAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['todoimages']).map((e) => e['path'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
             case ToDoTaskerViewReasonAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: (List<Map<String, dynamic>>.from(state.model?['reason_images']).map((e) => e['images'].toString().toAttachmentURL).toList()), title: state.model?['title']); break;
-            case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.model?['reference_id'].toString().toTuroReserveUrl ?? ""); break;
+            case ToDoTaskerViewCustomLinkState(): Utils.openURL(state.link ?? ""); break;
             case ToDoTaskerShowDropCheckInPopupState(): TaskerTimeChangeReasonDialog.show(context, type: state.type, onSubmitted: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerTimeChangeEvent(state.selectedTime, state.model, type: state.type, reason: value))); break;
             case ToDoTaskerViewBouncieState(): TaskerBouncieDialog.show(context, state.model); break;
             case ToDoTaskerCompleteTransportCarState(): if (kDebugMode) TaskerToDoCompleteDialog.show(context, state.model); break; // HOLD DUE TO FLOW INCOMPLETE

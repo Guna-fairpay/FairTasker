@@ -10,7 +10,7 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
-import 'package:fairpytasker/utilities/appC.dart';
+import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart' show Color, Colors, Durations;
 
 class ToDoProcessor {
@@ -193,6 +193,8 @@ class ToDoProcessor {
         "reason" : _reason(e),
         "hasTimeChangeReason" : _hasTimeChangeReason(e),
         "timeChangeReason" : _timeChangeReason(e),
+        "customLinkText" : _customLinkText(e),
+        "customColor" : _customLinkTextColor(e),
       })
         .toList();
     completer.complete(result);
@@ -360,7 +362,7 @@ class ToDoProcessor {
     return (address.isNotNullOrEmpty) && (decoded != null) && (decoded is List) && List<int>.from(decoded).isNotEmpty;
   }
 
-  bool _hasCustomLink(Map<String, dynamic> model) => (model['reference_id'].toString().isNotNullOrEmpty);
+  bool _hasCustomLink(Map<String, dynamic> model) => ((model['reference_id'].toString().isNotNullOrEmpty));
 
   bool _hasTimeSensitive(Map<String, dynamic> model) =>
       model['time_sensitive'] == 1;
@@ -555,4 +557,23 @@ class ToDoProcessor {
   bool _hasTimeChangeReason(Map<String, dynamic> model) => model['time_change_reason'].toString().isNotNullOrEmpty;
 
   String _timeChangeReason(Map<String, dynamic> model) => model['time_change_reason'] ?? "";
+
+  String _customLinkText(Map<String, dynamic> e) {
+    if ((e['custom_link_id'] == null) && (e['reference_id'].toString().isNotNullOrEmpty)) return "T";
+    if ((e['custom_link_id'] == null) && (e['reference_id'].toString().isNullOrEmpty)) return "";
+    return switch(e['custom_link_id']) {
+      3 => "G",
+      _ => "T"
+    };
+  }
+
+  Color? _customLinkTextColor(Map<String, dynamic> e) {
+    var response = _customLinkText(e);
+    if (response.isNullOrEmpty) return AppC.trans;
+    return switch(response) {
+      "T" => Colors.black,
+      "G" => AppC.getAroundTextColor,
+      _ => AppC.trans
+    };
+  }
 }

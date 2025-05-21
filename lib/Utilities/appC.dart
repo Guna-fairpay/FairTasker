@@ -62,4 +62,6 @@ static const redAccent = Color(0xffd01601);
 
   static const errorTextColor = Color(0xffd5423f);
 
+  static const getAroundTextColor = Color(0xffa608c0);
+
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fairpytasker/Component/compact_search_auto_field.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
@@ -47,13 +48,13 @@ class SearchViewField<T extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
         valueListenable: _showEmptyWidget,
-        builder: (context, value, child) => CustomAutoSearchField<T>(
+        builder: (context, value, child) => CompactSearchAutoField<T>(
               controller: controller,
               labelText: labelText,
               hintText: hintText,
               autoClear: autoClear,
               onSelectedFocus: onSelectedFocus,
-              onFieldFocusCreated: onFieldFocusCreated,
+              // onFieldFocusCreated: onFieldFocusCreated,
               optionsBuilder: _optionsBuilder,
               onChanged: (value) => (value.isNullOrEmpty && (selectedItem != null)) ? onCleared?.call(selectedItem!) : null,
               itemAsString: itemAsString,
