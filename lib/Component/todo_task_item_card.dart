@@ -190,8 +190,8 @@ class TodoTaskItemCard extends StatelessWidget {
                                 GestureDetector(
                                   onTap: onCustomLink,
                                   child: Utils.getText(
-                                    "T",
-                                    color: Colors.black,
+                                    "${model['display']?['customLinkText'] ?? "T"}",
+                                    color: model['display']?['customColor'] ?? Colors.black,
                                     weight: FontWeight.w900,
                                     size: 14.sp,
                                   ),

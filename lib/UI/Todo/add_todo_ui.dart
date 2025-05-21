@@ -32,7 +32,8 @@ class CreateTodoUI extends StatelessWidget {
       create: (context) => AddToDoBloc()..add(AddToDoInitialEvent(showHeader, selectedDate: selectedDate, isNextTask: isNextTask, selectedVPerson: selectedVPerson)),
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
-            Utils.dismissKeyboard(context);
+            Console.of.log("RESETTING_BLOC_LISTENER");
+            // Utils.dismissKeyboard(context);
             if (state.isLoading) {
               EasyLoading.show();
             } else {
@@ -50,6 +51,7 @@ class CreateTodoUI extends StatelessWidget {
           },
           child: Scaffold(
             backgroundColor: AppC.white,
+            resizeToAvoidBottomInset: false,
             appBar: PreferredSize(preferredSize: const Size.fromHeight(60),
                 child: BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => AppBar(
                 elevation: 0,

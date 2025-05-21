@@ -3274,7 +3274,8 @@ class Utils {
   static void showPickerDate(BuildContext context, {DateTime? value, void Function(DateTime)? onChanged}) async {
     var result = await Future.microtask(() => showDatePicker(
         context: context,
-        firstDate: DateTime.now().subtract(const Duration(days: 180)),
+        // firstDate: DateTime.now().subtract(const Duration(days: 180)),
+        firstDate: DateTime(2000),
         currentDate: DateTime.now(),
         initialDate: value,
         initialEntryMode: DatePickerEntryMode.calendarOnly,
