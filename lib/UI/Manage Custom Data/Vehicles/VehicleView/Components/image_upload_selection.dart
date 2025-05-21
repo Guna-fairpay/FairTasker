@@ -18,18 +18,20 @@ class ImageUploadSection extends StatelessWidget {
   final List<dynamic> images;
   final String logName;
   final bool isRequired;
-  final bool isDialog;
+  final bool isDeleteDialog;
+  final bool isDeleteIcon;
 
   const ImageUploadSection({
     Key? key,
     required this.title,
     required this.borderColor,
     this.onUpload,
-    this.isDialog = true,
+    this.isDeleteDialog = true,
     required this.onRemove,
     required this.images,
     required this.logName,
     this.isRequired = true,
+    this.isDeleteIcon = true,
   }) : super(key: key);
 
   @override
@@ -68,13 +70,14 @@ class ImageUploadSection extends StatelessWidget {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 1, mainAxisSpacing: 10),
               itemBuilder: (context, index) => CloseBadge(
+                showClose: isDeleteIcon,
                 onTapView: () {
                   ShowAttachmentsDialog.of.show(context,
                       attachments: images, title: "",
                       currentAttachment: images[index]);
                 },
                 onTapDelete: () {
-                  (isDialog)?
+                  (isDeleteDialog)?
                     AskPermissionDialog.show(context,
                         title: "Are you sure?",
                         description: "Do you want to remove this image?",

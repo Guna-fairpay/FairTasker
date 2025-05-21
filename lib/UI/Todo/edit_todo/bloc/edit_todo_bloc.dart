@@ -728,12 +728,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     on<EditToDoDeleteVehicleEvent>((event, emit) async {
       try {
         emit(state.copyWith(isLoading: false));
-        var id = vehicleData.firstWhereOrNull(
-            (element) => element['vin'] == event.vehicleId)?['id'];
-        vinList.removeWhere(
-          (element) => event.vehicleId.contains(element),
-        );
-        await apiRepository.deleteTodoVehicle(id: "$id");
+
+        if(event.data['type']=='vehicle'){
+          Console.of.log(event.data);
+          var id = vehicleData.firstWhereOrNull(
+              (element) => element['vin'] == event.data?['value']?['vin'])?['id'];
+          vinList.removeWhere(
+            (element) => event.data?['value']?['vin'].contains(element),
+          );
+          await apiRepository.deleteTodoVehicle(id: "$id");
+        }
+        state.selectedVPerson.removeWhere((element) => element['id'] == event.data['id']);
         // await getIt<CommonService>().getActiveVehicles(reset: true);
         // _broadcast.stickyBroadcast("todo_view", value: false);
         TaskerHelper.instance.withoutLoadingRefresh();
