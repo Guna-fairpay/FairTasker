@@ -1,5 +1,7 @@
 
 import 'package:fairpytasker/Component/custom_vehicle_expense_history_Info.dart';
+import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_edit_ui.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -63,7 +65,54 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
               minimum: 20.padding,
               child: ListView(
                 children: [
-                  Container(
+                  if (getIt<CommonService>().isAdmin)...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(onPressed: () => context.pushReplacement(
+                        VehicleExpenseHistoryEditPage(
+                          id: "${state.editResponse['id']}",
+                          showTotalAmount: showTotalAmount,
+                          currentExpenseAmount: currentExpenseAmount,
+                        ), fullscreenDialog: true
+                    ), icon: const Icon(Icons.edit_outlined,color: AppC.blue,)),
+                  ),],
+                  IconAndText(
+                    icon: Icons.monetization_on_outlined,
+                    label: "${state.editResponse['expense_amount'] ?? ''}",
+                  ),
+                  IconAndText(
+                    icon: Icons.message,
+                    label: "${state.editResponse['expense_description'] ?? ''}",
+                  ),
+                  IconAndText(
+                    icon: Icons.category,
+                    label: "${state.selectedCategory['name'] ?? ''}",
+                  ),
+                  IconAndText(
+                    icon: Icons.category_outlined,
+                    label: "${state.selectedSubCategory['name'] ?? ''}",
+                  ),
+                  IconAndText(
+                    icon: Icons.payment,
+                    label: "${state.selectedPaymentMethod['name'] ?? ''}",
+                  ),
+                  const IconAndText(
+                    icon: Icons.attachment_outlined,
+                    label: "",
+                  ),
+                  if (state.expenseAttachments.isNotEmpty)
+                    ImageUploadSection(
+                      title: '',
+                      borderColor: Colors.blue,
+                      onRemove: (file)=> context.read<VehicleExpenseHistoryBloc>().add(RemoveImageEvent(data:file)),
+                      images: state.expenseAttachments,
+                      logName: "expenseAttachments",
+                      isRequired: false,
+                      isDeleteDialog: false,
+                      isDeleteIcon: false,
+                    ),
+
+                 /* Container(
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -82,6 +131,7 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+
                         InfoWidget(
                           icon: Icons.monetization_on_outlined,
                           label: 'Amount',
@@ -132,7 +182,7 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                               itemBuilder: (context, index) => CloseBadge(
                                   showClose: false,
                                   onTapView: () {
-                                    /*var currentData = state.expenseAttachments[index];
+                                    *//*var currentData = state.expenseAttachments[index];
                                     if ((currentData is String) && (currentData.isPDF)) {
                                       // OPEN URL
                                       Utils.openURL(currentData);
@@ -142,7 +192,7 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                                           title: "",
                                           currentAttachment:
                                           state.expenseAttachments[index]);
-                                    }*/
+                                    }*//*
                                     ShowAttachmentsDialog.of.show(context,
                                         attachments: state.expenseAttachments,
                                         title: "",
@@ -180,7 +230,6 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   if (getIt<CommonService>().isAdmin)...[
                     10.height,
                     Row(
@@ -198,8 +247,7 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                         ),
                       ],
                     )
-                  ],
-
+                  ],*/
                 ],
               ),
             ),

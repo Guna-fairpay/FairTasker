@@ -34,7 +34,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
         ? "${expense['expense_to_data']['expense_to'] ?? ''}"
         : expense['expense_to'] == 4
             ? '${expense['cohort']?['cohort'] ?? ''}'
-            : "";
+            : "Unassigned";
 
     Color getCategoryColor(String category) {
       switch (category) {

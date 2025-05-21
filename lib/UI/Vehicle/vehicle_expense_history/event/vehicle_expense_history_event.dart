@@ -10,9 +10,10 @@ abstract class VehicleExpenseHistoryEvent extends Equatable {
 
 class GetVehicleExpenseHistoryList extends VehicleExpenseHistoryEvent {
   final String? vin;
-  const GetVehicleExpenseHistoryList({required this.vin});
+  final bool isExpenseApprove;
+  const GetVehicleExpenseHistoryList({required this.vin,required this.isExpenseApprove});
   @override
-  List<Object?> get props => [vin];
+  List<Object?> get props => [vin, isExpenseApprove];
 }
 
 class GetEditVehicleExpenseHistory extends VehicleExpenseHistoryEvent {
@@ -93,4 +94,11 @@ class UpdateVehicleExpenseHistoryEvent extends VehicleExpenseHistoryEvent {
   const UpdateVehicleExpenseHistoryEvent({required this.id});
   @override
   List<Object?> get props => [id];
+}
+
+class PaginationEvent extends VehicleExpenseHistoryEvent {
+  final int page;
+  const PaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
 }
