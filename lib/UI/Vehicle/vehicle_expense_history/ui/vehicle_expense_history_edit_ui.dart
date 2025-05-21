@@ -215,21 +215,21 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                                   ),
                                 ),
                                 // Add download button only for PDF
-                                if ((state.expenseAttachments[index] as Object).isPDF)
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: AppC.green,
-                                      borderRadius: BorderRadius.circular(16),
-
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Utils.openURL(state.expenseAttachments[index]);
-                                      },child:Padding(
-                                      padding: 4.padding,
-                                      child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
-                                    ),),
-                                  ),
+                                // if ((state.expenseAttachments[index] as Object).isPDF)
+                                //   Container(
+                                //     decoration: BoxDecoration(
+                                //       color: AppC.green,
+                                //       borderRadius: BorderRadius.circular(16),
+                                //
+                                //     ),
+                                //     child: InkWell(
+                                //       onTap: () {
+                                //         Utils.openURL(state.expenseAttachments[index]);
+                                //       },child:Padding(
+                                //       padding: 4.padding,
+                                //       child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
+                                //     ),),
+                                //   ),
 
                               ],
                             ), /*Column(

@@ -111,7 +111,7 @@ class CumulativeExpenseAddFormField extends StatelessWidget {
                   12.sp.height,
                   ImageUploadSection(
                     title: '',
-                    isDialog: false,
+                    isDeleteDialog: false,
                     borderColor: Colors.blue,
                     onRemove: (file)=> context.read<CumulativeExpenseAddBloc>().add(CumulativeExpenseAddRemoveAttachmentEvent(data:file)),
                     images: context.watch<CumulativeExpenseAddBloc>().files,

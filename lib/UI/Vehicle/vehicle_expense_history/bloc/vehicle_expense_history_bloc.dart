@@ -3,7 +3,11 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/Utilities/Str.dart';
+import 'package:fairpytasker/Utilities/prefs.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,6 +32,9 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
   String? categoryId;
   String? subcategoryId;
 
+  List<Map<String, dynamic>> _unFilteredResponse = [];
+
+
   List<dynamic>? selectedCategory;
   List<dynamic>? selectedSubCategory;
   List<dynamic>? selectedCohorts;
@@ -35,7 +42,7 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
   List<dynamic>? selectedVehicle;
 
   List<dynamic>? filterList = [];
-  List<dynamic>? approvedList=[];
+  List<Map<String, dynamic>> approvedList=[];
   List<dynamic>? subCategories = [];
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
@@ -45,6 +52,11 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
   TextEditingController amountController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+
+  int selectedTab = 0;
+  int itemsPerPage = 10;
+  int currentIndex = 1;
+  int totalCount = 0;
 
   VehicleExpenseHistoryBloc()
       : super(VehicleExpenseHistoryState(
@@ -117,11 +129,21 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
         }
         totalAmount = double.parse(totalAmount.toStringAsFixed(2));
         log("Total Amount: $totalAmount", name: "Expense Calculation");
+        if(event.isExpenseApprove) {
+          _unFilteredResponse = approvedList;
+        }else{
+          _unFilteredResponse = apiResponse ?? [];
+        }
+        filterList = paginateList(
+            data: _unFilteredResponse,
+            currentPage: currentIndex,
+            itemsPerPage: itemsPerPage);
+        totalCount = _unFilteredResponse.length;
 
         emit(state.copyWith(
           isLoading: false,
           apiResponse: apiResponse,
-          filteredResponse: apiResponse,
+          filteredResponse: filterList,
           approvedList: approvedList,
           totalAmount: totalAmount,
         ));
@@ -132,6 +154,8 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
       }
     });
 
+    on<PaginationEvent>(_onPaginationEvent);
+
     on<GetEditVehicleExpenseHistory>((event, emit) async {
       try{
         emit(state.copyWith(isLoading: true));
@@ -139,6 +163,7 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
         var paymentResponse = await _getPaymentMethods();
         var cohortsResponse = await _getExpenseCategories();
         var vehicleResponse = await _getVehicles();
+        vehicleResponse.removeWhere((element) => element['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
 
         var apiResponse = vehicleExpenseHistoryResponse?['expenses'];
 
@@ -182,6 +207,8 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
         selectedVehicle = vehicleResponse.where(
                 (e) => e['vin'] == apiResponse?['vin']).toList();
         vehicleController.text = selectedVehicle?.firstOrNull?['vehicle_name'] ?? '';
+        Console.of.log(vehicleResponse);
+        Console.of.log(selectedVehicle);
 
         emit(state.copyWith(
           isLoading: false,
@@ -208,23 +235,23 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
       }
     });
 
-    on<SearchVehicleExpenseHistoryEvent>((event, emit) {
-      if (event.query == null || event.query!.isEmpty) {
-        emit(state.copyWith(filteredResponse: state.apiResponse));
-      } else {
-        var filteredResponse = state.apiResponse.where((element) {
-          final description = (element['expense_description'] ?? '').toString().toLowerCase();
-          final amount = (element['expense_amount'] ?? '').toString().toLowerCase();
-          final date = (element['expense_date'] ?? '').toString().toLowerCase();
-
-          return description.contains(event.query!.toLowerCase()) ||
-              date.contains(event.query!.toLowerCase()) ||
-              amount.contains(event.query!.toLowerCase());
-        }).toList();
-
-        emit(state.copyWith(filteredResponse: filteredResponse));
-      }
-    });
+    // on<SearchVehicleExpenseHistoryEvent>((event, emit) {
+    //   if (event.query == null || event.query!.isEmpty) {
+    //     emit(state.copyWith(filteredResponse: state.apiResponse));
+    //   } else {
+    //     var filteredResponse = state.apiResponse.where((element) {
+    //       final description = (element['expense_description'] ?? '').toString().toLowerCase();
+    //       final amount = (element['expense_amount'] ?? '').toString().toLowerCase();
+    //       final date = (element['expense_date'] ?? '').toString().toLowerCase();
+    //
+    //       return description.contains(event.query!.toLowerCase()) ||
+    //           date.contains(event.query!.toLowerCase()) ||
+    //           amount.contains(event.query!.toLowerCase());
+    //     }).toList();
+    //
+    //     emit(state.copyWith(filteredResponse: filteredResponse));
+    //   }
+    // });
 
     on<RemoveImageEvent>((event, emit) async {
       if (event.data == null) return;
@@ -323,6 +350,12 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
       }
     });
 
+  }
+
+  void _onPaginationEvent(PaginationEvent event, Emitter<VehicleExpenseHistoryState> emit) {
+    currentIndex = event.page;
+    filterList = paginateList(data: _unFilteredResponse, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+    emit(state.copyWith(filteredResponse: filterList));
   }
 
   Map<String, String> _expenseData() {

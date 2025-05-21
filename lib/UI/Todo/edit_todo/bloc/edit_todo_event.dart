@@ -252,13 +252,12 @@ class DeleteTodoEvent extends EditToDoEvent {
 }
 
 class EditToDoDeleteVehicleEvent extends EditToDoEvent {
-  final String vehicleId;
-
+  final dynamic data;
   EditToDoDeleteVehicleEvent({
-   required this.vehicleId,
+   required this.data,
   });
   @override
-  List<Object?> get props => [vehicleId];
+  List<Object?> get props => [data];
 }
 
 class EditToDoSelectSentimentsEvent extends EditToDoEvent {
