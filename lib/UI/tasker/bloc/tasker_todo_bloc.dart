@@ -557,6 +557,8 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       var model = event.model;
       var time = event.selectedTime;
       var identifierId = model?['identifier_id'];
+      var isPlatformRequired = Str.platFormCheckIds.contains(identifierId) && ((getIt<CommonService>().departmentId) == 7) && (model?['platform_check'] == 0);
+      if (isPlatformRequired) return emit(ToDoTaskerErrorState("Platform check is required"));
       var taskDate = model?['todo_date'].toString().toDateTime();
       var currentDate = DateTime.now().toFormat().toDateTime();
       var reason = event.reason;
@@ -747,6 +749,9 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     try {
       var model = event.model;
       var selected = event.selected;
+      var identifierId = model?['identifier_id'];
+      var isPlatformRequired = Str.platFormCheckIds.contains(identifierId) && ((getIt<CommonService>().departmentId) == 7) && (model?['platform_check'] == 0);
+      if (isPlatformRequired) return emit(ToDoTaskerErrorState("Platform check is required"));
       var mapData = {"user_group_data" : "${selected?.map((e) => e['id']).toList()}"};
       emit(ToDoTaskerLoadingState());
       var response = await _updateToDo(body: mapData, todoId: model?['id']);
