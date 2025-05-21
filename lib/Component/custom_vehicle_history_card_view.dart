@@ -44,7 +44,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
     String? lastName =
     (users.firstOrNull?['last_name'] ?? "");
     var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
-    var customId = (model?['reference_id'].toString().isNotNullOrEmpty ?? false)
+    var customId = ((model?['reference_id'].toString().isNotNullOrEmpty ?? false) && (model?['custom_link_id'] == null))
         ? 2 : (model?['custom_link_id'] ?? 0);
     var customText = (customId == 1)
         ? "Link"
