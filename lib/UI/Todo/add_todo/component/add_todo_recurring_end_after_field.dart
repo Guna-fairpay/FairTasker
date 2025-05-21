@@ -63,8 +63,8 @@ class AddTodoRecurringEndAfterField extends StatelessWidget {
               )
             : CustomDateTimePicker<DateTime>(
                 controller: dateController,
-                format: "dd-MM-yyyy",
-                labelText: "dd-MM-yyyy",
+                format: "MM-dd-yyyy",
+                labelText: "MM-dd-yyyy",
                 onChanged: onDateChange,
                 value: endDate,
                 suffixIcon: Icon(Icons.calendar_month_rounded,

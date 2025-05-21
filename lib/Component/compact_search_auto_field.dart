@@ -8,8 +8,7 @@ import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 
-
-class CustomAutoSearchField<T extends Object> extends StatelessWidget {
+class CompactSearchAutoField<T extends Object> extends StatefulWidget {
   final String? labelText;
   final String? hintText;
   final TextEditingController controller;
@@ -22,17 +21,15 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
   final VoidCallback? onEmptyWidgetTap;
   final GestureTapDownCallback? onEmptyWidgetTapDown;
   final bool autoClear;
-  final Function(FocusNode focusNode)? onFieldFocusCreated;
   final FormFieldValidator<T>? validator;
   final AutovalidateMode autoValidateMode;
   final T? value;
 
-  const CustomAutoSearchField({
+  CompactSearchAutoField({
     super.key,
     this.labelText,
     this.value,
     this.hintText,
-    this.onFieldFocusCreated,
     required this.controller,
     this.itemAsString,
     this.onSelected,
@@ -48,25 +45,35 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
   });
 
   @override
+  State<CompactSearchAutoField<T>> createState() => _CompactSearchAutoFieldState<T>();
+}
+
+class _CompactSearchAutoFieldState<T extends Object> extends State<CompactSearchAutoField<T>> {
+  final GlobalKey textFieldKey = GlobalKey();
+
+  final FocusNode _focusNode = FocusNode();
+
+  @override
   Widget build(BuildContext context) {
-    final GlobalKey textFieldKey = GlobalKey();
     double? fieldWidth;
     return FormField<T>(
-      initialValue: value,
-      autovalidateMode: autoValidateMode,
-      validator: validator,
+      initialValue: widget.value,
+      autovalidateMode: widget.autoValidateMode,
+      validator: widget.validator,
       builder: (field) {
         var border = OutlineInputBorder(
           borderRadius: BorderRadius.circular(Num.borderRadius),
           borderSide: const BorderSide(color: AppC.borderColor),
         );
         return IntrinsicHeight(
-          child: Autocomplete<T>(
-            initialValue: controller.value,
+          child: RawAutocomplete<T>(
+            focusNode: _focusNode,
+            textEditingController: widget.controller,
+            displayStringForOption: (option) => widget.itemAsString?.call(option) ?? "",
             onSelected: (option) {
-              onSelected?.call(option);
-              if (autoClear) {
-                controller.clear();
+              widget.onSelected?.call(option);
+              if (widget.autoClear) {
+                widget.controller.clear();
               }
               field.didChange(option);
               Utils.dismissKeyboard(context);
@@ -100,7 +107,7 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
                         contentPadding: 10.padding,
                         titleTextStyle: context.textTheme.labelLarge
                             ?.copyWith(fontFamily: "Lato"),
-                        title: Text(itemAsString
+                        title: Text(widget.itemAsString
                             ?.call(options.elementAt(index)) ??
                             ""),
                       ),
@@ -116,33 +123,36 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
             fieldViewBuilder:
                 (context, textEditingController, focusNode, onFieldSubmitted) {
               if ((textEditingController.text.contains("id:") &&
-                  !controller.text.contains("id:")) ||
-                  ((controller.text.isNotEmpty) &&
+                  !widget.controller.text.contains("id:")) ||
+                  ((widget.controller.text.isNotEmpty) &&
                       (textEditingController.text.isEmpty)) ||
-                  (textEditingController.text != controller.text)) {
-                textEditingController.value = controller.value;
-                Console.of.log("Resetting value");
+                  (textEditingController.text != widget.controller.text)) {
+                textEditingController.value = widget.controller.value;
+                Console.of.log("Resetting value", name: "COMPACT_SEARCH_AUTO_FIELD");
               }
-              controller.value = textEditingController.value;
-              controller.value.copyWith(
+              widget.controller.value = textEditingController.value;
+              widget.controller.value.copyWith(
                   selection: TextSelection.collapsed(
-                      offset: controller.text.length - 1));
-              if (controller.text.contains("id:")) controller.clear();
-              onFieldFocusCreated?.call(focusNode);
-              // _focusNode = focusNode;
+                      offset: widget.controller.text.length - 1));
+              if (widget.controller.text.contains("id:")) widget.controller.clear();
+
               return TextField(
                 key: textFieldKey,
-                controller: controller,
+                controller: widget.controller,
                 focusNode: focusNode,
                 onSubmitted: (value) => onFieldSubmitted(),
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 onChanged: (value) {
-                  // focusNode.requestFocus();
-                  textEditingController.value = controller.value;
-                  onChanged?.call(value);
+                  Console.of.log("ON_CHANGED", name: "COMPACT_SEARCH_AUTO_FIELD");
+                  textEditingController.value = widget.controller.value;
+                  widget.onChanged?.call(value);
                 },
-                onTap: focusNode.requestFocus,
+                onTap: () {
+                  Console.of.log("INSIDE TAPPING", name: "COMPACT_SEARCH_AUTO_FIELD");
+                  focusNode.requestFocus();
+                },
                 onTapUpOutside: (event) {
+                  Console.of.log("OUTSIDE TAPPING", name: "COMPACT_SEARCH_AUTO_FIELD");
                   focusNode.unfocus();
                   Utils.dismissKeyboard(context);
                 },
@@ -153,8 +163,8 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
                     border: border,
                     enabledBorder: border,
                     isDense: true,
-                    hintText: hintText ?? "Search here...",
-                    labelText: labelText ?? "Search",
+                    hintText: widget.hintText ?? "Search here...",
+                    labelText: widget.labelText ?? "Search",
                     errorText: field.errorText,
                     filled: false,
                     fillColor: AppC.blue50,
@@ -165,12 +175,12 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
                         ?.copyWith(color: context.theme.hintColor),
                     suffixIconConstraints: const BoxConstraints(),
                     suffixIcon: ValueListenableBuilder(
-                        valueListenable: controller,
+                        valueListenable: widget.controller,
                         builder: (context, value, child) =>
-                        (showEmptyWidget && value.text.isNotEmpty)
+                        (widget.showEmptyWidget && value.text.isNotEmpty)
                             ? GestureDetector(
-                          onTap: onEmptyWidgetTap,
-                          onTapDown: onEmptyWidgetTapDown,
+                          onTap: widget.onEmptyWidgetTap,
+                          onTapDown: widget.onEmptyWidgetTapDown,
                           child: Container(
                             margin: 2.padding,
                             padding: 10.padding,
@@ -191,7 +201,7 @@ class CustomAutoSearchField<T extends Object> extends StatelessWidget {
                             : const SizedBox.shrink())),
               );
             },
-            optionsBuilder: optionsBuilder,
+            optionsBuilder: widget.optionsBuilder,
           ),
         );
       },

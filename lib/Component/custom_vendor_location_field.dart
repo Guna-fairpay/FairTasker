@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_search_auto_field.dart';
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
@@ -67,7 +68,7 @@ class CustomVendorLocationField extends StatelessWidget {
   }
 
   Widget _searcher(BuildContext context, bool emptyValue) {
-    return CustomAutoSearchField(
+    return CompactSearchAutoField(
         controller: controller!,
         labelText: "Vendor/Location",
         onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,

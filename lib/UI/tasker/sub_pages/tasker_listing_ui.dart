@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/custom_loader.dart';
 import 'package:fairpytasker/UI/dialog/show_notes_dialog.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_events.dart';
 import 'package:fairpytasker/UI/tasker/bloc/tasker_todo_states.dart';
@@ -6,6 +7,7 @@ import 'package:fairpytasker/Component/todo_task_item_card.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class TaskerListingUi extends StatelessWidget {
   const TaskerListingUi({super.key});
@@ -18,7 +20,7 @@ class TaskerListingUi extends StatelessWidget {
             child: (context.watch<ToDoTaskerBloc>().toDos.isEmpty &&
                     (state is! ToDoTaskerLoadingState))
                 ? EmptyWidget(withExpand: false, onRefresh: () => context.read<ToDoTaskerBloc>().add(ToDoTaskerRefreshEvent()))
-                : ReorderableListView.builder(
+                : ((!EasyLoading.isShow) && (state is ToDoTaskerLoadingState)) ? const CustomLoading() : ReorderableListView.builder(
                 physics: const BouncingScrollPhysics(),
                 itemCount: context.watch<ToDoTaskerBloc>().toDos.length,
                 itemBuilder: (context, index) {

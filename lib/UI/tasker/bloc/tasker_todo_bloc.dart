@@ -1086,7 +1086,14 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
 
 
   void _onViewCustomLinkEvent(ToDoTaskerViewCustomLinkEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ToDoTaskerViewCustomLinkState(event.model));
+    var link = event.model?['custom_link'];
+    if (event.model?['display']?['customLinkText'].toString().isNotNullOrEmpty ?? false) {
+      link = switch(event.model?['display']?['customLinkText']) {
+        "G" => event.model?['reference_id'].toString().toGetAroundReserveUrl,
+        _ => event.model?['reference_id'].toString().toTuroReserveUrl
+      };
+    }
+    emit(ToDoTaskerViewCustomLinkState(event.model, link));
   }
 
   void _onViewReasonAttachmentEvent(ToDoTaskerViewReasonAttachmentEvent event, Emitter<ToDoTaskerState> emit) {

@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
-import 'package:fairpytasker/Component/custom_auto_search_field.dart';
+import 'package:fairpytasker/Component/compact_search_auto_field.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/backup/task_add_ui.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
@@ -41,7 +40,6 @@ class TaskIdentifier extends StatelessWidget {
 
   String type = "task";
   int partNumber = 1;
-  final FocusNode _focusNode = FocusNode();
   Map<int, dynamic> selectedList = {};
   List<Map<String, dynamic>> commonList = [];
   List<Map<String, dynamic>> vTasks = [];
@@ -52,11 +50,13 @@ class TaskIdentifier extends StatelessWidget {
   ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
 
   void initState() {
+    Console.of.log("INITSTATE");
     updateCommonList();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _listenNotifiers());
   }
 
   void _listenNotifiers() {
+    Console.of.log("LISTEN_NOTIFIERS");
     if ((selected != null) && (selected?.isNotEmpty ?? false)) {
       if (selected![1] != null) selectedList[1] = selected![1];
       if (selected![2] != null) selectedList[2] = selected![2];
@@ -64,7 +64,7 @@ class TaskIdentifier extends StatelessWidget {
       if (selected?.containsKey(1) == false) selectedList.remove(1);
       if (selected?.containsKey(2) == false) selectedList.remove(2);
       if (selected?.containsKey(3) == false) selectedList.remove(3);
-      _setValue(emit: false);
+      _setValue();
     } else {
       taskIdentifierController.clear();
     }
@@ -77,11 +77,7 @@ class TaskIdentifier extends StatelessWidget {
     commonList = vTasks;
   }
 
-  void _setValue({bool emit = true}) {
-    Console.of.warning("SetValue:	$emit", name: "TaskIdentifier");
-    if (emit) {
-      onSelected?.call(selectedList);
-    }
+  void _setValue() {
     Console.of.log(formatMapData(selectedList), name: "TaskIdentifier");
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  formatMapData(selectedList).length - 1));
@@ -132,13 +128,13 @@ class TaskIdentifier extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       builder: (context, value, child) {
-        return CustomAutoSearchField<Map<String, dynamic>>(
+        return CompactSearchAutoField<Map<String, dynamic>>(
           controller: taskIdentifierController,
           labelText: "Task Identifier",
           onEmptyWidgetTap: () => context.push(TaskMainPage(title: taskIdentifierController.text), fullscreenDialog: true),
           onSelected: (value) {
+            Console.of.log("onSelected ${value.isNotEmpty}", name: "TaskIdentifier");
             selectedList[value['partNumber']] = value;
-            log("onSelected:	$value", name: "TaskIdentifier");
             onSelected?.call(selectedList);
             Utils.dismissKeyboard(context);
           },
@@ -154,6 +150,7 @@ class TaskIdentifier extends StatelessWidget {
     var val = taskIdentifierController.text;
     if (val.isEmpty) {
       selectedList.clear();
+      Console.of.log("EMITTING 1", name: "TaskIdentifier");
       onSelected?.call({});
       showEmptyNotifier.value = false;
       return [];
@@ -169,9 +166,7 @@ class TaskIdentifier extends StatelessWidget {
     var cursorPosition =  taskIdentifierController.selection.start;
     var filteredRecords = [];
     List<int> hyphenPositions = [];
-    for (int i = 0; i < inputValue.length; i++) {
-      if (inputValue[i] == "-") hyphenPositions.add(i);
-    }
+    for (int i = 0; i < inputValue.length; i++) { if (inputValue[i] == "-") hyphenPositions.add(i); }
     var typedPart = '';
     if (hyphenPositions.isEmpty) {
       typedPart = inputValue;
@@ -232,12 +227,9 @@ class TaskIdentifier extends StatelessWidget {
       selectedList[3] = filteredRecords.firstOrNull;
     }
     inputParts.forEachIndexed((index, element) {
-      if (element.isEmpty) {
-        selectedList.remove(index+1);
-      }
+      if (element.isEmpty) selectedList.remove(index+1);
     });
-    log("$selectedList", name: "SELECTED_LIST");
-    Console.of.log("PartNumber $partNumber $cursorPosition $inputParts");
+    Console.of.log("PART-NUMBER: $partNumber CURSOR: $cursorPosition INPUT-PARTS: $inputParts", name: "TASK_IDENTIFIER");
     _debounce?.cancel();
     _debounce = Timer(Durations.extralong4, updateToFunction);
     var inputted = (taskIdentifierController.text.split("-"));
@@ -251,7 +243,7 @@ class TaskIdentifier extends StatelessWidget {
       ].contains(element));
     }
     if (inputParts.length > 3) commonList.clear();
-    log("$omitted ${omitted.length}", name: "OMITTED");
+    Console.of.log("$omitted ${omitted.length}", name: "TASK_IDENTIFIER");
     var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
     return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
@@ -263,6 +255,7 @@ class TaskIdentifier extends StatelessWidget {
   List<SearchFieldListItem<Map<String, dynamic>>>? onSearchOld(String val) {
     if (val.isEmpty) {
       selectedList.clear();
+      Console.of.log("EMITTING 2", name: "TaskIdentifier");
       onSelected?.call({});
     }
     var inputValue = val.toLowerCase();
@@ -339,9 +332,7 @@ class TaskIdentifier extends StatelessWidget {
       selectedList[3] = filteredRecords.firstOrNull;
     }
     inputParts.forEachIndexed((index, element) {
-      if (element.isEmpty) {
-        selectedList.remove(index+1);
-      }
+      if (element.isEmpty) selectedList.remove(index+1);
     });
     log("$selectedList", name: "SELECTED_LIST");
     _debounce?.cancel();
@@ -358,6 +349,7 @@ class TaskIdentifier extends StatelessWidget {
     log("${selected != selectedList} ${formattedText.length > taskIdentifierController.text.length}", name: "updateToFunction");
     if (_previousText.isNotEmpty && currentText.length < _previousText.length) {
       log("Removing chars",name: "updateToFunction");
+      Console.of.log("EMITTING 3", name: "TaskIdentifier");
       onSelected?.call(selectedList);
     }
     _previousText = currentText;

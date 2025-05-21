@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:path/path.dart' show basename;
 import 'package:fairpytasker/UI/dialog/reclean/bloc/reclean_events.dart';
 import 'package:fairpytasker/UI/dialog/reclean/bloc/reclean_states.dart';
@@ -35,31 +37,40 @@ class RecleanBloc extends Bloc<RecleanEvent, RecleanState> {
   }
 
   void _onPickFileEvent(RecleanPickFileEvent event, Emitter<RecleanState> emit) async {
-    var response = await _pickFiles();
-    if (response != null) {
-      var filePaths = reasonFiles.map((e) => e.path).toList();
-      for (var element in response) {
-        if (!filePaths.contains(element.path)) {
-          reasonFiles.add(element);
+    try {
+      var response = await _pickFiles();
+      if (response != null) {
+        var filePaths = reasonFiles.map((e) => e.path).toList();
+        for (var element in response) {
+          if (!filePaths.contains(element.path)) {
+            reasonFiles.add(element);
+          }
         }
+        var filePath = reasonFiles.whereType<File>().lastOrNull?.path;
+        if (filePath.isNotNullOrEmpty) {
+          fileController.text = basename(filePath ?? "");
+        } else {
+          fileController.clear();
+        }
+        emit(RecleanCommonState());
       }
-      var filePath = reasonFiles.whereType<File>().lastOrNull?.path;
-      if (filePath.isNotNullOrEmpty) {
-        fileController.text = basename(filePath ?? "");
-      } else {
-        fileController.clear();
-      }
-      emit(RecleanCommonState());
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      Toaster.showError("$e");
     }
   }
 
   Future<List<File>?> _pickFiles() async {
-    var result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.image,
-      allowCompression: true,
-    );
-    return result?.files.map((e) => File(e.path ?? "")).toList();
+    try {
+      var result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.image,
+        allowCompression: false,
+      );
+      return result?.files.map((e) => File(e.path ?? "")).toList();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void _onDeleteFileEvent(RecleanDeleteFileEvent event, Emitter<RecleanState> emit) {

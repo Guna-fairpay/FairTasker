@@ -8,6 +8,7 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_const.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
+import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/Utilities/str.dart';
@@ -267,9 +268,6 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       showCleanCar = Str.cleanCarCheckIds.contains(taskId);
       showPlatformCheck = Str.platFormCheckIds.contains(taskId);
       var selectedLink = Str.getAroundIds.contains(taskId);
-      if (existingVPersons?.length == 1) {
-        await _findReservationColor(existingVPersons.firstOrNull?['value']?['vin']);
-      }
       emit(state.copyWith(
           selectedTaskIdentifier: existing,
           selectedVPerson: existingVPersons,
@@ -278,6 +276,9 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           selectedLinkOption: selectedLink
               ? AddToDoConfig.customOptions.last
               : AddToDoConfig.customOptions[1]));
+      if (existingVPersons?.length == 1) {
+        await _findReservationColor(existingVPersons.firstOrNull?['value']?['vin']);
+      }
       log("$existing", name: "AddToDoBloc");
     });
 
@@ -589,12 +590,14 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           }
         }
         emit(state.copyWith(isLoading: true));
-        var response = await todoListRepo.addTodo(
-            body: _addTodoBody(),
-            images: state.attachments.whereType<File>().toList());
-        if (response?.isNotEmpty ?? false)
-          Toaster.showSuccess(response?['message'] ?? "Success");
-        _broadcast.stickyBroadcast("todo_view", value: true);
+        var files = state.attachments.whereType<File>().map((e) => {"images" : e.path}).toList();
+        var response = await _apiRepository.addToDo(body: _addTodoBody(), infusedFiles: files);
+        // var response = await todoListRepo.addTodo(
+        //     body: _addTodoBody(),
+        //     images: state.attachments.whereType<File>().toList());
+        if ((response?.isNotEmpty ?? false) && (response?['status'] == 200)) Toaster.showSuccess(response?['message'] ?? "Success");
+        if ((response?.isNotEmpty ?? false) && (response?['status'] != 200)) Toaster.showError(response?['message'] ?? "Error occurred!");
+        if ((response?.isNotEmpty ?? false) && (response?['status'] == 200)) _broadcast.stickyBroadcast("todo_view", value: true);
         if (response?['status'] == 200) emit(state.copyWith(redirect: true));
         else emit(state.copyWith(isLoading: false));
       } catch (e) {
@@ -646,9 +649,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         }
         emit(state.copyWith(isLoading: true));
         var response = await _apiRepository.cleanCar(body: _cleanCarBody());
-        _broadcast.stickyBroadcast("todo_view", value: true);
-        if (response != null)
-          Toaster.showSuccess(response['message'] ?? "Success");
+        if (response?['status'] == 200) { TaskerHelper.instance.refresh(); Toaster.showSuccess(response?['message'] ?? "Success"); } else { Toaster.showError(response?['message'] ?? "Error occurred!"); }
         emit(state.copyWith(isLoading: false));
       } catch (e) {
         Toaster.showError("$e");
@@ -716,7 +717,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
         state.recurringYearlySelectedMonth?['month'].toString() ?? "";
     baseBody['end_type'] = "${state.isRecurringEndDate}";
     baseBody['end_after'] = (!state.isRecurringEndDate)
-        ? (recurringEndDateController.text ?? "")
+        ? (recurringNoOccurrenceController.text ?? "")
         : "";
     baseBody['end_at'] = state.selectedRecurringEndDate.toFormat() ?? "";
     baseBody['todo_time'] = state.selectedTime.toHMS().toString();
