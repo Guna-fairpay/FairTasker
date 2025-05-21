@@ -26,7 +26,7 @@ class TFTDBloc extends Bloc<TFTDEvents, TFTDStates> {
     on<TFTDMultiSelectEvent>(_onMultiSelectEvent);
   }
 
-  Future<List<Map<String, dynamic>>> _fetchTaskCategoryGroup() async => await getIt<CommonService>().getTaskCategoryGroupList();
+  Future<List<Map<String, dynamic>>> _fetchTaskCategoryGroup() async => await getIt<CommonService>().getTaskCategoryGroupList(reset: true);
 
   void _onInitialEvent(TFTDInitialEvent event, Emitter<TFTDStates> emit) async {
     try {
