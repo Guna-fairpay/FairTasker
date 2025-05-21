@@ -2,7 +2,6 @@
 
 // working_hours_view_ui.dart
 import 'dart:developer';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
@@ -264,10 +263,11 @@ class WorkHoursViewUI extends StatelessWidget {
                             selectedDateRange: state.selectedDateRange,
                             onDateRangeSelected: (range)
                             {
-                              context.read<WorkingHoursBloc>().add(
-                                  UpdateDateRangeEvent(selectedRange: range));
+                              // context.read<WorkingHoursBloc>().add(
+                              //     UpdateDateRangeEvent(selectedRange: range));
                               startDate = DateFormat('yyyy-MM-dd').format(range.start);
                               endDate = DateFormat('yyyy-MM-dd').format(range.end);
+                              log("${startDate} - ${endDate} ${state.selectedDateRange}",name: "datet");
                               context.read<WorkingHoursBloc>().add(WorkingHoursInitialEvent(minDate: startDate, maxDate: endDate));
                               dates.clear();
                               dates = generateDateList(startDate, endDate);

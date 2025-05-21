@@ -82,6 +82,7 @@ class OdometerView extends StatelessWidget {
                         ],
                       ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 10,
                         children: [
                           Expanded(

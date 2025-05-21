@@ -34,26 +34,25 @@ class ByDayView extends StatelessWidget {
         BlocBuilder<WorkingHoursBloc, WorkingHoursState>(
             builder: (context, state){
               return SafeArea(
-                  child: Column(
-                    children: [
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: BouncingScrollPhysics(),
-                        itemCount: state.byDayData.length,
-                        itemBuilder: (context, index){
-                          final item = state.byDayData[index];
-                          return ByDayComponent(
-                            title: item['title'],
-                            vehicleName: item['vehicle_name'] ?? item['vehicles'][0]['vehicle_name'] ?? '',
-                            time: item['todo_time'].toString().substring(0,5),
-                            resource: "${item['users']['first_name'].toString().substring(0,1)}${item['users']['last_name'].toString().substring(0,1)}",
-                            notes: item['notes'],
-                            vendorName: item['vendor_name'] ?? item['location'] ?? '',
-                          );
-                        },
-                        separatorBuilder: (context, index) => SizedBox(),
-                      )
-                    ],
+                  child: SizedBox(
+                    height: MediaQuery.sizeOf(context).height * 0.7,
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: state.byDayData.length,
+                      itemBuilder: (context, index){
+                        final item = state.byDayData[index];
+                        return ByDayComponent(
+                          title: item['title'],
+                          vehicleName: item['vehicle_name'] != null && item['vehicle_name'] != '' ? item['vehicle_name'] : item['vehicles'] != null && item['vehicles'].length > 0 ? item['vehicles'][0]['vehicle_name'] : item['person'] ?? '',
+                          time: item['todo_time'].toString().substring(0,5),
+                          resource: "${item['users']['first_name'].toString().substring(0,1)}${item['users']['last_name'].toString().substring(0,1)}",
+                          notes: item['notes'],
+                          vendorName: item['vendor_name'] ?? item['location'] ?? '',
+                        );
+                      },
+                      separatorBuilder: (context, index) => SizedBox(),
+                    ),
                   )
               );
             }

@@ -113,7 +113,8 @@ class EditTodoBody extends StatelessWidget {
                       personsList: context.watch<EditToDoBloc>().persons,
                       groupVehicles: context.watch<EditToDoBloc>().groupVehicleList,
                       selected: state.selectedVPerson,
-                      onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val?['value']?['vin'])),
+                      onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(data: val)),
+                      //onDeleted: (val)=> context.read<EditToDoBloc>().add(EditToDoDeleteVehicleEvent(vehicleId: val?['value']?['vin'])),
                       onSelected: (val) => context
                           .read<EditToDoBloc>()
                           .add(EditToDoVPersonEvent(val)),
