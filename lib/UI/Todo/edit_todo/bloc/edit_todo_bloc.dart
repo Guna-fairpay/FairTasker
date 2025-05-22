@@ -547,7 +547,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           var id=List.from(state.apiResponse['parts']).firstWhereOrNull(
                   (element) => element['parts_id'].toString() == event.part['id'].toString())?['id'];
           await _deleteParts(id);
-          // _broadcast.stickyBroadcast("todo_view", value: false);
+          _broadcast.stickyBroadcast("parts_id", value: id);
           TaskerHelper.instance.withoutLoadingRefresh();
         }
       }
@@ -570,6 +570,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
               element['supplies_id'].toString() ==
                   event.data['id'].toString())?['id'];
          await _deleteSupplies(id);
+          _broadcast.stickyBroadcast("supplies_id", value: id);
           // _broadcast.stickyBroadcast("todo_view", value: false);
           TaskerHelper.instance.withoutLoadingRefresh();
         }
@@ -936,6 +937,10 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     Console.of.log(state.isRecurring);
     state.selectedVPerson
         .removeWhere((element) => vinList.contains(element['value']['vin']));
+    Set existingPartIds = state.apiResponse['parts'].map((e) => e['parts_id']).toSet();
+    state.selectedParts.removeWhere((element) => existingPartIds.contains(element['id'].toString()));
+    Set existingSuppliesIds = state.apiResponse['supplies'].map((e) => e['supplies_id']).toSet();
+    state.selectedSupplies.removeWhere((element) => existingSuppliesIds.contains(element['id'].toString()));
     var title = state.selectedTask['task'] == taskNameController.text
         ? state.selectedTask['task']
         : taskNameController.text;

@@ -2,6 +2,7 @@
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
+import 'package:fairpytasker/Component/page_keep_aliver.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Task/Task/UI/task_main_page.dart';
 import 'package:fairpytasker/UI/Todo/edit_todo/Component/resource_popup.dart';
@@ -178,7 +179,9 @@ class EditTodoBody extends StatelessWidget {
                 const EditTodoMoreForm(),
                 10.height,
                  if (state.apiResponse.isNotEmpty)
-                  const EditTodoBottomTabs(),
+                  const PageKeepAliver(
+                    key:PageStorageKey("EditTodoBottomTabs"),
+                      child: EditTodoBottomTabs()),
               ],
             )));
   }
