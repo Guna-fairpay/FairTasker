@@ -126,7 +126,7 @@ class BottomMenuHelper {
     };
   }
 
-  static List<Map<String, dynamic>> pages = [
+  static List<Map<String, dynamic>> get pages => [
     {
       "name" : "Tasker",
       "icon" : Icons.calendar_today_rounded,
@@ -147,6 +147,7 @@ class BottomMenuHelper {
       "icon" : Icons.feed_outlined,
       "activeIcon" : Icons.feed_rounded,
     },
+    if(getIt<CommonService>().showExpense)
     {
       "name" : "Expense",
       "icon" : Icons.monetization_on_outlined,
