@@ -76,7 +76,7 @@ class CommonService {
   int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
   bool get isAdmin => (roles?.contains("admin") ?? false) || (userId == 3);
-  bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 22, 1, 28, 21, ].contains(userId)));
+  bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 1, 28, 17].contains(userId)));///22 - Saeed ali , 21 - hidayath
 
   int get departmentId => Session.of.getInt("departmentId") ?? 0;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
