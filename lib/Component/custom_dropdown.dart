@@ -1,6 +1,7 @@
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -65,6 +66,10 @@ class CustomDropdown<T extends Object> extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 )))
             .toList(),
-        onChanged: onChanged);
+        onChanged: (value) async {
+          onChanged?.call(value);
+          await Future.delayed(Durations.short1);
+          Utils.dismissKeyboard(context);
+        },);
   }
 }

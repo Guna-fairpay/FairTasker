@@ -37,11 +37,11 @@ class OdometerBloc extends Bloc<OdometerEvent, OdometerState>{
       try{
         emit(state.copyWith(isLoading: true));
         final response = await odometerRepo.getPreviousOdometer(
-            event.todoItems['todo_date'].toString(),
-          event.todoItems['identifier_id'],
-          event.vehicle['vin'].toString()
+            event.todoItems?['todo_date'].toString(),
+          event.todoItems?['identifier_id'],
+          event.vehicle?['vin'].toString()
         );
-        var response1 = await _getToDoOdometer(todoId: event.todoItems['id']);
+        var response1 = await _getToDoOdometer(todoId: event.todoItems?['id']);
         log("response: ${response?.data}", name: "odometer_data");
         log("response1: ${response1 ?? []}", name: "odometer_data");
 
