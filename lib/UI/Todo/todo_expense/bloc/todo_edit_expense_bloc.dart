@@ -295,7 +295,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         await Permission.manageExternalStorage.request();
         emit(state.copyWith(isLoading: false));
       }
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false , pop: true));
     } catch (e) {
       Toaster.showError("$e");
       log(e.toString(), name: 'ERROR');
@@ -418,7 +418,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         ],
       };
       Console.of.log(invoiceData, name: 'INVOICE_DATA');
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, pop: false));
     } catch (e) {
       Console.of.error("Error", error: e);
       Toaster.showError(e);

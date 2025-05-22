@@ -112,10 +112,10 @@ class _InvoiceDialog extends StatelessWidget {
                             Table(
                               columnWidths: const {
                                 0: IntrinsicColumnWidth(),
-                                1: IntrinsicColumnWidth(),
+                                1: FlexColumnWidth(3),
                                 2: IntrinsicColumnWidth(),
-                                3: FlexColumnWidth(1),
-                                4: FlexColumnWidth(1),
+                                3: FlexColumnWidth(2),
+                                4: FlexColumnWidth(2),
                               },
                               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                               border:   const TableBorder(
@@ -127,7 +127,7 @@ class _InvoiceDialog extends StatelessWidget {
                                     children: [
                                       Padding(
                                           padding: 5.sp.padding.copyWith(left: 0.sp, right: 10.sp),
-                                          child: Text("S.No",
+                                          child: Text("S.NO",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 12.sp))),
@@ -139,7 +139,7 @@ class _InvoiceDialog extends StatelessWidget {
                                                   fontSize: 12.sp))),
                                       Padding(
                                           padding: 5.sp.padding.copyWith(left: 5.sp, right: 10.sp),
-                                          child: Text("Quantity",
+                                          child: Text("Qty",
                                               style: context.textTheme.labelLarge?.copyWith(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 12.sp))),
