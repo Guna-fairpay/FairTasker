@@ -652,13 +652,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       //       .where((element) => vinList.contains(element['vin'].toString()))
       //       .toList();
       // }
-      if (selectedVehicle == null && todoItem['expense_id'] == null) {
-        isSaveCategory = true;
-      } else if (vehicle != null && vehicle['expense_id'] != null) {
-        isSaveCategory = false;
-      } else {
-        isSaveCategory = true;
-      }
+
       Console.of.log(isSaveCategory, name: 'isSaveCategory');
       if (vehicleList.isNotEmpty && vehicleList.length == 1) {
         selectedVehicle = vehicleList.first;
@@ -771,6 +765,23 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               (double.tryParse(labourCostController.text) ?? 0))
               .toString();
       Console.of.log("LABOUR: $laborAmount ${labourCostController.text}");
+
+      var vehis = List.from(todoItem['vehicles'] ?? []);
+      var expId = (vehis.length == 1) ? (vehis.firstOrNull?['expense_id']) : null;
+
+      if ((expId == null && todoItem['expense_id'] == null)) {
+        isSaveCategory = true;
+      }
+
+      if ((vehicle != null) && (vehicle?['expense_id'] != null)) {
+        isSaveCategory = false;
+      }
+
+      Console.of.log("SVE CATE: $isSaveCategory", name: "isSaveCategory");
+      // else {
+      //   isSaveCategory = true;
+      // }
+
       emit(state.copyWith(
         isLoading: false,
         apiResponse: expenseDetailResponse,
