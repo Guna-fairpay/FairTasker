@@ -101,7 +101,7 @@ class OdometerView extends StatelessWidget {
                               validator: (val) => (double.tryParse(
                                   val.toString()) ?? 0) <
                                   (double.tryParse("${state.odometerData ?? 0}") ?? 0)
-                                  ? "Cannot enter lower than \n previous oil change \n odometer"
+                                  ? "Cannot enter lower than previous oil change odometer"
                                   : null,
                             ),
                           ),
