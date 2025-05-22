@@ -37,6 +37,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   int selectedTab = 0;
   List<Map<String, dynamic>> dropDownResource=[];
   Map<String, dynamic> initialDropDown = {'id':0,'full_name':'All'};
+  List<String> approveId = ['1','2','3','10','21','22','23'];
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -114,6 +115,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
               branchId = await Utils.getIntPreference(Str.branchIdPrefText);
               userRole = await Utils.getStringListPreference(Str.rolePrefText);
+              branchId = branchId == 0 ? 1 : branchId;
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
