@@ -46,7 +46,7 @@ class OdometerView extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 child: Form(
                   key: formKey,
-                  autovalidateMode: AutovalidateMode.onUnfocus,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
