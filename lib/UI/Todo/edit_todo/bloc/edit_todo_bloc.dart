@@ -730,8 +730,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       try {
         emit(state.copyWith(isLoading: false));
 
-        if(event.data['type']=='vehicle'){
-          Console.of.log(event.data);
+        if(event.data['type']=='vehicles'){
+          Console.of.log(event.data, name: "event.data");
           var id = vehicleData.firstWhereOrNull(
               (element) => element['vin'] == event.data?['value']?['vin'])?['id'];
           vinList.removeWhere(
