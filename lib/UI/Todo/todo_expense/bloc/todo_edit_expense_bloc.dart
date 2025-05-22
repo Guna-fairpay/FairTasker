@@ -545,12 +545,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
           (exTmpId ?? todoItem?['expense_temp_id'] ?? event.tempExpenseId)
               .toString()
               .getExpenseId;
-      if (event.selectedParts != null) {
-        selectedPart = event.selectedParts ?? [];
-      }
-      if (event.selectedSupplies != null) {
-        selectedSupplies = event.selectedSupplies ?? [];
-      }
+      if (event.selectedParts != null) selectedPart = event.selectedParts ?? [];
+      if (event.selectedSupplies != null) selectedSupplies = event.selectedSupplies ?? [];
       selectedVendor = event.selectedVendor;
       Map<String, dynamic>? response;
       if (expenseId != null) {
@@ -567,7 +563,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
 
 
-          String laborAmount = List.from(expenseDetailResponse?['split_expenses']).firstWhereOrNull((element) => element['labour'] == 1)?['amount'] ?? "";
+      String laborAmount = List.from(expenseDetailResponse?['split_expenses'] ?? []).firstWhereOrNull((element) => element['labour'] == 1)?['amount'] ?? "";
       Console.of.log("${laborAmount.runtimeType} : $laborAmount", name: "labourCostController");
 
       ogAttachments = expenseDetailResponse?['attachments'];
@@ -612,7 +608,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             .toList();
       }
       vinList = [todoItem?['vin']];
-      var vVins = List.from(todoItem?['vehicles']).map((e) => e['vin']);
+      var vVins = List.from(todoItem?['vehicles'] ?? []).map((e) => e['vin']);
       vinList.addAll(vVins);
       vinList.removeWhere((element) => element.toString().isNullOrEmpty);
       vinList = vinList.unique((element) => element);
@@ -644,7 +640,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
             .groupVehicleList
             .firstWhereOrNull(
                 (element) => element['id'] == todoItem?['vehicle_group_id']);
-        var vins = List.from(jsonDecode(groupVehicles?['vin'] ?? ""));
+        var vins = List.from(jsonDecode(groupVehicles?['vin'] ?? "") ?? []);
         Console.of.log(vins.firstOrNull, name: "VIN_GROUP");
         selectedVehicle = getIt<CommonService>()
             .activeVehicleList
@@ -763,8 +759,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         vendorList: vendor.firstOrNull?['value'] ?? [],
       ));
     } catch (e) {
-      Utils.showMobileToast(e.toString());
-      log("$e", name: 'Error in GetTodoExpenseInitialEvent');
+      Console.of.error("Error", name: "GetTodoExpenseInitialEvent", error: e);
       emit(state.copyWith(isLoading: false));
     }
   }
