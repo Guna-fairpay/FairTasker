@@ -116,23 +116,23 @@ class EditTodoExpenseAttachment extends StatelessWidget {
                               .isImage),
                         ),
                       ),
-                      // if ((attachments[index] as Object).isPDF)
-                      //   Container(
-                      //     decoration: BoxDecoration(
-                      //       color: AppC.green,
-                      //       borderRadius: BorderRadius.circular(16),
-                      //
-                      //     ),
-                      //     child: InkWell(
-                      //       onTap: () {
-                      //         var data = (attachments[index] is File) ? (attachments[index] as File).path : attachments[index];
-                      //         Console.of.log(data);
-                      //         Utils.openURL(data, isFile: (attachments[index] is File));
-                      //       },child:Padding(
-                      //       padding: 4.padding,
-                      //       child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
-                      //     ),),
-                      //   ),
+                      if ((attachments[index] as Object).isPDF)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppC.green,
+                            borderRadius: BorderRadius.circular(16),
+
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              var data = (attachments[index] is File) ? (attachments[index] as File).path : attachments[index];
+                              Console.of.log(data);
+                              Utils.openURL(data, isFile: (attachments[index] is File));
+                            },child:Padding(
+                            padding: 4.padding,
+                            child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
+                          ),),
+                        ),
                     ],
                   ),
               ),
