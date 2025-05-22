@@ -219,7 +219,7 @@ class EditTodoMoreForm extends StatelessWidget {
                 child: Utils.getText(state.apiResponse['odour'] ?? '',
                     align: TextAlign.start,
                     color: const Color(0xffd01601))),
-          if(state.apiResponse['clean_required'] != null && state.apiResponse['status']=="Completed")
+          if(state.apiResponse['clean_required'] != null /*&& state.apiResponse['status']=="Completed"*/)
             Align(
                 alignment: Alignment.centerLeft,
                 child: Utils.getText(
