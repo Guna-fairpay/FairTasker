@@ -296,6 +296,8 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         emit(state.copyWith(isLoading: false));
       }
       emit(state.copyWith(isLoading: false , pop: true));
+      await Future.delayed(Durations.short1);
+      emit(state.copyWith(pop: false));
     } catch (e) {
       Toaster.showError("$e");
       log(e.toString(), name: 'ERROR');
