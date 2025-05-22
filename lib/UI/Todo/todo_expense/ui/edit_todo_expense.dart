@@ -143,7 +143,13 @@ class TodoExpense extends StatelessWidget {
                 initialSelection: state.selectedSubCategory,
                 labelKey: 'name',
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) => (value == null) ? 'Please Select SubCategory' : null,
+                  validator: (value) {
+                    if (state.selectedSubCategory == null ||
+                        ((state.selectedSubCategory is Map) && ((state.selectedSubCategory as Map).isEmpty))) {
+                      return 'Please select a SubCategory';
+                    }
+                    return null;
+                  }
               ),
               Utils.getTextFormField(
                 'Odometer',

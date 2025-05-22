@@ -98,103 +98,89 @@ class FeedbackCommentsView extends StatelessWidget {
                     var list = state.comments;
                     list.sort((a, b) => b['updated_at'].compareTo(a['updated_at']));
                       var model = list[index];
-                      return Slidable(
-                        endActionPane: ActionPane(
-                          motion: const ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                              onPressed: (context) => context.read<FBEditBloc>().add(FBCommentDeleteEvent(model['id'])),
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppC.red,
-                              icon: Icons.delete_outline,
-                              label: 'Delete',
+                      return Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                        children: [
+                        ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            minVerticalPadding: 0,
+                            leading: CircleAvatar(
+                              radius: 15.sp,
+                              child: Center(
+                                  child: Utils.getText(<String>[(model?['users']?['first_name'] ?? ''), (model?['users']?['last_name'] ?? '')].toInitial,
+                                      size: 13.sp,
+                                      weight: FontWeight.bold,
+                                      color: AppC.white)),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                          children: [
-                          ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                              minVerticalPadding: 0,
-                              leading: CircleAvatar(
-                                radius: 15.sp,
-                                child: Center(
-                                    child: Utils.getText(<String>[(model?['users']?['first_name'] ?? ''), (model?['users']?['last_name'] ?? '')].toInitial,
-                                        size: 13.sp,
-                                        weight: FontWeight.bold,
-                                        color: AppC.white)),
+                            title: Text(
+                                "${model?['users']?['first_name'] ?? ''} ${model?['users']['last_name']}",style: context.textTheme.labelMedium?.copyWith(color: AppC.grey),),
+                            subtitle: Text(GetTimeAgo.parse(DateTime.tryParse(model?['updated_at'] ?? "") ?? DateTime.now().toUtc())),
+                            trailing:
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                  maxWidth: 100),
+                              child: Row(
+                                spacing: 10,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                      onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
+                                      child: Icon(Icons.edit_outlined, color:AppC.appColor,size: 18.sp,)
+                                  ),
+                                  GestureDetector(
+                                      onTap: () => context.read<FBEditBloc>().add(FBCommentDeleteEvent(model['id'])),
+                                      child: Icon(Icons.delete_outline, color:AppC.redAccent,size: 18.sp,)
+                                  ),
+                                ],
                               ),
-                              title: Text(
-                                  "${model?['users']?['first_name'] ?? ''} ${model?['users']['last_name']}",style: context.textTheme.labelMedium?.copyWith(color: AppC.grey),),
-                              subtitle: Text(GetTimeAgo.parse(DateTime.tryParse(model?['updated_at'] ?? "") ?? DateTime.now().toUtc())),
-                              trailing:
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                    maxWidth: 100),
-                                child: Row(
-                                  spacing: 10,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    GestureDetector(
-                                        onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
-                                        child: Icon(Icons.edit_outlined, color:AppC.appColor,size: 18.sp,)
-                                    ),
-                                    GestureDetector(
-                                        onTap: () => context.read<FBEditBloc>().add(FBCommentsEditEvent(model)),
-                                        child: Icon(Icons.delete_outline, color:AppC.redAccent,size: 18.sp,)
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              titleTextStyle: context
-                                  .textTheme.labelLarge
-                                  ?.copyWith(
-                                  fontFamily: "Lato",
-                                  fontWeight: FontWeight.bold),
-                              subtitleTextStyle: context
-                                  .textTheme.labelSmall
-                                  ?.copyWith(
-                                  fontFamily: "Lato",
-                                  fontWeight:
-                                  FontWeight.normal),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 50),
-                                  child: Text(
-                                    "${model?['comment']}",
-                                    style:
-                                    context.textTheme.labelMedium,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    maxLines: 3,
+                            titleTextStyle: context
+                                .textTheme.labelLarge
+                                ?.copyWith(
+                                fontFamily: "Lato",
+                                fontWeight: FontWeight.bold),
+                            subtitleTextStyle: context
+                                .textTheme.labelSmall
+                                ?.copyWith(
+                                fontFamily: "Lato",
+                                fontWeight:
+                                FontWeight.normal),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 50),
+                                child: Text(
+                                  "${model?['comment']}",
+                                  style:
+                                  context.textTheme.labelMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                  maxLines: 3,
 
+                                ),
+                              ),
+                              if((model?['attachments'] != null) && (model?['attachments']is List) && (model?['attachments'] as List).isNotEmpty)...[
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: () => context.read<FBEditBloc>().add(FBFeedViewAttachmentEvent(
+                                        null,
+                                        (model?['attachments'] as List).where(
+                                                (element) => element['path'].toString().isNotEmpty)
+                                            .map((e) => e['path'].toString().toAttachmentURL).toList())),
+                                    child:  Icon(Icons.image_outlined,size: 18.sp,color: AppC.appColor),
                                   ),
                                 ),
-                                if((model?['attachments'] != null) && (model?['attachments']is List) && (model?['attachments'] as List).isNotEmpty)...[
-                                  Flexible(
-                                    child: GestureDetector(
-                                      onTap: () => context.read<FBEditBloc>().add(FBFeedViewAttachmentEvent(
-                                          null,
-                                          (model?['attachments'] as List).where(
-                                                  (element) => element['path'].toString().isNotEmpty)
-                                              .map((e) => e['path'].toString().toAttachmentURL).toList())),
-                                      child:  Icon(Icons.image_outlined,size: 18.sp,color: AppC.appColor),
-                                    ),
-                                  ),
-                                ] else...[
-                                  const SizedBox.shrink(),
-                                ]
-                              ],
-                            ),
-                          ],
-                        ),
+                              ] else...[
+                                const SizedBox.shrink(),
+                              ]
+                            ],
+                          ),
+                        ],
                       );
                     },
                 ),

@@ -107,3 +107,5 @@ class GetOdometerEvent extends TodoEditExpenseEvent {
 }
 
 class SaveCategoryEvent extends TodoEditExpenseEvent {}
+
+class RefreshEvent extends TodoEditExpenseEvent {}

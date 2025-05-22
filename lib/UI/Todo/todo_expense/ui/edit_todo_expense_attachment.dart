@@ -57,7 +57,7 @@ class EditTodoExpenseAttachment extends StatelessWidget {
                   foregroundColor: AppC.redAccent,
                   backgroundColor: AppC.trans,
                   isOutline: true,
-                  onPressed: () => pickImageEvent?.call(),
+                  onPressed: () => captureImageEvent?.call(),
                 )),
             if (vendorList.isNotEmpty)
               Expanded(

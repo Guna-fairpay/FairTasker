@@ -61,6 +61,13 @@ class SubCategoryListEvent extends VehicleExpenseHistoryEvent {
   List<Object?> get props => [subCategory, Random().nextDouble()];
 }
 
+class CohortListEvent extends VehicleExpenseHistoryEvent {
+  final dynamic selectedCohort;
+  const CohortListEvent({required this.selectedCohort});
+  @override
+  List<Object?> get props => [selectedCohort, Random().nextDouble()];
+}
+
 class SelectedPaymentEvent extends VehicleExpenseHistoryEvent {
   final dynamic paymentType;
   const SelectedPaymentEvent({required this.paymentType});
