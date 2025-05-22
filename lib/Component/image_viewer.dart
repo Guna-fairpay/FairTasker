@@ -25,13 +25,18 @@ class ImageViewer extends StatelessWidget {
   }
 
   void _generateThumbnail() async {
-    showLoader.value = true;
-    imageData = await FlutterVideoThumbnailPlus.thumbnailData(
-      video: (imageInput is String) ? imageInput : (imageInput as File).path,
-      imageFormat: ImageFormat.png,
-      quality: 100,
-    );
-    showLoader.value = false;
+    try {
+      showLoader.value = true;
+      imageData = await FlutterVideoThumbnailPlus.thumbnailData(
+        video: (imageInput is String) ? imageInput : (imageInput as File).path,
+        imageFormat: ImageFormat.png,
+        quality: 100,
+      );
+      showLoader.value = false;
+    } catch (e) {
+      imageData = null;
+      showLoader.value = false;
+    }
   }
 
   @override
