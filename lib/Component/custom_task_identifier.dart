@@ -151,7 +151,7 @@ class TaskIdentifier extends StatelessWidget {
     if (val.isEmpty) {
       selectedList.clear();
       Console.of.log("EMITTING 1", name: "TaskIdentifier");
-      onSelected?.call({});
+      if (selected?.isNotEmpty ?? false) onSelected?.call({});
       showEmptyNotifier.value = false;
       return [];
     }

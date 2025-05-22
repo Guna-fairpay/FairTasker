@@ -10,8 +10,8 @@ abstract class OdometerEvent extends Equatable  {
 }
 
 class OdometerInitialEvent extends OdometerEvent{
-  final Map<String, dynamic> vehicle;
-  final Map<String, dynamic> todoItems;
+  final Map<String, dynamic>? vehicle;
+  final Map<String, dynamic>? todoItems;
   final dynamic selectedVehicle;
 
   const OdometerInitialEvent({

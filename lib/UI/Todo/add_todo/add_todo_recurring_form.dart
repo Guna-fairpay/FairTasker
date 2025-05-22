@@ -55,9 +55,10 @@ class AddTodoRecurringForm extends StatelessWidget {
                             value: state.selectedRecurring,
                             contentPadding: 5.padding,
                             itemAsString: (item) => item['label'].toString(),
-                            onChanged: (val) => context
-                                .read<AddToDoBloc>()
-                                .add(AddToDoRecurringTypeEvent(val)))),
+                            onChanged: (val) async {
+                              context.read<AddToDoBloc>().add(AddToDoRecurringTypeEvent(val));
+                              Utils.dismissKeyboard(context);
+                            })),
                   ],
                 )
               ],

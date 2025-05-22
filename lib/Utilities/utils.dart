@@ -535,6 +535,7 @@ class Utils {
           decoration: InputDecoration(
               contentPadding: contentPadding,
               constraints: const BoxConstraints(),
+              errorMaxLines: 3,
               isDense: isDense,
               // label: label,
               labelText: labelText,

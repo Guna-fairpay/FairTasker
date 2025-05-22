@@ -127,6 +127,7 @@ class _TaskerOdometerCompleteDialogBodyView extends StatelessWidget {
                   ),
                   Row(
                     spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Utils.getTextFormField(

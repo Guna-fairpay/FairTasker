@@ -58,7 +58,8 @@ class CompactTextField extends StatelessWidget {
         focusedBorder: border,
         hintStyle: context.textTheme.labelLarge?.copyWith(color: AppC.fieldBase),
         prefixIcon: (prefixIcon == null) ? null : Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
-        suffixIcon: suffixIcon
+        suffixIcon: suffixIcon,
+        errorMaxLines: 4
       ),
     );
   }
