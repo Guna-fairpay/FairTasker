@@ -165,25 +165,10 @@ class ApiClient {
   Future<http.Response?> callPostMethod(String url,
       {String body = '',
       bool tokenNoNeed = false,
-      bool doNotShowToast = false}) async {
-    if (await Utils.connection()) {
-      if (tokenNoNeed) {
-        debugPrint('Utils.getHeaders(): ${Utils.getHeaders()}');
-      } else {
-        debugPrint('Utils.getHeaders(): ${Utils.getHeadersWithToken(url: url)}');
-      }
-      http.Response response = await client.post(Utils.getUri(url),
-          headers:
-              tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(url: url),
-          body: body);
-      return response;
-    } else {
-      if (!doNotShowToast) {
-        Utils.showMobileToast(Str.checkInternetConnectionAlert);
-      }
-      return null;
-    }
-  }
+      bool doNotShowToast = false}) async => await client.post(Utils.getUri(url),
+      headers:
+      tokenNoNeed ? Utils.getHeaders() : Utils.getHeadersWithToken(url: url),
+      body: body);
 
   Future<http.Response> _getCompute(dynamic message) async {
     return await client.get(Utils.getUri(message['url']),
@@ -198,7 +183,7 @@ class ApiClient {
   Future<http.Response> _postMultiPartCompute(dynamic message) async {
     var files = List<String>.from(message['files'] ?? []);
     List<http.MultipartFile> multiPartFiles = [];
-    if (files != null && files.isNotEmpty) {
+    if (files.isNotEmpty) {
       if (message['fieldName'] != null) {
         multiPartFiles = (await Converter.instance.convertFilePathToMultipart(
                 message['fieldName'],

@@ -17,7 +17,7 @@ class Authenticator {
 
   Future<void> logout() async {
     var response = await _authenticationRepo.logout();
-    Console.of.debug("LogOut: $response");
+    Console.of.debug("LoggedOut: $response", name: "Authenticator");
   }
 
   Future<void> getBearerToken() async {

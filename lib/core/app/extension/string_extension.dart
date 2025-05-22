@@ -32,7 +32,10 @@ extension StringExtension on String? {
 
   bool get isImageFile => ((this?.endsWith('.jpg') ?? false) || (this?.endsWith('.png') ?? false) || (this?.endsWith('.jpeg') ?? false) || (this?.endsWith('.svg') ?? false));
 
-  bool get isPdf => ((this?.endsWith('.pdf') ?? false));
+  bool get isPdf {
+    Console.of.log(this);
+    return ((this?.endsWith('.pdf') ?? false));
+  }
 
   bool get isAudio => ((this?.endsWith('.m4a') ?? false) || (this?.endsWith('.mp3') ?? false) || (this?.endsWith('.wav') ?? false) || (this?.endsWith('.aac') ?? false) || (this?.endsWith('.webm') ?? false));
 

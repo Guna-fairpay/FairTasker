@@ -7,6 +7,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,66 +44,60 @@ class ReportsViewBody extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10)),
                         child: Column(
                           children: [
-                            ListTile(
-                              title: const Text("Maintenance Check List"),
-                              trailing: GestureDetector(
-                                onTap: () => context
-                                    .read<ReportsBloc>()
-                                    .add(ReportMaintenanceEvent()),
-                                child: Icon(
-                                    (context
+                            if (!getIt<CommonService>().hideReportItems)
+                              ...[
+                                ListTile(
+                                  title: const Text("Maintenance Check List"),
+                                  trailing: GestureDetector(
+                                    onTap: () => context
+                                        .read<ReportsBloc>()
+                                        .add(ReportMaintenanceEvent()),
+                                    child: Icon(
+                                        (context
                                             .watch<ReportsBloc>()
                                             .maintenanceFile
                                             .isNullOrEmpty)
-                                        ? Icons.download_rounded
-                                        : Icons.file_open_rounded,
-                                    color: AppC.appColor),
-                              ),
-                            ),
-                            Container(
-                              color: AppC.white.withValues(alpha: 0.2),
-                              height: 1,
-                            ),
-                            ListTile(
-                              title: const Text("Vehicle Odometer Summary"),
-                              trailing: GestureDetector(
-                                onTap: () => context
-                                    .read<ReportsBloc>()
-                                    .add(ReportVehicleEvent()),
-                                child: Icon(
-                                    (context
+                                            ? Icons.download_rounded
+                                            : Icons.file_open_rounded,
+                                        color: AppC.appColor),
+                                  ),
+                                ),
+                                _divider,
+                                ListTile(
+                                  title: const Text("Vehicle Odometer Summary"),
+                                  trailing: GestureDetector(
+                                    onTap: () => context
+                                        .read<ReportsBloc>()
+                                        .add(ReportVehicleEvent()),
+                                    child: Icon(
+                                        (context
                                             .watch<ReportsBloc>()
                                             .vehicleFile
                                             .isNullOrEmpty)
-                                        ? Icons.download_rounded
-                                        : Icons.file_open_rounded,
-                                    color: AppC.appColor),
-                              ),
-                            ),
-                            Container(
-                              color: AppC.white.withValues(alpha: 0.2),
-                              height: 1,
-                            ),
-                            ListTile(
-                              title: const Text("Earnings Summary"),
-                              trailing: GestureDetector(
-                                onTap: () => context
-                                    .read<ReportsBloc>()
-                                    .add(ReportEarningEvent()),
-                                child: Icon(
-                                    (context
+                                            ? Icons.download_rounded
+                                            : Icons.file_open_rounded,
+                                        color: AppC.appColor),
+                                  ),
+                                ),
+                                _divider,
+                                ListTile(
+                                  title: const Text("Earnings Summary"),
+                                  trailing: GestureDetector(
+                                    onTap: () => context
+                                        .read<ReportsBloc>()
+                                        .add(ReportEarningEvent()),
+                                    child: Icon(
+                                        (context
                                             .watch<ReportsBloc>()
                                             .earningFile
                                             .isNullOrEmpty)
-                                        ? Icons.download_rounded
-                                        : Icons.file_open_rounded,
-                                    color: AppC.appColor),
-                              ),
-                            ),
-                            Container(
-                              color: AppC.white.withValues(alpha: 0.2),
-                              height: 1,
-                            ),
+                                            ? Icons.download_rounded
+                                            : Icons.file_open_rounded,
+                                        color: AppC.appColor),
+                                  ),
+                                ),
+                                _divider,
+                              ],
                             ListTile(
                               title: const Text("Vehicle Inventory Data"),
                               trailing: GestureDetector(
@@ -118,11 +113,7 @@ class ReportsViewBody extends StatelessWidget {
                                         : Icons.file_open_rounded,
                                     color: AppC.appColor),
                               ),
-                            ),
-                            Container(
-                              color: AppC.white.withValues(alpha: 0.2),
-                              height: 1,
-                            ),
+                            )
                           ],
                         ),
                       )),
@@ -178,4 +169,6 @@ class ReportsViewBody extends StatelessWidget {
           ]);
     });
   }
+
+  Widget get _divider => const Divider(color: AppC.white, height: 1);
 }
