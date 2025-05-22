@@ -9,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ import '../state/vehicle_expense_history_state.dart';
 class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, VehicleExpenseHistoryState> {
 
   final APiRepository apiRepository = APiRepository();
+  AutovalidateMode? autoValidateMode;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   String? categoryId;
   String? subcategoryId;
@@ -42,11 +45,14 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
   List<dynamic>? selectedVehicle;
 
   List<dynamic>? filterList = [];
+  List<dynamic>? splitExpenses;
   List<Map<String, dynamic>> approvedList=[];
   List<dynamic>? subCategories = [];
   List<dynamic>? attachments = [];
   List<dynamic>? ogAttachments = [];
   List<Map<String, dynamic>>? categories = [];
+
+  Map<String,dynamic>? apiData;
 
   TextEditingController vehicleController = TextEditingController();
   TextEditingController amountController = TextEditingController();
@@ -67,14 +73,14 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
           expenseAttachments: const [],
           editResponse: const {},
           isLoading: true,
-          selectedCategory: const {},
-          selectedSubCategory: const {},
+          selectedCategory: null,
+          selectedSubCategory: null,
           selectedPaymentMethod: const {},
           categories: const [],
           subCategories: const [],
           paymentMethods: const [],
           cohorts: const [],
-          selectedCohorts: const {},
+          selectedCohorts: null,
           selectedDate: DateTime.now(),
           vehicle: const [],
           selectedVehicle: const {},
@@ -112,13 +118,13 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
 
         for(var data in filterList??[]){
           if(data['approved'].toString() == "1"){
-            approvedList?.add(data);
+            approvedList.add(data);
           }
         }
 
         double totalAmount = 0;
 
-        for (var data in approvedList ?? []) {
+        for (var data in approvedList) {
           double expense = (data['expense_amount'] ?? 0).toDouble();
           totalAmount += expense;
         }
@@ -128,12 +134,13 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
           totalAmount += expense;
         }
         totalAmount = double.parse(totalAmount.toStringAsFixed(2));
-        log("Total Amount: $totalAmount", name: "Expense Calculation");
         if(event.isExpenseApprove) {
           _unFilteredResponse = approvedList;
         }else{
           _unFilteredResponse = apiResponse ?? [];
         }
+        _unFilteredResponse.sort((b, a) => DateTime.parse(a['expense_date'] ?? '')
+            .compareTo(DateTime.parse(b['expense_date'] ?? '')));
         filterList = paginateList(
             data: _unFilteredResponse,
             currentPage: currentIndex,
@@ -165,10 +172,10 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
         var vehicleResponse = await _getVehicles();
         vehicleResponse.removeWhere((element) => element['branch_code'] != Session.of.getInt(Str.branchIdPrefText));
 
-        var apiResponse = vehicleExpenseHistoryResponse?['expenses'];
+        apiData = vehicleExpenseHistoryResponse?['expenses'];
 
-        categoryId=apiResponse?['category_id'].toString()??'';
-        subcategoryId=apiResponse?['subcategory_id'].toString()??'';
+        categoryId=apiData?['category_id'].toString()??'';
+        subcategoryId=apiData?['subcategory_id'].toString()??'';
 
         categories = cohortsResponse;
         subCategories = cohortsResponse
@@ -185,34 +192,33 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
             .toList();
 
         selectedPaymentId = paymentResponse.where(
-              (e) => e['id'] == apiResponse?['payment_method_id'],).toList();
+              (e) => e['id'] == apiData?['payment_method_id'],).toList();
 
-        ogAttachments = apiResponse?['attachments'];
+        ogAttachments = apiData?['attachments'];
 
         attachments?.clear();
         attachments?.addAll(ogAttachments
             ?.map((e) => e['path'].toString().toStorageURL)
             .toList() ?? []);
 
-        if(apiResponse?['expense_to'] != null){
+        if(apiData?['expense_to'] != null){
           selectedCohorts = AddToDoConfig.expenseTo
-              .where((e) => e['id'] == apiResponse?['expense_to'])
+              .where((e) => e['id'] == apiData?['expense_to'])
               .toList();
         }
+        splitExpenses = apiData?['split_expenses'] ?? [];
 
-        descriptionController.text = apiResponse?['expense_description'] ?? '';
-        amountController.text = "${apiResponse?['expense_amount'] ?? ''}";
-        dateController.text = apiResponse?['expense_date'] ?? '';
+        descriptionController.text = apiData?['expense_description'] ?? '';
+        amountController.text = "${apiData?['expense_amount'] ?? ''}";
+        dateController.text = apiData?['expense_date'] ?? '';
 
         selectedVehicle = vehicleResponse.where(
-                (e) => e['vin'] == apiResponse?['vin']).toList();
+                (e) => e['vin'] == apiData?['vin']).toList();
         vehicleController.text = selectedVehicle?.firstOrNull?['vehicle_name'] ?? '';
-        Console.of.log(vehicleResponse);
-        Console.of.log(selectedVehicle);
 
         emit(state.copyWith(
           isLoading: false,
-          editResponse: apiResponse,
+          editResponse: apiData,
           expenseAttachments: attachments,
           selectedCategory:selectedCategory?.firstOrNull,
           selectedSubCategory:selectedSubCategory?.firstOrNull,
@@ -222,7 +228,7 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
           paymentMethods: paymentResponse,
           cohorts: AddToDoConfig.expenseTo,
           selectedCohorts:selectedCohorts?.firstOrNull,
-          selectedDate: apiResponse?['expense_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd'),
+          selectedDate: apiData?['expense_date'].toString().toDateTime(inputFormat: 'yyyy-MM-dd'),
           vehicle: vehicleResponse,
           selectedVehicle: selectedVehicle?.firstOrNull,
           vin: selectedVehicle?.firstOrNull?['vin'] ?? '',
@@ -270,6 +276,7 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
             .firstOrNull;
         emit(state.copyWith(isLoading: true));
         await apiRepository.deleteVehicleExpenseImage(attachmentId);
+        FBroadcast.instance().stickyBroadcast('ES_Refresh',value: true);
         emit(state.copyWith(isLoading: false));
         // once success remove from attachments
         attachments?.remove(event.data);
@@ -314,12 +321,29 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
         emit(state.copyWith(
             selectedCategory: event.category,
             subCategories: subCategories,
-            selectedSubCategory: {}));
+            selectedSubCategory: {},
+          selectedCohorts: {},
+        ));
       }
     });
 
-    on<SubCategoryListEvent>((event, emit) =>
-        emit(state.copyWith(selectedSubCategory: event.subCategory)));
+    on<SubCategoryListEvent>((event, emit) {
+      if(event.subCategory != null){
+        var selectedCohorts = (AddToDoConfig.expenseTo)
+            .firstWhereOrNull((e) => e['id']?.toString() == event.subCategory['expense_to']?.toString());
+        emit(state.copyWith(
+          selectedSubCategory: event.subCategory,
+          selectedCohorts: selectedCohorts,
+        ));
+      }
+    });
+
+    on<CohortListEvent>((event, emit) {
+      emit(state.copyWith(selectedCohorts: event.selectedCohort));
+    });
+
+    // on<SubCategoryListEvent>((event, emit) =>
+    //     emit(state.copyWith(selectedSubCategory: event.subCategory)));
 
     on<DateChangeEvent>((event, emit) =>
         emit(state.copyWith(selectedDate: event.selectedDate)));
@@ -335,13 +359,18 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
         emit(state.copyWith(selectedVehicle: event.selectedVehicle)));
 
     on<UpdateVehicleExpenseHistoryEvent>((event, emit) async {
-     try {
+      autoValidateMode = AutovalidateMode.onUserInteraction;
+      if (formKey.currentState?.validate() == false) return emit(state.copyWith());
+      try {
+        autoValidateMode = null;
         emit(state.copyWith(isLoading: true));
         await apiRepository.updateVehicleExpenseHistory(
           body: _expenseData(),
           expenseId: event.id,
           images: state.expenseAttachments.whereType<File>().toList(),
         );
+
+        FBroadcast.instance().stickyBroadcast('ES_Refresh',value: true);
         emit(state.copyWith(isLoading: false));
       } catch (e){
         Toaster.showError("$e");
@@ -361,17 +390,25 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
   Map<String, String> _expenseData() {
 
     Map<String, String> baseBody = {};
+    baseBody['sales_tax'] = "${apiData?['sales_tax'] ?? ''}";
+    baseBody['shipping_and_handling'] = "${apiData?['shipping_and_handling'] ?? ''}";
+    baseBody['sales_tax_type'] = "${apiData?['sales_tax_type'] ?? ''}";
+    baseBody['sales_tax_percentage'] = "${apiData?['sales_tax_percentage'] ?? ''}";
     baseBody['expense_amount'] = amountController.text;
-    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
+    baseBody['expense_to'] = "${state.selectedSubCategory?['expense_to'] ?? ''}";
     baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
-    baseBody['payment_method_id'] = "${state.selectedPaymentMethod?['id'] ?? ''}";
-    baseBody['expense_to'] =
-    "${state.selectedSubCategory?['expense_to'] ?? ''}";
+    baseBody['subcategory_name'] = "${state.selectedSubCategory?['name'] ?? ''}";
+    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
+    baseBody['category_name'] = "${state.selectedCategory?['name'] ?? ''}";
+    baseBody['employee_id'] = Session.of.getString(Str.userIdPrefText).toString();
     baseBody['cohort_id'] = "${state.selectedCohorts?['id'] ?? ''}";
     baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
     baseBody['expense_date'] = dateController.text;
     baseBody['expense_description'] = descriptionController.text;
+    baseBody['odometer'] = "${apiData?['odometer']}";
     baseBody['platform'] = 'tasker-app';
+    baseBody['payment_method_id'] = "${state.selectedPaymentMethod?['id'] ?? ''}";
+    baseBody['approved'] = "${apiData?['approved'] ?? ''}";
     log(jsonEncode(baseBody), name: "Expense_Body");
     return baseBody;
   }

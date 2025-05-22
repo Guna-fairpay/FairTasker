@@ -53,7 +53,7 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
               MaterialPageRoute(
                   builder: (context) =>
                       VehicleExpenseHistoryUI(
-                        vin: state.editResponse['vin'],
+                        vin: state.editResponse?['vin'],
                         vehicleName: state.vehicleName, showTotalAmount: showTotalAmount,
                         currentExpenseAmount: currentExpenseAmount,
                       ))),
@@ -86,11 +86,11 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
                   ),
                   IconAndText(
                     icon: Icons.category,
-                    label: "${state.selectedCategory['name'] ?? ''}",
+                    label: "${state.selectedCategory?['name'] ?? ''}",
                   ),
                   IconAndText(
                     icon: Icons.category_outlined,
-                    label: "${state.selectedSubCategory['name'] ?? ''}",
+                    label: "${state.selectedSubCategory?['name'] ?? ''}",
                   ),
                   IconAndText(
                     icon: Icons.payment,
