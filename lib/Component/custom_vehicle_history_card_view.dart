@@ -18,7 +18,6 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
   final VoidCallback? onParts;
   final VoidCallback? onSupplies;
   final Function(int customId, String customLink)? onCustom;
-  // final GestureTapDownCallback? onUserTap;
   final ValueChanged<List<dynamic>>? onUserTap;
   final VoidCallback? onDelete;
   final ConfirmDismissCallback? confirmDismiss;
@@ -44,13 +43,14 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
     String? lastName =
     (users.firstOrNull?['last_name'] ?? "");
     var firstLastChar = "${[firstName, lastName].toInitial}${users.length > 1 ? ".." : ""}";
-    var customId = (model?['reference_id'].toString().isNotNullOrEmpty ?? false)
+    var customId = ((model?['reference_id'].toString().isNotNullOrEmpty ?? false) && (model?['custom_link_id'] == null))
         ? 2 : (model?['custom_link_id'] ?? 0);
-    var customText = (customId == 1)
-        ? "Link"
-        : (customId == 2)
-        ? "TURO"
-        : "GETAROUND";
+    var customText = switch(customId) {
+      1 => "Link",
+      2 => "TURO",
+      3 => "GETAROUND",
+      _ => ""
+    };
     var time = model?['todo_time']
         .toString()
         .toDateTime(
@@ -86,10 +86,10 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                   top: (hasCustom || hasSupplies || hasParts) ? 20 : 0),
               alignment: Alignment.centerRight,
               decoration: BoxDecoration(
-                color: (isCompleted ?? false) ? AppC.redAccent : AppC.green,
+                color: (isCompleted) ? AppC.redAccent : AppC.green,
                 borderRadius: BorderRadius.circular(Num.borderRadius),
               ),
-              child: Text((isCompleted ?? false) ? "InProgress" : "Complete", textAlign: TextAlign.end, style: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text((isCompleted) ? "InProgress" : "Complete", textAlign: TextAlign.end, style: context.textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
             child: InkWell(
               // onTap: onTap,
@@ -184,14 +184,14 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                         ?.copyWith(color: AppC.redAccent),
                                   )),
                               // TODO USER NAME
-                              if (userNameText?.isNotEmpty ?? false)
+                              if (userNameText.isNotNullOrEmpty)
                               GestureDetector(
                                 onTapDown: (details) => onUserTap?.call(users),
-                                child: Text("$userNameText",
+                                child: Text(userNameText,
                                     style: context.textTheme.labelLarge?.copyWith(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13.sp,
-                                        color: (isCompleted ?? false) ? AppC.green :  AppC.appColor)),
+                                        color: (isCompleted) ? AppC.green :  AppC.appColor)),
                               )
                             ],
                           ),
@@ -257,7 +257,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (hasCustom && (customText?.isNotEmpty ?? false))
+                    if (hasCustom && (customText.isNotEmpty))
                       InkWell(
                         onTap: () => onCustom?.call(customId, customLink),
                         borderRadius: const BorderRadius.only(
@@ -272,7 +272,7 @@ class CustomVehicleHistoryCardView extends StatelessWidget {
                                   bottomRight: Radius.circular(6.0)),
                               color: Colors.black),
                           child: Text(
-                            "$customText",
+                            customText,
                             style: context.textTheme.labelSmall?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),

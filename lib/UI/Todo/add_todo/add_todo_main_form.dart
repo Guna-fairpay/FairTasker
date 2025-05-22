@@ -1,9 +1,3 @@
-import 'package:fairpytasker/Component/custom_auto_search_field.dart';
-import 'package:fairpytasker/Component/custom_multi_selection_chips_field.dart';
-import 'package:fairpytasker/Component/custom_searcher_view.dart';
-import 'package:fairpytasker/Component/custom_task_identifier.dart';
-import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
-import 'package:fairpytasker/Component/custom_vendor_location_field.dart';
 import 'package:fairpytasker/Component/page_keep_aliver.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/add_todo_more_form.dart';
@@ -16,12 +10,8 @@ import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_history/vehicle_history_view_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/num.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -93,7 +83,7 @@ class AddTodoMainForm extends StatelessWidget {
                     ["vehicles", "g_vehicles"].contains(element['type']))
                 .lastOrNull,
             builder: (context, state) => ((state != null) &&
-                    (state.isNotEmpty ?? false))
+                    (state.isNotEmpty))
                 ? PageKeepAliver(key: const PageStorageKey("vehicle_history"), child: VehicleHistoryViewUI(
                 showSameTask: true,
                 title: context.watch<AddToDoBloc>().taskName,

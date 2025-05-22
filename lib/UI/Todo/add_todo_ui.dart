@@ -51,7 +51,6 @@ class CreateTodoUI extends StatelessWidget {
           },
           child: Scaffold(
             backgroundColor: AppC.white,
-            resizeToAvoidBottomInset: false,
             appBar: PreferredSize(preferredSize: const Size.fromHeight(60),
                 child: BlocBuilder<AddToDoBloc, AddToDoState>(builder: (context, state) => AppBar(
                 elevation: 0,

@@ -1,8 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/UI/Vehicle%20Status/vehicle_status_list/bloc/vehicle_status_bloc.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,10 +25,10 @@ class VehicleTripTypeCard extends StatelessWidget {
             TextSpan(children: [
               TextSpan(
                   text:
-                  "${((model['clean_task'] != null) && (model['clean_task'] is Map) && (model['clean_task']['vehicle_name'] ?? "").toString().isNotEmpty) ? (model['clean_task']['vehicle_name'] ?? "") : (model['vehicle_name'])}"),
+                  "${((model['clean_task'] != null) && (model['clean_task'] is Map) && (model['clean_task']['vehicle_name'] ?? "").toString().isNotEmpty) ? (model['clean_task']['vehicle_name'] ?? "") : (model['vehicle_name'].toString().isNotEmpty ? model['vehicle_name'] : (getIt<CommonService>().activeVehicleList.firstWhereOrNull((element) => element['vin'] == model['vin'])?['vehicle_name'] ?? "") ?? "")}"),
               const TextSpan(text: "\t \t"),
               TextSpan(
-                  text: "(${model['vehicle_status']})",
+                  text: "(${model['vehicle_status'] ?? "STATUS"})",
                   style: context.textTheme.labelLarge
                       ?.copyWith(
                       fontWeight: FontWeight.w800,

@@ -157,7 +157,7 @@ class VehicleStatusCard extends StatelessWidget {
                         ? null
                         : Text.rich(
                       TextSpan(children: [
-                        TextSpan(text: "${model['count_days'] ?? ""}")
+                        TextSpan(text: "${(model['vehicle_status_update'].toString().isNotNullOrEmpty) ? "${(DateTime.now().difference(model['vehicle_status_update'].toString().toDateTime() ?? DateTime.now())).inDays.abs()} days" :  model['count_days'] ?? ""}")
                       ]),
                       textAlign: TextAlign.center,
                     ),
