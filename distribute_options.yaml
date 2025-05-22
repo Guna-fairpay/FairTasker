@@ -1,6 +1,6 @@
 variables:
   FIREBASE_TOKEN: "1//0gNGOz9UsdqyJCgYIARAAGBASNwF-L9IrXbjjnkkMxYO2VjxGP5gukv374rs5y8daYc_cSVDQQhUQ2wpAZmvZrg-XLkN5vp7wftU"
-output: dist/
+output: release/
 releases:
   - name: dev
     jobs:

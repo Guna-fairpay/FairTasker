@@ -9,6 +9,7 @@ import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -66,7 +67,8 @@ class HeaderView extends StatelessWidget {
               if (getIt<CommonService>().isAdmin)
                 IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: const Icon(Icons.receipt_long_rounded, color: AppC.grey)),
               const Spacer(),
-              Badge.count(count: 0, child: const Icon(Icons.email_rounded,color: AppC.appColor,),),
+              if (kDebugMode)
+              Badge.count(count: 0, child: const Icon(Icons.email_rounded,color: AppC.appColor)),
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(

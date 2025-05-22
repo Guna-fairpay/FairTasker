@@ -50,7 +50,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
               user.password ?? "",
               user.email ?? "",
               (response.userPermissions ?? []),
-              user.branchId ?? 0,
+              user.branchId ?? 1,
               user.hrmId ?? 0);
 
           await getIt<CommonService>().clearAll();
