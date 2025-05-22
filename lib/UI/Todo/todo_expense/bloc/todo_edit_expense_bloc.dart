@@ -62,10 +62,13 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
   List<dynamic> splitParts = [];
   List<dynamic> selectedPart = [];
   List<dynamic> selectedSupplies = [];
+  List<dynamic> newParts = [];
+  List<dynamic> newSupplies = [];
 
   Map<String, dynamic>? invoiceData;
 
   dynamic selectedVendor;
+  dynamic newVendor;
   dynamic todoItem;
   dynamic selectedVehicle;
   dynamic expenseId;
@@ -155,6 +158,18 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       })
       ..register("ES_Refresh", (value, callback) {
        add(RefreshEvent());
+      })
+      ..register("parts_id", (value, callback) {
+      var parts = List.from(todoItem?['parts'] ?? []);
+      parts.removeWhere((element) => element['id'].toString() == value.toString());
+      todoItem?['parts'] = parts;
+      (todoItem as Map<String, dynamic>).update("parts", (value) => parts);
+    })
+      ..register("supplies_id", (value, callback) {
+        var parts = List.from(todoItem?['supplies'] ?? []);
+        parts.removeWhere((element) => element['id'].toString() == value.toString());
+        todoItem?['supplies'] = parts;
+        (todoItem as Map<String, dynamic>).update("supplies", (value) => parts);
       });
 
     on<GetTodoExpenseInitialEvent>(_onGetTodoExpenseInitialEvent);
@@ -196,11 +211,15 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
         Toaster.showError("Please update vehicle details to save expense");
         return;
       }
-      Console.of.log(jsonEncode(_expenseData()));
-      //return;
+      Set existingPartIds = todoItem['parts'].map((e) => e['parts_id']).toSet();
+      newParts = partsList.where((element) => !existingPartIds.toString().contains(element['id'].toString())).toList();
+      Set existingSuppliesIds = todoItem['supplies'].map((e) => e['supplies_id']).toSet();
+      newSupplies = suppliesList.where((element) => !existingSuppliesIds.toString().contains(element['id'].toString())).toList();
+      newVendor = vendor.firstWhereOrNull((e) => e['id'].toString() != todoItem['vendor_id'].toString());
+      Console.of.log(newSupplies, name: 'NEW_SUPPLIES');
+      Console.of.log(newVendor, name: 'VENDOR_ID');
+      Console.of.log(newParts, name: 'NEW_PARTS');
       emit(state.copyWith(isLoading: true));
-      log("${state.expenseAttachments.whereType<File>().toList()}",
-          name: 'EXPENSE_DATA');
       var expenseId = todoItem?['expense_id'].toString().getExpenseId;
       var response = await apiRepository.updateTodoExpense(
           expenseId: "${expenseId ?? ""}",
@@ -209,7 +228,6 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       final int? newExpenseId =
           (response?['data'] as List?)?.firstOrNull?['id'];
       if (todoItem['expense_id'] == null && newExpenseId != null) {
-        // check vehicles array not empty in todoItem
         if (List.from(todoItem['vehicles'] ?? []).length > 1) {
           var id = List.from(todoItem['vehicles'] ?? []).firstWhereOrNull(
             (element) => element['vin'] == selectedVehicle?['vin'],
@@ -228,6 +246,18 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
               images: [],
               body: _expenseData()..putIfAbsent("expense_id", () => expenseId),
               todoId: "${todoItem['id']}");
+        }
+      }
+      Console.of.log(todoItem['id'], name: 'TODO_ID');
+      if(newVendor != null || newSupplies.isNotEmpty || newParts.isNotEmpty){
+        var response = await apiRepository.updateToDoApi(
+            todoId: "${todoItem['id']}",
+            body: _todoData());
+        if (response?.isNotEmpty ?? false) {
+         // Toaster.showSuccess(response?['message']);
+          _broadcast.stickyBroadcast("todo_view", value: true);
+        } else {
+          emit(state.copyWith(isLoading: false));
         }
       }
       if (response?.isNotEmpty ?? false) {
@@ -566,7 +596,7 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       String laborAmount = List.from(expenseDetailResponse?['split_expenses'] ?? []).firstWhereOrNull((element) => element['labour'] == 1)?['amount'] ?? "";
       Console.of.log("${laborAmount.runtimeType} : $laborAmount", name: "labourCostController");
 
-      ogAttachments = expenseDetailResponse?['attachments'];
+      ogAttachments = List.from(expenseDetailResponse?['attachments'] ?? []);
       attachments?.clear();
       attachments?.addAll(ogAttachments
               ?.map((e) => e['path'].toString().toStorageURL)
@@ -768,6 +798,39 @@ class TodoEditExpenseBloc extends Bloc<TodoEditExpenseEvent, TodoExpenseState> {
       (state.apiResponse['expense_temp_id'] == null) &&
       (amountController.text.isEmpty) &&
       (totalAmountController.text.isEmpty));
+
+  Map<String, String> _todoData() {
+    Map<String, String> baseBody = {};
+    baseBody['time_sensitive'] = "${todoItem['time_sensitive'] ?? ''}";
+    baseBody['custom_link_id'] = "${todoItem['custom_link_id'] ?? ''}";
+    baseBody['platform_check'] = "${todoItem['platform_check'] ?? ''}";
+    if(newVendor != null){
+      baseBody['vendor_name'] = "${newVendor['name']}";
+      baseBody['vendor_id'] = "${newVendor['id']}";
+      baseBody['location'] = "";
+      baseBody['location_id'] = "";
+    }
+    baseBody['type'] = "inline";
+    baseBody['time_change_reason'] = "${todoItem['time_change_reason'] ?? ''}";
+    baseBody['user_id'] = userId ?? '';
+    if(newParts.isNotEmpty) {
+      baseBody['parts'] = "${(newParts).map((e) => jsonEncode({
+      "parts_id": "${e['id']}",
+      "parts_name": "${e['name']}",
+      })).toList()}";
+    }
+    if(newSupplies.isNotEmpty) {
+      baseBody['supplies'] = "${(newSupplies).map((e) => jsonEncode({
+      "supplies_id": "${e['id']}",
+      "supplies_name": "${e['name']}",
+      })).toList()}";
+    }
+    baseBody['address'] = "";
+    baseBody['reference_id'] = "${todoItem['reference_id'] ?? ''}";
+    baseBody['vehicles'] = '[]';
+    log(jsonEncode(baseBody), name: "Todo_Body");
+    return baseBody;
+  }
 
   Map<String, String> _expenseData() {
     dynamic splitLabor = {
