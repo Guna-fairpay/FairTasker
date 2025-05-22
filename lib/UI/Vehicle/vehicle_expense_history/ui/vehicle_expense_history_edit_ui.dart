@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
 import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -7,6 +9,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../Component/close_badge.dart';
@@ -68,7 +71,7 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                       );
                     });
                   },
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(Icons.delete_outline,color: AppC.redAccent,),
                 ),
                 IconButton(
                   onPressed: () =>
@@ -84,290 +87,176 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
             ),
             body: SafeArea(
               minimum: 20.padding,
-              child: ListView(
-                children: [
-                  Row(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => context
-                              .read<VehicleExpenseHistoryBloc>()
-                              .add(PickImageEvent()),
-                          child: Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppC.blue,
-                                width: Num.borderWidthField,
-                              ),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.cloud_upload,
-                                  color: AppC.blue,
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Utils.getText('Upload',
-                                    color: AppC.blue, weight: FontWeight.bold),
-                              ],
-                            ),
+              child: Form(
+                key: context.read<VehicleExpenseHistoryBloc>().formKey,
+                child: ListView(
+                  children: [
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: SuccessButton(
+                            text: 'Upload',
+                            icon: Icons.cloud_upload,
+                            foregroundColor: AppC.blue,
+                            backgroundColor: AppC.trans,
+                            isOutline: true,
+                            onPressed: () => context
+                                .read<VehicleExpenseHistoryBloc>()
+                                .add(PickImageEvent()),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => context
-                              .read<VehicleExpenseHistoryBloc>()
-                              .add(CaptureImageEvent()),
-                          child: Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppC.redAccent,
-                                width: Num.borderWidthField,
-                              ),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(Num.subradiusButton),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.camera_enhance,
-                                  color: AppC.redAccent,
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Utils.getText('Capture',
-                                    color: AppC.redAccent,
-                                    weight: FontWeight.bold),
-                              ],
-                            ),
+                        Expanded(
+                          child: SuccessButton(
+                            text: 'Capture',
+                            icon: Icons.camera_enhance,
+                            foregroundColor: AppC.redAccent,
+                            backgroundColor: AppC.trans,
+                            isOutline: true,
+                            onPressed: () => context
+                                .read<VehicleExpenseHistoryBloc>()
+                                .add(CaptureImageEvent()),
                           ),
                         ),
+                      ],
+                    ),
+                    10.height,
+                    if (state.expenseAttachments.isNotEmpty)...[
+                      10.height,
+                      ImageUploadSection(
+                        title: '',
+                        borderColor: Colors.blue,
+                        onRemove: (file)=> context.read<VehicleExpenseHistoryBloc>().add(RemoveImageEvent(data: file)),
+                        images: state.expenseAttachments,
+                        logName: "expenseAttachmentsEvent",
+                        isRequired: false,
                       ),
                     ],
-                  ),
-                  10.height,
-                  if (state.expenseAttachments.isNotEmpty)
-                    SizedBox(
-                      height: 100,
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        itemCount: state.expenseAttachments.length,
-                        scrollDirection: Axis.horizontal,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 1, mainAxisSpacing: 10),
-                        itemBuilder: (context, index) => CloseBadge(
-                            onTapView: () {
-                              ShowAttachmentsDialog.of.show(context,
-                                  attachments: state.expenseAttachments,
-                                  title: "",
-                                  currentAttachment:
-                                      state.expenseAttachments[index]);
-                            },
-                            onTapDelete: () {
-                              AskPermissionDialog.show(context,
-                                  title: "Are you sure?",
-                                  description: "Do you want to delete this Expense Image?",
-                                  positiveText: "Yes, delete it!",
-                                  negativeText: "Cancel",
-                                  isReasonRequired: false,
-                                  onPositivePressed: () =>
-                                    context.read<VehicleExpenseHistoryBloc>().add(
-                                        RemoveImageEvent(
-                                            data: state.expenseAttachments[index])));
-
-                            },
-                            child:Stack(
-                              children: [
-                                Container(
-                                  constraints: BoxConstraints(
-                                    minHeight:
-                                    MediaQuery.sizeOf(context).height,
-                                    minWidth:
-                                    MediaQuery.sizeOf(context).width,
-                                  ),
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                      BorderRadius.circular(16),
-                                      color:
-                                      AppC.grey.withValues(alpha: 0.2)),
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  child: ImageViewer(
-                                    fit: BoxFit.cover,
-                                    imageInput: state.expenseAttachments[index],
-                                    isNotImage: !((state.expenseAttachments[index]
-                                    as Object)
-                                        .isImage),
-                                  ),
-                                ),
-                                // Add download button only for PDF
-                                // if ((state.expenseAttachments[index] as Object).isPDF)
-                                //   Container(
-                                //     decoration: BoxDecoration(
-                                //       color: AppC.green,
-                                //       borderRadius: BorderRadius.circular(16),
-                                //
-                                //     ),
-                                //     child: InkWell(
-                                //       onTap: () {
-                                //         Utils.openURL(state.expenseAttachments[index]);
-                                //       },child:Padding(
-                                //       padding: 4.padding,
-                                //       child: const Icon(Icons.remove_red_eye_outlined,color: AppC.white,size: 15,),
-                                //     ),),
-                                //   ),
-
-                              ],
-                            ), /*Column(
-                              children: [
-                                Container(
-                                  constraints: BoxConstraints(
-                                    minHeight: MediaQuery.sizeOf(context).height,
-                                    minWidth: MediaQuery.sizeOf(context).width,
-                                  ),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: AppC.grey.withValues(alpha: 0.2)),
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  child: ImageViewer(
-                                    fit: BoxFit.cover,
-                                    imageInput: state.expenseAttachments[index],
-                                    isNotImage: !((state.expenseAttachments[index]
-                                            as Object)
-                                        .isImage),
-                                  ),
-                                ),
-                              ],
-                            )*/),
-                      ),
+                    10.height,
+                    CustomSingleSelectionField<Map<String, dynamic>>(
+                      suggestionsList: state.vehicle,
+                      itemAsString: (item) => item['vehicle_name'] ?? '',
+                      selected: state.selectedVehicle,
+                      labelText: "Vehicle Name",
+                      hintText: "",
+                      onSelected: (val) {
+                        context
+                            .read<VehicleExpenseHistoryBloc>()
+                            .add(VehicleEvent(selectedVehicle: val));
+                      },
+                      controller: context
+                          .read<VehicleExpenseHistoryBloc>()
+                          .vehicleController,
+                      validator: (value) => (value?.isEmpty ?? false) ? 'Please select vehicle' : null,
+                      autoValidateMode: AutovalidateMode.onUserInteraction,
                     ),
-                  10.height,
-                  CustomSingleSelectionField<Map<String, dynamic>>(
-                    suggestionsList: state.vehicle,
-                    itemAsString: (item) => item['vehicle_name'] ?? '',
-                    selected: state.selectedVehicle,
-                    labelText: "Vehicle Name",
-                    hintText: "",
-                    onSelected: (val) {
+                    10.height,
+                    Row(
+                      spacing: 10,
+                      children: [
+                        if((context.read<VehicleExpenseHistoryBloc>().splitExpenses ?? []).isEmpty)
+                        Expanded(
+                          child: Utils.getTextFormField(
+                            'Amount',
+                            context
+                                .read<VehicleExpenseHistoryBloc>()
+                                .amountController,
+                            textType: TextInputType.numberWithOptions(decimal: true),
+                            inputAction: TextInputAction.done,
+                            textInputFormatter:[
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+                            ],
+                            validator: (value) => (value?.isEmpty ?? false) ? 'Please enter amount' : null,
+                            autoValidate: context.read<VehicleExpenseHistoryBloc>().autoValidateMode,
+                          ),
+                        ),
+                        Expanded(
+                            child: Utils.dropdownBox(
+                                'Select Payment Method',
+                                state.paymentMethods,
+                                (value) => context
+                                    .read<VehicleExpenseHistoryBloc>()
+                                    .add(
+                                        SelectedPaymentEvent(paymentType: value)),
+                                labelKey: 'name',
+                                initialSelection: state.selectedPaymentMethod))
+                      ],
+                    ),
+                    10.height,
+                    Utils.getTextFormField(
+                      'Description',
                       context
                           .read<VehicleExpenseHistoryBloc>()
-                          .add(VehicleEvent(selectedVehicle: val));
-                    },
-                    controller: context
-                        .read<VehicleExpenseHistoryBloc>()
-                        .vehicleController,
-                  ),
-                  10.height,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Utils.getTextFormField(
-                          'Amount',
-                          context
-                              .read<VehicleExpenseHistoryBloc>()
-                              .amountController,
-                        ),
-                      ),
-                      10.width,
-                      Expanded(
-                          child: Utils.dropdownBox(
-                              'Select Payment Method',
-                              state.paymentMethods,
-                              (value) => context
-                                  .read<VehicleExpenseHistoryBloc>()
-                                  .add(
-                                      SelectedPaymentEvent(paymentType: value)),
-                              labelKey: 'name',
-                              initialSelection: state.selectedPaymentMethod))
-                    ],
-                  ),
-                  10.height,
-                  Utils.getTextFormField(
-                    'Description',
-                    context
-                        .read<VehicleExpenseHistoryBloc>()
-                        .descriptionController,
-                  ),
-                  10.height,
-                  Utils.dropdownBox('Select Category', state.categories,
-                      (value) {
-                    context
-                        .read<VehicleExpenseHistoryBloc>()
-                        .add(CategoryListEvent(category: value));
-                  },
-                      labelKey: 'name',
-                      selectedKey: state.selectedCategory,
-                      initialSelection: state.selectedCategory),
-                  10.height,
-                  Utils.dropdownBox('Select SubCategory', state.subCategories,
-                      (value) {
-                    context
-                        .read<VehicleExpenseHistoryBloc>()
-                        .add(SubCategoryListEvent(subCategory: value));
-                  },
+                          .descriptionController,
+                    ),
+                    10.height,
+                    Utils.dropdownBox('Select Category', state.categories,
+                        (value) => context.read<VehicleExpenseHistoryBloc>()
+                          .add(CategoryListEvent(category: value)),
+                        labelKey: 'name',
+                        selectedKey: state.selectedCategory,
+                        initialSelection: state.selectedCategory,
+                      validator: (value) => (value == null) ? 'Please select category' : null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                    ),
+                    10.height,
+                    Utils.dropdownBox('Select SubCategory', state.subCategories,
+                        (value) => context
+                          .read<VehicleExpenseHistoryBloc>()
+                          .add(SubCategoryListEvent(subCategory: value)),
                       labelKey: 'name',
                       selectedKey: state.selectedSubCategory,
-                      initialSelection: state.selectedSubCategory),
-                  10.height,
-                  Utils.dropdownBox(
-                    'Select Expense To',
-                    state.cohorts,
-                    (value) {},
-                    labelKey: 'name',
-                    initialSelection: state.selectedCohorts,
-                  ),
-                  10.height,
-                  CustomDateTimePicker<DateTime>(
-                    controller: context
-                        .read<VehicleExpenseHistoryBloc>()
-                        .dateController,
-                    format: "dd-MM-yyyy",
-                    suffixIcon: Icon(Icons.calendar_month_rounded,
-                        size: 18, color: context.theme.hintColor),
-                    textAlign: TextAlign.center,
-                    value: state.selectedDate,
-                    onChanged: (value) => context
-                        .read<VehicleExpenseHistoryBloc>()
-                        .add(DateChangeEvent(selectedDate: value)),
-                  ),
-                  10.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Utils.getElevatedButton(
-                        () {
-                          context.read<VehicleExpenseHistoryBloc>().add(
-                              UpdateVehicleExpenseHistoryEvent(
-                                  id: "${state.editResponse['id']}"));
-                          Future.delayed(
-                              const Duration(seconds: 1),
-                              () => context
-                                      .pushReplacement(VehicleExpenseHistoryUI(
-                                    vin: state.vin,
-                                    vehicleName: state.vehicleName,
-                                    showTotalAmount: showTotalAmount,
-                                currentExpenseAmount: currentExpenseAmount,
-                                  )));
-                        },
-                        text: 'Update',
-                      ),
-                    ],
-                  )
-                ],
+                      initialSelection: state.selectedSubCategory,
+                      validator: (value) => (value == null) ? 'Please select sub category' : null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                    ),
+                    10.height,
+                    Utils.dropdownBox(
+                      'Select Expense To',
+                      state.cohorts,
+                      (value) => context.read<VehicleExpenseHistoryBloc>().add(CohortListEvent(selectedCohort: value)),
+                      labelKey: 'name',
+                      selectedKey: state.selectedCohorts,
+                      initialSelection: state.selectedCohorts,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) => (value == null) ? 'Please select expense to' : null,
+                    ),
+                    10.height,
+                    CustomDateTimePicker<DateTime>(
+                      controller: context
+                          .read<VehicleExpenseHistoryBloc>()
+                          .dateController,
+                      format: "dd-MM-yyyy",
+                      suffixIcon: Icon(Icons.calendar_month_rounded,
+                          size: 18, color: context.theme.hintColor),
+                      textAlign: TextAlign.center,
+                      value: state.selectedDate,
+                      onChanged: (value) => context
+                          .read<VehicleExpenseHistoryBloc>()
+                          .add(DateChangeEvent(selectedDate: value)),
+                    ),
+                    10.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SuccessButton(
+                          onPressed: () {
+                            context.read<VehicleExpenseHistoryBloc>().add(
+                                UpdateVehicleExpenseHistoryEvent(id: "${state.editResponse['id']}"));
+                            Future.delayed(const Duration(seconds: 1),
+                                () => context.pushReplacement(VehicleExpenseHistoryUI(
+                                      vin: state.vin,
+                                      vehicleName: state.vehicleName,
+                                      showTotalAmount: showTotalAmount,
+                                  currentExpenseAmount: currentExpenseAmount,
+                                    )));
+                          },
+                          text: 'Update',
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           );
