@@ -75,8 +75,9 @@ class CommonService {
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
   int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
-  bool get isAdmin => (roles?.contains("admin") ?? false) || (userId == 3);
+  bool get isAdmin => (roles?.contains("admin") ?? false) || ([2, 3].contains(userId));
   bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 1, 28, 17].contains(userId)));///22 - Saeed ali , 21 - hidayath
+  bool get hideReportItems => [20, 21, 10, 23, 2, 16, 15].contains(userId);
 
   int get departmentId => Session.of.getInt("departmentId") ?? 0;
   int? get branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -586,6 +587,7 @@ class CommonService {
     _toDoList.clear();
     _maintenanceCheckList.clear();
     _checkList.clear();
+    Console.of.debug("Cleared all records", name: "CommonInitializer");
   }
 
 }

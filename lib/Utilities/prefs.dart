@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Session {
@@ -59,6 +60,8 @@ class Session {
   T get<T>(String key, T defaultValue) => _read(key, defaultValue);
   set(String key, dynamic value) => _write(key, value);
 
-  Future<void> clear() async => await _preferences.clear();
-
+  Future<void> clear() async {
+    await _preferences.clear();
+    Console.of.debug("Session Cleared", name: "SharedPrefs");
+  }
 }

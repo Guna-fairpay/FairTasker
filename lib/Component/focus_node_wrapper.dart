@@ -1,4 +1,3 @@
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 
 class FocusNodeWrapper extends StatefulWidget {
@@ -14,19 +13,11 @@ class _FocusNodeWrapperState extends State<FocusNodeWrapper> {
   final FocusNode _focusNode = FocusNode();
 
   @override
-  void initState() {
-    Console.of.log("initState");
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _focusNode.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.builder(_focusNode);
-  }
+  Widget build(BuildContext context) => widget.builder(_focusNode);
 }

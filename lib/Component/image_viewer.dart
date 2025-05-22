@@ -20,7 +20,6 @@ class ImageViewer extends StatelessWidget {
       required this.imageInput,
       this.fit = BoxFit.contain,
       this.isNotImage = false}) {
-    Console.of.log(imageInput);
     if (isNotImage && !((imageInput as Object).isPDF)) _generateThumbnail();
   }
 
@@ -54,9 +53,9 @@ class ImageViewer extends StatelessWidget {
                 gaplessPlayback: true),
       );
     }
-    return (imageInput is String)
-        ? ((imageInput as String).isPdf) ? const Icon(Icons.picture_as_pdf, size: 50,)
-        : Image.network(imageInput,
+    return (((imageInput as Object).isPDF)) ? const Icon(Icons.picture_as_pdf, size: 50,)
+        : (imageInput is String)
+        ? Image.network(imageInput,
             errorBuilder: (context, error, stackTrace) =>
                 Image.asset(Assets.noImages),
             gaplessPlayback: true,

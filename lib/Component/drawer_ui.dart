@@ -2,7 +2,6 @@ import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Task%20List/tasklist_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/import_task/import_task_main_ui.dart';
-import 'package:fairpytasker/UI/leave_management/backup/leave_management_view_ui.dart';
 import 'package:fairpytasker/UI/leave_management/leave_view/ui/leave_view_main_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
@@ -228,12 +227,12 @@ class DrawerView extends StatelessWidget {
                   label: "Logout",
                   onTap: () {
                     AskPermissionDialog.show(context, title: "Confirm logout", description: "Are you sure you want to logout?", negativeText: "No", positiveText: "Yes", onPositivePressed: () async {
-                      await Authenticator.instance.logout();
+                      await Future.microtask(Authenticator.instance.logout);
                       await getIt<CommonService>().clearAll();
                       Utils.deletePreferences(key: Str.loginPrefText);
                       Utils.deletePreferences(key: Str.accessTokenPrefText);
                       Utils.deletePreferences(key: Str.userIdPrefText);
-                      Session.of.clear();
+                      await Session.of.clear();
                       context.pushAndRemoveUntil(const AuthenticationUI());
                     });
                   },
