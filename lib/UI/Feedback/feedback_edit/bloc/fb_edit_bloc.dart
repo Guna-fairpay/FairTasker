@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as d;
 import 'package:collection/collection.dart';
+import 'package:fbroadcast/fbroadcast.dart';
 import 'package:path/path.dart';
 import 'package:fairpytasker/Repository/feedback_repository.dart';
 import 'package:fairpytasker/Response/feedback_status_response.dart';
@@ -124,6 +125,7 @@ class FBEditBloc extends Bloc<FBEditEvents, FBEditStates> {
         var response = await _updateFeedBack();
         d.log("$response", name: "UPLOAD_COMMENT_RESPONSE");
         if (response?['status'] == 200) {
+          FBroadcast.instance().broadcast("feedback_refresh");
           emit(FBSuccessState(response?['message'] ?? "Updated successfully!"));
         }  else {
           var errors = Map<String, dynamic>.from(response?['errors'] ?? {});
