@@ -64,6 +64,8 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
   int currentIndex = 1;
   int totalCount = 0;
 
+  bool isApprovePage = false;
+
   VehicleExpenseHistoryBloc()
       : super(VehicleExpenseHistoryState(
           searchController: TextEditingController(),
@@ -92,6 +94,7 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
     on<GetVehicleExpenseHistoryList>((event, emit) async {
       try{
         emit(state.copyWith(isLoading: true));
+        isApprovePage = event.isExpenseApprove;
         var response = await apiRepository.getVehicleExpense(vin: event.vin);
         var apiResponse = response?.data;
         apiResponse?.sort((a, b) => DateTime.parse(b['created_at'] ?? '')
@@ -352,6 +355,7 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
       emit(state.copyWith(isLoading: true));
       await apiRepository.deleteVehicleExpense(event.id);
       await apiRepository.deleteExpenseTodo(event.id);
+      FBroadcast.instance().broadcast( isApprovePage ? "expense_vehicle_refresh" : 'ES_Refresh', value: true);
       emit(state.copyWith(isLoading: false));
     });
 
@@ -369,8 +373,9 @@ class VehicleExpenseHistoryBloc extends Bloc<VehicleExpenseHistoryEvent, Vehicle
           expenseId: event.id,
           images: state.expenseAttachments.whereType<File>().toList(),
         );
-
-        FBroadcast.instance().stickyBroadcast('ES_Refresh',value: true);
+        FBroadcast.instance().broadcast( "expense_vehicle_refresh", value: true);
+        FBroadcast.instance().broadcast( "ES_Refresh", value: true);
+        // if(!isApprovePage) FBroadcast.instance().stickyBroadcast('ES_Refresh',value: true);
         emit(state.copyWith(isLoading: false));
       } catch (e){
         Toaster.showError("$e");

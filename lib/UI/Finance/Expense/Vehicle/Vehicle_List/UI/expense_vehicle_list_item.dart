@@ -235,6 +235,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => VehicleExpenseHistoryUI(
+
                                         vin: expense['vehicle']['vin'] ?? '',
                                         vehicleName: expense['vehicle']
                                                 ['vehicle_name'] ??
