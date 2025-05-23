@@ -3,15 +3,17 @@
 import 'dart:developer';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
+import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_state.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_event.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vehicles/VehicleView/Components/image_upload_selection.dart';
-import 'package:fairpytasker/Utilities/Utils.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -97,6 +99,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                         CustomSingleSelectionField<Map<String, dynamic>>(
                           suggestionsList: state.vehicleList,
                           itemAsString: (item) => item['vehicle_name'] ?? '',
+                          itemAsSearchString: (item) => "${item['vehicle_name'] ?? ""} ${item['vehicle_number'] ?? ""}" ,
                           selected: state.selectedVehicle,
                           labelText: "Vehicle Name",
                           hintText: "",
@@ -163,7 +166,13 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           selectedKey: state.selectedSubCategory,
                           initialSelection: state.selectedSubCategory,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) => (value == null) ? 'Please select sub category' : null,
+                            validator: (value) {
+                              if (state.selectedSubCategory == null ||
+                                  ((state.selectedSubCategory is Map) && ((state.selectedSubCategory as Map).isEmpty))) {
+                                return 'Please select a SubCategory';
+                              }
+                              return null;
+                            }
                         ),
                         10.height,
                         Utils.dropdownBox(
@@ -176,7 +185,13 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           selectedKey: state.selectedCohorts,
                           initialSelection: state.selectedCohorts,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) => (value == null) ? 'Please select expense to' : null,
+                            validator: (value) {
+                              if (state.selectedCohorts == null ||
+                                  ((state.selectedCohorts is Map) && ((state.selectedCohorts as Map).isEmpty))) {
+                                return 'Please select a expense to';
+                              }
+                              return null;
+                            }
                         ),
                         10.height,
                         CustomDateTimePicker<DateTime>(

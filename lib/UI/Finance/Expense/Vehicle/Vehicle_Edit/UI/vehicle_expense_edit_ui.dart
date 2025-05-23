@@ -129,6 +129,7 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                         CustomSingleSelectionField<Map<String, dynamic>>(
                           suggestionsList: state.vehicleList,
                           itemAsString: (item) => item['vehicle_name'] ?? '',
+                          itemAsSearchString: (item) => "${item['vehicle_name'] ?? ""} ${item['vehicle_number'] ?? ""}" ,
                           selected: state.selectedVehicle,
                           labelText: "Vehicle Name",
                           hintText: "",
@@ -200,8 +201,14 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                             labelKey: 'name',
                             selectedKey: state.selectedSubCategory,
                             initialSelection: state.selectedSubCategory,
-                            validator: (value) => (value == null) ? 'Please select sub category' : null,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (state.selectedSubCategory == null ||
+                                ((state.selectedSubCategory is Map) && ((state.selectedSubCategory as Map).isEmpty))) {
+                              return 'Please select a SubCategory';
+                            }
+                            return null;
+                          },
                         ),
                         10.height,
                         Utils.dropdownBox(
@@ -212,8 +219,14 @@ class ExpenseVehicleEditUI extends StatelessWidget {
                           labelKey: 'name',
                           selectedKey: state.selectedCohorts,
                           initialSelection: state.selectedCohorts,
-                          validator: (value) => (value == null) ? 'Please select expense to' : null,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (state.selectedCohorts == null ||
+                                ((state.selectedCohorts is Map) && ((state.selectedCohorts as Map).isEmpty))) {
+                              return 'Please select a expense to';
+                            }
+                            return null;
+                          },
                         ),
                         10.height,
                         CustomDateTimePicker<DateTime>(

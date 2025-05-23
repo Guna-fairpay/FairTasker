@@ -9,6 +9,7 @@ class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
   final T? selected;
   final void Function(T val)? onSelected;
   final ItemAsString<T> itemAsString;
+  final ItemAsString<T>? itemAsSearchString;
   final TextEditingController controller;
   final FormFieldValidator<T>? validator;
   final AutovalidateMode autoValidateMode;
@@ -25,6 +26,7 @@ class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
       this.validator,
       this.autoValidateMode = AutovalidateMode.disabled,
       required this.itemAsString,
+        this.itemAsSearchString,
       required this.controller});
 
   ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
@@ -55,18 +57,18 @@ class CustomSingleSelectionField<T extends Object> extends StatelessWidget {
       return [];
     }
     var omitted = (selected != null)
-        ? ((itemAsString(selected!)) == textEditingValue.text)
+        ? (((itemAsSearchString ?? itemAsString)(selected!)) == textEditingValue.text)
             ? selected
             : null
         : null;
     var list = suggestionsList
         .where((element) => element != omitted)
         .where((element) =>
-            (itemAsString(element)).toString().toLowerCase().contains(val))
+            ((itemAsSearchString ?? itemAsString)(element)).toString().toLowerCase().contains(val))
         .toList();
     showEmptyNotifier.value = list.isEmpty &&
         (omitted != null) &&
-        (((itemAsString(omitted)) != textEditingValue.text));
+        ((((itemAsSearchString ?? itemAsString)(omitted)) != textEditingValue.text));
     return list;
   }
 

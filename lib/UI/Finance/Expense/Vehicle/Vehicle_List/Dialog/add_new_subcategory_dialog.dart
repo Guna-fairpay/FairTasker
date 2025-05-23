@@ -53,51 +53,50 @@ class _AddNewSubcategoryDialog extends StatelessWidget {
           ),
           child: SafeArea(
             minimum: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            child: Column(
-              spacing: 10,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                5.height,
-                Utils.getText(
-                  'Add New SubCategory',
-                  weight: FontWeight.bold,
-                ),
-                Utils.getTextFormField(
-                  'Name',
-                  context.read<ExpenseBloc>().subCategoryController,
-                ),
-                Utils.dropdownBox(
-                    'Select Cohort',
-                    state.expenseTo,
-                    (value) => context.read<ExpenseBloc>().add(
-                        SubcategoryDropdownEvent(selectedExpenseTo: value)),
-                    labelKey: 'expense_to'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 10,
-                  children: [
-                    SuccessButton(
-                        text: 'Save',
-                        onPressed: () {
-                      if (context.read<ExpenseBloc>().subCategoryController
-                          .text.isNotEmpty && state.expenseTo.isNotEmpty) {
-                        context.read<ExpenseBloc>().add(SaveSubcategory(
-                            categoryId: categoryId,
-                            name: context.read<ExpenseBloc>().subCategoryController.text,
-                            expenseToId: "${state.selectedExpenseTo['id']}"));
-                      } else {
-                        Toaster.showSuccess('Please fill the fields');
-                      }
-                      return;
-                    }),
-                    SuccessButton(
-                        text: 'Cancel',
-                        onPressed: () => Navigator.pop(context),
-                        backgroundColor: AppC.redAccent),
-                  ],
-                ),
-              ],
+            child: Form(
+              key: context.read<ExpenseBloc>().formKey,
+              child: Column(
+                spacing: 10,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  5.height,
+                  Utils.getText(
+                    'Add New SubCategory',
+                    weight: FontWeight.bold,
+                  ),
+                  Utils.getTextFormField(
+                    'Name',
+                    context.read<ExpenseBloc>().subCategoryController,
+                    autoValidate: AutovalidateMode.onUserInteraction,
+                    validator: (value) => (value!.isEmpty) ? 'Please enter name' : null,
+                  ),
+                  Utils.dropdownBox(
+                      'Select Cohort',
+                      state.expenseTo,
+                      (value) => context.read<ExpenseBloc>().add(
+                          SubcategoryDropdownEvent(selectedExpenseTo: value)),
+                      labelKey: 'expense_to'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    spacing: 10,
+                    children: [
+                      SuccessButton(
+                          text: 'Save',
+                          onPressed: () =>
+                          context.read<ExpenseBloc>().add(SaveSubcategory(
+                              categoryId: categoryId,
+                              name: context.read<ExpenseBloc>().subCategoryController.text,
+                              expenseToId: "${state.selectedExpenseTo['id']}"))
+                      ),
+                      SuccessButton(
+                          text: 'Cancel',
+                          onPressed: () => Navigator.pop(context),
+                          backgroundColor: AppC.redAccent),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
