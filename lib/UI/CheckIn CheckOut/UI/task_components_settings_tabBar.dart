@@ -16,9 +16,11 @@ class TaskTabsView extends StatelessWidget {
   String? loginUserId;
   dynamic selectedBases;
   dynamic loginUserRole;
+  final Globalkey;
 
   TaskTabsView({
     super.key,
+    required this.Globalkey,
     required this.taskbased,
     required this.hourlybased,
     required this.selectedBases,
@@ -32,8 +34,8 @@ class TaskTabsView extends StatelessWidget {
       child: TabBarView(
         controller: tabController,
         children: [
-          TaskBasedTab(taskbased: taskbased, selectedBases: selectedBases, loginUserId: loginUserId, loginUserRole: loginUserRole),
-          HourlyBasedTab(hourlybased: hourlybased, resource: resource, loginUserId: loginUserId, loginUserRole: loginUserRole),
+          TaskBasedTab(taskbased: taskbased, selectedBases: selectedBases, loginUserId: loginUserId, loginUserRole: loginUserRole, Globalkey: Globalkey),
+          HourlyBasedTab(hourlybased: hourlybased, resource: resource, loginUserId: loginUserId, loginUserRole: loginUserRole, Globalkey: Globalkey),
         ],
       ),
     );
@@ -45,9 +47,11 @@ class TaskBasedTab extends StatelessWidget {
   dynamic selectedBases;
   String? loginUserId;
   dynamic loginUserRole;
+  final Globalkey;
 
   TaskBasedTab({
     super.key,
+    required this.Globalkey,
     required this.taskbased,
     required this.selectedBases,
     this.loginUserId,
@@ -144,12 +148,16 @@ class TaskBasedTab extends StatelessWidget {
                               children: [
                                 GestureDetector(
                                   onTap: () {
+                                    Globalkey.currentState!.reset();
                                     context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
                                     context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
                                       id: task['id'],
                                       taskName: task['task_name'],
                                       amount: task['amount'],
+                                      task: 'task'
                                     ));
+                                    // context.read<WorkingHoursBloc>().amountController.text = task['amount'].toString();
+                                    // context.read<WorkingHoursBloc>().taskNameController.text = task['task_name'].toString();
                                   },
                                   child: const Icon(
                                     Icons.edit_outlined,
@@ -163,10 +171,9 @@ class TaskBasedTab extends StatelessWidget {
                                     final confirm = await showCustomDeleteDialog(context);
                                     if (confirm == true) {
                                       context.read<WorkingHoursBloc>().add(
-                                          DeleteTaskComponentsEvent(id: task['id'])
+                                          DeleteTaskComponentsEvent(id: task['id'], task: "task")
                                       );
                                       Toaster.showSuccess("Task deleted successfully");
-                                      context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                                     }
                                   },
                                   child: const Icon(
@@ -198,9 +205,10 @@ class HourlyBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>>? resource;
   String? loginUserId;
   dynamic loginUserRole;
+  final Globalkey;
 
   HourlyBasedTab(
-      {super.key, required this.hourlybased, required this.resource, this.loginUserId, this.loginUserRole}){
+      {super.key, required this.hourlybased, required this.resource, this.loginUserId, this.loginUserRole, required this.Globalkey}){
     print("${hourlybased} hourlybased data");
     print("${resource} resource_data");
   }
@@ -301,11 +309,13 @@ class HourlyBasedTab extends StatelessWidget {
                               children: [
                                 GestureDetector(
                                   onTap: () {
+                                    Globalkey.currentState!.reset();
                                     context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
                                     context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
                                       id: task['id'],
                                       userId: task['user_id'],
                                       amount: task['amount'],
+                                      task: 'hourly'
                                     ));
                                   },
                                   child: const Icon(
@@ -323,9 +333,9 @@ class HourlyBasedTab extends StatelessWidget {
                                     {
                                       context.read<WorkingHoursBloc>().add(
                                           DeleteTaskComponentsEvent(
-                                              id: task['id']));
+                                              id: task['id'], task: "hourly"));
                                       Toaster.showSuccess("Task deleted successfully");
-                                      context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                                      //context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                                     }
                                   },
                                   child: const Icon(
