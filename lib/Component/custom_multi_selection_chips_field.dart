@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fairpytasker/Component/compact_search_auto_field.dart';
 import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/custom_search_field.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -101,7 +102,7 @@ class CustomMultiSelectionChipsField<T extends Object> extends StatelessWidget {
           if (controller != null)
             ValueListenableBuilder(
               valueListenable: _isShowEmptyNotifier,
-              builder: (context, value, child) => CustomAutoSearchField<T>(
+              builder: (context, value, child) => CompactSearchAutoField<T>(
                 controller: controller!,
                 optionsBuilder: (textEditingValue) =>
                     _onSearch(textEditingValue),

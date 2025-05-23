@@ -36,7 +36,9 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
   List<dynamic>? selectedVehicle;
   final FBroadcast _broadcast = FBroadcast.instance();
   dynamic model;
+
   int? get _branch =>  getIt<CommonService>().branchId;
+
   final TextEditingController partsCostController = TextEditingController();
   final TextEditingController labourCostController = TextEditingController();
   final TextEditingController subTotalController = TextEditingController();
@@ -64,6 +66,11 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
   List<String> vehicleNameList = [];
   List<dynamic> partsList = [];
   List<dynamic> suppliesList = [];
+
+  List<Map<String, dynamic>>? usersList;
+  List<Map<String, dynamic>>? groupPerson;
+  List<Map<String, dynamic>>? parts;
+  List<Map<String, dynamic>>? supplies;
 
 
   EditExpenseVehicleBloc() : super(
@@ -103,10 +110,12 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
         var paymentType = await _getPaymentType();
         var categoryList = await getIt<CommonService>().getExpenseCategories();
         var todoDetails = await _getTodoDetails(event.id);
-        var usersList = await getIt<CommonService>().getUsers();
-        var groupPerson = await _getGroupPerson();
-        var parts = await _getPartList();
-        var supplies = await _getSuppliesList();
+        if(todoDetails != null){
+          usersList = await getIt<CommonService>().getUsers();
+          groupPerson = await _getGroupPerson();
+          parts = await _getPartList();
+          supplies = await _getSuppliesList();
+        }
 
         var apiResponse = response?['expenses'];
 
@@ -169,7 +178,6 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
             vehicleList?.where((e) => e['vin'] == apiResponse?['vin']).toList();
         vehicleController.text =
             selectedVehicle?.firstOrNull?['vehicle_name'] ?? '';
-
         if (todoDetails?['user_id'] != null) {
           userId = todoDetails?['user_id'];
         }
@@ -472,24 +480,23 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
         : totalAmountController.text;
     log(expenseAmount, name: "Expense_Amount");
     Map<String, String> baseBody = {};
-    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
-    baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
-    baseBody['payment_method_id'] = "${state.selectedPaymentType?['id'] ?? ''}";
-    baseBody['expense_to'] =
-    "${state.selectedCohorts?['id'] ?? ''}";
-    baseBody['expense_amount'] = expenseAmount;
-    baseBody['expense_description'] = descriptionController.text;
-    baseBody['expense_date'] = state.selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
-    baseBody['cohort_id'] = "${state.selectedVehicle["cohort_id"] ?? ''}";
-    baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
-    if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
-    baseBody['platform'] = "TaskerApp";
-    baseBody['sales_tax_percentage'] =
-    taxIsTapped ? '' : percentageOrAmountController.text;
     baseBody['sales_tax'] = saleTaxController.text;
     baseBody['shipping_and_handling'] = shippingController.text;
     baseBody['sales_tax_type'] = taxIsTapped ? '\$' : '%';
+    baseBody['sales_tax_percentage'] = taxIsTapped ? '' : percentageOrAmountController.text;
+    baseBody['expense_amount'] = expenseAmount;
+    baseBody['payment_method_id'] = "${state.selectedPaymentType?['id'] ?? ''}";
+    baseBody['category_id'] = "${state.selectedCategory?['id'] ?? ''}";
+    baseBody['subcategory_id'] = "${state.selectedSubCategory?['id'] ?? ''}";
     baseBody['employee_id'] = "${state.editResponse?['employee_id'] ?? ''}";
+    baseBody['cohort_id'] = "${state.selectedVehicle["cohort_id"] ?? ''}";
+    baseBody['vin'] = "${state.selectedVehicle['vin'] ?? ''}";
+    baseBody['expense_date'] = state.selectedDate.toFormat(format: 'yyyy-MM-dd')??'';
+    baseBody['expense_description'] = descriptionController.text;
+    baseBody['expense_to'] = "${state.selectedCohorts?['id'] ?? ''}";
+    if (odometerController.text.isNotEmpty && ((double.tryParse(odometerController.text) ?? 0) > 0)) baseBody['odometer'] = odometerController.text;
+    baseBody['platform'] = "TaskerApp";
+    baseBody['approved'] = "${state.editResponse?['approved'] ?? ''}";
     if (splitParts.isNotEmpty || splitSupplies.isNotEmpty) {
       splits.forEachIndexed((index, element) {
         baseBody['split[$index][${element.keys.first}]'] =
@@ -561,7 +568,7 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
     _updateExpenseTotal();
   }
 
-  void _updateExpenseTotal() {
+  void  _updateExpenseTotal() {
     double totalSuppliesCost = 0;
     double totalParts = 0;
     totalParts = partsList
@@ -597,7 +604,7 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
   }
 
   List<String> getUserInitials(
-      dynamic userIds, List<Map<String, dynamic>> users) {
+      dynamic userIds, List<Map<String, dynamic>>? users) {
     if (userIds == null) {
       return [];
     } else if (userIds is String &&
@@ -610,7 +617,7 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
     } else if (userIds is! List) {
       return [];
     }
-    return users
+    return (users ?? [])
         .where((user) => userIds.contains(user['id'].toString()))
         .map((user) {
       String firstInitial = (user['first_name']?.isNotEmpty ?? false)

@@ -3,6 +3,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import '../../../../../Vehicle/vehicle_expense_history/ui/vehicle_expense_history_ui.dart';
 import '../../../../../dialog/ask_permission_dialog.dart';
@@ -31,11 +32,10 @@ class ExpenseVehicleListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     Color approveColor = expense['approved'] == 1 ? AppC.black : AppC.redAccent;
     final cohort = expense['expense_to'] == 1
-        ? "${expense['expense_to_data']['expense_to'] ?? ''}"
+        ? "${expense['expense_to_data']?['expense_to'] ?? ''}"
         : expense['expense_to'] == 4
             ? '${expense['cohort']?['cohort'] ?? ''}'
-            : "Unassigned";
-
+            : "";
     Color getCategoryColor(String category) {
       switch (category) {
         case 'Fair Returns LP LLC':
@@ -174,6 +174,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                   flex: 5,
                   child: Row(
                     children: [
+                      if (cohort.isNotNullOrEmpty)
                       Expanded(
                         flex: 2,
                         child: InkWell(
@@ -234,6 +235,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => VehicleExpenseHistoryUI(
+
                                         vin: expense['vehicle']['vin'] ?? '',
                                         vehicleName: expense['vehicle']
                                                 ['vehicle_name'] ??

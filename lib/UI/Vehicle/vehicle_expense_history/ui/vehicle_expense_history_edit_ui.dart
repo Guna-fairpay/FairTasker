@@ -136,6 +136,7 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                     CustomSingleSelectionField<Map<String, dynamic>>(
                       suggestionsList: state.vehicle,
                       itemAsString: (item) => item['vehicle_name'] ?? '',
+                      itemAsSearchString: (item) => "${item['vehicle_name'] ?? ""} ${item['vehicle_number'] ?? ""}" ,
                       selected: state.selectedVehicle,
                       labelText: "Vehicle Name",
                       hintText: "",

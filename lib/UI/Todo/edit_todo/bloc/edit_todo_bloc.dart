@@ -230,7 +230,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         if (todoResponse?['user_group_id'] != null) {
           for (var group in userGroupResponse) {
             if (group['id'] == todoResponse?['user_group_id']) {
-              var decodedList = json.decode(group['userId'] ?? '[]');
+              var decodedList = List.from(json.decode(group['userId'] ?? '') ?? []);
               if (decodedList is List) {
                 selectedIds = decodedList.map((e) => e.toString()).toList();
               } else {
@@ -730,8 +730,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
       try {
         emit(state.copyWith(isLoading: false));
 
-        if(event.data['type']=='vehicle'){
-          Console.of.log(event.data);
+        if(event.data['type']=='vehicles'){
+          Console.of.log(event.data, name: "event.data");
           var id = vehicleData.firstWhereOrNull(
               (element) => element['vin'] == event.data?['value']?['vin'])?['id'];
           vinList.removeWhere(
@@ -1213,6 +1213,8 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   List<Map<String, dynamic>> get vehicles => getIt<CommonService>().activeVehicleList.where((element) => element['branch_code'] == branchId).toList();
   List<Map<String, dynamic>> get vendor => getIt<CommonService>().vendorsList;
   List<Map<String, dynamic>> get groupVehicleList => getIt<CommonService>().groupVehicleList;
+  List<Map<String, dynamic>> get partsList => getIt<CommonService>().partsList;
+  List<Map<String, dynamic>> get suppliesLists => getIt<CommonService>().suppliesList;
 
   List<Map<String, dynamic>> get persons {
     List<Map<String, dynamic>> resources = List.from(getIt<CommonService>().resourcesList);

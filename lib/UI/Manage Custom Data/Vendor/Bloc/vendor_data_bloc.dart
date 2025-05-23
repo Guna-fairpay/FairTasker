@@ -8,6 +8,7 @@ import 'package:fairpytasker/Repository/todo_list_repository.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_repository.dart';
 import 'package:fairpytasker/Utilities/str.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:file_picker/file_picker.dart';
@@ -33,32 +34,35 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
   final TextEditingController websiteController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
   final TextEditingController vendorSearchController = TextEditingController();
-
   final TextEditingController vendorTypeNameController = TextEditingController();
   final TextEditingController vendorTypeSearchController = TextEditingController();
+
   bool isVendorTypeEdit = false;
+  bool isEditMode = false;
+
   List<Map<String, dynamic>> vendorTypes = [];
   List<Map<String, dynamic>> filterPage1 = [];
   List<Map<String, dynamic>> filterVendorType = [];
-  int vendorTypeItemsPerPage = 10;
-  int vendorTypeCurrentIndex = 1;
-  int vendorTypeTotalCount = 0;
-  int? vendorTypeEditId;
-
-  double? latitude;
-  double? longitude;
-  bool isEditMode = false;
-  int? vendorId;
-  int? vendorTypeId;
-  int itemsPerPage = 10;
-  int currentIndex = 1;
-  int totalCount = 0;
   List<Map<String, dynamic>> filteredVendors = [];
   List<Map<String, dynamic>> vendorsData = [];
   List<Map<String, dynamic>> vendorTypeData = [];
   List<Map<String, dynamic>> vendorSearchData = [];
   List<Map<String, dynamic>> filteredVendorType = [];
   List<Map<String, dynamic>> filterPage = [];
+
+  int vendorTypeItemsPerPage = 10;
+  int vendorTypeCurrentIndex = 1;
+  int vendorTypeTotalCount = 0;
+  int itemsPerPage = 10;
+  int currentIndex = 1;
+  int totalCount = 0;
+  int? vendorTypeEditId;
+  int? vendorId;
+  int? vendorTypeId;
+
+  double? latitude;
+  double? longitude;
+
   List<File> localImages = []; // For locally picked files
   List<String> remoteImages = []; // For server-stored image URLs
   List<dynamic> vendorImage = [];
@@ -183,7 +187,9 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
       emit(const VendorDataLoading());
       final response = await apiRepository.deleteVendor(event.id);
       if (response == true) {
-        add(const GetVendorList());
+        filteredVendors.removeWhere((vendor) => vendor['id'] == event.id);
+        filterPage = paginateList(data: filteredVendors, currentPage: currentIndex, itemsPerPage: itemsPerPage);
+        if(vendorId == event.id) add(ExitEditModeEvent());
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
         _broadcast.broadcast(Str.refetchVendorLocation);
@@ -300,10 +306,18 @@ class VendorDataBloc extends Bloc<VendorDataEvent, VendorDataState> {
 
     //vendor type delete event
     on<DeleteVendorType>((event, emit) async {
-      emit(const VendorDataLoading());
-      await apiRepository.deleteVendorType(event.id);
-      add(const GetVendorTypeList());
-      emit(VendorDataCommonState());
+      try{
+        emit(const VendorDataLoading());
+        await apiRepository.deleteVendorType(event.id);
+        vendorTypes.removeWhere((vendor) => vendor['id'] == event.id);
+        filterPage1 = paginateList(data: vendorTypes, currentPage: vendorTypeCurrentIndex, itemsPerPage: vendorTypeItemsPerPage);
+        if(vendorTypeEditId == event.id) add(ExitVendorTypeEditEvent());
+        //add(const GetVendorTypeList());
+        emit(VendorDataCommonState());
+      }catch(e){
+        Toaster.showError(e.toString());
+        emit(VendorDataCommonState());
+      }
     });
 
 

@@ -13,8 +13,8 @@ import 'odometer_event.dart';
 import 'odometer_state.dart';
 
 class OdometerView extends StatelessWidget {
-  final Map<String, dynamic> vehicle;
-  final Map<String, dynamic> todoItems;
+  final Map<String, dynamic>? vehicle;
+  final Map<String, dynamic>? todoItems;
   final dynamic selectedVehicle;
   OdometerView({super.key,
     required this.vehicle,
@@ -101,7 +101,7 @@ class OdometerView extends StatelessWidget {
                               validator: (val) => (double.tryParse(
                                   val.toString()) ?? 0) <
                                   (double.tryParse("${state.odometerData ?? 0}") ?? 0)
-                                  ? "Cannot enter lower than \n previous oil change \n odometer"
+                                  ? "Cannot enter lower than previous oil change odometer"
                                   : null,
                             ),
                           ),
@@ -133,7 +133,7 @@ class OdometerView extends StatelessWidget {
                                 currentOdometer: currentOdometer,
                                 nextOdometer: nextOdometer,
                                 nextMilesCheck: nextMileCheck,
-                                toDoId: todoItems['id'],)
+                                toDoId: todoItems?['id'],)
                               );
                               formKey.currentState!.reset();
                             } else {

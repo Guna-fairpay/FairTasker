@@ -30,7 +30,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
     var border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(Num.borderRadius),
       borderSide:
-          const BorderSide(color: AppC.fieldBase, width: Num.borderWidthField),
+          const BorderSide(color: AppC.fieldBase, width: Num.borderWidthButton),
     );
     return DropdownMenu<T>(
       key: key,
@@ -46,6 +46,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
         isCollapsed: true,
         border: border,
         isDense: true,
+        constraints: BoxConstraints(maxHeight: 35.sp)
       ),
       menuStyle: MenuStyle(
         backgroundColor: WidgetStateProperty.all<Color>(Colors.white),

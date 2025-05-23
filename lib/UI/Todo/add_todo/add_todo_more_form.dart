@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_drop_down.dart';
 import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/custom_searcher_view.dart';
 import 'package:fairpytasker/Component/success_button.dart';
@@ -107,7 +108,7 @@ class AddTodoMoreForm extends StatelessWidget {
               state.isPartServiceEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedParts),
-                suggestionsList: List.from(state.partServices),
+                suggestionsList: context.watch<AddToDoBloc>().partsList,
                 controller: context.read<AddToDoBloc>().partsController,
                 labelText: "Parts",
                 itemAsString: (item) => item['name'].toString(),
@@ -115,20 +116,20 @@ class AddTodoMoreForm extends StatelessWidget {
                     .read<AddToDoBloc>()
                     .add(AddToDoPartSelectionEvent(isChecked, value)),
                 onEmptyTap: () =>
-                    context.push(const PartsMainUI(), fullscreenDialog: true)),
+                    context.push(PartsMainUI(title: context.read<AddToDoBloc>().partsController.text), fullscreenDialog: true)),
           if ((state.isMoreEnable ||
                   (context.watch<AddToDoBloc>().isNextTask)) &&
               state.isSuppliesEnable)
             CustomMultiSelectionChipsField<Map<String, dynamic>>(
                 selectedPartsList: List.from(state.selectedSupplies),
-                suggestionsList: List.from(state.supplies),
+                suggestionsList: context.watch<AddToDoBloc>().suppliesList,
                 controller: context.read<AddToDoBloc>().suppliesController,
                 labelText: "Supplies",
                 onChanged: (isChecked, value) => context
                     .read<AddToDoBloc>()
                     .add(AddToDoSupplySelectionEvent(isChecked, value)),
                 itemAsString: (item) => item['name'].toString(),
-                onEmptyTap: () => context.push(const SuppliesMainUI(),
+                onEmptyTap: () => context.push(SuppliesMainUI(title: context.read<AddToDoBloc>().suppliesController.text),
                     fullscreenDialog: true)),
           10.height,
           if (!(context.watch<AddToDoBloc>().isNextTask))
@@ -146,7 +147,13 @@ class AddTodoMoreForm extends StatelessWidget {
                               : Colors.lightGreen)
                           .shade800),
                 ),
-                Flexible(
+                Flexible(child: CompactDropDown<Map<String, dynamic>>(
+                  items: List.from(state.linkOptions),
+                  initialSelection: state.selectedLinkOption,
+                  itemAsString: (item) => item['label'] ?? "",
+                  onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoSelectLinkOptionEvent(value)),
+                )),
+                /*Flexible(
                     child: Utils.dropdownBox(
                         "",
                         List.from(state.linkOptions),
@@ -155,7 +162,7 @@ class AddTodoMoreForm extends StatelessWidget {
                             .read<AddToDoBloc>()
                             .add(AddToDoSelectLinkOptionEvent(selectedValue)),
                         labelKey: "label",
-                        initialSelection: state.selectedLinkOption)),
+                        initialSelection: state.selectedLinkOption)),*/
                 // UNDER DEVELOPMENT
                 if (kDebugMode)
                 SuccessButton(

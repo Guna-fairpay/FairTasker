@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/Vehicle/vehicle_expense_history/ui/vehicle_expen
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -29,6 +30,7 @@ class VehicleExpenseHistoryUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Console.of.log("SHOW_TOTAL $showTotalAmount", name: "VehicleExpenseHistoryUI");
     return BlocProvider<VehicleExpenseHistoryBloc>(
       create: (context) => VehicleExpenseHistoryBloc()
         ..add(GetVehicleExpenseHistoryList(vin: vin, isExpenseApprove: showTotalAmount)),

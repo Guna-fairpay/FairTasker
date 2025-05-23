@@ -1,11 +1,10 @@
+import 'package:fairpytasker/Component/compact_drop_down.dart';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
-import 'package:fairpytasker/Component/custom_dropdown.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_bloc.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_events.dart';
 import 'package:fairpytasker/UI/Todo/add_todo/bloc/add_todo_state.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
-import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -46,18 +45,13 @@ class AddTodoRecurringForm extends StatelessWidget {
                           .read<AddToDoBloc>()
                           .add(AddToDoTimeChangeEvent(value)),
                     ),
-                    Expanded(
-                        child: CustomDropdown<Map<String, dynamic>>(
-                            labelText: null,
-                            isExpanded: true,
-                            hintText: "Select Recurring Type",
-                            items: List.from(state.recurringTypes),
-                            value: state.selectedRecurring,
-                            contentPadding: 5.padding,
-                            itemAsString: (item) => item['label'].toString(),
-                            onChanged: (val) => context
-                                .read<AddToDoBloc>()
-                                .add(AddToDoRecurringTypeEvent(val)))),
+                    Expanded(child: CompactDropDown<Map<String, dynamic>>(
+                      hintText: "Select Recurring Type",
+                      items: List.from(state.recurringTypes),
+                      initialSelection: state.selectedRecurring,
+                      itemAsString: (item) => item['label'].toString(),
+                      onChanged: (value) => context.read<AddToDoBloc>().add(AddToDoRecurringTypeEvent(value)),
+                    )),
                   ],
                 )
               ],
