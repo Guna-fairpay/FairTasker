@@ -86,7 +86,6 @@ class WorkHoursViewUI extends StatelessWidget {
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
-              log("${state.loginUserRole}" , name: "login_role");
             }
           },
           child:
@@ -275,7 +274,7 @@ class WorkHoursViewUI extends StatelessWidget {
                             },
                           ),
                         ),
-                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin") || Session.of.getString(Str.userIdPrefText) == '2')
                         Expanded(child:
                         ResourceListingDropdown<Map<String, dynamic>>(
                           items: context.watch<WorkingHoursBloc>().dropDownResource,
@@ -334,24 +333,17 @@ class WorkHoursViewUI extends StatelessWidget {
                         builder: (context) {
                           log("${context.watch<WorkingHoursBloc>().initialDropDown}");
                           var selectedName = context.watch<WorkingHoursBloc>().initialDropDown;
-                          final dataList = (Session.of.getString(Str.userIdPrefText) == '3'
-                              || Session.of.getString(Str.userIdPrefText) == '10'
-                              || Session.of.getString(Str.userIdPrefText) == '21'
-                              || Session.of.getString(Str.userIdPrefText) == '1'
-                              || Session.of.getString(Str.userIdPrefText) == '23'
-                              || Session.of.getString(Str.userIdPrefText) == '22'
-                              || Session.of.getStringList(Str.rolePrefText)!.contains("Admin")
+                          final dataList = (context.read<WorkingHoursBloc>().approveId.contains(Session.of.getString(Str.userIdPrefText))
                           ) ?
                           (selectedName['full_name'] == 'All')
                               ? state.combinedData
+                              :  state.combinedData?.where((item) {
+                                return item['user_id'] == selectedName['id'];
+                              }).toList() ?? []
                               : state.combinedData?.where((item) {
                                 return
-                                  item['user_id'] == selectedName['id'];}).toList() ?? []
-                              : state.combinedData?.where((item) {
-                                return
-                                  item['user_id'].toString().trim() == state.loginUserId.toString().trim();
+                                  item['user_id'].toString().trim() == Session.of.getString(Str.userIdPrefText).toString().trim();
                               }).toList() ?? [];
-
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();
                           }

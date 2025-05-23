@@ -63,10 +63,11 @@ class UpdateDropdownValueEvent extends WorkingHoursEvent {
 
 class DeleteTaskComponentsEvent extends WorkingHoursEvent {
   final int? id;
-  const DeleteTaskComponentsEvent({required this.id});
+  String? task;
+  DeleteTaskComponentsEvent({required this.id, this.task});
 
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, task];
 }
 
 class TaskDateChangeEvent extends WorkingHoursEvent {

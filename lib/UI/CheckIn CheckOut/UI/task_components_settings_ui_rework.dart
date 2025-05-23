@@ -32,9 +32,6 @@ class TaskComponentsSettingView extends StatelessWidget {
   dynamic selectedBases;
   dynamic resource;
   TaskComponentsSettingView({super.key});
-  TextEditingController taskNameController = TextEditingController();
-  TextEditingController amountController = TextEditingController();
-  TextEditingController hourlyAmountController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 
@@ -46,18 +43,18 @@ class TaskComponentsSettingView extends StatelessWidget {
         if (state.isLoading) {
           EasyLoading.show();
         } else {
+          final bloc = context.read<WorkingHoursBloc>();
           if (EasyLoading.isShow) EasyLoading.dismiss();
-          log("${Session.of.getStringList(Str.rolePrefText)?.contains("Admin")}  ${Session.of.getString(Str.userIdPrefText)}", name: "role");
-          taskNameController.clear();
-          amountController.clear();
-          taskNameController.text = state.taskNameController?.text ?? '';
-          amountController.text = state.amountController?.text ?? '';
-          hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
+          bloc.taskNameController.clear();
+          bloc.amountController.clear();
+          bloc.taskNameController.text = state.taskNameController?.text ?? '';
+          bloc.amountController.text = state.amountController?.text ?? '';
+          bloc.hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           Utils.dismissKeyboard(context);
           if (!state.isEditMode) {
-            taskNameController.text = state.taskNameController?.text ?? '';
-            amountController.text = state.amountController?.text ?? '';
-            hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
+            bloc.taskNameController.text = state.taskNameController?.text ?? '';
+            bloc.amountController.text = state.amountController?.text ?? '';
+            bloc.hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
           }
           Utils.dismissKeyboard(context);
         }
@@ -107,23 +104,25 @@ class TaskComponentsSettingView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 16),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                         Utils.dropdownBox(
                           'Task based',
                           state.selectedBase1,
                           (value) {
                             selectedBases = value;
+                            log("${selectedBases} ${state.selectedBase} selected base");
                             context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
                             tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
+                            formKey.currentState!.reset();
                           },
                           labelKey: 'base',
-                          initialSelection: state.selectedBase,
+                          initialSelection:selectedBases ?? state.selectedBase,
                         ),
                         const SizedBox(height: 16),
-                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))...[
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')...[
                           if(!isHourlyBased) ...[
                             Utils.getTextFormField('Task Name',
-                                taskNameController,
+                                context.read<WorkingHoursBloc>().taskNameController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Task Name required';
@@ -133,7 +132,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                               Utils.getTextFormField('Amount (\$)',
-                                  amountController,
+                                  context.read<WorkingHoursBloc>().amountController,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Amount required';
@@ -142,7 +141,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                   }),
                             const SizedBox(height: 16),
                           ] else...[
-                            if(Session.of.getString(Str.userIdPrefText) == '3' || isHourlyBased && Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+                            if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                               Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(color: AppC.trans),
@@ -158,7 +157,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                       resource = value;
                                       context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
                                         userId: value['id'],
-                                        amount: hourlyAmountController.text,
+                                        amount: context.read<WorkingHoursBloc>().hourlyAmountController.text,
                                       ));
                                     }
                                   },
@@ -171,7 +170,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             const SizedBox(height: 16),
                               Utils.getTextFormField(
                                   'Amount per hour (\$)',
-                                  hourlyAmountController,
+                                  context.read<WorkingHoursBloc>().hourlyAmountController,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Amount required';
@@ -182,27 +181,27 @@ class TaskComponentsSettingView extends StatelessWidget {
                             const SizedBox(height: 30),
                           ],
                         ],
-                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                         Row(
                           children: [
                             if (!state.isEditMode)
                               Utils.getAddFilledButton("Save", () {
                                 if (state.selectedBase['base'] == 'Task based' || selectedBases['base'] == 'Task based' ||
-                                    taskNameController.text.isNotEmpty) {
+                                    context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty) {
                                   FocusScope.of(context).unfocus();
-                                  if(formKey.currentState!.validate() && taskNameController.text.isNotEmpty && amountController.text.isNotEmpty) {
+                                  if(formKey.currentState!.validate() && context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty && context.read<WorkingHoursBloc>().amountController.text.isNotEmpty) {
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
-                                        taskName: taskNameController.text.toString(),
-                                        amount: amountController.text.toString(),
+                                        taskName: context.read<WorkingHoursBloc>().taskNameController.text.toString(),
+                                        amount: context.read<WorkingHoursBloc>().amountController.text.toString(),
                                         task: 'task',
                                       ));
                                     formKey.currentState!;
                                   }
                                 } else {
-                                  if (formKey.currentState!.validate() && hourlyAmountController.text.isNotEmpty) {
+                                  if (formKey.currentState!.validate() && context.read<WorkingHoursBloc>().hourlyAmountController.text.isNotEmpty) {
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
                                       taskName: '',
-                                      amount: hourlyAmountController.text,
+                                      amount: context.read<WorkingHoursBloc>().hourlyAmountController.text,
                                       task: 'hourly',
                                       userId: state.selectedUser?['id'] ?? resource['id'],
                                     ));
@@ -213,20 +212,21 @@ class TaskComponentsSettingView extends StatelessWidget {
                               Utils.getAddFilledButton("Update", () {
                                 FocusScope.of(context).unfocus();
                                 context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
-                                if(state.userId == null)
+                                if(state.userId == -1)
                                   {
+                                    log("${context.read<WorkingHoursBloc>().taskNameController.text} ${context.read<WorkingHoursBloc>().amountController.text} update_button");
                                     context.read<WorkingHoursBloc>().add(
                                         CreateTaskEvent(
                                             id: state.taskId,
-                                            taskName: taskNameController.text.toString(),
-                                            amount: amountController.text.toString(),
+                                            taskName: context.read<WorkingHoursBloc>().taskNameController.text.toString(),
+                                            amount: context.read<WorkingHoursBloc>().amountController.text.toString(),
                                             task: 'task')
                                     );
                                   } else {
                                   context.read<WorkingHoursBloc>().add(
                                       CreateTaskEvent(
                                           id: state.taskId,
-                                          amount: hourlyAmountController.text.toString(),
+                                          amount: context.read<WorkingHoursBloc>().hourlyAmountController.text.toString(),
                                           userId: resource?['id'] ?? state.userId,
                                           task: 'hourly')
                                   );
@@ -276,6 +276,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         TaskTabsView(
+                          Globalkey: formKey,
                           taskbased: state.taskBased,
                           hourlybased: state.hourlyBased,
                           selectedBases: selectedBases,

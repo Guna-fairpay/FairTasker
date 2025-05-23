@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../Utilities/Str.dart';
 import '../../../Utilities/Utils.dart';
 import '../../../Utilities/prefs.dart';
+import '../../../core/initializer/common_initializer.dart';
 import '../Event/workingHoursEvent.dart';
 import '../State/workingHoursState.dart';
 import '../../../../Repository/api_repository.dart';
@@ -28,6 +29,9 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   List<Map<String, dynamic>> taskComponentsData=[];
   List<Map<String, dynamic>> taskBased = [];
   List<Map<String, dynamic>> hourlyBased = [];
+  TextEditingController taskNameController = TextEditingController();
+  TextEditingController amountController = TextEditingController();
+  TextEditingController hourlyAmountController = TextEditingController();
   TextEditingController taskNameCtrl=TextEditingController();
   TextEditingController amountCtrl=TextEditingController();
   TextEditingController hourlyAmountCtrl=TextEditingController();
@@ -37,6 +41,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
   int selectedTab = 0;
   List<Map<String, dynamic>> dropDownResource=[];
   Map<String, dynamic> initialDropDown = {'id':0,'full_name':'All'};
+  List<String> approveId = ['1','2','3','10','21','22','23'];
+  List<Map<String, dynamic>> base = [
+    {"id": 1, "base": "Task based"},
+    {"id": 2, "base": "Hour based"}
+  ];
+  dynamic updateBase;
+  dynamic updateId;
+  dynamic deleteId;
 
   WorkingHoursBloc() : super(WorkingHoursState (
       userList: const [],
@@ -114,6 +126,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
               branchId = await Utils.getIntPreference(Str.branchIdPrefText);
               userRole = await Utils.getStringListPreference(Str.rolePrefText);
+              branchId = branchId == 0 ? 1 : branchId;
 
               formattedResources = resources.where((e)=>e['branch_id']==branchId && e['id']!= 1 && e['id']!= 2).map((resource) {
                 return {
@@ -444,9 +457,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     //Task Components - Settings Page
     on<TaskComponentsInitialEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
       try{
-        List<dynamic> resource;
+        emit(state.copyWith(isLoading: true));
         final response6 = await apiRepository.fetchGetConfiguration();
         final response3 = await apiRepository.getAssignedTo();
         userRole = await Utils.getStringListPreference(Str.rolePrefText);
@@ -454,7 +466,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         if(response6 != null && response3 != null){
           taskComponentsData = response6.data!;
           resources = response3.resource!;
-
+          branchId = branchId == null ? 1 : branchId;
+          log("${branchId} branchid_task_components");
           formattedResources = resources.map((resource) {
             return {
               'id': resource['id'],
@@ -463,22 +476,15 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               'last_name': '${resource['last_name']}',
             };
           }).toList();
+          var removeAssignedResource = resources
+              .where((e) => e['branch_id'] == branchId &&
+              !taskComponentsData.any((task) => task['user_id'].toString() == e['id'].toString()))
+              .toList();
 
-          List<Map<String, dynamic>> resource = formattedResources.map((resource) {
-            return {
-              'id': resource['id'],
-              'full_name': '${resource['full_name']}',
-              'first_name': '${resource['first_name']}'
-              };
-          }).toList();
           taskBased = taskComponentsData.where((task) => task['type'] == 'task').toList();
           hourlyBased = taskComponentsData.where((task) => task['type'] == 'hourly').toList();
 
-          List<Map<String, dynamic>> base = [
-            {"id":1,"base": "Task based"},
-            {"id":2,"base": "Hour based"}
-          ];
-          dynamic selectedBase = base[0];
+          dynamic selectedBase = updateBase ?? base[0];
           emit(state.copyWith(
             isLoading: false,
             taskComponentsData: taskComponentsData,
@@ -487,8 +493,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             selectedBase1: base,
             selectedBase: selectedBase,
             resources: formattedResources,
-            resource: resource,
-            userList: resources.where((resource) => resource['branch_id'] == branchId).toList(),
+            resource: resources,
+            userList: removeAssignedResource,
             loginUserRole: userRole[0],
               loginUserId: userId,
           ));
@@ -505,10 +511,41 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
 
     on<DeleteTaskComponentsEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
+      //emit(state.copyWith(isLoading: true));
+      List<Map<String, dynamic>> base = [
+        {"id": 1, "base": "Task based"},
+        {"id": 2, "base": "Hour based"}
+      ];
+
       try{
+        deleteId = event.id;
+        log("${updateId} == ${event.id} delete_event_trigger");
         await apiRepository.deleteTaskConfiguration(event.id).then((value) {
-          add(const TaskComponentsInitialEvent());
+          if(updateId == deleteId){
+            if(event.task == 'task'){
+              taskComponentsData.removeWhere((task) => task['id'] == event.id);
+              updateBase = base[0];
+              add(ExitEditModeEvent());
+              add(const TaskComponentsInitialEvent());
+            } else {
+              add(ExitEditModeEvent());
+              taskComponentsData.removeWhere((task) => task['id'] == event.id);
+              updateBase = base[1];
+              add(const TaskComponentsInitialEvent());
+            }
+          } else {
+            if(event.task == 'task'){
+              updateBase = base[0];
+              // add(const TaskComponentsInitialEvent());
+              taskComponentsData.removeWhere((task) => task['id'] == event.id);
+              emit(state.copyWith(taskComponentsData: taskComponentsData));
+            } else {
+              updateBase = base[1];
+              //add(const TaskComponentsInitialEvent());
+              taskComponentsData.removeWhere((task) => task['id'] == event.id);
+              emit(state.copyWith(taskComponentsData: taskComponentsData));
+            }
+          }
         });
       }
       catch(error){
@@ -519,15 +556,18 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
     //Create Update
     on<CreateTaskEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
       try{
+        emit(state.copyWith(isLoading: true));
+        updateBase = event.task == 'task' ? base[0] : base[1];
         await apiRepository.addTaskConfiguration(
             event.id,
             event.userId,
             event.taskName,
             event.amount ?? '',
             event.task);
+        emit(state.copyWith(userList: [], selectedUser: {}, isLoading: false, uniqueId: UniqueKey().toString(),));
         add(const TaskComponentsInitialEvent());
+        emit(state.copyWith(selectedUser: {}, isLoading: false, userList: [], uniqueId: UniqueKey().toString(),));
       } catch (error){
         emit(state.copyWith(isLoading: false));
         print("Error on CreateTaskEvent: $error");
@@ -537,22 +577,22 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
 
 
     on<UpdateTaskEvent>((event, emit) async {
-      print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ${event.userId}");
+      updateId = event.id;
+      print("UpdateTaskEvent called ${event.id} ${event.taskName} ${event.amount} ${event.userId} ${event.task}");
       List<Map<String, dynamic>> base = [
         {"id": 1, "base": "Task based"},
         {"id": 2, "base": "Hour based"}
       ];
-      final apiResponse = await apiRepository.getAssignedTo();
-      var userListData = apiResponse?.resource;
-      dynamic selectedUser = userListData?.firstWhere(
+      dynamic selectedUser = resources.firstWhere(
             (resource) => resource['id'] == event.userId,
         orElse: () => {},
       );
-      if (event.userId == null) {
-        taskNameCtrl.text = event.taskName ?? '';
-        amountCtrl.text = event.amount ?? '';
+      if (event.task == 'task') {
+        log("${event.taskName} ${event.amount} ${event.task} task_update_event_trigger");
+        taskNameCtrl.text = event.taskName?.toString() ?? '';
+        amountCtrl.text = event.amount?.toString() ?? '';
         dynamic selectedBase = base[0];
-        print("Emitting task-based state: selectedUser=null, taskId=${event.id}");
+        print("${taskNameController.text} ${amountController.text} task_update_event_trigger");
         emit(state.copyWith(
           taskId: event.id,
           taskNameController: taskNameCtrl,
@@ -560,10 +600,12 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           selectedBase1: base,
           selectedBase: selectedBase,
           selectedUser: null, // Explicitly reset
-          userId: null,
+          userId: -1,
         ));
       } else {
+        log("${event.userId} ${event.amount} hour_update_event_trigger");
         hourlyAmountCtrl.text = event.amount ?? '';
+        hourlyAmountController.text = event.amount ?? '';
         dynamic selectedBase = base[1];
         print("Emitting hourly state: selectedUser=$selectedUser, taskId=${event.id}");
         emit(state.copyWith(
@@ -572,7 +614,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           hourlyAmountController: hourlyAmountCtrl,
           selectedBase1: base,
           selectedBase: selectedBase,
-          userList: userListData,
+          userList: resources,
           selectedUser: selectedUser,
         ));
       }
@@ -1107,8 +1149,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         log("result ${result}",name: "result");
 
         //Helper Function
-        List<Map<String, dynamic>> formatTaskData(List<Map<String, dynamic>> categoryData, List<Map<String, dynamic>> tasks)
-        {
+        Future<List<Map<String, dynamic>>> formatTaskData(List<Map<String, dynamic>> categoryData, List<Map<String, dynamic>> tasks)
+        async {
           Map<String, List<Map<String, dynamic>>> classifiedTasks = {};
 
           for (var category in categoryData) {
@@ -1118,52 +1160,58 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           }
 
-          try{
+          try {
             for (var task in tasks) {
               String taskTitle = task['title'];
-              String normalizedTaskTitle = taskTitle.replaceAll(RegExp(r'\s*-\s*'), '-');
-              String taskTitleLower = normalizedTaskTitle.toLowerCase();
+              String normalizedTaskTitle = taskTitle.replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
+              String taskTitleLower = normalizedTaskTitle;
               bool matched = false;
 
-              if (taskTitleLower.contains('parts')) {
-                classifiedTasks['Parts']!.add(task);
-                matched = true;
+              for (var category in categoryData) {
+                for (var sub in category['subcategory']) {
+                  String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
+                  if (subTitleLower == taskTitleLower && taskTitleLower != 'parts') {
+                    classifiedTasks[category['title']]?.add(task);
+                    matched = true;
+                    log("Exact match: task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category '${category['title']}'", name: "task_match");
+                    break;
+                  }
+                }
+                if (matched) break;
+              }
+
+              if (!matched && taskTitleLower.contains('parts')) {
+                bool hasExactPartsMatch = false;
                 for (var category in categoryData) {
                   if (category['title'] == 'Parts') {
                     for (var sub in category['subcategory']) {
                       String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
                       if (subTitleLower == taskTitleLower) {
-                        log("Exact match (Parts forced): task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category 'Parts'", name: "task_match");
+                        //log("${sub['sub_title']} == ${taskTitleLower} exact_match_parts", name: "task_match");
+                        hasExactPartsMatch = true;
                         break;
                       }
                     }
                     break;
                   }
                 }
-                if (!matched){}
-              } else {
-                for (var category in categoryData) {
-                  for (var sub in category['subcategory']) {
-                    String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
-                    if (subTitleLower == taskTitleLower && taskTitleLower != 'parts') {
-                      classifiedTasks[category['title']]?.add(task);
-                      matched = true;
-                      log("Exact match: task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category '${category['title']}'", name: "task_match");
-                      break;
-                    }
-                  }
-                  if (matched) break;
+
+                if (!hasExactPartsMatch && task['parent_id'] == null) {
+                  //log("entered_title ${taskTitleLower}");
+                  classifiedTasks['Parts']!.add(task);
+                  //log("Task '${taskTitle}' added to 'Parts' (no exact match, parent_id null)", name: "task_match");
+                  matched = true;
                 }
               }
 
-              if (!matched || event.cohortIds.contains(-1)) {
+              if (!matched) {
                 classifiedTasks['Other'] ??= [];
                 classifiedTasks['Other']!.add(task);
-                log("Task '${taskTitle}' not matched, added to 'Other'", name: "task_unmatched");
+                //log("Task '${taskTitle}' not matched, added to 'Other'", name: "task_unmatched");
               }
             }
-          } catch(e){
-            log("error ${e}",name: "error match by");
+          } catch (e) {
+            log("error ${e}", name: "error match by");
           }
 
           List<Map<String, dynamic>> finalList = [];
@@ -1191,7 +1239,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                 });
               }
               else if (task['vehicles'] != null && task['vehicles'] is List && task['vehicles'].isNotEmpty && task['vehicles'] != []) {
-                // Otherwise, check inside `task['vehicles']`
+
                 vehicles = (task['vehicles'] as List<dynamic>)
                     .map<Map<String, dynamic>>((v) => {
                   "vehicle_name": v['vehicle_name'],
@@ -1199,7 +1247,21 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   "id": task['id'],
                   "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
                 }).toList();
-              } else {
+              }
+              else if(task['vin'] != null){
+                final response = await getIt<CommonService>().getActiveVehicles(reset: true);
+                final vehicle = response.firstWhere(
+                      (e) => e['vin']?.toString() == task['vin']?.toString(),
+                  orElse: () => {},
+                );
+                vehicles.add({
+                  "vehicle_name": vehicle['vehicle_name'],
+                  "todo_date": task['todo_date'] ?? '',
+                  "id": task['id'],
+                  "complete_time_taken": task['complete_time_taken']?.toString() ?? '',
+                });
+              }
+              else {
                 vehicles.add({
                   "person": task['person']?.toString() ?? null,
                   "todo_date": task['todo_date'] ?? '',
@@ -1228,7 +1290,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           }
           return finalList;
         }
-        List<Map<String, dynamic>> taskData = formatTaskData(result, combinedHistory);
+        List<Map<String, dynamic>> taskData = await formatTaskData(result, combinedHistory);
 
         log("taskData ${taskData}",name: "taskData");
 
