@@ -230,7 +230,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         if (todoResponse?['user_group_id'] != null) {
           for (var group in userGroupResponse) {
             if (group['id'] == todoResponse?['user_group_id']) {
-              var decodedList = json.decode(group['userId'] ?? '[]');
+              var decodedList = List.from(json.decode(group['userId'] ?? '') ?? []);
               if (decodedList is List) {
                 selectedIds = decodedList.map((e) => e.toString()).toList();
               } else {
