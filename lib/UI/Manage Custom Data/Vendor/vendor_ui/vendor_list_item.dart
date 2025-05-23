@@ -129,7 +129,6 @@ class VendorListItem extends TableRow {
                   isReasonRequired: false,
                   onPositivePressed: () {
                     context.read<VendorDataBloc>().add(DeleteVendorEvent(id: vendor['id']));
-                    context.read<VendorDataBloc>().add(ExitEditModeEvent());
                   }
                 );
               },

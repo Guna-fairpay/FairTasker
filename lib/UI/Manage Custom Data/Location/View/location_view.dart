@@ -224,7 +224,6 @@ class LocationView extends StatelessWidget {
                                           negativeText: "Cancel",
                                           isReasonRequired: false,
                                           onPositivePressed: () {
-                                            context.read<LocationDataBloc>().add(ExitEditModeEvent());
                                             context.read<LocationDataBloc>().add(DeleteLocation(id: e['id']));
                                           },
                                         );
