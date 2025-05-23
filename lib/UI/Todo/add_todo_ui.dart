@@ -33,7 +33,7 @@ class CreateTodoUI extends StatelessWidget {
       child: BlocListener<AddToDoBloc, AddToDoState>(
           listener: (context, state) {
             Console.of.log("RESETTING_BLOC_LISTENER");
-            // Utils.dismissKeyboard(context);
+            Utils.dismissKeyboard(context);
             if (state.isLoading) {
               EasyLoading.show();
             } else {

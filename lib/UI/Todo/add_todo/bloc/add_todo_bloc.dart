@@ -240,7 +240,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     on<AddToDoSelectedTaskIdentifierEvent>((event, emit) async {
       var existing = Map<int, dynamic>.from(state.selectedTaskIdentifier);
       if (existing.isEmpty && event.selectedTaskIdentifier.isEmpty) return;
-      log("${event.selectedTaskIdentifier.keys}", name: "AddToDoBloc-before");
+      // log("${event.selectedTaskIdentifier.keys}", name: "AddToDoBloc-before");
       existing.removeWhere(
           (key, value) => !event.selectedTaskIdentifier.keys.contains(key));
       if (event.selectedTaskIdentifier.isEmpty) existing.clear();
@@ -258,11 +258,11 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
           existingVPersons.clear();
           existingVPersons.add(existing[2]);
         }
-        log("$existingVPersons", name: "AddToDoBloc-Person-before");
+        // log("$existingVPersons", name: "AddToDoBloc-Person-before");
         if (!existingVPersons.contains(existing[2])) existingVPersons.add(existing[2]);
       }
       existingVPersons = existingVPersons.distinct((element) => element['id']);
-      log("${existing[3]}", name: "AddToDoBloc-VLocation");
+      // log("${existing[3]}", name: "AddToDoBloc-VLocation");
       vLocationController.text = existing[3]?['name'] ?? "";
       var showCleanCar = false;
       var showPlatformCheck = false;
@@ -282,7 +282,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       if (existingVPersons?.length == 1) {
         await _findReservationColor(existingVPersons.firstOrNull?['value']?['vin']);
       }
-      log("$existing", name: "AddToDoBloc");
+      // log("$existing", name: "AddToDoBloc");
     });
 
     on<AddToDoVPersonEvent>((event, emit) async {
@@ -378,7 +378,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
 
     on<AddToDoPersonTapEvent>((event, emit) {
       var existing = List.from(state.selectedTaskPersons);
-      log("${event.isSelected} ${event.person}", name: "AddToDoBloc-Person");
+      // log("${event.isSelected} ${event.person}", name: "AddToDoBloc-Person");
       if (event.isSelected) {
         existing.add(event.person);
       } else {
