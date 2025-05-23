@@ -31,6 +31,7 @@ import '../../../../../../Response/expense_response.dart';
 class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   final APiRepository apiRepository = APiRepository();
   final TodoListRepo todoListRepo = TodoListRepo();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? categoryId;
   String? subcategoryId;
   List<dynamic>? selectedCategory;
@@ -236,9 +237,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
      try {
        emit(state.copyWith(isLoading: true));
         var data = event.data;
-        var expenseCategories = await _getCategoryData();
-        var categoryList = expenseCategories?.expenseData;
-        var selectedCategory = categoryList?.where(
+        var expenseCategories = await getIt<CommonService>().getExpenseCategories();
+        var categoryList = expenseCategories;
+        var selectedCategory = categoryList.where(
               (element) => element['id'].toString() ==
                   data?['category_id'].toString(),).firstOrNull ?? {};
         List<dynamic> subCategories = selectedCategory['sub_categories'] ?? [];
@@ -328,6 +329,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     });
 
     on<SaveSubcategory>((event, emit) async {
+      if (formKey.currentState?.validate() == false) return emit(state.copyWith());
       try {
         emit(state.copyWith(isLoading: true));
         await apiRepository.createSubCategory(
@@ -335,8 +337,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           expenseTo: event.expenseToId,
           parentId: event.categoryId,
         );
-        var expenseCategories = await _getCategoryData();
-        var categoryList = expenseCategories?.expenseData;
+        var response = await getIt<CommonService>().getExpenseCategories(reset: true);
+        var expenseCategories = response;
+        var categoryList = expenseCategories;
         emit(state.copyWith(
           isLoading: false,
           pop: true,
@@ -406,11 +409,6 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   /// API CALL: SUB CATEGORY EXPENSE TO
   Future<SubCategoriesResponse?> _getSubCategoryExpenseTo() async {
     return await apiRepository.getExpenseTo();
-  }
-
-  /// API CALL: SUB CATEGORY EXPENSE TO
-  Future<CohortsResponse?> _getCategoryData() async {
-    return await apiRepository.getExpenseCategories();
   }
 
   List<dynamic> filterApprovedResponse(

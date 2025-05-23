@@ -148,6 +148,9 @@ class Utils {
       autovalidateMode: autovalidateMode,
       validator: validator,
       builder: (field) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if ((initialSelection != null) && (field.hasError)) field.didChange(initialSelection);
+        });
         var border = OutlineInputBorder(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(topLRadius),
