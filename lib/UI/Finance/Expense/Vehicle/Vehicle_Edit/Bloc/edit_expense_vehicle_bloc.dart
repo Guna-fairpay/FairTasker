@@ -568,7 +568,7 @@ class EditExpenseVehicleBloc extends Bloc<EditExpenseVehicleEvent, EditExpenseVe
     _updateExpenseTotal();
   }
 
-  void _updateExpenseTotal() {
+  void  _updateExpenseTotal() {
     double totalSuppliesCost = 0;
     double totalParts = 0;
     totalParts = partsList

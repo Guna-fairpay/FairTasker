@@ -131,7 +131,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           popAddPagePop: false,
           popEditPage: false,
         )) {
-    if (listenBroadcast) _registerBroadcast();
+    // if (listenBroadcast)
+      _registerBroadcast();
     // else _broadcast.unregister("expense_vehicle_refresh");
     Utils.getStringPreference(Str.userIdPrefText).then((id) {
       resourceId = id;
