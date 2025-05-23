@@ -181,7 +181,6 @@ class _AskPermissionDialogView extends StatelessWidget {
                     foregroundColor: AppC.white,
                     onPressed: () {
                       onNegativePressed?.call();
-                      context.popDialog();
                     },
                   )
                 ],

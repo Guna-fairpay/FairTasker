@@ -448,7 +448,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     on<TaskComponentsInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       try{
-        List<dynamic> resource;
         final response6 = await apiRepository.fetchGetConfiguration();
         final response3 = await apiRepository.getAssignedTo();
         userRole = await Utils.getStringListPreference(Str.rolePrefText);
@@ -456,7 +455,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         if(response6 != null && response3 != null){
           taskComponentsData = response6.data!;
           resources = response3.resource!;
-
+          branchId = branchId == null ? 1 : branchId;
+          log("${branchId} branchid_task_components");
           formattedResources = resources.map((resource) {
             return {
               'id': resource['id'],
@@ -466,13 +466,14 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             };
           }).toList();
 
-          List<Map<String, dynamic>> resource = formattedResources.map((resource) {
+          List<Map<String, dynamic>> resource = resources.map((resource) {
             return {
               'id': resource['id'],
               'full_name': '${resource['full_name']}',
               'first_name': '${resource['first_name']}'
               };
           }).toList();
+
           taskBased = taskComponentsData.where((task) => task['type'] == 'task').toList();
           hourlyBased = taskComponentsData.where((task) => task['type'] == 'hourly').toList();
 
@@ -489,7 +490,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             selectedBase1: base,
             selectedBase: selectedBase,
             resources: formattedResources,
-            resource: resource,
+            resource: resources,
             userList: resources.where((resource) => resource['branch_id'] == branchId).toList(),
             loginUserRole: userRole[0],
               loginUserId: userId,
@@ -546,13 +547,15 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       ];
       final apiResponse = await apiRepository.getAssignedTo();
       var userListData = apiResponse?.resource;
+      log("${userListData} userListData");
       dynamic selectedUser = userListData?.firstWhere(
             (resource) => resource['id'] == event.userId,
         orElse: () => {},
       );
       if (event.userId == null) {
-        taskNameCtrl.text = event.taskName ?? '';
-        amountCtrl.text = event.amount ?? '';
+        log("${event.taskName} ${event.amount} ${event.task} update_event_trigger");
+        taskNameCtrl.text = event.taskName?.toString() ?? '';
+        amountCtrl.text = event.amount?.toString() ?? '';
         dynamic selectedBase = base[0];
         print("Emitting task-based state: selectedUser=null, taskId=${event.id}");
         emit(state.copyWith(
@@ -1120,52 +1123,58 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             }
           }
 
-          try{
+          try {
             for (var task in tasks) {
               String taskTitle = task['title'];
-              String normalizedTaskTitle = taskTitle.replaceAll(RegExp(r'\s*-\s*'), '-');
-              String taskTitleLower = normalizedTaskTitle.toLowerCase();
+              String normalizedTaskTitle = taskTitle.replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
+              String taskTitleLower = normalizedTaskTitle;
               bool matched = false;
 
-              if (taskTitleLower.contains('parts')) {
-                classifiedTasks['Parts']!.add(task);
-                matched = true;
+              for (var category in categoryData) {
+                for (var sub in category['subcategory']) {
+                  String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
+                  if (subTitleLower == taskTitleLower && taskTitleLower != 'parts') {
+                    classifiedTasks[category['title']]?.add(task);
+                    matched = true;
+                    log("Exact match: task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category '${category['title']}'", name: "task_match");
+                    break;
+                  }
+                }
+                if (matched) break;
+              }
+
+              if (!matched && taskTitleLower.contains('parts')) {
+                bool hasExactPartsMatch = false;
                 for (var category in categoryData) {
                   if (category['title'] == 'Parts') {
                     for (var sub in category['subcategory']) {
                       String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
                       if (subTitleLower == taskTitleLower) {
-                        log("Exact match (Parts forced): task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category 'Parts'", name: "task_match");
+                        //log("${sub['sub_title']} == ${taskTitleLower} exact_match_parts", name: "task_match");
+                        hasExactPartsMatch = true;
                         break;
                       }
                     }
                     break;
                   }
                 }
-                if (!matched){}
-              } else {
-                for (var category in categoryData) {
-                  for (var sub in category['subcategory']) {
-                    String subTitleLower = sub['sub_title'].toString().replaceAll(RegExp(r'\s*-\s*'), '-').toLowerCase();
-                    if (subTitleLower == taskTitleLower && taskTitleLower != 'parts') {
-                      classifiedTasks[category['title']]?.add(task);
-                      matched = true;
-                      log("Exact match: task '${taskTitle}' matched with subcategory '${sub['sub_title']}' under category '${category['title']}'", name: "task_match");
-                      break;
-                    }
-                  }
-                  if (matched) break;
+
+                if (!hasExactPartsMatch && task['parent_id'] == null) {
+                  //log("entered_title ${taskTitleLower}");
+                  classifiedTasks['Parts']!.add(task);
+                  //log("Task '${taskTitle}' added to 'Parts' (no exact match, parent_id null)", name: "task_match");
+                  matched = true;
                 }
               }
 
-              if (!matched || event.cohortIds.contains(-1)) {
+              if (!matched) {
                 classifiedTasks['Other'] ??= [];
                 classifiedTasks['Other']!.add(task);
-                log("Task '${taskTitle}' not matched, added to 'Other'", name: "task_unmatched");
+                //log("Task '${taskTitle}' not matched, added to 'Other'", name: "task_unmatched");
               }
             }
-          } catch(e){
-            log("error ${e}",name: "error match by");
+          } catch (e) {
+            log("error ${e}", name: "error match by");
           }
 
           List<Map<String, dynamic>> finalList = [];

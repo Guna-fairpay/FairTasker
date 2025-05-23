@@ -46,8 +46,8 @@ class TaskComponentsSettingView extends StatelessWidget {
         if (state.isLoading) {
           EasyLoading.show();
         } else {
+          log("${state.userList} resource_names");
           if (EasyLoading.isShow) EasyLoading.dismiss();
-          log("${Session.of.getStringList(Str.rolePrefText)?.contains("Admin")}  ${Session.of.getString(Str.userIdPrefText)}", name: "role");
           taskNameController.clear();
           amountController.clear();
           taskNameController.text = state.taskNameController?.text ?? '';
@@ -107,20 +107,22 @@ class TaskComponentsSettingView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 16),
-                        if(Session.of.getString(Str.userIdPrefText) == '3')
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                         Utils.dropdownBox(
                           'Task based',
                           state.selectedBase1,
                           (value) {
                             selectedBases = value;
+                            log("${selectedBases} ${state.selectedBase} selected base");
                             context.read<WorkingHoursBloc>().add(UpdateDropdownValueEvent(value));
                             tabController.animateTo(value['base'] == "Task based" ? 0 : 1);
+                            formKey.currentState!.reset();
                           },
                           labelKey: 'base',
-                          initialSelection: state.selectedBase,
+                          initialSelection:selectedBases ?? state.selectedBase,
                         ),
                         const SizedBox(height: 16),
-                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))...[
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')...[
                           if(!isHourlyBased) ...[
                             Utils.getTextFormField('Task Name',
                                 taskNameController,
@@ -142,7 +144,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                   }),
                             const SizedBox(height: 16),
                           ] else...[
-                            if(Session.of.getString(Str.userIdPrefText) == '3' || isHourlyBased && Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+                            if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                               Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(color: AppC.trans),
@@ -182,7 +184,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             const SizedBox(height: 30),
                           ],
                         ],
-                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+                        if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                         Row(
                           children: [
                             if (!state.isEditMode)

@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Utilities/Str.dart';
@@ -61,38 +63,47 @@ class TaskBasedTab extends StatelessWidget {
             color: Colors.blue.shade100,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),
-              topRight: Radius.circular(4),
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-          child:
-          Table(
-            columnWidths: const {
-              0: FlexColumnWidth(5), // Task name
-              1: FlexColumnWidth(2), // Amount
-              2: FlexColumnWidth(3), // Actions
-            },
-            children:[
-              TableRow(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-                    child: Text('Task Name', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-                    child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
-                  const Padding(
-                    padding: EdgeInsets.only(left: 30, top: 8.0, bottom: 8.0, right: 0),
-                    child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
-          )
+              topRight: Radius.circular(4),)),
+              child: ListTile(
+      leading: Utils.getText("Task Name",weight: FontWeight.bold),title: Utils.getText("Amount",align: TextAlign.center, weight: FontWeight.bold),trailing:(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin")) ? Utils.getText("Action", weight: FontWeight.bold) : Utils.getText(""),)
         ),
+        // Container(
+        //   decoration: BoxDecoration(
+        //     color: Colors.blue.shade100,
+        //     borderRadius: const BorderRadius.only(
+        //       topLeft: Radius.circular(4),
+        //       topRight: Radius.circular(4),
+        //     ),
+        //   ),
+        //   padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        //   child:
+        //   Table(
+        //     columnWidths: const {
+        //       0: FlexColumnWidth(5), // Task name
+        //       1: FlexColumnWidth(2), // Amount
+        //       2: FlexColumnWidth(3), // Actions
+        //     },
+        //     children:[
+        //       TableRow(
+        //         children: [
+        //           const Padding(
+        //             padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+        //             child: Text('Task Name', style: TextStyle(fontWeight: FontWeight.bold)),
+        //           ),
+        //           const Padding(
+        //             padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+        //             child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+        //           ),
+        //           if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
+        //           const Padding(
+        //             padding: EdgeInsets.only(left: 30, top: 8.0, bottom: 8.0, right: 0),
+        //             child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+        //           ),
+        //         ],
+        //       ),
+        //     ],
+        //   )
+        // ),
         Expanded(
           child:
           SingleChildScrollView(
@@ -126,9 +137,9 @@ class TaskBasedTab extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Utils.getText("\$${task['amount']}"),
                           ),
-                          if(Session.of.getString(Str.userIdPrefText) == '3')
+                          if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
                           Padding(
-                            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 15),
+                            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 15),
                             child: Row(
                               children: [
                                 GestureDetector(
@@ -154,17 +165,8 @@ class TaskBasedTab extends StatelessWidget {
                                       context.read<WorkingHoursBloc>().add(
                                           DeleteTaskComponentsEvent(id: task['id'])
                                       );
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Task deleted successfully'),
-                                        ),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Deletion cancelled.'),
-                                        ),
-                                      );
+                                      Toaster.showSuccess("Task deleted successfully");
+                                      context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                                     }
                                   },
                                   child: const Icon(
@@ -198,7 +200,10 @@ class HourlyBasedTab extends StatelessWidget {
   dynamic loginUserRole;
 
   HourlyBasedTab(
-      {super.key, required this.hourlybased, required this.resource, this.loginUserId, this.loginUserRole});
+      {super.key, required this.hourlybased, required this.resource, this.loginUserId, this.loginUserRole}){
+    print("${hourlybased} hourlybased data");
+    print("${resource} resource_data");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,45 +211,55 @@ class HourlyBasedTab extends StatelessWidget {
       Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-            color: Colors.blue.shade100,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              topRight: Radius.circular(4),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+              ),
             ),
-          ),
-          child:
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            child:
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(5), // User name
-                1: FlexColumnWidth(6), // Amount
-                2: FlexColumnWidth(3), // Actions
-              },
-              children: [
-                TableRow(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-                      child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-                      child: Text('Amount/hr', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 9, vertical: 8.0),
-                      child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          )
-        ),
+            child: ListTile(
+              leading: Utils.getText("Name",weight: FontWeight.bold),title: Utils.getText("Amount/hr",align: TextAlign.center, weight: FontWeight.bold),trailing:(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin")) ? Utils.getText("Action", weight: FontWeight.bold) : Utils.getText(""),)),
+        // Container(
+        //   decoration: BoxDecoration(
+        //     color: Colors.blue.shade100,
+        //     borderRadius: const BorderRadius.only(
+        //       topLeft: Radius.circular(4),
+        //       topRight: Radius.circular(4),
+        //     ),
+        //   ),
+        //   child:
+        //   Padding(
+        //     padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        //     child:
+        //     Table(
+        //       columnWidths: const {
+        //         0: FlexColumnWidth(5), // User name
+        //         1: FlexColumnWidth(6), // Amount
+        //         2: FlexColumnWidth(3), // Actions
+        //       },
+        //       children: [
+        //         TableRow(
+        //           children: [
+        //             const Padding(
+        //               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+        //               child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+        //             ),
+        //             const Padding(
+        //               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+        //               child: Text('Amount/hr', style: TextStyle(fontWeight: FontWeight.bold)),
+        //             ),
+        //             if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
+        //             const Padding(
+        //               padding: EdgeInsets.symmetric(horizontal: 9, vertical: 8.0),
+        //               child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
+        //             ),
+        //           ],
+        //         ),
+        //       ],
+        //     ),
+        //   )
+        // ),
         Expanded(
           child:
           SingleChildScrollView(
@@ -272,7 +287,7 @@ class HourlyBasedTab extends StatelessWidget {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Utils.getText("${resource?.where((user) => user['id'] == task['user_id']).first['full_name'] ?? ''}"),
+                            child: Utils.getText("${resource?.firstWhereOrNull((user) => user['id'] == task['user_id'])?['full_name']?.toString() ?? ''}"),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -309,19 +324,8 @@ class HourlyBasedTab extends StatelessWidget {
                                       context.read<WorkingHoursBloc>().add(
                                           DeleteTaskComponentsEvent(
                                               id: task['id']));
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Task deleted successfully')
-                                        ),
-                                      );
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                            Text('Deletion cancelled.')),
-                                      );
+                                      Toaster.showSuccess("Task deleted successfully");
+                                      context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                                     }
                                   },
                                   child: const Icon(

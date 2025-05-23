@@ -2922,7 +2922,7 @@ Future<Map<String, dynamic>?> getLocations() async {
 
       // Append cohort IDs only if they are not null or empty
       if (cohortIds != null && cohortIds.isNotEmpty) {
-        String cohortQuery = cohortIds.map((id) => 'cohort_id[]=$id').join('&');
+        String cohortQuery = cohortIds.map((id) => 'cohort_id[]=${id == -1 ? null : id}').join('&');
         apiUrl += '&$cohortQuery';
       }
 

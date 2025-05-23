@@ -86,7 +86,6 @@ class WorkHoursViewUI extends StatelessWidget {
               startDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.start);
               endDate = DateFormat('yyyy-MM-dd').format(state.selectedDateRange!.end);
               dates = generateDateList(startDate, endDate);
-              log("${state.loginUserRole}" , name: "login_role");
             }
           },
           child:
@@ -338,14 +337,13 @@ class WorkHoursViewUI extends StatelessWidget {
                           ) ?
                           (selectedName['full_name'] == 'All')
                               ? state.combinedData
+                              :  state.combinedData?.where((item) {
+                                return item['user_id'] == selectedName['id'];
+                              }).toList() ?? []
                               : state.combinedData?.where((item) {
                                 return
-                                  item['user_id'] == selectedName['id'];}).toList() ?? []
-                              : state.combinedData?.where((item) {
-                                return
-                                  item['user_id'].toString().trim() == state.loginUserId.toString().trim();
+                                  item['user_id'].toString().trim() == Session.of.getString(Str.userIdPrefText).toString().trim();
                               }).toList() ?? [];
-
                           if ((dataList ?? []).isEmpty) {
                             return const SizedBox.shrink();
                           }

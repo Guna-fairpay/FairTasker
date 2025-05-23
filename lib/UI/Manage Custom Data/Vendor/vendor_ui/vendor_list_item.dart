@@ -127,9 +127,10 @@ class VendorListItem extends TableRow {
                   positiveText: 'Yes, Delete it!',
                   negativeText: 'Cancel',
                   isReasonRequired: false,
-                  onPositivePressed: () => context
-                      .read<VendorDataBloc>()
-                      .add(DeleteVendorEvent(id: vendor['id'])),
+                  onPositivePressed: () {
+                    context.read<VendorDataBloc>().add(DeleteVendorEvent(id: vendor['id']));
+                    context.read<VendorDataBloc>().add(ExitEditModeEvent());
+                  }
                 );
               },
               icon: const Icon(
