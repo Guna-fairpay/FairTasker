@@ -50,13 +50,13 @@ class TaskIdentifier extends StatelessWidget {
   ValueNotifier<bool> showEmptyNotifier = ValueNotifier(false);
 
   void initState() {
-    Console.of.log("INITSTATE");
+    // Console.of.log("INITSTATE");
     updateCommonList();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => _listenNotifiers());
   }
 
   void _listenNotifiers() {
-    Console.of.log("LISTEN_NOTIFIERS");
+    // Console.of.log("LISTEN_NOTIFIERS");
     if ((selected != null) && (selected?.isNotEmpty ?? false)) {
       if (selected![1] != null) selectedList[1] = selected![1];
       if (selected![2] != null) selectedList[2] = selected![2];
@@ -78,10 +78,10 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void _setValue() {
-    Console.of.log(formatMapData(selectedList), name: "TaskIdentifier");
+    // Console.of.log(formatMapData(selectedList), name: "TaskIdentifier");
      taskIdentifierController.text = formatMapData(selectedList);
      taskIdentifierController.value.copyWith(selection: TextSelection.collapsed(offset:  formatMapData(selectedList).length - 1));
-     Console.of.log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
+     // Console.of.log("${_isHavingHypen()} ${taskIdentifierController.text}", name: "TaskIdentifier");
     // _onSearch(taskIdentifierController.value);
   }
 
@@ -92,14 +92,27 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   String formatMapData(Map<int, dynamic> mapData) {
+    var data = Map<int, dynamic>.from(mapData);
+    var dummyValue = {"name" : ""};
+    if ((data.keys.length > 1) || (!data.keys.contains(1))) {
+      if (!data.containsKey(1)) {
+        data[1] = dummyValue;
+      }
+      if (!data.containsKey(2)) {
+        data[2] = dummyValue;
+      }
+      if (!data.containsKey(3)) {
+        data[3] = dummyValue;
+      }
+    }
     List<String> names = [];
     // Sorting the map by keys
-    var sortedEntries = mapData.entries.toList()
+    var sortedEntries = data.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
 
+    // Console.of.log(sortedEntries.map((e) => e.key), name: "TaskIdentifier");
     // Convert back to a Map
     Map sortedMap = Map.fromEntries(sortedEntries);
-
 
     // Extract names from mapData
     sortedMap.forEach((key, value) {
@@ -133,7 +146,7 @@ class TaskIdentifier extends StatelessWidget {
           labelText: "Task Identifier",
           onEmptyWidgetTap: () => context.push(TaskMainPage(title: taskIdentifierController.text), fullscreenDialog: true),
           onSelected: (value) {
-            Console.of.log("onSelected ${value.isNotEmpty}", name: "TaskIdentifier");
+            // Console.of.log("onSelected ${value.isNotEmpty}", name: "TaskIdentifier");
             selectedList[value['partNumber']] = value;
             onSelected?.call(selectedList);
             Utils.dismissKeyboard(context);
@@ -150,7 +163,7 @@ class TaskIdentifier extends StatelessWidget {
     var val = taskIdentifierController.text;
     if (val.isEmpty) {
       selectedList.clear();
-      Console.of.log("EMITTING 1", name: "TaskIdentifier");
+      // Console.of.log("EMITTING 1", name: "TaskIdentifier");
       if (selected?.isNotEmpty ?? false) onSelected?.call({});
       showEmptyNotifier.value = false;
       return [];
@@ -229,7 +242,7 @@ class TaskIdentifier extends StatelessWidget {
     inputParts.forEachIndexed((index, element) {
       if (element.isEmpty) selectedList.remove(index+1);
     });
-    Console.of.log("PART-NUMBER: $partNumber CURSOR: $cursorPosition INPUT-PARTS: $inputParts", name: "TASK_IDENTIFIER");
+    // Console.of.log("PART-NUMBER: $partNumber CURSOR: $cursorPosition INPUT-PARTS: $inputParts", name: "TASK_IDENTIFIER");
     _debounce?.cancel();
     _debounce = Timer(Durations.extralong4, updateToFunction);
     var inputted = (taskIdentifierController.text.split("-"));
@@ -243,7 +256,7 @@ class TaskIdentifier extends StatelessWidget {
       ].contains(element));
     }
     if (inputParts.length > 3) commonList.clear();
-    Console.of.log("$omitted ${omitted.length}", name: "TASK_IDENTIFIER");
+    // Console.of.log("$omitted ${omitted.length}", name: "TASK_IDENTIFIER");
     var list = commonList.where((element) => !omitted.contains(element['name'])).where((element) => isExist(element, typedPart) ).toList();
     return ((omitted.length == 3) || (selectedList.values.map((e) => e['name']) == inputted)) ? [] : list;
   }
@@ -255,7 +268,7 @@ class TaskIdentifier extends StatelessWidget {
   List<SearchFieldListItem<Map<String, dynamic>>>? onSearchOld(String val) {
     if (val.isEmpty) {
       selectedList.clear();
-      Console.of.log("EMITTING 2", name: "TaskIdentifier");
+      // Console.of.log("EMITTING 2", name: "TaskIdentifier");
       onSelected?.call({});
     }
     var inputValue = val.toLowerCase();
@@ -343,14 +356,16 @@ class TaskIdentifier extends StatelessWidget {
   }
 
   void updateToFunction() {
-    Console.of.log("PART NUMBER #$partNumber ${_inputParts}", name: "TASK_IDENTIFIER");
+    // Console.of.log("PART NUMBER #$partNumber ${_inputParts}", name: "TASK_IDENTIFIER");
     var currentText = taskIdentifierController.text;
     var formattedText = formatMapData(selectedList);
     log("${selected != selectedList} ${formattedText.length > taskIdentifierController.text.length}", name: "updateToFunction");
     if (_previousText.isNotEmpty && currentText.length < _previousText.length) {
+      // Console.of.log("REMOVING PART NUMBER #$partNumber ${_inputParts} ${selectedList.containsKey(3)} ${selected?.containsKey(3)}", name: "TASK_IDENTIFIER_REMOVING");
       log("Removing chars",name: "updateToFunction");
-      Console.of.log("EMITTING 3", name: "TaskIdentifier");
-      onSelected?.call(selectedList);
+      // Console.of.log("EMITTING 3", name: "TaskIdentifier");
+      // if ((partNumber == 3) || (!selectedList.containsKey(3))) onSelected?.call(selectedList);
+      if ((selected?.containsKey(3) ?? false) && (!selectedList.containsKey(3))) onSelected?.call(selectedList);
     }
     _previousText = currentText;
   }

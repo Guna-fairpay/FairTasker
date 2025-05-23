@@ -1,7 +1,6 @@
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +30,8 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
     var border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(Num.borderRadius),
       borderSide:
-          const BorderSide(color: AppC.fieldBase, width: Num.borderWidthField),
+          const BorderSide(color: AppC.fieldBase, width: Num.borderWidthButton),
     );
-    Console.of.log(initialSelection, name: "CompactDropDown");
     return DropdownMenu<T>(
       key: key,
       initialSelection: initialSelection,
@@ -48,6 +46,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
         isCollapsed: true,
         border: border,
         isDense: true,
+        constraints: BoxConstraints(maxHeight: 35.sp)
       ),
       menuStyle: MenuStyle(
         backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
