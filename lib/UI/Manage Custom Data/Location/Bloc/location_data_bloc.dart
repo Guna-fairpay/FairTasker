@@ -125,7 +125,17 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
       emit(const LocationDataLoading());
       final response = await apiRepository.delete(event.id);
       if (response == true) {
-        add(const GetAddedLocationListData());
+        location.removeWhere((element) => element['id'] == event.id);
+        location.sort((a, b) => DateTime.parse(b['created_at'])
+            .compareTo(DateTime.parse(a['created_at'])));
+
+        filterPage = paginateList(
+            data: location,
+            currentPage: currentIndex,
+            itemsPerPage: itemsPerPage);
+        totalCount = location.length;
+        if ((event.id == locationId)) add(ExitEditModeEvent());
+        // add(const GetAddedLocationListData());
         _broadcast.broadcast(Str.addToDoRefresh);
         _broadcast.broadcast(Str.editToDoRefresh);
         _broadcast.broadcast(Str.refetchVendorLocation);
@@ -224,6 +234,7 @@ class LocationDataBloc extends Bloc<LocationDataEvent, LocationDataState> {
 
     on<ExitEditModeEvent>((event, emit) {
       isEditMode = false;
+      locationId = null;
       selectedAddressIndex = null;
       locationController.clear();
       addressController.clear();
