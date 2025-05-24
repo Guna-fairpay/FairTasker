@@ -345,6 +345,8 @@ class APiRepository {
 
   String get _getWorkingHours => "getWorkingHours";
 
+  String get _employeeTaskCount => "employeeTaskCount";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3116,27 +3118,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<PunchlistResponse?> fetchPunchList() async
+  Future<List<Map<String, dynamic>>?> getWorkingHours() async
   {
     try{
-      final String apiUrl = '${Str.GOPORTAL_BASE_URL}getWorkingHours';
+      final String apiUrl = '${Str.GOPORTAL_BASE_URL}$_getWorkingHours';
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
-      print("Api URL $apiUrl");
-      if(response != null){
-        if(response.statusCode == 200 ) {
-          PunchlistResponse punchlistResponse = PunchlistResponse.fromJson(jsonDecode(response.body));
-          return punchlistResponse;
-        } else {
-          throw Exception(
-              'Failed to load . Status code: ${response.statusCode}');
-        }
-      } else {
-        log('API Response is null');
-      }
+      return List.from((await response?.mapData)?['data'] ?? []);
     } catch (e) {
-      throw Exception('Error fetching : $e');
+      rethrow;
     }
-    return null;
   }
   //
 
@@ -3661,6 +3651,26 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_tollExport";
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, infusedFiles: infusedFile);
+      if (response?.isSuccess == true) {
+        var mapData = await response.mapData;
+        return mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> employeeTaskCount({required dynamic userId, required DateTime? from, required DateTime? to})async{
+    try {
+      String apiUrl = "${Str.BASE_URL}$_employeeTaskCount";
+      Map<String, dynamic> params = {
+        "user_id" : userId,
+        "from" : from.toFormat(),
+        "to" : to.toFormat(),
+      };
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       if (response?.isSuccess == true) {
         var mapData = await response.mapData;
         return mapData;

@@ -72,7 +72,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             final response3 = await apiRepository.getAssignedTo();
             final response4 = await apiRepository.getWorkingHoursData(extractDate(event.minDate), extractDate(event.maxDate));
             final response5 = await apiRepository.getWorkingHistoryCount(extractDate(event.minDate), extractDate(event.maxDate));
-            final response6 = await apiRepository.fetchPunchList();
+            final response6 = await apiRepository.getWorkingHours();
             if (response2 != null && response3 != null && response4 != null && response5 != null && response6 != null) {
               workingHistory.clear();
               workingHistory = response5.history!;//1
@@ -83,7 +83,8 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
               workActiveHours.clear();
               workActiveHours = response2.data!;//4
 
-              List<Map<String, dynamic>> punchListData = response6.data ?? [];
+              // List<Map<String, dynamic>> punchListData = response6.data ?? [];
+              List<Map<String, dynamic>> punchListData = response6 ?? [];
               DateTime startDate = DateTime.parse(event.minDate);
               DateTime endDate = DateTime.parse(event.maxDate);
 

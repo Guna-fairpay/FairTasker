@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart' show DateRange;
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
@@ -28,4 +29,16 @@ extension DynoExtension on Object? {
     if (this is! String) return;
     await OpenFile.open((this as String));
 }
+}
+
+extension DateRangeExtension on DateRange? {
+
+  String toFormat({String format = "dd MMM yyyy", String splitter = " - "}) {
+    if (this == null) return "";
+    List<String> dates = [
+      (this!.start.toFormat(format: format) ?? ""),
+      (this!.end.toFormat(format: format) ?? "")
+    ];
+    return dates.join(splitter);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -34,11 +35,12 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
     );
     return DropdownMenu<T>(
       key: key,
-      initialSelection: initialSelection,
+      initialSelection: items?.firstWhereOrNull((element) => const DeepCollectionEquality().equals(initialSelection, element)),
       hintText: hintText,
       helperText: helperText,
       enableSearch: (controller != null),
       textStyle: context.textTheme.labelLarge?.copyWith(overflow: TextOverflow.ellipsis),
+      menuHeight: context.height * 0.3,
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: context.textTheme.labelMedium?.copyWith(color: AppC.grey),
         contentPadding: EdgeInsets.symmetric(horizontal: 10.sp),
