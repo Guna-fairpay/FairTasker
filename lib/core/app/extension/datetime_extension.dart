@@ -1,6 +1,6 @@
 import 'package:fairpytasker/core/app/extension/int_extension.dart';
 import 'package:intl/intl.dart';
-import 'package:timeagoago/timeagoago.dart' as timeago;
+import 'package:timeago/timeago.dart' as timeago;
 
 extension DatetimeExtension on DateTime? {
 

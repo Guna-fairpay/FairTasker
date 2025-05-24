@@ -9,12 +9,16 @@ class CompactAlertDialog extends StatelessWidget {
   final String? titleText;
   final Color? titleColor;
   final Widget? content;
+  final FontWeight? titleFontWeight;
+  final TextStyle? titleTextStyle;
   final TextDirection textDirection;
   final VoidCallback? onCloseDialog;
 
   const CompactAlertDialog(
       {super.key,
       this.textDirection = TextDirection.ltr,
+      this.titleFontWeight,
+      this.titleTextStyle,
       this.onCloseDialog,
       this.titleText,
       this.titleColor,
@@ -33,8 +37,7 @@ class CompactAlertDialog extends StatelessWidget {
         textDirection: textDirection,
         child: ListTile(
           title: (titleText.isNotNullOrEmpty) ? Text("$titleText") : null,
-          titleTextStyle:
-              context.textTheme.titleMedium?.copyWith(color: titleColor),
+          titleTextStyle: titleTextStyle ?? context.textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: titleFontWeight),
           trailing: GestureDetector(
             onTap: () {
               onCloseDialog?.call();

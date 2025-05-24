@@ -182,7 +182,7 @@ bool get isNullOrEmpty => (this == null) || (this?.isEmpty ?? false) || (this ==
         return 0;
     }
 
-    return hours * 60 + minutes + (seconds / 60).round();
+    return hours * 60 + minutes + (seconds / 60).toInt();
   }
 
   String get removeNextLines {

@@ -19,3 +19,12 @@ class DateRangeChangedEvent extends ResourceCheckInOutEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ViewHoursDetailsEvent extends ResourceCheckInOutEvent {
+  final dynamic model;
+  ViewHoursDetailsEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class TaskComponentEvent extends ResourceCheckInOutEvent {}

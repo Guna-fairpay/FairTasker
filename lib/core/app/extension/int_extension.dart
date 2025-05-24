@@ -23,4 +23,10 @@ extension IntExtension on int {
         return 'th';
     }
   }
+
+  String get minutesToHM {
+    final hours = this ~/ 60;
+    final minutes = this % 60;
+    return '${hours}h ${minutes}m';
+  }
 }

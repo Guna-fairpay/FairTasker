@@ -24,3 +24,13 @@ class SuccessState extends ResourceCheckInOutState {
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class ViewHoursDetailsState extends ResourceCheckInOutState {
+  final dynamic model;
+  final DateRange? dateRange;
+  ViewHoursDetailsState(this.model, this.dateRange);
+  @override
+  List<Object?> get props => [model, dateRange, Random().nextDouble()];
+}
+
+class TaskComponentState extends ResourceCheckInOutState {}

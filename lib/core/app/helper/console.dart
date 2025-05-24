@@ -15,8 +15,8 @@ class Console {
   );
   void log(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
+      developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
         _logger.i("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }

@@ -4,6 +4,7 @@ import 'package:fairpytasker/State/header_states.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/resource_ui.dart';
 import 'package:fairpytasker/UI/dialog/popup/branch_popup.dart';
 import 'package:fairpytasker/UI/log/log_ui.dart';
+import 'package:fairpytasker/UI/resource/resource_main/resource_check_in_out_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -72,9 +73,23 @@ class HeaderView extends StatelessWidget {
               BlocSelector<HeaderBloc, HeaderState, HeaderState>(
                 selector: (state) => state,
                 builder: (context, state) => GestureDetector(
-                  onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
+                  onTap: () => context.push(const ResourceCheckInOutUi(), fullscreenDialog: true),
+                  // onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
                   child: Container(
                     decoration: Utils.getBoxDecoration(),
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    child: Utils.getText(' ${context.watch<HeaderBloc>().checkInCount}/${context.watch<HeaderBloc>().checkOutCount} '),
+                  ),
+                ),
+              ),
+              if (kDebugMode)
+              BlocSelector<HeaderBloc, HeaderState, HeaderState>(
+                selector: (state) => state,
+                builder: (context, state) => GestureDetector(
+                  // onTap: () => context.push(const ResourceCheckInOutUi(), fullscreenDialog: true),
+                  onTap: () => context.push(WorkHoursViewUI(), fullscreenDialog: true),
+                  child: Container(
+                    decoration: Utils.getBoxDecoration(bgColor: Colors.orange),
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                     child: Utils.getText(' ${context.watch<HeaderBloc>().checkInCount}/${context.watch<HeaderBloc>().checkOutCount} '),
                   ),
