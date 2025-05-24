@@ -175,9 +175,9 @@ class TaskComponentsSettingView extends StatelessWidget {
                           children: [
                             if (!state.isEditMode)
                               Utils.getAddFilledButton("Save", () {
-                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
                                 if (state.selectedBase['base'] == 'Task based' || context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty) {
-                                  FocusScope.of(context).unfocus();
+                                  context.read<WorkingHoursBloc>().add(const ExitEditModeEvent(task: 'task'));
+                                  Utils.dismissKeyboard(context);
                                   if(formKey.currentState!.validate() && context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty && context.read<WorkingHoursBloc>().amountController.text.isNotEmpty) {
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
                                         taskName: context.read<WorkingHoursBloc>().taskNameController.text.toString(),
@@ -188,6 +188,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                   }
                                 } else {
                                   if (formKey.currentState!.validate() && context.read<WorkingHoursBloc>().hourlyAmountController.text.isNotEmpty) {
+                                    context.read<WorkingHoursBloc>().add(const ExitEditModeEvent(task: 'hourly'));
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
                                       taskName: '',
                                       amount: context.read<WorkingHoursBloc>().hourlyAmountController.text,
@@ -229,7 +230,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                 resource = null;
                                 //context.read<WorkingHoursBloc>().add(ResetResourceEvent());
                                 //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 1));
-                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent(task: state.selectedBase['base'] == 'Task based' ? 'task' : 'hourly'));
                               }, bgColor: AppC.red),
                           ],
                         ),
@@ -268,7 +269,6 @@ class TaskComponentsSettingView extends StatelessWidget {
                           Globalkey: formKey,
                           taskbased: state.taskBased,
                           hourlybased: state.hourlyBased,
-                          selectedBases: selectedBases,
                           resource: state.resources,
                             loginUserId: state.loginUserId,
                             loginUserRole: state.loginUserRole,

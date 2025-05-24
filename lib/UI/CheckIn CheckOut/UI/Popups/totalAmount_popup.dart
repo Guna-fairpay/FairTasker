@@ -12,13 +12,13 @@ void showHoursSummaryPopup(BuildContext context, {
   showDialog(
     context: context,
     builder: (context) => Align(
-      alignment: Alignment.topCenter,  // Position at the top
+      alignment: Alignment.topCenter,
       child: Material(
-        type: MaterialType.transparency,  // Make background transparent
+        type: MaterialType.transparency,
         child: Container(
-          margin: const EdgeInsets.only(top: 50),  // Adjust for top position
+          margin: const EdgeInsets.only(top: 50),
           padding: const EdgeInsets.all(16),
-          width: MediaQuery.of(context).size.width * 0.95,  // Responsive width
+          width: MediaQuery.of(context).size.width * 0.95,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
@@ -155,8 +155,7 @@ Map<String, dynamic> _calculateTotals(
     List<Map<String, dynamic>> taskData,
     List<Map<String, dynamic>> paymentData,
     String name,
-    )
-{
+    ) {
   final tasks = <Map<String, dynamic>>[];
   int totalAmount = 0;
   int totalCount = 0;
@@ -167,6 +166,7 @@ Map<String, dynamic> _calculateTotals(
   };
 
   final taskGroups = <String, Map<String, dynamic>>{};
+  int otherTaskCount = 0;
 
   for (final category in taskData) {
     final subcategories = category['subcategory'] as List<dynamic>? ?? [];
@@ -174,24 +174,21 @@ Map<String, dynamic> _calculateTotals(
     for (final subcategory in subcategories) {
       final taskName = subcategory['sub_title']?.toString() ?? '';
       final count = _toInt(subcategory['count']);
-
       String? matchedTask;
+
       if (paymentMap.containsKey(taskName)) {
         matchedTask = taskName;
-        print("Matched Task: $matchedTask");
-      }
-      else {
+      } else {
         for (final paymentTask in paymentMap.keys) {
-          print("Checking paymentTask: $paymentTask");
-          if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
+          if (paymentTask != null &&
+              taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
             matchedTask = paymentTask;
             break;
-          } else {
-            matchedTask = paymentTask;
           }
         }
       }
-      if (matchedTask != null) {
+
+      if (matchedTask != null && paymentMap.containsKey(matchedTask)) {
         final amount = paymentMap[matchedTask];
         final key = matchedTask;
 
@@ -204,13 +201,24 @@ Map<String, dynamic> _calculateTotals(
           'count': count,
           'amount': amount! * count,
         });
+      } else {
+        otherTaskCount += count;
       }
     }
   }
 
+  if (otherTaskCount > 0) {
+    final otherTaskAmount = paymentMap['Other task'] ?? 0;
+    taskGroups['Other task'] = {
+      'name': 'Other task',
+      'count': otherTaskCount,
+      'amount': otherTaskCount * otherTaskAmount,
+    };
+  }
+
   tasks.addAll(taskGroups.values);
-  totalAmount = tasks.fold(0, (int sum, task) => sum + (task['amount'] as int));
-  totalCount = tasks.fold(0, (int sum, task) => sum + (task['count'] as int));
+  totalAmount = tasks.fold(0, (sum, task) => sum + (task['amount'] as int));
+  totalCount = tasks.fold(0, (sum, task) => sum + (task['count'] as int));
 
   return {
     'tasks': tasks,
@@ -218,8 +226,8 @@ Map<String, dynamic> _calculateTotals(
     'totalCount': totalCount,
     'name': name,
   };
-
 }
+
 
 int _toInt(dynamic value) {
   if (value is int) return value;

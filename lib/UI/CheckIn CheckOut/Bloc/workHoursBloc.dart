@@ -524,11 +524,11 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           if(updateId == deleteId){
             if(event.task == 'task'){
               updateBase = base[0];
-              add(ExitEditModeEvent());
+              add(ExitEditModeEvent(task: 'task'));
               taskBased.removeWhere((task) => task['id'] == event.id);
               emit(state.copyWith(taskBased: taskBased, selectedBase: base[0]));
             } else {
-              add(ExitEditModeEvent());
+              add(ExitEditModeEvent(task: 'hourly'));
               updateBase = base[1];
               taskBased.removeWhere((task) => task['id'] == event.id);
               emit(state.copyWith(hourlyBased: hourlyBased, selectedBase: base[1]));
@@ -730,7 +730,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
       emit(state.copyWith(
         isLoading: false,
         isEditMode: false,
-        selectedBase: (deleteBase != 'task' ? {"id": 2, "base": "Hour based"} : {"id": 1, "base": "Task based"}), // Force back to Task based
+        selectedBase:(event.task == 'task' ? {"id": 1, "base": "Task based"} : {"id": 2, "base": "Hour based"}),
         isHourlyBased: state.isHourlyBased,
         userId: null,
         selectedUser: null,
@@ -739,7 +739,6 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         hourlyAmountController: hourlyAmountCtrl,
         uniqueId: UniqueKey().toString(),
       ));
-      print("Exit edit mode: selectedUser reset to null at ${DateTime.now()}");
     });
 
     on<TaskDateChangeEvent>((event, emit) =>
@@ -1301,8 +1300,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
         Map<String, dynamic> _calculateTotals(
             List<Map<String, dynamic>> taskData,
             List<Map<String, dynamic>> paymentData,
-            )
-        {
+            ) {
           final tasks = <Map<String, dynamic>>[];
           int totalAmount = 0;
           int totalCount = 0;
@@ -1313,6 +1311,7 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
           };
 
           final taskGroups = <String, Map<String, dynamic>>{};
+          int otherTaskCount = 0;
 
           for (final category in taskData) {
             final subcategories = category['subcategory'] as List<dynamic>? ?? [];
@@ -1320,22 +1319,21 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
             for (final subcategory in subcategories) {
               final taskName = subcategory['sub_title']?.toString() ?? '';
               final count = _toInt(subcategory['count']);
-
               String? matchedTask;
+
               if (paymentMap.containsKey(taskName)) {
                 matchedTask = taskName;
-              }
-              else {
+              } else {
                 for (final paymentTask in paymentMap.keys) {
-                  if (paymentTask != null && taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
+                  if (paymentTask != null &&
+                      taskName.toLowerCase().contains(paymentTask.split('/')[0].toLowerCase())) {
                     matchedTask = paymentTask;
                     break;
-                  } else {
-                    matchedTask = paymentTask;
                   }
                 }
               }
-              if (matchedTask != null) {
+
+              if (matchedTask != null && paymentMap.containsKey(matchedTask)) {
                 final amount = paymentMap[matchedTask];
                 final key = matchedTask;
 
@@ -1348,20 +1346,28 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
                   'count': count,
                   'amount': amount! * count,
                 });
+              } else {
+                otherTaskCount += count;
               }
             }
           }
 
+          if (otherTaskCount > 0) {
+            final otherTaskAmount = paymentMap['Other task'] ?? 0;
+            taskGroups['Other task'] = {
+              'name': 'Other task',
+              'count': otherTaskCount,
+              'amount': otherTaskCount * otherTaskAmount,
+            };
+          }
+
           tasks.addAll(taskGroups.values);
-          totalAmount = tasks.fold(0, (int sum, task) => sum + (task['amount'] as int));
-          totalCount = tasks.fold(0, (int sum, task) => sum + (task['count'] as int));
+          totalAmount = tasks.fold(0, (sum, task) => sum + (task['amount'] as int));
+          totalCount = tasks.fold(0, (sum, task) => sum + (task['count'] as int));
 
           return {
-            'tasks': tasks,
             'totalAmount': totalAmount,
-            'totalCount': totalCount,
           };
-
         }
         int totalAmount = _calculateTotals(taskData, data!.data ?? [])['totalAmount'];
         //Total amount calculation End

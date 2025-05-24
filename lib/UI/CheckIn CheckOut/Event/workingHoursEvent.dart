@@ -79,7 +79,12 @@ class TaskDateChangeEvent extends WorkingHoursEvent {
 
 class EnterEditModeEvent extends WorkingHoursEvent {}
 
-class ExitEditModeEvent extends WorkingHoursEvent {}
+class ExitEditModeEvent extends WorkingHoursEvent {
+  final String? task;
+  const ExitEditModeEvent({this.task});
+  @override
+  List<Object?> get props => [task];
+}
 
 class ResetResourceEvent extends WorkingHoursEvent {}
 

@@ -14,7 +14,6 @@ class TaskTabsView extends StatelessWidget {
   final List<Map<String, dynamic>> hourlybased;
   final List<Map<String, dynamic>>? resource;
   String? loginUserId;
-  dynamic selectedBases;
   dynamic loginUserRole;
   final Globalkey;
 
@@ -23,7 +22,6 @@ class TaskTabsView extends StatelessWidget {
     required this.Globalkey,
     required this.taskbased,
     required this.hourlybased,
-    required this.selectedBases,
     this.resource, required this.loginUserId, required this.loginUserRole,
   });
 
@@ -34,7 +32,7 @@ class TaskTabsView extends StatelessWidget {
       child: TabBarView(
         controller: tabController,
         children: [
-          TaskBasedTab(taskbased: taskbased, selectedBases: selectedBases, loginUserId: loginUserId, loginUserRole: loginUserRole, Globalkey: Globalkey),
+          TaskBasedTab(taskbased: taskbased, loginUserId: loginUserId, loginUserRole: loginUserRole, Globalkey: Globalkey),
           HourlyBasedTab(hourlybased: hourlybased, resource: resource, loginUserId: loginUserId, loginUserRole: loginUserRole, Globalkey: Globalkey),
         ],
       ),
@@ -44,322 +42,299 @@ class TaskTabsView extends StatelessWidget {
 
 class TaskBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>> taskbased;
-  dynamic selectedBases;
-  String? loginUserId;
-  dynamic loginUserRole;
+  final String? loginUserId;
+  final dynamic loginUserRole;
   final Globalkey;
 
-  TaskBasedTab({
+  const TaskBasedTab({
     super.key,
-    required this.Globalkey,
     required this.taskbased,
-    required this.selectedBases,
     this.loginUserId,
-    this.loginUserRole
+    this.loginUserRole,
+    required this.Globalkey,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.blue.shade100,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              topRight: Radius.circular(4),)),
-              child: ListTile(
-      leading: Utils.getText("Task Name",weight: FontWeight.bold),title: Utils.getText("Amount",align: TextAlign.center, weight: FontWeight.bold),trailing:(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin")) ? Utils.getText("Action", weight: FontWeight.bold) : Utils.getText(""),)
-        ),
-        // Container(
-        //   decoration: BoxDecoration(
-        //     color: Colors.blue.shade100,
-        //     borderRadius: const BorderRadius.only(
-        //       topLeft: Radius.circular(4),
-        //       topRight: Radius.circular(4),
-        //     ),
-        //   ),
-        //   padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-        //   child:
-        //   Table(
-        //     columnWidths: const {
-        //       0: FlexColumnWidth(5), // Task name
-        //       1: FlexColumnWidth(2), // Amount
-        //       2: FlexColumnWidth(3), // Actions
-        //     },
-        //     children:[
-        //       TableRow(
-        //         children: [
-        //           const Padding(
-        //             padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-        //             child: Text('Task Name', style: TextStyle(fontWeight: FontWeight.bold)),
-        //           ),
-        //           const Padding(
-        //             padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-        //             child: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
-        //           ),
-        //           if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
-        //           const Padding(
-        //             padding: EdgeInsets.only(left: 30, top: 8.0, bottom: 8.0, right: 0),
-        //             child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-        //           ),
-        //         ],
-        //       ),
-        //     ],
-        //   )
-        // ),
-        Expanded(
-          child:
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Center(
-                  child:
-                  Table(
-                    columnWidths: const {
-                      0: FlexColumnWidth(4), // Task name
-                      1: FlexColumnWidth(2), // Amount
-                      2: FlexColumnWidth(2), // Actions
-                    },
-                    border: const TableBorder(
-                      bottom: BorderSide(color: Colors.black26, width: 0.2),
-                    ),
-                    children: taskbased.map((task) {
-                      return TableRow(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            bottom: BorderSide(color: Colors.black, width: 0.2),
-                          ),
-                        ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Utils.getText("${task['task_name']}"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Utils.getText("\$${task['amount']}"),
-                          ),
-                          if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 15),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Globalkey.currentState!.reset();
-                                    context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
-                                    context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
-                                      id: task['id'],
-                                      taskName: task['task_name'],
-                                      amount: task['amount'],
-                                      task: 'task'
-                                    ));
-                                    // context.read<WorkingHoursBloc>().amountController.text = task['amount'].toString();
-                                    // context.read<WorkingHoursBloc>().taskNameController.text = task['task_name'].toString();
-                                  },
-                                  child: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 20,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                GestureDetector(
-                                  onTap: () async {
-                                    final confirm = await showCustomDeleteDialog(context);
-                                    if (confirm == true) {
-                                      context.read<WorkingHoursBloc>().add(
-                                          DeleteTaskComponentsEvent(id: task['id'], task: "task")
-                                      );
-                                      Toaster.showSuccess("Task deleted successfully");
-                                    }
-                                  },
-                                  child: const Icon(
-                                    Icons.delete_outline,
-                                    size: 20,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ),
-      ],
+    final isAdmin = Session.of.getString(Str.userIdPrefText) == '3' ||
+        Session.of.getString(Str.userIdPrefText) == '2';
+
+    return buildTaskBasedTable(
+      context,
+      taskbased,
+      isAdmin,
+      Globalkey,
     );
   }
+}
+
+Widget buildTaskBasedTable(
+    BuildContext context,
+    List<Map<String, dynamic>> taskbased,
+    bool isAdmin,
+    final Globalkey,
+    ) {
+  return Table(
+    columnWidths: {
+      0: const FlexColumnWidth(1),
+      1: const FlexColumnWidth(1),
+      if (isAdmin) 2: const FlexColumnWidth(0.5),
+    },
+    children: [
+      TableRow(
+        decoration: BoxDecoration(color: Colors.blue.shade100),
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Task Name',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Amount',
+              style: TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          if (isAdmin)
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                'Action',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ],
+      ),
+      ...taskbased.map(
+            (task) => TableRow(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: Colors.black, width: 0.2),
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              child: Text(
+                task['task_name'] ?? '',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Center(child: Text("\$${task['amount']}")),
+            ),
+            if (isAdmin)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Globalkey.currentState?.reset();
+                        context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
+                        context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
+                          id: task['id'],
+                          taskName: task['task_name'],
+                          amount: task['amount'],
+                          task: 'task',
+                        ));
+                      },
+                      child: const Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    GestureDetector(
+                      onTap: () async {
+                        final confirm = await showCustomDeleteDialog(context);
+                        if (confirm == true) {
+                          context.read<WorkingHoursBloc>().add(
+                            DeleteTaskComponentsEvent(
+                              id: task['id'],
+                              task: "task",
+                            ),
+                          );
+                          Toaster.showSuccess("Task deleted successfully");
+                        }
+                      },
+                      child: const Icon(
+                        Icons.delete,
+                        size: 20,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    ],
+  );
 }
 
 
 class HourlyBasedTab extends StatelessWidget {
   final List<Map<String, dynamic>> hourlybased;
   final List<Map<String, dynamic>>? resource;
-  String? loginUserId;
-  dynamic loginUserRole;
+  final String? loginUserId;
+  final dynamic loginUserRole;
   final Globalkey;
 
-  HourlyBasedTab(
-      {super.key, required this.hourlybased, required this.resource, this.loginUserId, this.loginUserRole, required this.Globalkey}){
-    print("${hourlybased} hourlybased data");
-    print("${resource} resource_data");
-  }
+  const HourlyBasedTab({
+    super.key,
+    required this.hourlybased,
+    required this.resource,
+    this.loginUserId,
+    this.loginUserRole,
+    required this.Globalkey,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return
-      Column(
-      children: [
-        Container(
-            decoration: BoxDecoration(
-              color: Colors.blue.shade100,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(4),
-                topRight: Radius.circular(4),
-              ),
-            ),
-            child: ListTile(
-              leading: Utils.getText("Name",weight: FontWeight.bold),title: Utils.getText("Amount/hr",align: TextAlign.center, weight: FontWeight.bold),trailing:(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin")) ? Utils.getText("Action", weight: FontWeight.bold) : Utils.getText(""),)),
-        // Container(
-        //   decoration: BoxDecoration(
-        //     color: Colors.blue.shade100,
-        //     borderRadius: const BorderRadius.only(
-        //       topLeft: Radius.circular(4),
-        //       topRight: Radius.circular(4),
-        //     ),
-        //   ),
-        //   child:
-        //   Padding(
-        //     padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-        //     child:
-        //     Table(
-        //       columnWidths: const {
-        //         0: FlexColumnWidth(5), // User name
-        //         1: FlexColumnWidth(6), // Amount
-        //         2: FlexColumnWidth(3), // Actions
-        //       },
-        //       children: [
-        //         TableRow(
-        //           children: [
-        //             const Padding(
-        //               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-        //               child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
-        //             ),
-        //             const Padding(
-        //               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-        //               child: Text('Amount/hr', style: TextStyle(fontWeight: FontWeight.bold)),
-        //             ),
-        //             if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
-        //             const Padding(
-        //               padding: EdgeInsets.symmetric(horizontal: 9, vertical: 8.0),
-        //               child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)),
-        //             ),
-        //           ],
-        //         ),
-        //       ],
-        //     ),
-        //   )
-        // ),
-        Expanded(
-          child:
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Center(
-                  child: Table(
-                    columnWidths: const {
-                      0: FlexColumnWidth(2), // Resource name
-                      1: FlexColumnWidth(1), // Amount/hr
-                      2: FlexColumnWidth(2), // Action
-                    },
-                    border: const TableBorder(
-                      bottom: BorderSide(color: Colors.black26, width: 0.2),
-                    ),
-                    children: hourlybased.map((task) {
-                      return
-                        TableRow(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            bottom: BorderSide(color: Colors.black, width: 0.2),
-                          ),
-                        ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Utils.getText("${resource?.firstWhereOrNull((user) => user['id'] == task['user_id'])?['full_name']?.toString() ?? ''}"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Utils.getText("\$${task['amount']}"),
-                          ),
-                          if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getStringList(Str.rolePrefText)!.contains("Admin"))
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Globalkey.currentState!.reset();
-                                    context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
-                                    context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
-                                      id: task['id'],
-                                      userId: task['user_id'],
-                                      amount: task['amount'],
-                                      task: 'hourly'
-                                    ));
-                                  },
-                                  child: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 20,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                GestureDetector(
-                                  onTap: () async {
-                                    final confirm =
-                                    await showCustomDeleteDialog(context);
-                                    if (confirm == true)
-                                    {
-                                      context.read<WorkingHoursBloc>().add(
-                                          DeleteTaskComponentsEvent(
-                                              id: task['id'], task: "hourly"));
-                                      Toaster.showSuccess("Task deleted successfully");
-                                      //context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
-                                    }
-                                  },
-                                  child: const Icon(
-                                    Icons.delete_outline,
-                                    size: 20,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    final isAdmin = Session.of.getString(Str.userIdPrefText) == '3' ||
+        Session.of.getString(Str.userIdPrefText) == '2';
+
+    return buildHourlyBasedTable(
+      context,
+      hourlybased,
+      resource!,
+      isAdmin,
+      Globalkey,
     );
   }
 }
+
+Widget buildHourlyBasedTable(
+    BuildContext context,
+    List<Map<String, dynamic>> hourlyBased,
+    List<Map<String, dynamic>> resource,
+    bool isAdmin,
+    final Globalkey,
+    )
+{
+  return Table(
+    columnWidths: {
+      0: const FlexColumnWidth(1),
+      1: const FlexColumnWidth(1),
+      if (isAdmin) 2: const FlexColumnWidth(0.5),
+    },
+    children: [
+      TableRow(
+        decoration: BoxDecoration(color: Colors.blue.shade100),
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Name',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Amount/hr',
+              style: TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          if (isAdmin)
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                'Action',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ],
+      ),
+      ...hourlyBased.map(
+            (task) => TableRow(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: Colors.black, width: 0.2),
+            ),
+          ),
+          children: [
+            Padding(
+              padding:
+              const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              child: Text(
+                resource.firstWhere(
+                      (user) => user['id'] == task['user_id'],
+                  orElse: () => {'full_name': ''},
+                )['full_name'] ?? '',
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Center(child: Text("\$${task['amount']}")),
+            ),
+            if (isAdmin)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Globalkey.currentState?.reset();
+                        context.read<WorkingHoursBloc>().add(EnterEditModeEvent());
+                        context.read<WorkingHoursBloc>().add(UpdateTaskEvent(
+                            id: task['id'],
+                            userId: task['user_id'],
+                            amount: task['amount'],
+                            task: 'hourly'
+                        ));
+                      },
+                      child: const Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    GestureDetector(
+                      onTap: () async {
+                        final confirm = await showCustomDeleteDialog(context);
+                        if (confirm == true) {
+                          context.read<WorkingHoursBloc>().add(
+                            DeleteTaskComponentsEvent(
+                              id: task['id'],
+                              task: "hourly",
+                            ),
+                          );
+                          Toaster.showSuccess("Task deleted successfully");
+                        }
+                      },
+                      child: const Icon(
+                        Icons.delete,
+                        size: 20,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+
 
 Future<bool?> showCustomDeleteDialog(BuildContext context) async {
   return await showDialog<bool>(
