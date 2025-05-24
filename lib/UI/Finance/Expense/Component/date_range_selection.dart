@@ -11,10 +11,12 @@ import '../../../../Utilities/num.dart';
 
 class DateRangePicker extends StatelessWidget {
   final DateRange? selectedDateRange;
+  final String? splitter;
   final Function(DateRange) onDateRangeSelected;
 
   const DateRangePicker({
     super.key,
+    this.splitter = "-",
     this.selectedDateRange,
     required this.onDateRangeSelected,
   });
@@ -36,7 +38,7 @@ class DateRangePicker extends StatelessWidget {
       },
       child: Container(
         width: double.maxFinite,
-        padding: 10.padding,
+        padding: 8.sp.padding,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Num.subradiusButton),
           border: Border.all(color: AppC.borderColor)
@@ -45,7 +47,7 @@ class DateRangePicker extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                ((selectedDateRange?.start) == (selectedDateRange?.end)) ? "${selectedDateRange?.start.toFormat()}" : "${DateFormat("yyyy-MM-dd").format(selectedDateRange!.start)} - ${DateFormat("yyyy-MM-dd").format(selectedDateRange!.end)}",
+                ((selectedDateRange?.start) == (selectedDateRange?.end)) ? selectedDateRange?.start.toFormat() ?? "" : "${selectedDateRange?.start.toFormat() ?? ""} $splitter ${selectedDateRange?.end.toFormat() ?? ""}",
                 overflow: TextOverflow.ellipsis,
                 style: context.textTheme.labelLarge,
               ),

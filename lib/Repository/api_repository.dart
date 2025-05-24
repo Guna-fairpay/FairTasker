@@ -343,6 +343,8 @@ class APiRepository {
 
   String get _employeeTaskHistoryByDay => "employeeTaskHistoryByDay?date=";
 
+  String get _getWorkingHours => "getWorkingHours";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
