@@ -37,9 +37,7 @@ class ResourceHistoryDatePicker extends StatelessWidget {
                       ?.copyWith(fontWeight: FontWeight.bold),
                   trailing: InkWell(
                     child: SvgPicture.asset(Assets.riSettingsFill),
-                    onTap: () {
-                      Console.of.log("TESTING");
-                    },
+                    onTap: () => context.read<ResourceCheckInOutBloc>().add(TaskComponentEvent()),
                   ),
                 ),
               ),
