@@ -201,7 +201,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             if (state.isEditMode)
                               Utils.getAddFilledButton("Update", () {
                                 FocusScope.of(context).unfocus();
-                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent(task: state.selectedBase['base'] == 'Task based' ? 'task' : 'hourly'));
                                 if(state.userId == -1)
                                   {
                                     log("${context.read<WorkingHoursBloc>().taskNameController.text} ${context.read<WorkingHoursBloc>().amountController.text} update_button");

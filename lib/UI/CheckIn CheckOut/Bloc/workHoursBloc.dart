@@ -644,26 +644,28 @@ class WorkingHoursBloc extends Bloc<WorkingHoursEvent, WorkingHoursState> {
     });
 
     on<UpdateDropdownValueEvent>((event, emit) {
-      hourlyAmountController.clear();
-      taskNameController.clear();
-      amountController.clear();
-      if (event.selectedBase['base'] == 'Hour based') {
-        emit(state.copyWith(
-          selectedBase: event.selectedBase,
-          selectedUser: null,
-          userId: null,
-          hourlyAmountController: hourlyAmountCtrl,
-          isEditMode: false,
-        ));
-      } else {
-        emit(state.copyWith(
-          selectedBase: event.selectedBase,
-          selectedUser: null,
-          userId: null,
-          taskNameController: taskNameCtrl,
-          amountController: amountCtrl,
-          isEditMode: false,
-        ));
+      if(state.selectedBase["base"] != event.selectedBase['base']){
+        hourlyAmountController.clear();
+        taskNameController.clear();
+        amountController.clear();
+        if (event.selectedBase['base'] == 'Hour based') {
+          emit(state.copyWith(
+            selectedBase: event.selectedBase,
+            selectedUser: null,
+            userId: null,
+            hourlyAmountController: hourlyAmountCtrl,
+            isEditMode: false,
+          ));
+        } else {
+          emit(state.copyWith(
+            selectedBase: event.selectedBase,
+            selectedUser: null,
+            userId: null,
+            taskNameController: taskNameCtrl,
+            amountController: amountCtrl,
+            isEditMode: false,
+          ));
+        }
       }
     });
 
