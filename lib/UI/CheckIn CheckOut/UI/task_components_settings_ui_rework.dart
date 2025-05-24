@@ -43,19 +43,8 @@ class TaskComponentsSettingView extends StatelessWidget {
         if (state.isLoading) {
           EasyLoading.show();
         } else {
-          final bloc = context.read<WorkingHoursBloc>();
           if (EasyLoading.isShow) EasyLoading.dismiss();
-          bloc.taskNameController.clear();
-          bloc.amountController.clear();
-          bloc.taskNameController.text = state.taskNameController?.text ?? '';
-          bloc.amountController.text = state.amountController?.text ?? '';
-          bloc.hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
-          Utils.dismissKeyboard(context);
-          if (!state.isEditMode) {
-            bloc.taskNameController.text = state.taskNameController?.text ?? '';
-            bloc.amountController.text = state.amountController?.text ?? '';
-            bloc.hourlyAmountController.text = state.hourlyAmountController?.text ?? '';
-          }
+          log("${state.selectedBase}");
           Utils.dismissKeyboard(context);
         }
       },
@@ -67,7 +56,7 @@ class TaskComponentsSettingView extends StatelessWidget {
               context.read<WorkingHoursBloc>().add(SwitchTabEvent(isHourly: isHourly));
             }
           });
-          final isHourlyBased = tabController.index == 1 || state.selectedBase?['base'] == 'Hour based';
+          final isHourlyBased = state.selectedBase?['base'].toString() == 'Hour based';
           return Scaffold(
             backgroundColor: AppC.white,
             appBar: PreferredSize(
@@ -116,7 +105,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             formKey.currentState!.reset();
                           },
                           labelKey: 'base',
-                          initialSelection:selectedBases ?? state.selectedBase,
+                          initialSelection:state.selectedBase,
                         ),
                         const SizedBox(height: 16),
                         if(Session.of.getString(Str.userIdPrefText) == '3' || Session.of.getString(Str.userIdPrefText) == '2' || Session.of.getString(Str.userIdPrefText) == '1')...[
@@ -186,9 +175,9 @@ class TaskComponentsSettingView extends StatelessWidget {
                           children: [
                             if (!state.isEditMode)
                               Utils.getAddFilledButton("Save", () {
-                                if (state.selectedBase['base'] == 'Task based' || selectedBases['base'] == 'Task based' ||
-                                    context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty) {
-                                  FocusScope.of(context).unfocus();
+                                if (state.selectedBase['base'] == 'Task based' || context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty) {
+                                  context.read<WorkingHoursBloc>().add(const ExitEditModeEvent(task: 'task'));
+                                  Utils.dismissKeyboard(context);
                                   if(formKey.currentState!.validate() && context.read<WorkingHoursBloc>().taskNameController.text.isNotEmpty && context.read<WorkingHoursBloc>().amountController.text.isNotEmpty) {
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
                                         taskName: context.read<WorkingHoursBloc>().taskNameController.text.toString(),
@@ -199,6 +188,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                   }
                                 } else {
                                   if (formKey.currentState!.validate() && context.read<WorkingHoursBloc>().hourlyAmountController.text.isNotEmpty) {
+                                    context.read<WorkingHoursBloc>().add(const ExitEditModeEvent(task: 'hourly'));
                                     context.read<WorkingHoursBloc>().add(CreateTaskEvent(
                                       taskName: '',
                                       amount: context.read<WorkingHoursBloc>().hourlyAmountController.text,
@@ -211,7 +201,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                             if (state.isEditMode)
                               Utils.getAddFilledButton("Update", () {
                                 FocusScope.of(context).unfocus();
-                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent(task: state.selectedBase['base'] == 'Task based' ? 'task' : 'hourly'));
                                 if(state.userId == -1)
                                   {
                                     log("${context.read<WorkingHoursBloc>().taskNameController.text} ${context.read<WorkingHoursBloc>().amountController.text} update_button");
@@ -240,7 +230,7 @@ class TaskComponentsSettingView extends StatelessWidget {
                                 resource = null;
                                 //context.read<WorkingHoursBloc>().add(ResetResourceEvent());
                                 //context.read<WorkingHoursBloc>().add(ResetDropdownEvent(isTaskBased: tabController.index == 1));
-                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent());
+                                context.read<WorkingHoursBloc>().add(ExitEditModeEvent(task: state.selectedBase['base'] == 'Task based' ? 'task' : 'hourly'));
                               }, bgColor: AppC.red),
                           ],
                         ),
@@ -279,7 +269,6 @@ class TaskComponentsSettingView extends StatelessWidget {
                           Globalkey: formKey,
                           taskbased: state.taskBased,
                           hourlybased: state.hourlyBased,
-                          selectedBases: selectedBases,
                           resource: state.resources,
                             loginUserId: state.loginUserId,
                             loginUserRole: state.loginUserRole,
