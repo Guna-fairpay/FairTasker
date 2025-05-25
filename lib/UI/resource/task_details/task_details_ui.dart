@@ -31,8 +31,8 @@ class TaskDetailsUi extends StatelessWidget {
                 switch(state) {
                   case ErrorState(): Toaster.showError(state.message); break;
                   case SuccessState(): Toaster.showSuccess(state.message); break;
-                  case ViewFilterState(): TaskCohortFilterMainPage.show(context, cohortIdList: []); break;
-                  case ViewAmountSummaryState(): TaskHourSummeryMain.show(context, hourSummeryData: []); break;
+                  case ViewFilterState(): TaskCohortFilterMainPage.show(context, cohortIdList: state.model, onChanged: (value) => context.read<TaskDetailsBloc>().add(FilterCohortEvent(model: value))); break;
+                  case ViewAmountSummaryState(): TaskHourSummeryMain.show(context, hourSummeryData: state.model, name: state.name); break;
                 }
               }
             },

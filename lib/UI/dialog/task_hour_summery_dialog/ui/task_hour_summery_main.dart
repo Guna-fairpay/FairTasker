@@ -14,6 +14,7 @@ class  TaskHourSummeryMain {
   TaskHourSummeryMain._();
   static void show(
       BuildContext context, {
+        dynamic name,
         List<dynamic>? hourSummeryData,
       }) async {
     await showDialog(
@@ -21,6 +22,7 @@ class  TaskHourSummeryMain {
       barrierDismissible: true,
       builder: (context) => _HourSummeryPopView(
         hourSummeryData: hourSummeryData,
+        name: name,
       ),
     );
   }
@@ -28,8 +30,10 @@ class  TaskHourSummeryMain {
 
 class _HourSummeryPopView extends StatelessWidget {
   final List<dynamic>? hourSummeryData;
+  final dynamic name;
   const _HourSummeryPopView({
     Key? key,
+    this.name,
     this.hourSummeryData,
   }) : super(key: key);
 
@@ -53,7 +57,7 @@ class _HourSummeryPopView extends StatelessWidget {
                   titlePadding: EdgeInsets.zero,
                   contentPadding: 5.sp.padding.copyWith(left: 15.sp, right: 20.sp, bottom: 15.sp),
                   title: ListTile(
-                      title: Utils.getText(" - Hour Summary", color: AppC.appColor),
+                      title: Utils.getText("${name ?? ""} - Hour Summary", color: AppC.appColor),
                       trailing: IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close_rounded),
@@ -65,7 +69,6 @@ class _HourSummeryPopView extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Table(
-
                           columnWidths: const {
                             0: FlexColumnWidth(1),
                             1: FlexColumnWidth(),
@@ -80,7 +83,7 @@ class _HourSummeryPopView extends StatelessWidget {
                                 border: Border(bottom: BorderSide(color: AppC.borderColor, width: 1.sp),),
                                 color: AppC.white,),
                               backgroundColor: AppC.appbgColor,
-                              labels: ["Task Name", "Count/Time", "Amount"],
+                              labels: const ["Task Name", "Count/Time", "Amount"],
                           ),
                             ...?context.read<TaskHourSummeryBloc>().hourSummeryData?.map((e) => TableRow(
                               decoration: BoxDecoration(
@@ -95,7 +98,7 @@ class _HourSummeryPopView extends StatelessWidget {
                                 TableCell(
                                     child: Padding(
                                       padding: 10.sp.padding,
-                                      child: Text(e['task_count'] ?? ''),
+                                      child: Text("${e['task_count'] ?? ''}"),
                                     )),
                                 TableCell(
                                     child: Padding(

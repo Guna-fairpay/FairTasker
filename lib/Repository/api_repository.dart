@@ -3745,11 +3745,11 @@ Future<Map<String, dynamic>?> getLocations() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_employeeTaskHistory";
       Map<String, dynamic> params = {
+        "to" : to.toFormat(),
         "user_id" : userId,
         "from" : from.toFormat(),
-        "to" : to.toFormat(),
       };
-      if (cohorts?.isNotEmpty ?? false) params['cohorts[]'] = cohorts;
+      if (cohorts?.isNotEmpty ?? false) params['cohort_id[]'] = cohorts;
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       if (response?.isSuccess == true) {
         var mapData = await response.mapData;
