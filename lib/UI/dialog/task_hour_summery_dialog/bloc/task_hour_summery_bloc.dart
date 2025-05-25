@@ -10,6 +10,7 @@ part 'task_hour_summery_event.dart';
 class TaskHourSummeryBloc extends Bloc<TaskHourSummeryEvent, TaskHourSummeryState> {
 
   List<dynamic>? hourSummeryData;
+  dynamic total;
 
   TaskHourSummeryBloc() : super(TaskHourSummeryLoadingState()) {
     on<TaskHourSummeryInitialEvent>(_onTaskHourSummeryInitialEvent);
@@ -19,6 +20,7 @@ class TaskHourSummeryBloc extends Bloc<TaskHourSummeryEvent, TaskHourSummeryStat
     try {
       emit(TaskHourSummeryLoadingState());
       hourSummeryData = event.hourSummeryData;
+      total = event.hourSummeryData?.map((e) => e['total']).reduce((value, element) => value + element);
       emit(TaskHourSummeryCommonState());
     }catch (e) {
       _error("TaskHourSummeryInitialEvent :( ${e.toString()}");
