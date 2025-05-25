@@ -4,6 +4,7 @@ import 'package:fairpytasker/UI/resource/resource_main/bloc/resource_check_in_ou
 import 'package:fairpytasker/UI/resource/resource_main/resource_active_hours_list.dart';
 import 'package:fairpytasker/UI/resource/resource_main/resource_history_date_picker.dart';
 import 'package:fairpytasker/UI/resource/resource_main/resource_work_hours_list.dart';
+import 'package:fairpytasker/UI/resource/task_components_settings/ui/task_component_main_page.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -40,9 +41,9 @@ class ResourceCheckInOutUi extends StatelessWidget {
               case ErrorState(): Toaster.showError(state.message); break;
               case SuccessState(): Toaster.showSuccess(state.message); break;
               case ViewHoursDetailsState(): CheckInHoursDialog.show(context, model: state.model, dateRange: state.dateRange); break;
-              case TaskComponentState(): /*INSERT YOUR PAGE*/ break;
               case ViewTaskDetailsState(): context.push(TaskDetailsUi(model: state.model, dateRange: state.dateRange), fullscreenDialog: true); break;
               case ViewTaskCountState(): TaskCountDetailsDialog.show(context, model: state.model, dateRange: state.dateRange); break;
+              case TaskComponentState(): context.push(const TaskComponentsMainPage()); break;
             }
           }
         },

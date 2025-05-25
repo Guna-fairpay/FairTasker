@@ -1,3 +1,5 @@
+import 'package:fairpytasker/UI/dialog/task_cohort_filter/ui/task_cohort_filter_main_page.dart';
+import 'package:fairpytasker/UI/dialog/task_hour_summery_dialog/ui/task_hour_summery_main.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_count_ui.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_filter_ui.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_list_ui.dart';
@@ -29,8 +31,8 @@ class TaskDetailsUi extends StatelessWidget {
                 switch(state) {
                   case ErrorState(): Toaster.showError(state.message); break;
                   case SuccessState(): Toaster.showSuccess(state.message); break;
-                  case ViewFilterState(): /* INSERT YOUR DIALOG */ break;
-                  case ViewAmountSummaryState(): /* INSERT YOUR DIALOG */ break;
+                  case ViewFilterState(): TaskCohortFilterMainPage.show(context, cohortIdList: []); break;
+                  case ViewAmountSummaryState(): TaskHourSummeryMain.show(context, hourSummeryData: []); break;
                 }
               }
             },

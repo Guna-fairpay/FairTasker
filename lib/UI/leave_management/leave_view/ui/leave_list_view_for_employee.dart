@@ -99,12 +99,12 @@ class LeaveListViewForEmployee extends StatelessWidget {
                                 contentPadding: EdgeInsets.zero,
                                 minTileHeight: 0,
                                 minVerticalPadding: 0,
-                                title: Text.rich(
-                                  TextSpan(
+                                title: (item['admin_reason'] != null) ? Text.rich(
+                                   TextSpan(
                                     text: "Admin Reason: ",
-                                    children: [TextSpan(text: item['admin_reason'], style: const TextStyle(color: AppC.grey),)]),
+                                    children: [TextSpan(text: item['admin_reason'], style: const TextStyle(color: AppC.grey),)]) ,
                                   style: TextStyle(fontSize: 12.sp),
-                                ),
+                                ) : const SizedBox.shrink(),
                                   trailing: IconButton( onPressed: ()=> context.read<LeaveViewBloc>().add(AddEditPageEvent(leaveData: item)),icon: Icon(Icons.mode_edit_outlined,size: 18.sp,color: AppC.appColor) )
                               ),
                               Container(
