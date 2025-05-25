@@ -44,6 +44,7 @@ class LeaveViewBloc extends Bloc<LeaveViewEvent,LeaveViewState>{
        // await getIt<CommonService>().getLeaveListType();
       filteredResponse = apiResponse;
       employeeList = employeeResponse?['data'];
+      employeeList.removeWhere((element) => element['id'] == 9);
       employeeList.insert(0, {'id': -1, 'first_name': 'All'});
       selectedEmployee = employeeList.firstOrNull;
       await filter();}

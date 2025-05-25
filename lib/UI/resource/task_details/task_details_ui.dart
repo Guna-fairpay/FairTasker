@@ -43,11 +43,11 @@ class TaskDetailsUi extends StatelessWidget {
                 title: const CompactText("Checking", color: AppC.appColor, fontWeight: FontWeight.bold, styleType: TextStyleType.titleMedium),
                 iconColor: AppC.appColor,
                 collapsedIconColor: AppC.appColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5.sp), side: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.sp), side: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor)),
                 collapsedBackgroundColor: AppC.lightBlue,
                 backgroundColor: AppC.lightBlue,
                 minTileHeight: 40.sp,
-                collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5.sp)),
+                collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.sp)),
                 children: [
                   Container(
                     width: double.maxFinite,

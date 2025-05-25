@@ -4,6 +4,7 @@
 import 'dart:developer';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/task_components_settings_ui_rework.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/UI/working_hours_task.dart';
+import 'package:fairpytasker/UI/resource/task_components_settings/ui/task_component_main_page.dart';
 import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
