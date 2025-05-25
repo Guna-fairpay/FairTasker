@@ -21,8 +21,8 @@ class CompactExpansionTile extends StatelessWidget {
       title: title ?? const SizedBox.shrink(),
       collapsedBackgroundColor: collapsedBackgroundColor,
       minTileHeight: 40.sp,
-      collapsedShape: collapsedShape ?? RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5.sp)),
-      shape: shape ?? RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5.sp), side: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor)),
+      collapsedShape: collapsedShape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.sp)),
+      shape: shape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.sp), side: const BorderSide(width: Num.borderWidthThinField, color: AppC.borderColor)),
       children: [
         Container(
           width: double.maxFinite,

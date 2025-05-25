@@ -353,6 +353,12 @@ class APiRepository {
 
   String get _getConfiguration => "getConfiguration";
 
+  String get _addConfiguration => "add-configuration";
+
+  String get _updateConfiguration => "update-configuration";
+
+  String get _deleteConfiguration => "delete-configuration";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3708,6 +3714,33 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
+  Future<Map<String,dynamic>?> addConfiguration({String? id,Map<String,dynamic>? body})async{
+    try {
+      String apiUrl = '';
+      if(id != null){
+      apiUrl = "${Str.BASE_URL}$_updateConfiguration/$id";
+      }else{
+        apiUrl = "${Str.BASE_URL}$_addConfiguration";
+      }
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl,body: body);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> deleteConfiguration({required dynamic id}) async {
+    try{
+      String apiUrl = "${Str.BASE_URL}$_deleteConfiguration/$id";
+      final http.Response? response = await _apiClient.callDelete(apiUrl);
+      var mapData = await response.mapData;
+      return mapData;
+    }catch(e){
+      rethrow;
+    }
+  }
+
   Future<Map<String,dynamic>?> getEmployeeTaskHistory({required dynamic userId, required DateTime? from, required DateTime? to, List<dynamic>? cohorts})async{
     try {
       String apiUrl = "${Str.BASE_URL}$_employeeTaskHistory";
@@ -3743,5 +3776,6 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
 
 }
