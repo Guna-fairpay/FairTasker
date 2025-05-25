@@ -353,8 +353,6 @@ class APiRepository {
 
   String get _getConfiguration => "getConfiguration";
 
-  String get _getConfiguration => "getConfiguration";
-
   String get _addConfiguration => "add-configuration";
 
   String get _updateConfiguration => "update-configuration";
@@ -3716,17 +3714,6 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String,dynamic>?> getConfiguration() async {
-    try{
-      String apiUrl = '${Str.BASE_URL}$_getConfiguration';
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
-      var mapData = await response.mapData;
-      return mapData;
-    }catch(e){
-      rethrow;
-    }
-  }
-
   Future<Map<String,dynamic>?> addConfiguration({String? id,Map<String,dynamic>? body})async{
     try {
       String apiUrl = '';
@@ -3789,5 +3776,6 @@ Future<Map<String, dynamic>?> getLocations() async {
       rethrow;
     }
   }
+
 
 }

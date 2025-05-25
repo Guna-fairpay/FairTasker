@@ -72,8 +72,8 @@ class TaskComponentBloc extends Bloc<TaskComponentEvent,TaskComponentState> {
           isHourBased = false;
           selectedTab = 0;
         }
+        add(TaskComponentClearAllFieldEvent());
       }
-      add(TaskComponentClearAllFieldEvent());
       emit(TaskComponentCommentState());
       } catch (e) {
       _onError("TaskComponentDropdownBaseEvent ${e.toString()}");
