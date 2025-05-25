@@ -10,7 +10,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class TaskExpansionTile extends StatelessWidget {
   final Map<String, dynamic>? model;
   final TextStyleType? styleType;
-  const TaskExpansionTile({super.key, this.model, this.styleType = TextStyleType.titleMedium});
+  final void Function(Map<String, dynamic>? value)? onTap;
+  const TaskExpansionTile({super.key, this.model, this.styleType = TextStyleType.titleMedium, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +47,7 @@ class TaskExpansionTile extends StatelessWidget {
               dense: true,
               contentPadding: EdgeInsets.zero,
               minTileHeight: 0,
+              onTap: () => onTap?.call(mod),
               title: CompactText(mod['vehicle_name'] ?? ( (List.from(mod['vehicles'] ?? []).length == 1) ? (List.from(mod['vehicles'] ?? []).firstOrNull?['vehicle_name'] ?? "") : "MV") , color: AppC.black, styleType: TextStyleType.labelLarge),
               trailing: Column(
                 mainAxisSize: MainAxisSize.min,

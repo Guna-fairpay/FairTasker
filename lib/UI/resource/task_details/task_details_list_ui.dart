@@ -16,7 +16,7 @@ class TaskDetailsListUi extends StatelessWidget {
           padding: 16.sp.horizontalPadding.copyWith(bottom: 20.sp),
           itemCount: context.watch<TaskDetailsBloc>().tasks?.length ?? 0,
           separatorBuilder: (context, index) => 10.sp.height,
-          itemBuilder: (context, index) => TaskExpansionTile(styleType: TextStyleType.labelLarge, model: (context.read<TaskDetailsBloc>().tasks?[index]))),
+          itemBuilder: (context, index) => TaskExpansionTile(styleType: TextStyleType.labelLarge, model: (context.read<TaskDetailsBloc>().tasks?[index]), onTap: (value) => context.read<TaskDetailsBloc>().add(ViewTaskDetailsEvent(model: value)))),
     ));
   }
 }

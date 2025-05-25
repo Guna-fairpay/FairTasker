@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Vehicle/vehicle_history_detail/vehicle_history_details_ui.dart';
 import 'package:fairpytasker/UI/dialog/task_cohort_filter/ui/task_cohort_filter_main_page.dart';
 import 'package:fairpytasker/UI/dialog/task_hour_summery_dialog/ui/task_hour_summery_main.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_count_ui.dart';
@@ -33,6 +34,7 @@ class TaskDetailsUi extends StatelessWidget {
                   case SuccessState(): Toaster.showSuccess(state.message); break;
                   case ViewFilterState(): TaskCohortFilterMainPage.show(context, cohortIdList: state.model, onChanged: (value) => context.read<TaskDetailsBloc>().add(FilterCohortEvent(model: value))); break;
                   case ViewAmountSummaryState(): TaskHourSummeryMain.show(context, hourSummeryData: state.model, name: state.name); break;
+                  case ViewTaskDetailsState(): VehicleHistoryDetailsUiDialog.show(context, mapData: state.model, showAsDialog: false); break;
                 }
               }
             },
