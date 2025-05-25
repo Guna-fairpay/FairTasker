@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/resource/task_details/task_details_count_ui.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_filter_ui.dart';
 import 'package:fairpytasker/UI/resource/task_details/task_details_list_ui.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart' show DateRange;
@@ -28,7 +29,8 @@ class TaskDetailsUi extends StatelessWidget {
                 switch(state) {
                   case ErrorState(): Toaster.showError(state.message); break;
                   case SuccessState(): Toaster.showSuccess(state.message); break;
-                  case ViewFilterState(): /*INSERT YOUR DIALOG*/ break;
+                  case ViewFilterState(): /* INSERT YOUR DIALOG */ break;
+                  case ViewAmountSummaryState(): /* INSERT YOUR DIALOG */ break;
                 }
               }
             },
@@ -39,6 +41,7 @@ class TaskDetailsUi extends StatelessWidget {
                 backgroundColor: AppC.appColor,
                 foregroundColor: AppC.white,
                 actions: [
+                  const TaskDetailsCountUi(),
                   IconButton(
                       onPressed: context.pop,
                       icon: const Icon(Icons.close_rounded))
