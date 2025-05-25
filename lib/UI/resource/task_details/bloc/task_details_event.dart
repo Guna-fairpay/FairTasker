@@ -26,3 +26,5 @@ class ViewCohortEvent extends TaskDetailsEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ViewFilterEvent extends TaskDetailsEvent {}

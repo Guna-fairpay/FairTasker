@@ -3,9 +3,8 @@ import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.d
 import 'package:fairpytasker/UI/resource/resource_main/bloc/resource_check_in_out_bloc.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/assets.dart';
-import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,6 +55,7 @@ class ResourceHistoryDatePicker extends StatelessWidget {
                               DateRangeChangedEvent(range)),
                     ),
                   ),
+                  if (getIt<CommonService>().isAdmin)
                   Flexible(
                     child: CompactDropDown<Map<String, dynamic>>(
                       hintText: "Select Resource",
