@@ -124,7 +124,7 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
   }
 
   void _onViewTaskDetailsEvent(ViewTaskDetailsEvent event, Emitter<ResourceCheckInOutState> emit) {
-    emit(ViewTaskDetailsState(event.model));
+    emit(ViewTaskDetailsState(event.model, dateRange: selectedDateRange));
   }
 
   void _onViewTaskCountEvent(ViewTaskCountEvent event, Emitter<ResourceCheckInOutState> emit) {

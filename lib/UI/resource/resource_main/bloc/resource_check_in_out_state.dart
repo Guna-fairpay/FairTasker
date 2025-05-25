@@ -37,9 +37,10 @@ class TaskComponentState extends ResourceCheckInOutState {}
 
 class ViewTaskDetailsState extends ResourceCheckInOutState {
   final dynamic model;
-  ViewTaskDetailsState(this.model);
+  final DateRange? dateRange;
+  ViewTaskDetailsState(this.model, {this.dateRange});
   @override
-  List<Object?> get props => [model, Random().nextDouble()];
+  List<Object?> get props => [model, dateRange, Random().nextDouble()];
 }
 
 class ViewTaskCountState extends ResourceCheckInOutState {
