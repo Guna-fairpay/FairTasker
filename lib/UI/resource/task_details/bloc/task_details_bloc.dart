@@ -32,6 +32,8 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       emit(LoadingState());
       _taskCategoryGroup = await _getTaskCategoryGroup();
       var mainCategories = _taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
+      var subCategories = _taskCategoryGroup?.where((element) => !element['parent_id'].toString().isNullOrEmpty).toList();
+
       tasks = mainCategories;
       emit(CommonState());
     } catch (e) {
