@@ -38,3 +38,10 @@ class ViewCohortState extends TaskDetailsState {
   @override
   List<Object?> get props => [model, Random().nextDouble()];
 }
+
+class ViewFilterState extends TaskDetailsState {
+  final dynamic model;
+  ViewFilterState({this.model});
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}
