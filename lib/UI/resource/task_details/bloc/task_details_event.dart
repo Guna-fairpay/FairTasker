@@ -13,12 +13,7 @@ class InitialEvent extends TaskDetailsEvent {
   List<Object?> get props => [model, dateRange];
 }
 
-class ViewAmountSummaryEvent extends TaskDetailsEvent {
-  final Map<String, dynamic>? model;
-  ViewAmountSummaryEvent({this.model});
-  @override
-  List<Object?> get props => [model];
-}
+class ViewAmountSummaryEvent extends TaskDetailsEvent {}
 
 class ViewCohortEvent extends TaskDetailsEvent {
   final dynamic model;

@@ -27,9 +27,10 @@ class SuccessState extends TaskDetailsState {
 
 class ViewAmountSummaryState extends TaskDetailsState {
   final dynamic model;
-  ViewAmountSummaryState(this.model);
+  final dynamic name;
+  ViewAmountSummaryState(this.name,this.model);
   @override
-  List<Object?> get props => [model, Random().nextDouble()];
+  List<Object?> get props => [name, model, Random().nextDouble()];
 }
 
 class ViewCohortState extends TaskDetailsState {

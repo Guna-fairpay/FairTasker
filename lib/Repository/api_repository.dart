@@ -349,6 +349,10 @@ class APiRepository {
 
   String get _editComments => "edit-comments";
 
+  String get _employeeTaskHistory => "employeeTaskHistory";
+
+  String get _getConfiguration => "getConfiguration";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -3693,6 +3697,42 @@ Future<Map<String, dynamic>?> getLocations() async {
         "to" : to.toFormat(),
       };
       final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        var mapData = await response.mapData;
+        return mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getEmployeeTaskHistory({required dynamic userId, required DateTime? from, required DateTime? to, List<dynamic>? cohorts})async{
+    try {
+      String apiUrl = "${Str.BASE_URL}$_employeeTaskHistory";
+      Map<String, dynamic> params = {
+        "user_id" : userId,
+        "from" : from.toFormat(),
+        "to" : to.toFormat(),
+      };
+      if (cohorts?.isNotEmpty ?? false) params['cohorts[]'] = cohorts;
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        var mapData = await response.mapData;
+        return mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getConfiguration()async{
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getConfiguration";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       if (response?.isSuccess == true) {
         var mapData = await response.mapData;
         return mapData;
