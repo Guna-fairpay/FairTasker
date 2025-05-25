@@ -60,6 +60,8 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
     _employeeActiveHours?.removeWhere((element) => element['hrm_id'].toString().isNullOrEmpty);
     workingHours = workingHours?.map((e) => e..['active'] = (_employeeActiveHours?.where((element) => element['todo_date'] == (DateTime.now().toFormat())).where((element) => element['hrm_id'] == (e['employee']?['id'])).map((e1) => (e1['active_hours'].toString().parseDurationToMinutes)).sum.minutesToHourMinute)).toList();
     selectedResource = resources.firstOrNull ?? {'id': -1, 'first_name': 'All', "last_name": ""};
+    if (!getIt<CommonService>().isAdmin) selectedResource = resources.firstWhereOrNull((element) => element['id'] == getIt<CommonService>().userId);
+    Console.of.log(selectedResource, name: "SELECTED_RESOURCE");
     employeeWorkHours?.forEach((e) {
       e['user_id'] = (resources.firstWhereOrNull((element) => element['hrm_id'] == e['id']))?['id'];
       e['active'] = (_employeeActiveHours?.where((element) => element['hrm_id'] == e['id']).map((e1) => (e1['active_hours'].toString().parseDurationToMinutes)).sum.minutesToHourMinute);
@@ -79,6 +81,7 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
       _employeeActiveHours = response[3] ?? [];
       _employeeHistoryCount = response[4] ?? [];
       _processData();
+      if (!getIt<CommonService>().isAdmin) add(ResourceSelectEvent(selectedResource));
       Console.of.log(employeeWorkHours);
       emit(CommonState());
     } catch (e) {
