@@ -44,6 +44,9 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
     on<DateRangeChangedEvent>(_onDateRangeChangedEvent);
     on<ResourceSelectEvent>(_onResourceSelectEvent);
     on<ViewHoursDetailsEvent>(_onViewHoursDetailsEvent);
+    on<TaskComponentEvent>(_onTaskComponentEvent);
+    on<ViewTaskDetailsEvent>(_onViewTaskDetailsEvent);
+    on<ViewTaskCountEvent>(_onViewTaskCountEvent);
   }
 
   Future<List<Map<String, dynamic>>> _getResources() async => await getIt<CommonService>().getResources();
@@ -114,5 +117,17 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
 
   void _onViewHoursDetailsEvent(ViewHoursDetailsEvent event, Emitter<ResourceCheckInOutState> emit) {
     emit(ViewHoursDetailsState(event.model, selectedDateRange));
+  }
+
+  void _onTaskComponentEvent(TaskComponentEvent event, Emitter<ResourceCheckInOutState> emit) {
+    emit(TaskComponentState());
+  }
+
+  void _onViewTaskDetailsEvent(ViewTaskDetailsEvent event, Emitter<ResourceCheckInOutState> emit) {
+    emit(ViewTaskDetailsState(event.model));
+  }
+
+  void _onViewTaskCountEvent(ViewTaskCountEvent event, Emitter<ResourceCheckInOutState> emit) {
+    emit(ViewTaskCountState(event.model, selectedDateRange));
   }
 }
