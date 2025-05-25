@@ -12,6 +12,7 @@ class TaskDetailsFilterUi extends StatelessWidget {
       title: Text(context.watch<TaskDetailsBloc>().dateRange?.toFormat() ?? ""),
       trailing: GestureDetector(
         child: const Icon(Icons.filter_alt_rounded),
+        onTap: () => context.read<TaskDetailsBloc>().add(ViewFilterEvent()),
       ),
     ));
   }
