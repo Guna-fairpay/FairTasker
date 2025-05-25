@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +21,8 @@ class TaskHourSummeryBloc extends Bloc<TaskHourSummeryEvent, TaskHourSummeryStat
   void _onTaskHourSummeryInitialEvent(TaskHourSummeryInitialEvent event, Emitter<TaskHourSummeryState> emit) {
     try {
       emit(TaskHourSummeryLoadingState());
-      hourSummeryData = event.hourSummeryData;
-      total = event.hourSummeryData?.map((e) => e['total']).reduce((value, element) => value + element);
+      hourSummeryData = event.hourSummeryData ?? [];
+      total = event.hourSummeryData?.map((e) => e['total'].toString().toNumeric).sum ?? 0;
       emit(TaskHourSummeryCommonState());
     }catch (e) {
       _error("TaskHourSummeryInitialEvent :( ${e.toString()}");
