@@ -66,21 +66,22 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
           element['vehicle_name'] = _vehicles.firstWhereOrNull((v) => v['vin'] == element['vin'])?['vehicle_name'] ?? "";
         }
       });
-      var emptyIdentifier = history?.where((element) => element['identifier_id'].toString().isNullOrEmpty).toList();
-      history?.removeWhere((element) => emptyIdentifier?.map((e) => e['id']).contains(element['id']) ?? false);
-      var partsTasks = emptyIdentifier?.where((element) => element['title'].toString().toLowerCase().contains("parts")).toList();
-      emptyIdentifier?.removeWhere((element) => partsTasks?.map((e) => e['id']).contains(element['id']) ?? false);
+      // var emptyIdentifier = history?.where((element) => element['identifier_id'].toString().isNullOrEmpty).toList();
+      // history?.removeWhere((element) => emptyIdentifier?.map((e) => e['id']).contains(element['id']) ?? false);
+      var partsTasks = history?.where((element) => element['title'].toString().toLowerCase().contains("parts")).toList();
+      history?.removeWhere((element) => partsTasks?.map((e) => e['id']).contains(element['id']) ?? false);
       tasks?.forEach((element) {
         var subCate = List<Map<String, dynamic>>.from(element['subcategories'] ?? []).map((e) => e['name'].toString().toLowerCase());
         var historyTasks = history?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
-        var others = emptyIdentifier?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
-        if (others?.isNotEmpty ?? false) emptyIdentifier?.removeWhere((element) => others?.map((e) => e['id']).contains(element['id']) ?? false);
-        element['tasks'] = [...(historyTasks ?? []), ...(others ?? [])];
+        // var others = emptyIdentifier?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
+        if (historyTasks?.isNotEmpty ?? false) history?.removeWhere((element) => historyTasks?.map((e) => e['id']).contains(element['id']) ?? false);
+        // element['tasks'] = [...(historyTasks ?? []), ...(others ?? [])];
+        element['tasks'] = historyTasks;
       });
       tasks?.removeWhere((element) => List.from(element['tasks'] ?? []).isEmpty);
       tasks?.sort((a, b) => a['id'].compareTo(b['id']));
       tasks?.add({"id" : 0, "name" : "Parts", "tasks" : partsTasks});
-      tasks?.add({"id" : -1, "name" : "Other", "tasks" : emptyIdentifier});
+      tasks?.add({"id" : -1, "name" : "Other", "tasks" : history});
     } catch(e) {
       rethrow;
     }
