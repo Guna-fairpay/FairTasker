@@ -1,4 +1,5 @@
 import 'package:fairpytasker/UI/dialog/resource_check_in_out/check_in_out_hours_details/check_in_out_hours_details_dialog.dart';
+import 'package:fairpytasker/UI/dialog/resource_check_in_out/task_count_details/task_count_details_dialog.dart';
 import 'package:fairpytasker/UI/resource/resource_main/bloc/resource_check_in_out_bloc.dart';
 import 'package:fairpytasker/UI/resource/resource_main/resource_active_hours_list.dart';
 import 'package:fairpytasker/UI/resource/resource_main/resource_history_date_picker.dart';
@@ -39,6 +40,8 @@ class ResourceCheckInOutUi extends StatelessWidget {
               case SuccessState(): Toaster.showSuccess(state.message); break;
               case ViewHoursDetailsState(): CheckInHoursDialog.show(context, model: state.model, dateRange: state.dateRange); break;
               case TaskComponentState(): /*INSERT YOUR PAGE*/ break;
+              case ViewTaskDetailsState(): /*INSERT YOUR PAGE*/ break;
+              case ViewTaskCountState(): TaskCountDetailsDialog.show(context, model: state.model, dateRange: state.dateRange); break;
             }
           }
         },

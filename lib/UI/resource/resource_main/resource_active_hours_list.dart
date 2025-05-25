@@ -23,7 +23,7 @@ class ResourceActiveHoursList extends StatelessWidget {
       },
       children: [
         const TableHeaderRow(labels: ["Employee", "Active", "Hours", "Task", "#"], textAlign: TextAlign.center, firstTextAlign: TextAlign.start),
-        ...(context.watch<ResourceCheckInOutBloc>().employeeWorkHours?.map((e) => EmployeeWorkingRow(model: e, textAlign: TextAlign.center, onHours: () => context.read<ResourceCheckInOutBloc>().add(ViewHoursDetailsEvent(e)))).toList() ?? [])
+        ...(context.watch<ResourceCheckInOutBloc>().employeeWorkHours?.map((e) => EmployeeWorkingRow(model: e, textAlign: TextAlign.center, onHours: () => context.read<ResourceCheckInOutBloc>().add(ViewHoursDetailsEvent(e)), onTask: () => context.read<ResourceCheckInOutBloc>().add(ViewTaskDetailsEvent(e)), onHash: () => context.read<ResourceCheckInOutBloc>().add(ViewTaskCountEvent(e)))).toList() ?? [])
       ],
     ));
   }

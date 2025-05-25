@@ -28,3 +28,17 @@ class ViewHoursDetailsEvent extends ResourceCheckInOutEvent {
 }
 
 class TaskComponentEvent extends ResourceCheckInOutEvent {}
+
+class ViewTaskDetailsEvent extends ResourceCheckInOutEvent {
+  final dynamic model;
+  ViewTaskDetailsEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
+
+class ViewTaskCountEvent extends ResourceCheckInOutEvent {
+  final dynamic model;
+  ViewTaskCountEvent(this.model);
+  @override
+  List<Object?> get props => [model];
+}
