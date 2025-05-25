@@ -26,6 +26,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
   TaskDetailsBloc() : super(LoadingState()) {
     on<InitialEvent>(_onInitialEvent);
     on<ViewFilterEvent>(_onViewFilterEvent);
+    on<FilterCohortEvent>(_onFilterCohortEvent);
     on<ViewAmountSummaryEvent>(_onViewAmountSummaryEvent);
   }
 
@@ -37,16 +38,9 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
   Future<Map<String, dynamic>?> _getEmployeeTaskHistory() async => await _apiRepository.getEmployeeTaskHistory(userId: _model?['user_id'], from: dateRange?.start, to: dateRange?.end, cohorts: selectedCohorts);
   Future<Map<String, dynamic>?> _getConfiguration() async => await _apiRepository.getConfiguration();
 
-  void _onInitialEvent(InitialEvent event, Emitter<TaskDetailsState> emit) async {
+  Future<void> _processData() async {
     try {
-      _model = event.model;
-      dateRange = event.dateRange;
-      emit(LoadingState());
-      await _getCohorts();
-      await _getActiveVehicles();
       _taskCategoryGroup = await _getTaskCategoryGroup();
-      selectedCohorts = [..._coHorts.map((e) => e['id']).toList(), ...[null]];
-      Console.of.log(jsonEncode(selectedCohorts));
       var mainCategories = _taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
       var subCategories = _taskCategoryGroup?.where((element) => !element['parent_id'].toString().isNullOrEmpty).toList();
       mainCategories?.forEach((element) {
@@ -57,12 +51,14 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       });
       var employeeTaskHistory = await _getEmployeeTaskHistory();
       List<Map<String, dynamic>> config = List.from((await _getConfiguration())?['data'] ?? []);
-      Map<String, dynamic>? taskCount = employeeTaskHistory?['taskCount'];
       _employeeTaskHistory = employeeTaskHistory?['history'];
+
+      /// TASK COUNT CALCULATIONS
+      Map<String, dynamic>? taskCount = employeeTaskHistory?['taskCount'];
       var taskIds = taskCount?.keys.map((e) => e.toNumeric);
       config.removeWhere((element) => !(taskIds?.contains(element['id']) ?? false));
       configs = config.map((e) => e..['task_count'] = (taskCount?[e['id'].toString()] ?? 0)..['total'] = ((taskCount?[e['id'].toString()] ?? 0) * (e['amount'].toString().toNumeric))).toList();
-      Console.of.log(jsonEncode(configs), name: "CONFIGS");
+
       var history = _employeeTaskHistory?.values.expand((element) => element).toList();
       tasks = mainCategories;
       history?.forEach((element) {
@@ -77,13 +73,28 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       tasks?.forEach((element) {
         var subCate = List<Map<String, dynamic>>.from(element['subcategories'] ?? []).map((e) => e['name'].toString().toLowerCase());
         var historyTasks = history?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
-        element['tasks'] = historyTasks;
+        var others = emptyIdentifier?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
+        if (others?.isNotEmpty ?? false) emptyIdentifier?.removeWhere((element) => others?.map((e) => e['id']).contains(element['id']) ?? false);
+        element['tasks'] = [...(historyTasks ?? []), ...(others ?? [])];
       });
       tasks?.removeWhere((element) => List.from(element['tasks'] ?? []).isEmpty);
       tasks?.sort((a, b) => a['id'].compareTo(b['id']));
       tasks?.add({"id" : 0, "name" : "Parts", "tasks" : partsTasks});
       tasks?.add({"id" : -1, "name" : "Other", "tasks" : emptyIdentifier});
-      Console.of.log(jsonEncode(tasks), name: "TASK_HISTORY");
+    } catch(e) {
+      rethrow;
+    }
+  }
+
+  void _onInitialEvent(InitialEvent event, Emitter<TaskDetailsState> emit) async {
+    try {
+      _model = event.model;
+      dateRange = event.dateRange;
+      emit(LoadingState());
+      await _getCohorts();
+      await _getActiveVehicles();
+      selectedCohorts = [..._coHorts.map((e) => e['id']).toList(), ...[null]];
+      await _processData();
       emit(CommonState());
     } catch (e) {
       Console.of.error("Error", error: e);
@@ -97,5 +108,17 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
 
   void _onViewAmountSummaryEvent(ViewAmountSummaryEvent event, Emitter<TaskDetailsState> emit) {
     emit(ViewAmountSummaryState(_model?['name'] ?? "", configs));
+  }
+
+  void _onFilterCohortEvent(FilterCohortEvent event, Emitter<TaskDetailsState> emit) async {
+    try {
+      selectedCohorts = event.model;
+      emit(LoadingState());
+      await _processData();
+      emit(CommonState());
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(ErrorState(e));
+    }
   }
 }

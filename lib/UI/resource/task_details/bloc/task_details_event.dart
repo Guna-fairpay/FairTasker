@@ -23,3 +23,10 @@ class ViewCohortEvent extends TaskDetailsEvent {
 }
 
 class ViewFilterEvent extends TaskDetailsEvent {}
+
+class FilterCohortEvent extends TaskDetailsEvent {
+  final dynamic model;
+  FilterCohortEvent({this.model});
+  @override
+  List<Object?> get props => [model];
+}
