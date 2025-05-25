@@ -30,3 +30,10 @@ class FilterCohortEvent extends TaskDetailsEvent {
   @override
   List<Object?> get props => [model];
 }
+
+class ViewTaskDetailsEvent extends TaskDetailsEvent {
+  final dynamic model;
+  ViewTaskDetailsEvent({this.model});
+  @override
+  List<Object?> get props => [model];
+}

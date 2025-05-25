@@ -28,6 +28,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
     on<InitialEvent>(_onInitialEvent);
     on<ViewFilterEvent>(_onViewFilterEvent);
     on<FilterCohortEvent>(_onFilterCohortEvent);
+    on<ViewTaskDetailsEvent>(_onViewTaskDetailsEvent);
     on<ViewAmountSummaryEvent>(_onViewAmountSummaryEvent);
   }
 
@@ -125,5 +126,9 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       Console.of.error("Error", error: e);
       emit(ErrorState(e));
     }
+  }
+
+  void _onViewTaskDetailsEvent(ViewTaskDetailsEvent event, Emitter<TaskDetailsState> emit) {
+    emit(ViewTaskDetailsState(event.model));
   }
 }
