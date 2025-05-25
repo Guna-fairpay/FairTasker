@@ -22,6 +22,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
   List<Map<String, dynamic>>? tasks = [];
   List<dynamic>? selectedCohorts = [];
   List<Map<String, dynamic>>? configs = [];
+  List<Map<String, dynamic>>? _configResponse = [];
   final APiRepository _apiRepository = APiRepository();
   TaskDetailsBloc() : super(LoadingState()) {
     on<InitialEvent>(_onInitialEvent);
@@ -30,6 +31,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
     on<ViewAmountSummaryEvent>(_onViewAmountSummaryEvent);
   }
 
+  List<Map<String, dynamic>> get _configs => [...(_configResponse ?? [])];
   List<Map<String, dynamic>> get _coHorts => [...getIt<CommonService>().cohortsList];
   List<Map<String, dynamic>> get _vehicles => [...getIt<CommonService>().activeVehicleList];
   Future<List<Map<String, dynamic>>?> _getTaskCategoryGroup() async => List<Map<String, dynamic>>.from((await _apiRepository.getTaskCategoryGroup())?['data'] ?? []);
@@ -40,24 +42,25 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
 
   Future<void> _processData() async {
     try {
-      _taskCategoryGroup = await _getTaskCategoryGroup();
-      var mainCategories = _taskCategoryGroup?.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
-      var subCategories = _taskCategoryGroup?.where((element) => !element['parent_id'].toString().isNullOrEmpty).toList();
-      mainCategories?.forEach((element) {
-        var sub = subCategories?.where((e) => e['parent_id'].toString() == element['id'].toString()).toList();
+      List<Map<String, dynamic>> taskCategory = [...(_taskCategoryGroup ?? [])];
+      var mainCategories = taskCategory.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
+      var subCategories = taskCategory.where((element) => !element['parent_id'].toString().isNullOrEmpty).toList();
+      for (var element in mainCategories) {
+        var sub = subCategories.where((e) => e['parent_id'].toString() == element['id'].toString()).toList();
         var subList = List<Map<String, dynamic>>.from(element['subcategories'] ?? []);
         subList.addAll(sub ?? []);
         element['subcategories'] = subList;
-      });
+      }
       var employeeTaskHistory = await _getEmployeeTaskHistory();
-      List<Map<String, dynamic>> config = List.from((await _getConfiguration())?['data'] ?? []);
-      _employeeTaskHistory = employeeTaskHistory?['history'];
+
+      _employeeTaskHistory = (employeeTaskHistory?['history'] is Map) ? (employeeTaskHistory?['history']) : null;
 
       /// TASK COUNT CALCULATIONS
-      Map<String, dynamic>? taskCount = employeeTaskHistory?['taskCount'];
+      Map<String, dynamic>? taskCount = (employeeTaskHistory?['taskCount'] is Map) ? (employeeTaskHistory?['taskCount']) : null;
       var taskIds = taskCount?.keys.map((e) => e.toNumeric);
-      config.removeWhere((element) => !(taskIds?.contains(element['id']) ?? false));
-      configs = config.map((e) => e..['task_count'] = (taskCount?[e['id'].toString()] ?? 0)..['total'] = ((taskCount?[e['id'].toString()] ?? 0) * (e['amount'].toString().toNumeric))).toList();
+      var confs = _configs;
+      confs.removeWhere((element) => !(taskIds?.contains(element['id']) ?? false));
+      configs = confs.map((e) => e..['task_count'] = (taskCount?[e['id'].toString()] ?? 0)..['total'] = ((taskCount?[e['id'].toString()] ?? 0) * (e['amount'].toString().toNumeric))).toList();
 
       var history = _employeeTaskHistory?.values.expand((element) => element).toList();
       tasks = mainCategories;
@@ -66,22 +69,21 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
           element['vehicle_name'] = _vehicles.firstWhereOrNull((v) => v['vin'] == element['vin'])?['vehicle_name'] ?? "";
         }
       });
-      // var emptyIdentifier = history?.where((element) => element['identifier_id'].toString().isNullOrEmpty).toList();
-      // history?.removeWhere((element) => emptyIdentifier?.map((e) => e['id']).contains(element['id']) ?? false);
+
       var partsTasks = history?.where((element) => element['title'].toString().toLowerCase().contains("parts")).toList();
       history?.removeWhere((element) => partsTasks?.map((e) => e['id']).contains(element['id']) ?? false);
       tasks?.forEach((element) {
         var subCate = List<Map<String, dynamic>>.from(element['subcategories'] ?? []).map((e) => e['name'].toString().toLowerCase());
         var historyTasks = history?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
-        // var others = emptyIdentifier?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
         if (historyTasks?.isNotEmpty ?? false) history?.removeWhere((element) => historyTasks?.map((e) => e['id']).contains(element['id']) ?? false);
-        // element['tasks'] = [...(historyTasks ?? []), ...(others ?? [])];
         element['tasks'] = historyTasks;
       });
       tasks?.removeWhere((element) => List.from(element['tasks'] ?? []).isEmpty);
       tasks?.sort((a, b) => a['id'].compareTo(b['id']));
-      tasks?.add({"id" : 0, "name" : "Parts", "tasks" : partsTasks});
-      tasks?.add({"id" : -1, "name" : "Other", "tasks" : history});
+      if (tasks?.isNotEmpty ?? false) {
+        tasks?.add({"id": 0, "name": "Parts", "tasks": partsTasks});
+        tasks?.add({"id": -1, "name": "Other", "tasks": history});
+      }
     } catch(e) {
       rethrow;
     }
@@ -94,6 +96,8 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       emit(LoadingState());
       await _getCohorts();
       await _getActiveVehicles();
+      _taskCategoryGroup = await _getTaskCategoryGroup();
+      _configResponse = List.from((await _getConfiguration())?['data'] ?? []);
       selectedCohorts = [..._coHorts.map((e) => e['id']).toList(), ...[null]];
       await _processData();
       emit(CommonState());
@@ -104,11 +108,11 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
   }
 
   void _onViewFilterEvent(ViewFilterEvent event, Emitter<TaskDetailsState> emit) async {
-    emit(ViewFilterState());
+    emit(ViewFilterState(model: selectedCohorts));
   }
 
   void _onViewAmountSummaryEvent(ViewAmountSummaryEvent event, Emitter<TaskDetailsState> emit) {
-    emit(ViewAmountSummaryState(_model?['name'] ?? "", configs));
+    emit(ViewAmountSummaryState(_model?['name'] ?? "", (tasks?.isEmpty ?? false) ? [] : configs));
   }
 
   void _onFilterCohortEvent(FilterCohortEvent event, Emitter<TaskDetailsState> emit) async {

@@ -4,6 +4,7 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'task_cohort_filter_event.dart';
@@ -28,6 +29,7 @@ class TaskCohortFilterBloc extends Bloc<TaskCohortFilterEvent, TaskCohortFilterS
     try {
       emit(TaskCohortFilterLoadingState());
       cohortIdList = event.cohortIdList;
+      allSelected = (cohortIdList?.length == cohortList?.length);
       emit(TaskCohortFilterCommonState());
     }catch (e) {
       _error("TaskCohortFilterInitialEvent :( ${e.toString()}");
