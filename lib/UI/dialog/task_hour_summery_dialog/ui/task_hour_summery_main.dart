@@ -5,6 +5,7 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,7 +58,13 @@ class _HourSummeryPopView extends StatelessWidget {
                   titlePadding: EdgeInsets.zero,
                   contentPadding: 5.sp.padding.copyWith(left: 15.sp, right: 20.sp, bottom: 15.sp),
                   title: ListTile(
-                      title: Utils.getText("${name ?? ""} - Hour Summary", color: AppC.appColor),
+                      title: Utils.getText(
+                          "${name ?? ""} - Hour Summary",
+                          color: AppC.appColor,
+                          weight: FontWeight.bold,
+                          size: 16.sp,
+
+                      ),
                       trailing: IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close_rounded),
@@ -106,9 +113,14 @@ class _HourSummeryPopView extends StatelessWidget {
                                       child: Text("\$${e['total'] ?? ''}"),
                                     )),
                               ],
-                            )),
+                            ),
+                            ),
                           ],
                         ),
+                        10.sp.height,
+                        Align(
+                          alignment: Alignment.centerRight,
+                            child: Utils.getText("Total:\t\t \$${context.read<TaskHourSummeryBloc>().total.toString().toDoubleDigit}", weight: FontWeight.bold)),
                       ],
                     ),
                   ));
