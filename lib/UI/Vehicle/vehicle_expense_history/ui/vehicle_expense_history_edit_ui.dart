@@ -154,6 +154,7 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                     10.height,
                     Row(
                       spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if((context.read<VehicleExpenseHistoryBloc>().splitExpenses ?? []).isEmpty)
                         Expanded(
@@ -191,14 +192,16 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                           .descriptionController,
                     ),
                     10.height,
-                    Utils.dropdownBox('Select Category', state.categories,
+                    Utils.dropdownBox(
+                      'Select Category',
+                      state.categories,
                         (value) => context.read<VehicleExpenseHistoryBloc>()
                           .add(CategoryListEvent(category: value)),
                         labelKey: 'name',
                         selectedKey: state.selectedCategory,
                         initialSelection: state.selectedCategory,
-                      validator: (value) => (value == null) ? 'Please select category' : null,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) => ((value == null) || (value is Map && value.isEmpty)) ? 'Please select category' : null,
+                      autovalidateMode: context.watch<VehicleExpenseHistoryBloc>().autoValidateMode,
                     ),
                     10.height,
                     Utils.dropdownBox('Select SubCategory', state.subCategories,
@@ -208,8 +211,8 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                       labelKey: 'name',
                       selectedKey: state.selectedSubCategory,
                       initialSelection: state.selectedSubCategory,
-                      validator: (value) => (value == null) ? 'Please select sub category' : null,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) => ((value == null) || (value is Map && value.isEmpty)) ? 'Please select sub category' : null,
+                      autovalidateMode: context.watch<VehicleExpenseHistoryBloc>().autoValidateMode,
                     ),
                     10.height,
                     Utils.dropdownBox(
@@ -219,8 +222,8 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                       labelKey: 'name',
                       selectedKey: state.selectedCohorts,
                       initialSelection: state.selectedCohorts,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) => (value == null) ? 'Please select expense to' : null,
+                      autovalidateMode: context.watch<VehicleExpenseHistoryBloc>().autoValidateMode,
+                      validator: (value) => ((value == null) || (value is Map && value.isEmpty)) ? 'Please select expense to' : null,
                     ),
                     10.height,
                     CustomDateTimePicker<DateTime>(
@@ -244,13 +247,16 @@ class VehicleExpenseHistoryEditPage extends StatelessWidget {
                           onPressed: () {
                             context.read<VehicleExpenseHistoryBloc>().add(
                                 UpdateVehicleExpenseHistoryEvent(id: "${state.editResponse['id']}"));
-                            Future.delayed(const Duration(seconds: 1),
-                                () => context.pushReplacement(VehicleExpenseHistoryUI(
-                                      vin: state.vin,
-                                      vehicleName: state.vehicleName,
-                                      showTotalAmount: showTotalAmount,
-                                  currentExpenseAmount: currentExpenseAmount,
-                                    )));
+                            if(context.read<VehicleExpenseHistoryBloc>().formKey.currentState?.validate() ?? false){
+                              Future.delayed(const Duration(seconds: 1),
+                                      () => context.pushReplacement(VehicleExpenseHistoryUI(
+                                    vin: state.vin,
+                                    vehicleName: state.vehicleName,
+                                    showTotalAmount: showTotalAmount,
+                                    currentExpenseAmount: currentExpenseAmount,
+                                  )));
+                            }
+
                           },
                           text: 'Update',
                         ),
