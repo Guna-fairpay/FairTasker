@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 class ChoiceBoxWidget<T extends Object> extends StatelessWidget {
   final List<T>? items;
   final ItemAsString<T>? itemAsString;
+  final Color? bgColor;
 
-  const ChoiceBoxWidget({super.key, this.items, this.itemAsString});
+  const ChoiceBoxWidget({super.key, this.items, this.itemAsString, this.bgColor});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class ChoiceBoxWidget<T extends Object> extends StatelessWidget {
                           borderRadius: const BorderRadius.horizontal(
                               left: Radius.circular(30),
                               right: Radius.circular(30)),
-                          color: AppC.blue50),
+                          color: bgColor ?? AppC.blue50),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       child: Text((itemAsString != null)

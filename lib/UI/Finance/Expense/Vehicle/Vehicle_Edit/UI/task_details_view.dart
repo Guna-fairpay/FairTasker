@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/choice_box_widget.dart';
 import 'package:fairpytasker/Component/close_badge.dart';
 import 'package:fairpytasker/Component/image_viewer.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/icon_with_text.dart';
@@ -6,9 +7,11 @@ import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskDetailsViewUI extends StatelessWidget {
   final dynamic todoDetails;
@@ -87,10 +90,26 @@ class TaskDetailsViewUI extends StatelessWidget {
                     icon: Icons.speaker_notes,
                     label: "${todoDetails['notes'] ?? ''}",
                   ),
+                10.sp.height,
+                if ((todoDetails?['parts'] as List?)?.isNotEmpty ?? false)
+                  ChoiceBoxWidget<Map<String, dynamic>>(
+                    bgColor: AppC.lightGreen,
+                      items: (List<Map<String, dynamic>>.from(todoDetails?['parts']))
+                          .distinct((e) => e['parts_id']),
+                      itemAsString: (item) => item['parts_name'] ?? ""),
+                10.sp.height,
+                if ((todoDetails?['supplies'] as List?)?.isNotEmpty ?? false)
+                  ChoiceBoxWidget<Map<String, dynamic>>(
+                      bgColor: AppC.lightGreen,
+                      items: (List<Map<String, dynamic>>.from(todoDetails?['supplies']))
+                          .distinct((e) => e['supplies_id']),
+                      itemAsString: (item) => item['supplies_name'] ?? ""),
+                10.sp.height,
                 const IconAndText(
                   icon: Icons.speed,
                   label: "No Odometer",
                 ),
+
                 Utils.getText(
                   "Expense",
                   weight: FontWeight.bold,
