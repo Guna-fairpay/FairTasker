@@ -30,7 +30,6 @@ class VehicleExpenseHistoryEditPreviewUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Console.of.log("SHOW_TOTAL $showTotalAmount", name: "VehicleExpenseHistoryEditPreviewUI");
     return BlocProvider<VehicleExpenseHistoryBloc>(
       create: (context) => VehicleExpenseHistoryBloc()
         ..add(GetEditVehicleExpenseHistory(id: id)),
