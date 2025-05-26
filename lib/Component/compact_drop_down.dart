@@ -44,7 +44,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
       validator: validator,
         builder: (field) {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            if ((initialSelection != null) && (field.hasError)) field.didChange(initialSelection);
+            if ((initialSelection != null) && (field.hasError && (field.value == null))) field.didChange(initialSelection);
           });
           var border = OutlineInputBorder(
             borderRadius: BorderRadius.circular(Num.borderRadius),
@@ -55,7 +55,7 @@ class CompactDropDown<T extends Object> extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownMenu<T>(
-                // key: key,
+                key: key,
                 initialSelection: items?.firstWhereOrNull((element) => const DeepCollectionEquality().equals(initialSelection, element)),
                 hintText: hintText,
                 helperText: helperText,
