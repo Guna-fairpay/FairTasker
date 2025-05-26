@@ -75,7 +75,7 @@ class CommonService {
   final ValueNotifier<bool> updateBranch = ValueNotifier(false);
   int get userId => int.tryParse(Session.of.getString(Str.userIdPrefText) ?? "0") ?? 0;
   Iterable<String>? get roles => Session.of.getStringList(Str.rolePrefText)?.map((e) => e.toString().toLowerCase());
-  bool get isAdmin => (roles?.contains("admin") ?? false) || ([2, 3].contains(userId));
+  bool get isAdmin => (roles?.contains("admin") ?? false) || ([1, 2, 3].contains(userId));
   bool get showExpense => ((roles?.contains("admin") ?? false) || ([3, 1, 28, 17].contains(userId)));///22 - Saeed ali , 21 - hidayath
   bool get hideReportItems => [20, 21, 10, 23, 2, 16, 15].contains(userId);
 
@@ -86,6 +86,11 @@ class CommonService {
   String get currentPlatform => Platform.isAndroid ? "android" : "ios";
 
   List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
+
+  List<dynamic> get freelancerHrmIds {
+    if (departmentId != 9) return [];
+    return resourcesList.where((element) => element['department'].toString().toNumeric == departmentId).map((e) => e['hrm_id']).toList();
+  }
 
   bool get showBranchSelection {
     var hasDepartmentId = [6,7,8].contains(departmentId);

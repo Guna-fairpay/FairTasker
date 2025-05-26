@@ -19,7 +19,8 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
   final APiRepository _aPiRepository = APiRepository();
   DateRange? selectedDateRange = DateRange(DateTime.now().subtract(const Duration(days: 7)), DateTime.now());
   dynamic selectedResource;
-
+  List<dynamic> get _allowedUserIds => [1,2,3,10,21,22,23];
+  bool get isAllowed => _allowedUserIds.contains(getIt<CommonService>().userId);
   List<dynamic> get _currentBranchHrmIds => getIt<CommonService>().currentBranchHrmIds;
 
   List<Map<String, dynamic>> get resources {
@@ -60,8 +61,10 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
     _employeeActiveHours?.removeWhere((element) => element['hrm_id'].toString().isNullOrEmpty);
     workingHours = workingHours?.map((e) => e..['active'] = (_employeeActiveHours?.where((element) => element['todo_date'] == (DateTime.now().toFormat())).where((element) => element['hrm_id'] == (e['employee']?['id'])).map((e1) => (e1['active_hours'].toString().parseDurationToMinutes)).sum.minutesToHourMinute)).toList();
     selectedResource = resources.firstOrNull ?? {'id': -1, 'first_name': 'All', "last_name": ""};
-    if (!getIt<CommonService>().isAdmin) selectedResource = resources.firstWhereOrNull((element) => element['id'] == getIt<CommonService>().userId);
+    if (!isAllowed) selectedResource = resources.firstWhereOrNull((element) => element['id'] == getIt<CommonService>().userId);
     Console.of.log(selectedResource, name: "SELECTED_RESOURCE");
+    Console.of.log(getIt<CommonService>().branchId, name: "CURRENT_BRANCH_ID");
+    Console.of.log(_currentBranchHrmIds, name: "CURRENT_BRANCH_HRM_IDS");
     employeeWorkHours?.forEach((e) {
       e['user_id'] = (resources.firstWhereOrNull((element) => element['hrm_id'] == e['id']))?['id'];
       e['active'] = (_employeeActiveHours?.where((element) => element['hrm_id'] == e['id']).map((e1) => (e1['active_hours'].toString().parseDurationToMinutes)).sum.minutesToHourMinute);
@@ -70,6 +73,8 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
     });
     employeeWorkHours?.removeWhere((element) => !_currentBranchHrmIds.contains(element['id']));
     _employeeWorkHours = employeeWorkHours;
+    workingHours?.removeWhere((element) => !_currentBranchHrmIds.contains(element['employee']?['id']));
+    if (getIt<CommonService>().freelancerHrmIds.isNotEmpty) workingHours?.removeWhere((element) => !getIt<CommonService>().freelancerHrmIds.contains(element['employee']?['id']));
   }
 
   void _onInitialEvent(InitialEvent event, Emitter<ResourceCheckInOutState> emit) async {
@@ -81,7 +86,7 @@ class ResourceCheckInOutBloc extends Bloc<ResourceCheckInOutEvent, ResourceCheck
       _employeeActiveHours = response[3] ?? [];
       _employeeHistoryCount = response[4] ?? [];
       _processData();
-      if (!getIt<CommonService>().isAdmin) add(ResourceSelectEvent(selectedResource));
+      if (!isAllowed) add(ResourceSelectEvent(selectedResource));
       Console.of.log(employeeWorkHours);
       emit(CommonState());
     } catch (e) {

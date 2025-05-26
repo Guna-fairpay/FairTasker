@@ -48,7 +48,7 @@ class TaskExpansionTile extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               minTileHeight: 0,
               onTap: () => onTap?.call(mod),
-              title: CompactText(mod['vehicle_name'] ?? ( (List.from(mod['vehicles'] ?? []).length == 1) ? (List.from(mod['vehicles'] ?? []).firstOrNull?['vehicle_name'] ?? "") : "MV") , color: AppC.black, styleType: TextStyleType.labelLarge),
+              title: CompactText(mod['vehicle_name'] ?? ( (List.from(mod['vehicles'] ?? []).length == 1) ? (List.from(mod['vehicles'] ?? []).firstOrNull?['vehicle_name'] ?? "") : (List.from(mod['vehicles'] ?? []).isNotEmpty) ? "MV" : "") , color: AppC.black, styleType: TextStyleType.labelLarge),
               trailing: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
