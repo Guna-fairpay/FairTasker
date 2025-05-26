@@ -76,8 +76,10 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       tasks?.forEach((element) {
         var subCate = List<Map<String, dynamic>>.from(element['subcategories'] ?? []).map((e) => e['name'].toString().toLowerCase());
         var historyTasks = history?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
+        var partTasks = partsTasks?.where((element) => subCate.contains(element['title'].toString().toLowerCase())).toList();
         if (historyTasks?.isNotEmpty ?? false) history?.removeWhere((element) => historyTasks?.map((e) => e['id']).contains(element['id']) ?? false);
-        element['tasks'] = historyTasks;
+        if (partTasks?.isNotEmpty ?? false) partsTasks?.removeWhere((element) => partTasks?.map((e) => e['id']).contains(element['id']) ?? false);
+        element['tasks'] = [...(historyTasks ?? []), ...(partTasks ?? [])];
       });
       tasks?.removeWhere((element) => List.from(element['tasks'] ?? []).isEmpty);
       tasks?.sort((a, b) => a['id'].compareTo(b['id']));

@@ -12,6 +12,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart' show Durations, FocusNode, TextEditingController, TimeOfDay;
@@ -953,6 +954,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "user_id" : _toDoProcessor.hrmId,
       };
       var response = await _saveWorkingHour(body : body);
+      if (response?['status'] == false) Toaster.showError(response?['message'] ?? "Sorry! Try again");
       _fBroadcast.broadcast(Str.userPunchListRefresh);
       Console.of.log(response, name: "SAVE_WORKING_HOUR");
     } catch (e) {
@@ -974,6 +976,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
         "end_time_longitude" : lastLocation?['longitude'],
       };
       var response = await _updateWorkingHour(body : body);
+      if (response?['status'] == false) Toaster.showError(response?['message'] ?? "Sorry! Try again");
       _fBroadcast.broadcast(Str.userPunchListRefresh);
       Console.of.log(response, name: "UPDATE_WORKING_HOUR");
     } catch (e) {
