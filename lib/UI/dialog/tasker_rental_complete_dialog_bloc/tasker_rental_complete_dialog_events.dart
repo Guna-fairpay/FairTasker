@@ -34,7 +34,7 @@ class TRCDNotesImagePickEvent extends TRCDEvents {}
 class TRCDNotesAttachmentViewEvent extends TRCDEvents {}
 
 class TRCDVehicleCleaningNeedEvent extends TRCDEvents {
-  final String selected;
+  final dynamic selected;
   TRCDVehicleCleaningNeedEvent({required this.selected});
   @override
   List<Object?> get props => [selected];
@@ -48,6 +48,8 @@ class TRCDPostCheckOutCheckEvent extends TRCDEvents {
 }
 
 class TRCDSubmitEvent extends TRCDEvents {}
+
+class TRCDSubmitOverrideEvent extends TRCDEvents {}
 
 class TRCDRemoveAttachmentEvent extends TRCDEvents {
   final dynamic attachment;

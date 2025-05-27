@@ -11,10 +11,12 @@ import 'package:fairpytasker/core/app/config/todo_config.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
+import 'package:fairpytasker/core/app/helper/debouncer.dart';
 import 'package:fairpytasker/core/app/helper/tasker_hours_processor.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Durations, FocusNode, TextEditingController, TimeOfDay;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fairpytasker/core/app/helper/helper.dart';
@@ -49,6 +51,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   final FocusNode searchFocusNode = FocusNode();
 
   bool isTimeSensitive = false;
+
+  final Map<dynamic, GlobalObjectKey> _todoKeyMaps = {};
+  final debounce = Debouncer(duration: Durations.extralong1);
+
+  get todoKeys => _todoKeyMaps;
+
+  final ScrollController scrollController = ScrollController();
 
   ToDoTaskerBloc() : super(ToDoTaskerLoadingState()) {
     _listenBroadCast();
@@ -116,6 +125,13 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
     });
     _fBroadcast.register("show_completed_popup", (value, callback) => add(ToDoTaskerCompleteEvent(value)));
     getIt<CommonService>().branchUpdate(callback: _reFetchToDos);
+  }
+
+  void _generateKeys() {
+    if (toDos.isEmpty) _todoKeyMaps.clear();
+    for (var e in toDos) {
+      _todoKeyMaps.putIfAbsent(e['id'], () => GlobalObjectKey(e['id'].toString()));
+    }
   }
 
   /* BEGIN: API CALLS */
@@ -188,6 +204,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
       processedWorkingHours = _taskerHoursProcessor.processWorkingHours();
       unfiltered = response ?? [];
       toDos = unfiltered;
+      _generateKeys();
       isUserSelected = (selectedUsers?.isNotEmpty ?? false);
       Console.of.log("TASKER_ALL_API_LOADED", name: "TASKER_TODO_BLOC");
       emit(ToDoTaskerCommonState());
@@ -345,6 +362,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
           }
         }).toList();
         toDos = unfiltered;
+        _generateKeys();
         // TODO: CALL API TO UPDATE
         Map<String, dynamic> body = {
           "notes": event.notes,
@@ -1079,6 +1097,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
             .contains(searchQuery.toLowerCase()) ??
             false)))
         .toList();
+    _generateKeys();
   }
 
   void _onTaskFilterEvent(ToDoTaskerTaskFilterEvent event, Emitter<ToDoTaskerState> emit) {

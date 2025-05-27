@@ -36,3 +36,8 @@ class TRCDNoCleanDialogState extends TRCDStates {
   @override
   List<Object?> get props => [Random().nextDouble()];
 }
+
+class ShowOdometerWarningState extends TRCDStates {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
