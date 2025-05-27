@@ -113,8 +113,8 @@ class EditVehicleBody extends StatelessWidget {
               context.read<EditVehicleBloc>().purchasePriceController,
               textType: TextInputType.number,
               textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-              autoValidate: context.watch<EditVehicleBloc>().autoValidateMode,
-              validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
+              //autoValidate: context.watch<EditVehicleBloc>().autoValidateMode,
+             // validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
             ),
             10.height,
             ImageUploadSection(

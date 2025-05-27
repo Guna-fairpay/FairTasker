@@ -88,9 +88,9 @@ class AddVehicleBody extends StatelessWidget {
             Utils.getTextFormField(
               "Purchase Price",context.read<AddVehicleBloc>().purchasePriceController,
               textType: TextInputType.number,
-              autoValidate: context.watch<AddVehicleBloc>().autoValidateMode,
+              //autoValidate: context.watch<AddVehicleBloc>().autoValidateMode,
               textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-              validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
+              //validator: (val) => val!.isEmpty ? 'Please enter purchasePrice' : null,
             ),
             10.height,
             ImageUploadSection(
