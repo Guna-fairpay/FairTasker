@@ -8,6 +8,7 @@ import 'package:fairpytasker/Response/general_response.dart';
 import 'package:fairpytasker/Response/leave_management_employee_list_response.dart';
 import 'package:fairpytasker/Response/user_group_response.dart';
 import 'package:fairpytasker/Response/vehicle_history_response.dart';
+import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
 import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/response_extension.dart';
@@ -359,6 +360,8 @@ class APiRepository {
 
   String get _deleteConfiguration => "delete-configuration";
 
+  String get _checkInOutMaster => "checkinout-master";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -531,6 +534,7 @@ class APiRepository {
           var mapData = await response.mapData;
           log(mapData.toString(), name: "updateToDoApi");
 
+          TaskerHelper.instance.scrollToIndex(mapData?['todo']?['id']);
           // Toaster.showSuccess(
           //     mapData?['message'] ?? "Todo Updated Successfully");
           return mapData;
@@ -1608,6 +1612,7 @@ Future<Map<String, dynamic>?> getLocations() async {
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       var mapData = await response.mapData;
+      TaskerHelper.instance.scrollToIndex(mapData?['todo']?['id']);
       return mapData;
     } catch (e) {
       rethrow;
@@ -1726,6 +1731,7 @@ Future<Map<String, dynamic>?> getLocations() async {
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await  _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body, infusedFiles: infusedFiles);
       var mapData = await response.mapData;
+      if ((mapData?['status'] == 200) && (List.from(mapData?['todo'] ?? []).isNotEmpty)) TaskerHelper.instance.scrollToIndex(List.from(mapData?['todo'] ?? []).firstOrNull?['id']);
       Console.of.log(mapData, name: "ADD_TODO_RESPONSE");
       return mapData;
     } catch (error) {
@@ -3348,7 +3354,9 @@ Future<Map<String, dynamic>?> getLocations() async {
     body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
     final http.Response? response = await _apiClient.callPostMethod(apiUrl, body: jsonEncode(body));
     if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
-      return response.mapData;
+      var mapData = await response.mapData;
+      if ((mapData?['status'] == 200) && (List.from(mapData?['todo'] ?? []).isNotEmpty)) TaskerHelper.instance.scrollToIndex(List.from(mapData?['todo'] ?? []).firstOrNull?['id']);
+      return mapData;
     }
     return null;
   }
@@ -3414,7 +3422,9 @@ Future<Map<String, dynamic>?> getLocations() async {
       body.putIfAbsent("platform_type", () => getIt<CommonService>().currentPlatform);
       final http.Response? response = await _apiClient.callPostMethodWithRawBody(apiUrl, body: body);
       if (response != null && (response.statusCode == 200 || response.statusCode == 201)) {
-        return response.mapData;
+        var mapData = await response.mapData;
+        if ((mapData?['status'] == 200) && (List.from(mapData?['todo'] ?? []).isNotEmpty)) TaskerHelper.instance.scrollToIndex(List.from(mapData?['todo'] ?? []).firstOrNull?['id']);
+        return mapData;
       }
       return null;
     } catch (e) {
@@ -3762,7 +3772,7 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String,dynamic>?> getConfiguration()async{
+  Future<Map<String,dynamic>?> getConfiguration() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_getConfiguration";
       final http.Response? response = await _apiClient.callGetMethod(apiUrl);
@@ -3771,6 +3781,21 @@ Future<Map<String, dynamic>?> getLocations() async {
         return mapData;
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getCheckInOutMaster() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_checkInOutMaster";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        var mapData = await response.mapData;
+        return mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     }catch(e){
       rethrow;

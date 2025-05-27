@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Component/compact_chips_wrap_builder.dart';
 import 'package:fairpytasker/UI/CheckIn%20CheckOut/Component/custom_checkbox.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
@@ -8,9 +9,13 @@ import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/int_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:fairpytasker/core/app/helper/warning_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,6 +73,7 @@ class _TaskerRentalCompleteDialogView extends StatelessWidget {
                   break;
                 case TRCDShowAttachmentState(): ShowAttachmentsDialog.of.show(context, attachments: state.attachments, title: "", onDeleted: (value) => context.read<TRCDBloc>().add(TRCDRemoveAttachmentEvent(value, state.type))); break;
                 case TRCDNoCleanDialogState(): AskPermissionDialog.show(context, title: "Are you sure?", description: "Do you want to delete Clean car task?", positiveText: "Yes, delete it!", negativeText: "Cancel", onPositivePressed: () => context.read<TRCDBloc>().add(TRCDNoCleanDialogEvent()), onNegativePressed: () => context.read<TRCDBloc>().add(TRCDNoCleanDialogEvent(isPositive: false))); break;
+                case ShowOdometerWarningState(): WarningHelper.odometerWarning(context, onPositive: () => context.read<TRCDBloc>().add(TRCDSubmitOverrideEvent())); break;
               }
             }
           },
@@ -158,15 +164,7 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                                   FilteringTextInputFormatter.allow(
                                       RegExp(r'^\d*\.?\d*')),
                                 ],
-                                validator: (val) => ((double.tryParse(
-                                                val.toString()) ??
-                                            0) <
-                                        (context
-                                                .watch<TRCDBloc>()
-                                                .previousOdometerValue ??
-                                            0))
-                                    ? "Cannot enter lower than previous oil change odometer"
-                                    : null,
+                                validator: (val) => val.isNullOrEmpty ? "Please enter a valid odometer" : null,
                                 context.read<TRCDBloc>().odometerController)),
                         Utils.getOutlinedButton(
                             "Upload",
@@ -179,50 +177,18 @@ class _TaskerRentalCompleteDialogContentView extends StatelessWidget {
                           IconButton(onPressed: () => context.read<TRCDBloc>().add(TRCDMileageAttachmentViewEvent()), icon: const Icon(Icons.remove_red_eye_rounded, color: AppC.appColor))
                       ],
                     ),
-                    const Text("What type of cleaning does this vehicle need?"),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 5,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      alignment: WrapAlignment.start,
-                      runAlignment: WrapAlignment.start,
-                      children: [
-                        "Vaccum only",
-                        "Exterior only",
-                        "Light Clean",
-                        "Vaccum & wash",
-                        "Deep Clean",
-                        "No Clean"
-                      ]
-                          .map((e) => ChoiceChip(
-                                label: Utils.getText(
-                                  e,
-                                  color: (context.watch<TRCDBloc>().selectedCleaningNeed == e) ? AppC.white : AppC.appColor,
-                                  weight: FontWeight.bold,
-                                ),
-                                selected: context
-                                        .watch<TRCDBloc>()
-                                        .selectedCleaningNeed ==
-                                    e,
-                                labelPadding: EdgeInsets.zero,
-                                selectedColor: AppC.appColor,
-                                disabledColor: Colors.blue[50],
-                                showCheckmark: false,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                  side: const BorderSide(
-                                    color: AppC.appColor,
-                                    width: 0.5,
-                                  ),
-                                ),
-                                backgroundColor: Colors.blue[40],
-                                onSelected: (selected) => context
-                                    .read<TRCDBloc>()
-                                    .add(TRCDVehicleCleaningNeedEvent(
-                                        selected: e)),
-                              ))
-                          .toList(),
+                    CompactChipsWrapBuilder(
+                      items: context.watch<TRCDBloc>().cleaningTypes,
+                      value: context.watch<TRCDBloc>().selectedCleaningNeed,
+                      itemAsString: (item) => item['name'] ?? "",
+                      label: "What type of cleaning does this vehicle need?",
+                      onChanged: (value) => context.read<TRCDBloc>().add(TRCDVehicleCleaningNeedEvent(selected: value)),
+                    ),
+                    CompactChipsWrapBuilder<num>(
+                      items: context.watch<TRCDBloc>().cleaningMinutes,
+                      value: (context.watch<TRCDBloc>().selectedCleaningNeed?['minutes'] == 0) ? null : context.watch<TRCDBloc>().selectedCleaningNeed?['minutes'],
+                      itemAsString: (item) => item.toString().parseDurationToMinutes.minutesToHourMinute,
+                      label: "How long will it take?",
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,

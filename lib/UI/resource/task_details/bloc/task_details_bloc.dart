@@ -32,9 +32,25 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
     on<ViewAmountSummaryEvent>(_onViewAmountSummaryEvent);
   }
 
+  List<dynamic> get _requiredCateIds => [1,4,2,3,58];
+  // Define your custom order
+  List<int> get _customOrder => [1, 4, -1, 2, 3, 58, -2];
   List<Map<String, dynamic>> get _configs => [...(_configResponse ?? [])];
   List<Map<String, dynamic>> get _coHorts => [...getIt<CommonService>().cohortsList];
   List<Map<String, dynamic>> get _vehicles => [...getIt<CommonService>().activeVehicleList];
+  List<Map<String, dynamic>> get _mainCategories {
+    List<Map<String, dynamic>> taskCategory = [...(_taskCategoryGroup ?? [])];
+    var mainCategories = taskCategory.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
+    var subCategories = taskCategory.where((element) => !element['parent_id'].toString().isNullOrEmpty).toList();
+    for (var element in mainCategories) {
+      var sub = subCategories.where((e) => e['parent_id'].toString() == element['id'].toString()).toList();
+      var subList = List<Map<String, dynamic>>.from(element['subcategories'] ?? []);
+      subList.addAll(sub ?? []);
+      element['subcategories'] = subList;
+    }
+    mainCategories.removeWhere((element) => !_requiredCateIds.contains(element['id']));
+    return mainCategories;
+  }
   Future<List<Map<String, dynamic>>?> _getTaskCategoryGroup() async => List<Map<String, dynamic>>.from((await _apiRepository.getTaskCategoryGroup())?['data'] ?? []);
   Future<List<Map<String, dynamic>>?> _getCohorts() async => await getIt<CommonService>().getCohorts();
   Future<List<Map<String, dynamic>>?> _getActiveVehicles() async => await getIt<CommonService>().getActiveVehicles();
@@ -43,15 +59,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
 
   Future<void> _processData() async {
     try {
-      List<Map<String, dynamic>> taskCategory = [...(_taskCategoryGroup ?? [])];
-      var mainCategories = taskCategory.where((element) => element['parent_id'].toString().isNullOrEmpty).toList();
-      var subCategories = taskCategory.where((element) => !element['parent_id'].toString().isNullOrEmpty).toList();
-      for (var element in mainCategories) {
-        var sub = subCategories.where((e) => e['parent_id'].toString() == element['id'].toString()).toList();
-        var subList = List<Map<String, dynamic>>.from(element['subcategories'] ?? []);
-        subList.addAll(sub ?? []);
-        element['subcategories'] = subList;
-      }
+
       var employeeTaskHistory = await _getEmployeeTaskHistory();
 
       _employeeTaskHistory = (employeeTaskHistory?['history'] is Map) ? (employeeTaskHistory?['history']) : null;
@@ -64,7 +72,7 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
       configs = confs.map((e) => e..['task_count'] = (taskCount?[e['id'].toString()] ?? 0)..['total'] = ((taskCount?[e['id'].toString()] ?? 0) * (e['amount'].toString().toNumeric))).toList();
 
       var history = _employeeTaskHistory?.values.expand((element) => element).toList();
-      tasks = mainCategories;
+      tasks = _mainCategories;
       history?.forEach((element) {
         if (element['vin'].toString().isNotNullOrEmpty && element['vehicle_name'].toString().isNullOrEmpty) {
           element['vehicle_name'] = _vehicles.firstWhereOrNull((v) => v['vin'] == element['vin'])?['vehicle_name'] ?? "";
@@ -81,12 +89,17 @@ class TaskDetailsBloc extends Bloc<TaskDetailsEvent, TaskDetailsState> {
         if (partTasks?.isNotEmpty ?? false) partsTasks?.removeWhere((element) => partTasks?.map((e) => e['id']).contains(element['id']) ?? false);
         element['tasks'] = [...(historyTasks ?? []), ...(partTasks ?? [])];
       });
-      tasks?.removeWhere((element) => List.from(element['tasks'] ?? []).isEmpty);
+      // tasks?.removeWhere((element) => List.from(element['tasks'] ?? []).isEmpty);
       tasks?.sort((a, b) => a['id'].compareTo(b['id']));
       if (tasks?.isNotEmpty ?? false) {
-        tasks?.add({"id": 0, "name": "Parts", "tasks": partsTasks});
-        tasks?.add({"id": -1, "name": "Other", "tasks": history});
+        tasks?.add({"id": -1, "name": "Parts", "tasks": partsTasks});
+        tasks?.add({"id": -2, "name": "Other", "tasks": history});
       }
+      tasks?.sort((a, b) {
+        int indexA = _customOrder.indexOf(a["id"] ?? 0);
+        int indexB = _customOrder.indexOf(b["id"] ?? 0);
+        return indexA.compareTo(indexB);
+      });
     } catch(e) {
       rethrow;
     }

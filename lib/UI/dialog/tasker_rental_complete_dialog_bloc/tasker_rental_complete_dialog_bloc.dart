@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show File;
 
+import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog_bloc/tasker_rental_complete_dialog_events.dart';
 import 'package:fairpytasker/UI/dialog/tasker_rental_complete_dialog_bloc/tasker_rental_complete_dialog_states.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
+import 'package:fairpytasker/core/app/extension/int_extension.dart';
+import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart' show TextEditingController;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +23,7 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
   Map<String, dynamic>? previousOdometer;
   bool showAdditionalDistance = false, showOtherMaintenance = false, isMoveToRepair = false, isBlockCalendar = false;
   List<String> selectedCheckboxes = [];
-  String? selectedCleaningNeed = "Light Clean";
+  Map<String, dynamic>? selectedCleaningNeed;
   bool showPreviousOdometerValue = false;
   dynamic previousOdometerValue;
   TextEditingController odometerController = TextEditingController();
@@ -27,6 +31,7 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
   TextEditingController additionalDistanceController = TextEditingController();
   TextEditingController otherMaintenanceController = TextEditingController();
   List<File> mileageAttachments = [], notesAttachments = [];
+  List<Map<String, dynamic>>? cleaningTypes = [];
   TRCDBloc() : super(TRCDLoadingState()) {
     on<TRCDSubmitEvent>(_onSubmitEvent);
     on<TRCDInitialEvent>(_onTRCDInitialEvent);
@@ -40,13 +45,23 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
     on<TRCDMileageAttachmentViewEvent>(_onTRCDMileageAttachmentViewEvent);
     on<TRCDRemoveAttachmentEvent>(_onTRCDRemoveAttachmentEvent);
     on<TRCDNoCleanDialogEvent>(_onTRCDNoCleanDialogEvent);
+    on<TRCDSubmitOverrideEvent>(_onSubmitOverrideEvent);
   }
 
+  List<num> get cleaningMinutes {
+    var list = [...(cleaningTypes ?? [])];
+    list = list.distinct((element) => element['minutes']);
+    list.sort((a, b) => a['minutes'].compareTo(b['minutes']));
+    list.removeWhere((element) => element['minutes'] == 0);
+    return list.map((e) => e['minutes'].toString().toNumeric).toList();
+  }
   Future<Map<String, dynamic>?> _fetchPreviousOdometer({required String date, required dynamic vin, required dynamic identifierId}) async => await _aPiRepository.getPreviousOdometer(date: date, vin: vin, identifierId: identifierId);
 
   Future<Map<String, dynamic>?> _completeToDo({required dynamic todoId, required Map<String, dynamic> body, required List<Map<String, String?>> infusedFiles}) async => await _aPiRepository.completeTodoWithAttachments(todoId: todoId, body: body, infusedFiles: infusedFiles);
 
   Future<Map<String, dynamic>?> _updateVehicleStatus({required Map<String, dynamic> body}) async => await _aPiRepository.vehicleStatusUpdate(body: body);
+
+  Future<Map<String, dynamic>?> _getCheckInOutMaster() async => await _aPiRepository.getCheckInOutMaster();
 
 
   void _onTRCDInitialEvent(TRCDInitialEvent event, Emitter<TRCDStates> emit) async {
@@ -58,10 +73,14 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
       var identifierId = model?['identifier_id'];
       emit(TRCDLoadingState());
       previousOdometer = await _fetchPreviousOdometer(date: date, vin: vin, identifierId: identifierId);
+      var response = await _getCheckInOutMaster();
+      cleaningTypes = List<Map<String, dynamic>>.from((response?['data'] ?? [])).where((element) => element['task_name'] == "clean_task").toList();
+      selectedCleaningNeed = cleaningTypes?.firstWhereOrNull((e) => e['name'] == "Light Clean");
       previousOdometerValue = previousOdometer?['data'] ?? 0;
       showPreviousOdometerValue = (previousOdometerValue != 0);
       emit(TRCDCommonState());
     } catch (e) {
+      Console.of.error("Error", error: e);
       emit(TRCDErrorState(message: e));
     }
   }
@@ -114,7 +133,7 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
 
     Map<String, String> body = {
       "odour" : selectedCheckboxes.contains("Remove Smell") ? "Remove Smell" : "",
-      "clean_required" : "$selectedCleaningNeed",
+      "clean_required" : "${selectedCleaningNeed?['name'] ?? ""}",
       "charge" : showAdditionalDistance ? additionalDistanceController.text : "",
       "otherNotes" : showOtherMaintenance ?  otherMaintenanceController.text : "",
       "cleanTaskStatus" : "0",
@@ -123,6 +142,7 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
       "status" : "true",
       "complete_time_taken" : model?['complete_time_taken'] ?? "00:15",
       "complete_time_approved" : "${model?['complete_time_approved'] ?? 1}",
+      "clean_time_taken" : selectedCleaningNeed?['minutes'].toString() ?? "0"
     };
     Map<String, String> postCheckOut = {
       "postCheckout[refuel]" : "${selectedCheckboxes.contains("Refuel")}",
@@ -161,9 +181,10 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
   void _onSubmitEvent(TRCDSubmitEvent event, Emitter<TRCDStates> emit) async {
     try {
       if (odometerController.text.trim().isEmpty || ((num.tryParse(odometerController.text) ?? 0) <= 0) || (num.tryParse(odometerController.text) ?? 0) < (previousOdometerValue ?? 0)) {
-        emit(TRCDErrorState(message: "Please enter a valid mileage"));
+        if ((num.tryParse(odometerController.text) ?? 0) < (previousOdometerValue ?? 0)) return emit(ShowOdometerWarningState());
+        return emit(TRCDErrorState(message: "Please enter a valid mileage"));
       } else {
-        if (selectedCleaningNeed == "No Clean") { emit(TRCDNoCleanDialogState()); return; }
+        if (selectedCleaningNeed?['name'] == "No Clean") { emit(TRCDNoCleanDialogState()); return; }
         var mapData = _completeTask();
         List<Map<String, String?>> infusedFiles = [
           ...mileageAttachments.map((e) => {"mileage_image" : e.path}),
@@ -219,6 +240,30 @@ class TRCDBloc extends Bloc<TRCDEvents, TRCDStates> {
     } else {
       Console.of.log(response);
       emit(TRCDErrorState(message: "Something went wrong"));
+    }
+  }
+
+  void _onSubmitOverrideEvent(TRCDSubmitOverrideEvent event, Emitter<TRCDStates> emit) async {
+    try {
+      if (selectedCleaningNeed?['name'] == "No Clean") { emit(TRCDNoCleanDialogState()); return; }
+      var mapData = _completeTask();
+      List<Map<String, String?>> infusedFiles = [
+        ...mileageAttachments.map((e) => {"mileage_image" : e.path}),
+        ...notesAttachments.map((e) => {"note_images" : e.path})
+      ];
+      emit(TRCDLoadingState());
+      var response = await _completeToDo(todoId: model?['id'], body: mapData, infusedFiles: infusedFiles);
+      if (isMoveToRepair) await _completeUpdateVehicleStatus();
+      if (response != null) {
+        Console.of.log(response);
+        emit(TRCDCompletedState());
+      } else {
+        Console.of.log(response);
+        emit(TRCDErrorState(message: "Something went wrong"));
+      }
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      emit(TRCDErrorState(message: e));
     }
   }
 }

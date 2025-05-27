@@ -13,6 +13,13 @@ class CompactAlertDialog extends StatelessWidget {
   final TextStyle? titleTextStyle;
   final TextDirection textDirection;
   final VoidCallback? onCloseDialog;
+  final AlignmentGeometry? alignment;
+  final bool withMaxWidth;
+  final EdgeInsets? insetPadding;
+  final EdgeInsets? contentPadding;
+  final EdgeInsets? titlePadding;
+  final Color? backgroundColor;
+  final ShapeBorder? shape;
 
   const CompactAlertDialog(
       {super.key,
@@ -22,22 +29,33 @@ class CompactAlertDialog extends StatelessWidget {
       this.onCloseDialog,
       this.titleText,
       this.titleColor,
-      this.content});
+      this.content,
+      this.alignment,
+      this.insetPadding,
+      this.contentPadding,
+      this.titlePadding,
+      this.backgroundColor,
+      this.shape,
+      this.withMaxWidth = true});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      insetPadding: 16.sp.padding,
-      contentPadding: 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
-      titlePadding: EdgeInsets.zero,
-      backgroundColor: Colors.white,
-      shape: ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
+      insetPadding: insetPadding ?? 16.sp.padding,
+      contentPadding:
+          contentPadding ?? 16.sp.horizontalPadding.copyWith(bottom: 16.sp),
+      titlePadding: titlePadding ?? EdgeInsets.zero,
+      backgroundColor: backgroundColor ?? Colors.white,
+      shape: shape ??
+          ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: Directionality(
         textDirection: textDirection,
         child: ListTile(
           title: (titleText.isNotNullOrEmpty) ? Text("$titleText") : null,
-          titleTextStyle: titleTextStyle ?? context.textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: titleFontWeight),
+          titleTextStyle: titleTextStyle ??
+              context.textTheme.titleMedium
+                  ?.copyWith(color: titleColor, fontWeight: titleFontWeight),
           trailing: GestureDetector(
             onTap: () {
               onCloseDialog?.call();
@@ -47,11 +65,13 @@ class CompactAlertDialog extends StatelessWidget {
           ),
         ),
       ),
-      alignment: Alignment.topCenter,
-      content: SizedBox(
-        width: double.maxFinite,
-        child: content,
-      ),
+      alignment: alignment ?? Alignment.topCenter,
+      content: (withMaxWidth)
+          ? SizedBox(
+              width: double.maxFinite,
+              child: content,
+            )
+          : content,
     );
   }
 }

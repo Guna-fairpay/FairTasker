@@ -2,10 +2,10 @@ import 'package:fairpytasker/UI/Manage%20Employees/Departments/department_view_u
 import 'package:fairpytasker/UI/Manage%20Employees/Employees/Employee_List_Page/UI/employee_main_page.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Permissions/permissions_view_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/Roles/role_view_ui.dart';
-import 'package:fairpytasker/Utilities/Str.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
-import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/initializer/common_initializer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
@@ -43,7 +43,7 @@ class ManageEmployees extends StatelessWidget {
                     builder: (context) => const EmployeeMainPage()));///EmployeeMainPage ///EmployeesViewUI
               },
             ),
-            if (Session.of.getStringList(Str.rolePrefText)?.firstOrNull == 'Admin')
+            if (getIt<CommonService>().isAdmin || kDebugMode)
               ...[
                 _buildCard(
                   icon: Icons

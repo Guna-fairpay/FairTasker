@@ -87,6 +87,8 @@ class CommonService {
 
   List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
 
+  bool get hasReport => userPermissions?.map((e) => e.toLowerCase()).contains("report") ?? false;
+
   List<dynamic> get freelancerHrmIds {
     if (departmentId != 9) return [];
     return resourcesList.where((element) => element['department'].toString().toNumeric == departmentId).map((e) => e['hrm_id']).toList();
