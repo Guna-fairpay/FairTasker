@@ -149,7 +149,8 @@ class Utils {
       validator: validator,
       builder: (field) {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          if ((initialSelection != null) && (field.hasError)) field.didChange(initialSelection);
+          //((field.value is Map) && ((field.value as Map).isEmpty))
+          if ((initialSelection != null) && (field.hasError && ((field.value == null)))) field.didChange(initialSelection);
         });
         var border = OutlineInputBorder(
             borderRadius: BorderRadius.only(
@@ -216,7 +217,6 @@ class Utils {
         );
       },
     );
-
   }
 
   static Widget dropdownSearchBox(

@@ -3,7 +3,6 @@
 import 'dart:developer';
 import 'package:fairpytasker/Component/custom_date_time_picker.dart';
 import 'package:fairpytasker/Component/custom_single_selection_field.dart';
-import 'package:fairpytasker/Component/custom_vehicle_person_field.dart';
 import 'package:fairpytasker/Component/success_button.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_bloc.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Vehicle/Vehicle_Add/Bloc/add_expense_vehicle_state.dart';
@@ -13,7 +12,6 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
-import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -153,7 +151,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                               .add(CategoryListEvent(selectedCategory: value)),
                           labelKey: 'name',
                           initialSelection: state.selectedCategory,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autovalidateMode: context.watch<AddExpenseVehicleBloc>().autoValidateMode,
                           validator: (value) => (value == null) ? 'Please select category' : null,
                         ),
                         10.height,
@@ -165,7 +163,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           labelKey: 'name',
                           selectedKey: state.selectedSubCategory,
                           initialSelection: state.selectedSubCategory,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autovalidateMode: context.watch<AddExpenseVehicleBloc>().autoValidateMode,
                             validator: (value) {
                               if (state.selectedSubCategory == null ||
                                   ((state.selectedSubCategory is Map) && ((state.selectedSubCategory as Map).isEmpty))) {
@@ -184,7 +182,7 @@ class ExpenseVehicleAddUI extends StatelessWidget {
                           labelKey: 'name',
                           selectedKey: state.selectedCohorts,
                           initialSelection: state.selectedCohorts,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autovalidateMode: context.watch<AddExpenseVehicleBloc>().autoValidateMode,
                             validator: (value) {
                               if (state.selectedCohorts == null ||
                                   ((state.selectedCohorts is Map) && ((state.selectedCohorts as Map).isEmpty))) {
