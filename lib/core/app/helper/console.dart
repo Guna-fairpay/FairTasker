@@ -25,8 +25,8 @@ class Console {
 
   void error(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
+      developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
         _logger.e("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }
@@ -35,8 +35,8 @@ class Console {
 
   void debug(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
+      developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
         _logger.d("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }
@@ -45,8 +45,8 @@ class Console {
 
   void warning(dynamic message, {String name = "Console", Object? error, StackTrace? stackTrace}) {
     if (_isDebug) {
+      developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       if ("$message".length > 120) {
-        developer.log("$message", error: error, stackTrace: stackTrace, name: name, time: DateTime.now());
       } else {
         _logger.w("[$name] $message", error: error, stackTrace: stackTrace, time: DateTime.now());
       }

@@ -64,4 +64,9 @@ class Session {
     await _preferences.clear();
     Console.of.debug("Session Cleared", name: "SharedPrefs");
   }
+
+  Future<void> remove(String key) async {
+    await _preferences.remove(key);
+    Console.of.debug("Session Removed", name: "SharedPrefs");
+  }
 }

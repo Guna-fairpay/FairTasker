@@ -1,3 +1,4 @@
+import 'package:fairpytasker/Utilities/prefs.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -24,6 +25,7 @@ class TodoTaskItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
+      key: key,
       child: Row(
         children: [
           GestureDetector(
@@ -139,7 +141,7 @@ class TodoTaskItemCard extends StatelessWidget {
                     bottom: BorderSide(
                         color: Colors.grey.withValues(alpha: 0.4), width: 1.2),
                   ),
-                  color: AppC.white,
+                  color: (model['id'] == Session.of.getInt("scrollToIndex")) ? AppC.lightBlue : AppC.white,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
