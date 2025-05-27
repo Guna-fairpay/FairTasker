@@ -65,7 +65,7 @@ class HeaderView extends StatelessWidget {
                   ),
                 ),
               ),
-              if (getIt<CommonService>().isAdmin)
+              if (getIt<CommonService>().hasReport)
                 IconButton(onPressed: () => context.push(const LogUi(), fullscreenDialog: true), icon: const Icon(Icons.receipt_long_rounded, color: AppC.grey)),
               const Spacer(),
               if (kDebugMode)
