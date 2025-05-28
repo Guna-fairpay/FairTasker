@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/warning_helper.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -223,50 +224,63 @@ class EditTodoUI extends StatelessWidget {
                           icon: const Icon(Icons.delete_outline,color: AppC.redAccent,)),
                       IconButton(
                           onPressed: () {
-                            if (state.apiResponse['recurring_id'] != null) {
+                            var currentOdometer = num.tryParse(context.read<EditToDoBloc>().odometerController.text);
+                            bool showOdometerPop = (currentOdometer != null && state.showOdometer && (int.tryParse(state.previousOdometer) != 0)
+                                && (double.tryParse(currentOdometer.toString()) ?? 0) <
+                                    (double.tryParse(state.previousOdometer) ?? 0));
+                            if(state.apiResponse['recurring_id']!=null){
                               AskPermissionDialog.show(
                                 context,
-                                title: "Do you want to Update this task only?",
-                                description: state.apiResponse['recurring'],
-                                positiveText: "Yes, Update it!",
+                                title:
+                                "Do you want to Update this task only?",
+                                description:state.apiResponse['recurring'],
+                                positiveText:"Yes, Update it!",
                                 negativeText: "Cancel",
                                 isReasonRequired: false,
-                                subPositiveText: "Update multiple",
+                                subPositiveText:"Update multiple",
                                 onSaveMultiPressed: () async {
-                                  if (state.selectedEndDate != null &&
-                                      state.selectedStartDate != null) {
+                                  if(state.selectedEndDate != null && state.selectedStartDate != null){
                                     await Future.delayed(Durations.short1);
                                     AskDateRangePermissionDialog.show(context,
-                                        endDate:
-                                            state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
+                                        endDate: state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
                                         startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
                                         selectedEndDate: state.selectedEndDate,
-                                        selectedStartDate:
-                                            state.selectedStartDate,
-                                        onStartDate: (value) => context
-                                            .read<EditToDoBloc>()
-                                            .add(EditToDoStartDateChangeEvent(
-                                                value)),
-                                        onEndDate: (value) => context
-                                            .read<EditToDoBloc>()
-                                            .add(EditToDoEndDateChangeEvent(
-                                                value)),
-                                        onPositivePressed: () {
-                                          context.read<EditToDoBloc>().add(
-                                              EditToDoSaveEvent(
-                                                  isRecurring: true));
-                                        });
+                                        selectedStartDate: state.selectedStartDate,
+                                        onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
+                                        onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
+                                        onPositivePressed: (){
+                                          if(showOdometerPop){
+                                            WarningHelper.odometerWarning(context,
+                                                onPositive: () => context.read<EditToDoBloc>().add(
+                                                    EditToDoSaveEvent(isRecurring: true)));
+                                          } else {
+                                            context.read<EditToDoBloc>().add(
+                                                EditToDoSaveEvent(isRecurring: true));
+                                          }
+                                        }
+                                    );
                                   }
                                 },
-                                onPositivePressed: () {
-                                  context.read<EditToDoBloc>().add(
-                                      EditToDoSaveEvent(isRecurring: false));
+                                onPositivePressed: (){
+                                  if(showOdometerPop){
+                                    WarningHelper.odometerWarning(context,
+                                        onPositive: () => context.read<EditToDoBloc>().add(
+                                            EditToDoSaveEvent(isRecurring: true)));
+                                  } else {
+                                    context.read<EditToDoBloc>().add(
+                                        EditToDoSaveEvent(isRecurring: true));
+                                  }
                                 },
                               );
-                            } else {
-                              context
-                                  .read<EditToDoBloc>()
-                                  .add(EditToDoSaveEvent(isRecurring: false));
+                            }else {
+                              if(showOdometerPop){
+                                WarningHelper.odometerWarning(context,
+                                    onPositive: () => context.read<EditToDoBloc>().add(
+                                        EditToDoSaveEvent(isRecurring: true)));
+                              } else {
+                                context.read<EditToDoBloc>().add(
+                                    EditToDoSaveEvent(isRecurring: true));
+                              }
                             }
                           },
                           icon: const Icon(Icons.save,color: AppC.green,)),

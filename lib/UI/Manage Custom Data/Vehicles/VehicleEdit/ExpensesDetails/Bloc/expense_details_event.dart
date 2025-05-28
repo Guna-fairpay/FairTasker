@@ -26,3 +26,10 @@ class SearchRmExpenseEvent extends ExpenseDetailsEvent {
   @override
   List<Object?> get props => [query];
 }
+
+class FilterCategoryEvent extends ExpenseDetailsEvent {
+  final List<dynamic>? categoryValue;
+  FilterCategoryEvent(this.categoryValue);
+  @override
+  List<Object?> get props => [categoryValue];
+}

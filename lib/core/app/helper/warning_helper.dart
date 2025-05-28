@@ -6,7 +6,7 @@ class WarningHelper {
   static odometerWarning(BuildContext context, {VoidCallback? onPositive}) {
     AskPermissionDialog.show(context,
       description: 'The entered odometer value is less than the previous one. Are you sure you want to continue?',
-      positiveText: 'Yes,continue',
+      positiveText: 'Yes, continue',
       onPositivePressed: onPositive,
     );
   }

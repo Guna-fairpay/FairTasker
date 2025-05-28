@@ -56,6 +56,7 @@ class EditTodoState extends Equatable {
   final bool isTimeChange;
   final List<dynamic> notesImages;
   final List<dynamic> mileageImages;
+  final bool showOdometer;
 
   const EditTodoState( {
     required this.isLoading,
@@ -110,6 +111,7 @@ class EditTodoState extends Equatable {
     required this.isTimeChange,
     required this.notesImages,
     required this.mileageImages,
+    required this.showOdometer,
 
   });
 
@@ -175,6 +177,7 @@ class EditTodoState extends Equatable {
     bool? isTimeChange,
     List<dynamic>? notesImages,
     List<dynamic>? mileageImages,
+    bool? showOdometer,
 
   }) =>
       EditTodoState(
@@ -231,6 +234,7 @@ class EditTodoState extends Equatable {
         isTimeChange: isTimeChange ?? this.isTimeChange,
         notesImages: notesImages ?? this.notesImages,
         mileageImages: mileageImages ?? this.mileageImages,
+        showOdometer: showOdometer ?? this.showOdometer,
       );
 
   @override
@@ -287,6 +291,7 @@ class EditTodoState extends Equatable {
     isTimeChange,
     notesImages,
     mileageImages,
+    showOdometer,
 
     Random().nextDouble()
   ];

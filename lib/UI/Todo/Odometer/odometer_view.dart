@@ -1,6 +1,8 @@
 import 'package:fairpytasker/Component/success_button.dart';
+import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
 import 'package:fairpytasker/Utilities/Utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/helper/warning_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -98,11 +100,14 @@ class OdometerView extends StatelessWidget {
                                 FilteringTextInputFormatter.allow(
                                     RegExp(r'^\d*\.?\d*')),
                               ],
-                              validator: (val) => (double.tryParse(
-                                  val.toString()) ?? 0) <
-                                  (double.tryParse("${state.odometerData ?? 0}") ?? 0)
-                                  ? "Cannot enter lower than previous oil change odometer"
+                              validator: (val) => ((val == null || val.isEmpty) /*|| double.tryParse(val) == 0*/)
+                                  ? "Please enter valid odometer value"
                                   : null,
+                              // validator: (val) => (double.tryParse(
+                              //     val.toString()) ?? 0) <
+                              //     (double.tryParse("${state.odometerData ?? 0}") ?? 0)
+                              //     ? "Cannot enter lower than previous oil change odometer"
+                              //     : null,
                             ),
                           ),
                           Expanded(
@@ -129,19 +134,29 @@ class OdometerView extends StatelessWidget {
                               var currentOdometer = num.tryParse(context.read<OdometerBloc>().oilChangeController.text);
                               var nextMileCheck = num.tryParse(context.read<OdometerBloc>().nextMilesCheckController.text);
                               var nextOdometer = num.tryParse(context.read<OdometerBloc>().nextOdometerController.text);
-                              context.read<OdometerBloc>().add(OdometerSaveEvent(
-                                currentOdometer: currentOdometer,
-                                nextOdometer: nextOdometer,
-                                nextMilesCheck: nextMileCheck,
-                                toDoId: todoItems?['id'],)
-                              );
+                              if(state.odometerData != null && ((double.tryParse(currentOdometer.toString()) ?? 0)
+                                  < (double.tryParse("${state.odometerData ?? 0}") ?? 0))){
+                                WarningHelper.odometerWarning(context, onPositive:
+                                    () => context.read<OdometerBloc>().add(OdometerSaveEvent(
+                                  currentOdometer: currentOdometer,
+                                  nextOdometer: nextOdometer,
+                                  nextMilesCheck: nextMileCheck,
+                                  toDoId: todoItems?['id'],)));
+                              }else{
+                                context.read<OdometerBloc>().add(OdometerSaveEvent(
+                                  currentOdometer: currentOdometer,
+                                  nextOdometer: nextOdometer,
+                                  nextMilesCheck: nextMileCheck,
+                                  toDoId: todoItems?['id'],)
+                                );
+                              }
                               formKey.currentState!.reset();
                             } else {
-                              if(context.read<OdometerBloc>().oilChangeController.text == ''){
+                              if(context.read<OdometerBloc>().oilChangeController.text.isEmpty){
                                 Toaster.showError("Invalid odometer value");
-                              } else{
+                              }/* else{
                                 Toaster.showError("Entered odometer it cannot be less than the previous odometer");
-                              }
+                              }*/
                             }
                           },
                         )

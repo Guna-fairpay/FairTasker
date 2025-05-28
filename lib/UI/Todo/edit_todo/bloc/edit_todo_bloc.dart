@@ -85,6 +85,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
   bool showCleanCar = false;
   bool cleanCarIsActive = false;
+  bool showOdometer = false;
 
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
@@ -149,6 +150,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     isTimeChange: false,
     notesImages: const [],
     mileageImages: const [],
+    showOdometer: false,
   )) {
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(EditToDoRefreshEvent()));
     on<EditToDoRefreshEvent>(_onRefreshEvent);
@@ -355,12 +357,17 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
         cleanCarIsActive=true;
 
         if((todoResponse?['identifier_id'] == null) || (selectedTask == null)
-            || (selectedTask?['task'] != (todoResponse?['title'] ?? '')) ){
+            || (selectedTask['task'] != (todoResponse?['title'] ?? '')) ){
           Console.of.debug(todoResponse?['title']);
           taskNameController.text = todoResponse?['title'] ?? '';
           selectedTask=null;
-
         }
+
+        showOdometer = (Str.completedOdometer.contains(todoResponse?['identifier_id'])
+            && todoResponse?['status']=="Completed")
+            || (Str.unCompletedOdometer.contains(todoResponse?['identifier_id']));
+
+        Console.of.log(showOdometer.toString(), name: "show");
 
         emit(state.copyWith(
           isLoading: false,
@@ -417,6 +424,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
           selectedStartDate: selectedStartDate,
           notesImages: notesImages,
           mileageImages: mileageImages,
+          showOdometer: showOdometer,
           isPop: false,
         ));
         await Future.delayed(

@@ -13,6 +13,7 @@ import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/warning_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -170,9 +171,10 @@ class EditTodoMoreForm extends StatelessWidget {
                     ?.copyWith(color: context.theme.hintColor),
                 style:
                     context.textTheme.labelLarge?.copyWith(fontFamily: "Lato")),
-          if ((Str.completedOdometer.contains(state.apiResponse['title'])
-              && state.apiResponse['status']=="Completed")
-              || (Str.unCompletedOdometer.contains(state.apiResponse['title'])))
+          // if ((Str.completedOdometer.contains(state.apiResponse['identifier_id'])
+          //     && state.apiResponse['status']=="Completed")
+          //     || (Str.unCompletedOdometer.contains(state.apiResponse['identifier_id'])))
+           if(state.showOdometer)
             Column(
               spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,16 +193,19 @@ class EditTodoMoreForm extends StatelessWidget {
                 Utils.getTextFormField(
                   'Odometer',
                   context.read<EditToDoBloc>().odometerController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return null;
-                    }
-                    final inputValue = num.tryParse(value) ?? 0;
-                    final minMileage = num.tryParse(state.previousOdometer) ?? 0;
-                    return inputValue < minMileage
-                        ? "Can't enter lower than previous oil change odometer"
-                        : null;
-                  },
+                  validator: (val) => ((val == null || val.isEmpty) /*|| double.tryParse(val) == 0*/)
+                      ? "Please enter oil change odometer"
+                      : null,
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return null;
+                  //   }
+                  //   final inputValue = num.tryParse(value) ?? 0;
+                  //   final minMileage = num.tryParse(state.previousOdometer) ?? 0;
+                  //   return inputValue < minMileage
+                  //       ? "Can't enter lower than previous oil change odometer"
+                  //       : null;
+                  // },
                   autoValidate: AutovalidateMode.onUserInteraction,
                   inputAction: TextInputAction.done,
                   textType: const TextInputType.numberWithOptions(decimal: true),
@@ -317,42 +322,63 @@ class EditTodoMoreForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SuccessButton(text: 'Update',onPressed: () {
+                var currentOdometer = num.tryParse(context.read<EditToDoBloc>().odometerController.text);
+                bool showOdometerPop = (currentOdometer != null && state.showOdometer && (int.tryParse(state.previousOdometer) != 0)
+                    && (double.tryParse(currentOdometer.toString()) ?? 0) <
+                        (double.tryParse(state.previousOdometer) ?? 0));
                 if(state.apiResponse['recurring_id']!=null){
-                  AskPermissionDialog.show(
-                    context,
-                    title:
-                    "Do you want to Update this task only?",
-                    description:state.apiResponse['recurring'],
-                    positiveText:"Yes, Update it!",
-                    negativeText: "Cancel",
-                    isReasonRequired: false,
-                    subPositiveText:"Update multiple",
-                    onSaveMultiPressed: () async {
-                      if(state.selectedEndDate != null && state.selectedStartDate != null){
-                        await Future.delayed(Durations.short1);
-                        AskDateRangePermissionDialog.show(context,
-                            endDate: state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
-                            startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
-                            selectedEndDate: state.selectedEndDate,
-                            selectedStartDate: state.selectedStartDate,
-                            onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
-                            onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
-                            onPositivePressed: (){
-                              context.read<EditToDoBloc>().add(
-                                  EditToDoSaveEvent(isRecurring: true));
-                            }
-                        );
-                      }
-                    },
-                    onPositivePressed: (){
-                      context.read<EditToDoBloc>().add(
-                          EditToDoSaveEvent(isRecurring: false));
-                    },
-                  );
-
+                    AskPermissionDialog.show(
+                      context,
+                      title:
+                      "Do you want to Update this task only?",
+                      description:state.apiResponse['recurring'],
+                      positiveText:"Yes, Update it!",
+                      negativeText: "Cancel",
+                      isReasonRequired: false,
+                      subPositiveText:"Update multiple",
+                      onSaveMultiPressed: () async {
+                        if(state.selectedEndDate != null && state.selectedStartDate != null){
+                          await Future.delayed(Durations.short1);
+                          AskDateRangePermissionDialog.show(context,
+                              endDate: state.selectedEndDate?.toFormat(format: 'MM-dd-yyyy'),
+                              startDate: context.read<EditToDoBloc>().recurringStartDate?.toFormat(format: 'MM-dd-yyyy'),
+                              selectedEndDate: state.selectedEndDate,
+                              selectedStartDate: state.selectedStartDate,
+                              onStartDate: (value)=>context.read<EditToDoBloc>().add(EditToDoStartDateChangeEvent(value)),
+                              onEndDate: (value)=>context.read<EditToDoBloc>().add(EditToDoEndDateChangeEvent(value)),
+                              onPositivePressed: (){
+                                if(showOdometerPop){
+                                  WarningHelper.odometerWarning(context,
+                                      onPositive: () => context.read<EditToDoBloc>().add(
+                                      EditToDoSaveEvent(isRecurring: true)));
+                                } else {
+                                  context.read<EditToDoBloc>().add(
+                                      EditToDoSaveEvent(isRecurring: true));
+                                }
+                              }
+                          );
+                        }
+                      },
+                      onPositivePressed: (){
+                        if(showOdometerPop){
+                          WarningHelper.odometerWarning(context,
+                              onPositive: () => context.read<EditToDoBloc>().add(
+                                  EditToDoSaveEvent(isRecurring: true)));
+                        } else {
+                          context.read<EditToDoBloc>().add(
+                              EditToDoSaveEvent(isRecurring: true));
+                        }
+                      },
+                    );
                 }else {
-                  context.read<EditToDoBloc>().add(
-                      EditToDoSaveEvent(isRecurring: false));
+                  if(showOdometerPop){
+                    WarningHelper.odometerWarning(context,
+                        onPositive: () => context.read<EditToDoBloc>().add(
+                            EditToDoSaveEvent(isRecurring: true)));
+                  } else {
+                    context.read<EditToDoBloc>().add(
+                        EditToDoSaveEvent(isRecurring: true));
+                  }
                 }
               },),
             ],
