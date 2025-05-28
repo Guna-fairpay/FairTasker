@@ -20,6 +20,7 @@ class CompactAlertDialog extends StatelessWidget {
   final EdgeInsets? titlePadding;
   final Color? backgroundColor;
   final ShapeBorder? shape;
+  final double? elevation;
 
   const CompactAlertDialog(
       {super.key,
@@ -36,6 +37,7 @@ class CompactAlertDialog extends StatelessWidget {
       this.titlePadding,
       this.backgroundColor,
       this.shape,
+      this.elevation,
       this.withMaxWidth = true});
 
   @override
@@ -47,7 +49,7 @@ class CompactAlertDialog extends StatelessWidget {
       titlePadding: titlePadding ?? EdgeInsets.zero,
       backgroundColor: backgroundColor ?? Colors.white,
       shape: shape ??
-          ContinuousRectangleBorder(
+          RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(Num.borderRadiusLarge)),
       title: Directionality(
         textDirection: textDirection,
@@ -66,6 +68,8 @@ class CompactAlertDialog extends StatelessWidget {
         ),
       ),
       alignment: alignment ?? Alignment.topCenter,
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      elevation: elevation,
       content: (withMaxWidth)
           ? SizedBox(
               width: double.maxFinite,
