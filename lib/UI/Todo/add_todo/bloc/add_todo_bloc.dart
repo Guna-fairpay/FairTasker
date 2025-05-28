@@ -190,6 +190,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       var context = CommonHelper.instance.navigatorKey.currentContext;
       if (context != null) {
         var result = await OilChangeTaskExistDialog.show(context, model: response);
+        Utils.dismissKeyboard(context);
         if (result == true) {
           emit(state.copyWith(isLoading: true));
           var deleteResponse = await _deleteToDo(todoId: response?['id']);
