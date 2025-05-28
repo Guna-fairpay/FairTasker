@@ -12,6 +12,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
@@ -156,6 +157,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
 
     on<GetEditTodoInitialEvent>((event, emit) async {
       try {
+        await CommonHelper.instance.waitForPostFrameCallback();
         emit(state.copyWith(isLoading: true));
         todoResponse = await apiRepository.editToDo(event.todoId);
         var partsResponse = await getIt<CommonService>().getPartsList();

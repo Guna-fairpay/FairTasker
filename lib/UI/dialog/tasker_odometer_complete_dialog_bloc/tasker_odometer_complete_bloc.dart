@@ -15,10 +15,12 @@ class TOCDBloc extends Bloc<TOCDEvents, TOCDStates> {
   final TextEditingController oilChangeController = TextEditingController();
   final TextEditingController nextOdometerController = TextEditingController(text: 5000.toString());
   final APiRepository _aPiRepository = APiRepository();
+  final GlobalKey<FormState> formKey = GlobalKey();
   TOCDBloc() : super(TOCDLoadingState()) {
     nextMilesCheckController.addListener(_autoCalculateValues);
     oilChangeController.addListener(_autoCalculateValues);
    on<TOCDInitialEvents>(_onInitialEvents);
+   on<TOCDSubmitEvent>(_onSubmitEvent);
   }
 
   /// API CALLS : BEGIN HERE
@@ -48,5 +50,18 @@ class TOCDBloc extends Bloc<TOCDEvents, TOCDStates> {
     var nextMiles = num.tryParse(nextMilesCheckController.text);
     var oilChange = num.tryParse(oilChangeController.text);
     nextOdometerController.text = ((nextMiles ?? 0) + (oilChange ?? 0)).toString();
+  }
+
+  void _onSubmitEvent(TOCDSubmitEvent event, Emitter<TOCDStates> emit) {
+    if (formKey.currentState?.validate() == false) return;
+    var currentOdometer = num.tryParse(oilChangeController.text);
+    var nextMileCheck = num.tryParse(nextMilesCheckController.text);
+    var nextOdometer = num.tryParse(nextOdometerController.text);
+    if (event.isOverride) {
+      return emit(TOCDCompleteState(currentOdometer, nextMileCheck, nextOdometer));
+    } else {
+      if ((currentOdometer ?? 0) < (previousOdometerResponse?['data'] ?? 0)) return emit(TOCDOdometerWarningState());
+      return emit(TOCDCompleteState(currentOdometer, nextMileCheck, nextOdometer));
+    }
   }
 }
