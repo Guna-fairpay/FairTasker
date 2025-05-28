@@ -98,5 +98,7 @@ class Str{
 
     static const List<int> red = [212, 210];
 
+    static const List<int> oilChangeCheckIds = [126, 294, 35];
+
 
 }
