@@ -12,9 +12,16 @@ class CommonHelper {
 
   final navigatorKey = GlobalKey<NavigatorState>();
 
-  Future<void> waitForPostFrameCallback() {
-    final Completer<void> completer = Completer<void>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => completer.complete());
+  Future<bool> waitForPostFrameCallback({bool withDelay = false}) {
+    final Completer<bool> completer = Completer<bool>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (withDelay) {
+        await Future.delayed(Durations.short1);
+        completer.complete(true);
+      } else {
+        completer.complete(true);
+      }
+    });
     return completer.future;
   }
 

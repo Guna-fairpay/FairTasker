@@ -7,6 +7,7 @@ import 'package:fairpytasker/UI/dialog/show_attachments_dialog.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
@@ -24,7 +25,7 @@ class CreateTodoUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return showHeader ? withBody(context) : withOutBody(context);
+    return FutureBuilder(future: CommonHelper.instance.waitForPostFrameCallback(withDelay: true), builder: (context, snapshot) => (snapshot.data ?? false) ? (showHeader ? withBody(context) : withOutBody(context)) : const SizedBox.shrink());
   }
 
   Widget withBody(BuildContext context) {

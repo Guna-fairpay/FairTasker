@@ -38,9 +38,10 @@ class ToDoTaskerSearchEvent extends ToDoTaskerEvent {
 
 class ToDoTaskerEditEvent extends ToDoTaskerEvent {
   final dynamic toDoId;
-  ToDoTaskerEditEvent(this.toDoId);
+  final dynamic model;
+  ToDoTaskerEditEvent(this.toDoId, {this.model});
   @override
-  List<Object?> get props => [toDoId];
+  List<Object?> get props => [toDoId, model];
 }
 
 class ToDoTaskerTapUserFilterEvent extends ToDoTaskerEvent {

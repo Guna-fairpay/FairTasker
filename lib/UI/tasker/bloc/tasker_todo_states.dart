@@ -50,9 +50,10 @@ class ToDoTaskerMicState extends ToDoTaskerState {
 
 class ToDoTaskerEditState extends ToDoTaskerState {
   final dynamic toDoId;
-  ToDoTaskerEditState(this.toDoId);
+  final dynamic model;
+  ToDoTaskerEditState(this.toDoId, {this.model});
   @override
-  List<Object?> get props => [toDoId, Random().nextDouble()];
+  List<Object?> get props => [toDoId, model, Random().nextDouble()];
 }
 
 class ToDoTaskerTapUserFilterState extends ToDoTaskerState {

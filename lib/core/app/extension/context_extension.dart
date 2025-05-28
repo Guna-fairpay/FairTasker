@@ -1,4 +1,5 @@
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/route_animation.dart';
 import 'package:fairpytasker/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,7 @@ extension ContextExtension on BuildContext {
   Future<void> push<T>(Widget page, {bool fullscreenDialog = false}) async {
     try {
       Utils.dismissKeyboard(this);
-      await Navigator.push(this, MaterialPageRoute(builder: (context) => page, fullscreenDialog: fullscreenDialog));
+      Navigator.of(this).push(ScaleRoute(page: page));
       Utils.dismissKeyboard(this);
     } catch (e) {
       Console.of.error("Error", error: e);

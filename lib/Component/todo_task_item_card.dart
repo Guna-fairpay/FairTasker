@@ -157,36 +157,36 @@ class TodoTaskItemCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Flexible(
-                                child: Text.rich(TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      recognizer: TapGestureRecognizer()..onTap = onTap,
-                                        text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model['display']?['hasTimeSensitive'])
-                                        ? AppC.red
-                                        : AppC.appColor, fontWeight: FontWeight.bold)),
-                                    if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
-                                      ...[
-                                        TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-                                        TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-                                        if (model['display']?['hasReasonAttachments'] ?? false)
-                                          WidgetSpan(child: 10.width),
+                                child: Hero(tag: model['id'].toString(), child: Text.rich(TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          recognizer: TapGestureRecognizer()..onTap = onTap,
+                                          text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model['display']?['hasTimeSensitive'])
+                                          ? AppC.red
+                                          : AppC.appColor, fontWeight: FontWeight.bold)),
+                                      if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
+                                        ...[
+                                          TextSpan(text: "\t(\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                          TextSpan(text: model['display']?['reason'], style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
                                           if (model['display']?['hasReasonAttachments'] ?? false)
-                                          WidgetSpan(child: GestureDetector(
-                                            onTap: onReasonAttachmentView,
-                                            child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
-                                          )),
-                                        TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
-                                      ],
-                                    if (model['display']?['hasRelatedTask'] ?? false)
-                                      ...[
-                                        TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
-                                        TextSpan(text: model['display']?['relatedTaskName']),
-                                      ]
-                                  ]
+                                            WidgetSpan(child: 10.width),
+                                          if (model['display']?['hasReasonAttachments'] ?? false)
+                                            WidgetSpan(child: GestureDetector(
+                                              onTap: onReasonAttachmentView,
+                                              child: Icon(Icons.remove_red_eye_rounded, color: Colors.red, size: 14.sp),
+                                            )),
+                                          TextSpan(text: "\t)\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red, fontSize: 12.sp)),
+                                        ],
+                                      if (model['display']?['hasRelatedTask'] ?? false)
+                                        ...[
+                                          TextSpan(text: "\t>>\t", style: context.textTheme.labelMedium?.copyWith(color: Colors.red)),
+                                          TextSpan(text: model['display']?['relatedTaskName']),
+                                        ]
+                                    ]
                                 ), maxLines: 1,
                                     textAlign: TextAlign.center,
                                     overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp)),
+                                    style: context.textTheme.labelMedium?.copyWith(color: AppC.appColor, fontSize: 12.sp))),
                               ),
                               if (model['display']?['hasCustomLink'] ?? false)
                                 GestureDetector(
