@@ -7,6 +7,7 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
+import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -24,9 +25,9 @@ class EditTodoUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Console.of.log("${model?['title']}", name: "EditTodoUI");
     return BlocProvider(
-      create: (context) =>
-          EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId",)),
+      create: (context) => EditToDoBloc()..add(GetEditTodoInitialEvent(todoId: "$todoId", model: model)),
       child: BlocListener<EditToDoBloc, EditTodoState>(
         listener: (context, state) {
           if (state.isPop) {
@@ -53,11 +54,14 @@ class EditTodoUI extends StatelessWidget {
                     backgroundColor: state.todoStatus
                         ? Colors.green.shade900
                         : AppC.appColor,
-                    title: Text(
-                      (state.title).toString().toTitleCase(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 18),
-                      maxLines: 2,
+                    title: Hero(
+                      tag: todoId.toString(),
+                      child: Text(
+                        ((model?['title']) ?? (state.title)).toString().toTitleCase(),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 18),
+                        maxLines: 2,
+                      ),
                     ),
                     foregroundColor: AppC.white,
                     automaticallyImplyLeading: false,

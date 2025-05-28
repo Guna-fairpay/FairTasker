@@ -26,3 +26,17 @@ class TOCDSuccessState extends TOCDStates {
   @override
   List<Object?> get props => [message];
 }
+
+class TOCDOdometerWarningState extends TOCDStates {
+  @override
+  List<Object?> get props => [Random().nextDouble()];
+}
+
+class TOCDCompleteState extends TOCDStates {
+  final num? currentOdometer;
+  final num? nextMileCheck;
+  final num? nextOdometer;
+  TOCDCompleteState(this.currentOdometer, this.nextMileCheck, this.nextOdometer);
+  @override
+  List<Object?> get props => [currentOdometer, nextMileCheck, nextOdometer];
+}

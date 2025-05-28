@@ -43,7 +43,7 @@ class TaskerListingUi extends StatelessWidget {
                   key: Key(model['id'].toString()),
                   onTap: () => context
                       .read<ToDoTaskerBloc>()
-                      .add(ToDoTaskerEditEvent(model['id'].toString())),
+                      .add(ToDoTaskerEditEvent(model['id'].toString(), model: model)),
                   onVendorInfo: () => context
                       .read<ToDoTaskerBloc>()
                       .add(ToDoTaskerVendorInfoEvent(model)),

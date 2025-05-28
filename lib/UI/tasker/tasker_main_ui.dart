@@ -58,8 +58,8 @@ class TaskerMainUi extends StatelessWidget {
             case ToDoTaskerDatePickerState(): Utils.showPickerDate(context, value: context.read<ToDoTaskerBloc>().selectedDate, onChanged: (val) => context.read<ToDoTaskerBloc>().add(ToDoTaskerDateFilterEvent(val))); break;
             case ToDoTaskerAddToDoState(): context.push(CreateTodoUI(selectedDate: state.date), fullscreenDialog: true); break;
             case ToDoTaskerMicState(): RecordAudioDialog.show(context, onRecorded: (file) => context.read<ToDoTaskerBloc>().add(ToDoTaskerSaveRecordEvent(file))); break;
-            case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoUI(todoId: state.model?['id'].toString()),fullscreenDialog: true); break;
-            case ToDoTaskerEditState(): context.push(EditTodoUI(todoId: state.toDoId),fullscreenDialog: true); break;
+            case ToDoTaskerCompleteMaintenanceCheckState(): context.push(EditTodoUI(todoId: state.model?['id'].toString(), model: state.model),fullscreenDialog: true); break;
+            case ToDoTaskerEditState(): context.push(EditTodoUI(todoId: state.toDoId, model: state.model,)); break;
             case ToDoTaskerTapUserFilterState(): TaskerFilterResourceDialog.show(context, selected: context.read<ToDoTaskerBloc>().selectedUsers, onChanged: (value) => context.read<ToDoTaskerBloc>().add(ToDoTaskerUserFilterEvent(value))); break;
             case ToDoTaskerTapVehicleFilterState(): TaskerVehicleSearchDialog.show(context); break;
             case ToDoTaskerVendorInfoState(): VendorInfoDialog.show(context, state.model); break;

@@ -319,7 +319,7 @@ class ToDoTaskerBloc extends Bloc<ToDoTaskerEvent, ToDoTaskerState> {
   }
 
   void _onEditEvent(ToDoTaskerEditEvent event, Emitter<ToDoTaskerState> emit) {
-    emit(ToDoTaskerEditState(event.toDoId));
+    emit(ToDoTaskerEditState(event.toDoId, model: event.model));
   }
 
   void _onTapUserFilterEvent(

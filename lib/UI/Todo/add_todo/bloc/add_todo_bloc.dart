@@ -19,6 +19,7 @@ import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/extension/timeday_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
@@ -160,12 +161,12 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
     _broadcast.register(Str.addToDoRefresh, (value, callback) => add(AddToDoRefreshEvent()));
     on<AddToDoRefreshEvent>(_onRefreshEvent);
     on<AddToDoInitialEvent>((event, emit) async {
-      isNextTask = event.isNextTask;
-      addToDoDate = event.selectedDate ?? DateTime.now();
-      emit(state.copyWith(
-          showAppBar: event.showAppBar, selectedDate: addToDoDate));
       // PROCEED API CALL
       try {
+        await CommonHelper.instance.waitForPostFrameCallback();
+        isNextTask = event.isNextTask;
+        addToDoDate = event.selectedDate ?? DateTime.now();
+        emit(state.copyWith(showAppBar: event.showAppBar, selectedDate: addToDoDate));
         emit(state.copyWith(isLoading: true));
         var response = await Future.wait([
           _getTasks(), // 0

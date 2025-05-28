@@ -11,3 +11,10 @@ class TOCDInitialEvents extends TOCDEvents {
   @override
   List<Object?> get props => [model];
 }
+
+class TOCDSubmitEvent extends TOCDEvents {
+  final bool isOverride;
+  TOCDSubmitEvent({this.isOverride = false});
+  @override
+  List<Object?> get props => [isOverride];
+}
