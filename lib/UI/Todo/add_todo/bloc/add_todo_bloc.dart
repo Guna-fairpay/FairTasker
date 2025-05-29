@@ -560,7 +560,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       if (state.selectedTaskIdentifier.containsKey(1) && (Str.oilChangeCheckIds.contains(state.selectedTaskIdentifier[1]?['id'])) && !event.oilChangeOverride) {
         // TRIGGER OIL CHANGE
         var lastVin = state.selectedVPerson.where((element) => element['type'] == 'vehicles').map((e) => e['value']['vin']).lastOrNull;
-        return await _findOilChangeTaskExist(vin: lastVin);
+        if (lastVin.toString().isNotNullOrEmpty) return await _findOilChangeTaskExist(vin: lastVin);
       }
 
       emit(state.copyWith(isLoading: true));
