@@ -1,15 +1,11 @@
 import 'package:fairpytasker/Component/compact_search_auto_field.dart';
-import 'package:fairpytasker/Component/custom_auto_search_field.dart';
 import 'package:fairpytasker/Component/simple_popup_menu.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/location_add_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Custom%20Data/Location/View/location_view.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/Vendor/vendor_add_ui.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:fairpytasker/core/app/helper/custom_search_data_converter.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as d;
 
 import '../UI/Manage Custom Data/Vendor/vendor_ui/vendor_view.dart';
 
@@ -40,13 +36,10 @@ class CustomVendorLocationField extends StatelessWidget {
   Map<String, dynamic> selectedData = {};
 
   void _prepareData() {
-    Console.of.warning("_prepareData", name: "CustomVendorLocationField");
     unfilteredList = CustomSearchDataConverter.convertVLocation(vendors: vendorsList, locations: locationsList);
   }
 
   void _checkSelectedVData() async {
-    Console.of.warning("_checkSelectedVData ${(selected?.containsKey(3) ?? false) && (selectedData != (selected?[3]))}", name: "CustomVendorLocationField");
-    Console.of.warning("_checkSelectedVData ${selectedData} ${selectedData[3]}", name: "CustomVendorLocationField");
     if ((selected?.containsKey(3) ?? false) && (selected?[3] != null) && ((selected?[3] as Map).isNotEmpty) && (Map.from(selected?[3]).isNotEmpty) && (selectedData != (selected?[3]))) {
       selectedData = selected?[3] ?? {};
       var name = selectedData['name'];
@@ -74,8 +67,6 @@ class CustomVendorLocationField extends StatelessWidget {
         onChanged: (value) => (value.isNullOrEmpty && (selected != null)) ? onCleared?.call(selected) : null,
         onSelected: _onSuggested,
         showEmptyWidget: emptyValue,
-        // autoClear: true,
-
         onEmptyWidgetTapDown: (details) => SimplePopUpMenu.instance.show(context, position: details.globalPosition, items: ["Vendor", "Location"], onTap: (item) {
           item == "Vendor" ? context.push(VendorView(title: controller?.text)) : context.push(LocationView(title: controller?.text,));
         },),

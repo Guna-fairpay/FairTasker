@@ -42,8 +42,6 @@ import '../Utilities/str.dart' show Str;
 class APiRepository {
   final ApiClient _apiClient = ApiClient();
 
-  String get _searchHistoryApi => "get-vehicle-history";
-
   String get _getVehicleSearchHistory => "get-vehicle-search-history";
 
   String get _editToDoApi => "edit-todo";
@@ -362,6 +360,8 @@ class APiRepository {
 
   String get _checkInOutMaster => "checkinout-master";
 
+  String get _checkOilChangeTask => "checkOilChangeTask";
+
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
 
   String? get _userId => Session.of.getString(Str.userIdPrefText);
@@ -371,7 +371,7 @@ class APiRepository {
   Future<VehicleHistoryResponse?> getVehicleHistoryList(
       {String? vin, dynamic groupId, int? currentPage, int itemsPerPage = 5, String? search}) async {
     try {
-      String apiUrl = (search?.trim().isNotNullOrEmpty ?? false) ? '${Str.BASE_URL}$_getVehicleSearchHistory' : '${Str.BASE_URL}$_searchHistoryApi';
+      String apiUrl = (search?.trim().isNotNullOrEmpty ?? false) ? '${Str.BASE_URL}$_getVehicleSearchHistory' : '${Str.BASE_URL}$_getVehicleHistory';
       final Map<String, dynamic> map = {};
       map['page'] = currentPage;
       if (vin.isNotNullOrEmpty) map['vin'] = vin;
@@ -391,9 +391,7 @@ class APiRepository {
   Future<AssignedToResponse?> getResourcesList() async {
     try {
       String apiUrl = "${Str.BASE_URL}$_resourcesApi";
-      final http.Response? response = await _apiClient.callGetMethod(
-        apiUrl,
-      );
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
       var mapData = await response.mapData;
       return (mapData != null) ? AssignedToResponse.fromJson(mapData) : null;
     } catch (error) {
@@ -3316,10 +3314,14 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getVehicleHistory({required String vin}) async {
+  Future<Map<String, dynamic>?> getVehicleHistory({required String vin, DateTime? dateTime, int itemsPerPage = 5}) async {
     try{
-      String apiUrl = "${Str.BASE_URL}$_getVehicleHistory?vin=$vin&itemsPerPage=5";
-      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      String apiUrl = "${Str.BASE_URL}$_getVehicleHistory";
+      Map<String, dynamic> params = {};
+      params['vin'] = vin;
+      if (dateTime != null) params['date'] = dateTime.toFormat();
+      params['itemsPerPage'] = itemsPerPage;
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
       var mapData = await response.mapData;
       return mapData;
     }catch(e){
@@ -3794,6 +3796,23 @@ Future<Map<String, dynamic>?> getLocations() async {
       if (response?.isSuccess == true) {
         var mapData = await response.mapData;
         return mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String,dynamic>?> getCheckOilChangeTask({required dynamic vin, dynamic id}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_checkOilChangeTask";
+      Map<String, dynamic> params = {};
+      params['vin'] = vin;
+      if (id.toString().isNotNullOrEmpty && (id.toString().toNumeric > 0)) params['id'] = id;
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }

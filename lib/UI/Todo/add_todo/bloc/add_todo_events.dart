@@ -177,7 +177,12 @@ class AddToDoRecurringEndDateSelectionEvent extends AddToDoEvent {
 
 class AddToDoOpenCustomLinkEvent extends AddToDoEvent {}
 
-class AddToDoSaveEvent extends AddToDoEvent {}
+class AddToDoSaveEvent extends AddToDoEvent {
+  final bool oilChangeOverride;
+  AddToDoSaveEvent({this.oilChangeOverride = false});
+  @override
+  List<Object?> get props => [oilChangeOverride];
+}
 
 class AddToDoDeleteAttachment extends AddToDoEvent {
   final dynamic attachment;
