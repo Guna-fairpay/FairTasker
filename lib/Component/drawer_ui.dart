@@ -1,3 +1,4 @@
+import 'package:fairpytasker/UI/Manage%20Custom%20Data/offshore_report/base_page/ui/base_page_ui.dart';
 import 'package:fairpytasker/UI/Manage%20Employees/manage_employees.dart';
 import 'package:fairpytasker/UI/Task%20List/tasklist_ui.dart';
 import 'package:fairpytasker/UI/dialog/ask_permission_dialog.dart';
@@ -128,6 +129,13 @@ class DrawerView extends StatelessWidget {
                     icon: Icons.file_copy,
                     title: "Reports",
                     onTap: () => navigateToPage(context, const ReportsView()),
+                  ),
+                  _buildDivider(),
+                  _buildListTile(
+                    context,
+                    icon: Icons.report_gmailerrorred_rounded,
+                    title: "Offshore Report",
+                    onTap: () => navigateToPage(context, const BasePageUI()),
                   ),
                   _buildDivider(),
                   if(userId.contains(Session.of.getString(Str.userIdPrefText)))
