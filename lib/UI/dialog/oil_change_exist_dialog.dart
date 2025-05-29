@@ -11,14 +11,15 @@ import 'package:flutter/material.dart';
 class OilChangeTaskExistDialog {
   OilChangeTaskExistDialog._();
 
-  static Future<bool?> show(BuildContext context, {Map<String, dynamic>? model}) async {
-    return await showDialog<bool>(context: context, builder: (context) => _OilChangeDialogView(model: model), barrierDismissible: false);
+  static Future<bool?> show(BuildContext context, {Map<String, dynamic>? model, bool isAddNew = true}) async {
+    return await showDialog<bool>(context: context, builder: (context) => _OilChangeDialogView(model: model, isAddNew: isAddNew), barrierDismissible: false);
   }
 }
 
 class _OilChangeDialogView extends StatelessWidget {
   final Map<String, dynamic>? model;
-  const _OilChangeDialogView({this.model});
+  final bool isAddNew;
+  const _OilChangeDialogView({this.model, this.isAddNew = true});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,7 @@ class _OilChangeDialogView extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
                 SuccessButton(
-                  text: "Delete & Update",
+                  text: "Delete & ${(isAddNew) ? "Create New" : "Update"}",
                   backgroundColor: AppC.green,
                   onPressed: () => Navigator.of(context).pop(true),
                 ),
