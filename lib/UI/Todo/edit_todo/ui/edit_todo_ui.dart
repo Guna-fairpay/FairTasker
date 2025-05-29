@@ -252,10 +252,10 @@ class EditTodoUI extends StatelessWidget {
                                           if(showOdometerPop){
                                             WarningHelper.odometerWarning(context,
                                                 onPositive: () => context.read<EditToDoBloc>().add(
-                                                    EditToDoSaveEvent(isRecurring: true)));
+                                                    EditToDoSaveEvent()));
                                           } else {
                                             context.read<EditToDoBloc>().add(
-                                                EditToDoSaveEvent(isRecurring: true));
+                                                EditToDoSaveEvent());
                                           }
                                         }
                                     );
@@ -265,10 +265,10 @@ class EditTodoUI extends StatelessWidget {
                                   if(showOdometerPop){
                                     WarningHelper.odometerWarning(context,
                                         onPositive: () => context.read<EditToDoBloc>().add(
-                                            EditToDoSaveEvent(isRecurring: true)));
+                                            EditToDoSaveEvent()));
                                   } else {
                                     context.read<EditToDoBloc>().add(
-                                        EditToDoSaveEvent(isRecurring: true));
+                                        EditToDoSaveEvent());
                                   }
                                 },
                               );
@@ -276,10 +276,10 @@ class EditTodoUI extends StatelessWidget {
                               if(showOdometerPop){
                                 WarningHelper.odometerWarning(context,
                                     onPositive: () => context.read<EditToDoBloc>().add(
-                                        EditToDoSaveEvent(isRecurring: true)));
+                                        EditToDoSaveEvent()));
                               } else {
                                 context.read<EditToDoBloc>().add(
-                                    EditToDoSaveEvent(isRecurring: true));
+                                    EditToDoSaveEvent());
                               }
                             }
                           },
