@@ -15,9 +15,6 @@ class OperationDetailsPage extends StatelessWidget {
           spacing: 10,
       children: [
         CustomSearchBar(),
-        ListView.builder(
-          itemCount: 10,
-            itemBuilder: (context, intex){})
       ],
     ),);
   }
