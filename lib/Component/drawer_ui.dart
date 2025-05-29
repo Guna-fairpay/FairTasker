@@ -130,13 +130,16 @@ class DrawerView extends StatelessWidget {
                     title: "Reports",
                     onTap: () => navigateToPage(context, const ReportsView()),
                   ),
-                  _buildDivider(),
-                  _buildListTile(
-                    context,
-                    icon: Icons.report_gmailerrorred_rounded,
-                    title: "Offshore Report",
-                    onTap: () => navigateToPage(context, const OffshoreReportBasePage()),
-                  ),
+                  if (getIt<CommonService>().hasFairTechEOD)
+                    ...[
+                      _buildDivider(),
+                      _buildListTile(
+                        context,
+                        icon: Icons.report_gmailerrorred_rounded,
+                        title: "Offshore Report",
+                        onTap: () => navigateToPage(context, const OffshoreReportBasePage()),
+                      ),
+                    ],
                   _buildDivider(),
                   if(userId.contains(Session.of.getString(Str.userIdPrefText)))
                   _buildListTile(
