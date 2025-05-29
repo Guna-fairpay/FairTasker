@@ -14,6 +14,9 @@ class OperationDetailsPage extends StatelessWidget {
         builder: (context, state) => Column(
           spacing: 10,
       children: [
+        DateRangePicker(
+          selectedDateRange: context.read<OperationBloc>().selectedDateRange,
+            onDateRangeSelected:(value)=> context.read<OperationBloc>().add(DateRangeSelectedEvent(value))),
         CustomSearchBar(),
       ],
     ),);

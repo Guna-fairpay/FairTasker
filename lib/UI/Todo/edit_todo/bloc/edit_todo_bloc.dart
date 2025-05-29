@@ -1012,6 +1012,43 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     }
   }
 
+  void _onRefreshEvent(EditToDoRefreshEvent event, Emitter<EditTodoState> emit) async {
+    Console.of.log("REFRESH_EVENT_TRIGGERED", name: "ADD_TODO_BLOC");
+    // PROCEED API CALL
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      var partsResponse = await getIt<CommonService>().getPartsList();
+      var suppliesResponse = await getIt<CommonService>().getSuppliesList();
+      var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
+      var vendorResponse = await getIt<CommonService>().getVendorsList();
+      var locationResponse = await getIt<CommonService>().getLocationsList();
+      var taskResponse = await getIt<CommonService>().getTaskExpenseData();
+      var userGroupResponse = await getIt<CommonService>().getGroupPersons();
+      var assignedToResponse = await getIt<CommonService>().getResources();
+      var resources = assignedToResponse;
+      resources.removeWhere((resource) => resource['id'] == 2);
+      resources.removeWhere((resource) =>
+      ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
+          (resource['branch_id'] !=
+              Session.of.getInt(Str.branchIdPrefText))) ||
+          (resource['deleted_at'] != null));
+      emit(state.copyWith(
+          isLoading: false,
+          tasks: taskResponse,
+          vehicles: vehicleResponse,
+          persons: resources,
+          locations: locationResponse,
+          vendors: vendorResponse,
+          partServices: partsResponse,
+          supplies: suppliesResponse,
+          groupVehicles: userGroupResponse,
+          resources: resources));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
   Map<String, String> _editTodoBody() {
     Console.of.log(isRecurring);
     state.selectedVPerson
@@ -1122,6 +1159,7 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     log(jsonEncode(baseBody), name: "EDIT_TODO_BODY");
     return baseBody;
   }
+
   Map<String, String> _cleanCarBody() {
     var isAdd = state.selectedTask['id'] == 210;
     var date = state.selectedDate ?? DateTime.now();
@@ -1212,22 +1250,18 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
     log(jsonEncode(baseBody), name: "CLEAN_CAR_JSON_BODY");
     return baseBody;
   }
-  void partsBroadcastEvent(
-    dynamic value,
-  ) {
+
+  void partsBroadcastEvent(dynamic value,) {
     // log(value.toString(), name: "Parts Broadcast");
     FBroadcast.instance().broadcast("Parts", value: value, persistence: true);
   }
-  void suppliesBroadcastEvent(
-    dynamic value,
-  ) {
+
+  void suppliesBroadcastEvent(dynamic value,) {
     FBroadcast.instance()
         .broadcast("Supplies", value: value, persistence: true);
   }
 
-  void vendorBroadcastEvent(
-    dynamic value,
-  ) {
+  void vendorBroadcastEvent(dynamic value,) {
     log(value.toString(), name: "Parts Broadcast");
     FBroadcast.instance().broadcast("Vendor", value: value, persistence: true);
   }
@@ -1238,50 +1272,13 @@ class EditToDoBloc extends Bloc<EditToDoEvent, EditTodoState> {
   }
 
   Future<Map<String, dynamic>?> _getPreviousOdometer(
-          {required String date,
-          required String vin,
-          required dynamic identifierId}) async =>
+      {required String date,
+        required String vin,
+        required dynamic identifierId}) async =>
       await apiRepository.getPreviousOdometer(
           date: date, vin: vin, identifierId: identifierId);
+
   var tabs = List.from(AddToDoConfig.editTodoBottomTaps);
-  void _onRefreshEvent(EditToDoRefreshEvent event, Emitter<EditTodoState> emit) async {
-    Console.of.log("REFRESH_EVENT_TRIGGERED", name: "ADD_TODO_BLOC");
-    // PROCEED API CALL
-    try {
-      emit(state.copyWith(isLoading: true));
-
-      var partsResponse = await getIt<CommonService>().getPartsList();
-      var suppliesResponse = await getIt<CommonService>().getSuppliesList();
-      var vehicleResponse = await getIt<CommonService>().getActiveVehicles();
-      var vendorResponse = await getIt<CommonService>().getVendorsList();
-      var locationResponse = await getIt<CommonService>().getLocationsList();
-      var taskResponse = await getIt<CommonService>().getTaskExpenseData();
-      var userGroupResponse = await getIt<CommonService>().getGroupPersons();
-      var assignedToResponse = await getIt<CommonService>().getResources();
-      var resources = assignedToResponse;
-      resources.removeWhere((resource) => resource['id'] == 2);
-      resources.removeWhere((resource) =>
-      ((!Str.reqTaskManagerIds.contains(resource['id'])) &&
-          (resource['branch_id'] !=
-              Session.of.getInt(Str.branchIdPrefText))) ||
-          (resource['deleted_at'] != null));
-      emit(state.copyWith(
-          isLoading: false,
-          tasks: taskResponse,
-          vehicles: vehicleResponse,
-          persons: resources,
-          locations: locationResponse,
-          vendors: vendorResponse,
-          partServices: partsResponse,
-          supplies: suppliesResponse,
-          groupVehicles: userGroupResponse,
-          resources: resources));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false));
-    }
-  }
-
-
 
   List<Map<String, dynamic>> get location => getIt<CommonService>().locationsList;
 
