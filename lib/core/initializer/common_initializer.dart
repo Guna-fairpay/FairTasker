@@ -4,6 +4,7 @@ import 'dart:ui' show VoidCallback;
 import 'package:date_time/date_time.dart';
 import 'package:fairpytasker/core/initializer/receive_intent.dart';
 import 'package:fairpytasker/core/initializer/todo_supporter.dart';
+import 'package:flutter/foundation.dart' show ValueNotifier, kDebugMode;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:collection/collection.dart';
@@ -88,6 +89,7 @@ class CommonService {
   List<String>? get userPermissions => Session.of.getStringList(Str.userPermissionPrefText);
 
   bool get hasReport => userPermissions?.map((e) => e.toLowerCase()).contains("report") ?? false;
+  bool get hasFairTechEOD => (userPermissions?.map((e) => e.toLowerCase()).contains("fairtech-eod") ?? false) || (kDebugMode);
 
   List<dynamic> get freelancerHrmIds {
     if (departmentId != 9) return [];
