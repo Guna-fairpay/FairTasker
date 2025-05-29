@@ -10,15 +10,17 @@ class CompactSearchView extends StatelessWidget {
   final bool? filled;
   final bool readOnly;
   final Color? fillColor;
+  final Widget? prefixIcon;
   final EdgeInsets? padding;
+  final BorderRadius? borderRadius;
   final String? hintText, labelText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged, onSubmitted;
-  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText, this.filled = false, this.fillColor = AppC.white, this.padding});
+  const CompactSearchView({super.key,  this.readOnly = false, this.controller, this.onChanged, this.onSubmitted, this.hintText = "Search...", this.labelText, this.filled = false, this.fillColor = AppC.white, this.padding, this.borderRadius = const BorderRadius.all(Radius.circular(Num.borderRadius)), this.prefixIcon});
 
   @override
   Widget build(BuildContext context) {
-    var border = OutlineInputBorder(borderRadius: BorderRadius.circular(Num.borderRadius), borderSide: (filled ?? false) ? BorderSide.none : const BorderSide(color: AppC.fieldBase, width: Num.borderWidthThinField));
+    var border = OutlineInputBorder(borderRadius: borderRadius ?? BorderRadius.circular(Num.borderRadius), borderSide: (filled ?? false) ? BorderSide.none : const BorderSide(color: AppC.fieldBase, width: Num.borderWidthThinField));
     return TextField(
       key: key,
       controller: controller,
@@ -43,7 +45,7 @@ class CompactSearchView extends StatelessWidget {
         enabledBorder: border,
         focusedBorder: border,
         hintStyle: context.textTheme.labelLarge?..copyWith(color: AppC.text),
-        prefixIcon: Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
+        prefixIcon: prefixIcon ?? Padding(padding: 10.horizontalPadding, child: const Icon(Icons.search_rounded, color: AppC.text)),
       ),
     );
   }

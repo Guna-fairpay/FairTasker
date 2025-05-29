@@ -9,6 +9,8 @@ class CompactIconButton extends StatelessWidget {
   final Color? foregroundColor;
   final double? elevation;
   final VoidCallback? onPressed;
+  final GestureTapDownCallback? onTapDown;
+  final WidgetStatePropertyAll<OutlinedBorder?>? shape;
 
   const CompactIconButton(
       {super.key,
@@ -16,25 +18,34 @@ class CompactIconButton extends StatelessWidget {
       this.backgroundColor = AppC.appColor,
       this.foregroundColor = AppC.white,
       this.elevation = 5,
-      this.onPressed});
+      this.onTapDown,
+      this.onPressed, this.shape});
 
   @override
   Widget build(BuildContext context) {
-    return IconButton.filledTonal(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      constraints: const BoxConstraints.tightFor(),
-      visualDensity: VisualDensity.compact,
-      style: ButtonStyle(
-          shape: WidgetStatePropertyAll(ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
-          padding: WidgetStatePropertyAll(
-              EdgeInsets.symmetric(vertical: 12.sp, horizontal: 6.sp)),
-          iconSize: WidgetStatePropertyAll(12.sp),
-          minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.sp)),
-          foregroundColor: WidgetStatePropertyAll(foregroundColor),
-          backgroundColor: WidgetStatePropertyAll(backgroundColor),
-          elevation: WidgetStatePropertyAll(elevation)),
+    return Material(
+      shape: shape?.value,
+      elevation: elevation ?? 0,
+      color: backgroundColor,
+      child: GestureDetector(
+        onTapDown: onTapDown,
+        child: IconButton.filledTonal(
+          onPressed: onPressed,
+          icon: Icon(icon),
+          constraints: const BoxConstraints.tightFor(),
+          visualDensity: VisualDensity.compact,
+          style: ButtonStyle(
+              shape: shape ?? WidgetStatePropertyAll(ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.circular(Num.borderRadiusLarge))),
+              padding: WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: 12.sp, horizontal: 6.sp)),
+              iconSize: WidgetStatePropertyAll(12.sp),
+              minimumSize: WidgetStatePropertyAll(Size.fromRadius(18.sp)),
+              foregroundColor: WidgetStatePropertyAll(foregroundColor),
+              backgroundColor: WidgetStatePropertyAll(backgroundColor),
+              elevation: WidgetStatePropertyAll(elevation)),
+        ),
+      ),
     );
   }
 }

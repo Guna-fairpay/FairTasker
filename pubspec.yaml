@@ -135,6 +135,8 @@ dependencies:
   html_to_flutter_table: ^0.0.2-dev.7
   html_to_flutter_kit: ^0.0.3-dev.4
   device_info_plus: ^11.4.0
+  segmented_button_slide: ^2.0.0
+  flutter_html: any
 
 dependency_overrides:
   flutter_date_range_picker: 0.1.1

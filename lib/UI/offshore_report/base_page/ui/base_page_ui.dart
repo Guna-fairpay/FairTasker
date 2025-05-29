@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
 import 'package:fairpytasker/UI/offshore_report/operations/ui/operation_main_page.dart';
+import 'package:fairpytasker/UI/offshore_report/project_status/project_status_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -69,12 +70,13 @@ abstract class BasePageUI extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if(context.watch<BasePageBloc>().selectedTabValue == 1)
-                    const OperationMainPage(),
-                  if(context.watch<BasePageBloc>().selectedTabValue == 2)
-                      Placeholder(color: Colors.brown,),
-                  if(context.watch<BasePageBloc>().selectedTabValue == 3)
-                    Placeholder(color: AppC.blue,),
+                  switch(context.watch<BasePageBloc>().selectedTabValue)
+                      {
+                        1 => const OperationMainPage(),
+                        2 => const Placeholder(color: Colors.brown,),
+                        3 => const OffShoreProjectStatus(),
+                        _ => const Placeholder(color: Colors.brown,)
+                  }
                 ],
               ),
             )
