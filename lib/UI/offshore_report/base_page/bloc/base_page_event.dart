@@ -1,4 +1,4 @@
-part of 'base_page_bloc.dart';
+part of '../ui/base_page_ui.dart';
 
 abstract class BasePageEvent extends Equatable{
   @override

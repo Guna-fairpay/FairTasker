@@ -1,7 +1,9 @@
+import 'dart:math';
+
+import 'package:equatable/equatable.dart';
 import 'package:fairpytasker/Component/compact_app_bar.dart';
 import 'package:fairpytasker/Component/custom_tab_button.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/offshore_report/base_page/bloc/base_page_bloc.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/offshore_report/operations/ui/operation_main_page.dart';
+import 'package:fairpytasker/UI/offshore_report/operations/ui/operation_main_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
@@ -10,7 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class BasePageUI extends StatelessWidget {
+part '../bloc/base_page_bloc.dart';
+part '../bloc/base_page_state.dart';
+part '../bloc/base_page_event.dart';
+
+abstract class BasePageUI extends StatelessWidget {
   const BasePageUI({super.key});
 
   @override

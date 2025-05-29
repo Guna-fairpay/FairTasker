@@ -1,7 +1,7 @@
 
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/offshore_report/operations/bloc/operation_bloc.dart';
+import 'package:fairpytasker/UI/offshore_report/operations/bloc/operation_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
