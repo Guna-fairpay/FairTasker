@@ -1,10 +1,4 @@
-import 'dart:math';
-
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-part 'base_page_state.dart';
-part 'base_page_event.dart';
+part of '../ui/base_page_ui.dart';
 
 class BasePageBloc extends Bloc<BasePageEvent, BasePageState> {
 

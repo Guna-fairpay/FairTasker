@@ -1,5 +1,5 @@
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/offshore_report/operations/bloc/operation_bloc.dart';
-import 'package:fairpytasker/UI/Manage%20Custom%20Data/offshore_report/operations/ui/operation_details_page.dart';
+import 'package:fairpytasker/UI/offshore_report/operations/bloc/operation_bloc.dart';
+import 'package:fairpytasker/UI/offshore_report/operations/ui/operation_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
