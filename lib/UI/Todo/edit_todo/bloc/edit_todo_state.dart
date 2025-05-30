@@ -52,7 +52,6 @@ class EditTodoState extends Equatable {
   final List<dynamic>clearDurations;
   final DateTime? selectedEndDate;
   final DateTime? selectedStartDate;
-  final bool isRecurring;
   final bool isTimeChange;
   final List<dynamic> notesImages;
   final List<dynamic> mileageImages;
@@ -107,7 +106,6 @@ class EditTodoState extends Equatable {
     required this.clearDurations,
     required this.selectedEndDate,
     required this.selectedStartDate,
-    required this.isRecurring,
     required this.isTimeChange,
     required this.notesImages,
     required this.mileageImages,
@@ -170,7 +168,6 @@ class EditTodoState extends Equatable {
     dynamic selectedSentiment,
     bool? popUpdatePage,
     String? previousOdometer,
-    bool? isRecurring,
     bool? isPop,
     DateTime? selectedEndDate,
     DateTime? selectedStartDate,
@@ -230,7 +227,6 @@ class EditTodoState extends Equatable {
         clearDurations: clearDurations ?? this.clearDurations,
         selectedEndDate: selectedEndDate ?? this.selectedEndDate,
         selectedStartDate: selectedStartDate ?? this.selectedStartDate,
-        isRecurring: isRecurring ?? this.isRecurring,
         isTimeChange: isTimeChange ?? this.isTimeChange,
         notesImages: notesImages ?? this.notesImages,
         mileageImages: mileageImages ?? this.mileageImages,
@@ -287,7 +283,6 @@ class EditTodoState extends Equatable {
     clearDurations,
     selectedEndDate,
     selectedStartDate,
-    isRecurring,
     isTimeChange,
     notesImages,
     mileageImages,

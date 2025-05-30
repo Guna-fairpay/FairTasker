@@ -221,8 +221,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     }
     });
 
-    on<SelectedPaymentEvent>((event, emit) =>
-        emit(state.copyWith(selectedPaymentType: event.paymentType)));
+    // on<SelectedPaymentEvent>((event, emit) =>
+    //     emit(state.copyWith(selectedPaymentType: event.paymentType)));
 
     on<VehicleEvent>((event, emit) =>
         emit(state.copyWith(selectedVehicle: event.selectedVehicle)));

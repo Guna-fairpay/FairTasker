@@ -26,7 +26,7 @@ class OffShoreProjectStatus extends StatelessWidget {
         Card(
           color: context.theme.cardColor,
           elevation: 5.spMin,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(16.spMin)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.spMin)),
           child: Container(
             padding: 16.spMin.padding,
             width: double.maxFinite,
@@ -68,7 +68,7 @@ class OffShoreProjectStatus extends StatelessWidget {
                     style: ButtonStyle(
                       side: const WidgetStatePropertyAll(BorderSide(color: AppC.borderColor, width: Num.borderWidthButton)),
                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(Num.radiusButton),
+                        borderRadius: BorderRadius.circular(Num.radiusButton),
                         side: const BorderSide(color: AppC.appColor, width: Num.borderWidthButton)
                       )),
                       backgroundBuilder: (context, states, child) => states.contains(WidgetState.selected) ? Container(

@@ -187,6 +187,7 @@ class AddToDoBloc extends Bloc<AddToDoEvent, AddToDoState> {
       emit(state.copyWith(isLoading: true));
       var response = await _getOilChangeTask(vin: vin);
       emit(state.copyWith(isLoading: false));
+      if ((response == null) || (response?.isEmpty ?? false)) return add(AddToDoSaveEvent(oilChangeOverride: true));
       var context = CommonHelper.instance.navigatorKey.currentContext;
       if (context != null) {
         var result = await OilChangeTaskExistDialog.show(context, model: response);

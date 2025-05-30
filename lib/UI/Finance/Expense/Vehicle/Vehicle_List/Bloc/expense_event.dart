@@ -110,12 +110,12 @@ class ApprovedExpenseEvent extends ExpenseEvent {
   List<Object?> get props => [isApproved];
 }
 
-class SelectedPaymentEvent extends ExpenseEvent {
-  final dynamic paymentType;
-  const SelectedPaymentEvent({required this.paymentType});
-  @override
-  List<Object?> get props => [paymentType, Random().nextDouble()];
-}
+// class SelectedPaymentEvent extends ExpenseEvent {
+//   final dynamic paymentType;
+//   const SelectedPaymentEvent({required this.paymentType});
+//   @override
+//   List<Object?> get props => [paymentType, Random().nextDouble()];
+// }
 
 // class PickImageEvent extends ExpenseEvent {
 //   @override
