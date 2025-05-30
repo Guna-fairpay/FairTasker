@@ -8,6 +8,7 @@ import 'package:fairpytasker/utilities/appC.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -104,7 +105,7 @@ class _LimitedHtmlViewState extends State<LimitedHtmlView> {
           ...[Container(
             padding: 10.spMin.padding,
             child: CustomQuillEditor(
-              controller: QuillController.basic(),
+              controller: QuillController.basic()..document = Document.fromDelta(HtmlToDelta().convert(widget.data ?? "")),
             ),
           ),
             if (widget.onSave != null)
