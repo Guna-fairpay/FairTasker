@@ -19,3 +19,10 @@ class DateRangeSelectedEvent extends OperationEvent {
   @override
   List<Object?> get props => [selectedDateRange];
 }
+
+class SearchEvent extends OperationEvent{
+  final String query;
+  SearchEvent(this.query);
+  @override
+  List<Object?> get props => [query];
+}

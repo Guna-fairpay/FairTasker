@@ -70,13 +70,15 @@ abstract class BasePageUI extends StatelessWidget {
                       ],
                     ),
                   ),
-                  switch(context.watch<BasePageBloc>().selectedTabValue)
-                      {
-                        1 => const OperationMainPage(),
-                        2 => const Placeholder(color: Colors.brown,),
-                        3 => const OffShoreProjectStatus(),
-                        _ => const Placeholder(color: Colors.brown,)
-                  }
+                  Expanded(
+                    child: switch(context.watch<BasePageBloc>().selectedTabValue)
+                        {
+                          1 => const OperationMainPage(),
+                          2 => const Placeholder(color: Colors.brown,),
+                          3 => const OffShoreProjectStatus(),
+                          _ => const Placeholder(color: Colors.brown,)
+                    },
+                  )
                 ],
               ),
             )
