@@ -8,43 +8,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 
-part 'operation_event.dart';
-part 'operation_state.dart';
+part 'tech_event.dart';
+part 'tech_state.dart';
 
-class OperationBloc extends Bloc<OperationEvent, OperationState>{
+class TechBloc extends Bloc<TechEvent, TechState> {
 
-  APiRepository apiRepository = APiRepository();
+  final APiRepository _aPiRepository = APiRepository();
+
   TextEditingController searchController = TextEditingController();
-  List<dynamic>? apiResponse;
-  List<dynamic>? filteredResponse;
-  String? searchText;
+
+  List<dynamic>? apiData;
+  List<dynamic>? filteredData;
+
   String? startDate;
   String? endDate;
+
   DateRange selectedDateRange = DateRange(
     DateTime(DateTime.now().year, DateTime.now().month, 1),
     DateTime(DateTime.now().year, DateTime.now().month + 1, 0),
   );
 
-  OperationBloc() : super(LoadingState()){
-    on<OperationInitialEvent>(_onOperationInitialEvent);
+  int currentPage = 1;
+  int itemsPerPage = 10;
+
+  TechBloc() : super(LoadingState()){
+    on<TechInitialEvent>(_onTechInitialEvent);
     on<DateRangeSelectedEvent>(_onDateRangeSelectedEvent);
     on<SearchEvent>(_onSearchEvent);
   }
 
-  Future<void> _onOperationInitialEvent(OperationInitialEvent event, Emitter<OperationState> emit) async {
+  Future<Map<String, dynamic>?> _getTaskHistory() async => await _aPiRepository.getFairTechTaskHistory(startDate: selectedDateRange.start, endDate: selectedDateRange.end, page: currentPage, itemsPerPage: itemsPerPage);
+
+  Future<void> _onTechInitialEvent(TechInitialEvent event, Emitter<TechState> emit) async {
     try {
       emit(LoadingState());
-      DateTime now = DateTime.now();
-      startDate = DateTime(now.year, now.month, 1).toFormat(format: 'yyyy-MM-dd');
-      endDate = DateTime(now.year, now.month + 1, 0).toFormat(format: 'yyyy-MM-dd');
       await fitchData(startDate, endDate);
       emit(CommonState());
     } catch (e) {
-      error(e,emit);
+      error(e, emit);
     }
   }
 
-  Future<void> _onDateRangeSelectedEvent(DateRangeSelectedEvent event, Emitter<OperationState> emit) async {
+  Future<void> _onDateRangeSelectedEvent(DateRangeSelectedEvent event, Emitter<TechState> emit) async {
     try {
       emit(LoadingState());
       selectedDateRange = event.selectedDateRange;
@@ -53,25 +58,26 @@ class OperationBloc extends Bloc<OperationEvent, OperationState>{
       await fitchData(startDate, endDate);
 
       emit(CommonState());
-      } catch (e) {
+    } catch (e) {
       error(e, emit);
     }
   }
 
-  Future<void> _onSearchEvent(SearchEvent event, Emitter<OperationState> emit) async {
+  Future<void> _onSearchEvent(SearchEvent event, Emitter<TechState> emit) async {
     try {
       var query = searchController.text.toLowerCase();
       if (query.trim().isNotNullOrEmpty) {
-        filteredResponse = (apiResponse ?? []).where((element) {
+        filteredData = (apiData ?? []).where((element) {
           return [
-            element['title'],
-            element['notes'],
-            element['title'],
-            "${element['users']?['first_name']} ${element['users']?['last_name']}",
+            element['todo']?['title'],
+            element['todo']?['project']?['name'],
+            element['today_activity'],
+            element['task_completed_today'],
+            "${element['user']?['first_name']} ${element['user']?['last_name']}",
           ].any((value) => value?.toString().toLowerCase().contains(query) ?? false);
         }).toList();
       } else {
-        filteredResponse = apiResponse;
+        filteredData = apiData;
       }
       emit(CommonState());
     }catch(e){
@@ -80,14 +86,14 @@ class OperationBloc extends Bloc<OperationEvent, OperationState>{
   }
 
   Future<void> fitchData (String? startDate, String? endDate) async {
-    var body = {'startDate': startDate, 'endDate': endDate};
-    var response = await apiRepository.getFairTechSupportTask(body: body);
-    apiResponse = response?['data'] ?? [];
-    filteredResponse = response?['data'] ?? [];
+    var response = await _getTaskHistory();
+    apiData = response?['data']?['data']?['data'] ?? [];
+    filteredData = response?['data']?['data']?['data'] ?? [];
   }
 
-    void error(dynamic error,Emitter<OperationState> emit) {
-      Console.of.error(error);
-      emit(ErrorState(e));
-    }
+  void error(dynamic e,Emitter<TechState> emit){
+    Console.of.error(e);
+    emit(ErrorState(e));
   }
+
+}

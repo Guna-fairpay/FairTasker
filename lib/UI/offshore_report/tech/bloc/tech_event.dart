@@ -1,20 +1,20 @@
-part of 'operation_bloc.dart';
+part of 'tech_bloc.dart';
 
-abstract class OperationEvent extends Equatable{
+abstract class TechEvent extends Equatable{
   @override
   List<Object?> get props => [];
 }
 
-class OperationInitialEvent extends OperationEvent{}
+class TechInitialEvent extends TechEvent{}
 
-class DateRangeSelectedEvent extends OperationEvent {
+class DateRangeSelectedEvent extends TechEvent {
   final DateRange selectedDateRange;
   DateRangeSelectedEvent(this.selectedDateRange);
   @override
   List<Object?> get props => [selectedDateRange];
 }
 
-class SearchEvent extends OperationEvent{
+class SearchEvent extends TechEvent{
   final String query;
   SearchEvent(this.query);
   @override

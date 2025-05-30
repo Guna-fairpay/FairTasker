@@ -51,7 +51,7 @@ class OperationDetailsPage extends StatelessWidget {
                       displayText: " % ",
                       size: 18.spMin,
                       progressGradient: const LinearGradient(
-                        colors: [AppC.appColor, AppC.appbgColor],
+                        colors: [AppC.appbgColor, AppC.appColor,],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
