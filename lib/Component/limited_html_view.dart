@@ -123,11 +123,12 @@ class _LimitedHtmlViewState extends State<LimitedHtmlView> {
               ],
             )
           ],
-        if (widget.onSliding != null)
+        if (slidingValue != null)
         Row(
+          spacing: 5.spMin,
           children: [
             Expanded(
-              child: Slider(value: slidingValue ?? 0, onChanged: _handleSlider, max: 100, min: 0,
+              child: Slider(value: slidingValue ?? 0, onChanged: (widget.slidingValue == null) ? null : _handleSlider, max: 100, min: 0,
                 activeColor: AppC.appColor,
                 inactiveColor: AppC.lightGray,
                 allowedInteraction: SliderInteraction.slideThumb,
