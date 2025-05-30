@@ -364,6 +364,8 @@ class APiRepository {
 
   String get _fairTechSupportTask => "getFairtechSupportTask";
 
+  String get _getProjectStatus => "getProjectStatus";
+
   String get _getEodReports => "getEodReports";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -3855,6 +3857,20 @@ Future<Map<String, dynamic>?> getLocations() async {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
       }
     }catch(e){
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getProjectStatus() async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getProjectStatus";
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl);
+      if (response?.isSuccess == true) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
       rethrow;
     }
   }
