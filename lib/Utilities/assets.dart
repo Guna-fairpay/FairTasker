@@ -52,5 +52,7 @@ class Assets{
   static const String riSettingsFill = "asset/vectors/ri_settings_fill.svg";
   static const String searchIcon = "asset/vectors/bx--search-alt.svg";
   static const String roadMapIcon = "asset/vectors/fa-solid--road.svg";
+  static const String editIcon = "asset/vectors/WhhEdit.svg";
+  static const String cancelIcon = "asset/vectors/HugeiconsCancelSquare.svg";
 
 }

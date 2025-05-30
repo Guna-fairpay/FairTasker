@@ -26,7 +26,7 @@ class CompactIconButton extends StatelessWidget {
     return Material(
       shape: shape?.value,
       elevation: elevation ?? 0,
-      color: backgroundColor,
+      color: ((elevation ?? 0) > 0) ? backgroundColor : null,
       child: GestureDetector(
         onTapDown: onTapDown,
         child: IconButton.filledTonal(

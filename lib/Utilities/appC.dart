@@ -65,6 +65,7 @@ static const redAccent = Color(0xffd01601);
   static const getAroundTextColor = Color(0xffa608c0);
 
   static const lightGray = Color(0xfff0f0f0);
+  static const lightsGrey = Color(0xfff9fbfc);
   static const lightBlue = Color(0xffeaf0fa);
 
   static const lightBlues = Color(0xff3FA7D6);
