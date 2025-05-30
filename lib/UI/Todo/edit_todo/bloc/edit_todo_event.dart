@@ -195,10 +195,10 @@ class EditToDoRecurringEndDateSelectionEvent extends EditToDoEvent {
 class EditToDoOpenCustomLinkEvent extends EditToDoEvent {}
 
 class EditToDoSaveEvent extends EditToDoEvent {
-  final bool? isRecurring;
-  EditToDoSaveEvent({required this.isRecurring});
+  final bool overrideOilCheck;
+  EditToDoSaveEvent({this.overrideOilCheck = false});
   @override
-  List<Object?> get props => [isRecurring];
+  List<Object?> get props => [overrideOilCheck];
 }
 
 class TaskStatusChangeEvent extends EditToDoEvent {

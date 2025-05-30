@@ -350,10 +350,10 @@ class EditTodoMoreForm extends StatelessWidget {
                                 if(showOdometerPop){
                                   WarningHelper.odometerWarning(context,
                                       onPositive: () => context.read<EditToDoBloc>().add(
-                                      EditToDoSaveEvent(isRecurring: true)));
+                                      EditToDoSaveEvent()));
                                 } else {
                                   context.read<EditToDoBloc>().add(
-                                      EditToDoSaveEvent(isRecurring: true));
+                                      EditToDoSaveEvent());
                                 }
                               }
                           );
@@ -363,10 +363,10 @@ class EditTodoMoreForm extends StatelessWidget {
                         if(showOdometerPop){
                           WarningHelper.odometerWarning(context,
                               onPositive: () => context.read<EditToDoBloc>().add(
-                                  EditToDoSaveEvent(isRecurring: true)));
+                                  EditToDoSaveEvent()));
                         } else {
                           context.read<EditToDoBloc>().add(
-                              EditToDoSaveEvent(isRecurring: true));
+                              EditToDoSaveEvent());
                         }
                       },
                     );
@@ -374,10 +374,10 @@ class EditTodoMoreForm extends StatelessWidget {
                   if(showOdometerPop){
                     WarningHelper.odometerWarning(context,
                         onPositive: () => context.read<EditToDoBloc>().add(
-                            EditToDoSaveEvent(isRecurring: true)));
+                            EditToDoSaveEvent()));
                   } else {
                     context.read<EditToDoBloc>().add(
-                        EditToDoSaveEvent(isRecurring: true));
+                        EditToDoSaveEvent());
                   }
                 }
               },),
