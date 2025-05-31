@@ -36,3 +36,12 @@ class ProjectBasedFilterEvent extends TechEvent {
   @override
   List<Object?> get props => [projects];
 }
+
+class PriorityFilterEvent extends TechEvent {}
+
+class PriorityBasedFilterEvent extends TechEvent {
+  final List<dynamic> priorities;
+  PriorityBasedFilterEvent(this.priorities);
+  @override
+  List<Object?> get props => [priorities];
+}

@@ -1,6 +1,7 @@
 
 import 'package:fairpytasker/Component/custom_compact_pagination.dart';
 import 'package:fairpytasker/Component/custom_search_bar.dart';
+import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/Component/limited_html_view.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
 import 'package:fairpytasker/UI/offshore_report/componet/card.dart';
@@ -35,13 +36,14 @@ class TechDetailsListPage extends StatelessWidget {
                 onDateRangeSelected: (value) => context.read<TechBloc>().add(DateRangeSelectedEvent(value)),
               ),
             ),
-            TextButton(child: Utils.getText('P',
-                style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    color: AppC.appColor,
-                    fontSize: 20.spMin)),
-              onPressed: ()=> context.read<TechBloc>().add(ProjectFilterEvent())),
-            IconButton(onPressed: (){}, icon: const Icon(Icons.filter_alt_outlined, color: AppC.appColor),),
+            TextButton(
+              onPressed: ()=> context.read<TechBloc>().add(ProjectFilterEvent()),
+              child: Utils.getText('P', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppC.appColor, fontSize: 20.spMin)),
+              ),
+            IconButton(
+              onPressed: ()=> context.read<TechBloc>().add(PriorityFilterEvent()),
+              icon: const Icon(Icons.filter_alt_outlined, color: AppC.appColor),
+            ),
           ],
         ),
         CustomSearchBar(
@@ -54,7 +56,9 @@ class TechDetailsListPage extends StatelessWidget {
               itemCount: context.watch<TechBloc>().filteredData?.length ?? 0,
               itemBuilder: (context, index) {
                 final item = context.watch<TechBloc>().filteredData?[index];
-               return CustomCard(
+               return (context.watch<TechBloc>().filteredData ?? []).isEmpty
+                   ? const Center(child: EmptyWidget(withExpand: true,),)
+                   : CustomCard(
                  color: AppC.redAccent,
                 child: Column(
                   spacing: 3,

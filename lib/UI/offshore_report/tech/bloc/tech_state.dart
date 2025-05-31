@@ -27,8 +27,15 @@ class SuccessState extends TechState{
 }
 
 class ProjectFilterState extends TechState{
-  final List<Map<String, dynamic>>? projects;
-  ProjectFilterState(this.projects);
+  final List<Map<String, dynamic>>? model;
+  ProjectFilterState(this.model);
   @override
-  List<Object?> get props => [projects, Random().nextDouble()];
+  List<Object?> get props => [model, Random().nextDouble()];
+}
+
+class PriorityFilterState extends TechState{
+  final List<dynamic>? model;
+  PriorityFilterState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
 }

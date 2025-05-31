@@ -23,6 +23,12 @@ class TechBloc extends Bloc<TechEvent, TechState> {
   List<dynamic>? filteredData;
   List<dynamic> _filteredData = [];
   List<Map<String, dynamic>>? projectList;
+  List<dynamic> priority = [
+    {'id': 1, 'name': 'High', 'checked': true,},
+    {'id': 2, 'name': 'Medium', 'checked': true,},
+    {'id': 3, 'name': 'Low', 'checked': true,},
+    {'id': 4, 'name': 'Feature', 'checked': true,},
+  ];
 
   String? startDate;
   String? endDate;
@@ -43,23 +49,37 @@ class TechBloc extends Bloc<TechEvent, TechState> {
     on<PaginationEvent>(_onPaginationEvent);
     on<ProjectFilterEvent>(_onProjectFilterEvent);
     on<ProjectBasedFilterEvent>(_onProjectBasedFilterEvent);
+    on<PriorityFilterEvent>(_onPriorityFilterEvent);
+    on<PriorityBasedFilterEvent>(_onPriorityBasedFilterEvent);
   }
 
   Future<Map<String, dynamic>?> _getTaskHistory() async => await _aPiRepository.getFairTechTaskHistory(startDate: selectedDateRange.start, endDate: selectedDateRange.end, page: currentPage, itemsPerPage: itemsPerPage);
   Future<List<Map<String, dynamic>>?> _getProjectList() async => await getIt<CommonService>().getTechProjects();
 
+  Future<void> _onPriorityBasedFilterEvent(PriorityBasedFilterEvent event, Emitter<TechState> emit) async {
+    try {
+      priority = List.from(event.priorities);
+      _filterData();
+      _search();
+      emit(CommonState());
+    }catch (e){
+      error(e, emit);
+    }
+  }
+
+  Future<void> _onPriorityFilterEvent(PriorityFilterEvent event, Emitter<TechState> emit) async {
+    try {
+      emit(PriorityFilterState(priority));
+    } catch (e) {
+      error(e, emit);
+    }
+  }
+
   Future<void> _onProjectBasedFilterEvent(ProjectBasedFilterEvent event, Emitter<TechState> emit) async {
     try {
       projectList = List.from(event.projects);
-      var projectIds = projectList?.where((e) => e['checked'] == true).map((e) => e['id']).toList();
-      _filteredData = (apiData ?? []).where((element) {
-        final projectId = element['todo']?['project']?['id'];
-        return (projectList ?? []).any((project) =>
-        project['checked'] == true && project['id'] == projectId);
-      }).toList();
-      filteredData = _filteredData;
+      _filterData();
       _search();
-      Console.of.log(projectIds);
       emit(CommonState());
     }catch (e){
       error(e, emit);
@@ -123,15 +143,24 @@ class TechBloc extends Bloc<TechEvent, TechState> {
     var response = await _getTaskHistory();
     apiData = response?['data']?['data']?['data'] ?? [];
     apiData?.forEach((e) => e['todo']?['project']?['checked'] = true,);
+    totalCount = response?['data']?['data']?['total'] ?? 0;
+    _filterData();
+    // filteredData = _filteredData;
+    paginateList(data: _filteredData, currentPage: currentPage, itemsPerPage: itemsPerPage);
+    _search();
+  }
+
+  void _filterData(){
     _filteredData = (apiData ?? []).where((element) {
       final projectId = element['todo']?['project']?['id'];
       return (projectList ?? []).any((project) =>
       project['checked'] == true && project['id'] == projectId);
     }).toList();
-    totalCount = response?['data']?['data']?['total'] ?? 0;
-    filteredData = _filteredData;
-    paginateList(data: _filteredData, currentPage: currentPage, itemsPerPage: itemsPerPage);
-    _search();
+
+    filteredData = (_filteredData).where((element) {
+      final name = element['todo']?['priority'];
+      return priority.any((priority) => priority['checked'] == true && ((priority['name']).toLowerCase()) == name.toString().toLowerCase());
+    }).toList();
   }
 
   void _search(){
