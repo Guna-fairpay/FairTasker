@@ -1,0 +1,32 @@
+
+import 'package:fairpytasker/UI/offshore_report/tech/bloc/tech_bloc.dart';
+import 'package:fairpytasker/UI/offshore_report/tech/components/priority_filter/ui/priority_filter_dialog.dart';
+import 'package:fairpytasker/UI/offshore_report/tech/components/project_filter/ui/project_filter_ui.dart';
+import 'package:fairpytasker/UI/offshore_report/tech/ui/tech_list_page.dart';
+import 'package:fairpytasker/core/app/helper/toaster.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+class TechMainPage extends StatelessWidget {
+  const TechMainPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => TechBloc()..add(TechInitialEvent()),
+        child: BlocListener<TechBloc, TechState>(
+            listener: (context, state) {
+              if (state is LoadingState){
+                EasyLoading.show();
+              }else{
+                EasyLoading.dismiss();
+                if(state is ErrorState) Toaster.showError(state.message);
+                if(state is SuccessState) Toaster.showSuccess(state.message);
+                if(state is ProjectFilterState) ProjectFilterUI.show(context: context, model: state.model,onChanged: (v)=> context.read<TechBloc>().add(ProjectBasedFilterEvent(v)));
+                if(state is PriorityFilterState) PriorityFilterDialog.show(context: context,model: state.model, onChanged: (v)=> context.read<TechBloc>().add(PriorityBasedFilterEvent(v)));
+              }
+            },
+            child: const TechDetailsListPage()));
+  }
+}
