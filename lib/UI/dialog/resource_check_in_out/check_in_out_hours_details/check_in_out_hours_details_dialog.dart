@@ -1,5 +1,6 @@
 import 'package:fairpytasker/UI/dialog/resource_check_in_out/check_in_out_hours_details/bloc/hours_details_bloc.dart';
 import 'package:fairpytasker/UI/dialog/resource_check_in_out/check_in_out_hours_details/component/check_in_out_row.dart';
+import 'package:fairpytasker/UI/resource/detailed_report/detailed_report_ui.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/num.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
@@ -42,6 +43,7 @@ class _CheckInOutHoursDetailsMain extends StatelessWidget {
               switch(state) {
                 case ErrorState(): Toaster.showError(state.message); break;
                 case SuccessState(): Toaster.showSuccess(state.message); break;
+                case ViewResourceDetailsState(): context.push(const DetailedReportUi(), fullscreenDialog: true); break;
               }
             }
           },
@@ -83,7 +85,7 @@ class _CheckInOutHoursDetailsTable extends StatelessWidget {
           },
           children: [
             const TableHeaderRow(labels: ["Date", "In", "Out", "Total", "#"], firstTextAlign: TextAlign.start, textAlign: TextAlign.center),
-            ...context.watch<HourDetailsBloc>().tasks?.map((e) => CheckInOutRow(model: e, onTask: () {},)).toList() ?? []
+            ...context.watch<HourDetailsBloc>().tasks?.map((e) => CheckInOutRow(model: e, onTask: () => context.read<HourDetailsBloc>().add(ViewResourceDetailsEvent()))).toList() ?? []
           ],
         ),
       ),
