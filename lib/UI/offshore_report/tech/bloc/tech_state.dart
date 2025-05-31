@@ -2,7 +2,7 @@ part of 'tech_bloc.dart';
 
 abstract class TechState extends Equatable{
   @override
-  List<Object> get props =>[];
+  List<Object?> get props =>[];
 }
 
 class LoadingState extends TechState{}
@@ -24,4 +24,11 @@ class SuccessState extends TechState{
   SuccessState(this.message);
   @override
   List<Object> get props => [message, Random().nextDouble()];
+}
+
+class ProjectFilterState extends TechState{
+  final List<Map<String, dynamic>>? projects;
+  ProjectFilterState(this.projects);
+  @override
+  List<Object?> get props => [projects, Random().nextDouble()];
 }

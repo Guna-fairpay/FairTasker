@@ -10,7 +10,7 @@ class ProjectStatusHeader extends StatelessWidget {
               color: context.theme.cardColor,
               elevation: 5.spMin,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(16.spMin)),
+                  borderRadius: BorderRadius.circular(16.spMin)),
               child: Container(
                 padding: 16.spMin.padding,
                 width: double.maxFinite,

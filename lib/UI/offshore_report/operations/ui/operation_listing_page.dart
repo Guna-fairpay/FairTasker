@@ -5,10 +5,12 @@ import 'package:fairpytasker/UI/offshore_report/operations/bloc/operation_bloc.d
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/context_extension.dart';
+import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:html_to_flutter/html_to_flutter.dart';
 
 class OperationDetailsPage extends StatelessWidget {
   const OperationDetailsPage({super.key});
@@ -38,11 +40,10 @@ class OperationDetailsPage extends StatelessWidget {
                 color: AppC.appColor,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
                     Utils.getText(item?['title'] ?? '',color: AppC.appColor),
                     Utils.getText(item?['todo_date'] ?? ''),
-                    Utils.getText(item?['notes'] ?? ''),
+                    Html(data: item?['notes'] ?? '-', padding: 0.verticalPadding,),
                     Utils.getText("${item?['users']?['first_name'] ?? ''} ${item?['users']?['last_name'] ?? ''}",color: AppC.appColor,weight: FontWeight.w900),
                     FAProgressBar(
                       currentValue: (item?['status'] ?? '') == 'Completed' ? 100 : 0,
@@ -51,7 +52,7 @@ class OperationDetailsPage extends StatelessWidget {
                       displayText: " % ",
                       size: 18.spMin,
                       progressGradient: const LinearGradient(
-                        colors: [AppC.appbgColor, AppC.appColor,],
+                        colors: [AppC.appColor,Color(0xFF3E5BAA)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),

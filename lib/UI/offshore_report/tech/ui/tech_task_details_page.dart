@@ -6,9 +6,9 @@ import 'package:fairpytasker/core/app/extension/context_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:html_to_flutter/html_to_flutter.dart';
 
 class TechTaskDetailsPage extends StatelessWidget {
   final dynamic model;
@@ -57,7 +57,7 @@ class TechTaskDetailsPage extends StatelessWidget {
               ],
             ),
             Utils.getText('Today Activity', style: GoogleFonts.poppins( fontWeight: FontWeight.bold)),
-            Html(data: model?['today_activity'] ?? ""),
+            Html(data: model?['today_activity'] ?? "",padding: 0.verticalPadding, ),
             Utils.getText('Plans for Tomorrow', style: GoogleFonts.poppins( fontWeight: FontWeight.bold)),
             Utils.getText(model?['plans_for_tomorrow'] ?? '',),
             Utils.getText('Additional Information (If Applicable)', style: GoogleFonts.poppins( fontWeight: FontWeight.bold)),

@@ -1,6 +1,7 @@
 
 import 'package:fairpytasker/UI/offshore_report/tech/bloc/tech_bloc.dart';
-import 'package:fairpytasker/UI/offshore_report/tech/ui/tech_details_list_page.dart';
+import 'package:fairpytasker/UI/offshore_report/tech/components/project_filter/ui/project_filter_ui.dart';
+import 'package:fairpytasker/UI/offshore_report/tech/ui/tech_list_page.dart';
 import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +22,7 @@ class TechMainPage extends StatelessWidget {
                 EasyLoading.dismiss();
                 if(state is ErrorState) Toaster.showError(state.message);
                 if(state is SuccessState) Toaster.showSuccess(state.message);
+                if(state is ProjectFilterState) ProjectFilterUI.show(context: context, model: state.projects,onChanged: (v)=> context.read<TechBloc>().add(ProjectBasedFilterEvent(v)));
               }
             },
             child: const TechDetailsListPage()));

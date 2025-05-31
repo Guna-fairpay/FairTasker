@@ -20,3 +20,19 @@ class SearchEvent extends TechEvent{
   @override
   List<Object?> get props => [query];
 }
+
+class PaginationEvent extends TechEvent {
+  final int page;
+  PaginationEvent({required this.page});
+  @override
+  List<Object?> get props => [page];
+}
+
+class ProjectFilterEvent extends TechEvent {}
+
+class ProjectBasedFilterEvent extends TechEvent {
+  final List<dynamic> projects;
+  ProjectBasedFilterEvent(this.projects);
+  @override
+  List<Object?> get props => [projects];
+}

@@ -1,4 +1,5 @@
 
+import 'package:fairpytasker/Component/custom_compact_pagination.dart';
 import 'package:fairpytasker/Component/custom_search_bar.dart';
 import 'package:fairpytasker/Component/limited_html_view.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
@@ -34,9 +35,13 @@ class TechDetailsListPage extends StatelessWidget {
                 onDateRangeSelected: (value) => context.read<TechBloc>().add(DateRangeSelectedEvent(value)),
               ),
             ),
-            TextButton(child: Utils.getText('P', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppC.appColor, fontSize: 20.spMin)), onPressed: (){},),
+            TextButton(child: Utils.getText('P',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: AppC.appColor,
+                    fontSize: 20.spMin)),
+              onPressed: ()=> context.read<TechBloc>().add(ProjectFilterEvent())),
             IconButton(onPressed: (){}, icon: const Icon(Icons.filter_alt_outlined, color: AppC.appColor),),
-
           ],
         ),
         CustomSearchBar(
@@ -88,6 +93,15 @@ class TechDetailsListPage extends StatelessWidget {
               );
               }
             ),
+          ),
+          CompactPagination(
+            currentPage: context.watch<TechBloc>().currentPage,
+            totalPages: (context.watch<TechBloc>().totalCount /
+                context.watch<TechBloc>().itemsPerPage)
+                .ceil(),
+            onPageChanged: (value) => context
+                .read<TechBloc>()
+                .add(PaginationEvent(page: value)),
           ),
       ],),
     );
