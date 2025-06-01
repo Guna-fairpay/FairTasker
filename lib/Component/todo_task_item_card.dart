@@ -161,7 +161,7 @@ class TodoTaskItemCard extends StatelessWidget {
                                     children: [
                                       TextSpan(
                                           recognizer: TapGestureRecognizer()..onTap = onTap,
-                                          text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model['display']?['hasTimeSensitive'])
+                                          text: model['display']?['task_title'], style: context.textTheme.labelMedium?.copyWith(color: (model?['display']?['hasTimeSensitive'] ?? false)
                                           ? AppC.red
                                           : AppC.appColor, fontWeight: FontWeight.bold)),
                                       if ((model['display']?['hasReason'] ?? false) || (model['display']?['hasReasonAttachments'] ?? false))
