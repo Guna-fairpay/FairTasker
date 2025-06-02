@@ -59,8 +59,8 @@ class TechBloc extends Bloc<TechEvent, TechState> {
   Future<void> _onPriorityBasedFilterEvent(PriorityBasedFilterEvent event, Emitter<TechState> emit) async {
     try {
       priority = List.from(event.priorities);
-      _filterData();
       _search();
+      _filterPriorityData();
       emit(CommonState());
     }catch (e){
       error(e, emit);
@@ -78,8 +78,8 @@ class TechBloc extends Bloc<TechEvent, TechState> {
   Future<void> _onProjectBasedFilterEvent(ProjectBasedFilterEvent event, Emitter<TechState> emit) async {
     try {
       projectList = List.from(event.projects);
-      _filterData();
       _search();
+      _filterProjectData();
       emit(CommonState());
     }catch (e){
       error(e, emit);
@@ -144,29 +144,32 @@ class TechBloc extends Bloc<TechEvent, TechState> {
     apiData = response?['data']?['data']?['data'] ?? [];
     apiData?.forEach((e) => e['todo']?['project']?['checked'] = true,);
     totalCount = response?['data']?['data']?['total'] ?? 0;
-    _filterData();
-    // filteredData = _filteredData;
-    paginateList(data: _filteredData, currentPage: currentPage, itemsPerPage: itemsPerPage);
+    _filteredData = apiData ?? [];
     _search();
+    _filterPriorityData();
+    _filterProjectData();
+    paginateList(data: _filteredData, currentPage: currentPage, itemsPerPage: itemsPerPage);
   }
 
-  void _filterData(){
-    _filteredData = (apiData ?? []).where((element) {
-      final projectId = element['todo']?['project']?['id'];
-      return (projectList ?? []).any((project) =>
-      project['checked'] == true && project['id'] == projectId);
-    }).toList();
+  void _filterProjectData() {
+    var projIds = projectList?.where((element) => element['checked'] == true).map((e) => e['id']);
+    var data = filteredData?.where((element) => projIds?.contains(element['todo']?['project']?['id']) ?? false).toList();
+    filteredData =  data;
 
-    filteredData = (_filteredData).where((element) {
+  }
+
+  void _filterPriorityData() {
+   var data = filteredData?.where((element) {
       final name = element['todo']?['priority'];
       return priority.any((priority) => priority['checked'] == true && ((priority['name']).toLowerCase()) == name.toString().toLowerCase());
     }).toList();
+    filteredData =  data;
   }
 
   void _search(){
     var query = searchController.text.toLowerCase();
     if (query.trim().isNotNullOrEmpty) {
-      filteredData = (_filteredData).where((element) {
+       filteredData = _filteredData.where((element) {
         return [
           element['todo']?['title'],
           element['todo']?['project']?['name'],
