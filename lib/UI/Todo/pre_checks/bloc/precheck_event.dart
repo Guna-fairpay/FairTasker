@@ -21,10 +21,11 @@ class PreCheckCheckEvent extends PreCheckEvent {
 }
 
 class PreCheckSubmitEvent extends PreCheckEvent {
+  final bool overrideOilCheck;
   final dynamic model;
-  PreCheckSubmitEvent(this.model);
+  PreCheckSubmitEvent({this.model, this.overrideOilCheck = false});
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, overrideOilCheck];
 }
 
 class PreCheckCompleteEvent extends PreCheckEvent {

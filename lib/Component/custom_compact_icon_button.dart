@@ -11,6 +11,7 @@ class CompactIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final GestureTapDownCallback? onTapDown;
   final WidgetStatePropertyAll<OutlinedBorder?>? shape;
+  final double? iconSize;
 
   const CompactIconButton(
       {super.key,
@@ -19,7 +20,7 @@ class CompactIconButton extends StatelessWidget {
       this.foregroundColor = AppC.white,
       this.elevation = 5,
       this.onTapDown,
-      this.onPressed, this.shape});
+      this.onPressed, this.shape, this.iconSize});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class CompactIconButton extends StatelessWidget {
         onTapDown: onTapDown,
         child: IconButton.filledTonal(
           onPressed: onPressed,
-          icon: Icon(icon),
+          icon: Icon(icon, size: iconSize),
           constraints: const BoxConstraints.tightFor(),
           visualDensity: VisualDensity.compact,
           style: ButtonStyle(
