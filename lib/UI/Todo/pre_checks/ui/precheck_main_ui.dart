@@ -15,13 +15,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PreCheckMainUi extends StatelessWidget {
   final Map<String, dynamic>? model;
-
-  const PreCheckMainUi({super.key, this.model});
+  final Map<String, dynamic>? selectedVehicle;
+  const PreCheckMainUi({super.key, this.model, this.selectedVehicle});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PreCheckBloc()..add(PreCheckInitialEvent(model)),
+      create: (context) => PreCheckBloc()..add(PreCheckInitialEvent(model, selectedVehicle: selectedVehicle)),
       child: BlocListener<PreCheckBloc, PreCheckState>(
         listener: (context, state) {
           if (state is PreCheckLoadingState) {

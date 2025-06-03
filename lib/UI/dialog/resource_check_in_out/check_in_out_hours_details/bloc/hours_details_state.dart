@@ -24,3 +24,10 @@ class SuccessState extends HourDetailsState {
   @override
   List<Object?> get props => [message, Random().nextDouble()];
 }
+
+class ViewResourceDetailsState extends HourDetailsState {
+  final dynamic model;
+  ViewResourceDetailsState(this.model);
+  @override
+  List<Object?> get props => [model, Random().nextDouble()];
+}

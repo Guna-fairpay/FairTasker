@@ -7,9 +7,10 @@ abstract class PreCheckEvent extends Equatable {
 
 class PreCheckInitialEvent extends PreCheckEvent {
   final dynamic model;
-  PreCheckInitialEvent(this.model);
+  final dynamic selectedVehicle;
+  PreCheckInitialEvent(this.model, {this.selectedVehicle});
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, selectedVehicle];
 }
 
 class PreCheckCheckEvent extends PreCheckEvent {
@@ -22,9 +23,11 @@ class PreCheckCheckEvent extends PreCheckEvent {
 
 class PreCheckSubmitEvent extends PreCheckEvent {
   final dynamic model;
-  PreCheckSubmitEvent(this.model);
+  final bool oilChangeOverride;
+  final dynamic taskId;
+  PreCheckSubmitEvent(this.model, {this.oilChangeOverride = false, this.taskId});
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, oilChangeOverride, taskId];
 }
 
 class PreCheckCompleteEvent extends PreCheckEvent {
