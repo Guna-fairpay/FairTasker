@@ -5,10 +5,9 @@ class DetailedReportByDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(child: ListView.separated(
-        shrinkWrap: true,
+    return BlocBuilder<DetailedBloc, DetailedState>(builder: (context, state) => ListView.separated(
         itemBuilder: (context, index) => TodoTaskItemCard(model: {}),
         separatorBuilder: (context, index) => 5.spMin.height,
-        itemCount: 2));
+        itemCount: context.watch<DetailedBloc>().taskByDay?.length ?? 0));
   }
 }

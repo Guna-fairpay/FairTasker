@@ -41,6 +41,6 @@ class HourDetailsBloc extends Bloc<HourDetailsEvent, HourDetailsState> {
   }
 
   void _onViewResourceDetailsEvent(ViewResourceDetailsEvent event, Emitter<HourDetailsState> emit) {
-    emit(ViewResourceDetailsState(model));
+    emit(ViewResourceDetailsState(model?..putIfAbsent("selectedList", () => event.model)));
   }
 }

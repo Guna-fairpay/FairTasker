@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:date_time/date_time.dart' show Time;
 import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/dyno_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +93,11 @@ extension StringExtension on String? {
     } catch (e) {
       return null;
     }
+  }
+
+  String? toFormat({String inputFormat = "yyyy-MM-dd", String format = "dd MMM yyyy"}) {
+    var date = toDateTime(inputFormat: inputFormat);
+    return date.toFormat(format: format);
   }
 
   get open async {
