@@ -18,13 +18,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class MaintenanceCheckUi extends StatelessWidget {
   final TextEditingController? commentsController;
   final Map<String, dynamic>? editToDo;
+  final Map<String, dynamic>? selectedVehicle;
   final VoidCallback? onClose;
-  const MaintenanceCheckUi({super.key, this.commentsController, this.editToDo, this.onClose});
+  const MaintenanceCheckUi({super.key, this.commentsController, this.editToDo, this.onClose, this.selectedVehicle});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MaintenanceCheckBloc()..add(MaintenanceCheckInitialEvent(editToDo)),
+      create: (context) => MaintenanceCheckBloc()..add(MaintenanceCheckInitialEvent(editToDo, selectedVehicle: selectedVehicle)),
       child: BlocListener<MaintenanceCheckBloc, MaintenanceCheckState>(listener: (context, state) {
         if (state is MaintenanceCheckLoadingState) {
           EasyLoading.show();

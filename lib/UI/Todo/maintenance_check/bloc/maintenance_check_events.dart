@@ -7,9 +7,10 @@ abstract class MaintenanceCheckEvent extends Equatable {
 
 class MaintenanceCheckInitialEvent extends MaintenanceCheckEvent {
   final Map<String, dynamic>? todoItem;
-  MaintenanceCheckInitialEvent(this.todoItem);
+  final dynamic selectedVehicle;
+  MaintenanceCheckInitialEvent(this.todoItem, {this.selectedVehicle});
   @override
-  List<Object?> get props => [todoItem];
+  List<Object?> get props => [todoItem, selectedVehicle];
 }
 
 class MaintenanceCheckAllCheckEvent extends MaintenanceCheckEvent {
@@ -37,9 +38,11 @@ class MaintenanceChangeStatusEvent extends MaintenanceCheckEvent {
 
 class MaintenanceCreateTaskEvent extends MaintenanceCheckEvent {
   final dynamic model;
-  MaintenanceCreateTaskEvent(this.model);
+  final dynamic taskId;
+  final bool oilChangeOverride;
+  MaintenanceCreateTaskEvent(this.model, {this.oilChangeOverride = false, this.taskId});
   @override
-  List<Object?> get props => [model];
+  List<Object?> get props => [model, oilChangeOverride, taskId];
 }
 
 class MaintenanceCompleteTaskEvent extends MaintenanceCheckEvent {

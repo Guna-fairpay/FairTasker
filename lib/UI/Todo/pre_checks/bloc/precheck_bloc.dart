@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:collection/collection.dart';
+import 'package:fairpytasker/UI/dialog/oil_change_exist_dialog.dart';
 import 'package:fairpytasker/UI/tasker/helper/tasker_helper.dart';
+import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart' show Durations, TextEditingController;
 import 'package:fairpytasker/Repository/api_repository.dart';
@@ -20,6 +24,7 @@ class PreCheckBloc extends Bloc<PreCheckEvent, PreCheckState> {
   List<Map<String, dynamic>> _todos = [];
   List<Map<String, dynamic>> checkLists = [];
   Map<String, dynamic>? _editToDoModel;
+  Map<String, dynamic>? _selectedVehicle;
   int get _userId => getIt<CommonService>().userId;
   PreCheckBloc(): super(PreCheckLoadingState()) {
     on<PreCheckInitialEvent>(_onInitialEvent);
@@ -35,10 +40,12 @@ class PreCheckBloc extends Bloc<PreCheckEvent, PreCheckState> {
   Future<Map<String, dynamic>?> _addToDo(Map<String, dynamic> body) async => await _aPiRepository.addToDo(body: body);
   Future<Map<String, dynamic>?> _completeToDo(Map<String, dynamic> body, dynamic toDoId) async => await _aPiRepository.completeTodo(body: body, todoId: toDoId);
   Future<Map<String, dynamic>?> _deleteToDo(dynamic toDoId, dynamic reason) async => await _aPiRepository.deleteTodo(id: toDoId, reason: reason);
+  Future<Map<String, dynamic>?> _getOilChangeTask({dynamic todoId}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: _selectedVehicle?['vin'], id: todoId);
 
   void _onInitialEvent(PreCheckInitialEvent event, Emitter<PreCheckState> emit) async {
     try {
       _editToDoModel = event.model;
+      _selectedVehicle = event.selectedVehicle;
       emit(PreCheckLoadingState());
       var response = await Future.wait([
         _fetchCheckList(),
@@ -70,6 +77,29 @@ class PreCheckBloc extends Bloc<PreCheckEvent, PreCheckState> {
         element['notes'] = TextEditingController(text: parse(_fetchComments(taskId: taskId)).body?.text);
       }
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> _findOilChangeTaskExist(dynamic model, {dynamic taskId}) async {
+    try {
+      emit(PreCheckLoadingState());
+      var response = await _getOilChangeTask(todoId: taskId);
+      emit(PreCheckCommonState());
+      if ((response == null) || (response.isEmpty)) return add(PreCheckSubmitEvent(model, oilChangeOverride: true, taskId: taskId));
+      var context = CommonHelper.instance.navigatorKey.currentContext;
+      if (context != null) {
+        var result = await OilChangeTaskExistDialog.show(context, model: response, isAddNew: (taskId == 0));
+        Utils.dismissKeyboard(context);
+        if (result == true) {
+          emit(PreCheckLoadingState());
+          var deleteResponse = await _deleteToDo(response['id'], "");
+          emit(PreCheckCommonState());
+          if (deleteResponse?['status'] == 200) return add(PreCheckSubmitEvent(model, oilChangeOverride: true, taskId: (taskId == response['id']) ? 0 : taskId));
+        }
+      }
+    } catch (e) {
+      Console.of.error("Error", error: e);
       rethrow;
     }
   }
@@ -134,13 +164,16 @@ class PreCheckBloc extends Bloc<PreCheckEvent, PreCheckState> {
       emit(PreCheckLoadingState());
       var labels = (event.model?['title'] ?? "");
       var comments = (event.model?['notes'] as TextEditingController).text;
-      var taskId = (event.model?['fix_task']?['id'] ?? 0);
+      var taskId = event.taskId ?? (event.model?['fix_task']?['id'] ?? 0);
       var modelId = event.model?['id'] ?? 0;
       var identifierId = _identifierId(modelId: modelId);
       var title = _title(modelId: modelId);
       Map<String, String> body = {
         "notes" : ["${labels ?? ""}", (comments.isNullOrEmpty ? "" : comments)].join(" - "),
       };
+      if (Str.oilChangeCheckIds.contains(identifierId) && !event.oilChangeOverride) {
+        return await _findOilChangeTaskExist(event.model, taskId: taskId);
+      }
       if (taskId == 0) {
         // INSERT
         body['address'] = "${_editToDoModel?['address'] ?? ""}";

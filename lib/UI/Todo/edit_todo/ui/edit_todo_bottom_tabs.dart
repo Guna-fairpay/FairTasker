@@ -57,16 +57,12 @@ class EditTodoBottomTabs extends StatelessWidget {
                   : state.selectedBottomTap['id'] == 2
                       ?  CreateTodoUI(showHeader: false, isNextTask: true,selectedDate:state.selectedDate,selectedVPerson: context.read<EditToDoBloc>().vehiclePersonList,)
                   :state.selectedBottomTap['id'] == 3
-                  // ?CheckListUI(todoItems: state.apiResponse, vehicle: state.selectedVehicle,)
-                  ? PreCheckMainUi(model: state.apiResponse)
+                  ? PreCheckMainUi(model: state.apiResponse, selectedVehicle: state.selectedVehicle)
                   :state.selectedBottomTap['id'] == 4
-                  // ?MaintenanceCheckListUI(todoItems: state.apiResponse, vehicle: state.taskHistory.first,)
-                  ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop)
+                  ?MaintenanceCheckUi(commentsController: context.read<EditToDoBloc>().commentsController, editToDo: state.apiResponse, onClose: context.pop, selectedVehicle: state.selectedVehicle)
                   :state.selectedBottomTap['id'] == 5
-                  //?VehicleEditUI(vehicle: state.taskHistory.firstOrNull,selectedVehicle: state.selectedVehicle, todoItems: state.apiResponse, showHeader: false,)
                   ?SetVehicleUi(todoItems: state.apiResponse,selectedVehicle: state.selectedVehicle,)
                   :state.selectedBottomTap['id'] == 6
-                  //?PrivateRentalCheckUi(todoItems: state.apiResponse, vehicle: state.selectedVehicle) //Add by RDB
                   ?PrivateRentalCheckMainPage(todoData: state.apiResponse)
                   :state.selectedBottomTap['id'] == 7
                   ?OdometerView(todoItems: state.apiResponse, vehicle: state.taskHistory.firstOrNull, selectedVehicle: state.selectedVehicle) //Add by RDB
