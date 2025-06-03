@@ -1,6 +1,7 @@
 
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
+import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
@@ -107,7 +108,7 @@ class ExpenseVehicleListItem extends StatelessWidget {
                     spacing: 10,
                     children: [
                       Utils.getText(
-                        expense['expense_date']?.substring(5) ?? '',
+                        expense['expense_date'].toString().toDateTime()?.toFormat(format: 'MM-dd') ?? '',
                         color: approveColor,
                       ),
                       Expanded(

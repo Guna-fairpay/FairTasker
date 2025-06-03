@@ -2,6 +2,7 @@ import 'package:fairpytasker/Component/custom_compact_icon_button.dart';
 import 'package:fairpytasker/Component/empty_widget.dart';
 import 'package:fairpytasker/UI/Finance/Expense/Component/date_range_selection.dart';
 import 'package:fairpytasker/UI/Finance/Expense/other/other_view/bloc/other_view_bloc.dart';
+import 'package:fairpytasker/UI/Finance/Expense/other/other_view/ui/other_listing_page.dart';
 import 'package:fairpytasker/Utilities/appC.dart';
 import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:fairpytasker/core/app/extension/sized_extension.dart';
@@ -54,7 +55,11 @@ class OtherViewPage extends StatelessWidget {
                     itemCount: context.read<OtherViewBloc>().apiResponse.length,
                   itemBuilder: (context, index) {
                     var data = context.read<OtherViewBloc>().apiResponse[index];
-                    return ;
+                    return OtherListingPage(
+                      model: data,
+                      onChanged: (v){},
+                      onDelete: (v){},
+                    );
                   },
                 ),
               ),

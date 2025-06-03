@@ -3893,10 +3893,15 @@ Future<Map<String, dynamic>?> getLocations() async {
     }
   }
 
-  Future<Map<String, dynamic>?> getOtherExpense({Map<String,dynamic>? body}) async {
+  Future<Map<String, dynamic>?> getOtherExpense({String? startDate, String? endDate}) async {
     try {
       String apiUrl = "${Str.LIST_BASE_URL}$_getOtherExpense";
-      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: body);
+      Map<String, dynamic> params = {
+        "minDate" : startDate,
+        "maxDate" : endDate,
+        "platformCustom" : "tasker-app"
+      };
+      final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: params);
       if (response != null) {
         return await response.mapData;
       } else {
