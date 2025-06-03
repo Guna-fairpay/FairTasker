@@ -4,7 +4,6 @@ import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
-import 'package:fairpytasker/core/app/helper/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -35,14 +34,9 @@ class OperationBloc extends Bloc<OperationEvent, OperationState>{
   Future<void> _onOperationInitialEvent(OperationInitialEvent event, Emitter<OperationState> emit) async {
     try {
       emit(LoadingState());
-      if (event.startDate != null && event.endDate != null) {
-        startDate = event.startDate;
-        endDate = event.endDate;
-      } else {
-        DateTime now = DateTime.now();
-        startDate = DateTime(now.year, now.month, 1).toFormat(format: 'yyyy-MM-dd');
-        endDate = DateTime(now.year, now.month + 1, 0).toFormat(format: 'yyyy-MM-dd');
-      }
+      DateTime now = DateTime.now();
+      startDate = DateTime(now.year, now.month, 1).toFormat(format: 'yyyy-MM-dd');
+      endDate = DateTime(now.year, now.month + 1, 0).toFormat(format: 'yyyy-MM-dd');
       await fitchData(startDate, endDate);
       emit(CommonState());
     } catch (e) {
@@ -93,7 +87,6 @@ class OperationBloc extends Bloc<OperationEvent, OperationState>{
   }
 
     void error(dynamic error,Emitter<OperationState> emit) {
-      Toaster.showError(error);
       Console.of.error(error);
       emit(ErrorState(e));
     }

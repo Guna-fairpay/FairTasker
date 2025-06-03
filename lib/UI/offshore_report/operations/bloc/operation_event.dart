@@ -5,13 +5,7 @@ abstract class OperationEvent extends Equatable{
   List<Object?> get props => [];
 }
 
-class OperationInitialEvent extends OperationEvent{
-  final String? startDate;
-  final String? endDate;
-  OperationInitialEvent({this.startDate, this.endDate});
-  @override
-  List<Object?> get props => [startDate, endDate];
-}
+class OperationInitialEvent extends OperationEvent{}
 
 class DateRangeSelectedEvent extends OperationEvent {
   final DateRange selectedDateRange;

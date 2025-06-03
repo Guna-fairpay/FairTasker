@@ -67,6 +67,7 @@ class CommonService {
   List<Map<String, dynamic>> _privateRentalCustomersList = [];
   List<Map<String, dynamic>> _maintenanceCheckList = [];
   List<Map<String, dynamic>> _checkList = [];
+  List<Map<String, dynamic>> FairTechProjects = [];
   Map<String, dynamic> employeesList = {};
   List<Map<String, dynamic>> taskCategoryGroupList = [];
   Map<String, dynamic>? _vehicleStatus;
@@ -582,6 +583,19 @@ class CommonService {
       return history.where((element) => element['todo_date'] == dateTime.toFormat()).firstOrNull;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getTechProjects({bool reset = false}) async {
+    if (reset) FairTechProjects.clear();
+    if (FairTechProjects.isNotEmpty) return FairTechProjects;
+    try {
+      var response = await _apiRepository.getFairTechProjects();
+      FairTechProjects = List<Map<String, dynamic>>.from(response?['data']?['data'] ?? []);
+      return FairTechProjects;
+    } catch (e) {
+      Toaster.showError(e.toString());
+      return [];
     }
   }
 
