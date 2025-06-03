@@ -13,4 +13,9 @@ class InitialEvent extends HourDetailsEvent {
   List<Object?> get props => [model, dateRange];
 }
 
-class ViewResourceDetailsEvent extends HourDetailsEvent {}
+class ViewResourceDetailsEvent extends HourDetailsEvent {
+  final dynamic model;
+  ViewResourceDetailsEvent({required this.model});
+  @override
+  List<Object?> get props => [model];
+}

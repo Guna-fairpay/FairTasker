@@ -43,7 +43,7 @@ class _CheckInOutHoursDetailsMain extends StatelessWidget {
               switch(state) {
                 case ErrorState(): Toaster.showError(state.message); break;
                 case SuccessState(): Toaster.showSuccess(state.message); break;
-                case ViewResourceDetailsState(): context.push(const DetailedReportUi(), fullscreenDialog: true); break;
+                case ViewResourceDetailsState(): context.push(DetailedReportUi(model: state.model), fullscreenDialog: true); break;
               }
             }
           },
@@ -85,7 +85,7 @@ class _CheckInOutHoursDetailsTable extends StatelessWidget {
           },
           children: [
             const TableHeaderRow(labels: ["Date", "In", "Out", "Total", "#"], firstTextAlign: TextAlign.start, textAlign: TextAlign.center),
-            ...context.watch<HourDetailsBloc>().tasks?.map((e) => CheckInOutRow(model: e, onTask: () => context.read<HourDetailsBloc>().add(ViewResourceDetailsEvent()))).toList() ?? []
+            ...context.watch<HourDetailsBloc>().tasks?.map((e) => CheckInOutRow(model: e, onTask: () => context.read<HourDetailsBloc>().add(ViewResourceDetailsEvent(model: e)))).toList() ?? []
           ],
         ),
       ),
