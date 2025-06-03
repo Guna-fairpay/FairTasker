@@ -576,11 +576,11 @@ class CommonService {
     }
   }
 
-  Future<Map<String, dynamic>?> getLatestOilChangeTask({required dynamic vin, dynamic id, required DateTime dateTime}) async {
+  Future<Map<String, dynamic>?> getLatestOilChangeTask({required dynamic vin, dynamic id, DateTime? dateTime}) async {
     try {
       var response = await _apiRepository.getCheckOilChangeTask(vin: vin, id: id);
       var history = List.from(response?['data']);
-      return history.where((element) => element['todo_date'] == dateTime.toFormat()).firstOrNull;
+      return (dateTime == null) ? history.firstOrNull : history.where((element) => element['todo_date'] == dateTime.toFormat()).firstOrNull;
     } catch (e) {
       rethrow;
     }

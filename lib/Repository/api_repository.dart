@@ -370,6 +370,8 @@ class APiRepository {
 
   String get _getFairTechProjects => "getFairtechProjects";
 
+  String get _getEmployeeHistoryByTask => "employeeHistoryByTask";
+
   String get _getOtherExpense => "ajaxOtherExpense";
 
   int? get _branchId => Session.of.getInt(Str.branchIdPrefText);
@@ -3903,6 +3905,25 @@ Future<Map<String, dynamic>?> getLocations() async {
       };
       final http.Response? response = await _apiClient.callPostMethodWithBodyDynamic(apiUrl, body: params);
       if (response != null) {
+        return await response.mapData;
+      } else {
+        throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");
+      }
+    }catch(e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployeeHistoryByTask({dynamic dateTimeString, dynamic userId, List<dynamic>? cohorts}) async {
+    try {
+      String apiUrl = "${Str.BASE_URL}$_getEmployeeHistoryByTask";
+      Map<String, dynamic> params = {
+        "date" : dateTimeString,
+        "user_id" : userId,
+      };
+      if (cohorts?.isNotEmpty ?? false) params['cohort_id[]'] = cohorts;
+      final http.Response? response = await _apiClient.callGetMethod(apiUrl, params: params);
+      if (response?.isSuccess == true) {
         return await response.mapData;
       } else {
         throw Exception("${response?.statusCode}: ${jsonDecode(response?.body ?? "")?['message'] ?? jsonDecode(response?.body ?? "")?['error'] ?? "Some thing went wrong, try again later!..."}");

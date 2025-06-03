@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:fairpytasker/UI/dialog/oil_change_exist_dialog.dart';
+import 'package:fairpytasker/Utilities/str.dart';
+import 'package:fairpytasker/Utilities/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:fairpytasker/Repository/api_repository.dart';
 import 'package:fairpytasker/UI/Todo/maintenance_check/bloc/maintenance_check_events.dart';
@@ -9,6 +11,7 @@ import 'package:fairpytasker/core/app/extension/datetime_extension.dart';
 import 'package:fairpytasker/core/app/extension/liststring_extension.dart';
 import 'package:fairpytasker/core/app/extension/string_extension.dart';
 import 'package:fairpytasker/core/app/helper/console.dart';
+import 'package:fairpytasker/core/app/helper/helper.dart';
 import 'package:fairpytasker/core/initializer/common_initializer.dart';
 import 'package:fbroadcast/fbroadcast.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckState> {
   Map<String, dynamic>? _editToDoModel;
+  Map<String, dynamic>? _selectedVehicle;
   List<Map<String, dynamic>> maintenanceCheckList = [];
   List<Map<String, dynamic>> _todos = [];
   final APiRepository _apiRepository = APiRepository();
@@ -35,12 +39,15 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
   Future<List<Map<String, dynamic>>?> _fetchToDo() async => await _apiRepository.todo();
   Future<Map<String, dynamic>?> _updateToDo(Map<String, dynamic> body, dynamic toDoId) async => await _apiRepository.updateToDo(body: body, toDoId: toDoId);
   Future<Map<String, dynamic>?> _addToDo(Map<String, dynamic> body) async => await _apiRepository.addToDo(body: body);
+  Future<Map<String, dynamic>?> _deleteToDo(dynamic toDoId, dynamic reason) async => await _apiRepository.deleteTodo(id: toDoId, reason: reason);
+  Future<Map<String, dynamic>?> _getOilChangeTask({dynamic todoId}) async => await getIt<CommonService>().getLatestOilChangeTask(vin: _selectedVehicle?['vin'], id: todoId);
 
   bool get isMandatory => ((_editToDoModel?['mandatory'] ?? 0) == 0);
 
   void _onInitialEvent(MaintenanceCheckInitialEvent event, Emitter<MaintenanceCheckState> emit) async {
     try {
       _editToDoModel = event.todoItem;
+      _selectedVehicle = event.selectedVehicle;
       emit(MaintenanceCheckLoadingState());
       var response = await Future.wait([
         _fetchMaintenanceCheckList(),
@@ -178,13 +185,36 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
     emit(MaintenanceCheckCommonState());
   }
 
+  Future<void> _findOilChangeTaskExist(dynamic model, {dynamic taskId}) async {
+    try {
+      emit(MaintenanceCheckLoadingState());
+      var response = await _getOilChangeTask(todoId: taskId);
+      emit(MaintenanceCheckCommonState());
+      if ((response == null) || (response.isEmpty)) return add(MaintenanceCreateTaskEvent(model, oilChangeOverride: true, taskId: taskId));
+      var context = CommonHelper.instance.navigatorKey.currentContext;
+      if (context != null) {
+        var result = await OilChangeTaskExistDialog.show(context, model: response, isAddNew: (taskId == 0));
+        Utils.dismissKeyboard(context);
+        if (result == true) {
+          emit(MaintenanceCheckLoadingState());
+          var deleteResponse = await _deleteToDo(response['id'], "");
+          emit(MaintenanceCheckCommonState());
+          if (deleteResponse?['status'] == 200) return add(MaintenanceCreateTaskEvent(model, oilChangeOverride: true, taskId: (taskId == response['id']) ? 0 : taskId));
+        }
+      }
+    } catch (e) {
+      Console.of.error("Error", error: e);
+      rethrow;
+    }
+  }
+
   void _onCreateTaskEvent(MaintenanceCreateTaskEvent event, Emitter<MaintenanceCheckState> emit) async {
     try {
       emit(MaintenanceCheckLoadingState());
       var maintenanceTaskIds = [event.model?['parent_id'], event.model?['id'], (event.model?['selectedValue']?['id'] ?? 0)];
       var labels = _getLabels(maintenanceTaskIds);
       var comments = (event.model?['comments'] as TextEditingController).text;
-      var taskId = (event.model?['fix_task']?['id'] ?? 0);
+      var taskId = event.taskId ?? (event.model?['fix_task']?['id'] ?? 0);
       var identifierId = (event.model?['id'] == 64) ? 126 : null;
       var title = (event.model?['id'] == 64) ? "Oil Change" : "Fix";
       Map<String, String> body = {
@@ -192,6 +222,9 @@ class MaintenanceCheckBloc extends Bloc<MaintenanceCheckEvent, MaintenanceCheckS
         "maintenance_task_id": maintenanceTaskIds.join(" - "),
         "notes" : labels.join(" - "),
       };
+      if (Str.oilChangeCheckIds.contains(identifierId) && !event.oilChangeOverride) {
+        return await _findOilChangeTaskExist(event.model, taskId: taskId);
+      }
       if (taskId == 0) {
         // INSERT
         body['address'] = "${_editToDoModel?['address'] ?? ""}";

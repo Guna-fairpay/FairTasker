@@ -19,6 +19,7 @@ class HourDetailsBloc extends Bloc<HourDetailsEvent, HourDetailsState> {
   List<Map<String, dynamic>>? tasks = [];
   HourDetailsBloc() : super(LoadingState()) {
     on<InitialEvent>(_onInitialEvent);
+    on<ViewResourceDetailsEvent>(_onViewResourceDetailsEvent);
   }
 
   Future<Map<String, dynamic>?> _getEmployeeTaskCount() async => await _aPiRepository.employeeTaskCount(userId: model?['user_id'], from: dateRange?.start, to: dateRange?.end);
@@ -37,5 +38,9 @@ class HourDetailsBloc extends Bloc<HourDetailsEvent, HourDetailsState> {
       Console.of.error("Error", error: e);
       emit(ErrorState(e));
     }
+  }
+
+  void _onViewResourceDetailsEvent(ViewResourceDetailsEvent event, Emitter<HourDetailsState> emit) {
+    emit(ViewResourceDetailsState(model?..['selectedList'] = event.model));
   }
 }
